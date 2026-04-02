@@ -19,6 +19,9 @@ Fully implemented across iOS, backend, and voice assistant.
 | **canceled** | Confirmed event was cancelled | Both |
 | **auto-declined** | Request expired without response (48h or 24h after event date) | Both |
 | **rescheduled** | Reschedule requested (transitions back to pending/request) | Both |
+| **paid** | Payment held/completed for this event | Both |
+| **cash** | Cash payment method selected | Both |
+| **invitation** | Invite link sent, awaiting action | Both |
 | **successful / completed** | Training session completed | Both |
 | **google event** | Event imported from Google Calendar | Owner only |
 | **apple event** | Event imported from Apple Calendar | Owner only |
@@ -144,3 +147,5 @@ Google/Apple Calendar sync → google event / apple event
 - Backend uses `cancelled` (double L), client uses `canceled` (single L) — normalize
 - `successful/completed` status naming inconsistent across codebase
 - Reminder push timing (for pending requests) not clearly defined in backend
+- iOS `EventStatus` enum also includes `paid`, `cash`, `invitation` — not in original spec but implemented
+- Each iOS status has associated color: blue (pending/rescheduled), yellow (request/invitation), green (approved/paid/cash), red (cancelled/autodeclined)

@@ -66,10 +66,11 @@ All Stripe balances, transactions, and prices are in **EUR**.
 - Manage saved cards in payment methods settings
 
 ### Balance Screens (Athlete)
-- **Balance overview** — current balance amount
-- **Top-up** — add funds via Stripe
+- **Balance overview** — current balance amount (`UserBalanceModel`: amount, blocked, currency)
+- **Top-up** — add funds via Stripe (fixed amounts: 50/100 EUR + custom amount)
 - **Transactions** — payment history
-- **Blocked funds** — funds held for upcoming sessions
+- **Blocked balance** — separate view for frozen/held funds (`BalanceFlow/BlockedBalance/`)
+- **Withdraw** — withdrawal to external account (`BalanceFlow/Withdraw/`)
 
 ## Coach Payout Flow
 
@@ -176,5 +177,5 @@ Original spec mentions: "Third party have to have an opportunity to pay for the 
 - Coach-configurable cancellation policy not implemented (spec mentions it)
 - Third-party payment for athlete not implemented
 - Google Pay for Android not yet integrated
-- Apple Pay status in current iOS build needs verification
+- Apple Pay IS implemented (merchant ID: `merchant.com.threetwoonefit.applepay`, configured in TopUpViewModel)
 - `payment_type` values may differ between client and backend naming

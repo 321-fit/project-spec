@@ -151,7 +151,21 @@ When user connects calendar after already having events:
 - Calendar event deleted in Google → removed from app on next sync
 - No push notifications for external calendar events
 
+## iOS Implementation Details
+
+### Google Calendar
+- Service: `CalendarSyncNetworkService.swift`
+  - `getAccounts()` — fetch connected accounts
+  - `connectAccount(serverAuthCode)` — OAuth connect
+  - `deleteAccount(id)` — remove connection
+  - `changeCalendarConnection(id, isActive)` — toggle per account
+- Events flagged with `isGoogleCalendarEvent` in `Event.swift`
+
+### Apple Calendar
+- `EventKit` framework imported in `ScheduleView.swift`
+- NO local Apple Calendar sync code visible in iOS yet — backend-only for now
+
 ## Known Issues / Tech Debt
-- Apple Calendar iOS UI not fully implemented yet
+- Apple Calendar iOS UI not fully implemented (EventKit imported but not used for sync)
 - Google Calendar webhook reliability depends on external service
 - Periodic sync interval (15 min) may cause temporary inconsistencies

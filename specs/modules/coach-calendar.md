@@ -150,7 +150,21 @@ When creating/editing an event, the system calculates available slots by excludi
 | comment | Optional note |
 | event_source | internal / google / apple |
 
+## Implementation Status
+
+### Custom Events — Verified Implemented
+- Location: `ScheduleTab/Event/Create/FromCoach/CreateEvent/`
+- Components: `CustomEventTitleView`, `CustomEventDateView`, `CustomEventEdgesView`
+- Detection: `Event.isCustom` returns true when no training session attached
+- Built with `EventBuilder` in `CreateCoachEventViewModel`
+
+### Drag & Drop — Verified Implemented
+- Location: `ScheduleTab/Schedule/Helpers/ScheduleManager.swift`
+- Gesture: `@GestureState dragState = ScheduleDragState.inactive`
+- Method: `onDragGestureChangedForSlotSelection()` handles repositioning
+- State tracking: `isRearrangingActive`, `previousOffset`, `previousTranslation`
+- Updates via: `onUpdateEventOnChangePosition` subject
+
 ## Known Issues / Tech Debt
-- Custom Event implementation may differ between spec and code — verify
-- Drag & drop UX polish needed
 - Past event creation overlap detection could be improved
+- Drag & drop limited to same-day (cross-day drag not supported)
