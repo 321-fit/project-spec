@@ -44,35 +44,28 @@ Voice Assistant (LiveKit + GPT-4) ←→ Backend API
 - `specs/features/` — specs for new features (what needs to be built)
 - `architecture/` — system-level architecture decisions
 
-## Working with Specs
+## Slash Commands
 
-### Reading specs
-Before any product work, read relevant specs from `specs/` to understand current state.
+### `/product` — Product Spec Generator
+Generates, updates, or modifies product specs in `specs/`.
+- Takes a high-level feature/module description
+- Researches relevant code and docs across repos for technical context
+- Generates a structured spec draft
+- **Shows draft → waits for approval → only then saves file**
+- Never writes specs without explicit confirmation
 
-### Creating feature specs
-Feature specs should include:
-- **Problem** — what user problem this solves
-- **User stories** — who does what and why
-- **Requirements** — functional and non-functional
-- **Affected repos** — which repos need changes (iOS, backend, voice, or all)
-- **API changes** — new/modified endpoints if applicable
-- **UI/UX** — screens, flows, wireframes if applicable
+### `/spec` — Task Generator from Specs
+Breaks down approved specs into GitHub Issues on the Project Board.
+- Reads a spec from `specs/`
+- Generates actionable tasks with acceptance criteria
+- Assigns to correct repos, adds labels
+- **Shows task list → waits for approval → only then creates issues**
+- Never creates issues without explicit confirmation
 
-### Creating tasks from specs
-Tasks are created as GitHub Issues in the appropriate repo and added to Project #2 (Task Board).
-**IMPORTANT:** Only create tasks when explicitly asked. Never auto-generate tasks from discussions or spec drafts.
-
-### Task format
-```
-Title: [Module] Short description
-Body:
-- Context: link to spec
-- Acceptance criteria
-- Affected files/modules
-Labels: feature/bug/enhancement
-```
+Both commands are defined in `.claude/commands/`.
 
 ## Don'ts
 - Don't create tasks/issues without explicit user confirmation
+- Don't write/save specs without showing draft and getting approval first
 - Don't modify specs in other repos — this repo is the source of truth for product specs
 - Don't assume a discussed feature is approved — always ask before creating tasks
