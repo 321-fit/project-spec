@@ -6,33 +6,41 @@ Central repository for product specifications, feature requests, and project doc
 
 ```
 project-spec/
-├── specs/
-│   ├── modules/                    # Existing module specs
-│   │   ├── authentication.md       # Auth methods, JWT, Login & Security
-│   │   ├── onboarding.md           # Post-registration wizard
-│   │   ├── dashboard.md            # Home screen, revenue charts
-│   │   ├── clients-coaches.md      # Search, filters, connections
-│   │   ├── coach-calendar.md       # Coach calendar, event CRUD, drag & drop
-│   │   ├── athlete-schedule.md     # Athlete booking flow, availability
-│   │   ├── event-statuses.md       # Status lifecycle, push notifications
-│   │   ├── payments.md             # Balance, Stripe, Apple Pay, cash
-│   │   ├── google-apple-calendar.md # External calendar sync
-│   │   ├── voice-assistant.md      # LiveKit, GPT-4, 40 tools
-│   │   ├── profile-settings.md     # All settings, role-based
-│   │   ├── deep-linking-referrals.md # AppsFlyer, referral system
-│   │   └── notifications.md        # FCM, SMS, email, WhatsApp
-│   └── features/                   # New feature specs
-│       └── messenger.md            # Chat system (not yet implemented)
+├── specs/                          # All specs (flat, status in header)
+│   ├── authentication.md           # Status: Implemented
+│   ├── onboarding.md               # Status: Implemented
+│   ├── dashboard.md                # Status: Implemented
+│   ├── clients-coaches.md          # Status: Implemented
+│   ├── coach-calendar.md           # Status: Implemented
+│   ├── athlete-schedule.md         # Status: Implemented
+│   ├── event-statuses.md           # Status: Implemented
+│   ├── payments.md                 # Status: Implemented
+│   ├── google-apple-calendar.md    # Status: Implemented
+│   ├── voice-assistant.md          # Status: Implemented
+│   ├── profile-settings.md         # Status: Implemented
+│   ├── deep-linking-referrals.md   # Status: Implemented
+│   ├── notifications.md            # Status: Implemented
+│   ├── group-training.md           # Status: Draft (NEW)
+│   └── messenger.md                # Status: Draft
+├── prototypes/                     # Interactive HTML prototypes
+│   ├── index.html                  # Hub — browse all flows
+│   └── flows/
+│       └── group-training.html     # 15 screens with annotations
 ├── architecture/
-│   ├── system-overview.md          # Full system diagram, deployment, infra
+│   ├── system-overview.md          # Full system diagram, deployment
 │   ├── data-model.md               # ER diagram, all DB tables
-│   └── api-versioning.md           # API version rules
-├── .claude/commands/
-│   ├── product.md                  # /product — spec generator skill
-│   └── spec.md                     # /spec — task generator skill
+│   ├── api-versioning.md           # API version rules
+│   └── design-system.md            # Design tokens reference
 ├── CLAUDE.md                       # AI assistant context
 └── README.md
 ```
+
+### Spec Statuses
+- **Draft** — being designed and prototyped
+- **Approved** — ready for development
+- **In Progress** — being developed
+- **Implemented** — deployed, spec reflects reality
+- **Deprecated** — replaced or removed
 
 ## Repositories
 

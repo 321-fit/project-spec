@@ -40,9 +40,51 @@ Voice Assistant (LiveKit + GPT-4) ←→ Backend API
 - **Balance** — athlete prepays, coach receives after session completion via Stripe
 
 ## Spec Structure
-- `specs/modules/` — specs for existing modules (what is built)
-- `specs/features/` — specs for new features (what needs to be built)
-- `architecture/` — system-level architecture decisions
+
+### Specs (`specs/`)
+All specs live in a flat `specs/` directory — no subdirectories. Each spec has a status in its header:
+
+```markdown
+# Module Name
+
+> Status: Draft | Approved | In Progress | Implemented | Deprecated
+> Prototype: [flow-name.html](../prototypes/flows/flow-name.html)
+> Last updated: YYYY-MM-DD
+```
+
+**Statuses:**
+- **Draft** — being designed, prototyped, discussed. Not ready for development.
+- **Approved** — spec finalized, prototype reviewed, ready for development tasks.
+- **In Progress** — actively being developed. Spec may update based on implementation decisions.
+- **Implemented** — deployed (at least to DEV). Spec reflects actual implementation, not plans.
+- **Deprecated** — replaced by another module or removed.
+
+**Rules:**
+- Every spec should link to its prototype (if exists)
+- Specs are the source of truth for what the app does and why
+- When creating GitHub Issues from specs, reference the spec file + specific sections
+- After implementation, update spec to reflect what was actually built (not what was planned)
+
+### Prototypes (`prototypes/`)
+Interactive HTML prototypes organized as Hub + individual flows:
+
+```
+prototypes/
+├── index.html          ← Hub page — click to browse all flows
+└── flows/
+    ├── group-training.html
+    ├── calendar-booking.html  (planned)
+    └── ...
+```
+
+- Each flow: self-contained HTML with sidebar nav + right-side annotations
+- All flows use shared `fit-ui.css` (component library) + `fit-ui.js` (interaction library) from `design-tokens` repo
+- Hub page (`index.html`) shows all flows with status badges
+- In specs, link to specific flow: `[prototype](../prototypes/flows/flow-name.html)`
+- Annotations in prototypes explain UX decisions and behavior — useful for founder review and developer handoff
+
+### Architecture (`architecture/`)
+- System-level decisions, data model, API versioning, design system reference
 
 ## Slash Commands
 
