@@ -56,7 +56,7 @@
 
 | Token | Role | Hex |
 |---|---|---|
-| Screen Bg | Page background | #FFFFFF |
+| Screen Bg | Page background | #F7F7F8 |
 | Surface Default | Cards | #FFFFFF |
 | Surface High | Elevated cards | #FFFFFF |
 | Surface Higher | Inputs bg | #F5F5F7 |

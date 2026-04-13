@@ -137,6 +137,18 @@
     will-change: max-height, opacity;
   }
 
+  /* Light theme overrides for group training */
+  .fit-light .set-card { background: var(--fit-white); }
+  .fit-light .fit-card { background: var(--fit-white); }
+  .fit-light .fit-ticket { background: var(--fit-white); }
+  .fit-light .fit-participants-card { background: var(--fit-white); }
+  .fit-light .fit-spots { background: var(--fit-gray-100); }
+  .fit-light .fit-spots-fill { background: var(--fit-gray-200); }
+  .fit-light .fit-input { background: var(--fit-gray-100); }
+  .fit-light .fit-navbar { background: rgba(255,255,255,0.75); box-shadow: 0 0 24px rgba(0,0,0,0.15); }
+  .fit-light .fit-navbar-item { color: var(--fit-gray-400); }
+  .fit-light .fit-navbar-item.active { color: var(--fit-text-primary); }
+
   /* Paid dimming + validation errors: in fit-ui.css */
 </style>
 </head>
@@ -144,6 +156,10 @@
 
 <!-- ==================== SIDEBAR ==================== -->
 <nav class="sidebar">
+  <div style="display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);margin-bottom:16px;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="gt-role-coach" onclick="switchGtRole('coach')">Coach</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="gt-role-athlete" onclick="switchGtRole('athlete')">Athlete</button>
+  </div>
   <div class="label">Coach</div>
   <button class="active" onclick="go('s-create',this)">Create Session</button>
   <button onclick="go('s-list',this)">My Sessions</button>
@@ -1419,6 +1435,25 @@
 
 <script src="../../../design-tokens/build/js/fit-ui.js"></script>
 <script>
+// Global role switch for group training
+function switchGtRole(role) {
+  // Update toggle buttons
+  document.getElementById("gt-role-coach").style.background = role === "coach" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("gt-role-coach").style.color = role === "coach" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.getElementById("gt-role-athlete").style.background = role === "athlete" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("gt-role-athlete").style.color = role === "athlete" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  // Switch theme on all screens
+  document.querySelectorAll(".fit-phone").forEach(function(phone) {
+    if (role === "athlete") {
+      phone.classList.remove("fit-dark");
+      phone.classList.add("fit-light");
+    } else {
+      phone.classList.remove("fit-light");
+      phone.classList.add("fit-dark");
+    }
+  });
+}
+
 function go(id, btn) {
   document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');

@@ -75,6 +75,17 @@ Form to create a group training template. Shared form for personal and group —
 - Recurring selected → show day picker, hide date picker
 - One-off selected → show date picker, hide day picker
 
+**Keyboard behavior:**
+| Field | Keyboard Type | Action Button |
+|---|---|---|
+| Training name | default | Next |
+| Price | decimalPad | Next (if more fields below) or Done |
+
+- "Next" moves focus to next input field
+- "Done"/"Go" on last field triggers Save action
+- Keyboard covers footer button — "Go" on keyboard = same as tapping Save
+- Dismiss keyboard by tapping outside inputs
+
 **Validation:**
 - Save button always active (never disabled)
 - On tap: validate required fields → red border + label on empty → auto-scroll to first error → snackbar "Please fill in required fields"
