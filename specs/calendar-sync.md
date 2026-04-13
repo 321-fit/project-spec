@@ -204,6 +204,85 @@ Dedicated screen for connected Apple Calendar account. Same structure as Google 
 - **Toast:** success (green, top), error (red, top)
 - **Loading:** spinner + "Fetching calendars..." text, card not tappable
 
+## FitUI Components Used
+
+All screens in this flow use components from the `FitUI` Swift Package (`design-tokens/swift/FitUI/`).
+
+### Screen → Component Mapping
+
+**Settings screen:**
+| Component | Usage |
+|---|---|
+| `FitSettingsCard` | Each settings item (icon + title + subtitle + chevron) |
+| `FitHeader` | Back + "Settings" title |
+| `FitButton` | Not used (no primary action) |
+
+**Calendar Sync screen:**
+| Component | Usage |
+|---|---|
+| `FitSettingsCard` | Account cards (Google/Apple provider cards) |
+| `FitBadge` | `.error` style for "Sync error" badge |
+| `FitToast` | `.success` for "Google Calendar connected" |
+| `FitHeader` | Back + "Calendar Sync" |
+
+**Google/Apple Calendar Detail:**
+| Component | Usage |
+|---|---|
+| `FitSelectRow` | Calendar toggle rows (color dot + name + checkmark) |
+| `FitHeader` | Back + title + `FitDestructiveHeaderButton` (trash icon) |
+| `FitButton` | `.primary` for Save, `.destructive` for Disconnect (in sheet) |
+| `FitBadge` | Not used |
+| `FitToast` | `.error` for sync failure banner (optional) |
+
+**Apple CalDAV Connect:**
+| Component | Usage |
+|---|---|
+| `FitInput` | Apple ID (`keyboardType: .emailAddress`, `submitLabel: .next`) |
+| `FitInput` | Password (`isSecure: true`, `submitLabel: .go`) |
+| `FitButton` | `.primary` for Connect |
+| `FitToast` | `.error` for "Invalid credentials" |
+| `FitHeader` | Back + "Apple Calendar" |
+
+### Theme
+
+```swift
+// Coach settings
+SettingsView()
+    .fitTheme(.coach)  // dark
+
+// Athlete settings
+SettingsView()
+    .fitTheme(.athlete)  // light
+```
+
+### Example Usage
+
+```swift
+// Settings card
+FitSettingsCard("Calendar Sync", subtitle: "Google connected") {
+    Image(systemName: "arrow.triangle.2.circlepath")
+} action: {
+    navigator.push(.calendarSync)
+}
+
+// Calendar select row
+FitSelectRow("Personal", dotColor: Color(hex: "4285F4"), isSelected: calendar.isEnabled) {
+    viewModel.toggleCalendar(calendar)
+}
+
+// Apple ID input
+FitInput("Apple ID", text: $appleId, placeholder: "your@icloud.com",
+         keyboardType: .emailAddress, submitLabel: .next)
+
+// Error toast
+FitToast("Invalid credentials", style: .error, isVisible: $showError)
+
+// Destructive header
+FitHeader("Google Calendar") {
+    FitDestructiveHeaderButton { showDisconnectSheet = true }
+}
+```
+
 ## Platform Differences
 
 | Feature | iOS | Android |
