@@ -283,6 +283,331 @@ FitHeader("Google Calendar") {
 }
 ```
 
+## Icon Mapping
+
+All icons are SF Symbols unless noted. Brand icons from `design-tokens/assets/icons/`.
+
+### Settings Screen
+| Element | Icon | Size |
+|---|---|---|
+| Edit personal info | Avatar (user photo or initials) | 24px |
+| Invite a Coach/Friend | `plus.circle` | 24px |
+| Sport types | `globe` | 24px |
+| Training sessions | `calendar` | 24px |
+| Available hours | `clock` | 24px |
+| GYM locations | `mappin.circle` | 24px |
+| Calendar Sync | `arrow.triangle.2.circlepath` | 24px |
+| Balance | `banknote` | 24px |
+| Stripe connect | "S" text (custom, brand blue) | 24px |
+| Account Access | `lock` | 24px |
+| Log out | `rectangle.portrait.and.arrow.right` | 24px |
+| Chevron (all cards) | `chevron.right` | 12px weight medium |
+| Back button (all headers) | `chevron.left` | 14px weight medium |
+| Trash (disconnect) | `trash` | 14px |
+
+### Calendar Sync Screen
+| Element | Icon | Source |
+|---|---|---|
+| Google Calendar provider | `google-calendar.svg` | `design-tokens/assets/icons/` |
+| Apple Calendar provider | `apple-calendar.svg` | `design-tokens/assets/icons/` |
+| Add Google account "+" | `plus.circle` | SF Symbol |
+| Loading spinner | `ProgressView()` | SwiftUI native |
+
+### Google/Apple Detail
+| Element | Icon |
+|---|---|
+| Calendar color dots | `Circle().fill(color)` — 10px |
+| Checkmark (selected) | `checkmark` — 10px bold white |
+| Error banner info | `exclamationmark.circle` — 16px |
+| Retry/Reconnect | text button, no icon |
+
+### Apple Connect
+| Element | Icon |
+|---|---|
+| Info banner | `exclamationmark.circle` — 18px |
+| Eye toggle (show) | `eye` — 18px |
+| Eye toggle (hide) | `eye.slash` — 18px |
+| Open Apple ID | `arrow.up.right.square` — 14px |
+| Step numbers | Text "1." "2." "3." "4." in brand blue |
+
+### Brand Icons in iOS
+```swift
+// Add to Asset Catalog or load from bundle:
+// design-tokens/assets/icons/google-calendar.svg → GoogleCalendarIcon (Asset Catalog)
+// design-tokens/assets/icons/apple-calendar.svg → AppleCalendarIcon (Asset Catalog)
+
+Image("GoogleCalendarIcon")
+    .resizable()
+    .frame(width: 20, height: 20)
+```
+
+## Animations & Transitions
+
+| Animation | Type | Duration | Easing |
+|---|---|---|---|
+| Bottom sheet appear | Slide up + fade overlay | 0.25s | easeOut |
+| Bottom sheet dismiss | Slide down + fade overlay | 0.2s | easeIn |
+| Toast appear | Slide down from top + fade | 0.2s | easeOut |
+| Toast auto-dismiss | Fade out | 0.2s after 3s delay | easeIn |
+| Select row toggle | Background color + checkmark opacity | 0.15s | easeInOut |
+| Card press | Scale 0.98 | 0.1s | easeInOut |
+| Spinner | Rotate 360° | 0.8s | linear infinite |
+| Error border appear | Border color | 0.15s | easeInOut |
+| Error border auto-clear | Border color + label color | 0.15s after 3s | easeInOut |
+
+```swift
+// SwiftUI examples:
+withAnimation(.easeOut(duration: 0.25)) { showSheet = true }
+withAnimation(.easeIn(duration: 0.2)) { showToast = false }
+
+// Select row:
+.animation(.easeInOut(duration: 0.15), value: isSelected)
+```
+
+## Screen Layout Specs
+
+### Settings Screen Layout
+```swift
+ScrollView {
+    VStack(spacing: 24) {        // gap between sections
+        // Section
+        VStack(alignment: .leading, spacing: 12) {  // gap between cards
+            Text("Profile")
+                .font(FitFont.sectionTitle)
+                .foregroundColor(theme.textSecondary)
+            
+            FitSettingsCard("Edit personal info", subtitle: "Avatar, name...") { ... }
+            FitSettingsCard("Invite a Coach", subtitle: "Recommend...") { ... }
+        }
+
+        // More sections...
+    }
+    .padding(16)
+}
+```
+
+### Calendar Sync Layout
+```swift
+ScrollView {
+    VStack(spacing: 12) {            // gap between cards
+        // Account cards
+        ForEach(googleAccounts) { account in
+            FitSettingsCard(...)
+        }
+
+        // Add Google (dashed border)
+        AddAccountButton()
+
+        Divider()                    // between Google and Apple
+            .background(theme.divider)
+
+        // Apple card
+        FitSettingsCard(...)
+    }
+    .padding(16)
+}
+```
+
+### Google/Apple Detail Layout
+```swift
+VStack(spacing: 0) {
+    // Scrollable content
+    ScrollView {
+        VStack(spacing: 16) {
+            // Error banner (conditional)
+            if syncError { ErrorBanner(...) }
+
+            // Account info
+            AccountInfoRow(email: "...", status: "Connected")
+
+            // Calendar list
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Select calendars to sync")
+                    .font(FitFont.body2)
+                    .foregroundColor(theme.textSecondary)
+
+                ForEach(calendars) { cal in
+                    FitSelectRow(cal.name, dotColor: cal.color, isSelected: cal.isEnabled) {
+                        viewModel.toggle(cal)
+                    }
+                }
+            }
+        }
+        .padding(16)
+    }
+
+    // Footer
+    VStack(spacing: 0) {
+        FitButton("Save", style: .primary) { viewModel.save() }
+    }
+    .padding(.horizontal, 20)
+    .padding(.bottom, 40)  // safe area
+}
+```
+
+### Apple Connect Layout
+```swift
+VStack(spacing: 0) {
+    ScrollView {
+        VStack(spacing: 0) {
+            // Info banner
+            InfoBanner("Apple Calendar uses CalDAV...")
+                .padding(.horizontal, 20)
+                .padding(.bottom, 20)
+
+            // Inputs
+            FitInput("Apple ID", text: $appleId,
+                     placeholder: "your@icloud.com",
+                     keyboardType: .emailAddress,
+                     submitLabel: .next)
+                .padding(.horizontal, 20)
+
+            FitInput("App-specific password", text: $password,
+                     isSecure: true,
+                     submitLabel: .go)  // Go triggers Connect
+                .padding(.horizontal, 20)
+
+            // Steps (always visible)
+            StepsGuide()
+                .padding(.horizontal, 20)
+        }
+    }
+
+    // Footer
+    FitButton("Connect", style: .primary) { viewModel.connect() }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 40)
+}
+```
+
+## Navigation Flow
+
+| From | Action | To | Transition |
+|---|---|---|---|
+| Settings | Tap Calendar Sync card | Calendar Sync | Push (navigation stack) |
+| Calendar Sync | Tap Google account card | Google Detail | Push |
+| Calendar Sync | Tap Apple Connect button | Apple Connect | Push |
+| Calendar Sync | Tap "+ Add Google" | System Google Sign-In | Present (modal) |
+| Google/Apple Detail | Tap back | Calendar Sync | Pop |
+| Google/Apple Detail | Tap trash → confirm | Calendar Sync | Pop + toast "Disconnected" |
+| Apple Connect | Tap Connect (success) | Calendar Sync | Pop + toast "Connected" |
+| Apple Connect | Tap back | Calendar Sync | Pop |
+| Google Detail | Tap Save | Stay (save in background) | Snackbar "Saved" |
+
+```swift
+// NavigationStack approach:
+NavigationStack {
+    SettingsView()
+        .navigationDestination(for: Route.self) { route in
+            switch route {
+            case .calendarSync: CalendarSyncView()
+            case .googleDetail(let account): GoogleDetailView(account: account)
+            case .appleConnect: AppleConnectView()
+            case .appleDetail(let account): AppleDetailView(account: account)
+            }
+        }
+}
+```
+
+## String Catalog
+
+All user-facing strings for this flow:
+
+### Settings
+```
+"Settings"
+"Profile"
+"Edit personal info" / "Avatar, name, gender, height weight"
+"Invite a Coach" / "Recommend the app to a friend"
+"Invite a Friend" / "Recommend the app"
+"Coaching"
+"Sport types"
+"Training sessions" / "Added %d"
+"Available hours" / "Set when you're available"
+"GYM locations" / "Added %d locations"
+"Calendar Sync" / "Google connected" / "Not connected"
+"Payments"
+"Balance" / "€%d"
+"Stripe connect" / "Not connected"
+"Account"
+"Account Access" / "Login and Security"
+"Training"
+"Choose a sport"
+"Log out"
+```
+
+### Calendar Sync
+```
+"Calendar Sync"
+"No calendars connected"
+"Sync your external calendars to avoid scheduling conflicts."
+"Google Calendar" / "Apple Calendar"
+"Not connected"
+"%@ connected" (email)
+"%d of %d calendars synced"
+"Failed to load calendars"
+"⚠ Sync error"
+"⚠ Reconnect required"
+"Fetching calendars..."
+"Add Google account"
+"Connect"
+"Google Calendar connected" (toast)
+"Apple Calendar connected" (toast)
+```
+
+### Google/Apple Detail
+```
+"Google Calendar" / "Apple Calendar"
+"Connected"
+"Select calendars to sync"
+"Save"
+"Disconnect account"
+"Disconnect Google Calendar?" / "Disconnect Apple Calendar?"
+"%@ will be disconnected. Synced events will be removed from your schedule."
+"Disconnect" / "Cancel"
+"Could not load your calendars. Check your connection and try again."
+"Last sync failed. Your events may be outdated."
+"Your Google session has expired. Reconnect to resume syncing."
+"Retry" / "Retry Sync" / "Reconnect"
+"Syncing..."
+"Your app-specific password was revoked. Create a new one and reconnect."
+"Two-factor authentication required. Enable it in Apple ID settings."
+"Password revoked" / "2FA required" / "Sync error"
+"Create New Password"
+"Open Apple ID Settings"
+```
+
+### Apple Connect
+```
+"Apple Calendar"
+"Apple Calendar uses CalDAV, which requires an app-specific password instead of your iCloud password."
+"Apple ID" / "your@icloud.com"
+"App-specific password" / "xxxx-xxxx-xxxx-xxxx"
+"How to create an app-specific password:"
+"1. Go to appleid.apple.com"
+"2. Sign in with your Apple ID"
+"3. Sign-In and Security → App-Specific Passwords"
+"4. Generate a password and paste it here"
+"Open Apple ID Settings"
+"Connect"
+"Invalid credentials. Check your Apple ID and password."
+```
+
+## AI Agent Implementation Notes
+
+When implementing this flow with AI-assisted coding (Claude Code):
+
+1. **Import FitUI** package first — all components ready to use
+2. **Set theme** on root view: `.fitTheme(.coach)` or `.fitTheme(.athlete)`
+3. **Use FitUI components** from the mapping table above — don't create custom versions
+4. **Follow layout specs** — copy VStack/spacing structure from Screen Layout section
+5. **Use NavigationStack** — routes defined as enum, destinations via `.navigationDestination`
+6. **Brand icons** — add SVGs from `design-tokens/assets/icons/` to Asset Catalog as PDF/SVG
+7. **Strings** — use String Catalog section above, prepare for localization with `NSLocalizedString`
+8. **Error handling** — follow error state tables, check API codes, show appropriate banner/toast
+9. **Keyboard** — set `keyboardType` and `submitLabel` per input from Keyboard Behavior table
+10. **Animations** — use durations from Animations table, always `withAnimation`
+
 ## Platform Differences
 
 | Feature | iOS | Android |
