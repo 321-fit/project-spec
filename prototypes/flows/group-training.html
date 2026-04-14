@@ -1854,10 +1854,25 @@ function tpToggleSlot(slot) {
   document.querySelectorAll('#tp-slot-list .tp-slot').forEach(s => s.classList.remove('expanded'));
   if (!wasExpanded) {
     slot.classList.add('expanded');
+    // Auto-select :00 minute (or first available) and highlight row
+    var hour = slot.getAttribute('data-hour');
+    var firstChip = slot.querySelector('.min-chip:not(.disabled)');
+    if (firstChip) {
+      var min = firstChip.getAttribute('data-min');
+      // Clear all previous selections
+      document.querySelectorAll('#tp-slot-list .tp-slot-row').forEach(function(r) { r.classList.remove('selected'); });
+      document.querySelectorAll('#tp-slot-list .min-chip').forEach(function(c) { c.classList.remove('selected'); });
+      // Select this row + first minute
+      slot.querySelector('.tp-slot-row').classList.add('selected');
+      firstChip.classList.add('selected');
+      tpHour = hour;
+      tpMin = min;
+      tpUpdateBtn();
+    }
     // Auto-scroll to show minutes
-    setTimeout(() => {
-      const list = document.getElementById('tp-slot-list');
-      const slotBottom = slot.offsetTop + slot.offsetHeight;
+    setTimeout(function() {
+      var list = document.getElementById('tp-slot-list');
+      var slotBottom = slot.offsetTop + slot.offsetHeight;
       if (slotBottom > list.scrollTop + list.clientHeight) {
         list.scrollTo({ top: slotBottom - list.clientHeight + 10, behavior: 'smooth' });
       }
