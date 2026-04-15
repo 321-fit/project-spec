@@ -184,8 +184,9 @@
   <button onclick="go('s-event',this)">Event Detail</button>
   <button onclick="go('s-cash',this)">Event Completion</button>
   <div class="label">Settings</div>
-  <button onclick="go('s-locations',this)">Gym Locations</button>
-  <button onclick="go('s-loc-add',this)">Add Location</button>
+  <button onclick="go('s-locations',this)">Training Locations</button>
+  <button onclick="go('s-loc-map',this)">Add In-person</button>
+  <button onclick="go('s-loc-form',this)">Location Details</button>
   <button onclick="go('s-loc-online',this)">Add Online</button>
   <div class="label">Athlete</div>
   <button onclick="go('s-coach',this)">Coach Profile</button>
@@ -792,20 +793,25 @@
   <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary">Complete Training</button></div>
 </div>
 
-<!-- ===== SETTINGS: GYM LOCATIONS (list) ===== -->
+<!-- ===== SETTINGS: TRAINING LOCATIONS (list) ===== -->
 <div class="fit-phone fit-dark" id="s-locations">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
       <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Gym Locations</span>
-      <div style="width:32px;height:32px;border-radius:50%;background:var(--fit-brand-gradient);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;color:#fff;">+</div>
+      <span class="fit-header-title">Training Locations</span>
     </div>
   </div>
   <div class="fit-phone-content">
 
-    <!-- In-person locations -->
-    <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);padding:0 16px;margin-bottom:10px;">In-person</div>
+    <!-- In-person section with + Add -->
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 16px;margin-bottom:10px;">
+      <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">In-person</div>
+      <div style="display:flex;align-items:center;gap:4px;font-size:13px;color:var(--fit-brand-primary);cursor:pointer;" onclick="go('s-loc-map',document.querySelector('[onclick*=s-loc-map]'))">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Add
+      </div>
+    </div>
 
     <!-- Location 1 (default) -->
     <div class="set-card" style="margin:0 16px 10px;position:relative;">
@@ -852,8 +858,14 @@
       </div>
     </div>
 
-    <!-- Online section -->
-    <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);padding:0 16px;margin:20px 0 10px;">Online</div>
+    <!-- Online section with + Add -->
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 16px;margin:20px 0 10px;">
+      <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Online</div>
+      <div style="display:flex;align-items:center;gap:4px;font-size:13px;color:var(--fit-brand-primary);cursor:pointer;" onclick="go('s-loc-online',document.querySelector('[onclick*=s-loc-online]'))">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Add
+      </div>
+    </div>
 
     <!-- Zoom location -->
     <div class="set-card" style="margin:0 16px 10px;">
@@ -886,80 +898,104 @@
   </div>
 </div>
 
-<!-- ===== SETTINGS: ADD IN-PERSON LOCATION ===== -->
-<div class="fit-phone fit-dark" id="s-loc-add">
-  <div class="fit-phone-header">
+<!-- ===== SETTINGS: ADD IN-PERSON — MAP SCREEN ===== -->
+<div class="fit-phone fit-dark" id="s-loc-map">
+  <div class="fit-phone-header" style="z-index:20;">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header">
-      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Add Location</span>
+    <!-- Search bar overlay -->
+    <div style="padding:8px 16px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="fit-header-back" style="flex-shrink:0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="fit-input" style="flex:1;height:44px;display:flex;align-items:center;gap:8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <span style="color:var(--fit-text-primary);">Shota Rustaveli Ave</span>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="fit-phone-content">
+  <div class="fit-phone-content" style="padding:0;position:relative;">
 
-    <!-- Type toggle -->
-    <div style="padding:0 16px 16px;">
-      <div class="fit-selection-group">
-        <div class="fit-selection-chip selected" style="gap:6px;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-          In-person
-        </div>
-        <div class="fit-selection-chip" style="gap:6px;" onclick="go('s-loc-online',document.querySelector('[onclick*=s-loc-online]'))">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="13" height="12" rx="2"/><path d="M15 10l5-3v10l-5-3"/></svg>
-          Online
-        </div>
+    <!-- Map placeholder -->
+    <div style="width:100%;height:100%;background:#2a2d32;position:relative;display:flex;align-items:center;justify-content:center;">
+      <!-- Grid lines (map feel) -->
+      <div style="position:absolute;inset:0;opacity:0.08;">
+        <div style="position:absolute;top:25%;left:0;right:0;height:1px;background:var(--fit-text-tertiary);"></div>
+        <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:var(--fit-text-tertiary);"></div>
+        <div style="position:absolute;top:75%;left:0;right:0;height:1px;background:var(--fit-text-tertiary);"></div>
+        <div style="position:absolute;left:25%;top:0;bottom:0;width:1px;background:var(--fit-text-tertiary);"></div>
+        <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--fit-text-tertiary);"></div>
+        <div style="position:absolute;left:75%;top:0;bottom:0;width:1px;background:var(--fit-text-tertiary);"></div>
+      </div>
+      <!-- Center pin -->
+      <div style="display:flex;flex-direction:column;align-items:center;margin-top:-40px;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="var(--fit-brand-primary)" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="white"/></svg>
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--fit-brand-primary);margin-top:-2px;opacity:0.4;"></div>
+      </div>
+      <!-- My location button -->
+      <div style="position:absolute;bottom:180px;right:16px;width:44px;height:44px;border-radius:12px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
       </div>
     </div>
 
-    <!-- Location name -->
-    <div class="fit-input-group" style="padding:0 16px;">
-      <span class="fit-input-label">Location name</span>
-      <div class="fit-input" style="color:var(--fit-text-primary);">GYM Bro</div>
-    </div>
-
-    <!-- Address search -->
-    <div class="fit-input-group" style="padding:0 16px;">
-      <span class="fit-input-label">Address</span>
-      <div class="fit-input" style="color:var(--fit-text-primary);display:flex;align-items:center;gap:8px;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        <span>Shota Rustaveli Avenue</span>
-      </div>
-    </div>
-
-    <!-- Google Places results -->
-    <div style="padding:0 16px;margin-top:-8px;">
-      <div style="background:var(--fit-surface-high);border-radius:0 0 12px 12px;overflow:hidden;">
-        <div style="display:flex;align-items:center;gap:10px;padding:12px;cursor:pointer;border-bottom:1px solid var(--fit-gray-700);">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-          <div style="flex:1;min-width:0;">
+    <!-- Bottom card with selected address -->
+    <div style="position:absolute;bottom:0;left:0;right:0;background:var(--fit-gray-900);border-radius:20px 20px 0 0;padding:16px 16px 40px;">
+      <div style="width:36px;height:4px;border-radius:2px;background:var(--fit-gray-600);margin:0 auto 16px;"></div>
+      <!-- Search results -->
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);margin-bottom:6px;cursor:pointer;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          <div style="flex:1;">
             <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Shota Rustaveli Ave</div>
             <div style="font-size:12px;color:var(--fit-text-tertiary);">Tbilisi, Georgia</div>
           </div>
           <span style="font-size:12px;color:var(--fit-text-tertiary);">4.8 km</span>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:12px;cursor:pointer;border-bottom:1px solid var(--fit-gray-700);">
+        <div style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;cursor:pointer;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-          <div style="flex:1;min-width:0;">
+          <div style="flex:1;">
             <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Rustaveli M/S</div>
             <div style="font-size:12px;color:var(--fit-text-tertiary);">Kostava Str, Tbilisi, Georgia</div>
           </div>
           <span style="font-size:12px;color:var(--fit-text-tertiary);">4.8 km</span>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:12px;cursor:pointer;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Rustaveli Theatre</div>
-            <div style="font-size:12px;color:var(--fit-text-tertiary);">Shota Rustaveli Ave 17, Tbilisi</div>
-          </div>
-          <span style="font-size:12px;color:var(--fit-text-tertiary);">5.1 km</span>
-        </div>
       </div>
+      <button style="width:100%;height:56px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:white;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" onclick="go('s-loc-form',document.querySelector('[onclick*=s-loc-form]'))">Confirm Location</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== SETTINGS: LOCATION DETAILS FORM ===== -->
+<div class="fit-phone fit-dark" id="s-loc-form">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Location Details</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <!-- Selected address (read-only) -->
+    <div style="margin:0 16px 16px;padding:14px;border-radius:12px;background:var(--fit-surface-high);display:flex;align-items:center;gap:10px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Shota Rustaveli Ave</div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);">Tbilisi, Georgia</div>
+      </div>
+      <div style="font-size:12px;color:var(--fit-brand-primary);cursor:pointer;">Change</div>
+    </div>
+
+    <!-- Location name -->
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Location name</span>
+      <div class="fit-input" style="color:var(--fit-text-placeholder);">e.g., GYM Bro, Home gym</div>
     </div>
 
     <!-- Description -->
-    <div class="fit-input-group" style="padding:0 16px;margin-top:16px;">
+    <div class="fit-input-group" style="padding:0 16px;">
       <span class="fit-input-label">Description <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
-      <div class="fit-input" style="min-height:80px;align-items:flex-start;padding-top:14px;color:var(--fit-text-placeholder);">Enter a description of the location</div>
+      <div class="fit-input" style="min-height:80px;align-items:flex-start;padding-top:14px;color:var(--fit-text-placeholder);">e.g., 2nd floor, ring the bell</div>
     </div>
 
     <!-- Set as default -->
@@ -982,24 +1018,10 @@
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
       <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Add Location</span>
+      <span class="fit-header-title">Add Online Location</span>
     </div>
   </div>
   <div class="fit-phone-content">
-
-    <!-- Type toggle -->
-    <div style="padding:0 16px 16px;">
-      <div class="fit-selection-group">
-        <div class="fit-selection-chip" style="gap:6px;" onclick="go('s-loc-add',document.querySelector('[onclick*=s-loc-add]'))">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-          In-person
-        </div>
-        <div class="fit-selection-chip selected" style="gap:6px;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="13" height="12" rx="2"/><path d="M15 10l5-3v10l-5-3"/></svg>
-          Online
-        </div>
-      </div>
-    </div>
 
     <!-- Platform dropdown -->
     <div class="fit-input-group" style="padding:0 16px;">
@@ -2298,9 +2320,10 @@ function switchBookTab(tab) {
     <div class="state-toggle"><button class="active" onclick="toggleEventState('filled',this)">Filled</button><button onclick="toggleEventState('empty',this)">Empty</button></div>
     <p>"Ticket card" layout — compact summary + participants.</p><ul><li>Ticket: badge + price, date/time, location, spots bar</li><li>Swipe left or X to remove participant</li><li>Long press → bottom sheet</li><li><strong>Empty state:</strong> icon + "No participants yet"</li></ul></div>
   <div class="ann" id="ann-s-cash"><span class="ann-role coach">Coach</span><h3>Event Completion</h3><p>Post-training screen. Coach reviews payments and completes training.</p><ul><li><strong>Card participants:</strong> auto "Paid" badge, no action needed</li><li><strong>Cash participants:</strong> checkbox, swipe right/left, long press</li><li>Payment summary: "4 paid · 1 unpaid"</li><li>Each row shows payment method (Card/Cash)</li><li>Complete Training → triggers Stripe transfers for card</li></ul><span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Entry & flow</span><div class="ann-detail"><h4>Entry point</h4><p>Push notification after event end time: "Training ended. Tap to review and complete." Deep links to this screen.</p><h4>Unpaid cash</h4><p>Does NOT block completion. Stays as cash_pending record. Coach can see unpaid athletes in training history.</p></div></div>
-  <div class="ann" id="ann-s-locations"><span class="ann-role coach">Coach</span><h3>Gym Locations</h3><p>List of coach's training locations — both in-person and online.</p><ul><li><strong>In-person:</strong> pin icon + name + address + default badge</li><li><strong>Online:</strong> video icon (colored per platform) + name + masked link</li><li>"+" button to add new location</li><li>Tap card → edit location</li><li>Swipe left to delete</li></ul></div>
-  <div class="ann" id="ann-s-loc-add"><span class="ann-role coach">Coach</span><h3>Add Location (In-person)</h3><p>Form to add a physical training location.</p><ul><li><strong>Type toggle:</strong> In-person / Online — switches form fields</li><li><strong>Location name:</strong> custom name (e.g., "GYM Bro")</li><li><strong>Address:</strong> Google Places autocomplete with distance</li><li><strong>Description:</strong> optional notes</li><li><strong>Default toggle:</strong> set as default location</li></ul><p>Backend: <code>POST /coach/addresses</code> — requires lat, lon, address_line, location_name</p></div>
-  <div class="ann" id="ann-s-loc-online"><span class="ann-role coach">Coach</span><h3>Add Location (Online)</h3><p>Form to add a virtual meeting location.</p><ul><li><strong>Platform dropdown:</strong> Zoom / Google Meet / Microsoft Teams / Custom link</li><li><strong>Meeting link:</strong> URL input with validation</li><li><strong>Display name:</strong> optional custom name</li><li><strong>Description:</strong> optional (e.g., "Link updates 1h before")</li></ul><p><strong>Backend needed:</strong> Add <code>location_type</code> enum + <code>meeting_link</code> field to address table. Make lat/lon optional for online.</p></div>
+  <div class="ann" id="ann-s-locations"><span class="ann-role coach">Coach</span><h3>Training Locations</h3><p>List of coach's training locations — in-person and online in separate sections.</p><ul><li><strong>In-person:</strong> pin icon + name + address + "Default" badge</li><li><strong>Online:</strong> video icon (colored per platform) + name + masked link</li><li>Each section has its own <strong>"+ Add"</strong> button → separate flows</li><li>Tap card → edit</li><li>Swipe left to delete</li></ul></div>
+  <div class="ann" id="ann-s-loc-map"><span class="ann-role coach">Coach</span><h3>Add In-person (Map)</h3><p>Map-first approach. User sees map with search bar overlay.</p><ul><li><strong>Search:</strong> Google Places autocomplete in top bar</li><li><strong>Map:</strong> draggable pin, "My location" button</li><li><strong>Bottom card:</strong> search results with distance, selected = gradient</li><li><strong>"Confirm Location"</strong> → pushes to details form</li></ul></div>
+  <div class="ann" id="ann-s-loc-form"><span class="ann-role coach">Coach</span><h3>Location Details</h3><p>After selecting address on map. Form for metadata.</p><ul><li><strong>Selected address:</strong> read-only card with "Change" link</li><li><strong>Location name:</strong> custom name (e.g., "GYM Bro")</li><li><strong>Description:</strong> optional notes</li><li><strong>Default toggle:</strong> set as primary location</li><li><strong>"Save Location"</strong> → POST /coach/addresses</li></ul></div>
+  <div class="ann" id="ann-s-loc-online"><span class="ann-role coach">Coach</span><h3>Add Online Location</h3><p>Form for virtual meeting location.</p><ul><li><strong>Platform:</strong> Zoom / Google Meet / Teams / Custom link</li><li><strong>Meeting link:</strong> URL input</li><li><strong>Display name:</strong> optional</li><li><strong>Description:</strong> optional</li></ul><p><strong>Backend needed:</strong> <code>location_type</code> enum + <code>meeting_link</code> field. Make lat/lon optional.</p></div>
   <div class="ann" id="ann-s-coach"><span class="ann-role athlete">Athlete</span><h3>Coach Profile</h3><p>Two-level layout: <strong>Group Trainings first</strong> (templates with schedule), Personal Sessions below, About last.</p><ul><li>Group templates show recurring schedule ("Tue & Thu, 18:00")</li><li>"Next: Thu Apr 10 · 3/10 spots" — quick preview</li><li>One-off events get <strong>"Special" badge</strong> + highlighted border</li><li>Chevron ">" on all cards — tappable</li><li>Tap group template → <strong>booking calendar</strong></li><li>Tap personal template → existing booking flow</li></ul><hr><p class="note">Group first = lower barrier to entry (no approval needed)</p></div>
   <div class="ann" id="ann-s-booking"><span class="ann-role athlete">Athlete</span><h3>Booking Calendar</h3>
     <div class="state-toggle"><button class="active" onclick="toggleBookingState('filled',this)">Has Events</button><button onclick="toggleBookingState('empty',this)">No Events</button></div>
