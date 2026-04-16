@@ -22,11 +22,13 @@
     position: fixed;
     left: max(16px, calc(50% - 195px - 200px - 48px));
     top: 24px; bottom: 24px; width: 200px;
-    display: flex; flex-direction: column; gap: 4px;
-    overflow-y: auto;
+    display: flex; flex-direction: column;
   }
-  .sidebar::-webkit-scrollbar { width: 4px; }
-  .sidebar::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar-scroll {
+    flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+  }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
   .sidebar .label {
     font-size: 11px; font-weight: 600; text-transform: uppercase;
     letter-spacing: 1px; color: var(--fit-gray-600);
@@ -175,10 +177,11 @@
 
 <!-- ==================== SIDEBAR ==================== -->
 <nav class="sidebar">
-  <div style="display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);margin-bottom:16px;position:sticky;top:0;z-index:5;background:#0a0a0a;padding-bottom:0;">
+  <div style="display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);margin-bottom:12px;flex-shrink:0;">
     <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="gt-role-coach" onclick="switchGtRole('coach')">Coach</button>
     <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="gt-role-athlete" onclick="switchGtRole('athlete')">Athlete</button>
   </div>
+  <div class="sidebar-scroll">
   <div class="label">Coach</div>
   <button class="active" onclick="go('s-create',this)">Create Session</button>
   <button onclick="go('s-list',this)">My Sessions</button>
@@ -205,6 +208,7 @@
   <button onclick="go('s-book-sessions',this)">Book Trainings</button>
   <div class="label">Design</div>
   <button onclick="go('s-card-variants',this)">Training Cards</button>
+  </div>
 </nav>
 
 <!-- ==================== PHONE ==================== -->
