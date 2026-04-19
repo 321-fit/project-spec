@@ -193,6 +193,9 @@
   <button onclick="go('s-requests',this)">Requests</button>
   <button onclick="go('s-client-detail',this)">Client Detail</button>
   <button onclick="go('s-client-history',this)">Client History</button>
+  <button onclick="go('s-create-client',this)">Create Client</button>
+  <button onclick="go('s-notes-editor',this)">Notes Editor</button>
+  <button onclick="go('s-personal-data',this)">Personal Data</button>
   <div class="label">Settings</div>
   <button onclick="go('s-locations',this)">Training Locations</button>
   <button onclick="go('s-loc-map',this)">Add In-person</button>
@@ -890,12 +893,16 @@
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
       <span class="fit-header-title" style="flex:1;">Clients</span>
-      <!-- Bell icon with badge → requests screen -->
-      <div style="position:relative;cursor:pointer;" onclick="go('s-requests',document.querySelector('[onclick*=s-requests]'))">
-        <button style="width:32px;height:32px;border-radius:50%;background:var(--fit-surface-high);border:none;display:flex;align-items:center;justify-content:center;color:var(--fit-text-primary);cursor:pointer;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-        </button>
-        <div style="position:absolute;top:-2px;right:-2px;width:18px;height:18px;border-radius:50%;background:var(--fit-red-400);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:white;">3</div>
+      <div style="display:flex;gap:8px;">
+        <!-- Bell icon with badge → requests screen -->
+        <div style="position:relative;cursor:pointer;" onclick="go('s-requests',document.querySelector('[onclick*=s-requests]'))">
+          <button style="width:32px;height:32px;border-radius:50%;background:var(--fit-surface-high);border:none;display:flex;align-items:center;justify-content:center;color:var(--fit-text-primary);cursor:pointer;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          </button>
+          <div style="position:absolute;top:-2px;right:-2px;width:18px;height:18px;border-radius:50%;background:var(--fit-red-400);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:white;">3</div>
+        </div>
+        <!-- + button → add client sheet -->
+        <button style="width:32px;height:32px;border-radius:50%;background:var(--fit-brand-gradient);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;font-size:18px;" onclick="document.getElementById('add-client-sheet').classList.add('visible')">+</button>
       </div>
     </div>
   </div>
@@ -960,6 +967,26 @@
       <div class="fit-navbar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
       <div class="fit-navbar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
       <div class="fit-navbar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+    </div>
+  </div>
+
+  <!-- Add client sheet -->
+  <div class="fit-sheet-overlay" id="add-client-sheet">
+    <div class="fit-sheet" style="padding:8px 16px 40px;">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:17px;font-weight:600;margin-bottom:28px;">Add Client</div>
+      <div class="fit-sheet-item" onclick="document.getElementById('add-client-sheet').classList.remove('visible');go('s-create-client',document.querySelector('[onclick*=s-create-client]'));">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/><path d="M20 8v6M23 11h-6"/></svg>
+        Create athlete profile
+      </div>
+      <div class="fit-sheet-item" onclick="document.getElementById('add-client-sheet').classList.remove('visible');">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        Invite to app
+      </div>
+      <div class="fit-sheet-item" onclick="document.getElementById('add-client-sheet').classList.remove('visible');">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v4M10 16h4"/></svg>
+        Invite to training
+      </div>
     </div>
   </div>
 </div>
@@ -1275,6 +1302,154 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- ===== COACH: CREATE CRM CLIENT ===== -->
+<div class="fit-phone fit-dark" id="s-create-client">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">New Client</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="fit-input-group" style="padding:0 16px;" data-required="fname">
+      <span class="fit-input-label">First name</span>
+      <div class="fit-input" contenteditable="true" data-placeholder="Enter first name" style="outline:none;cursor:text;"></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;" data-required="lname">
+      <span class="fit-input-label">Last name</span>
+      <div class="fit-input" contenteditable="true" data-placeholder="Enter last name" style="outline:none;cursor:text;"></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Phone or Email</span>
+      <div class="fit-input" contenteditable="true" data-placeholder="+1 234 567 8900 or email" style="outline:none;cursor:text;"></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Sport</span>
+      <div class="fit-input" style="cursor:pointer;"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg></span> Basketball<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Notes <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <div class="fit-input" style="min-height:80px;align-items:flex-start;padding-top:14px;cursor:pointer;" onclick="go('s-notes-editor',document.querySelector('[onclick*=s-notes-editor]'))">
+        <span style="color:var(--fit-text-placeholder);">Injuries, preferences, payment habits...</span>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;">
+    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:white;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Create Client</button>
+  </div>
+</div>
+
+<!-- ===== NOTES / ABOUT ME EDITOR (full-screen) ===== -->
+<div class="fit-phone fit-dark" id="s-notes-editor">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;">
+      <button style="border:none;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;cursor:pointer;">Cancel</button>
+      <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Notes</span>
+      <button style="border:none;background:transparent;color:var(--fit-brand-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Save</button>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding:0;">
+    <div style="padding:16px;height:100%;">
+      <div contenteditable="true" style="width:100%;min-height:300px;font-family:var(--fit-font);font-size:15px;line-height:1.6;color:var(--fit-text-primary);outline:none;background:transparent;">Knee injury (left) — avoid high impact jumping. Prefers morning sessions. Pays cash usually. Good progress on upper body strength. Wants to start group sessions next month.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SETTINGS: PERSONAL DATA ===== -->
+<div class="fit-phone fit-dark" id="s-personal-data">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Personal data</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <!-- Avatar with edit -->
+    <div style="display:flex;justify-content:center;padding:8px 0 20px;">
+      <div style="position:relative;">
+        <div style="width:80px;height:80px;border-radius:50%;background:var(--fit-brand-gradient);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:600;color:white;">JM</div>
+        <div style="position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;border:2px solid var(--fit-screen-bg);">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Name fields -->
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">First name</span>
+      <div class="fit-input" style="color:var(--fit-text-primary);">John</div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Last name</span>
+      <div class="fit-input" style="color:var(--fit-text-primary);">Miller</div>
+    </div>
+
+    <!-- About me -->
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">About me</span>
+      <div class="fit-input" style="min-height:80px;align-items:flex-start;padding-top:14px;cursor:pointer;" onclick="go('s-notes-editor',document.querySelector('[onclick*=s-notes-editor]'))">
+        <span style="color:var(--fit-text-secondary);font-size:14px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">Certified fitness & yoga coach with 8 years of experience. Multi-sport coach working with tennis, padel, and basketball players.</span>
+      </div>
+    </div>
+
+    <!-- Dropdowns -->
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Time Zone</span>
+      <div class="fit-input" style="cursor:pointer;"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span> Warsaw, Europe (GMT+1)<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Home location</span>
+      <div class="fit-input" style="cursor:pointer;"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:14px;"><rect x="1" y="5" width="22" height="14" rx="2"/></svg></span> Poland<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Languages</span>
+      <div class="fit-input" style="cursor:pointer;"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg></span> Polski<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    </div>
+
+    <!-- Body metrics -->
+    <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);padding:0 16px;margin:8px 0 8px;">Body metrics</div>
+
+    <!-- Gender -->
+    <div style="padding:0 16px 20px;">
+      <div class="fit-selection-group">
+        <div class="fit-selection-chip" style="gap:6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
+          Woman
+        </div>
+        <div class="fit-selection-chip selected" style="gap:6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
+          Man
+        </div>
+      </div>
+    </div>
+
+    <!-- Weight + Height -->
+    <div style="display:flex;gap:12px;padding:0 16px;">
+      <div class="fit-input-group" style="flex:1;padding:0;">
+        <span class="fit-input-label">Weight</span>
+        <div class="fit-input" style="color:var(--fit-text-primary);">95.5 <span style="color:var(--fit-text-tertiary);margin-left:auto;">kg</span></div>
+      </div>
+      <div class="fit-input-group" style="flex:1;padding:0;">
+        <span class="fit-input-label">Height</span>
+        <div class="fit-input" style="color:var(--fit-text-primary);">185 <span style="color:var(--fit-text-tertiary);margin-left:auto;">cm</span></div>
+      </div>
+    </div>
+
+    <!-- Date of birth -->
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Date of birth</span>
+      <div class="fit-input" style="color:var(--fit-text-placeholder);cursor:pointer;">Select your date of birth</div>
+    </div>
+
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;">
+    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:white;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Save</button>
   </div>
 </div>
 
@@ -3188,6 +3363,9 @@ function switchBookTab(tab) {
   <div class="ann" id="ann-s-requests"><span class="ann-role coach">Coach</span><h3>Requests</h3><p>Full-screen inbox for pending booking requests.</p><ul><li>Cards with unified layout: avatar + name + training + time + location + price + payment badge</li><li><strong>[Decline] [Accept]</strong> buttons per card</li><li>Avatar row tappable → athlete profile</li><li>After accept: event created, athlete added to clients if new</li></ul></div>
   <div class="ann" id="ann-s-client-detail"><span class="ann-role coach">Coach</span><h3>Client Detail</h3><p>Full athlete profile from coach's perspective.</p><ul><li><strong>Header:</strong> avatar, name, location, sport chips. Message + menu buttons.</li><li><strong>Stats card:</strong> Sessions | Upcoming | Revenue | Owed</li><li><strong>Pending Payment:</strong> red banner if unpaid cash session exists. "Mark Paid" button.</li><li><strong>Upcoming Sessions:</strong> horizontal scroll cards (220px, peek pattern)</li><li><strong>Notes:</strong> coach's private notes (injuries, preferences). Editable.</li><li><strong>Training History →</strong> push to full history screen</li></ul></div>
   <div class="ann" id="ann-s-client-history"><span class="ann-role coach">Coach</span><h3>Client History</h3><p>Full training history with athlete.</p><ul><li>All past events: name, date/time, location, price, status</li><li><strong>Completed + Paid:</strong> green label</li><li><strong>Cancelled:</strong> red label, price struck through</li><li>Sorted newest first</li></ul></div>
+  <div class="ann" id="ann-s-create-client"><span class="ann-role coach">Coach</span><h3>Create Client</h3><p>CRM card for athletes without app account.</p><ul><li><strong>First name / Last name</strong> — required</li><li><strong>Phone or Email</strong> — for contact (optional but recommended)</li><li><strong>Sport</strong> — dropdown from coach's sports</li><li><strong>Notes</strong> — tap opens full-screen editor (injuries, preferences)</li></ul><p>Created athlete appears in Clients list. Coach can track sessions/payments.</p></div>
+  <div class="ann" id="ann-s-notes-editor"><span class="ann-role coach">Coach</span><h3>Notes Editor</h3><p>Full-screen text editor for Notes and About Me fields.</p><ul><li><strong>Cancel / Save</strong> in header (iOS pattern)</li><li>Full screen = comfortable multi-line editing</li><li>Keyboard auto-opens on entry</li><li>Reused for: client notes, about me, location description</li></ul></div>
+  <div class="ann" id="ann-s-personal-data"><span class="ann-role coach">Coach</span><h3>Personal Data</h3><p>Edit profile screen from Settings.</p><ul><li><strong>Avatar</strong> with pencil overlay — tap to change photo</li><li><strong>Name fields:</strong> first + last</li><li><strong>About me:</strong> tap → full-screen Notes Editor</li><li><strong>Dropdowns:</strong> timezone, home location (with flag), languages</li><li><strong>Body metrics:</strong> gender chips (Woman/Man), weight (kg), height (cm)</li><li><strong>Date of birth:</strong> date picker</li></ul><p>Same layout used for CRM athlete creation with different fields.</p></div>
   <div class="ann" id="ann-s-locations"><span class="ann-role coach">Coach</span><h3>Training Locations</h3><p>Three location types + two usage modes.</p><ul><li><strong>In-person:</strong> pin icon + name + address + "Default" badge</li><li><strong>Online:</strong> video icon (colored per platform) + masked link</li><li><strong>Home Visit:</strong> toggle on/off + travel buffer (15/30/45/60 min). Visual timeline shows total blocked time.</li><li>Swipe left to delete (in-person/online)</li></ul><hr><p class="note"><strong>Settings mode:</strong> tap card → edit details<br><strong>Select mode:</strong> tap → select + pop back<br><br><strong>Travel buffer:</strong> added before AND after each home visit session. Backend uses <code>blocked_start = event_start - buffer</code>, <code>blocked_end = event_end + buffer</code> for overlap checks.</p></div>
   <div class="ann" id="ann-s-loc-map"><span class="ann-role coach">Coach</span><h3>Add In-person</h3><p>Search-first approach with smart suggestions.</p><ul><li><strong>Search:</strong> Google Places autocomplete</li><li><strong>Gyms Near You:</strong> pre-fetched from Google Places API (type=gym) sorted by distance</li><li>Tap result → Location Details form with map preview</li><li><strong>Use current location:</strong> reverse geocode user's position</li><li><strong>Pick on map:</strong> opens fullscreen map for manual pin drop</li></ul><p>When user types → "Gyms Near You" replaced by autocomplete results.</p></div>
   <div class="ann" id="ann-s-loc-pick"><span class="ann-role coach">Coach</span><h3>Pick on Map</h3><p>Fullscreen map with two modes. <strong>Tap the pill to toggle.</strong></p><ul><li><strong>Locked</strong> (default) — 🔒 "Pin is locked · Tap to adjust". Map scrollable but pin stays. Safe for reviewing.</li><li><strong>Unlocked</strong> — 🔓 "Drag to set location · Tap to lock". Pin follows map center. Address updates live.</li><li><strong>Search bar</strong> at top — tap opens search screen</li><li><strong>My location</strong> button — centers map on user</li><li><strong>Bottom card:</strong> reverse geocoded address</li><li><strong>"Confirm Location"</strong> → Location Details form</li></ul><hr><p class="note"><strong>Why locked by default:</strong> prevents accidental pin movement when user opens from Location Details to verify position.</p></div>
