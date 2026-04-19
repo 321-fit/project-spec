@@ -425,7 +425,27 @@
       const chip = document.createElement('div');
       chip.className = 'fit-day-chip' + (d === today ? ' today' : '') + (d === selected ? ' selected' : '');
       chip.dataset.day = d;
-      chip.innerHTML = `<span class="fit-day-chip-name">${dayName}</span><span class="fit-day-chip-num">${d}</span>`;
+      // Event dots — check data-events attribute (format: "10:pg,12:p,15:e,18:g")
+      var eventsAttr = strip.dataset.events || '';
+      var dayEvents = {};
+      if (eventsAttr) {
+        eventsAttr.split(',').forEach(function(entry) {
+          var parts = entry.split(':');
+          if (parts.length === 2) dayEvents[parseInt(parts[0])] = parts[1];
+        });
+      }
+      var dots = '';
+      if (dayEvents[d]) {
+        var types = dayEvents[d];
+        dots = '<span class="fit-day-chip-dots">';
+        if (types.indexOf('p') !== -1) dots += '<span class="fit-day-chip-dot personal"></span>';
+        if (types.indexOf('g') !== -1) dots += '<span class="fit-day-chip-dot group"></span>';
+        if (types.indexOf('e') !== -1) dots += '<span class="fit-day-chip-dot external"></span>';
+        dots += '</span>';
+      } else {
+        dots = '<span class="fit-day-chip-dots"></span>';
+      }
+      chip.innerHTML = `<span class="fit-day-chip-name">${dayName}</span><span class="fit-day-chip-num">${d}</span>${dots}`;
       chip.addEventListener('click', () => selectDay(strip, d));
       inner.appendChild(chip);
     }
