@@ -155,6 +155,14 @@
   .fit-light .fit-navbar-item { color: var(--fit-gray-400); }
   .fit-light .fit-navbar-item.active { color: var(--fit-text-primary); }
 
+  /* Calendar header component (reusable) */
+  .fit-cal-header {
+    display: flex; align-items: center; gap: 4px; cursor: pointer;
+  }
+  .fit-cal-header-month { font-size: 16px; font-weight: 600; color: var(--fit-text-primary); }
+  .fit-cal-header-year { font-size: 16px; font-weight: 400; color: var(--fit-text-secondary); }
+  .fit-cal-chevron { transition: transform 0.2s; flex-shrink: 0; }
+
   /* V6d card themes */
   .v6d-card { background: var(--fit-surface-high); }
   .fit-light .v6d-card { background: var(--fit-white) !important; box-shadow: 0 1px 12px rgba(0,0,0,0.12); }
@@ -2651,11 +2659,12 @@
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header" style="justify-content:space-between;">
-      <div style="display:flex;align-items:center;gap:4px;cursor:pointer;flex:1;" onclick="toggleMonthView('cal-month-grid')">
-        <span class="fit-header-title">April</span>
-        <span class="fit-header-title" style="font-weight:400;">2026</span>
-        <svg id="cal-month-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s;"><path d="M6 9l6 6 6-6"/></svg>
+      <div class="fit-cal-header" onclick="toggleMonthView('cal-month-grid')">
+        <span class="fit-cal-header-month">April</span>
+        <span class="fit-cal-header-year">2026</span>
+        <svg class="fit-cal-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </div>
+      <div style="flex:1;"></div>
       <div style="display:flex;gap:8px;">
         <button class="fit-icon-btn" style="font-size:12px;width:auto;padding:0 12px;border-radius:8px;color:var(--fit-blue-500);font-weight:500;font-family:var(--fit-font);" data-fit-sync>Today</button>
         <button class="fit-icon-btn" data-fit-sync><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15.36 6.36L3 16"/></svg></button>
@@ -2990,11 +2999,12 @@
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header" style="justify-content:space-between;">
-      <div style="display:flex;align-items:center;gap:4px;cursor:pointer;flex:1;" onclick="toggleMonthView('ath-month-grid')">
-        <span class="fit-header-title">April</span>
-        <span class="fit-header-title" style="font-weight:400;">2026</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s;"><path d="M6 9l6 6 6-6"/></svg>
+      <div class="fit-cal-header" onclick="toggleMonthView('ath-month-grid')">
+        <span class="fit-cal-header-month">April</span>
+        <span class="fit-cal-header-year">2026</span>
+        <svg class="fit-cal-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </div>
+      <div style="flex:1;"></div>
       <div style="display:flex;gap:8px;">
         <button class="fit-icon-btn" style="font-size:12px;width:auto;padding:0 12px;border-radius:8px;color:var(--fit-blue-500);font-weight:500;font-family:var(--fit-font);background:var(--fit-surface-higher);" data-fit-sync>Today</button>
         <button class="fit-icon-btn" style="background:var(--fit-surface-higher);" data-fit-sync><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15.36 6.36L3 16"/></svg></button>
@@ -3553,14 +3563,18 @@
 </div>
 
 <script>
-function toggleMonthView(gridId) {
+function toggleMonthView(gridId, stripEl) {
   var grid = document.getElementById(gridId);
   if (!grid) return;
   var isOpen = grid.style.display !== 'none';
   grid.style.display = isOpen ? 'none' : 'block';
-  // Rotate chevron in the parent header
-  var header = grid.closest('.fit-phone-header') || grid.parentElement;
-  var chevron = header.querySelector('svg[style*="transition"]');
+  // Hide/show day strip
+  var phone = grid.closest('.fit-phone');
+  var strip = phone ? phone.querySelector('.fit-day-strip') : null;
+  if (strip) strip.style.display = isOpen ? '' : 'none';
+  // Rotate chevron
+  var header = phone ? phone.querySelector('.fit-cal-header') : null;
+  var chevron = header ? header.querySelector('.fit-cal-chevron') : null;
   if (chevron) chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
 }
 
