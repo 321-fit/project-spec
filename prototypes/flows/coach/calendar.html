@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Coach Calendar</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--fit-font);
+    background: #0a0a0a;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 24px; min-height: 100vh;
+    min-width: 900px;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    left: max(16px, calc(50% - 195px - 200px - 48px));
+    top: 24px; bottom: 24px; width: 200px;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-scroll {
+    flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+  }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--fit-gray-600);
+    padding: 0 8px; margin: 16px 0 8px;
+  }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button {
+    font-family: var(--fit-font); font-size: 14px; font-weight: 400;
+    padding: 10px 12px; border-radius: 10px; border: none;
+    background: transparent; color: var(--fit-gray-400);
+    cursor: pointer; text-align: left; width: 100%; transition: all 0.15s;
+  }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active {
+    background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500;
+  }
+
+  /* Annotations */
+  .ann-container {
+    position: fixed;
+    left: calc(50% + 195px + 48px);
+    top: 24px; width: 280px;
+  }
+  .ann { display: none; }
+  .ann.active { display: block; }
+  .ann-role {
+    display: inline-block; font-size: 14px; font-weight: 500;
+    padding: 4px 12px; border-radius: 8px; margin-bottom: 16px;
+  }
+  .ann-role.coach { background: rgba(3,178,226,0.15); color: var(--fit-blue-500); }
+  .ann-role.athlete { background: rgba(5,224,166,0.15); color: var(--fit-teal-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 14px; padding-left: 18px; font-size: 16px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 6px; }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  /* Expandable details */
+  .ann-detail {
+    margin-top: 12px; padding: 12px; border-radius: 10px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--fit-gray-700);
+    display: none;
+  }
+  .ann-detail.open { display: block; max-height: 400px; overflow-y: auto; }
+  .ann-detail.open::-webkit-scrollbar { width: 4px; }
+  .ann-detail.open::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann-detail-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; color: var(--fit-blue-500); cursor: pointer;
+    margin-top: 12px; font-weight: 500;
+  }
+  .ann-detail-toggle svg { width: 14px; height: 14px; transition: transform 0.2s; }
+  .ann-detail-toggle.open svg { transform: rotate(90deg); }
+  .ann-detail h4 { font-size: 14px; font-weight: 500; color: var(--fit-gray-300); margin-bottom: 6px; }
+  .ann-detail p { font-size: 14px; line-height: 1.5; color: var(--fit-gray-500); margin-bottom: 8px; }
+  .ann-detail code { font-size: 12px; background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 3px; color: var(--fit-gray-400); }
+
+  /* Screen visibility */
+  .fit-phone { display: none; }
+  .fit-phone.active { display: flex; }
+
+  /* SVG icon defaults */
+  svg.i { width: 16px; height: 16px; vertical-align: middle; }
+  svg.i-sm { width: 14px; height: 14px; vertical-align: middle; margin-right: 4px; }
+
+  /* Dark header/footer bg */
+  .fit-dark .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-dark .fit-phone-footer { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+
+  /* All component styles now in fit-ui.css */
+
+  /* Prototype-specific */
+  .detail-participants { padding: 0 var(--fit-sp-4); }
+  #tp-slot-list::-webkit-scrollbar { display: none; }
+
+
+
+  /* Contenteditable placeholder */
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: var(--fit-text-placeholder);
+    pointer-events: none;
+  }
+
+  /* State toggle (filled/empty) */
+  .state-toggle {
+    display: inline-flex; gap: 0; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--fit-gray-700); margin-bottom: 12px;
+  }
+  .state-toggle button {
+    font-family: var(--fit-font); font-size: 12px; font-weight: 500;
+    padding: 4px 10px; border: none; cursor: pointer;
+    background: transparent; color: var(--fit-gray-400);
+    transition: all 0.15s;
+  }
+  .state-toggle button.active {
+    background: var(--fit-gray-700); color: var(--fit-white);
+  }
+  /* Empty state placeholder */
+  .fit-empty-state {
+    display: none; text-align: center; padding: 32px 20px;
+    color: var(--fit-text-tertiary); font-size: 14px; line-height: 1.5;
+  }
+  .fit-empty-state svg { width: 40px; height: 40px; margin-bottom: 12px; color: var(--fit-gray-600); }
+  .fit-empty-state-title { font-size: 16px; font-weight: 500; color: var(--fit-text-secondary); margin-bottom: 6px; }
+
+  /* Light theme overrides for group training */
+  .fit-light .set-card { background: var(--fit-white); }
+  .fit-light .fit-card { background: var(--fit-white); }
+  .fit-light .fit-ticket { background: var(--fit-white); }
+  .fit-light .fit-participants-card { background: var(--fit-white); }
+  .fit-light .fit-spots { background: var(--fit-gray-100); }
+  .fit-light .fit-spots-fill { background: var(--fit-gray-200); }
+  .fit-light .fit-input { background: var(--fit-gray-100); }
+  .fit-light .fit-navbar { background: rgba(255,255,255,0.75); box-shadow: 0 0 24px rgba(0,0,0,0.15); }
+  .fit-light .fit-navbar-item { color: var(--fit-gray-400); }
+  .fit-light .fit-navbar-item.active { color: var(--fit-text-primary); }
+
+  /* Month grid day with event dot */
+  .mg-day { display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;cursor:pointer; }
+  .mg-day-num { font-size:14px;color:var(--fit-text-secondary);width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%; }
+  .mg-day.today .mg-day-num { color:var(--fit-brand-primary);font-weight:600; }
+  .mg-day.selected .mg-day-num { background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);color:var(--fit-text-primary);font-weight:500; }
+  .mg-dots { display:flex;gap:2px;height:4px; }
+  .mg-dot { width:4px;height:4px;border-radius:50%; }
+  .mg-dot.p { background:var(--fit-teal-500); }
+  .mg-dot.g { background:var(--fit-brand-primary); }
+  .mg-dot.e { background:var(--fit-text-tertiary); }
+
+  /* Calendar header component (reusable) */
+  .fit-cal-header {
+    display: flex; align-items: center; gap: 4px; cursor: pointer;
+  }
+  .fit-cal-header-month { font-size: 16px; font-weight: 600; color: var(--fit-text-primary); }
+  .fit-cal-header-year { font-size: 16px; font-weight: 400; color: var(--fit-text-secondary); }
+  .fit-cal-chevron { transition: transform 0.2s; flex-shrink: 0; }
+
+  /* V6d card themes */
+  .v6d-card { background: var(--fit-surface-high); }
+  .fit-light .v6d-card { background: var(--fit-white) !important; box-shadow: 0 1px 12px rgba(0,0,0,0.12); }
+  .fit-light .v6d-card { border: 1px solid var(--fit-gray-200); }
+  .fit-light .v6d-icon-box { background: rgba(0,0,0,0.06) !important; }
+  .fit-light .v6d-icon-box svg { stroke: var(--fit-gray-900) !important; }
+  .fit-light .v6d-price { color: var(--fit-text-primary) !important; }
+  .fit-light .v6d-loc-strip { border-bottom-color: var(--fit-gray-200) !important; }
+  .fit-light .v6d-special-badge { background: rgba(0,0,0,0.08) !important; color: var(--fit-text-primary) !important; }
+  /* Alt 1 header: light theme */
+  .fit-light .v6d-header-neutral { background: var(--fit-gray-200) !important; }
+  .fit-light .v6d-header-neutral .v6d-icon-box { background: rgba(0,0,0,0.08) !important; }
+  /* Alt 2 header: light theme */
+  .fit-light .v6d-header-dense { background: linear-gradient(to right, rgba(10,147,189,0.25), rgba(5,224,166,0.25)) !important; }
+
+  /* Paid dimming + validation errors: in fit-ui.css */
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+  <div class="label">Coach Calendar</div>
+  <button class="active" onclick="go('s-calendar',this)">Calendar</button>
+  <button onclick="go('s-event',this)">Event Detail</button>
+  <button onclick="go('s-cash',this)">Event Completion</button>
+  </div>
+  <!-- Dark/Light toggle at bottom -->
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ===== COACH: CALENDAR ===== -->
+<div class="fit-phone fit-dark active" id="s-calendar">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header" style="justify-content:space-between;">
+      <div class="fit-cal-header" onclick="toggleMonthView('cal-month-grid')">
+        <span class="fit-cal-header-month">April</span>
+        <span class="fit-cal-header-year">2026</span>
+        <svg class="fit-cal-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div style="flex:1;"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="fit-icon-btn" style="font-size:12px;width:auto;padding:0 12px;border-radius:8px;color:var(--fit-blue-500);font-weight:500;font-family:var(--fit-font);" data-fit-sync>Today</button>
+        <button class="fit-icon-btn" data-fit-sync><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15.36 6.36L3 16"/></svg></button>
+      </div>
+    </div>
+    <!-- Month grid (hidden by default, toggles on chevron tap) -->
+    <div id="cal-month-grid" style="display:none;padding:0 16px 12px;">
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:0;text-align:center;">
+        <span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">S</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">M</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">T</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">W</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">T</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">F</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">S</span>
+        <span class="mg-day"></span><span class="mg-day"></span>
+        <span class="mg-day"><span class="mg-day-num">1</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">2</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">3</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">4</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">5</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">6</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">7</span><span class="mg-dots"><span class="mg-dot p"></span><span class="mg-dot g"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">8</span><span class="mg-dots"><span class="mg-dot p"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">9</span><span class="mg-dots"><span class="mg-dot g"></span></span></span>
+        <span class="mg-day selected"><span class="mg-day-num">10</span><span class="mg-dots"><span class="mg-dot p"></span><span class="mg-dot g"></span><span class="mg-dot e"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">11</span><span class="mg-dots"><span class="mg-dot p"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">12</span><span class="mg-dots"><span class="mg-dot p"></span><span class="mg-dot g"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">13</span><span class="mg-dots"><span class="mg-dot g"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">14</span><span class="mg-dots"><span class="mg-dot p"></span><span class="mg-dot e"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">15</span><span class="mg-dots"><span class="mg-dot e"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">16</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">17</span><span class="mg-dots"><span class="mg-dot p"></span><span class="mg-dot g"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">18</span><span class="mg-dots"><span class="mg-dot g"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">19</span><span class="mg-dots"></span></span>
+        <span class="mg-day today"><span class="mg-day-num">20</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">21</span><span class="mg-dots"><span class="mg-dot p"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">22</span><span class="mg-dots"><span class="mg-dot p"></span><span class="mg-dot g"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">23</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">24</span><span class="mg-dots"><span class="mg-dot g"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">25</span><span class="mg-dots"><span class="mg-dot p"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">26</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">27</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">28</span><span class="mg-dots"><span class="mg-dot p"></span><span class="mg-dot g"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">29</span><span class="mg-dots"><span class="mg-dot g"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">30</span><span class="mg-dots"></span></span>
+        <span class="mg-day"></span><span class="mg-day"></span><span class="mg-day"></span>
+      </div>
+    </div>
+    <div class="fit-day-strip" data-fit-day-strip data-month="4" data-year="2026" data-today="10" data-selected="10" data-events="7:pg,8:p,9:g,10:pge,11:p,12:pg,13:g,14:pe,15:e,17:pg,18:g,21:p,22:pg,24:g,25:p,28:pg,29:g">
+      <div class="fit-day-strip-inner"></div>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="cal-view">
+      <div class="fit-timeline" style="height:auto;min-height:100%;">
+        <div class="fit-hour"><span class="fit-hour-label">06:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">07:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">08:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">09:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">10:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">11:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">12:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">13:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">14:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">15:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">16:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">17:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">18:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">19:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">20:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">21:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">22:00</span></div>
+
+        <!-- Unavailable hours (before 06:00 and after 22:00 — coach availability) -->
+        <div class="fit-unavailable" style="top:0;height:0px;" title="Before available hours"></div>
+        <!-- Unavailable: 15:00-16:00 (blocked by external calendar) -->
+        <div class="fit-unavailable" style="top:864px;height:96px;" title="Blocked by external calendar"></div>
+
+        <!-- External calendar event (Google Calendar) -->
+        <div class="fit-cal-event-external" style="top:864px;height:96px;">
+          <div style="font-weight:500;">Dentist appointment</div>
+          <div style="opacity:0.7;">15:00 - 16:00 · Google</div>
+        </div>
+
+        <!-- Long-tap zone on empty slots (demo: tap to open FAB sheet) -->
+        <div data-fit-swipe data-fit-longpress data-fit-sheet="fab-sheet" onclick="document.getElementById('fab-sheet').classList.add('visible')" style="position:absolute;left:48px;right:8px;top:272px;height:96px;z-index:1;cursor:pointer;border-radius:8px;" title="Tap to create event"></div>
+
+        <!-- Current time line (10:30) -->
+        <div class="fit-now-line" style="top:432px;"><div class="fit-now-dot"></div></div>
+
+        <!-- 07:15-07:30 personal — 15 MIN (24px — normal font, centered) -->
+        <div class="fit-cal-event fit-cal-event-personal" data-fit-longpress data-fit-sheet="cal-event-sheet" style="top:120px;height:24px;cursor:grab;display:flex;align-items:center;">
+          <div class="fit-cal-event-title" style="margin:0;">Quick Stretch · 07:15</div>
+        </div>
+
+        <!-- 08:00-08:30 personal — 30 MIN (48px — title + meta) -->
+        <div class="fit-cal-event fit-cal-event-personal" onclick="document.getElementById('cal-event-sheet').classList.add('visible')" style="top:192px;height:48px;cursor:pointer;">
+          <div class="fit-cal-event-title">Express Boxing</div>
+          <div class="fit-cal-event-meta">Anna K. · 08:00 - 08:30</div>
+        </div>
+
+        <!-- 09:00-09:45 group — 45 MIN -->
+        <div class="fit-cal-event fit-cal-event-group" data-fit-longpress data-fit-sheet="cal-event-sheet" style="top:288px;height:72px;cursor:grab;">
+          <div class="fit-cal-event-title">Morning HIIT</div>
+          <div class="fit-cal-event-meta">09:00 - 09:45</div>
+          <div class="fit-cal-event-badge">
+            <svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:16px;"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/></svg>
+            5/10
+          </div>
+        </div>
+
+        <!-- 10:00-11:00 group — 60 MIN (standard) -->
+        <div class="fit-cal-event fit-cal-event-group" data-fit-longpress data-fit-sheet="cal-group-sheet" onclick="document.getElementById('cal-group-sheet').classList.add('visible')" style="top:384px;height:96px;cursor:grab;">
+          <div class="fit-cal-event-title">HIIT Group Session</div>
+          <div class="fit-cal-event-meta">10:00 - 11:00</div>
+          <div class="fit-cal-event-badge">
+            <svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:16px;"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/></svg>
+            7/10
+          </div>
+        </div>
+
+        <!-- 12:00-13:00 personal — 60 MIN -->
+        <div class="fit-cal-event fit-cal-event-personal" onclick="document.getElementById('cal-event-sheet').classList.add('visible')" style="top:576px;height:96px;cursor:pointer;">
+          <div class="fit-cal-event-title">Basketball Training</div>
+          <div class="fit-cal-event-meta">Mark S. · 12:00 - 13:00</div>
+        </div>
+
+        <!-- 13:00-14:30 group FULL — 90 MIN (with location) -->
+        <div class="fit-cal-event fit-cal-event-group" data-fit-longpress data-fit-sheet="cal-event-sheet" style="top:672px;height:144px;cursor:grab;">
+          <div class="fit-cal-event-title">Yoga Morning Flow</div>
+          <div class="fit-cal-event-meta">13:00 - 14:30</div>
+          <div style="font-size:10px;color:var(--fit-text-tertiary);margin-top:3px;">&#128205; GYM Bro</div>
+          <div class="fit-cal-event-badge">
+            <svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:16px;"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/></svg>
+            15/15
+          </div>
+        </div>
+
+        <!-- 16:00-17:00 personal PENDING (outgoing — waiting for athlete) -->
+        <div class="fit-cal-event fit-cal-event-personal pending" data-fit-longpress data-fit-sheet="cal-event-sheet" style="top:960px;height:96px;cursor:pointer;">
+          <div class="fit-cal-event-title">Padel Training</div>
+          <div class="fit-cal-event-meta">Julia D. · 16:00 - 17:00</div>
+          <div style="font-size:10px;color:var(--fit-text-tertiary);margin-top:3px;">Waiting for response</div>
+        </div>
+
+        <!-- 18:00-19:00 group — 60 MIN (confirmed) -->
+        <div class="fit-cal-event fit-cal-event-group" data-fit-longpress data-fit-sheet="cal-event-sheet" style="top:1152px;height:96px;cursor:grab;">
+          <div class="fit-cal-event-title">HIIT Group Session</div>
+          <div class="fit-cal-event-meta">18:00 - 19:00</div>
+          <div class="fit-cal-event-badge">
+            <svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:16px;"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/></svg>
+            3/10
+          </div>
+        </div>
+
+        <!-- 19:30-20:30 personal INVITATION (incoming — needs your action) -->
+        <div class="fit-cal-event fit-cal-event-personal invitation" onclick="document.getElementById('cal-invite-sheet').classList.add('visible')" style="top:1296px;height:96px;cursor:pointer;">
+          <div class="fit-cal-event-title">Boxing Training</div>
+          <div class="fit-cal-event-meta">Tom N. · 19:30 - 20:30</div>
+          <div class="fit-cal-event-action">Accept</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <div style="position:absolute;bottom:90px;right:20px;z-index:20;">
+    <button onclick="document.getElementById('fab-sheet').classList.add('visible')" style="width:56px;height:56px;border-radius:50%;background:var(--fit-brand-gradient);border:none;color:var(--fit-white);font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.3);">+</button>
+  </div>
+
+  <!-- FAB create sheet -->
+  <div class="fit-sheet-overlay" id="fab-sheet">
+    <div class="fit-sheet" style="padding:8px 16px 40px;"><div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:600;margin-bottom:16px;">Create Event</div>
+      <div class="fit-sheet-item" data-action="personal" onclick="document.getElementById('fab-sheet').classList.remove('visible');">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
+        Personal Event
+      </div>
+      <div class="fit-sheet-item" data-action="group" onclick="document.getElementById('fab-sheet').classList.remove('visible');">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg>
+        <span style="color:var(--fit-blue-500);">Group Event</span>
+      </div>
+      <div class="fit-sheet-item" data-action="custom" onclick="document.getElementById('fab-sheet').classList.remove('visible');">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4"/></svg>
+        Custom Event
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. Confirmed Personal Event sheet -->
+  <div class="fit-sheet-overlay" id="cal-event-sheet">
+    <div class="fit-sheet" style="padding:8px 16px 40px;">
+      <div class="fit-sheet-handle"></div>
+      <!-- Avatar + name (tap → profile) -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;cursor:pointer;">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">AK</div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Anna K.</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">Confirmed session</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <!-- Event info -->
+      <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);margin-bottom:12px;">Basketball Training</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        08:00 – 09:00
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          TNT Studio
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;50</span>
+          <span class="fit-badge fit-badge-neutral">Card</span>
+        </div>
+      </div>
+      <!-- Actions -->
+      <div style="display:flex;gap:8px;">
+        <button style="width:50px;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </button>
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-event-sheet').classList.remove('visible');document.getElementById('cal-reschedule-sheet').classList.add('visible');">Reschedule</button>
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:rgba(240,92,91,0.15);color:var(--fit-red-400);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-event-sheet').classList.remove('visible');document.getElementById('cal-cancel-sheet').classList.add('visible');">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Confirmed Group Event sheet -->
+  <div class="fit-sheet-overlay" id="cal-group-sheet">
+    <div class="fit-sheet" style="padding:8px 16px 40px;">
+      <div class="fit-sheet-handle"></div>
+      <!-- Sport icon as "avatar" (tap → Event Detail) -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;cursor:pointer;" onclick="document.getElementById('cal-group-sheet').classList.remove('visible');go('s-event',document.querySelector('[onclick*=s-event]'));">
+        <div style="width:44px;height:44px;border-radius:50%;background:rgba(3,178,226,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M4.5 12H2M22 12h-2.5M12 4.5V2M12 22v-2.5"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">HIIT Group Session</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">Group training &middot; 7/10 spots</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <!-- Event info (no title — already in header) -->
+      <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        10:00 – 11:00
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          TNT Studio
+        </div>
+        <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;25/person</span>
+      </div>
+      <!-- Actions -->
+      <div style="display:flex;gap:8px;">
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-group-sheet').classList.remove('visible');document.getElementById('cal-reschedule-sheet').classList.add('visible');">Reschedule</button>
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:rgba(240,92,91,0.15);color:var(--fit-red-400);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-group-sheet').classList.remove('visible');document.getElementById('cal-cancel-sheet').classList.add('visible');">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Invitation (incoming — needs action) sheet -->
+  <div class="fit-sheet-overlay" id="cal-invite-sheet">
+    <div class="fit-sheet" style="padding:8px 16px 40px;">
+      <div class="fit-sheet-handle"></div>
+      <!-- Avatar + name (tap → profile) -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;cursor:pointer;">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">TN</div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Tom N.</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">wants to book a session</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <!-- Event info -->
+      <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);margin-bottom:12px;">Boxing Training</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        19:30 – 20:30
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          GYM Bro
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;40</span>
+          <span class="fit-badge fit-badge-neutral">Cash</span>
+        </div>
+      </div>
+      <!-- Actions -->
+      <div style="display:flex;gap:8px;">
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:rgba(240,92,91,0.15);color:var(--fit-red-400);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-invite-sheet').classList.remove('visible')">Decline</button>
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-invite-sheet').classList.remove('visible')">Accept</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reschedule options (recurring) -->
+  <div class="fit-sheet-overlay" id="cal-reschedule-sheet">
+    <div class="fit-sheet"><div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Reschedule</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:16px;">HIIT Group Session &middot; Thu, Apr 10</div>
+      <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:28px;" onclick="updateSheetWarning(event,'cal-reschedule-sheet')">
+        <label style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;cursor:pointer;min-height:48px;"><input type="radio" name="reschedule" value="this" checked style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;"><span style="font-size:16px;">This session only</span></label>
+        <label style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;cursor:pointer;min-height:48px;"><input type="radio" name="reschedule" value="following" style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;"><span style="font-size:16px;">This and all following</span></label>
+        <label style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;cursor:pointer;min-height:48px;"><input type="radio" name="reschedule" value="all" style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;"><span style="font-size:16px;">All sessions</span></label>
+      </div>
+      <div id="resc-warning" style="display:flex;align-items:flex-start;gap:8px;margin-bottom:16px;padding:10px;background:rgba(247,201,72,0.08);border-radius:8px;">
+        <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-yellow-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span id="resc-warning-text" style="font-size:12px;color:var(--fit-text-secondary);line-height:1.4;">This session will be moved. 7 participants will be notified.</span>
+      </div>
+      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="document.getElementById('cal-reschedule-sheet').classList.remove('visible');">Continue</button>
+    </div>
+  </div>
+
+  <!-- Cancel options (recurring) -->
+  <div class="fit-sheet-overlay" id="cal-cancel-sheet">
+    <div class="fit-sheet"><div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Cancel Training</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:16px;">HIIT Group Session &middot; Thu, Apr 10</div>
+      <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:28px;" onclick="updateSheetWarning(event,'cal-cancel-sheet')">
+        <label style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;cursor:pointer;min-height:48px;"><input type="radio" name="cancel" value="this" checked style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;"><span style="font-size:16px;">This session only</span></label>
+        <label style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;cursor:pointer;min-height:48px;"><input type="radio" name="cancel" value="following" style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;"><span style="font-size:16px;">This and all following</span></label>
+        <label style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;cursor:pointer;min-height:48px;"><input type="radio" name="cancel" value="all" style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;"><span style="font-size:16px;color:var(--fit-red-400);">All sessions</span></label>
+      </div>
+      <div id="canc-warning" style="display:flex;align-items:flex-start;gap:8px;margin-bottom:16px;padding:10px;background:rgba(240,92,91,0.08);border-radius:8px;">
+        <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span id="canc-warning-text" style="font-size:12px;color:var(--fit-text-secondary);line-height:1.4;">This session will be cancelled. 7 participants will be notified and refunded.</span>
+      </div>
+      <button class="fit-btn fit-btn-destructive" style="border-radius:99px;" onclick="document.getElementById('cal-cancel-sheet').classList.remove('visible');">Cancel Training</button>
+    </div>
+  </div>
+
+  <div class="fit-phone-footer">
+    <div class="fit-navbar">
+      <div class="fit-navbar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>
+      <div class="fit-navbar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg></div>
+      <div class="fit-navbar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <div class="fit-navbar-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      <div class="fit-navbar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== COACH: EVENT DETAIL ===== -->
+<div class="fit-phone fit-dark" id="s-event">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">HIIT Group Session</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <!-- Event card (v6d without CTA/chevron + spots bar) -->
+    <div class="v6d-card" style="margin:16px 16px 12px;border-radius:16px;overflow:hidden;">
+      <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+        <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M4.5 12H2M22 12h-2.5M12 4.5V2M12 22v-2.5"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:600;">HIIT Group Session</div>
+          <div style="font-size:12px;opacity:0.7;">Thu, Apr 10 &middot; 10:00 — 11:00</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="v6d-price" style="font-size:16px;font-weight:600;color:var(--fit-white);">&euro;25</div>
+          <div style="font-size:12px;opacity:0.7;">/person</div>
+        </div>
+      </div>
+      <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--fit-divider);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">TNT Studio</span>
+        <span style="font-size:12px;color:var(--fit-text-tertiary);">Card</span>
+      </div>
+      <!-- Spots bar -->
+      <div style="padding:14px 16px 18px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
+          <span style="color:var(--fit-text-tertiary);">Participants</span>
+          <span style="color:var(--fit-teal-500);font-weight:500;">7 / 10</span>
+        </div>
+        <div class="progress-track" style="height:6px;border-radius:3px;background:var(--fit-gray-700);overflow:hidden;">
+          <div style="width:70%;height:100%;border-radius:3px;background:var(--fit-brand-gradient);"></div>
+        </div>
+      </div>
+    </div>
+    <div class="fit-section-title" id="event-participants-title">Participants (7)</div>
+    <!-- Empty state (hidden by default) -->
+    <div class="fit-empty-state" id="event-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/><path d="M19.5 14.5a4 4 0 013 3.87V21"/></svg>
+      <div class="fit-empty-state-title">No participants yet</div>
+      Athletes will appear here once they join this training.
+    </div>
+    <div class="detail-participants" id="event-participants">
+      <div class="fit-participant" data-fit-swipe data-fit-longpress data-fit-sheet="event-sheet"><div class="fit-avatar">AK</div><div class="fit-participant-info"><div class="fit-participant-name">Anna Kowalski</div><div class="fit-participant-sub">fitness</div></div><button class="fit-remove-btn">&times;</button><div class="fit-swipe-left"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div></div>
+      <div class="fit-participant" data-fit-swipe data-fit-longpress data-fit-sheet="event-sheet"><div class="fit-avatar">MS</div><div class="fit-participant-info"><div class="fit-participant-name">Mark Schmidt</div><div class="fit-participant-sub">fitness, crossfit</div></div><button class="fit-remove-btn">&times;</button><div class="fit-swipe-left"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div></div>
+      <div class="fit-participant" data-fit-swipe data-fit-longpress data-fit-sheet="event-sheet"><div class="fit-avatar">JD</div><div class="fit-participant-info"><div class="fit-participant-name">Julia Dent</div><div class="fit-participant-sub">fitness</div></div><button class="fit-remove-btn">&times;</button><div class="fit-swipe-left"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div></div>
+      <div class="fit-participant" data-fit-swipe data-fit-longpress data-fit-sheet="event-sheet"><div class="fit-avatar">TN</div><div class="fit-participant-info"><div class="fit-participant-name">Tom Novak</div><div class="fit-participant-sub">fitness</div></div><button class="fit-remove-btn">&times;</button><div class="fit-swipe-left"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div></div>
+      <div class="fit-participant" data-fit-swipe data-fit-longpress data-fit-sheet="event-sheet"><div class="fit-avatar">LR</div><div class="fit-participant-info"><div class="fit-participant-name">Lena Roth</div><div class="fit-participant-sub">yoga, fitness</div></div><button class="fit-remove-btn">&times;</button><div class="fit-swipe-left"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div></div>
+      <div class="fit-participant" data-fit-swipe data-fit-longpress data-fit-sheet="event-sheet"><div class="fit-avatar">PW</div><div class="fit-participant-info"><div class="fit-participant-name">Paul Weber</div><div class="fit-participant-sub">fitness</div></div><button class="fit-remove-btn">&times;</button><div class="fit-swipe-left"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div></div>
+      <div class="fit-participant" data-fit-swipe data-fit-longpress data-fit-sheet="event-sheet"><div class="fit-avatar">SK</div><div class="fit-participant-info"><div class="fit-participant-name">Sara Kim</div><div class="fit-participant-sub">fitness</div></div><button class="fit-remove-btn">&times;</button><div class="fit-swipe-left"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div></div>
+    </div>
+  </div>
+  <!-- Bottom sheet for event detail -->
+  <div class="fit-sheet-overlay" id="event-sheet">
+    <div class="fit-sheet" style="padding:8px 16px 40px;">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-item" data-action="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg> View Profile</div>
+      <div class="fit-sheet-item" data-action="message"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Send Message</div>
+      <div style="margin-top:12px;">
+        <button style="width:100%;height:50px;border:none;border-radius:99px;background:rgba(240,92,91,0.15);color:var(--fit-red-400);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('event-sheet').classList.remove('visible')">Remove from Training</button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-destructive">Cancel Training</button></div>
+</div>
+
+<!-- ===== COACH: CASH PAYMENT ===== -->
+<div class="fit-phone fit-dark" id="s-cash">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Event Completion</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <!-- Event card (v6d, completion context) -->
+    <div class="v6d-card" style="margin:16px 16px 12px;border-radius:16px;overflow:hidden;">
+      <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+        <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M4.5 12H2M22 12h-2.5M12 4.5V2M12 22v-2.5"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:600;">HIIT Group Session</div>
+          <div style="font-size:12px;opacity:0.7;">Tue, Apr 7 &middot; 10:00 — 11:00</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="v6d-price" style="font-size:16px;font-weight:600;color:var(--fit-white);">&euro;25</div>
+          <div style="font-size:12px;opacity:0.7;">/person</div>
+        </div>
+      </div>
+      <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">TNT Studio</span>
+        <span style="font-size:12px;color:var(--fit-text-tertiary);">5 participants</span>
+      </div>
+    </div>
+    <div style="padding:0 var(--fit-sp-4);">
+      <!-- Payment counter: card auto-paid + cash manually marked = total paid. Updates in real-time -->
+      <div class="cash-counter"><span>Paid:</span><span class="count">4 / 5</span><span class="hint">card auto &middot; tap cash to confirm</span></div>
+
+      <!-- Card participants (auto-paid, no action needed) -->
+      <div class="fit-participant paid" style="cursor:default;"><div class="fit-avatar">AK</div><div class="fit-participant-info"><div class="fit-participant-name">Anna Kowalski</div><div class="fit-participant-sub">fitness</div></div><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:12px;color:var(--fit-text-tertiary);">Card</span><span style="font-size:12px;font-weight:500;color:var(--fit-teal-500);background:rgba(5,224,166,0.12);padding:2px 8px;border-radius:4px;">Paid</span></div></div>
+
+      <div class="fit-participant paid" style="cursor:default;"><div class="fit-avatar">TN</div><div class="fit-participant-info"><div class="fit-participant-name">Tom Novak</div><div class="fit-participant-sub">fitness</div></div><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:12px;color:var(--fit-text-tertiary);">Card</span><span style="font-size:12px;font-weight:500;color:var(--fit-teal-500);background:rgba(5,224,166,0.12);padding:2px 8px;border-radius:4px;">Paid</span></div></div>
+
+      <!-- Cash participants (need manual confirmation) -->
+      <div class="fit-participant paid" data-fit-swipe data-fit-toggle="paid" data-toggle-class="paid" data-toggle-target=".fit-checkbox" data-fit-longpress data-fit-sheet="cash-sheet"><div class="fit-avatar">MS</div><div class="fit-participant-info"><div class="fit-participant-name">Mark Schmidt</div><div class="fit-participant-sub">crossfit</div></div><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:12px;color:var(--fit-text-tertiary);">Cash</span><div class="fit-checkbox checked"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div><div class="fit-swipe-right"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Paid</div><div class="fit-swipe-left"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div></div>
+
+      <div class="fit-participant" data-fit-swipe data-fit-toggle="paid" data-toggle-class="paid" data-toggle-target=".fit-checkbox" data-fit-longpress data-fit-sheet="cash-sheet"><div class="fit-avatar">JD</div><div class="fit-participant-info"><div class="fit-participant-name">Julia Dent</div><div class="fit-participant-sub">fitness</div></div><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:12px;color:var(--fit-text-tertiary);">Cash</span><div class="fit-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div><div class="fit-swipe-right"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Paid</div><div class="fit-swipe-left"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div></div>
+
+      <div class="fit-participant paid" data-fit-swipe data-fit-toggle="paid" data-toggle-class="paid" data-toggle-target=".fit-checkbox" data-fit-longpress data-fit-sheet="cash-sheet"><div class="fit-avatar">LR</div><div class="fit-participant-info"><div class="fit-participant-name">Lena Roth</div><div class="fit-participant-sub">yoga</div></div><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:12px;color:var(--fit-text-tertiary);">Cash</span><div class="fit-checkbox checked"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div><div class="fit-swipe-right"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Paid</div><div class="fit-swipe-left"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div></div>
+    </div>
+  </div>
+  <!-- Bottom sheet for cash -->
+  <div class="fit-sheet-overlay" id="cash-sheet">
+    <div class="fit-sheet"><div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title"></div>
+      <div class="fit-sheet-item" data-action="paid"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Mark as Paid</div>
+      <div class="fit-sheet-item" data-action="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg> View Profile</div>
+      <div class="fit-sheet-item destructive" data-action="remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove from Training</div>
+    </div>
+  </div>
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary">Complete Training</button></div>
+</div>
+
+<!-- Annotations -->
+<div class="ann-container">
+  <div class="ann active" id="ann-s-calendar"><span class="ann-role coach">Coach</span><h3>Coach Calendar</h3><p>24-hour vertical timeline, 15-min grid snap.</p><ul><li><strong>Day strip</strong> — colored dots under days: 🟢 personal, 🔵 group, ⚫ external</li><li><strong>Group events</strong> — cyan border + badge "7/10"</li><li><strong>Personal events</strong> — green border + athlete name</li><li><strong>External events</strong> — gray, opacity, side-by-side with hatched unavailable zone</li><li><strong>Unavailable hours</strong> — diagonal hatching overlay</li><li><strong>FAB "+"</strong> → sheet: Personal, Group, Custom event</li><li><strong>Long tap empty slot</strong> → same sheet, time prefilled</li><li><strong>Tap event</strong> → event action sheet (personal/group/invitation)</li><li><strong>Long press event</strong> → activates drag & drop (same day only)</li></ul><span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Behavior details</span><div class="ann-detail"><h4>Day Navigation</h4><p><strong>Tap day</strong> on strip = instant switch. <strong>Swipe day strip</strong> = scroll. <strong>Swipe content</strong> left/right = page transition (Apple Calendar). Day strip auto-scrolls to selected day.</p><h4>Month View Toggle</h4><p><strong>"April 2026 ▼"</strong> — tap title + chevron expands month grid. Day strip replaced by full month calendar. Tap a day = collapse back to day strip with selected day. Same component across all calendar screens (Coach, Athlete, Booking, Invite).</p><h4>Drag & Drop</h4><p><strong>Long press event</strong> → event lifts, enters drag mode. Drag within same day only. Coach's own slot occupied → <strong>blocked</strong>. Unavailable zone → <strong>blocked</strong>. Participant conflicts → warning dialog "2 of 7 have conflicts. Move anyway?" Coach decides. Drop releases event at new time.</p><h4>Day Strip Dots</h4><p>p=personal (green), g=group (cyan), e=external (gray). At-a-glance overview.</p><h4>Unavailable Zones</h4><p>Hatched diagonal pattern = outside coach's available hours OR blocked by external calendar.</p><h4>External Events</h4><p>Imported from Google/Apple Calendar. Full-width, opacity 0.7, anonymized (title only).</p><h4>API</h4><p><code>GET {role}/training-events/?startDate&endDate</code><br><code>GET coach/training-events/allowed-hours/</code><br><code>PATCH {role}/training-events/{id}/change-status/</code></p></div></div>
+  <div class="ann" id="ann-s-event"><span class="ann-role coach">Coach</span><h3>Group Event Detail</h3>
+    <div class="state-toggle"><button class="active" onclick="toggleEventState('filled',this)">Filled</button><button onclick="toggleEventState('empty',this)">Empty</button></div>
+    <p>"Ticket card" layout — compact summary + participants.</p><ul><li>Ticket: badge + price, date/time, location, spots bar</li><li>Swipe left or X to remove participant</li><li>Long press → bottom sheet</li><li><strong>Empty state:</strong> icon + "No participants yet"</li></ul></div>
+  <div class="ann" id="ann-s-cash"><span class="ann-role coach">Coach</span><h3>Event Completion</h3><p>Post-training screen. Coach reviews payments and completes training.</p><ul><li><strong>Card participants:</strong> auto "Paid" badge, no action needed</li><li><strong>Cash participants:</strong> checkbox, swipe right/left, long press</li><li>Payment summary: "4 paid &middot; 1 unpaid"</li><li>Each row shows payment method (Card/Cash)</li><li>Complete Training → triggers Stripe transfers for card</li></ul><span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Entry & flow</span><div class="ann-detail"><h4>Entry point</h4><p>Push notification after event end time: "Training ended. Tap to review and complete." Deep links to this screen.</p><h4>Unpaid cash</h4><p>Does NOT block completion. Stays as cash_pending record. Coach can see unpaid athletes in training history.</p></div></div>
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+// Theme switcher (replaces role switcher)
+function switchTheme(theme) {
+  document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.getElementById("theme-light").style.background = theme === "light" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-light").style.color = theme === "light" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.querySelectorAll(".fit-phone").forEach(function(phone) {
+    if (theme === "light") {
+      phone.classList.remove("fit-dark");
+      phone.classList.add("fit-light");
+    } else {
+      phone.classList.remove("fit-light");
+      phone.classList.add("fit-dark");
+    }
+  });
+}
+
+function go(id, btn) {
+  document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+  const ann = document.getElementById('ann-' + id);
+  if (ann) ann.classList.add('active');
+  // Re-init FitUI for newly visible screen
+  FitUI.initAll(document.getElementById(id));
+}
+
+// === STATE TOGGLE (filled/empty) ===
+function toggleEventState(state, btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  var participants = document.getElementById('event-participants');
+  var empty = document.getElementById('event-empty');
+  var title = document.getElementById('event-participants-title');
+  // Find spots bar in the v6d card
+  var spotsBar = document.querySelector('#s-event .v6d-card div[style*="Participants"]');
+  if (!spotsBar) spotsBar = document.querySelector('#s-event .v6d-card > div:last-child');
+  if (state === 'empty') {
+    participants.style.display = 'none';
+    empty.style.display = 'block';
+    title.textContent = 'Participants (0)';
+  } else {
+    participants.style.display = '';
+    empty.style.display = 'none';
+    title.textContent = 'Participants (7)';
+  }
+}
+
+// === EVENT COMPLETION COUNTER ===
+function updateCompletionCounter() {
+  var screen = document.getElementById('s-cash');
+  if (!screen) return;
+  var allRows = screen.querySelectorAll('.fit-participant');
+  var cardPaid = screen.querySelectorAll('.fit-participant[style*="cursor:default"]').length;
+  var cashPaid = screen.querySelectorAll('.fit-participant.paid:not([style*="cursor:default"])').length;
+  var total = allRows.length;
+  var paid = cardPaid + cashPaid;
+  var counter = screen.querySelector('.count');
+  if (counter) counter.textContent = paid + ' / ' + total;
+}
+// Listen for toggles on Event Completion screen
+document.addEventListener('fit:toggle', function(e) {
+  if (e.target.closest('#s-cash')) updateCompletionCounter();
+});
+document.addEventListener('click', function(e) {
+  if (e.target.closest('#s-cash .fit-checkbox')) {
+    setTimeout(updateCompletionCounter, 50);
+  }
+});
+
+// === DYNAMIC SHEET WARNINGS ===
+function updateSheetWarning(e, sheetId) {
+  var radio = e.target.closest("label");
+  if (!radio) return;
+  radio = radio.querySelector("input[type=radio]");
+  if (!radio) return;
+  var val = radio.value;
+  var msgs = {
+    "cal-reschedule-sheet": {tid:"resc-warning-text",m:{"this":"This session will be moved. 7 participants will be notified.","following":"This and all future sessions will be moved. 7+ participants will be notified.","all":"All sessions will be moved. All registered participants will be notified."}},
+    "cal-cancel-sheet": {tid:"canc-warning-text",m:{"this":"This session will be cancelled. 7 participants will be notified and refunded.","following":"This and all future sessions will be cancelled. All affected participants will be notified and refunded.","all":"All sessions will be cancelled. All participants will be notified and refunded. This cannot be undone."}}
+  };
+  var cfg = msgs[sheetId];
+  if (!cfg) return;
+  var msg = cfg.m[val];
+  var textEl = document.getElementById(cfg.tid);
+  if (!textEl || !msg) return;
+  if (typeof msg === "string") { textEl.textContent = msg; }
+  else {
+    textEl.textContent = msg.t;
+    var w = document.getElementById(cfg.wid);
+    if (w) {
+      w.style.background = msg.c==="red" ? "rgba(240,92,91,0.08)" : "rgba(247,201,72,0.08)";
+      w.querySelector("svg").setAttribute("stroke", msg.c==="red" ? "var(--fit-red-400)" : "var(--fit-yellow-400)");
+    }
+  }
+}
+
+// === MONTH VIEW TOGGLE ===
+function toggleMonthView(gridId, stripEl) {
+  var grid = document.getElementById(gridId);
+  if (!grid) return;
+  var isOpen = grid.style.display !== 'none';
+  grid.style.display = isOpen ? 'none' : 'block';
+  // Hide/show day strip
+  var phone = grid.closest('.fit-phone');
+  var strip = phone ? phone.querySelector('.fit-day-strip') : null;
+  if (strip) strip.style.display = isOpen ? '' : 'none';
+  // Rotate chevron
+  var header = phone ? phone.querySelector('.fit-cal-header') : null;
+  var chevron = header ? header.querySelector('.fit-cal-chevron') : null;
+  if (chevron) chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+
+// Swipe-right on cash row = toggle paid
+document.addEventListener('fit:swipe-right', function(e) {
+  var row = e.target.closest('.fit-participant');
+  if (row && !row.classList.contains('paid')) {
+    row.classList.add('paid');
+    var cb = row.querySelector('.fit-checkbox');
+    if (cb) cb.classList.add('checked');
+    FitUI.updateCounters(row.closest('.fit-phone'));
+  }
+});
+
+// Remove btn click
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('.fit-remove-btn');
+  if (!btn) return;
+  e.stopPropagation();
+  var row = btn.closest('.fit-participant');
+  if (row) {
+    row.style.transition = 'transform 0.3s, opacity 0.3s';
+    row.style.transform = 'translateX(-100%)';
+    row.style.opacity = '0';
+    setTimeout(function() {
+      row.style.maxHeight = '0'; row.style.padding = '0';
+      row.style.margin = '0'; row.style.borderWidth = '0';
+      row.style.overflow = 'hidden';
+    }, 300);
+  }
+});
+</script>
+</body>
+</html>

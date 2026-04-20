@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Shared Screens</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--fit-font);
+    background: #0a0a0a;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 24px; min-height: 100vh;
+    min-width: 900px;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    left: max(16px, calc(50% - 195px - 200px - 48px));
+    top: 24px; bottom: 24px; width: 200px;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-scroll {
+    flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+  }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--fit-gray-600);
+    padding: 0 8px; margin: 16px 0 8px;
+  }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button {
+    font-family: var(--fit-font); font-size: 14px; font-weight: 400;
+    padding: 10px 12px; border-radius: 10px; border: none;
+    background: transparent; color: var(--fit-gray-400);
+    cursor: pointer; text-align: left; width: 100%; transition: all 0.15s;
+  }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active {
+    background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500;
+  }
+
+  /* Annotations */
+  .ann-container {
+    position: fixed;
+    left: calc(50% + 195px + 48px);
+    top: 24px; width: 280px;
+  }
+  .ann { display: none; }
+  .ann.active { display: block; }
+  .ann-role {
+    display: inline-block; font-size: 14px; font-weight: 500;
+    padding: 4px 12px; border-radius: 8px; margin-bottom: 16px;
+  }
+  .ann-role.coach { background: rgba(3,178,226,0.15); color: var(--fit-blue-500); }
+  .ann-role.athlete { background: rgba(5,224,166,0.15); color: var(--fit-teal-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 14px; padding-left: 18px; font-size: 16px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 6px; }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  /* Expandable details */
+  .ann-detail {
+    margin-top: 12px; padding: 12px; border-radius: 10px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--fit-gray-700);
+    display: none;
+  }
+  .ann-detail.open { display: block; max-height: 400px; overflow-y: auto; }
+  .ann-detail.open::-webkit-scrollbar { width: 4px; }
+  .ann-detail.open::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann-detail-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; color: var(--fit-blue-500); cursor: pointer;
+    margin-top: 12px; font-weight: 500;
+  }
+  .ann-detail-toggle svg { width: 14px; height: 14px; transition: transform 0.2s; }
+  .ann-detail-toggle.open svg { transform: rotate(90deg); }
+  .ann-detail h4 { font-size: 14px; font-weight: 500; color: var(--fit-gray-300); margin-bottom: 6px; }
+  .ann-detail p { font-size: 14px; line-height: 1.5; color: var(--fit-gray-500); margin-bottom: 8px; }
+  .ann-detail code { font-size: 12px; background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 3px; color: var(--fit-gray-400); }
+
+  /* Screen visibility */
+  .fit-phone { display: none; }
+  .fit-phone.active { display: flex; }
+
+  /* SVG icon defaults */
+  svg.i { width: 16px; height: 16px; vertical-align: middle; }
+  svg.i-sm { width: 14px; height: 14px; vertical-align: middle; margin-right: 4px; }
+
+  /* Dark header/footer bg */
+  .fit-dark .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-dark .fit-phone-footer { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+
+  /* All component styles now in fit-ui.css */
+
+  /* Prototype-specific */
+  .detail-participants { padding: 0 var(--fit-sp-4); }
+  #tp-slot-list::-webkit-scrollbar { display: none; }
+
+
+
+  /* Contenteditable placeholder */
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: var(--fit-text-placeholder);
+    pointer-events: none;
+  }
+
+  /* State toggle (filled/empty) */
+  .state-toggle {
+    display: inline-flex; gap: 0; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--fit-gray-700); margin-bottom: 12px;
+  }
+  .state-toggle button {
+    font-family: var(--fit-font); font-size: 12px; font-weight: 500;
+    padding: 4px 10px; border: none; cursor: pointer;
+    background: transparent; color: var(--fit-gray-400);
+    transition: all 0.15s;
+  }
+  .state-toggle button.active {
+    background: var(--fit-gray-700); color: var(--fit-white);
+  }
+  /* Empty state placeholder */
+  .fit-empty-state {
+    display: none; text-align: center; padding: 32px 20px;
+    color: var(--fit-text-tertiary); font-size: 14px; line-height: 1.5;
+  }
+  .fit-empty-state svg { width: 40px; height: 40px; margin-bottom: 12px; color: var(--fit-gray-600); }
+  .fit-empty-state-title { font-size: 16px; font-weight: 500; color: var(--fit-text-secondary); margin-bottom: 6px; }
+
+  /* Conditional fields animation */
+  #group-fields, #schedule-fields, #recurring-fields, #oneoff-fields {
+    will-change: max-height, opacity;
+  }
+
+  /* Light theme overrides for group training */
+  .fit-light .set-card { background: var(--fit-white); }
+  .fit-light .fit-card { background: var(--fit-white); }
+  .fit-light .fit-ticket { background: var(--fit-white); }
+  .fit-light .fit-participants-card { background: var(--fit-white); }
+  .fit-light .fit-spots { background: var(--fit-gray-100); }
+  .fit-light .fit-spots-fill { background: var(--fit-gray-200); }
+  .fit-light .fit-input { background: var(--fit-gray-100); }
+  .fit-light .fit-navbar { background: rgba(255,255,255,0.75); box-shadow: 0 0 24px rgba(0,0,0,0.15); }
+  .fit-light .fit-navbar-item { color: var(--fit-gray-400); }
+  .fit-light .fit-navbar-item.active { color: var(--fit-text-primary); }
+
+  /* Month grid day with event dot */
+  .mg-day { display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;cursor:pointer; }
+  .mg-day-num { font-size:14px;color:var(--fit-text-secondary);width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%; }
+  .mg-day.today .mg-day-num { color:var(--fit-brand-primary);font-weight:600; }
+  .mg-day.selected .mg-day-num { background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);color:var(--fit-text-primary);font-weight:500; }
+  .mg-dots { display:flex;gap:2px;height:4px; }
+  .mg-dot { width:4px;height:4px;border-radius:50%; }
+  .mg-dot.p { background:var(--fit-teal-500); }
+  .mg-dot.g { background:var(--fit-brand-primary); }
+  .mg-dot.e { background:var(--fit-text-tertiary); }
+
+  /* Calendar header component (reusable) */
+  .fit-cal-header {
+    display: flex; align-items: center; gap: 4px; cursor: pointer;
+  }
+  .fit-cal-header-month { font-size: 16px; font-weight: 600; color: var(--fit-text-primary); }
+  .fit-cal-header-year { font-size: 16px; font-weight: 400; color: var(--fit-text-secondary); }
+  .fit-cal-chevron { transition: transform 0.2s; flex-shrink: 0; }
+
+  /* V6d card themes */
+  .v6d-card { background: var(--fit-surface-high); }
+  .fit-light .v6d-card { background: var(--fit-white) !important; box-shadow: 0 1px 12px rgba(0,0,0,0.12); }
+  .fit-light .v6d-card { border: 1px solid var(--fit-gray-200); }
+  .fit-light .v6d-icon-box { background: rgba(0,0,0,0.06) !important; }
+  .fit-light .v6d-icon-box svg { stroke: var(--fit-gray-900) !important; }
+  .fit-light .v6d-price { color: var(--fit-text-primary) !important; }
+  .fit-light .v6d-loc-strip { border-bottom-color: var(--fit-gray-200) !important; }
+  .fit-light .v6d-special-badge { background: rgba(0,0,0,0.08) !important; color: var(--fit-text-primary) !important; }
+  /* Alt 1 header: light theme */
+  .fit-light .v6d-header-neutral { background: var(--fit-gray-200) !important; }
+  .fit-light .v6d-header-neutral .v6d-icon-box { background: rgba(0,0,0,0.08) !important; }
+  /* Alt 2 header: light theme */
+  .fit-light .v6d-header-dense { background: linear-gradient(to right, rgba(10,147,189,0.25), rgba(5,224,166,0.25)) !important; }
+
+  /* Paid dimming + validation errors: in fit-ui.css */
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+  <div class="label">Shared</div>
+  <button class="active" onclick="go('s-sport-select',this)">Sport Select</button>
+  <button onclick="go('s-notes-editor',this)">Notes Editor</button>
+  <button onclick="go('s-personal-data',this)">Personal Data</button>
+  </div>
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ===== SPORT SELECT (grid, multi-select) ===== -->
+<div class="fit-phone fit-dark active" id="s-sport-select">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Select Sports</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div style="display:flex;flex-wrap:wrap;gap:12px;padding:0 16px;">
+      <!-- Selected -->
+      <div style="flex:1 1 calc(50% - 6px);min-width:140px;padding:16px;border-radius:16px;background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>
+        <span style="font-size:16px;color:var(--fit-text-primary);">Basketball</span>
+      </div>
+      <!-- Unselected -->
+      <div style="flex:1 1 calc(50% - 6px);min-width:140px;padding:16px;border-radius:16px;background:var(--fit-surface-high);border:0.5px solid var(--fit-gray-600);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 8l8 8M16 8l-8 8"/></svg>
+        <span style="font-size:16px;color:var(--fit-text-primary);">Soccer</span>
+      </div>
+      <div style="flex:1 1 calc(50% - 6px);min-width:140px;padding:16px;border-radius:16px;background:var(--fit-surface-high);border:0.5px solid var(--fit-gray-600);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18V6M6 12l6-6 6 6"/></svg>
+        <span style="font-size:16px;color:var(--fit-text-primary);">Golf</span>
+      </div>
+      <!-- Selected -->
+      <div style="flex:1 1 calc(50% - 6px);min-width:140px;padding:16px;border-radius:16px;background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
+        <svg width="24" height="24" viewBox="0 0 13.6034 19" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M10.926 4.15C13.027 4.15 13.59 7.02 12.688 8.91C12.284 9.75 11.585 10.49 11.026 11.24C10.489 11.96 10.22 12.32 9.868 12.57C9.081 13.13 8.17 13.1 7.241 13.1H6.313C4.027 13.1 2.885 13.1 2.13 12.46C1.375 11.82 1.19 10.72 0.821 8.53C0.617 7.32 0.474 6.11 0.504 4.94C0.558 2.79 2.2 0.99 4.417 0.63C5.474 0.46 6.775 0.45 7.831 0.63C9.718 0.95 11.049 2.57 10.918 4.4C10.837 5.51 10.385 6.66 10.103 7.73M2.304 12.65V14.9C2.304 16.6 2.304 17.45 2.831 17.97C3.358 18.5 4.207 18.5 5.904 18.5H6.804C8.501 18.5 9.349 18.5 9.877 17.97C10.404 17.45 10.404 16.6 10.404 14.9V12.2M2.304 15.8H5.004"/></svg>
+        <span style="font-size:16px;color:var(--fit-text-primary);">Boxing</span>
+      </div>
+      <div style="flex:1 1 calc(50% - 6px);min-width:140px;padding:16px;border-radius:16px;background:var(--fit-surface-high);border:0.5px solid var(--fit-gray-600);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        <span style="font-size:16px;color:var(--fit-text-primary);">Padel</span>
+      </div>
+      <!-- Selected -->
+      <div style="flex:1 1 calc(50% - 6px);min-width:140px;padding:16px;border-radius:16px;background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M4.5 12H2M22 12h-2.5"/></svg>
+        <span style="font-size:16px;color:var(--fit-text-primary);">Tennis</span>
+      </div>
+      <div style="flex:1 1 calc(50% - 6px);min-width:140px;padding:16px;border-radius:16px;background:var(--fit-surface-high);border:0.5px solid var(--fit-gray-600);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg>
+        <span style="font-size:16px;color:var(--fit-text-primary);">Football</span>
+      </div>
+      <div style="flex:1 1 calc(50% - 6px);min-width:140px;padding:16px;border-radius:16px;background:var(--fit-surface-high);border:0.5px solid var(--fit-gray-600);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        <span style="font-size:16px;color:var(--fit-text-primary);">Running</span>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;">
+    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Confirm</button>
+  </div>
+</div>
+
+<!-- ===== NOTES / ABOUT ME EDITOR (full-screen) ===== -->
+<div class="fit-phone fit-dark" id="s-notes-editor">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;">
+      <button style="border:none;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;cursor:pointer;">Cancel</button>
+      <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Notes</span>
+      <button style="border:none;background:transparent;color:var(--fit-brand-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Save</button>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding:0;">
+    <div style="padding:16px;height:100%;">
+      <div contenteditable="true" style="width:100%;min-height:300px;font-family:var(--fit-font);font-size:16px;line-height:1.6;color:var(--fit-text-primary);outline:none;background:transparent;">Knee injury (left) — avoid high impact jumping. Prefers morning sessions. Pays cash usually. Good progress on upper body strength. Wants to start group sessions next month.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SETTINGS: PERSONAL DATA ===== -->
+<div class="fit-phone fit-dark" id="s-personal-data">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Personal data</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <!-- Avatar with edit -->
+    <div style="display:flex;justify-content:center;padding:8px 0 20px;">
+      <div style="position:relative;">
+        <div style="width:80px;height:80px;border-radius:50%;background:var(--fit-brand-gradient);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:600;color:var(--fit-white);">JM</div>
+        <div style="position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;border:2px solid var(--fit-screen-bg);">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Name fields -->
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">First name</span>
+      <div class="fit-input" style="color:var(--fit-text-primary);">John</div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Last name</span>
+      <div class="fit-input" style="color:var(--fit-text-primary);">Miller</div>
+    </div>
+
+    <!-- About me -->
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">About me</span>
+      <div class="fit-input" style="min-height:80px;align-items:flex-start;padding-top:14px;cursor:pointer;" onclick="go('s-notes-editor',document.querySelector('[onclick*=s-notes-editor]'))">
+        <span style="color:var(--fit-text-secondary);font-size:14px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">Certified fitness & yoga coach with 8 years of experience. Multi-sport coach working with tennis, padel, and basketball players.</span>
+      </div>
+    </div>
+
+    <!-- Dropdowns -->
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Time Zone</span>
+      <div class="fit-input" style="cursor:pointer;"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span> Warsaw, Europe (GMT+1)<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Home location</span>
+      <div class="fit-input" style="cursor:pointer;"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:14px;"><rect x="1" y="5" width="22" height="14" rx="2"/></svg></span> Poland<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Languages</span>
+      <div class="fit-input" style="cursor:pointer;"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg></span> Polski<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    </div>
+
+    <!-- Body metrics -->
+    <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);padding:0 16px;margin:8px 0 8px;">Body metrics</div>
+
+    <!-- Gender -->
+    <div style="padding:0 16px 20px;">
+      <div class="fit-selection-group">
+        <div class="fit-selection-chip" style="gap:6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
+          Woman
+        </div>
+        <div class="fit-selection-chip selected" style="gap:6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
+          Man
+        </div>
+      </div>
+    </div>
+
+    <!-- Weight + Height -->
+    <div style="display:flex;gap:12px;padding:0 16px;">
+      <div class="fit-input-group" style="flex:1;padding:0;">
+        <span class="fit-input-label">Weight</span>
+        <div class="fit-input" style="color:var(--fit-text-primary);">95.5 <span style="color:var(--fit-text-tertiary);margin-left:auto;">kg</span></div>
+      </div>
+      <div class="fit-input-group" style="flex:1;padding:0;">
+        <span class="fit-input-label">Height</span>
+        <div class="fit-input" style="color:var(--fit-text-primary);">185 <span style="color:var(--fit-text-tertiary);margin-left:auto;">cm</span></div>
+      </div>
+    </div>
+
+    <!-- Date of birth -->
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Date of birth</span>
+      <div class="fit-input" style="color:var(--fit-text-placeholder);cursor:pointer;">Select your date of birth</div>
+    </div>
+
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;">
+    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Save</button>
+  </div>
+</div>
+
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+  <div class="ann active" id="ann-s-sport-select"><span class="ann-role coach">Coach</span><h3>Sport Select</h3><p>Grid multi-select for sports. 2 columns.</p><ul><li><strong>Selected:</strong> gradient bg + teal border</li><li><strong>Unselected:</strong> surface-high bg + subtle border</li><li>Sport icon + name per card</li><li><strong>Confirm</strong> sticky button</li><li>Reusable: Create Client, Personal Data (Settings), Onboarding</li></ul></div>
+  <div class="ann" id="ann-s-notes-editor"><span class="ann-role coach">Coach</span><h3>Notes Editor</h3><p>Full-screen text editor for Notes and About Me fields.</p><ul><li><strong>Cancel / Save</strong> in header (iOS pattern)</li><li>Full screen = comfortable multi-line editing</li><li>Keyboard auto-opens on entry</li><li>Reused for: client notes, about me, location description</li></ul></div>
+  <div class="ann" id="ann-s-personal-data"><span class="ann-role coach">Coach</span><h3>Personal Data</h3><p>Edit profile screen from Settings.</p><ul><li><strong>Avatar</strong> with pencil overlay — tap to change photo</li><li><strong>Name fields:</strong> first + last</li><li><strong>About me:</strong> tap → full-screen Notes Editor</li><li><strong>Dropdowns:</strong> timezone, home location (with flag), languages</li><li><strong>Body metrics:</strong> gender chips (Woman/Man), weight (kg), height (cm)</li><li><strong>Date of birth:</strong> date picker</li></ul><p>Same layout used for CRM athlete creation with different fields.</p></div>
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+function switchTheme(theme) {
+  document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.getElementById("theme-light").style.background = theme === "light" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-light").style.color = theme === "light" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.querySelectorAll(".fit-phone").forEach(function(phone) {
+    if (theme === "light") { phone.classList.remove("fit-dark"); phone.classList.add("fit-light"); }
+    else { phone.classList.remove("fit-light"); phone.classList.add("fit-dark"); }
+  });
+}
+
+function go(id, btn) {
+  document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+  const ann = document.getElementById('ann-' + id);
+  if (ann) ann.classList.add('active');
+  FitUI.initAll(document.getElementById(id));
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Coach Invite</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--fit-font);
+    background: #0a0a0a;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 24px; min-height: 100vh;
+    min-width: 900px;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    left: max(16px, calc(50% - 195px - 200px - 48px));
+    top: 24px; bottom: 24px; width: 200px;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-scroll {
+    flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+  }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--fit-gray-600);
+    padding: 0 8px; margin: 16px 0 8px;
+  }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button {
+    font-family: var(--fit-font); font-size: 14px; font-weight: 400;
+    padding: 10px 12px; border-radius: 10px; border: none;
+    background: transparent; color: var(--fit-gray-400);
+    cursor: pointer; text-align: left; width: 100%; transition: all 0.15s;
+  }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active {
+    background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500;
+  }
+
+  /* Annotations */
+  .ann-container {
+    position: fixed;
+    left: calc(50% + 195px + 48px);
+    top: 24px; width: 280px;
+  }
+  .ann { display: none; }
+  .ann.active { display: block; }
+  .ann-role {
+    display: inline-block; font-size: 14px; font-weight: 500;
+    padding: 4px 12px; border-radius: 8px; margin-bottom: 16px;
+  }
+  .ann-role.coach { background: rgba(3,178,226,0.15); color: var(--fit-blue-500); }
+  .ann-role.athlete { background: rgba(5,224,166,0.15); color: var(--fit-teal-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 14px; padding-left: 18px; font-size: 16px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 6px; }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  /* Expandable details */
+  .ann-detail {
+    margin-top: 12px; padding: 12px; border-radius: 10px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--fit-gray-700);
+    display: none;
+  }
+  .ann-detail.open { display: block; max-height: 400px; overflow-y: auto; }
+  .ann-detail.open::-webkit-scrollbar { width: 4px; }
+  .ann-detail.open::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann-detail-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; color: var(--fit-blue-500); cursor: pointer;
+    margin-top: 12px; font-weight: 500;
+  }
+  .ann-detail-toggle svg { width: 14px; height: 14px; transition: transform 0.2s; }
+  .ann-detail-toggle.open svg { transform: rotate(90deg); }
+  .ann-detail h4 { font-size: 14px; font-weight: 500; color: var(--fit-gray-300); margin-bottom: 6px; }
+  .ann-detail p { font-size: 14px; line-height: 1.5; color: var(--fit-gray-500); margin-bottom: 8px; }
+  .ann-detail code { font-size: 12px; background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 3px; color: var(--fit-gray-400); }
+
+  /* Screen visibility */
+  .fit-phone { display: none; }
+  .fit-phone.active { display: flex; }
+
+  /* SVG icon defaults */
+  svg.i { width: 16px; height: 16px; vertical-align: middle; }
+  svg.i-sm { width: 14px; height: 14px; vertical-align: middle; margin-right: 4px; }
+
+  /* Dark header/footer bg */
+  .fit-dark .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-dark .fit-phone-footer { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+
+  /* Light theme overrides */
+  .fit-light .v6d-card { background: var(--fit-white) !important; box-shadow: 0 1px 12px rgba(0,0,0,0.12); }
+  .fit-light .v6d-card { border: 1px solid var(--fit-gray-200); }
+  .fit-light .v6d-icon-box { background: rgba(0,0,0,0.06) !important; }
+  .fit-light .v6d-icon-box svg { stroke: var(--fit-gray-900) !important; }
+  .fit-light .v6d-price { color: var(--fit-text-primary) !important; }
+  .fit-light .v6d-loc-strip { border-bottom-color: var(--fit-gray-200) !important; }
+  .fit-light .v6d-card { background: var(--fit-white); }
+  .fit-light .fit-input { background: var(--fit-gray-100); }
+
+  /* V6d card themes */
+  .v6d-card { background: var(--fit-surface-high); }
+
+  /* Calendar header component */
+  .fit-cal-header {
+    display: flex; align-items: center; gap: 4px; cursor: pointer;
+  }
+  .fit-cal-header-month { font-size: 16px; font-weight: 600; color: var(--fit-text-primary); }
+  .fit-cal-header-year { font-size: 16px; font-weight: 400; color: var(--fit-text-secondary); }
+  .fit-cal-chevron { transition: transform 0.2s; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+  <div class="label">Invite Flow</div>
+  <button class="active" onclick="go('s-invite-select',this)">Select Training</button>
+  <button onclick="go('s-invite-time',this)">Date & Time (Personal)</button>
+  <button onclick="go('s-invite-time-group',this)">Date & Time (Group)</button>
+  <button onclick="go('s-invite-review',this)">Review & Send</button>
+  </div>
+  <!-- Dark/Light toggle at bottom -->
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ===== INVITE: SELECT TRAINING ===== -->
+<div class="fit-phone fit-dark active" id="s-invite-select">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Select Training</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div style="font-size:14px;color:var(--fit-text-tertiary);padding:0 16px 16px;">Choose a training template for the invitation</div>
+
+    <!-- Training cards in select mode (tap = select + next step) -->
+    <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;" onclick="go('s-invite-time',document.querySelector('[onclick*=s-invite-time]'))">
+      <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+        <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:600;">Basketball Training</div>
+          <div style="font-size:12px;opacity:0.7;">1h · cash/card</div>
+        </div>
+        <div class="v6d-price" style="font-size:16px;font-weight:600;color:var(--fit-white);">€50</div>
+      </div>
+      <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">TNT Studio</span>
+        <span style="font-size:12px;color:var(--fit-text-tertiary);">Personal</span>
+      </div>
+    </div>
+
+    <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;" onclick="go('s-invite-time',document.querySelector('[onclick*=s-invite-time]'))">
+      <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+        <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M4.5 12H2M22 12h-2.5M12 4.5V2M12 22v-2.5"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:600;">HIIT Group Session</div>
+          <div style="font-size:12px;opacity:0.7;">Tue & Thu, 18:00 · 1h</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="v6d-price" style="font-size:16px;font-weight:600;color:var(--fit-white);">€25</div>
+          <div style="font-size:12px;opacity:0.7;">/person</div>
+        </div>
+      </div>
+      <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">TNT Studio</span>
+        <span style="font-size:12px;color:var(--fit-text-tertiary);">Group · max 10</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== INVITE: SELECT DATE & TIME ===== -->
+<div class="fit-phone fit-dark" id="s-invite-time">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header" style="justify-content:space-between;">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="fit-cal-header" onclick="toggleMonthView('inv-month-grid')">
+        <span class="fit-cal-header-month">April</span>
+        <span class="fit-cal-header-year">2026</span>
+        <svg class="fit-cal-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div style="flex:1;"></div>
+    </div>
+    <div id="inv-month-grid" style="display:none;padding:0 16px 12px;">
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;">
+        <span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">S</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">M</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">T</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">W</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">T</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">F</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">S</span>
+        <span></span><span></span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">1</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">2</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">3</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">4</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">5</span>
+        <span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">6</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">7</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">8</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">9</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">10</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">11</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">12</span>
+        <span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">13</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">14</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">15</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">16</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">17</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">18</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">19</span>
+        <span style="font-size:14px;color:var(--fit-brand-primary);padding:8px;font-weight:600;">20</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">21</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">22</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">23</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">24</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">25</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">26</span>
+        <span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">27</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">28</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">29</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">30</span><span></span><span></span><span></span>
+      </div>
+    </div>
+    <div class="fit-day-strip" data-fit-day-strip data-month="4" data-year="2026" data-today="20" data-selected="20">
+      <div class="fit-day-strip-inner"></div>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <!-- Time slots (reusing time picker pattern but simpler) -->
+    <div style="padding:0 16px;">
+      <div style="font-size:14px;color:var(--fit-text-tertiary);margin-bottom:12px;">Available slots for Basketball Training · 1h</div>
+
+      <div class="tp-slot" style="margin-bottom:8px;border-radius:12px;padding:16px;cursor:pointer;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">07:00 – 08:00</span>
+          <span style="font-size:12px;color:var(--fit-text-tertiary);">Available</span>
+        </div>
+      </div>
+
+      <div class="tp-slot" style="background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);margin-bottom:8px;border-radius:12px;padding:16px;cursor:pointer;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">08:00 – 09:00</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+      </div>
+
+      <div class="tp-slot" style="margin-bottom:8px;border-radius:12px;padding:16px;cursor:pointer;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">09:00 – 10:00</span>
+          <span style="font-size:12px;color:var(--fit-text-tertiary);">Available</span>
+        </div>
+      </div>
+
+      <div class="tp-slot tp-slot-busy" style="margin-bottom:8px;border-radius:12px;padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">10:00 – 11:00</span>
+          <span style="font-size:12px;color:var(--fit-red-400);">Busy · HIIT Group</span>
+        </div>
+      </div>
+
+      <div class="tp-slot" style="margin-bottom:8px;border-radius:12px;padding:16px;cursor:pointer;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">11:00 – 12:00</span>
+          <span style="font-size:12px;color:var(--fit-text-tertiary);">Available</span>
+        </div>
+      </div>
+
+      <div class="tp-slot" style="margin-bottom:8px;border-radius:12px;padding:16px;cursor:pointer;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">14:00 – 15:00</span>
+          <span style="font-size:12px;color:var(--fit-text-tertiary);">Available</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;">
+    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" onclick="go('s-invite-review',document.querySelector('[onclick*=s-invite-review]'))">Confirm · 08:00 – 09:00</button>
+  </div>
+</div>
+
+<!-- ===== INVITE: SELECT DATE & TIME (GROUP) ===== -->
+<div class="fit-phone fit-dark" id="s-invite-time-group">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header" style="justify-content:space-between;">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="fit-cal-header" onclick="toggleMonthView('invg-month-grid')">
+        <span class="fit-cal-header-month">April</span>
+        <span class="fit-cal-header-year">2026</span>
+        <svg class="fit-cal-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div style="flex:1;"></div>
+    </div>
+    <div id="invg-month-grid" style="display:none;padding:0 16px 12px;">
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;">
+        <span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">S</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">M</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">T</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">W</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">T</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">F</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">S</span>
+        <span></span><span></span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">1</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">2</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">3</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">4</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">5</span>
+        <span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">6</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">7</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">8</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">9</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">10</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">11</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">12</span>
+        <span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">13</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">14</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">15</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">16</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">17</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">18</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">19</span>
+        <span style="font-size:14px;color:var(--fit-brand-primary);padding:8px;font-weight:600;">20</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">21</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">22</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">23</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">24</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">25</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">26</span>
+        <span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">27</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">28</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">29</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">30</span><span></span><span></span><span></span>
+      </div>
+    </div>
+    <div class="fit-day-strip" data-fit-day-strip data-month="4" data-year="2026" data-today="20" data-selected="20" data-events="22:g,24:g,26:g,29:g">
+      <div class="fit-day-strip-inner"></div>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div style="font-size:14px;color:var(--fit-text-tertiary);padding:0 16px 16px;">Upcoming sessions for HIIT Group Session</div>
+
+    <!-- Available group event (selected) -->
+    <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;border:1px solid var(--fit-teal-600);cursor:pointer;" onclick="go('s-invite-review',document.querySelector('[onclick*=s-invite-review]'))">
+      <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+        <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M4.5 12H2M22 12h-2.5M12 4.5V2M12 22v-2.5"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:600;">HIIT Group Session</div>
+          <div style="font-size:12px;opacity:0.7;">Thu, Apr 24 · 18:00 – 19:00</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="v6d-price" style="font-size:16px;font-weight:600;color:var(--fit-white);">€25</div>
+          <div style="font-size:12px;opacity:0.7;">/person</div>
+        </div>
+      </div>
+      <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">TNT Studio</span>
+        <span style="font-size:14px;color:var(--fit-teal-500);font-weight:500;">3/10 spots</span>
+      </div>
+    </div>
+
+
+  </div>
+</div>
+
+<!-- ===== INVITE: REVIEW & SEND ===== -->
+<div class="fit-phone fit-dark" id="s-invite-review">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Review & Send</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <!-- Invite summary card (v6d style) -->
+    <div class="v6d-card" style="margin:0 16px 24px;border-radius:16px;overflow:hidden;">
+      <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+        <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:600;">Basketball Training</div>
+          <div style="font-size:12px;opacity:0.7;">Mon, Apr 21 · 08:00 – 09:00</div>
+        </div>
+        <span class="fit-badge fit-badge-info">Invitation</span>
+      </div>
+      <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">TNT Studio</span>
+        <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">€50</span>
+        <span class="fit-badge fit-badge-neutral">Cash</span>
+      </div>
+    </div>
+
+    <!-- Comment -->
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Comment <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <div class="fit-input" style="min-height:80px;align-items:flex-start;padding-top:14px;color:var(--fit-text-placeholder);">Add a message for the athlete...</div>
+    </div>
+
+    <!-- Info text -->
+    <div style="padding:0 16px;margin-top:8px;">
+      <div style="display:flex;align-items:flex-start;gap:8px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.5;">Share the invite link with the athlete. You'll be notified when they sign up and accept the session.</span>
+      </div>
+    </div>
+
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;">
+    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Send Invite</button>
+  </div>
+</div>
+
+<!-- Annotations -->
+<div class="ann-container">
+  <div class="ann active" id="ann-s-invite-select"><span class="ann-role coach">Coach</span><h3>Invite: Select Training</h3><p>Step 1 of invite flow. Choose training template.</p><ul><li>v6d cards in select mode (tap = select + push to next step)</li><li>Shows all coach's templates (personal + group)</li></ul></div>
+  <div class="ann" id="ann-s-invite-time"><span class="ann-role coach">Coach</span><h3>Invite: Date & Time</h3><p>Step 2. Choose when.</p><ul><li>Day strip for date selection</li><li>Time slots based on coach availability</li><li>Busy slots dimmed with event name</li><li>Selected slot: gradient + checkmark</li><li>"Confirm · 08:00 – 09:00" sticky button</li></ul></div>
+  <div class="ann" id="ann-s-invite-time-group"><span class="ann-role coach">Coach</span><h3>Invite: Date (Group)</h3><p>Step 2 for group training invite. Day strip + event cards.</p><ul><li><strong>Day strip</strong> with dots on days that have group sessions</li><li><strong>v6d event card</strong> with spots count — tap = select + push to review</li><li>Teal border on selected card</li><li><strong>"Next sessions"</strong> list below — quick jump to upcoming dates</li><li>Consistent with Coach Calendar (day strip), not month grid</li></ul></div>
+  <div class="ann" id="ann-s-invite-review"><span class="ann-role coach">Coach</span><h3>Invite: Review & Send</h3><p>Step 3. Review + send.</p><ul><li>Summary card: training, date, time, location, price, "Invitation" badge</li><li>Optional comment field for athlete</li><li>Info text: "Share the invite link..."</li><li><strong>"Send Invite"</strong> → opens native iOS share sheet with deep link</li><li>Deep link: athlete opens → sees invitation → Accept/Decline</li></ul></div>
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+function toggleMonthView(gridId, stripEl) {
+  var grid = document.getElementById(gridId);
+  if (!grid) return;
+  var isOpen = grid.style.display !== 'none';
+  grid.style.display = isOpen ? 'none' : 'block';
+  // Hide/show day strip
+  var phone = grid.closest('.fit-phone');
+  var strip = phone ? phone.querySelector('.fit-day-strip') : null;
+  if (strip) strip.style.display = isOpen ? '' : 'none';
+  // Rotate chevron
+  var header = phone ? phone.querySelector('.fit-cal-header') : null;
+  var chevron = header ? header.querySelector('.fit-cal-chevron') : null;
+  if (chevron) chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+
+function switchTheme(theme) {
+  document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.getElementById("theme-light").style.background = theme === "light" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-light").style.color = theme === "light" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.querySelectorAll(".fit-phone").forEach(function(phone) {
+    if (theme === "light") { phone.classList.remove("fit-dark"); phone.classList.add("fit-light"); }
+    else { phone.classList.remove("fit-light"); phone.classList.add("fit-dark"); }
+  });
+}
+
+function go(id, btn) {
+  document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+  const ann = document.getElementById('ann-' + id);
+  if (ann) ann.classList.add('active');
+  // Re-init FitUI for newly visible screen
+  FitUI.initAll(document.getElementById(id));
+}
+</script>
+</body>
+</html>
