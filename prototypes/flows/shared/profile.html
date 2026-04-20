@@ -50,8 +50,11 @@
   .ann-container {
     position: fixed;
     left: calc(50% + 195px + 48px);
-    top: 24px; width: 280px;
+    top: 24px; bottom: 24px; width: 280px;
+    overflow-y: auto;
   }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
   .ann { display: none; }
   .ann.active { display: block; }
   .ann-role {
@@ -67,15 +70,15 @@
   .ann ul li { margin-bottom: 6px; }
   .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
   .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
-  /* Expandable details */
+  /* Expandable details (subtle — left accent, no bordered card) */
   .ann-detail {
-    margin-top: 12px; padding: 12px; border-radius: 10px;
-    background: rgba(255,255,255,0.04); border: 1px solid var(--fit-gray-700);
+    margin-top: 8px; padding: 4px 0 4px 16px;
+    border-left: 2px solid var(--fit-brand-primary);
     display: none;
   }
-  .ann-detail.open { display: block; max-height: 400px; overflow-y: auto; }
-  .ann-detail.open::-webkit-scrollbar { width: 4px; }
-  .ann-detail.open::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann-detail.open { display: block; }
+  .ann-detail h4:first-child { margin-top: 0; }
+  .ann-detail h4 + p { margin-bottom: 12px; }
   .ann-detail-toggle {
     display: inline-flex; align-items: center; gap: 6px;
     font-size: 14px; color: var(--fit-blue-500); cursor: pointer;
@@ -185,6 +188,22 @@
   .fit-light .v6d-header-dense { background: linear-gradient(to right, rgba(10,147,189,0.25), rgba(5,224,166,0.25)) !important; }
 
   /* Paid dimming + validation errors: in fit-ui.css */
+
+  /* Note from coach (read-only, athlete view) */
+  .event-note {
+    margin: 0 16px 16px; padding: 12px 14px;
+    background: rgba(3,178,226,0.08); border-radius: 10px;
+    border-left: 3px solid var(--fit-blue-500);
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .fit-light .event-note { background: rgba(3,178,226,0.06); }
+  .event-note-icon { flex-shrink: 0; color: var(--fit-blue-500); margin-top: 2px; }
+  .event-note-body { flex: 1; min-width: 0; }
+  .event-note-label {
+    font-size: 11px; font-weight: 500; color: var(--fit-blue-500);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+  }
+  .event-note-text { font-size: 14px; line-height: 1.4; color: var(--fit-text-primary); }
 </style>
 </head>
 <body>
@@ -444,6 +463,14 @@
         </div>
       </div>
     </div>
+    <!-- Note from coach -->
+    <div class="event-note">
+      <svg class="event-note-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 10l-5 2 2 2L4 19h6l2-4 2-4-3-1zM15 3l6 6-4 4-6-6z"/></svg>
+      <div class="event-note-body">
+        <div class="event-note-label">Note from coach</div>
+        <div class="event-note-text">Please bring a yoga mat, water, and a small towel. Session starts at 10:00 sharp &mdash; arrive 5-10 min early to warm up. Lockers + showers available. Park on the south lot (free). See you!</div>
+      </div>
+    </div>
     <div class="fit-section-title">Participants (7)</div>
     <div class="detail-participants">
       <div class="fit-participant" data-fit-longpress data-fit-sheet="athlete-sheet" style="cursor:pointer;"><div class="fit-avatar">AK</div><div class="fit-participant-info"><div class="fit-participant-name">Anna Kowalski</div></div><span class="fit-participant-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg></span></div>
@@ -550,6 +577,14 @@
         </div>
       </div>
     </div>
+    <!-- Note from coach -->
+    <div class="event-note">
+      <svg class="event-note-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 10l-5 2 2 2L4 19h6l2-4 2-4-3-1zM15 3l6 6-4 4-6-6z"/></svg>
+      <div class="event-note-body">
+        <div class="event-note-label">Note from coach</div>
+        <div class="event-note-text">Please bring a yoga mat, water, and a small towel. Session starts at 10:00 sharp &mdash; arrive 5-10 min early to warm up. Lockers + showers available. Park on the south lot (free). See you!</div>
+      </div>
+    </div>
     <div class="fit-section-title">Participants (8)</div>
     <div class="detail-participants">
       <div class="fit-participant fit-participant-you"><div class="fit-avatar fit-avatar-brand">RH</div><div class="fit-participant-info"><div class="fit-participant-name">Raymond Holt</div><div class="fit-participant-sub">You</div></div></div>
@@ -604,6 +639,14 @@
         <div class="progress-track" style="height:6px;border-radius:3px;background:var(--fit-gray-700);overflow:hidden;">
           <div style="width:100%;height:100%;border-radius:3px;background:var(--fit-red-400);"></div>
         </div>
+      </div>
+    </div>
+    <!-- Note from coach -->
+    <div class="event-note">
+      <svg class="event-note-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 10l-5 2 2 2L4 19h6l2-4 2-4-3-1zM15 3l6 6-4 4-6-6z"/></svg>
+      <div class="event-note-body">
+        <div class="event-note-label">Note from coach</div>
+        <div class="event-note-text">Please bring your own yoga mat &mdash; we are full so supplies will be limited. Start sharp at 08:00, please arrive 10 minutes early. Cash payment on site; locker room on the ground floor.</div>
       </div>
     </div>
     <div class="fit-section-title">Participants (15)</div>

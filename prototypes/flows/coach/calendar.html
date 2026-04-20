@@ -50,8 +50,11 @@
   .ann-container {
     position: fixed;
     left: calc(50% + 195px + 48px);
-    top: 24px; width: 280px;
+    top: 24px; bottom: 24px; width: 280px;
+    overflow-y: auto;
   }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
   .ann { display: none; }
   .ann.active { display: block; }
   .ann-role {
@@ -67,15 +70,15 @@
   .ann ul li { margin-bottom: 6px; }
   .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
   .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
-  /* Expandable details */
+  /* Expandable details (subtle — left accent, no bordered card) */
   .ann-detail {
-    margin-top: 12px; padding: 12px; border-radius: 10px;
-    background: rgba(255,255,255,0.04); border: 1px solid var(--fit-gray-700);
+    margin-top: 8px; padding: 4px 0 4px 16px;
+    border-left: 2px solid var(--fit-brand-primary);
     display: none;
   }
-  .ann-detail.open { display: block; max-height: 400px; overflow-y: auto; }
-  .ann-detail.open::-webkit-scrollbar { width: 4px; }
-  .ann-detail.open::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann-detail.open { display: block; }
+  .ann-detail h4:first-child { margin-top: 0; }
+  .ann-detail h4 + p { margin-bottom: 12px; }
   .ann-detail-toggle {
     display: inline-flex; align-items: center; gap: 6px;
     font-size: 14px; color: var(--fit-blue-500); cursor: pointer;
@@ -185,6 +188,108 @@
   .fit-light .v6d-header-dense { background: linear-gradient(to right, rgba(10,147,189,0.25), rgba(5,224,166,0.25)) !important; }
 
   /* Paid dimming + validation errors: in fit-ui.css */
+
+  /* State toggle in annotation */
+  .state-toggle {
+    display: inline-flex; gap: 0; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--fit-gray-700); margin-bottom: 12px; flex-wrap: wrap;
+  }
+  .state-toggle button {
+    font-family: var(--fit-font); font-size: 12px; font-weight: 500;
+    padding: 4px 10px; border: none; cursor: pointer;
+    background: transparent; color: var(--fit-gray-400);
+    transition: all 0.15s;
+  }
+  .state-toggle button.active {
+    background: var(--fit-gray-700); color: var(--fit-white);
+  }
+
+  /* Loading spinner centered in visible timeline area */
+  .cal-loading {
+    position: absolute; top: 240px; left: 0; right: 0;
+    height: 48px;
+    display: none; align-items: center; justify-content: center;
+    z-index: 15; pointer-events: none;
+  }
+  .cal-loading.show { display: flex; }
+  .cal-spinner {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2.5px solid var(--fit-gray-700);
+    border-top-color: var(--fit-brand-primary);
+    animation: cal-spin 0.8s linear infinite;
+  }
+  .fit-light .cal-spinner { border-color: var(--fit-gray-200); border-top-color: var(--fit-brand-primary); }
+  @keyframes cal-spin { to { transform: rotate(360deg); } }
+
+  /* Hide everything in timeline except hour labels + spinner while loading */
+  .fit-timeline.loading > *:not(.fit-hour):not(.cal-loading) { display: none !important; }
+
+  /* External event is non-draggable and distinct */
+  .fit-cal-event-external { cursor: pointer; }
+
+  /* Context menu (iOS UIMenu pattern — floating popover for ⋯ buttons with 2-5 options) */
+  .fit-context-menu {
+    position: absolute; z-index: 60; min-width: 220px;
+    background: var(--fit-surface-high);
+    border: 1px solid var(--fit-gray-700);
+    border-radius: 14px; padding: 6px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    display: none;
+    animation: fitMenuIn 0.12s ease;
+  }
+  .fit-light .fit-context-menu { background: var(--fit-white); border-color: var(--fit-gray-200); box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
+  .fit-context-menu.visible { display: block; }
+  .fit-context-menu-backdrop { position: absolute; inset: 0; z-index: 55; display: none; }
+  .fit-context-menu-backdrop.visible { display: block; }
+  .fit-context-menu-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: 8px;
+    font-size: 15px; color: var(--fit-text-primary);
+    cursor: pointer; user-select: none;
+  }
+  .fit-context-menu-item:hover { background: rgba(255,255,255,0.06); }
+  .fit-light .fit-context-menu-item:hover { background: rgba(0,0,0,0.04); }
+  .fit-context-menu-item svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--fit-text-secondary); }
+  .fit-context-menu-item.destructive { color: var(--fit-red-400); }
+  .fit-context-menu-item.destructive svg { color: var(--fit-red-400); }
+  .fit-context-menu-divider { height: 1px; background: var(--fit-gray-700); margin: 4px 8px; }
+  .fit-light .fit-context-menu-divider { background: var(--fit-gray-200); }
+  @keyframes fitMenuIn { from { opacity: 0; transform: translateY(-4px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+  /* Participant row is tappable (→ athlete profile) */
+  #s-event .fit-participant { cursor: pointer; }
+  #s-event .fit-participant .fit-remove-btn,
+  #s-event .fit-participant .fit-swipe-left,
+  #s-event .fit-participant .fit-swipe-right { cursor: pointer; }
+
+  /* Note to athletes (pinned message per event) */
+  .event-note {
+    margin: 0 16px 16px; padding: 12px 14px;
+    background: rgba(3,178,226,0.08); border-radius: 10px;
+    border-left: 3px solid var(--fit-blue-500);
+    display: flex; align-items: flex-start; gap: 10px;
+    cursor: pointer;
+  }
+  .fit-light .event-note { background: rgba(3,178,226,0.06); }
+  .event-note-icon { flex-shrink: 0; color: var(--fit-blue-500); margin-top: 2px; }
+  .event-note-body { flex: 1; min-width: 0; }
+  .event-note-label {
+    font-size: 11px; font-weight: 500; color: var(--fit-blue-500);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+  }
+  .event-note-text { font-size: 14px; line-height: 1.4; color: var(--fit-text-primary); }
+  .event-note-edit { flex-shrink: 0; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .event-note-empty {
+    margin: 0 16px 16px; padding: 10px 14px;
+    border-radius: 10px; display: flex; align-items: center; gap: 10px;
+    cursor: pointer; border: 1px dashed var(--fit-gray-700);
+    background: transparent;
+  }
+  .fit-light .event-note-empty { border-color: var(--fit-gray-300); }
+  .event-note-empty:hover { background: rgba(255,255,255,0.03); }
+  .fit-light .event-note-empty:hover { background: rgba(0,0,0,0.03); }
+  .event-note-empty-icon { color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .event-note-empty-text { font-size: 13px; color: var(--fit-text-secondary); }
 </style>
 </head>
 <body>
@@ -287,8 +392,8 @@
         <!-- Unavailable: 15:00-16:00 (blocked by external calendar) -->
         <div class="fit-unavailable" style="top:864px;height:96px;" title="Blocked by external calendar"></div>
 
-        <!-- External calendar event (Google Calendar) -->
-        <div class="fit-cal-event-external" style="top:864px;height:96px;">
+        <!-- External calendar event (Google Calendar) — tap to open info sheet -->
+        <div class="fit-cal-event-external" onclick="document.getElementById('cal-external-sheet').classList.add('visible')" style="top:864px;height:96px;">
           <div style="font-weight:500;">Dentist appointment</div>
           <div style="opacity:0.7;">15:00 - 16:00 · Google</div>
         </div>
@@ -370,8 +475,16 @@
           <div class="fit-cal-event-meta">Tom N. · 19:30 - 20:30</div>
           <div class="fit-cal-event-action">Accept</div>
         </div>
+        <!-- Loading spinner (state: loading) — shown inside events area when fetching events -->
+        <div class="cal-loading" id="cal-loading"><div class="cal-spinner"></div></div>
       </div>
     </div>
+  </div>
+
+  <!-- Drag conflict snackbar (state: snackbar) -->
+  <div class="fit-snackbar" id="cal-snackbar">
+    <span class="snack-dot" style="background:var(--fit-red-400);"></span>
+    <span>Can&rsquo;t move to this time &mdash; slot occupied</span>
   </div>
 
   <!-- FAB -->
@@ -546,6 +659,115 @@
     </div>
   </div>
 
+  <!-- External calendar event info sheet (tap on external event) -->
+  <div class="fit-sheet-overlay" id="cal-external-sheet">
+    <div class="fit-sheet" style="padding:8px 16px 40px;">
+      <div class="fit-sheet-handle"></div>
+      <!-- Source badge + title -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Dentist appointment</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">External event</div>
+        </div>
+        <span class="fit-badge fit-badge-neutral">Google</span>
+      </div>
+      <!-- Time -->
+      <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        Thu, Apr 10 &middot; 15:00 – 16:00
+      </div>
+      <!-- Info text -->
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:28px;padding:10px;background:rgba(255,255,255,0.04);border-radius:8px;">
+        <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span style="font-size:12px;color:var(--fit-text-secondary);line-height:1.4;">This event is managed in Google Calendar. Open the Google Calendar app to edit or delete it.</span>
+      </div>
+      <!-- Close -->
+      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="document.getElementById('cal-external-sheet').classList.remove('visible');">Close</button>
+    </div>
+  </div>
+
+  <!-- Drop group event: participant conflicts drawer -->
+  <div class="fit-sheet-overlay" id="cal-drag-group-sheet">
+    <div class="fit-sheet" style="padding:8px 16px 40px;">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Reschedule HIIT Group Session?</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:20px;">Thu, Apr 10 &middot; <span style="color:var(--fit-text-primary);">10:00</span> &rarr; <span style="color:var(--fit-text-primary);">14:00</span></div>
+      <!-- Warning -->
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:16px;padding:10px;background:rgba(247,201,72,0.08);border-radius:8px;">
+        <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-yellow-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span style="font-size:12px;color:var(--fit-text-secondary);line-height:1.4;"><strong style="color:var(--fit-text-primary);">2 of 7 participants</strong> have a conflict at this time.</span>
+      </div>
+      <!-- Conflicted participants -->
+      <div style="display:flex;flex-direction:column;gap:0;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--fit-divider);">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:var(--fit-white);flex-shrink:0;">JD</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Julia Dent</div>
+            <div style="font-size:12px;color:var(--fit-red-400);">Booked: Padel Training &middot; 14:00</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:var(--fit-white);flex-shrink:0;">TN</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Tom Novak</div>
+            <div style="font-size:12px;color:var(--fit-red-400);">Unavailable: 13:00 – 15:00</div>
+          </div>
+        </div>
+      </div>
+      <!-- Info: what happens -->
+      <div style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.5;margin-bottom:20px;">Conflicted participants will be notified and refunded. Remaining 5 participants will be rescheduled.</div>
+      <!-- Actions -->
+      <div style="display:flex;gap:8px;">
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-drag-group-sheet').classList.remove('visible');">Cancel</button>
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-drag-group-sheet').classList.remove('visible');">Move anyway</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Min threshold warning sheet (<24h, below minimum participants) -->
+  <div class="fit-sheet-overlay" id="cal-threshold-sheet">
+    <div class="fit-sheet" style="padding:8px 16px 40px;">
+      <div class="fit-sheet-handle"></div>
+      <!-- Sport icon + title -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:rgba(3,178,226,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M4.5 12H2M22 12h-2.5M12 4.5V2M12 22v-2.5"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">HIIT Group Session</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">Tomorrow &middot; 10:00 &middot; 22h remaining</div>
+        </div>
+      </div>
+      <!-- Threshold warning -->
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:16px;padding:12px;background:rgba(247,201,72,0.08);border:1px solid rgba(247,201,72,0.25);border-radius:10px;">
+        <svg style="width:18px;height:18px;flex-shrink:0;margin-top:1px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-yellow-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 22h20L12 2z"/><path d="M12 9v5M12 18h.01"/></svg>
+        <div>
+          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);margin-bottom:4px;">Minimum not reached</div>
+          <div style="font-size:12px;color:var(--fit-text-secondary);line-height:1.4;"><strong style="color:var(--fit-text-primary);">2 of 5</strong> athletes joined. You can still run the session with current participants or cancel.</div>
+        </div>
+      </div>
+      <!-- Spots -->
+      <div style="padding:12px 0 20px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
+          <span style="color:var(--fit-text-tertiary);">Participants</span>
+          <span style="color:var(--fit-yellow-400);font-weight:500;">2 / 5 min &middot; 10 max</span>
+        </div>
+        <div style="height:6px;border-radius:3px;background:var(--fit-gray-700);overflow:hidden;position:relative;">
+          <div style="width:20%;height:100%;border-radius:3px;background:var(--fit-yellow-400);"></div>
+          <div style="position:absolute;left:50%;top:-2px;bottom:-2px;width:2px;background:var(--fit-text-tertiary);"></div>
+        </div>
+      </div>
+      <!-- Actions -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-threshold-sheet').classList.remove('visible');">Proceed with 2 athletes</button>
+        <button style="width:100%;height:50px;border:none;border-radius:99px;background:rgba(240,92,91,0.15);color:var(--fit-red-400);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-threshold-sheet').classList.remove('visible');">Cancel training</button>
+      </div>
+    </div>
+  </div>
+
   <div class="fit-phone-footer">
     <div class="fit-navbar">
       <div class="fit-navbar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>
@@ -561,9 +783,12 @@
 <div class="fit-phone fit-dark" id="s-event">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header">
+    <div class="fit-header" style="justify-content:space-between;">
       <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">HIIT Group Session</span>
+      <span class="fit-header-title" style="flex:1;">HIIT Group Session</span>
+      <button class="fit-icon-btn" onclick="openEventMenu()" aria-label="Event options">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+      </button>
     </div>
   </div>
   <div class="fit-phone-content">
@@ -598,12 +823,26 @@
         </div>
       </div>
     </div>
+    <!-- Note to athletes (filled) -->
+    <div class="event-note" id="event-note" onclick="openSheet('event-note-sheet')">
+      <svg class="event-note-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 10l-5 2 2 2L4 19h6l2-4 2-4-3-1zM15 3l6 6-4 4-6-6z"/></svg>
+      <div class="event-note-body">
+        <div class="event-note-label">Note to athletes</div>
+        <div class="event-note-text" id="event-note-text">Please bring a yoga mat, water, and a small towel. Session starts at 10:00 sharp — arrive 5-10 min early to warm up. Lockers + showers available. Park on the south lot (free). See you!</div>
+      </div>
+      <svg class="event-note-edit" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    </div>
+    <!-- Note to athletes (empty state) -->
+    <div class="event-note-empty" id="event-note-empty" style="display:none;" onclick="openSheet('event-note-sheet')">
+      <svg class="event-note-empty-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 10l-5 2 2 2L4 19h6l2-4 2-4-3-1zM15 3l6 6-4 4-6-6z"/></svg>
+      <span class="event-note-empty-text">Add a note for athletes</span>
+    </div>
     <div class="fit-section-title" id="event-participants-title">Participants (7)</div>
     <!-- Empty state (hidden by default) -->
     <div class="fit-empty-state" id="event-empty">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/><path d="M19.5 14.5a4 4 0 013 3.87V21"/></svg>
-      <div class="fit-empty-state-title">No participants yet</div>
-      Athletes will appear here once they join this training.
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
+      <div class="fit-empty-state-title">No athletes joined yet</div>
+      Share the link to let athletes book this session.
     </div>
     <div class="detail-participants" id="event-participants">
       <div class="fit-participant" data-fit-swipe data-fit-longpress data-fit-sheet="event-sheet"><div class="fit-avatar">AK</div><div class="fit-participant-info"><div class="fit-participant-name">Anna Kowalski</div><div class="fit-participant-sub">fitness</div></div><button class="fit-remove-btn">&times;</button><div class="fit-swipe-left"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div></div>
@@ -626,7 +865,106 @@
       </div>
     </div>
   </div>
-  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-destructive">Cancel Training</button></div>
+  <!-- Note to athletes: edit sheet -->
+  <div class="fit-sheet-overlay" id="event-note-sheet">
+    <div class="fit-sheet" style="padding:8px 16px 40px;">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Note to athletes</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:16px;">Visible to everyone joining this session.</div>
+      <textarea id="event-note-textarea" maxlength="200" placeholder="e.g. Bring a yoga mat and water" oninput="updateNoteCounter()" style="width:100%;min-height:100px;padding:12px;background:var(--fit-surface-high);border:1px solid var(--fit-gray-700);border-radius:10px;color:var(--fit-text-primary);font-family:var(--fit-font);font-size:14px;line-height:1.4;resize:none;outline:none;box-sizing:border-box;">Please bring a yoga mat, water, and a small towel. Session starts at 10:00 sharp — arrive 5-10 min early to warm up. Lockers + showers available. Park on the south lot (free). See you!</textarea>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;margin-bottom:20px;">
+        <span style="font-size:12px;color:var(--fit-text-tertiary);">Athletes will be notified of changes.</span>
+        <span id="event-note-counter" style="font-size:12px;color:var(--fit-text-tertiary);">184 / 200</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="saveNote()">Save note</button>
+        <button id="event-note-delete" style="width:100%;height:50px;border:none;border-radius:99px;background:rgba(240,92,91,0.15);color:var(--fit-red-400);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="deleteNote()">Delete note</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Event options context menu (iOS UIMenu — floating popover near ⋯ button) -->
+  <div class="fit-context-menu-backdrop" id="event-menu-backdrop" onclick="closeEventMenu()"></div>
+  <div class="fit-context-menu" id="event-menu" style="top:56px;right:12px;">
+    <div class="fit-context-menu-item" onclick="closeEventMenu();openSheet('event-share-sheet')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
+      Invite athletes
+    </div>
+    <div class="fit-context-menu-item" onclick="closeEventMenu();openSheet('cal-reschedule-sheet')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15.36 6.36L3 16"/></svg>
+      Reschedule
+    </div>
+    <div class="fit-context-menu-divider"></div>
+    <div class="fit-context-menu-item destructive" onclick="closeEventMenu();openSheet('cal-cancel-sheet')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+      Cancel training
+    </div>
+  </div>
+
+  <!-- Share sheet (mock iOS share with pre-filled text + link) -->
+  <div class="fit-sheet-overlay" id="event-share-sheet">
+    <div class="fit-sheet" style="padding:8px 16px 40px;">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Invite athletes</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:20px;">Share a link to this session</div>
+      <!-- Pre-filled text preview (editable) -->
+      <div style="background:var(--fit-surface-high);border-radius:10px;padding:12px;margin-bottom:12px;">
+        <div style="font-size:14px;color:var(--fit-text-primary);line-height:1.5;">Join my HIIT Group Session &mdash; Thu, Apr 10 at 10:00</div>
+        <div style="font-size:12px;color:var(--fit-text-secondary);margin-top:4px;">TNT Studio &middot; &euro;25 &middot; 3 spots left</div>
+      </div>
+      <!-- Link row with copy -->
+      <div style="display:flex;align-items:center;gap:8px;background:var(--fit-surface-high);border-radius:10px;padding:10px 12px;margin-bottom:20px;">
+        <svg style="width:16px;height:16px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+        <span style="flex:1;font-size:13px;color:var(--fit-text-secondary);font-family:monospace;">321.fit/e/xK3aB</span>
+        <button onclick="this.textContent='Copied';setTimeout(function(b){b.textContent='Copy';},1500,this);" style="font-family:var(--fit-font);font-size:13px;font-weight:500;color:var(--fit-blue-500);background:transparent;border:none;cursor:pointer;padding:4px 8px;">Copy</button>
+      </div>
+      <!-- Share targets (simulated iOS share sheet) -->
+      <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:64px;cursor:pointer;">
+          <div style="width:56px;height:56px;border-radius:14px;background:#25D366;display:flex;align-items:center;justify-content:center;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M17.5 14.4c-.3-.1-1.6-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.1.2-.3.2-.6.1-.3-.1-1.1-.4-2.1-1.3-.8-.7-1.3-1.6-1.5-1.9-.2-.3 0-.4.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.6-1.5-.8-2-.2-.5-.4-.4-.6-.5h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.2 3 .1.2 2.1 3.2 5 4.4.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.6-.7 1.9-1.3.2-.7.2-1.3.2-1.4-.1-.1-.3-.2-.6-.3zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.4 1.3 4.9L2 22l5.3-1.3c1.4.8 3 1.3 4.7 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
+          </div>
+          <span style="font-size:11px;color:var(--fit-text-secondary);">WhatsApp</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:64px;cursor:pointer;">
+          <div style="width:56px;height:56px;border-radius:14px;background:#229ED9;display:flex;align-items:center;justify-content:center;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+          </div>
+          <span style="font-size:11px;color:var(--fit-text-secondary);">Telegram</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:64px;cursor:pointer;">
+          <div style="width:56px;height:56px;border-radius:14px;background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);display:flex;align-items:center;justify-content:center;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </div>
+          <span style="font-size:11px;color:var(--fit-text-secondary);">Instagram</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:64px;cursor:pointer;">
+          <div style="width:56px;height:56px;border-radius:14px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          </div>
+          <span style="font-size:11px;color:var(--fit-text-secondary);">Messages</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;min-width:64px;cursor:pointer;">
+          <div style="width:56px;height:56px;border-radius:14px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>
+          </div>
+          <span style="font-size:11px;color:var(--fit-text-secondary);">More</span>
+        </div>
+      </div>
+      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="document.getElementById('event-share-sheet').classList.remove('visible');">Done</button>
+    </div>
+  </div>
+
+  <!-- Undo snackbar (batched remove) -->
+  <div class="fit-snackbar" id="event-undo-snackbar">
+    <span class="snack-dot"></span>
+    <span class="snack-text">1 athlete removed</span>
+    <span class="snack-action" onclick="undoRemoveBatch()">Undo</span>
+  </div>
+
+  <div class="fit-phone-footer fit-footer-btn">
+    <button class="fit-btn fit-btn-primary" onclick="openSheet('event-share-sheet')">Invite athletes</button>
+  </div>
 </div>
 
 <!-- ===== COACH: CASH PAYMENT ===== -->
@@ -691,11 +1029,26 @@
 
 <!-- Annotations -->
 <div class="ann-container">
-  <div class="ann active" id="ann-s-calendar"><span class="ann-role coach">Coach</span><h3>Coach Calendar</h3><p>24-hour vertical timeline, 15-min grid snap.</p><ul><li><strong>Day strip</strong> — colored dots under days: 🟢 personal, 🔵 group, ⚫ external</li><li><strong>Group events</strong> — cyan border + badge "7/10"</li><li><strong>Personal events</strong> — green border + athlete name</li><li><strong>External events</strong> — gray, opacity, side-by-side with hatched unavailable zone</li><li><strong>Unavailable hours</strong> — diagonal hatching overlay</li><li><strong>FAB "+"</strong> → sheet: Personal, Group, Custom event</li><li><strong>Long tap empty slot</strong> → same sheet, time prefilled</li><li><strong>Tap event</strong> → event action sheet (personal/group/invitation)</li><li><strong>Long press event</strong> → activates drag & drop (same day only)</li></ul><span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Behavior details</span><div class="ann-detail"><h4>Day Navigation</h4><p><strong>Tap day</strong> on strip = instant switch. <strong>Swipe day strip</strong> = scroll. <strong>Swipe content</strong> left/right = page transition (Apple Calendar). Day strip auto-scrolls to selected day.</p><h4>Month View Toggle</h4><p><strong>"April 2026 ▼"</strong> — tap title + chevron expands month grid. Day strip replaced by full month calendar. Tap a day = collapse back to day strip with selected day. Same component across all calendar screens (Coach, Athlete, Booking, Invite).</p><h4>Drag & Drop</h4><p><strong>Long press event</strong> → event lifts, enters drag mode. Drag within same day only. Coach's own slot occupied → <strong>blocked</strong>. Unavailable zone → <strong>blocked</strong>. Participant conflicts → warning dialog "2 of 7 have conflicts. Move anyway?" Coach decides. Drop releases event at new time.</p><h4>Day Strip Dots</h4><p>p=personal (green), g=group (cyan), e=external (gray). At-a-glance overview.</p><h4>Unavailable Zones</h4><p>Hatched diagonal pattern = outside coach's available hours OR blocked by external calendar.</p><h4>External Events</h4><p>Imported from Google/Apple Calendar. Full-width, opacity 0.7, anonymized (title only).</p><h4>API</h4><p><code>GET {role}/training-events/?startDate&endDate</code><br><code>GET coach/training-events/allowed-hours/</code><br><code>PATCH {role}/training-events/{id}/change-status/</code></p></div></div>
+  <div class="ann active" id="ann-s-calendar"><span class="ann-role coach">Coach</span><h3>Coach Calendar</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setCalState('default',this)">Default</button>
+      <button onclick="setCalState('loading',this)">Loading</button>
+      <button onclick="setCalState('snackbar',this)">Drag conflict</button>
+      <button onclick="setCalState('drag-group',this)">Group drop</button>
+      <button onclick="setCalState('threshold',this)">Min threshold</button>
+      <button onclick="setCalState('external',this)">External tap</button>
+    </div>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Behavior details</span><div class="ann-detail"><h4>Day Navigation</h4><p><strong>Tap day</strong> on strip = instant switch. <strong>Swipe day strip</strong> = scroll. <strong>Swipe content</strong> left/right = page transition (Apple Calendar). Day strip auto-scrolls to selected day.</p><h4>Month View Toggle</h4><p><strong>"April 2026 ▼"</strong> — tap title + chevron expands month grid. Day strip replaced by full month calendar. Tap a day = collapse back to day strip with selected day. Same component across all calendar screens (Coach, Athlete, Booking, Invite).</p><h4>Drag & Drop</h4><p><strong>Long press event</strong> → event lifts, enters drag mode. Drag within same day only. Coach's own slot occupied → <strong>blocked</strong>. Unavailable zone → <strong>blocked</strong>. Participant conflicts → warning dialog "2 of 7 have conflicts. Move anyway?" Coach decides. Drop releases event at new time.</p><h4>Day Strip Dots</h4><p>p=personal (green), g=group (cyan), e=external (gray). At-a-glance overview.</p><h4>Unavailable Zones</h4><p>Hatched diagonal pattern = outside coach's available hours OR blocked by external calendar.</p><h4>External Events</h4><p>Imported from Google/Apple Calendar. Full-width, opacity 0.7, anonymized (title only).</p><h4>API</h4><p><code>GET {role}/training-events/?startDate&endDate</code><br><code>GET coach/training-events/allowed-hours/</code><br><code>PATCH {role}/training-events/{id}/change-status/</code></p></div>
+    <p style="margin-top:12px;">24-hour vertical timeline, 15-min grid snap.</p><ul><li><strong>Day strip</strong> — colored dots under days: 🟢 personal, 🔵 group, ⚫ external</li><li><strong>Group events</strong> — cyan border + badge "7/10"</li><li><strong>Personal events</strong> — green border + athlete name</li><li><strong>External events</strong> — gray, opacity, side-by-side with hatched unavailable zone</li><li><strong>Unavailable hours</strong> — diagonal hatching overlay</li><li><strong>FAB "+"</strong> → sheet: Personal, Group, Custom event</li><li><strong>Long tap empty slot</strong> → same sheet, time prefilled</li><li><strong>Tap event</strong> → event action sheet (personal/group/invitation)</li><li><strong>Long press event</strong> → activates drag & drop (same day only)</li></ul></div>
   <div class="ann" id="ann-s-event"><span class="ann-role coach">Coach</span><h3>Group Event Detail</h3>
     <div class="state-toggle"><button class="active" onclick="toggleEventState('filled',this)">Filled</button><button onclick="toggleEventState('empty',this)">Empty</button></div>
-    <p>"Ticket card" layout — compact summary + participants.</p><ul><li>Ticket: badge + price, date/time, location, spots bar</li><li>Swipe left or X to remove participant</li><li>Long press → bottom sheet</li><li><strong>Empty state:</strong> icon + "No participants yet"</li></ul></div>
-  <div class="ann" id="ann-s-cash"><span class="ann-role coach">Coach</span><h3>Event Completion</h3><p>Post-training screen. Coach reviews payments and completes training.</p><ul><li><strong>Card participants:</strong> auto "Paid" badge, no action needed</li><li><strong>Cash participants:</strong> checkbox, swipe right/left, long press</li><li>Payment summary: "4 paid &middot; 1 unpaid"</li><li>Each row shows payment method (Card/Cash)</li><li>Complete Training → triggers Stripe transfers for card</li></ul><span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Entry & flow</span><div class="ann-detail"><h4>Entry point</h4><p>Push notification after event end time: "Training ended. Tap to review and complete." Deep links to this screen.</p><h4>Unpaid cash</h4><p>Does NOT block completion. Stays as cash_pending record. Coach can see unpaid athletes in training history.</p></div></div>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Invite &amp; deep-link</span>
+    <div class="ann-detail"><h4>Share link</h4><p>Generated <strong>on-demand</strong> via Appsflyer OneLink when coach taps Invite — not pre-generated for all future events. Short URL (<code>321.fit/e/xK3aB</code>) carries event_id in attribution params.</p><h4>Rescheduled/cancelled events</h4><p>Deep link resolves by event_id, so reschedule doesn't break it. If event cancelled before athlete opens → app shows "Event unavailable" and redirects to coach profile.</p><h4>Caching</h4><p>Backend caches short URL per event_id (1 Appsflyer call per event lifetime). Client caches per session.</p></div>
+    <p style="margin-top:12px;">"Ticket card" layout — compact summary + note + participants.</p><ul><li>Ticket: badge + price, date/time, location, spots bar</li><li><strong>Note to athletes</strong> — instance-only ad-hoc message (e.g. "bring a mat"). Tap to edit. Empty state = dashed "Add a note" CTA. Changes trigger push to all participants.</li><li><strong>⋯ menu (top-right)</strong> → Invite / Reschedule / Cancel training</li><li><strong>Footer CTA</strong> → "Invite athletes" (primary) when spots available; "Complete Training" for past events</li><li><strong>Tap participant</strong> → athlete profile (clients module)</li><li><strong>Swipe left or ×</strong> → remove with <strong>5s Undo</strong> snackbar (batched for multiple, commits after 10s max)</li><li><strong>Long press</strong> → quick actions sheet (Profile, Message, Remove)</li><li><strong>Empty state (Empty toggle):</strong> no participants, no note, dashed CTA visible</li></ul>
+  </div>
+  <div class="ann" id="ann-s-cash"><span class="ann-role coach">Coach</span><h3>Event Completion</h3>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Entry & flow</span><div class="ann-detail"><h4>Entry point</h4><p>Push notification after event end time: "Training ended. Tap to review and complete." Deep links to this screen.</p><h4>Unpaid cash</h4><p>Does NOT block completion. Stays as cash_pending record. Coach can see unpaid athletes in training history.</p></div>
+    <p style="margin-top:12px;">Post-training screen. Coach reviews payments and completes training.</p><ul><li><strong>Card participants:</strong> auto "Paid" badge, no action needed</li><li><strong>Cash participants:</strong> checkbox, swipe right/left, long press</li><li>Payment summary: "4 paid &middot; 1 unpaid"</li><li>Each row shows payment method (Card/Cash)</li><li>Complete Training → triggers Stripe transfers for card</li></ul></div>
 </div>
 
 <script src="../../lib/fit-ui.js"></script>
@@ -729,26 +1082,129 @@ function go(id, btn) {
   FitUI.initAll(document.getElementById(id));
 }
 
-// === STATE TOGGLE (filled/empty) ===
+// === CONTEXT MENU (iOS UIMenu pattern) ===
+function openEventMenu() {
+  document.getElementById('event-menu').classList.add('visible');
+  document.getElementById('event-menu-backdrop').classList.add('visible');
+}
+function closeEventMenu() {
+  document.getElementById('event-menu').classList.remove('visible');
+  document.getElementById('event-menu-backdrop').classList.remove('visible');
+}
+
+// === SHEET OPENER (moves sheet into currently active screen so absolute-positioned overlay renders correctly) ===
+function openSheet(sheetId) {
+  var sheet = document.getElementById(sheetId);
+  if (!sheet) return;
+  var activeScreen = document.querySelector('.fit-phone.active');
+  if (activeScreen && sheet.parentElement !== activeScreen) {
+    activeScreen.appendChild(sheet);
+  }
+  sheet.classList.add('visible');
+}
+
+// === CALENDAR STATE TOGGLE ===
+function setCalState(state, btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Reset all states
+  var timeline = document.querySelector('#s-calendar .fit-timeline');
+  if (timeline) timeline.classList.remove('loading');
+  document.getElementById('cal-loading').classList.remove('show');
+  document.getElementById('cal-snackbar').classList.remove('show');
+  ['cal-external-sheet','cal-drag-group-sheet','cal-threshold-sheet'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.classList.remove('visible');
+  });
+  // Apply selected state
+  if (state === 'loading') {
+    if (timeline) timeline.classList.add('loading');
+    document.getElementById('cal-loading').classList.add('show');
+  } else if (state === 'snackbar') {
+    document.getElementById('cal-snackbar').classList.add('show');
+  } else if (state === 'drag-group') {
+    document.getElementById('cal-drag-group-sheet').classList.add('visible');
+  } else if (state === 'threshold') {
+    document.getElementById('cal-threshold-sheet').classList.add('visible');
+  } else if (state === 'external') {
+    document.getElementById('cal-external-sheet').classList.add('visible');
+  }
+}
+
+// === STATE TOGGLE (filled/empty) — controls participants AND note state ===
 function toggleEventState(state, btn) {
   btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   var participants = document.getElementById('event-participants');
   var empty = document.getElementById('event-empty');
   var title = document.getElementById('event-participants-title');
-  // Find spots bar in the v6d card
-  var spotsBar = document.querySelector('#s-event .v6d-card div[style*="Participants"]');
-  if (!spotsBar) spotsBar = document.querySelector('#s-event .v6d-card > div:last-child');
+  var note = document.getElementById('event-note');
+  var noteEmpty = document.getElementById('event-note-empty');
   if (state === 'empty') {
     participants.style.display = 'none';
     empty.style.display = 'block';
     title.textContent = 'Participants (0)';
+    note.style.display = 'none';
+    noteEmpty.style.display = '';
   } else {
     participants.style.display = '';
     empty.style.display = 'none';
     title.textContent = 'Participants (7)';
+    note.style.display = '';
+    noteEmpty.style.display = 'none';
   }
 }
+
+// === NOTE EDIT ===
+function updateNoteCounter() {
+  var ta = document.getElementById('event-note-textarea');
+  var c = document.getElementById('event-note-counter');
+  if (!ta || !c) return;
+  var len = ta.value.length;
+  c.textContent = len + ' / 200';
+  if (len >= 190) c.style.color = 'var(--fit-red-400)';
+  else if (len >= 170) c.style.color = 'var(--fit-yellow-400)';
+  else c.style.color = 'var(--fit-text-tertiary)';
+  // Hide delete button when textarea empty (nothing to delete)
+  var del = document.getElementById('event-note-delete');
+  if (del) del.style.display = ta.value.trim().length ? '' : 'none';
+}
+// Run on load so initial state color is correct
+document.addEventListener('DOMContentLoaded', updateNoteCounter);
+function saveNote() {
+  var ta = document.getElementById('event-note-textarea');
+  var text = (ta.value || '').trim();
+  var note = document.getElementById('event-note');
+  var noteEmpty = document.getElementById('event-note-empty');
+  var noteText = document.getElementById('event-note-text');
+  if (text) {
+    noteText.textContent = text;
+    note.style.display = '';
+    noteEmpty.style.display = 'none';
+  } else {
+    note.style.display = 'none';
+    noteEmpty.style.display = '';
+  }
+  document.getElementById('event-note-sheet').classList.remove('visible');
+}
+function deleteNote() {
+  document.getElementById('event-note-textarea').value = '';
+  document.getElementById('event-note').style.display = 'none';
+  document.getElementById('event-note-empty').style.display = '';
+  document.getElementById('event-note-sheet').classList.remove('visible');
+}
+// Pre-fill textarea from current note when sheet opens
+document.addEventListener('click', function(e) {
+  var target = e.target.closest('#event-note, #event-note-empty');
+  if (!target) return;
+  var noteText = document.getElementById('event-note-text');
+  var ta = document.getElementById('event-note-textarea');
+  if (target.id === 'event-note-empty') {
+    ta.value = '';
+  } else if (noteText) {
+    ta.value = noteText.textContent;
+  }
+  updateNoteCounter();
+});
 
 // === EVENT COMPLETION COUNTER ===
 function updateCompletionCounter() {
@@ -826,22 +1282,134 @@ document.addEventListener('fit:swipe-right', function(e) {
   }
 });
 
-// Remove btn click
+// === BATCHED UNDO FOR PARTICIPANT REMOVAL ===
+// - Tap × or swipe left → row collapses, batch snackbar shows with Undo (5s inactivity / 10s max)
+// - Multiple removes in a row → snackbar updates count, timer resets
+// - Undo restores everyone; after commit, backend would notify + refund
+var removeBatch = { items: [], timer: null, totalTimer: null };
+
+function updateBatchSnackbar() {
+  var sb = document.getElementById('event-undo-snackbar');
+  if (!sb) return;
+  if (removeBatch.items.length === 0) { sb.classList.remove('show'); return; }
+  var text = sb.querySelector('.snack-text');
+  if (removeBatch.items.length === 1) {
+    text.textContent = removeBatch.items[0].name + ' removed';
+  } else {
+    text.textContent = removeBatch.items.length + ' athletes removed';
+  }
+  sb.classList.add('show');
+}
+
+function updateParticipantCount() {
+  var rows = document.querySelectorAll('#event-participants .fit-participant');
+  // Count only rows that are NOT in removeBatch (i.e. still visible)
+  var visible = 0;
+  rows.forEach(function(r){ if (r.offsetParent !== null) visible++; });
+  // But offsetParent check doesn't work for collapsed rows — count rows not marked as batch
+  visible = 0;
+  rows.forEach(function(r){ if (!r.dataset.batchRemoved) visible++; });
+  var title = document.getElementById('event-participants-title');
+  if (title && title.textContent.indexOf('Participants') === 0) {
+    title.textContent = 'Participants (' + visible + ')';
+  }
+}
+
+function resetBatchTimers() {
+  clearTimeout(removeBatch.timer);
+  removeBatch.timer = setTimeout(commitRemoveBatch, 5000);
+  if (!removeBatch.totalTimer) {
+    removeBatch.totalTimer = setTimeout(commitRemoveBatch, 10000);
+  }
+}
+
+function addToRemoveBatch(row) {
+  var name = row.querySelector('.fit-participant-name').textContent;
+  var clone = row.cloneNode(true);
+  clone.removeAttribute('style');
+  clone.dataset.batchRemoved = '';
+  removeBatch.items.push({
+    clone: clone, parent: row.parentElement,
+    nextSibling: row.nextElementSibling, name: name
+  });
+  row.dataset.batchRemoved = '1';
+  updateBatchSnackbar();
+  resetBatchTimers();
+  updateParticipantCount();
+}
+
+function undoRemoveBatch() {
+  // Restore in original order
+  for (var i = removeBatch.items.length - 1; i >= 0; i--) {
+    var item = removeBatch.items[i];
+    if (item.nextSibling && item.nextSibling.parentElement === item.parent) {
+      item.parent.insertBefore(item.clone, item.nextSibling);
+    } else {
+      item.parent.appendChild(item.clone);
+    }
+  }
+  // Remove the collapsed originals
+  document.querySelectorAll('.fit-participant[data-batch-removed="1"]').forEach(function(r){ r.remove(); });
+  removeBatch.items = [];
+  clearTimeout(removeBatch.timer);
+  clearTimeout(removeBatch.totalTimer);
+  removeBatch.totalTimer = null;
+  updateBatchSnackbar();
+  updateParticipantCount();
+  if (window.FitUI) FitUI.initAll(document.getElementById('s-event'));
+}
+
+function commitRemoveBatch() {
+  // Actually drop the collapsed rows (backend would be called here)
+  document.querySelectorAll('.fit-participant[data-batch-removed="1"]').forEach(function(r){ r.remove(); });
+  removeBatch.items = [];
+  clearTimeout(removeBatch.timer);
+  clearTimeout(removeBatch.totalTimer);
+  removeBatch.totalTimer = null;
+  updateBatchSnackbar();
+}
+
+// × button click → add to batch + collapse animation
 document.addEventListener('click', function(e) {
-  var btn = e.target.closest('.fit-remove-btn');
+  var btn = e.target.closest('#s-event .fit-remove-btn');
   if (!btn) return;
   e.stopPropagation();
   var row = btn.closest('.fit-participant');
-  if (row) {
-    row.style.transition = 'transform 0.3s, opacity 0.3s';
-    row.style.transform = 'translateX(-100%)';
-    row.style.opacity = '0';
-    setTimeout(function() {
-      row.style.maxHeight = '0'; row.style.padding = '0';
-      row.style.margin = '0'; row.style.borderWidth = '0';
-      row.style.overflow = 'hidden';
-    }, 300);
-  }
+  if (!row || row.dataset.batchRemoved) return;
+  addToRemoveBatch(row);
+  row.style.transition = 'transform 0.3s, opacity 0.3s';
+  row.style.transform = 'translateX(-100%)';
+  row.style.opacity = '0';
+  setTimeout(function() {
+    row.style.maxHeight = '0'; row.style.padding = '0';
+    row.style.margin = '0'; row.style.borderWidth = '0';
+    row.style.overflow = 'hidden';
+  }, 300);
+});
+
+// Swipe-left on participant → fit-ui animates removal; just track in batch
+document.addEventListener('fit:swipe-left', function(e) {
+  if (!e.target.closest('#s-event')) return;
+  var row = e.target.closest('.fit-participant');
+  if (!row || row.dataset.batchRemoved) return;
+  addToRemoveBatch(row);
+});
+
+// Tap on participant row → open athlete detail (in clients module)
+document.addEventListener('click', function(e) {
+  // Ignore clicks on × button, swipe reveal, or during batch removal
+  if (e.target.closest('.fit-remove-btn')) return;
+  if (e.target.closest('.fit-swipe-left') || e.target.closest('.fit-swipe-right')) return;
+  var row = e.target.closest('#s-event .fit-participant');
+  if (!row || row.dataset.batchRemoved) return;
+  window.location.href = '../coach/clients.html#s-client-detail';
+});
+
+// Commit batch when leaving event screen (sidebar nav → another screen)
+document.querySelectorAll('.sidebar button').forEach(function(b){
+  b.addEventListener('click', function(){
+    if (removeBatch.items.length > 0) commitRemoveBatch();
+  });
 });
 </script>
 </body>
