@@ -194,6 +194,7 @@
   <button onclick="go('s-client-detail',this)">Client Detail</button>
   <button onclick="go('s-client-history',this)">Client History</button>
   <button onclick="go('s-create-client',this)">Create Client</button>
+  <button onclick="go('s-sport-select',this)">Sport Select</button>
   <button onclick="go('s-notes-editor',this)">Notes Editor</button>
   <button onclick="go('s-personal-data',this)">Personal Data</button>
   <div class="label">Settings</div>
@@ -1343,7 +1344,7 @@
     </div>
     <div class="fit-input-group" style="padding:0 16px;">
       <span class="fit-input-label">Sport</span>
-      <div class="fit-input" style="cursor:pointer;"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg></span> Basketball<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+      <div class="fit-input" style="cursor:pointer;" onclick="go('s-sport-select',document.querySelector('[onclick*=s-sport-select]'))"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg></span> Basketball<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div>
     </div>
     <div class="fit-input-group" style="padding:0 16px;">
       <span class="fit-input-label">Notes <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
@@ -1354,6 +1355,60 @@
   </div>
   <div class="fit-phone-footer" style="padding:12px 16px 40px;">
     <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:white;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Create Client</button>
+  </div>
+</div>
+
+<!-- ===== SPORT SELECT (grid, multi-select) ===== -->
+<div class="fit-phone fit-dark" id="s-sport-select">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Select Sports</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div style="display:flex;flex-wrap:wrap;gap:12px;padding:0 16px;">
+      <!-- Selected -->
+      <div style="flex:1 1 calc(50% - 6px);min-width:140px;padding:16px;border-radius:16px;background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>
+        <span style="font-size:15px;color:var(--fit-text-primary);">Basketball</span>
+      </div>
+      <!-- Unselected -->
+      <div style="flex:1 1 calc(50% - 6px);min-width:140px;padding:16px;border-radius:16px;background:var(--fit-surface-high);border:0.5px solid var(--fit-gray-600);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 8l8 8M16 8l-8 8"/></svg>
+        <span style="font-size:15px;color:var(--fit-text-primary);">Soccer</span>
+      </div>
+      <div style="flex:1 1 calc(50% - 6px);min-width:140px;padding:16px;border-radius:16px;background:var(--fit-surface-high);border:0.5px solid var(--fit-gray-600);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18V6M6 12l6-6 6 6"/></svg>
+        <span style="font-size:15px;color:var(--fit-text-primary);">Golf</span>
+      </div>
+      <!-- Selected -->
+      <div style="flex:1 1 calc(50% - 6px);min-width:140px;padding:16px;border-radius:16px;background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
+        <svg width="24" height="24" viewBox="0 0 13.6034 19" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M10.926 4.15C13.027 4.15 13.59 7.02 12.688 8.91C12.284 9.75 11.585 10.49 11.026 11.24C10.489 11.96 10.22 12.32 9.868 12.57C9.081 13.13 8.17 13.1 7.241 13.1H6.313C4.027 13.1 2.885 13.1 2.13 12.46C1.375 11.82 1.19 10.72 0.821 8.53C0.617 7.32 0.474 6.11 0.504 4.94C0.558 2.79 2.2 0.99 4.417 0.63C5.474 0.46 6.775 0.45 7.831 0.63C9.718 0.95 11.049 2.57 10.918 4.4C10.837 5.51 10.385 6.66 10.103 7.73M2.304 12.65V14.9C2.304 16.6 2.304 17.45 2.831 17.97C3.358 18.5 4.207 18.5 5.904 18.5H6.804C8.501 18.5 9.349 18.5 9.877 17.97C10.404 17.45 10.404 16.6 10.404 14.9V12.2M2.304 15.8H5.004"/></svg>
+        <span style="font-size:15px;color:var(--fit-text-primary);">Boxing</span>
+      </div>
+      <div style="flex:1 1 calc(50% - 6px);min-width:140px;padding:16px;border-radius:16px;background:var(--fit-surface-high);border:0.5px solid var(--fit-gray-600);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        <span style="font-size:15px;color:var(--fit-text-primary);">Padel</span>
+      </div>
+      <!-- Selected -->
+      <div style="flex:1 1 calc(50% - 6px);min-width:140px;padding:16px;border-radius:16px;background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M4.5 12H2M22 12h-2.5"/></svg>
+        <span style="font-size:15px;color:var(--fit-text-primary);">Tennis</span>
+      </div>
+      <div style="flex:1 1 calc(50% - 6px);min-width:140px;padding:16px;border-radius:16px;background:var(--fit-surface-high);border:0.5px solid var(--fit-gray-600);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg>
+        <span style="font-size:15px;color:var(--fit-text-primary);">Football</span>
+      </div>
+      <div style="flex:1 1 calc(50% - 6px);min-width:140px;padding:16px;border-radius:16px;background:var(--fit-surface-high);border:0.5px solid var(--fit-gray-600);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        <span style="font-size:15px;color:var(--fit-text-primary);">Running</span>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;">
+    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:white;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Confirm</button>
   </div>
 </div>
 
@@ -3377,6 +3432,7 @@ function switchBookTab(tab) {
   <div class="ann" id="ann-s-requests"><span class="ann-role coach">Coach</span><h3>Requests</h3><p>Full-screen inbox for pending booking requests.</p><ul><li>Cards with unified layout: avatar + name + training + time + location + price + payment badge</li><li><strong>[Decline] [Accept]</strong> buttons per card</li><li>Avatar row tappable → athlete profile</li><li>After accept: event created, athlete added to clients if new</li></ul></div>
   <div class="ann" id="ann-s-client-detail"><span class="ann-role coach">Coach</span><h3>Client Detail</h3><p>Full athlete profile from coach's perspective.</p><ul><li><strong>Header:</strong> avatar, name, location, sport chips. Message + menu buttons.</li><li><strong>Stats card:</strong> Sessions | Upcoming | Revenue | Owed</li><li><strong>Pending Payment:</strong> red banner if unpaid cash session exists. "Mark Paid" button.</li><li><strong>Upcoming Sessions:</strong> horizontal scroll cards (220px, peek pattern)</li><li><strong>Notes:</strong> coach's private notes (injuries, preferences). Editable.</li><li><strong>Training History →</strong> push to full history screen</li></ul></div>
   <div class="ann" id="ann-s-client-history"><span class="ann-role coach">Coach</span><h3>Client History</h3><p>Full training history with athlete.</p><ul><li>All past events: name, date/time, location, price, status</li><li><strong>Completed + Paid:</strong> green label</li><li><strong>Cancelled:</strong> red label, price struck through</li><li>Sorted newest first</li></ul></div>
+  <div class="ann" id="ann-s-sport-select"><span class="ann-role coach">Coach</span><h3>Sport Select</h3><p>Grid multi-select for sports. 2 columns.</p><ul><li><strong>Selected:</strong> gradient bg + teal border</li><li><strong>Unselected:</strong> surface-high bg + subtle border</li><li>Sport icon + name per card</li><li><strong>Confirm</strong> sticky button</li><li>Reusable: Create Client, Personal Data (Settings), Onboarding</li></ul></div>
   <div class="ann" id="ann-s-create-client"><span class="ann-role coach">Coach</span><h3>Create Client</h3><p>CRM card for athletes without app account.</p><ul><li><strong>First name / Last name</strong> — required</li><li><strong>Phone or Email</strong> — for contact (optional but recommended)</li><li><strong>Sport</strong> — dropdown from coach's sports</li><li><strong>Notes</strong> — tap opens full-screen editor (injuries, preferences)</li></ul><p>Created athlete appears in Clients list. Coach can track sessions/payments.</p></div>
   <div class="ann" id="ann-s-notes-editor"><span class="ann-role coach">Coach</span><h3>Notes Editor</h3><p>Full-screen text editor for Notes and About Me fields.</p><ul><li><strong>Cancel / Save</strong> in header (iOS pattern)</li><li>Full screen = comfortable multi-line editing</li><li>Keyboard auto-opens on entry</li><li>Reused for: client notes, about me, location description</li></ul></div>
   <div class="ann" id="ann-s-personal-data"><span class="ann-role coach">Coach</span><h3>Personal Data</h3><p>Edit profile screen from Settings.</p><ul><li><strong>Avatar</strong> with pencil overlay — tap to change photo</li><li><strong>Name fields:</strong> first + last</li><li><strong>About me:</strong> tap → full-screen Notes Editor</li><li><strong>Dropdowns:</strong> timezone, home location (with flag), languages</li><li><strong>Body metrics:</strong> gender chips (Woman/Man), weight (kg), height (cm)</li><li><strong>Date of birth:</strong> date picker</li></ul><p>Same layout used for CRM athlete creation with different fields.</p></div>
