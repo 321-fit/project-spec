@@ -155,6 +155,17 @@
   .fit-light .fit-navbar-item { color: var(--fit-gray-400); }
   .fit-light .fit-navbar-item.active { color: var(--fit-text-primary); }
 
+  /* Month grid day with event dot */
+  .mg-day { display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;cursor:pointer; }
+  .mg-day-num { font-size:13px;color:var(--fit-text-secondary);width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%; }
+  .mg-day.today .mg-day-num { color:var(--fit-brand-primary);font-weight:600; }
+  .mg-day.selected .mg-day-num { background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);color:var(--fit-text-primary);font-weight:500; }
+  .mg-dots { display:flex;gap:2px;height:4px; }
+  .mg-dot { width:4px;height:4px;border-radius:50%; }
+  .mg-dot.p { background:var(--fit-teal-500); }
+  .mg-dot.g { background:var(--fit-brand-primary); }
+  .mg-dot.e { background:var(--fit-text-tertiary); }
+
   /* Calendar header component (reusable) */
   .fit-cal-header {
     display: flex; align-items: center; gap: 4px; cursor: pointer;
@@ -2654,26 +2665,40 @@
     </div>
     <!-- Month grid (hidden by default, toggles on chevron tap) -->
     <div id="cal-month-grid" style="display:none;padding:0 16px 12px;">
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;">
-        <span style="font-size:11px;color:var(--fit-text-tertiary);padding:4px;">S</span>
-        <span style="font-size:11px;color:var(--fit-text-tertiary);padding:4px;">M</span>
-        <span style="font-size:11px;color:var(--fit-text-tertiary);padding:4px;">T</span>
-        <span style="font-size:11px;color:var(--fit-text-tertiary);padding:4px;">W</span>
-        <span style="font-size:11px;color:var(--fit-text-tertiary);padding:4px;">T</span>
-        <span style="font-size:11px;color:var(--fit-text-tertiary);padding:4px;">F</span>
-        <span style="font-size:11px;color:var(--fit-text-tertiary);padding:4px;">S</span>
-        <!-- Row 1 (Apr starts on Wed) -->
-        <span></span><span></span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">1</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">2</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">3</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">4</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">5</span>
-        <!-- Row 2 -->
-        <span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">6</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">7</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">8</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">9</span>
-        <span style="font-size:13px;color:var(--fit-text-primary);padding:8px;font-weight:500;background:var(--fit-selection-gradient);border-radius:50%;border:1px solid var(--fit-teal-600);">10</span>
-        <span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">11</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">12</span>
-        <!-- Row 3 -->
-        <span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">13</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">14</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">15</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">16</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">17</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">18</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">19</span>
-        <!-- Row 4 (today = 20) -->
-        <span style="font-size:13px;color:var(--fit-brand-primary);padding:8px;font-weight:600;">20</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">21</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">22</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">23</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">24</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">25</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">26</span>
-        <!-- Row 5 -->
-        <span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">27</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">28</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">29</span><span style="font-size:13px;color:var(--fit-text-secondary);padding:8px;">30</span><span></span><span></span><span></span>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:0;text-align:center;">
+        <span style="font-size:11px;color:var(--fit-text-tertiary);padding:4px;">S</span><span style="font-size:11px;color:var(--fit-text-tertiary);padding:4px;">M</span><span style="font-size:11px;color:var(--fit-text-tertiary);padding:4px;">T</span><span style="font-size:11px;color:var(--fit-text-tertiary);padding:4px;">W</span><span style="font-size:11px;color:var(--fit-text-tertiary);padding:4px;">T</span><span style="font-size:11px;color:var(--fit-text-tertiary);padding:4px;">F</span><span style="font-size:11px;color:var(--fit-text-tertiary);padding:4px;">S</span>
+        <span class="mg-day"></span><span class="mg-day"></span>
+        <span class="mg-day"><span class="mg-day-num">1</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">2</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">3</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">4</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">5</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">6</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">7</span><span class="mg-dots"><span class="mg-dot p"></span><span class="mg-dot g"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">8</span><span class="mg-dots"><span class="mg-dot p"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">9</span><span class="mg-dots"><span class="mg-dot g"></span></span></span>
+        <span class="mg-day selected"><span class="mg-day-num">10</span><span class="mg-dots"><span class="mg-dot p"></span><span class="mg-dot g"></span><span class="mg-dot e"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">11</span><span class="mg-dots"><span class="mg-dot p"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">12</span><span class="mg-dots"><span class="mg-dot p"></span><span class="mg-dot g"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">13</span><span class="mg-dots"><span class="mg-dot g"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">14</span><span class="mg-dots"><span class="mg-dot p"></span><span class="mg-dot e"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">15</span><span class="mg-dots"><span class="mg-dot e"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">16</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">17</span><span class="mg-dots"><span class="mg-dot p"></span><span class="mg-dot g"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">18</span><span class="mg-dots"><span class="mg-dot g"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">19</span><span class="mg-dots"></span></span>
+        <span class="mg-day today"><span class="mg-day-num">20</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">21</span><span class="mg-dots"><span class="mg-dot p"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">22</span><span class="mg-dots"><span class="mg-dot p"></span><span class="mg-dot g"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">23</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">24</span><span class="mg-dots"><span class="mg-dot g"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">25</span><span class="mg-dots"><span class="mg-dot p"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">26</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">27</span><span class="mg-dots"></span></span>
+        <span class="mg-day"><span class="mg-day-num">28</span><span class="mg-dots"><span class="mg-dot p"></span><span class="mg-dot g"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">29</span><span class="mg-dots"><span class="mg-dot g"></span></span></span>
+        <span class="mg-day"><span class="mg-day-num">30</span><span class="mg-dots"></span></span>
+        <span class="mg-day"></span><span class="mg-day"></span><span class="mg-day"></span>
       </div>
     </div>
     <div class="fit-day-strip" data-fit-day-strip data-month="4" data-year="2026" data-today="10" data-selected="10" data-events="7:pg,8:p,9:g,10:pge,11:p,12:pg,13:g,14:pe,15:e,17:pg,18:g,21:p,22:pg,24:g,25:p,28:pg,29:g">
