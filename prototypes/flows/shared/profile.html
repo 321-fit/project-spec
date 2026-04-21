@@ -189,21 +189,99 @@
 
   /* Paid dimming + validation errors: in fit-ui.css */
 
-  /* Note from coach (read-only, athlete view) */
+  /* Note from coach (read-only, athlete view) — outline card */
   .event-note {
     margin: 0 16px 16px; padding: 12px 14px;
-    background: rgba(3,178,226,0.08); border-radius: 10px;
-    border-left: 3px solid var(--fit-blue-500);
+    background: transparent; border-radius: 10px;
+    border: 1px solid var(--fit-divider);
     display: flex; align-items: flex-start; gap: 10px;
   }
-  .fit-light .event-note { background: rgba(3,178,226,0.06); }
-  .event-note-icon { flex-shrink: 0; color: var(--fit-blue-500); margin-top: 2px; }
+  .fit-light .event-note { border-color: var(--fit-gray-200); }
+  .event-note-icon { flex-shrink: 0; color: var(--fit-text-secondary); margin-top: 2px; }
   .event-note-body { flex: 1; min-width: 0; }
   .event-note-label {
-    font-size: 11px; font-weight: 500; color: var(--fit-blue-500);
-    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+    font-size: 12px; font-weight: 500; color: var(--fit-text-secondary);
+    margin-bottom: 4px;
   }
   .event-note-text { font-size: 14px; line-height: 1.4; color: var(--fit-text-primary); }
+
+  /* ==================== COACH PROFILE v2 — STATE VARIANTS ==================== */
+  /* States: .cv-established (default) / .cv-new-video / .cv-new-image / .cv-new-default */
+
+  /* Header media — 3 variants, 1 visible at a time */
+  #s-coach-v2 .cv-media {
+    display: none; position: absolute; inset: 0;
+    align-items: center; justify-content: center;
+  }
+  #s-coach-v2.cv-established .cv-media-video,
+  #s-coach-v2.cv-new-video .cv-media-video { display: flex; background: linear-gradient(135deg,#1a1a2e,#16213e); }
+  #s-coach-v2.cv-new-image .cv-media-image {
+    display: flex;
+    background-image:
+      linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.4)),
+      linear-gradient(135deg, #2d5a3d, #4a7c59);
+  }
+  #s-coach-v2.cv-new-default .cv-media-default {
+    display: flex;
+    background: var(--fit-brand-gradient);
+  }
+  #s-coach-v2 .cv-media-default-initials {
+    font-size: 56px; font-weight: 600;
+    color: rgba(255,255,255,0.95); letter-spacing: 2px;
+  }
+  #s-coach-v2 .cv-media-image-caption {
+    position: absolute; bottom: 10px; right: 12px;
+    color: rgba(255,255,255,0.6); font-size: 11px;
+  }
+
+  /* Visibility rules */
+  #s-coach-v2 .cv-new-only, #s-coach-v2 .cv-new-only-inline, #s-coach-v2 .cv-new-only-flex { display: none; }
+  #s-coach-v2.cv-new-video .cv-established-only,
+  #s-coach-v2.cv-new-image .cv-established-only,
+  #s-coach-v2.cv-new-default .cv-established-only { display: none !important; }
+  #s-coach-v2.cv-new-video .cv-new-only,
+  #s-coach-v2.cv-new-image .cv-new-only,
+  #s-coach-v2.cv-new-default .cv-new-only { display: block; }
+  #s-coach-v2.cv-new-video .cv-new-only-inline,
+  #s-coach-v2.cv-new-image .cv-new-only-inline,
+  #s-coach-v2.cv-new-default .cv-new-only-inline { display: inline-flex; }
+  #s-coach-v2.cv-new-video .cv-new-only-flex,
+  #s-coach-v2.cv-new-image .cv-new-only-flex,
+  #s-coach-v2.cv-new-default .cv-new-only-flex { display: flex; }
+
+  /* "New coach" inline badge (next to name) */
+  #s-coach-v2 .cv-new-badge {
+    align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 99px;
+    background: var(--fit-teal-500); color: var(--fit-white);
+    font-size: 11px; font-weight: 500;
+    margin-top: 6px; width: fit-content;
+  }
+
+  /* "Sessions from €X" — replaces stats block */
+  #s-coach-v2 .cv-from-pill {
+    padding: 0 16px; margin-bottom: 28px;
+    font-size: 14px; color: var(--fit-text-secondary);
+  }
+  #s-coach-v2 .cv-from-pill strong {
+    font-size: 18px; font-weight: 600; color: var(--fit-text-primary);
+  }
+
+  /* Reviews empty state (new coach) */
+  #s-coach-v2 .cv-reviews-empty {
+    padding: 28px 24px; margin: 0 16px 24px;
+    border-radius: 14px; border: 1px solid var(--fit-divider);
+    text-align: center;
+  }
+  .fit-light #s-coach-v2 .cv-reviews-empty { border-color: var(--fit-gray-200); }
+  #s-coach-v2 .cv-reviews-empty svg { color: var(--fit-text-tertiary); margin-bottom: 12px; }
+  #s-coach-v2 .cv-reviews-empty-title {
+    font-size: 16px; font-weight: 500;
+    color: var(--fit-text-secondary); margin-bottom: 6px;
+  }
+  #s-coach-v2 .cv-reviews-empty-subtitle {
+    font-size: 13px; color: var(--fit-text-tertiary); line-height: 1.5;
+  }
 </style>
 </head>
 <body>
@@ -382,7 +460,7 @@
   </div>
   <div class="fit-phone-content">
     <!-- Event for selected date (Thu Apr 10) -->
-    <div style="padding:16px 16px 8px;" id="booking-date-header">
+    <div style="padding:0 16px 8px;" id="booking-date-header">
       <div style="font-size:14px;font-weight:500;margin-bottom:12px;">Thursday, April 10</div>
     </div>
     <!-- Empty state (hidden by default) -->
@@ -433,7 +511,7 @@
     </div>
   </div>
   <div class="fit-phone-content">
-    <div class="v6d-card" style="margin:16px 16px 12px;border-radius:16px;overflow:hidden;">
+    <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;">
       <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
         <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
@@ -546,7 +624,7 @@
     </div>
   </div>
   <div class="fit-phone-content">
-    <div class="v6d-card" style="margin:16px 16px 12px;border-radius:16px;overflow:hidden;">
+    <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;">
       <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
         <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
@@ -610,7 +688,7 @@
     </div>
   </div>
   <div class="fit-phone-content">
-    <div class="v6d-card" style="margin:16px 16px 12px;border-radius:16px;overflow:hidden;">
+    <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;">
       <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
         <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20c1-2 3-3 5-3s2.5 1 4 1 3-1 5-1"/><circle cx="12" cy="8" r="3"/><path d="M9 11c-2 1-3 3-3 5"/><path d="M15 11c2 1 3 3 3 5"/></svg>
@@ -661,7 +739,7 @@
 </div>
 
 <!-- ===== COACH PROFILE V2 (video layout) ===== -->
-<div class="fit-phone fit-light" id="s-coach-v2">
+<div class="fit-phone fit-light cv-established" id="s-coach-v2">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
   </div>
@@ -682,13 +760,22 @@
       </div>
     </div>
 
-    <!-- Video embed (edge to edge) -->
+    <!-- Header media (3 variants: video / cover image / default gradient+initials) -->
     <div style="position:relative;width:100%;aspect-ratio:16/9;background:#000;overflow:hidden;">
-      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a2e,#16213e);">
+      <!-- Video (established or new+video) -->
+      <div class="cv-media cv-media-video">
         <div style="text-align:center;">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="white" opacity="0.8"><polygon points="5 3 19 12 5 21 5 3"/></svg>
           <div style="color:rgba(255,255,255,0.6);font-size:12px;margin-top:8px;">Coach intro video</div>
         </div>
+      </div>
+      <!-- Cover image (new coach with uploaded image, no video) -->
+      <div class="cv-media cv-media-image">
+        <span class="cv-media-image-caption">Coach cover photo</span>
+      </div>
+      <!-- Default fallback (no video, no image — brand gradient + initials) -->
+      <div class="cv-media cv-media-default">
+        <div class="cv-media-default-initials">JM</div>
       </div>
     </div>
 
@@ -701,11 +788,15 @@
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
           Warsaw, Poland
         </div>
+        <span class="cv-new-badge cv-new-only-inline">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          New coach
+        </span>
       </div>
     </div>
 
     <!-- Stats row -->
-    <div style="display:flex;justify-content:space-around;padding:12px 16px;margin:0 16px 28px;border-radius:12px;background:var(--fit-surface-high);">
+    <div class="cv-established-only" style="display:flex;justify-content:space-around;padding:12px 16px;margin:0 16px 28px;border-radius:12px;background:var(--fit-surface-high);">
       <div style="text-align:center;">
         <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">4.8</div>
         <div style="font-size:12px;color:var(--fit-text-tertiary);">Rating</div>
@@ -722,8 +813,31 @@
       </div>
       <div style="width:1px;background:var(--fit-divider);"></div>
       <div style="text-align:center;">
-        <div style="font-size:18px;font-weight:600;color:var(--fit-teal-500);">&euro;35</div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);">Avg price</div>
+        <div style="font-size:18px;font-weight:600;color:var(--fit-teal-500);">&euro;25</div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);">Price from</div>
+      </div>
+    </div>
+
+    <!-- Stats row (new coach: zero-state values) -->
+    <div class="cv-new-only-flex" style="justify-content:space-around;padding:12px 16px;margin:0 16px 28px;border-radius:12px;background:var(--fit-surface-high);">
+      <div style="text-align:center;">
+        <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">&mdash;</div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);">Rating</div>
+      </div>
+      <div style="width:1px;background:var(--fit-divider);"></div>
+      <div style="text-align:center;">
+        <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">0</div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);">Reviews</div>
+      </div>
+      <div style="width:1px;background:var(--fit-divider);"></div>
+      <div style="text-align:center;">
+        <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">0</div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);">Sessions</div>
+      </div>
+      <div style="width:1px;background:var(--fit-divider);"></div>
+      <div style="text-align:center;">
+        <div style="font-size:18px;font-weight:600;color:var(--fit-teal-500);">&euro;25</div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);">Price from</div>
       </div>
     </div>
 
@@ -742,13 +856,19 @@
     <!-- Reviews -->
     <div style="display:flex;justify-content:space-between;align-items:center;padding:0 16px;margin-bottom:12px;">
       <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Reviews</div>
-      <div style="display:flex;align-items:center;gap:4px;font-size:14px;color:var(--fit-text-tertiary);">
+      <div class="cv-established-only" style="display:flex;align-items:center;gap:4px;font-size:14px;color:var(--fit-text-tertiary);">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--fit-teal-500)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         4.8 &middot; 42 reviews
       </div>
     </div>
+    <!-- Reviews empty state (new coach) -->
+    <div class="cv-reviews-empty cv-new-only">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <div class="cv-reviews-empty-title">No reviews yet</div>
+      <div class="cv-reviews-empty-subtitle">Reviews appear after athletes complete their first session with this coach.</div>
+    </div>
     <!-- Horizontal scroll reviews (carousel) -->
-    <div style="display:flex;gap:10px;padding:0 16px 24px;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;scroll-padding-left:16px;">
+    <div class="cv-established-only" style="display:flex;gap:10px;padding:0 16px 24px;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;scroll-padding-left:16px;">
       <div style="display:flex;gap:10px;padding-right:16px;">
       <!-- Review 1 -->
       <div style="width:280px;padding:14px;border-radius:14px;background:var(--fit-surface-high);flex-shrink:0;scroll-snap-align:start;display:flex;flex-direction:column;">
@@ -840,7 +960,7 @@
   <div class="fit-phone-content">
 
     <!-- Rating summary -->
-    <div style="display:flex;gap:20px;padding:16px;align-items:flex-start;">
+    <div style="display:flex;gap:20px;padding:0 16px 16px;align-items:flex-start;">
       <!-- Score + stars -->
       <div style="text-align:center;">
         <div style="font-size:36px;font-weight:700;color:var(--fit-text-primary);line-height:1;">4.8</div>
@@ -962,7 +1082,7 @@
       <span class="fit-header-title">Book Training</span>
     </div>
     <!-- Tabs -->
-    <div style="display:flex;margin:0 16px;border-radius:10px;overflow:hidden;background:var(--fit-surface-high);padding:3px;">
+    <div style="display:flex;margin:0 16px 16px;border-radius:10px;overflow:hidden;background:var(--fit-surface-high);padding:3px;">
       <button id="tab-group" onclick="switchBookTab('group')" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;background:var(--fit-brand-gradient);color:var(--fit-white);">Group</button>
       <button id="tab-personal" onclick="switchBookTab('personal')" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;background:transparent;color:var(--fit-text-secondary);">Personal</button>
     </div>
@@ -973,7 +1093,7 @@
     <div id="book-tab-group">
 
       <!-- HIIT Group Session -->
-      <div class="v6d-card" style="margin:16px 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;">
+      <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;">
         <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
           <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M4.5 12H2M22 12h-2.5M12 4.5V2M12 22v-2.5"/></svg>
@@ -1036,7 +1156,7 @@
     <div id="book-tab-personal" style="display:none;">
 
       <!-- Basketball Training -->
-      <div class="v6d-card" style="margin:16px 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;">
+      <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;">
         <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
           <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>
@@ -1100,7 +1220,32 @@
   <div class="ann" id="ann-s-group"><span class="ann-role athlete">Athlete</span><h3>Group Training Detail</h3><p>Before joining. Ticket card with coach info, tappable participant list.</p><ul><li>Chevron ">" hints tappable rows</li><li>Tap → sheet (View Profile, Message)</li><li><strong>Join Training · €25</strong> — sticky CTA</li></ul><span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Full flow details</span><div class="ann-detail"><h4>Before Join — checks</h4><p>Athlete cannot join if: training is full, they have a conflicting event at this time, or balance insufficient (card).</p><h4>Confirmation Modal</h4><p>Tap "Join" → bottom sheet: training summary, price, payment method (Visa ••••), cancellation policy (24h free). Tap "Continue" → registered.</p><h4>Payment</h4><p>Card: amount held from balance immediately. Cash: just registration, no hold. Coach marks cash payment after training.</p><h4>After Join</h4><p>Navigates to "Joined" screen. User first in list with "You" label + gradient avatar. Event added to athlete schedule with "Group" badge.</p><h4>Cancellation</h4><p>24h+ before: free cancel, full refund. Less than 24h: penalty applies (same policy as personal).</p></div></div>
   <div class="ann" id="ann-s-joined"><span class="ann-role athlete">Athlete</span><h3>Group — Joined</h3><p>After joining. Current user first with "You" label and gradient avatar.</p><ul><li>Green "Joined" badge</li><li>You = first in list, branded avatar</li><li>Other participants tappable</li><li>Leave Training — red, refund within 24h</li></ul></div>
   <div class="ann" id="ann-s-full"><span class="ann-role athlete">Athlete</span><h3>Group — Full</h3><p>All spots taken. Cannot join — disabled button.</p><ul><li>Red progress bar at 100%</li><li>Collapsed participant list (+12 more)</li><li>No waitlist in V1</li></ul></div>
-  <div class="ann" id="ann-s-coach-v2"><span class="ann-role athlete">Athlete</span><h3>Coach Profile v2</h3><p>Alternative layout with video header. Inspired by Prepply/Superprof.</p><ul><li><strong>Video embed</strong> (16:9) — coach intro, full width under status bar</li><li><strong>Back/Share/Heart</strong> overlaid on video with blur bg</li><li><strong>Square avatar</strong> (12px radius) + name + location + rating</li><li>Sport chips inline</li><li>Same v6d training cards below</li></ul><p>Fallback if no video: current layout (v1) with circular avatar.</p></div>
+  <div class="ann" id="ann-s-coach-v2"><span class="ann-role athlete">Athlete</span><h3>Coach Profile v2</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setCoachV2State('established',this)">Established</button>
+      <button onclick="setCoachV2State('new-video',this)">New &middot; video</button>
+      <button onclick="setCoachV2State('new-image',this)">New &middot; image</button>
+      <button onclick="setCoachV2State('new-default',this)">New &middot; default</button>
+    </div>
+    <p>Alternative layout with video header. Inspired by Prepply/Superprof.</p>
+    <ul>
+      <li><strong>Video embed</strong> (16:9) — coach intro, full width under status bar</li>
+      <li><strong>Back/Share/Heart</strong> overlaid on video with blur bg</li>
+      <li>Avatar + name + location + rating</li>
+      <li>Sport chips inline, Reviews carousel, v6d training cards below</li>
+    </ul>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>States &amp; behavior</span>
+    <div class="ann-detail">
+      <h4>Established coach (default)</h4>
+      <p>Coach with prior sessions + reviews. Video header, 4-column stats (Rating / Reviews / Sessions / Avg price), reviews carousel with rating summary.</p>
+      <h4>New coach (approved)</h4>
+      <p>After admin approval but before first completed session. Stats row is replaced with a teal <strong>"New coach"</strong> badge near the name + a single <strong>"Sessions from €X"</strong> line. Reviews carousel is replaced by a quiet empty-state card — <strong>no CTA</strong> (athletes can only review after completing a session).</p>
+      <h4>Header media fallback (new coach)</h4>
+      <p><strong>Video:</strong> ideal, recommended during onboarding (~2× conversion vs static). <strong>Cover image:</strong> allowed if the coach is not ready to record video. <strong>Default:</strong> brand gradient + coach initials — automatic, always works if neither uploaded. Selected in Coach Onboarding Wizard (#130).</p>
+      <h4>Product rule</h4>
+      <p>Coach appears in athlete discovery <strong>only after setup complete + admin approval</strong>. So "truly empty" (no name, no sports, no sessions) never reaches this screen — only media / stats / reviews have zero-states.</p>
+    </div>
+  </div>
   <div class="ann" id="ann-s-reviews"><span class="ann-role athlete">Athlete</span><h3>All Reviews</h3><p>Full reviews screen pushed from Coach Profile v2 carousel or "Show all reviews".</p><ul><li><strong>Rating summary:</strong> large score + stars + breakdown bars (5→1)</li><li><strong>Category ratings:</strong> horizontal scroll chips (Technique, Communication, Punctuality, Motivation)</li><li><strong>Full reviews:</strong> vertical scroll, no line clamp, dividers between</li></ul></div>
   <div class="ann" id="ann-s-book-sessions"><span class="ann-role athlete">Athlete</span><h3>Book Trainings</h3><p>Pushed from Coach Profile v2 "Book Training" CTA. Two tabs:</p><ul><li><strong>Group</strong> — group training cards with spots, schedule, Book CTA</li><li><strong>Personal</strong> — personal training cards with Book CTA</li><li>Tabs use <strong>segmented control</strong> (pill toggle) in header</li><li>Each card has location strip + Book button</li><li>Special events have brand border</li></ul></div>
 </div>
@@ -1179,6 +1324,14 @@ function switchBookTab(tab) {
     btnGroup.style.background = 'transparent';
     btnGroup.style.color = 'var(--fit-text-secondary)';
   }
+}
+
+function setCoachV2State(state, btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  var screen = document.getElementById('s-coach-v2');
+  screen.classList.remove('cv-established', 'cv-new-video', 'cv-new-image', 'cv-new-default');
+  screen.classList.add('cv-' + state);
 }
 
 function rateStar(n) {

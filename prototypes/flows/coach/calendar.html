@@ -262,20 +262,20 @@
   #s-event .fit-participant .fit-swipe-left,
   #s-event .fit-participant .fit-swipe-right { cursor: pointer; }
 
-  /* Note to athletes (pinned message per event) */
+  /* Note to athletes (pinned message per event) — outline card */
   .event-note {
     margin: 0 16px 16px; padding: 12px 14px;
-    background: rgba(3,178,226,0.08); border-radius: 10px;
-    border-left: 3px solid var(--fit-blue-500);
+    background: transparent; border-radius: 10px;
+    border: 1px solid var(--fit-divider);
     display: flex; align-items: flex-start; gap: 10px;
     cursor: pointer;
   }
-  .fit-light .event-note { background: rgba(3,178,226,0.06); }
-  .event-note-icon { flex-shrink: 0; color: var(--fit-blue-500); margin-top: 2px; }
+  .fit-light .event-note { border-color: var(--fit-gray-200); }
+  .event-note-icon { flex-shrink: 0; color: var(--fit-text-secondary); margin-top: 2px; }
   .event-note-body { flex: 1; min-width: 0; }
   .event-note-label {
-    font-size: 11px; font-weight: 500; color: var(--fit-blue-500);
-    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+    font-size: 12px; font-weight: 500; color: var(--fit-text-secondary);
+    margin-bottom: 4px;
   }
   .event-note-text { font-size: 14px; line-height: 1.4; color: var(--fit-text-primary); }
   .event-note-edit { flex-shrink: 0; color: var(--fit-text-tertiary); margin-top: 2px; }
@@ -793,7 +793,7 @@
   </div>
   <div class="fit-phone-content">
     <!-- Event card (v6d without CTA/chevron + spots bar) -->
-    <div class="v6d-card" style="margin:16px 16px 12px;border-radius:16px;overflow:hidden;">
+    <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;">
       <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
         <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M4.5 12H2M22 12h-2.5M12 4.5V2M12 22v-2.5"/></svg>
@@ -869,14 +869,14 @@
   <div class="fit-sheet-overlay" id="event-note-sheet">
     <div class="fit-sheet" style="padding:8px 16px 40px;">
       <div class="fit-sheet-handle"></div>
-      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Note to athletes</div>
-      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:16px;">Visible to everyone joining this session.</div>
+      <div class="fit-sheet-title">Note to athletes</div>
+      <div class="fit-sheet-subtitle">Visible to everyone joining this session.</div>
       <textarea id="event-note-textarea" maxlength="200" placeholder="e.g. Bring a yoga mat and water" oninput="updateNoteCounter()" style="width:100%;min-height:100px;padding:12px;background:var(--fit-surface-high);border:1px solid var(--fit-gray-700);border-radius:10px;color:var(--fit-text-primary);font-family:var(--fit-font);font-size:14px;line-height:1.4;resize:none;outline:none;box-sizing:border-box;">Please bring a yoga mat, water, and a small towel. Session starts at 10:00 sharp — arrive 5-10 min early to warm up. Lockers + showers available. Park on the south lot (free). See you!</textarea>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;margin-bottom:28px;">
         <span style="font-size:12px;color:var(--fit-text-tertiary);">Athletes will be notified of changes.</span>
         <span id="event-note-counter" style="font-size:12px;color:var(--fit-text-tertiary);">184 / 200</span>
       </div>
-      <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;flex-direction:column;gap:12px;">
         <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="saveNote()">Save note</button>
         <button id="event-note-delete" style="width:100%;height:50px;border:none;border-radius:99px;background:rgba(240,92,91,0.15);color:var(--fit-red-400);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="deleteNote()">Delete note</button>
       </div>
@@ -978,7 +978,7 @@
   </div>
   <div class="fit-phone-content">
     <!-- Event card (v6d, completion context) -->
-    <div class="v6d-card" style="margin:16px 16px 12px;border-radius:16px;overflow:hidden;">
+    <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;">
       <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
         <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M4.5 12H2M22 12h-2.5M12 4.5V2M12 22v-2.5"/></svg>
@@ -1161,8 +1161,7 @@ function updateNoteCounter() {
   if (!ta || !c) return;
   var len = ta.value.length;
   c.textContent = len + ' / 200';
-  if (len >= 190) c.style.color = 'var(--fit-red-400)';
-  else if (len >= 170) c.style.color = 'var(--fit-yellow-400)';
+  if (len >= 200) c.style.color = 'var(--fit-red-400)';
   else c.style.color = 'var(--fit-text-tertiary)';
   // Hide delete button when textarea empty (nothing to delete)
   var del = document.getElementById('event-note-delete');
