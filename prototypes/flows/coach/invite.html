@@ -202,6 +202,26 @@
   .fit-cal-header-month { font-size: 16px; font-weight: 600; color: var(--fit-text-primary); }
   .fit-cal-header-year { font-size: 16px; font-weight: 400; color: var(--fit-text-secondary); }
   .fit-cal-chevron { transition: transform 0.2s; flex-shrink: 0; }
+
+  /* Comment textarea (matches .fit-input visual in both themes) */
+  .fit-input-ta {
+    width: 100%; min-height: 80px;
+    padding: 14px 16px;
+    background: var(--fit-surface-low);
+    border: none; border-radius: var(--fit-radius-md);
+    color: var(--fit-text-primary);
+    font-family: var(--fit-font); font-size: 16px; line-height: 1.35;
+    resize: none; outline: none; box-sizing: border-box;
+  }
+  .fit-dark .fit-input-ta { background: var(--fit-black); }
+  .fit-input-ta::placeholder { color: var(--fit-text-placeholder); }
+  .fit-input-ta:focus { outline: 1px solid var(--fit-divider); }
+  .fit-input-counter {
+    display: flex; justify-content: flex-end;
+    margin-top: 6px;
+    font-size: 12px; color: var(--fit-text-tertiary);
+  }
+  .fit-input-counter.at-limit { color: var(--fit-red-400); }
 </style>
 </head>
 <body>
@@ -541,7 +561,8 @@
     <!-- Comment -->
     <div class="fit-input-group" style="padding:0 16px;">
       <span class="fit-input-label">Comment <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
-      <div class="fit-input" style="min-height:80px;align-items:flex-start;padding-top:14px;color:var(--fit-text-placeholder);">Add a message for the athlete...</div>
+      <textarea id="invite-comment-ta" class="fit-input-ta" maxlength="300" oninput="updateCommentCounter('invite')" placeholder="Add a message for the athlete..."></textarea>
+      <div class="fit-input-counter" id="invite-comment-counter">0 / 300</div>
     </div>
 
     <!-- Info text -->
@@ -603,7 +624,8 @@
     <!-- Comment -->
     <div class="fit-input-group" style="padding:0 16px;">
       <span class="fit-input-label">Comment <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
-      <div class="fit-input" style="min-height:80px;align-items:flex-start;padding-top:14px;color:var(--fit-text-placeholder);">Add a message for Anna...</div>
+      <textarea id="schedule-comment-ta" class="fit-input-ta" maxlength="300" oninput="updateCommentCounter('schedule')" placeholder="Add a message for Anna..."></textarea>
+      <div class="fit-input-counter" id="schedule-comment-counter">0 / 300</div>
     </div>
 
     <!-- Info text -->
@@ -667,17 +689,27 @@
       <button onclick="setReviewState('invite','sending',this)">Sending</button>
       <button onclick="setReviewState('invite','error',this)">Error</button>
     </div>
-    <p>Step 3 of <strong>Invite</strong> flow — coach shares deep link with someone not yet in the app.</p><ul><li>Summary card: training, date, time, location, price, <strong>"Invitation"</strong> badge</li><li>Optional comment field for athlete (appears in their onboarding step)</li><li>Info text: "Share the invite link..."</li><li><strong>"Send Invite"</strong> → opens native iOS share sheet with deep link</li><li>Deep link: athlete opens → onboarding → sees invitation → Accept/Decline</li><li><strong>Sending:</strong> CTA shows spinner + disabled — prevents double-tap</li><li><strong>Error:</strong> inline banner above CTA with Retry. Main CTA stays active (can also retry from button).</li></ul><hr><p class="note">Entry: Clients tab "+" sheet → <strong>Invite to training</strong>. URL param <code>mode=invite</code> (default).</p></div>
+    <p>Step 3 of <strong>Invite</strong> flow — coach shares deep link with someone not yet in the app.</p><ul><li>Summary card: training, date, time, location, price, <strong>"Invitation"</strong> badge</li><li>Optional comment field for athlete (max 300 chars with live counter — gray default, red at limit)</li><li>Info text: "Share the invite link..."</li><li><strong>"Send Invite"</strong> → opens native iOS share sheet with deep link</li><li>Deep link: athlete opens → onboarding → sees invitation → Accept/Decline</li><li><strong>Sending:</strong> CTA shows spinner + disabled — prevents double-tap</li><li><strong>Error:</strong> inline banner above CTA with Retry. Main CTA stays active (can also retry from button).</li></ul><hr><p class="note">Entry: Clients tab "+" sheet → <strong>Invite to training</strong>. URL param <code>mode=invite</code> (default).</p></div>
   <div class="ann" id="ann-s-schedule-review"><span class="ann-role coach">Coach</span><h3>Schedule: Review Request</h3>
     <div class="state-toggle">
       <button class="active" onclick="setReviewState('schedule','default',this)">Default</button>
       <button onclick="setReviewState('schedule','sending',this)">Sending</button>
       <button onclick="setReviewState('schedule','error',this)">Error</button>
-    </div><p>Step 3 of <strong>Schedule training</strong> flow — coach proposes a session to an existing in-app client. Reuses 3 of 4 invite screens; differs only here.</p><ul><li>Summary card: same layout but <strong>Request</strong> pill (yellow) matches 6-state calendar system</li><li><strong>Recipient row</strong>: avatar + name + "Will be sent as a training request" — makes destination explicit (invite doesn't have this — athlete is anonymous until link opens)</li><li>Optional comment field — coach's message to athlete, shown in their Request drawer</li><li>Info text: "Anna will receive this as a training request..."</li><li><strong>"Send Request"</strong> → backend call → event lands in <code>Awaiting</code> for coach + <code>Request</code> for athlete inbox → snackbar confirmation → navigates back to origin</li></ul><hr><p class="note">Entry points (URL param <code>mode=schedule&amp;origin=X</code>):<br>&bull; Client Detail ⋯ → <strong>Schedule training</strong> (<code>origin=s-client-detail</code>)<br>&bull; Client Detail empty Upcoming → <strong>Schedule training</strong> CTA<br>&bull; Calendar FAB → <strong>Schedule training</strong> (future, not yet wired)</p></div>
+    </div><p>Step 3 of <strong>Schedule training</strong> flow — coach proposes a session to an existing in-app client. Reuses 3 of 4 invite screens; differs only here.</p><ul><li>Summary card: same layout but <strong>Request</strong> pill (yellow) matches 6-state calendar system</li><li><strong>Recipient row</strong>: avatar + name + "Will be sent as a training request" — makes destination explicit (invite doesn't have this — athlete is anonymous until link opens)</li><li>Optional comment field — coach's message to athlete, shown in their Request drawer (max 300 chars with live counter — gray default, red at limit)</li><li>Info text: "Anna will receive this as a training request..."</li><li><strong>"Send Request"</strong> → backend call → event lands in <code>Awaiting</code> for coach + <code>Request</code> for athlete inbox → snackbar confirmation → navigates back to origin</li></ul><hr><p class="note">Entry points (URL param <code>mode=schedule&amp;origin=X</code>):<br>&bull; Client Detail ⋯ → <strong>Schedule training</strong> (<code>origin=s-client-detail</code>)<br>&bull; Client Detail empty Upcoming → <strong>Schedule training</strong> CTA<br>&bull; Calendar FAB → <strong>Schedule training</strong> (future, not yet wired)</p></div>
 </div>
 
 <script src="../../lib/fit-ui.js"></script>
 <script>
+function updateCommentCounter(flow) {
+  var ta = document.getElementById(flow + '-comment-ta');
+  var cnt = document.getElementById(flow + '-comment-counter');
+  if (!ta || !cnt) return;
+  var len = ta.value.length;
+  var max = parseInt(ta.getAttribute('maxlength'), 10) || 300;
+  cnt.textContent = len + ' / ' + max;
+  cnt.classList.toggle('at-limit', len >= max);
+}
+
 function toggleMonthView(gridId, stripEl) {
   var grid = document.getElementById(gridId);
   if (!grid) return;
