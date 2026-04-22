@@ -392,6 +392,54 @@
     opacity: 0.45; cursor: not-allowed;
   }
 
+  /* ===== AVAILABILITY FLOW STATES ===== */
+  /* Loading skeleton shown in place of content */
+  #s-availability .avail-fs-skel { display: none; padding: 0 16px; }
+  #s-availability.fs-loading .avail-fs-content { display: none; }
+  #s-availability.fs-loading .avail-fs-skel { display: flex; flex-direction: column; gap: 20px; }
+  #s-availability.fs-loading .fit-phone-footer { display: none; }
+  .avail-sk-day { display: flex; flex-direction: column; gap: 12px; }
+  .avail-sk-head { display: flex; align-items: center; gap: 12px; }
+  .avail-sk-box { width: 24px; height: 24px; border-radius: 6px; flex-shrink: 0; }
+  .avail-sk-label { height: 14px; border-radius: 7px; width: 38%; }
+  .avail-sk-row { display: flex; gap: 12px; align-items: center; }
+  .avail-sk-input { flex: 1 0 0; height: 56px; border-radius: var(--fit-radius-md); }
+  .avail-sk-sep { width: 14px; height: 14px; border-radius: 7px; flex-shrink: 0; }
+  .avail-sk-btn { width: 32px; height: 32px; border-radius: 99px; flex-shrink: 0; }
+
+  /* Saving: inline spinner inside Save button */
+  .avail-save-spinner {
+    display: none;
+    width: 16px; height: 16px; vertical-align: -3px; margin-right: 8px;
+    border: 2px solid rgba(255,255,255,0.35);
+    border-top-color: var(--fit-white);
+    border-radius: 50%;
+    animation: avail-spin 0.9s linear infinite;
+  }
+  #s-availability.fs-saving .avail-save-spinner { display: inline-block; }
+  #s-availability.fs-saving #avail-save-btn { cursor: wait; opacity: 0.85; }
+  @keyframes avail-spin { to { transform: rotate(360deg); } }
+
+  /* Save error banner (above footer) */
+  .avail-save-error {
+    display: none;
+    align-items: center; gap: 10px;
+    margin: 0 16px 12px; padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(240,92,91,0.08);
+    border: 1px solid rgba(240,92,91,0.22);
+    font-size: 14px; color: var(--fit-red-400); line-height: 1.4;
+  }
+  #s-availability.fs-error .avail-save-error { display: flex; }
+  .avail-save-error svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .avail-save-error-body { flex: 1; color: var(--fit-text-primary); }
+  .avail-save-error-body strong { color: var(--fit-red-400); font-weight: 500; }
+  .avail-save-error-retry {
+    font-family: var(--fit-font); font-size: 13px; font-weight: 500;
+    color: var(--fit-red-400); background: transparent; border: none;
+    cursor: pointer; padding: 4px 8px; margin: -4px -8px;
+  }
+
   /* Selection band (centered 36px highlight) */
   .avail-tp-wheels::before {
     content: "";
@@ -1832,11 +1880,36 @@
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
-      <button class="fit-header-back" onclick="go('s-settings',document.querySelector('[onclick*=s-settings]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="fit-header-back" onclick="handleAvailBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
       <span class="fit-header-title">Available hours</span>
     </div>
   </div>
   <div class="fit-phone-content">
+
+    <!-- Loading skeleton (shown during initial fetch) -->
+    <div class="avail-fs-skel">
+      <div class="avail-sk-day">
+        <div class="avail-sk-head"><div class="avail-sk-box sk-shimmer"></div><div class="avail-sk-label sk-shimmer"></div></div>
+        <div class="avail-sk-row"><div class="avail-sk-input sk-shimmer"></div><div class="avail-sk-sep sk-shimmer"></div><div class="avail-sk-input sk-shimmer"></div><div class="avail-sk-btn sk-shimmer"></div></div>
+      </div>
+      <div class="avail-sk-day">
+        <div class="avail-sk-head"><div class="avail-sk-box sk-shimmer"></div><div class="avail-sk-label sk-shimmer" style="width:32%;"></div></div>
+        <div class="avail-sk-row"><div class="avail-sk-input sk-shimmer"></div><div class="avail-sk-sep sk-shimmer"></div><div class="avail-sk-input sk-shimmer"></div><div class="avail-sk-btn sk-shimmer"></div></div>
+      </div>
+      <div class="avail-sk-day">
+        <div class="avail-sk-head"><div class="avail-sk-box sk-shimmer"></div><div class="avail-sk-label sk-shimmer" style="width:42%;"></div></div>
+      </div>
+      <div class="avail-sk-day">
+        <div class="avail-sk-head"><div class="avail-sk-box sk-shimmer"></div><div class="avail-sk-label sk-shimmer" style="width:36%;"></div></div>
+        <div class="avail-sk-row"><div class="avail-sk-input sk-shimmer"></div><div class="avail-sk-sep sk-shimmer"></div><div class="avail-sk-input sk-shimmer"></div><div class="avail-sk-btn sk-shimmer"></div></div>
+      </div>
+      <div class="avail-sk-day">
+        <div class="avail-sk-head"><div class="avail-sk-box sk-shimmer"></div><div class="avail-sk-label sk-shimmer" style="width:28%;"></div></div>
+      </div>
+    </div>
+
+  <!-- Main content (hidden while loading) -->
+  <div class="avail-fs-content">
 
     <!-- Timezone subtitle (read-only; set in Settings / account creation) -->
     <div class="avail-tz">
@@ -1967,9 +2040,34 @@
       </div>
 
     </div>
+
+  </div><!-- /.avail-fs-content -->
+
+  </div>
+  <!-- Save error banner (inline, above footer) -->
+  <div class="avail-save-error" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div class="avail-save-error-body"><strong>Couldn't save</strong> — check your connection and try again.</div>
+    <button class="avail-save-error-retry" onclick="handleAvailSave()">Retry</button>
   </div>
   <div class="fit-phone-footer" style="padding:12px 16px 40px;">
-    <button id="avail-save-btn" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" onclick="handleAvailSave()">Save availability</button>
+    <button id="avail-save-btn" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" onclick="handleAvailSave()"><span class="avail-save-spinner"></span>Save availability</button>
+  </div>
+
+  <!-- Snackbar: save success -->
+  <div class="fit-snackbar" id="avail-saved-snack">Availability updated</div>
+
+  <!-- Discard changes confirm sheet -->
+  <div class="fit-sheet-overlay" id="avail-discard-sheet">
+    <div class="fit-sheet" style="padding:8px 16px 40px;">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Discard changes?</div>
+      <div class="fit-sheet-subtitle">Your availability changes will be lost.</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
+        <button style="width:100%;height:50px;border:none;border-radius:99px;background:rgba(240,92,91,0.15);color:var(--fit-red-400);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="availDiscardConfirm()">Discard</button>
+        <button style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="closeSheet('avail-discard-sheet')">Keep editing</button>
+      </div>
+    </div>
   </div>
 
   <!-- Existing bookings affected — list sheet -->
@@ -2123,11 +2221,17 @@
   <div class="ann" id="ann-s-notes-editor"><span class="ann-role coach">Coach</span><h3>About Me Editor</h3><p>Full-screen text editor. Cancel/Save header. Reusable for About Me and Notes fields.</p></div>
 
   <div class="ann" id="ann-s-availability"><span class="ann-role coach">Coach</span><h3>Available Hours</h3>
-    <div class="state-toggle">
+    <div class="state-toggle" style="margin-bottom:6px;">
       <button class="active" onclick="setAvailState('default',this)">Default</button>
       <button onclick="setAvailState('errors',this)">Validation</button>
       <button onclick="setAvailState('alloff',this)">All days off</button>
       <button onclick="setAvailState('existing',this)">Existing bookings</button>
+    </div>
+    <div class="state-toggle">
+      <button onclick="setAvailFlow('loading',this)">Loading</button>
+      <button onclick="setAvailFlow('saving',this)">Saving</button>
+      <button onclick="setAvailFlow('error',this)">Save error</button>
+      <button onclick="setAvailFlow('saved',this)">Saved</button>
     </div>
     <p>Coach's weekly schedule — when athletes can book training sessions. Applies indefinitely until edited. New accounts are seeded with <strong>Mon–Sun 07:00–22:00</strong> so the screen opens populated rather than empty.</p>
     <ul>
@@ -2160,7 +2264,14 @@
       <li>Snap: 15-min increments; min interval length: 30 min</li>
     </ul>
     <hr>
-    <p class="note">Coming in next chunks: validation (overlap / end≤start / min 30 min) · warnings (all days off, existing bookings affected) · loading/saving/error/discard states · light theme.</p>
+    <p><strong>Flow states:</strong></p>
+    <ul>
+      <li><code>Loading</code> — 5 skeleton rows mimic day layout; footer hidden during fetch</li>
+      <li><code>Saving</code> — Save button shows inline spinner + cursor:wait; content still interactive (prevents accidental edit)</li>
+      <li><code>Save error</code> — red banner above footer with inline <strong>Retry</strong>; Save stays tappable as secondary retry</li>
+      <li><code>Saved</code> — snackbar "Availability updated" (1.4s) + resets to default</li>
+    </ul>
+    <p><strong>Back button behavior:</strong> opens <code>Discard changes?</code> bottom sheet. <code>Discard</code> = Medium destructive (tinted red), <code>Keep editing</code> = text button. In production, the sheet only opens when there are unsaved changes.</p>
     <hr>
     <p class="note"><strong>Scope decisions (v1):</strong> single availability for all locations · no copy-to-other-days · no quick presets · no vacation mode — see <code>project_pending_spec_updates.md</code> for deferred items.</p>
   </div>
@@ -2747,8 +2858,56 @@ function closeSheet(id) {
   if (id === 'avail-tp-sheet') availTpCurrentInput = null;
 }
 
+function availSetFlowClass(state) {
+  const screen = document.getElementById('s-availability');
+  if (!screen) return;
+  ['default','loading','saving','error'].forEach(function(s){ screen.classList.remove('fs-' + s); });
+  if (state !== 'default') screen.classList.add('fs-' + state);
+}
+
 function handleAvailSave() {
-  // chunk 4 wires saving spinner + success snackbar
+  const btn = document.getElementById('avail-save-btn');
+  if (btn && btn.disabled) return; // validation errors — ignore
+  availSetFlowClass('saving');
+  // Simulated network delay → success
+  setTimeout(function() {
+    availSetFlowClass('default');
+    const snack = document.getElementById('avail-saved-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+  }, 900);
+}
+
+function handleAvailBack() {
+  // In production: only open sheet if dirty. Prototype: always demo.
+  openSheet('avail-discard-sheet');
+}
+
+function availDiscardConfirm() {
+  closeSheet('avail-discard-sheet');
+  // Return to Settings root
+  const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+  if (btn) go('s-settings', btn);
+}
+
+function setAvailFlow(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+  // Reset the content-row toggle to default visuals (flow is orthogonal)
+  if (state === 'saved') {
+    availSetFlowClass('default');
+    const snack = document.getElementById('avail-saved-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+    return;
+  }
+  availSetFlowClass(state);
 }
 
 // --- Validation ---
@@ -2846,6 +3005,11 @@ function setAvailState(state, btn) {
     btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
     btn.classList.add('active');
   }
+  availSetFlowClass('default');
+  // Clear flow-row active state too (they're orthogonal, content reset means flow = default)
+  document.querySelectorAll('#ann-s-availability .state-toggle').forEach(function(row, idx) {
+    if (idx === 1) row.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+  });
   availReset();
 
   if (state === 'errors') {
