@@ -48,6 +48,7 @@
 
   --fit-yellow-50: #FFF8DB;
   --fit-yellow-400: #F7C948;
+  --fit-yellow-600: #DE911D;
   --fit-yellow-900: #8D2B0A;
 
   --fit-green-50: #EAFBEB;
@@ -549,6 +550,27 @@
 .fit-light .fit-sheet-handle { background: var(--fit-gray-200); }
 .fit-sheet-title { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
 .fit-sheet-subtitle { font-size: 14px; color: var(--fit-text-secondary); margin-bottom: 20px; }
+/* Status header for event sheets — descriptor + optional pill at top */
+.fit-sheet-status-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 28px;
+}
+.fit-sheet-descriptor {
+  flex: 1; min-width: 0;
+  font-size: 18px; font-weight: 500;
+  color: var(--fit-text-primary);
+  line-height: 1.35;
+}
+/* State-aware footer variants — only the one matching data-event-state is visible */
+.fit-sheet-footer-variant { display: none; gap: 8px; }
+.fit-sheet[data-event-state="planned"] .fit-sheet-footer-variant.ev-planned,
+.fit-sheet[data-event-state="request"] .fit-sheet-footer-variant.ev-request,
+.fit-sheet[data-event-state="awaiting"] .fit-sheet-footer-variant.ev-awaiting,
+.fit-sheet[data-event-state="review"] .fit-sheet-footer-variant.ev-review,
+.fit-sheet[data-event-state="missed"] .fit-sheet-footer-variant.ev-missed,
+.fit-sheet[data-event-state="finished"] .fit-sheet-footer-variant.ev-finished {
+  display: flex;
+}
 .fit-sheet-options { margin-bottom: 20px; }
 .fit-sheet-warning {
   display: flex; align-items: flex-start; gap: 8px;
@@ -568,6 +590,37 @@
 .fit-sheet-item:last-child { border-bottom: none; }
 .fit-sheet-item svg { width: 20px; height: 20px; }
 .fit-sheet-item.destructive { color: var(--fit-red-400); }
+
+/* ============================================================
+   CONTEXT MENU (iOS UIMenu — floating popover for ⋯ buttons, 2-5 options)
+   ============================================================ */
+.fit-context-menu {
+  position: absolute; z-index: 60; min-width: 220px;
+  background: var(--fit-surface-high);
+  border: 1px solid var(--fit-gray-700);
+  border-radius: 14px; padding: 6px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  display: none;
+  animation: fitMenuIn 0.12s ease;
+}
+.fit-light .fit-context-menu { background: var(--fit-white); border-color: var(--fit-gray-200); box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
+.fit-context-menu.visible { display: block; }
+.fit-context-menu-backdrop { position: absolute; inset: 0; z-index: 55; display: none; }
+.fit-context-menu-backdrop.visible { display: block; }
+.fit-context-menu-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 8px;
+  font-size: 15px; color: var(--fit-text-primary);
+  cursor: pointer; user-select: none;
+}
+.fit-context-menu-item:hover { background: rgba(255,255,255,0.06); }
+.fit-light .fit-context-menu-item:hover { background: rgba(0,0,0,0.04); }
+.fit-context-menu-item svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--fit-text-secondary); }
+.fit-context-menu-item.destructive { color: var(--fit-red-400); }
+.fit-context-menu-item.destructive svg { color: var(--fit-red-400); }
+.fit-context-menu-divider { height: 1px; background: var(--fit-gray-700); margin: 4px 8px; }
+.fit-light .fit-context-menu-divider { background: var(--fit-gray-200); }
+@keyframes fitMenuIn { from { opacity: 0; transform: translateY(-4px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
 /* ============================================================
    BOTTOM NAV (floating pill)
@@ -728,31 +781,63 @@
 .fit-light .fit-cal-event-group {
   background: rgba(3,178,226,0.08);
 }
+.fit-cal-event-title-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 2px;
+}
+.fit-cal-event-title-row .fit-cal-event-title {
+  flex: 1; min-width: 0; margin-bottom: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 .fit-cal-event-title { font-weight: 500; margin-bottom: 2px; }
 .fit-cal-event-meta { color: var(--fit-text-secondary); font-size: 12px; }
-/* Pending state (outgoing — outline only, not filled) */
-.fit-cal-event.pending {
-  background: transparent !important;
-  border: 1px dashed var(--fit-text-tertiary);
-  border-left: 3px dashed var(--fit-text-tertiary);
-  opacity: 0.7;
+/* Calendar event status system (6 states for personal, 4 for group) */
+/* Shared: colored 1px perimeter + 3px left stripe. Planned = surface-only, no perimeter. */
+/* Request (incoming) — athlete asked, coach needs action */
+.fit-cal-event.request {
+  background: rgba(222,145,29,0.10);
+  border: 1px solid var(--fit-yellow-600);
+  border-left: 3px solid var(--fit-yellow-600);
 }
-.fit-cal-event-personal.pending { border-left-color: var(--fit-teal-500); border-color: var(--fit-teal-500); }
-.fit-cal-event-group.pending { border-left-color: var(--fit-blue-500); border-color: var(--fit-blue-500); }
-/* Invitation state (incoming — outline + green action badge) */
-.fit-cal-event.invitation {
-  background: transparent !important;
-  border: 1px dashed var(--fit-text-tertiary);
-  border-left: 3px dashed var(--fit-text-tertiary);
-  opacity: 0.7;
+.fit-light .fit-cal-event.request { background: rgba(222,145,29,0.14); }
+/* Awaiting (outgoing) — coach sent, waiting for athlete */
+.fit-cal-event.awaiting {
+  border: 1px solid var(--fit-gray-400);
+  border-left: 3px solid var(--fit-gray-400);
 }
-.fit-cal-event-personal.invitation { border-left-color: var(--fit-teal-500); border-color: var(--fit-teal-500); }
-.fit-cal-event-group.invitation { border-left-color: var(--fit-blue-500); border-color: var(--fit-blue-500); }
-.fit-cal-event-action {
-  position: absolute; top: 4px; right: 6px;
-  font-size: 10px; font-weight: 600; color: var(--fit-green-500);
-  background: rgba(76,175,80,0.15); padding: 2px 6px; border-radius: 4px;
+.fit-light .fit-cal-event.awaiting {
+  background: rgba(117,126,135,0.06);
+  border: 1px solid var(--fit-gray-500);
+  border-left: 3px solid var(--fit-gray-500);
 }
+/* Review (post-event, awaiting coach completion) — same visual lane as Request */
+.fit-cal-event.review {
+  background: rgba(222,145,29,0.10);
+  border: 1px solid var(--fit-yellow-600);
+  border-left: 3px solid var(--fit-yellow-600);
+}
+.fit-light .fit-cal-event.review { background: rgba(222,145,29,0.14); }
+/* Missed (no-show or auto after N days) */
+.fit-cal-event.missed {
+  background: rgba(240,92,91,0.10);
+  border: 1px solid var(--fit-red-400);
+  border-left: 3px solid var(--fit-red-400);
+}
+.fit-light .fit-cal-event.missed { background: rgba(240,92,91,0.12); }
+/* Finished (coach completed Review) — faded base, no perimeter, stripe persists */
+.fit-cal-event.finished { opacity: 0.5; }
+/* Calendar event pill — inline status badge next to title */
+.fit-cal-event-pill {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 2px 6px;
+  border-radius: 99px;
+  font-size: 11px; font-weight: 500; line-height: 1.4;
+  color: var(--fit-white); white-space: nowrap;
+  flex-shrink: 0;
+}
+.fit-cal-event-pill--request,
+.fit-cal-event-pill--review { background: var(--fit-yellow-600); }
+.fit-cal-event-pill--awaiting { background: var(--fit-gray-500); }
+.fit-cal-event-pill--missed { background: var(--fit-red-400); }
 /* Rescheduled indicator */
 .fit-cal-event-rescheduled::after {
   content: "↻"; position: absolute; top: 4px; right: 4px;
