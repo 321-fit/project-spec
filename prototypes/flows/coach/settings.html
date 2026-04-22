@@ -582,6 +582,38 @@
     color: var(--fit-red-400); background: transparent; border: none;
     cursor: pointer; padding: 4px 8px; margin: -4px -8px;
   }
+
+  /* ===== SPORT TYPES SELECT (grid, multi, sectioned) ===== */
+  #s-sport-types .fit-phone-content { padding-bottom: 16px; }
+  .sp-section { padding: 0 16px; margin-bottom: 20px; }
+  .sp-section-title {
+    font-size: 14px; font-weight: 500;
+    color: var(--fit-text-secondary);
+    margin: 4px 0 12px;
+  }
+  .sp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .sp-card {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px; min-height: 56px;
+    border-radius: 14px;
+    background: var(--fit-surface-high);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.12s;
+    color: var(--fit-text-primary);
+    user-select: none;
+  }
+  .fit-light .sp-card { background: var(--fit-white); border-color: var(--fit-gray-200); }
+  .sp-card:active { transform: scale(0.98); }
+  .sp-card.selected {
+    background: var(--fit-selection-gradient);
+    border-color: var(--fit-teal-600);
+  }
+  .sp-card svg { width: 22px; height: 22px; flex-shrink: 0; color: var(--fit-text-secondary); stroke-width: 1.8; }
+  .sp-card.selected svg { color: var(--fit-text-primary); }
+  .sp-card-label { font-size: 14px; line-height: 1.2; }
+  .sp-card.hidden { display: none; }
+  .sp-section.hidden { display: none; }
 </style>
 </head>
 <body>
@@ -612,10 +644,8 @@
   <button onclick="go('s-tz-select',this)">Time Zone</button>
   <button onclick="go('s-country-select',this)">Home Country</button>
   <button onclick="go('s-lang-select',this)">Languages</button>
+  <button onclick="go('s-sport-types',this)">Sport Types</button>
   <button onclick="go('s-personal-data',this);setTimeout(openDobPicker,100);">DOB Picker</button>
-  <div class="label">Shared</div>
-  <a href="../shared/sport-select.html" style="display:block;font-family:var(--fit-font);font-size:14px;padding:10px 12px;color:var(--fit-gray-600);text-decoration:none;">Sport Select &rarr;</a>
-  <a href="../shared/notes-editor.html" style="display:block;font-family:var(--fit-font);font-size:14px;padding:10px 12px;color:var(--fit-gray-600);text-decoration:none;">Notes Editor &rarr;</a>
   </div>
   <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
     <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
@@ -1713,7 +1743,7 @@
       </div>
       <div style="display:flex;flex-direction:column;gap:12px;">
         <span style="font-size:16px;color:var(--fit-gray-200);">Coaching</span>
-        <div class="set-card" style="cursor:pointer;"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg><div class="set-info"><div class="set-title">Sport types</div><div class="set-sub">Basketball, padel, tennis</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        <div class="set-card" style="cursor:pointer;" onclick="go('s-sport-types',document.querySelector('[onclick*=s-sport-types]'))"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg><div class="set-info"><div class="set-title">Sport types</div><div class="set-sub" id="set-sport-sub">Basketball, Padel, Tennis</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
         <div class="set-card" style="cursor:pointer;"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><div class="set-info"><div class="set-title">Training sessions</div><div class="set-sub">Added 3</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
         <div class="set-card" style="cursor:pointer;" onclick="go('s-availability',document.querySelector('[onclick*=s-availability]'))"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><div class="set-info"><div class="set-title">Available hours</div><div class="set-sub">5 days active</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
         <div class="set-card" style="cursor:pointer;"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg><div class="set-info"><div class="set-title">GYM locations</div><div class="set-sub">Added 2 locations</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
@@ -2280,6 +2310,138 @@
   </div>
 </div>
 
+<!-- ===== SPORT TYPES — push screen, multi, sectioned grid ===== -->
+<div class="fit-phone fit-dark" id="s-sport-types">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="pdSportBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Sport types</span>
+    </div>
+    <div class="pd-search-wrap">
+      <div class="pd-search" id="sport-search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="search" id="sport-search-input" placeholder="Search" autocomplete="off" oninput="filterSportList(this)"/>
+        <button class="pd-search-clear" onclick="clearPdSearch('sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-content" data-pd-list="sport" data-pd-mode="multi">
+
+    <!-- Fitness & Strength -->
+    <div class="sp-section">
+      <div class="sp-section-title">Fitness &amp; Strength</div>
+      <div class="sp-grid">
+        <div class="sp-card" data-label="Fitness" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h12M4 8v8M8 6v12M16 6v12M20 8v8"/></svg><span class="sp-card-label">Fitness</span></div>
+        <div class="sp-card" data-label="CrossFit" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M5 9v6M19 9v6"/><circle cx="12" cy="12" r="2.2"/></svg><span class="sp-card-label">CrossFit</span></div>
+        <div class="sp-card" data-label="Functional training" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6M9 4c-.8.6-1.5 1.4-2 2.5"/><path d="M15 4c.8.6 1.5 1.4 2 2.5"/><circle cx="12" cy="14" r="6"/></svg><span class="sp-card-label">Functional</span></div>
+        <div class="sp-card" data-label="HIIT" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="7"/><path d="M10 3h4M12 10v4h3"/><path d="M19 5l1.5 1.5"/></svg><span class="sp-card-label">HIIT</span></div>
+        <div class="sp-card" data-label="Weightlifting" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M6 9v6M18 9v6M3 10v4M21 10v4"/></svg><span class="sp-card-label">Weightlifting</span></div>
+        <div class="sp-card" data-label="Calisthenics" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M7 5v3M17 5v3"/><circle cx="12" cy="11" r="2"/><path d="M12 13v5M10 16l2-2 2 2"/></svg><span class="sp-card-label">Calisthenics</span></div>
+      </div>
+    </div>
+
+    <!-- Racket sports -->
+    <div class="sp-section">
+      <div class="sp-section-title">Racket sports</div>
+      <div class="sp-grid">
+        <div class="sp-card selected" data-label="Tennis" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="10" cy="9" rx="5" ry="6"/><path d="M13 13l5 7M7 5l6 8M13 5l-6 8"/></svg><span class="sp-card-label">Tennis</span></div>
+        <div class="sp-card selected" data-label="Padel" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="10" cy="9" rx="5" ry="6"/><path d="M13 13l5 7"/><circle cx="8.5" cy="7" r=".6"/><circle cx="11" cy="7" r=".6"/><circle cx="8.5" cy="9.5" r=".6"/><circle cx="11" cy="9.5" r=".6"/></svg><span class="sp-card-label">Padel</span></div>
+        <div class="sp-card" data-label="Badminton" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="15" cy="15" r="2.5"/><path d="M14 13l-5-6M12 14l-7-3M17 14l-2-9M16 16l-9-1"/></svg><span class="sp-card-label">Badminton</span></div>
+        <div class="sp-card" data-label="Squash" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="10" cy="9" rx="4" ry="5"/><path d="M13 12l5 8M8 5l4 6M12 5l-4 6"/></svg><span class="sp-card-label">Squash</span></div>
+        <div class="sp-card" data-label="Table tennis" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="10" cy="9" rx="5" ry="6"/><path d="M12 14l5 7"/><circle cx="17" cy="18" r="1.5"/></svg><span class="sp-card-label">Table tennis</span></div>
+      </div>
+    </div>
+
+    <!-- Team / court -->
+    <div class="sp-section">
+      <div class="sp-section-title">Team &amp; court</div>
+      <div class="sp-grid">
+        <div class="sp-card selected" data-label="Basketball" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10M12 3c-2.5 3-2.5 7 0 10s2.5 7 0 10"/></svg><span class="sp-card-label">Basketball</span></div>
+        <div class="sp-card" data-label="Football" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8l3.2 2.3-1.2 3.9h-4l-1.2-3.9z"/><path d="M12 3v5M19.5 9.5l-4 1M4.5 9.5l4 1M7.5 20l2-4.5M16.5 20l-2-4.5"/></svg><span class="sp-card-label">Football</span></div>
+        <div class="sp-card" data-label="Volleyball" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3c0 5 3.5 9 9 9M12 3c0 5-3.5 9-9 9M21 12c-5 0-9 3.5-9 9M3 12c5 0 9 3.5 9 9"/></svg><span class="sp-card-label">Volleyball</span></div>
+      </div>
+    </div>
+
+    <!-- Combat -->
+    <div class="sp-section">
+      <div class="sp-section-title">Combat &amp; martial arts</div>
+      <div class="sp-grid">
+        <div class="sp-card" data-label="Boxing" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10v5a3 3 0 003 3h5a3 3 0 003-3v-2"/><path d="M9 10h7a2 2 0 002-2 3 3 0 00-3-3H9a3 3 0 00-3 3v2"/><path d="M10 12v2"/></svg><span class="sp-card-label">Boxing</span></div>
+        <div class="sp-card" data-label="Muay Thai" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="4" width="8" height="16" rx="2.5"/><path d="M12 8v8M9 7h6M9 17h6"/></svg><span class="sp-card-label">Muay Thai</span></div>
+        <div class="sp-card" data-label="MMA" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13V9a3 3 0 013-3h0v7"/><path d="M13 5a2.5 2.5 0 015 0v5"/><path d="M18 10a3 3 0 013 3v2a4 4 0 01-4 4h-6a4 4 0 01-4-4v-2"/></svg><span class="sp-card-label">MMA</span></div>
+        <div class="sp-card" data-label="BJJ" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18v4H3z"/><path d="M9 11v2M12 11v2M15 11v2"/></svg><span class="sp-card-label">BJJ</span></div>
+        <div class="sp-card" data-label="Karate" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="6" r="2"/><path d="M8 8v4l-3 4M8 12l4 1 4-3M13 13l5 5"/></svg><span class="sp-card-label">Karate</span></div>
+      </div>
+    </div>
+
+    <!-- Endurance -->
+    <div class="sp-section">
+      <div class="sp-section-title">Endurance &amp; cardio</div>
+      <div class="sp-grid">
+        <div class="sp-card" data-label="Running" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="5" r="2"/><path d="M14 7l-3 5 3 3v5M11 12l-4 2M14 12h5l-2 6"/></svg><span class="sp-card-label">Running</span></div>
+        <div class="sp-card" data-label="Cycling" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M6 18l4-7h5l3 7M10 11l3-4h3"/></svg><span class="sp-card-label">Cycling</span></div>
+        <div class="sp-card" data-label="Swimming" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="2"/><path d="M12 10l3 2"/><path d="M3 15c2 0 2 2 5 2s3-2 5-2 3 2 5 2 2-2 3-2"/><path d="M3 20c2 0 2 2 5 2s3-2 5-2 3 2 5 2 2-2 3-2"/></svg><span class="sp-card-label">Swimming</span></div>
+        <div class="sp-card" data-label="Triathlon" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6s1.5-1 3 0 2.5 1 4 0"/><circle cx="18" cy="6" r="1.5"/><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8 14h2l2-4h3l2 5"/></svg><span class="sp-card-label">Triathlon</span></div>
+      </div>
+    </div>
+
+    <!-- Mind-body -->
+    <div class="sp-section">
+      <div class="sp-section-title">Mind &amp; body</div>
+      <div class="sp-grid">
+        <div class="sp-card" data-label="Yoga" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v5M7 12h10M5 18c2-4 5-4 7-2 2-2 5-2 7 2"/></svg><span class="sp-card-label">Yoga</span></div>
+        <div class="sp-card" data-label="Pilates" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5" r="2"/><path d="M8 7l2 4 6-2M10 11l-2 4h3l2 2"/></svg><span class="sp-card-label">Pilates</span></div>
+        <div class="sp-card" data-label="Stretching" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v5M8 9l4 3 4-3M10 12l-1 7M14 12l1 7"/></svg><span class="sp-card-label">Stretching</span></div>
+      </div>
+    </div>
+
+    <!-- Recovery & therapy -->
+    <div class="sp-section">
+      <div class="sp-section-title">Recovery &amp; therapy</div>
+      <div class="sp-grid">
+        <div class="sp-card" data-label="Massage" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="10" width="18" height="6" rx="3"/><path d="M7 10l-1-3M17 10l1-3"/><circle cx="7" cy="13" r=".6"/><circle cx="11" cy="13" r=".6"/><circle cx="15" cy="13" r=".6"/><circle cx="19" cy="13" r=".6"/></svg><span class="sp-card-label">Massage</span></div>
+        <div class="sp-card" data-label="Sports massage" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13c0-3 2-5 5-5s5 2 5 5"/><path d="M13 14h4l3 2v4h-7z"/><circle cx="16" cy="18" r=".7"/></svg><span class="sp-card-label">Sports massage</span></div>
+        <div class="sp-card" data-label="Physiotherapy" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M10.5 4.5h3"/><circle cx="12" cy="10" r="2"/><path d="M12 12v4M9 20l3-4 3 4"/></svg><span class="sp-card-label">Physiotherapy</span></div>
+      </div>
+    </div>
+
+    <!-- Other -->
+    <div class="sp-section">
+      <div class="sp-section-title">Other</div>
+      <div class="sp-grid">
+        <div class="sp-card" data-label="Golf" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20l8-14M14 6l-2 3M4 20h16"/><circle cx="18" cy="20" r="1.5"/></svg><span class="sp-card-label">Golf</span></div>
+        <div class="sp-card" data-label="Climbing" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l6-12 4 7 3-4 5 9H3z"/><circle cx="10" cy="5" r="1.2"/></svg><span class="sp-card-label">Climbing</span></div>
+        <div class="sp-card" data-label="Skiing / Snowboarding" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19"/></svg><span class="sp-card-label">Skiing</span></div>
+        <div class="sp-card" data-label="Dance" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5" r="2"/><path d="M8 7l3 4 4-1M11 11l-1 5 3 2M12 16l3 2"/><circle cx="18" cy="10" r="2"/><path d="M20 10V3"/></svg><span class="sp-card-label">Dance</span></div>
+      </div>
+    </div>
+
+    <!-- Empty state (search no matches) -->
+    <div class="pd-empty" id="sport-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      <div class="pd-empty-title">No matches</div>
+      <div class="pd-empty-sub">Try a different sport name</div>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;">
+    <button id="sport-save-btn" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;opacity:0.5;pointer-events:none;" onclick="pdSportSave()">Save<span class="pd-save-count" id="sport-save-count">(1 selected)</span></button>
+  </div>
+
+  <!-- Discard changes confirm sheet -->
+  <div class="fit-sheet-overlay" id="sport-discard-sheet">
+    <div class="fit-sheet" style="padding:8px 16px 40px;">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Discard changes?</div>
+      <div class="fit-sheet-subtitle">Your sport selection will not be saved.</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
+        <button style="width:100%;height:50px;border:none;border-radius:99px;background:rgba(240,92,91,0.15);color:var(--fit-red-400);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="pdSportDiscardConfirm()">Discard</button>
+        <button style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="closeSheet('sport-discard-sheet')">Keep editing</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ===== AVAILABLE HOURS — Default state ===== -->
 <div class="fit-phone fit-dark" id="s-availability">
   <div class="fit-phone-header">
@@ -2632,6 +2794,7 @@
     </div>
     <p>Edit profile from Settings.</p><ul><li><strong>Avatar</strong> (initials fallback) — tap anywhere on circle or pencil → <code>pd-avatar-sheet</code> with 3 actions: Take photo / Choose from library / <em>Remove photo</em> (Medium destructive, tinted red 15%). Remove is hidden when no photo is set (initials-only).</li><li><strong>Name:</strong> first + last</li><li><strong>About me:</strong> 3-line clamp, tap → full-screen editor</li><li><strong>Dropdowns:</strong> Time Zone / Home Country / Languages — all full-screen push, device-detected values pre-filled at onboarding</li><li><strong>Body metrics:</strong> gender chips; weight (kg) + height (cm) — metric only for MVP. Weight 20-300 kg, height 50-250 cm — out-of-range = red outline + inline tip on blur. <code>inputmode="decimal"</code> (weight) / <code>numeric"</code> (height) for mobile keypad.</li><li><strong>DOB:</strong> 3-wheel sheet (Day/Month/Year), year list capped at <code>currentYear − 13</code>; strict <code>≥ 13y</code> validation on Set — inline red banner in sheet on fail. Prod = <code>UIDatePicker .compact</code> (iOS) / <code>MaterialDatePicker</code> (Android)</li></ul></div>
   <div class="ann" id="ann-s-notes-editor"><span class="ann-role coach">Coach</span><h3>About Me Editor</h3><p>Full-screen text editor. Cancel/Save header. Reusable for About Me and Notes fields.</p></div>
+  <div class="ann" id="ann-s-sport-types"><span class="ann-role coach">Coach</span><h3>Sport types</h3><p>Push screen opened from <strong>Sport types</strong> set-card in Settings. <strong>Closed list</strong> of 33 sports across 8 sections — no custom sports (discovery, search, filter, matching all depend on canonical sport ID).</p><ul><li><strong>Sticky search</strong> filters live across all sections; empty sections auto-hide; "No matches" if zero results</li><li><strong>2-column card grid</strong> per section with non-sticky section headers (Fitness &amp; Strength, Racket, Team &amp; court, Combat, Endurance, Mind &amp; body, Recovery &amp; therapy, Other)</li><li><strong>Multi-select</strong>: <code>.sp-card.selected</code> only — teal border + gradient; no hardcoded tick SVGs per card (CSS-driven from class)</li><li><strong>Sticky footer Save</strong> disabled until selection differs from seed AND at least 1 picked; shows "(N selected)"</li><li><strong>Back</strong> → discard-sheet if dirty; Discard reverts to seed + goes to Settings</li><li><strong>On Save</strong>: Settings "Sport types" subtitle shows up to 3 names, then "+N more"</li></ul><p class="note">Recovery &amp; therapy section exists because home-visit location type makes massage/physio a significant offering. Deferred from v1: Surfing / Kitesurfing / SUP / Equestrian — added on geo expansion.</p><p class="note">Icons = draft adapted Tabler/Material style. Formal 33-icon set goes to <code>design-tokens/assets/icons/sport/</code> as Phase 3 task (stable IDs, Style Dictionary pipeline).</p></div>
   <div class="ann" id="ann-s-lang-select"><span class="ann-role coach">Coach</span><h3>Languages</h3><p>Full-screen push from Personal Data. <strong>Multi-select</strong> — tap toggles row, Save commits all changes.</p><ul><li><strong>Row:</strong> <code>native · English</code> (e.g. "Polski · Polish") — users search in either</li><li><strong>Sticky footer Save</strong> — enabled only when selection differs from initial AND at least 1 is selected; shows "(N selected)" count</li><li><strong>Back button:</strong> if dirty → <code>Discard changes?</code> sheet (Discard = Medium destructive tinted red, Keep editing = text)</li><li><strong>On Save:</strong> Personal Data input shows first 2 languages or "Polski +N more"</li><li><strong>Seed</strong> captured on screen load + re-captured after each Save to reset dirty state</li></ul><p class="note">Prototype = 30 common languages. Production pulls full BCP-47 list.</p></div>
   <div class="ann" id="ann-s-country-select"><span class="ann-role coach">Coach</span><h3>Home Country</h3><p>Full-screen push from Personal Data. Same pattern as Time Zone — single-select, auto-dismiss.</p><ul><li><strong>Leading slot:</strong> flag emoji 24×18 (prod: SVG flag set from country code)</li><li>Row = flag + country name; alphabetical</li><li>Current country detected from device at account creation — pre-selected</li><li>Used for tax/currency derivation on backend, not shown elsewhere in UI</li></ul><p class="note">Prototype uses ~35 countries covering major markets. Production pulls full ISO 3166-1 list.</p></div>
   <div class="ann" id="ann-s-tz-select"><span class="ann-role coach">Coach</span><h3>Time Zone</h3><p>Full-screen push from Personal Data. <strong>Single-select</strong> — tap row auto-dismisses back to Personal Data with the new value.</p><ul><li><strong>Sticky search</strong> under header — live filters list by city/region/GMT</li><li><strong>Row pattern:</strong> <code>cal-select-row</code> — 56px, teal accent on <code>.selected</code>, trailing checkmark toggled by class (no hardcoded SVG state)</li><li><strong>Default:</strong> current TZ detected from device at account creation — shown scrolled into view + checkmarked</li><li><strong>Empty state:</strong> "No matches" when filter returns zero</li><li>Reusable pattern for Country and Languages selectors</li></ul><p class="note">Prototype uses ~20 representative TZs. Production pulls full IANA zone list from device.</p></div>
@@ -3489,7 +3652,8 @@ function clearPdSearch(key) {
   const input = document.getElementById(key + '-search-input');
   if (!input) return;
   input.value = '';
-  filterPdList(input, key);
+  if (key === 'sport') filterSportList(input);
+  else filterPdList(input, key);
   input.focus();
 }
 
@@ -3718,17 +3882,21 @@ function confirmDobPicker() {
 // Snapshot of initial selected labels per multi-select key (for dirty check)
 var pdMultiSeed = {};
 
+var PD_ITEM_SELECTOR = '.cal-select-row, .sp-card';
+
 function pdCaptureSeed(key) {
   const list = document.querySelector('[data-pd-list="' + key + '"]');
   if (!list) return;
-  pdMultiSeed[key] = Array.from(list.querySelectorAll('.cal-select-row.selected'))
+  pdMultiSeed[key] = Array.from(list.querySelectorAll(PD_ITEM_SELECTOR))
+    .filter(r => r.classList.contains('selected'))
     .map(r => r.getAttribute('data-label'));
 }
 
 function pdIsDirty(key) {
   const list = document.querySelector('[data-pd-list="' + key + '"]');
   if (!list || !pdMultiSeed[key]) return false;
-  const current = Array.from(list.querySelectorAll('.cal-select-row.selected'))
+  const current = Array.from(list.querySelectorAll(PD_ITEM_SELECTOR))
+    .filter(r => r.classList.contains('selected'))
     .map(r => r.getAttribute('data-label'));
   if (current.length !== pdMultiSeed[key].length) return true;
   const seedSet = new Set(pdMultiSeed[key]);
@@ -3745,7 +3913,7 @@ function pdUpdateMultiFooter(key) {
   const btn = document.getElementById(key + '-save-btn');
   const countEl = document.getElementById(key + '-save-count');
   if (!list || !btn) return;
-  const selected = list.querySelectorAll('.cal-select-row.selected').length;
+  const selected = list.querySelectorAll('.cal-select-row.selected, .sp-card.selected').length;
   if (countEl) countEl.textContent = '(' + selected + ' selected)';
   const enabled = selected > 0 && pdIsDirty(key);
   btn.style.opacity = enabled ? '1' : '0.5';
@@ -3776,6 +3944,69 @@ function pdLangBack() {
   }
   const btn = document.querySelector('[onclick*="s-personal-data"]');
   if (typeof go === 'function') go('s-personal-data', btn);
+}
+
+// ===== SPORT multi — analog to lang, adapts to grid cards =====
+function filterSportList(inputEl) {
+  const q = inputEl.value.trim().toLowerCase();
+  const wrap = document.getElementById('sport-search-wrap');
+  if (wrap) wrap.classList.toggle('has-value', q.length > 0);
+  const list = document.querySelector('[data-pd-list="sport"]');
+  const empty = document.getElementById('sport-empty');
+  if (!list) return;
+  let totalVisible = 0;
+  list.querySelectorAll('.sp-section').forEach(function(sec) {
+    let secVisible = 0;
+    sec.querySelectorAll('.sp-card').forEach(function(card) {
+      const label = (card.getAttribute('data-label') || card.textContent).toLowerCase();
+      const match = !q || label.indexOf(q) !== -1;
+      card.classList.toggle('hidden', !match);
+      if (match) secVisible++;
+    });
+    sec.classList.toggle('hidden', secVisible === 0);
+    totalVisible += secVisible;
+  });
+  if (empty) empty.classList.toggle('show', totalVisible === 0);
+}
+
+function pdSportSave() {
+  const list = document.querySelector('[data-pd-list="sport"]');
+  if (!list) return;
+  const labels = Array.from(list.querySelectorAll('.sp-card.selected'))
+    .map(c => c.getAttribute('data-label'));
+  const sub = document.getElementById('set-sport-sub');
+  if (sub) {
+    sub.textContent = labels.length === 0 ? 'Not set yet' :
+      labels.length <= 3 ? labels.join(', ') :
+      labels.slice(0,2).join(', ') + ' +' + (labels.length - 2) + ' more';
+  }
+  pdCaptureSeed('sport');
+  pdUpdateMultiFooter('sport');
+  const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+  if (typeof go === 'function') go('s-settings', btn);
+}
+
+function pdSportBack() {
+  if (pdIsDirty('sport')) {
+    openSheet('sport-discard-sheet');
+    return;
+  }
+  const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+  if (typeof go === 'function') go('s-settings', btn);
+}
+
+function pdSportDiscardConfirm() {
+  const list = document.querySelector('[data-pd-list="sport"]');
+  if (list && pdMultiSeed.sport) {
+    const seedSet = new Set(pdMultiSeed.sport);
+    list.querySelectorAll('.sp-card').forEach(c => {
+      c.classList.toggle('selected', seedSet.has(c.getAttribute('data-label')));
+    });
+  }
+  pdUpdateMultiFooter('sport');
+  closeSheet('sport-discard-sheet');
+  const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+  if (typeof go === 'function') go('s-settings', btn);
 }
 
 function pdLangDiscardConfirm() {
@@ -3814,6 +4045,8 @@ document.addEventListener('DOMContentLoaded', function() {
   validateAvailability();
   pdCaptureSeed('lang');
   pdUpdateMultiFooter('lang');
+  pdCaptureSeed('sport');
+  pdUpdateMultiFooter('sport');
 });
 </script>
 </body>
