@@ -330,6 +330,68 @@
     font-size: 22px; color: var(--fit-text-primary);
     line-height: 1; margin-top: -4px;
   }
+  /* Validation errors (per-interval) */
+  .avail-time-input.error { outline: 1px solid var(--fit-red-400); }
+  .avail-interval-error {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: -2px;
+    font-size: 13px; color: var(--fit-red-400); line-height: 1.4;
+  }
+  .avail-interval-error svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  /* Inline banners (non-blocking warnings) */
+  .avail-banner {
+    margin: 0 16px 16px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    display: flex; gap: 12px; align-items: flex-start;
+    font-size: 14px; line-height: 1.4;
+    color: var(--fit-text-primary);
+  }
+  .avail-banner svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+  .avail-banner .avail-banner-body { flex: 1; }
+  .avail-banner .avail-banner-title { font-weight: 500; margin-bottom: 2px; }
+  .avail-banner .avail-banner-link {
+    color: inherit; text-decoration: underline; cursor: pointer; font-weight: 500;
+  }
+  /* Info — existing bookings affected */
+  .avail-banner.info {
+    background: rgba(3,178,226,0.08);
+    border: 1px solid rgba(3,178,226,0.22);
+  }
+  .avail-banner.info svg { color: var(--fit-blue-500); }
+  /* Warning — all days off */
+  .avail-banner.warn {
+    background: rgba(247,201,72,0.08);
+    border: 1px solid rgba(247,201,72,0.3);
+  }
+  .avail-banner.warn svg { color: #F7C948; }
+
+  /* Existing bookings sheet — event row */
+  .avail-ev-row {
+    display: flex; gap: 12px; align-items: center;
+    padding: 12px 14px; border-radius: 12px;
+    background: var(--fit-surface-low);
+    margin-bottom: 8px;
+  }
+  .fit-dark .avail-ev-row { background: var(--fit-black); }
+  .avail-ev-row .avail-ev-icon {
+    width: 36px; height: 36px; flex-shrink: 0;
+    border-radius: 10px;
+    background: var(--fit-selection-gradient);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-white);
+  }
+  .avail-ev-row .avail-ev-icon svg { width: 18px; height: 18px; }
+  .avail-ev-row .avail-ev-body { flex: 1; min-width: 0; }
+  .avail-ev-row .avail-ev-title { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .avail-ev-row .avail-ev-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+
+  /* Disabled Save button */
+  .fit-phone-footer > button:disabled {
+    opacity: 0.45; cursor: not-allowed;
+  }
+
   /* Selection band (centered 36px highlight) */
   .avail-tp-wheels::before {
     content: "";
@@ -1782,6 +1844,24 @@
       <span>All times in Europe/Rome (set in Settings)</span>
     </div>
 
+    <!-- All-days-off warning banner (shown when no active days) -->
+    <div class="avail-banner warn" id="avail-banner-alloff" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div class="avail-banner-body">
+        <div class="avail-banner-title">No available hours</div>
+        <div>Athletes can't book new sessions with you. Enable at least one day.</div>
+      </div>
+    </div>
+
+    <!-- Existing-bookings-affected banner (shown when changes conflict with upcoming events) -->
+    <div class="avail-banner info" id="avail-banner-existing" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div class="avail-banner-body">
+        <div class="avail-banner-title">3 sessions fall outside new hours</div>
+        <div>Existing bookings will stay — only new requests are affected. <span class="avail-banner-link" onclick="openSheet('avail-existing-sheet')">View sessions</span></div>
+      </div>
+    </div>
+
     <div class="avail-days">
 
       <!-- Monday -->
@@ -1889,7 +1969,40 @@
     </div>
   </div>
   <div class="fit-phone-footer" style="padding:12px 16px 40px;">
-    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" onclick="handleAvailSave()">Save availability</button>
+    <button id="avail-save-btn" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" onclick="handleAvailSave()">Save availability</button>
+  </div>
+
+  <!-- Existing bookings affected — list sheet -->
+  <div class="fit-sheet-overlay" id="avail-existing-sheet">
+    <div class="fit-sheet" style="padding:8px 16px 40px;">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Sessions outside new hours</div>
+      <div class="fit-sheet-subtitle">Already confirmed — they'll stay scheduled.</div>
+      <div style="display:flex;flex-direction:column;gap:0;margin-bottom:16px;">
+        <div class="avail-ev-row">
+          <div class="avail-ev-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg></div>
+          <div class="avail-ev-body">
+            <div class="avail-ev-title">Basketball with Anna K.</div>
+            <div class="avail-ev-sub">Fri, Apr 24 &middot; 10:00 &ndash; 11:00</div>
+          </div>
+        </div>
+        <div class="avail-ev-row">
+          <div class="avail-ev-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="avail-ev-body">
+            <div class="avail-ev-title">HIIT with Marco R.</div>
+            <div class="avail-ev-sub">Fri, May 1 &middot; 18:00 &ndash; 19:00</div>
+          </div>
+        </div>
+        <div class="avail-ev-row">
+          <div class="avail-ev-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+          <div class="avail-ev-body">
+            <div class="avail-ev-title">Padel with Sofia L.</div>
+            <div class="avail-ev-sub">Fri, May 8 &middot; 14:00 &ndash; 15:30</div>
+          </div>
+        </div>
+      </div>
+      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="closeSheet('avail-existing-sheet')">Got it</button>
+    </div>
   </div>
 
   <!-- Time picker bottom sheet -->
@@ -2010,6 +2123,12 @@
   <div class="ann" id="ann-s-notes-editor"><span class="ann-role coach">Coach</span><h3>About Me Editor</h3><p>Full-screen text editor. Cancel/Save header. Reusable for About Me and Notes fields.</p></div>
 
   <div class="ann" id="ann-s-availability"><span class="ann-role coach">Coach</span><h3>Available Hours</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setAvailState('default',this)">Default</button>
+      <button onclick="setAvailState('errors',this)">Validation</button>
+      <button onclick="setAvailState('alloff',this)">All days off</button>
+      <button onclick="setAvailState('existing',this)">Existing bookings</button>
+    </div>
     <p>Coach's weekly schedule — when athletes can book training sessions. Applies indefinitely until edited. New accounts are seeded with <strong>Mon–Sun 07:00–22:00</strong> so the screen opens populated rather than empty.</p>
     <ul>
       <li>One row per day (Mon–Sun); checkbox toggles active/inactive</li>
@@ -2018,6 +2137,19 @@
       <li>Tap time input → <strong>time picker bottom sheet</strong> (wheel UI, 15-min snap)</li>
       <li>Timezone is read-only — set at account creation / Settings</li>
       <li>Footer <code>Save availability</code> (primary brand filled — follows <code>feedback_footer_patterns.md</code>, not a header icon)</li>
+    </ul>
+    <hr>
+    <p><strong>Validation (live per-interval):</strong></p>
+    <ul>
+      <li><code>End ≤ start</code> — inline error + red outline on both inputs</li>
+      <li><code>Interval &lt; 30 min</code> — inline error + red outline</li>
+      <li><code>Intervals overlap</code> on same day — red outline + "Overlaps with another interval"</li>
+      <li>Save is <strong>disabled</strong> while any error exists</li>
+    </ul>
+    <p><strong>Non-blocking warning banners:</strong></p>
+    <ul>
+      <li><code>No active days</code> — amber banner, Save still allowed (temp "vacation")</li>
+      <li><code>Existing bookings outside new hours</code> — info banner + "View sessions" → bottom sheet list. Bookings stay; only new requests are affected.</li>
     </ul>
     <hr>
     <p><strong>Time picker (platform-native in production):</strong></p>
@@ -2498,6 +2630,7 @@ function toggleDay(headerEl) {
       day.appendChild(wrap);
     }
   }
+  validateAvailability();
 }
 
 function availBuildInterval(startVal, endVal, isFirst) {
@@ -2522,11 +2655,13 @@ function addInterval(btn) {
   const intervals = btn.closest('.avail-intervals');
   if (!intervals) return;
   intervals.appendChild(availBuildInterval('22:00', '23:00', false));
+  validateAvailability();
 }
 
 function removeInterval(btn) {
   const row = btn.closest('.avail-interval');
   if (row) row.remove();
+  validateAvailability();
 }
 
 // --- Time picker wheel ---
@@ -2603,6 +2738,7 @@ function confirmTimePicker() {
     if (valEl) valEl.textContent = hh + ':' + mm;
   }
   closeSheet('avail-tp-sheet');
+  validateAvailability();
 }
 
 function closeSheet(id) {
@@ -2614,6 +2750,140 @@ function closeSheet(id) {
 function handleAvailSave() {
   // chunk 4 wires saving spinner + success snackbar
 }
+
+// --- Validation ---
+function availParseTime(s) {
+  if (!s) return null;
+  const parts = s.split(':');
+  if (parts.length !== 2) return null;
+  const h = parseInt(parts[0], 10), m = parseInt(parts[1], 10);
+  if (isNaN(h) || isNaN(m)) return null;
+  return h * 60 + m;
+}
+
+function validateAvailability() {
+  const container = document.querySelector('#s-availability .avail-days');
+  if (!container) return;
+
+  container.querySelectorAll('.avail-time-input.error').forEach(function(el){ el.classList.remove('error'); });
+  container.querySelectorAll('.avail-interval-error').forEach(function(el){ el.remove(); });
+
+  let hasError = false;
+  let activeCount = 0;
+
+  container.querySelectorAll('.avail-day.active').forEach(function(day) {
+    activeCount++;
+    const intervalRows = Array.from(day.querySelectorAll('.avail-interval'));
+    const parsed = intervalRows.map(function(row) {
+      const inputs = row.querySelectorAll('.avail-time-input');
+      const sv = inputs[0] && inputs[0].querySelector('.avail-time-value');
+      const ev = inputs[1] && inputs[1].querySelector('.avail-time-value');
+      return {
+        row: row,
+        inputs: inputs,
+        start: availParseTime(sv && sv.textContent),
+        end: availParseTime(ev && ev.textContent),
+      };
+    });
+
+    parsed.forEach(function(iv, idx) {
+      if (iv.start == null || iv.end == null) return;
+      let err = null;
+      if (iv.end <= iv.start) {
+        err = 'End time must be after start';
+      } else if (iv.end - iv.start < 30) {
+        err = 'Interval must be at least 30 minutes';
+      } else {
+        for (let j = 0; j < parsed.length; j++) {
+          if (j === idx) continue;
+          const o = parsed[j];
+          if (o.start == null || o.end == null) continue;
+          if (iv.start < o.end && iv.end > o.start) {
+            err = 'Overlaps with another interval';
+            break;
+          }
+        }
+      }
+      if (err) {
+        hasError = true;
+        iv.inputs[0].classList.add('error');
+        iv.inputs[1].classList.add('error');
+        const msg = document.createElement('div');
+        msg.className = 'avail-interval-error';
+        msg.innerHTML =
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+          '<span>' + err + '</span>';
+        iv.row.insertAdjacentElement('afterend', msg);
+      }
+    });
+  });
+
+  const alloffBanner = document.getElementById('avail-banner-alloff');
+  if (alloffBanner) alloffBanner.style.display = activeCount === 0 ? 'flex' : 'none';
+
+  const saveBtn = document.getElementById('avail-save-btn');
+  if (saveBtn) saveBtn.disabled = hasError;
+}
+
+// --- State toggle (demo seeds) ---
+let availSeedHtml = null;
+
+function availCaptureSeed() {
+  const days = document.querySelector('#s-availability .avail-days');
+  if (days && availSeedHtml == null) availSeedHtml = days.innerHTML;
+}
+
+function availReset() {
+  availCaptureSeed();
+  const days = document.querySelector('#s-availability .avail-days');
+  if (days && availSeedHtml != null) days.innerHTML = availSeedHtml;
+  const existing = document.getElementById('avail-banner-existing');
+  if (existing) existing.style.display = 'none';
+}
+
+function setAvailState(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+  availReset();
+
+  if (state === 'errors') {
+    // Monday: end (22:00) → 06:00 to demo end ≤ start
+    const mon = document.querySelector('#s-availability .avail-day[data-day="mon"] .avail-interval');
+    if (mon) {
+      const vals = mon.querySelectorAll('.avail-time-value');
+      if (vals.length >= 2) vals[1].textContent = '06:00';
+    }
+    // Tuesday interval 2: change to 10:00–20:00 to overlap with 07:00–12:00
+    const tue = document.querySelectorAll('#s-availability .avail-day[data-day="tue"] .avail-interval');
+    if (tue.length >= 2) {
+      const vals = tue[1].querySelectorAll('.avail-time-value');
+      if (vals.length >= 2) { vals[0].textContent = '10:00'; vals[1].textContent = '20:00'; }
+    }
+  } else if (state === 'alloff') {
+    document.querySelectorAll('#s-availability .avail-day.active').forEach(function(day) {
+      day.classList.remove('active');
+      const iv = day.querySelector('.avail-intervals');
+      if (iv) iv.remove();
+    });
+  } else if (state === 'existing') {
+    const ex = document.getElementById('avail-banner-existing');
+    if (ex) ex.style.display = 'flex';
+  }
+  validateAvailability();
+}
+
+function openSheet(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.add('visible');
+}
+
+// Capture seed + initial validation after DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+  availCaptureSeed();
+  validateAvailability();
+});
 </script>
 </body>
 </html>
