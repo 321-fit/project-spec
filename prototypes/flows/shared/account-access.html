@@ -1,0 +1,2758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Account Access</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--fit-font);
+    background: #0a0a0a;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 24px; min-height: 100vh;
+    min-width: 900px;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    left: max(16px, calc(50% - 195px - 200px - 48px));
+    top: 24px; bottom: 24px; width: 200px;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-scroll {
+    flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+  }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--fit-gray-600);
+    padding: 0 8px; margin: 16px 0 8px;
+  }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button {
+    font-family: var(--fit-font); font-size: 14px; font-weight: 400;
+    padding: 10px 12px; border-radius: 10px; border: none;
+    background: transparent; color: var(--fit-gray-400);
+    cursor: pointer; text-align: left; width: 100%; transition: all 0.15s;
+  }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active {
+    background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500;
+  }
+
+  /* Annotations */
+  .ann-container {
+    position: fixed;
+    left: calc(50% + 195px + 48px);
+    top: 24px; bottom: 24px; width: 280px;
+    overflow-y: auto;
+  }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; }
+  .ann.active { display: block; }
+  .ann-role {
+    display: inline-block; font-size: 14px; font-weight: 500;
+    padding: 4px 12px; border-radius: 8px; margin-bottom: 16px;
+    background: rgba(255,255,255,0.08); color: var(--fit-gray-300);
+  }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 14px; padding-left: 18px; font-size: 16px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 6px; }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  .ann-detail {
+    margin-top: 8px; padding: 4px 0 4px 16px;
+    border-left: 2px solid var(--fit-brand-primary);
+    display: none;
+  }
+  .ann-detail.open { display: block; }
+  .ann-detail-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; color: var(--fit-blue-500); cursor: pointer;
+    margin-top: 12px; font-weight: 500;
+  }
+  .ann-detail-toggle svg { width: 14px; height: 14px; transition: transform 0.2s; }
+  .ann-detail-toggle.open svg { transform: rotate(90deg); }
+  .ann-detail h4 { font-size: 14px; font-weight: 500; color: var(--fit-gray-300); margin-bottom: 6px; }
+  .ann-detail h4 + p { margin-bottom: 12px; }
+  .ann-detail p { font-size: 14px; line-height: 1.5; color: var(--fit-gray-500); margin-bottom: 8px; }
+  .ann-detail code { font-size: 12px; background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 3px; color: var(--fit-gray-400); }
+
+  /* Screen visibility */
+  .fit-phone { display: none; }
+  .fit-phone.active { display: flex; }
+  svg.i { width: 16px; height: 16px; vertical-align: middle; }
+
+  .fit-dark .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-dark .fit-phone-footer { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+
+  /* State toggle */
+  .state-toggle {
+    display: inline-flex; gap: 0; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--fit-gray-700); margin-bottom: 12px; flex-wrap: wrap;
+  }
+  .state-toggle button {
+    font-family: var(--fit-font); font-size: 12px; font-weight: 500;
+    padding: 4px 10px; border: none; cursor: pointer;
+    background: transparent; color: var(--fit-gray-400);
+    transition: all 0.15s;
+  }
+  .state-toggle button.active { background: var(--fit-gray-700); color: var(--fit-white); }
+
+  /* ===== ACCOUNT ACCESS ===== */
+
+  /* Row (method / action) */
+  .aa-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    background: var(--fit-surface-high);
+    cursor: pointer; min-height: 64px;
+  }
+  .fit-light .aa-row { background: var(--fit-white); }
+  .aa-row + .aa-row { border-top: 1px solid var(--fit-divider); }
+  .aa-group {
+    margin: 0 16px; border-radius: 14px; overflow: hidden;
+  }
+  .fit-light .aa-group { border: 1px solid var(--fit-gray-100); }
+  .aa-row.disabled { cursor: default; opacity: 0.6; }
+  .aa-row-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--fit-surface-higher);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; color: var(--fit-text-primary);
+  }
+  .aa-row-icon svg { width: 18px; height: 18px; }
+  .fit-light .aa-row-icon { background: var(--fit-gray-100); }
+  .aa-row-body { flex: 1; min-width: 0; }
+  .aa-row-title {
+    font-size: 15px; font-weight: 500; color: var(--fit-text-primary);
+    line-height: 1.2;
+  }
+  .aa-row-sub {
+    font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .aa-row-sub.connected { color: var(--fit-teal-500); display: inline-flex; align-items: center; gap: 4px; }
+  .aa-row-sub.muted { color: var(--fit-text-tertiary); }
+  .aa-success-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--fit-teal-500);
+    display: inline-block;
+  }
+
+  /* Right-side controls */
+  .aa-edit {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-text-tertiary);
+    flex-shrink: 0;
+  }
+  .aa-edit svg { width: 16px; height: 16px; }
+  .aa-connect {
+    font-size: 12px; font-weight: 500;
+    padding: 0 16px; height: 32px;
+    border-radius: 99px;
+    background: var(--fit-brand-gradient-h);
+    color: var(--fit-white);
+    flex-shrink: 0; border: none; cursor: pointer;
+    font-family: var(--fit-font);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .aa-soon {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.4px;
+    padding: 3px 8px; border-radius: 6px;
+    background: var(--fit-surface-higher);
+    color: var(--fit-text-tertiary);
+    text-transform: uppercase; flex-shrink: 0;
+  }
+  .fit-light .aa-soon { background: var(--fit-gray-100); }
+  .aa-chev {
+    color: var(--fit-text-tertiary); flex-shrink: 0;
+    opacity: 0.6;
+  }
+  .aa-chev svg { width: 16px; height: 16px; }
+
+  /* Section header */
+  .aa-section-label {
+    font-size: 12px; font-weight: 500;
+    color: var(--fit-text-tertiary);
+    letter-spacing: 0.3px;
+    padding: 20px 20px 8px;
+    text-transform: uppercase;
+  }
+
+  /* Delete row */
+  .aa-row.destructive .aa-row-title { color: var(--fit-red-400); }
+  .aa-row.destructive .aa-row-icon { color: var(--fit-red-400); background: rgba(240,92,91,0.10); }
+  .fit-light .aa-row.destructive .aa-row-icon { background: rgba(240,92,91,0.12); }
+
+  /* Footer note */
+  .aa-foot-note {
+    margin: 24px 20px 16px;
+    font-size: 13px; color: var(--fit-text-tertiary);
+    line-height: 1.5; text-align: center;
+  }
+
+  /* State switcher for hub */
+  #s-hub [data-hub-state] { display: none; }
+  #s-hub.hs-full       [data-hub-state="full"]       { display: block; }
+  #s-hub.hs-creds      [data-hub-state="creds"]      { display: block; }
+  #s-hub.hs-social     [data-hub-state="social"]     { display: block; }
+  #s-hub.hs-one        [data-hub-state="one"]        { display: block; }
+
+  /* ===== RE-AUTH PICKER ===== */
+  .reauth-head {
+    text-align: center;
+    padding: 8px 24px 24px;
+  }
+  .reauth-icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: var(--fit-selection-gradient);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--fit-text-primary);
+    margin: 16px auto 16px;
+  }
+  .reauth-icon svg { width: 28px; height: 28px; }
+  .reauth-title {
+    font-size: 20px; font-weight: 600; color: var(--fit-text-primary);
+    margin-bottom: 6px; line-height: 1.3;
+  }
+  .reauth-sub {
+    font-size: 14px; color: var(--fit-text-tertiary);
+    line-height: 1.5;
+  }
+  .reauth-method {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    background: var(--fit-surface-high);
+    cursor: pointer;
+  }
+  .fit-light .reauth-method { background: var(--fit-white); }
+  .reauth-method + .reauth-method { border-top: 1px solid var(--fit-divider); }
+  .reauth-method-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--fit-surface-higher);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-text-primary); flex-shrink: 0;
+  }
+  .reauth-method-icon svg { width: 18px; height: 18px; }
+  .fit-light .reauth-method-icon { background: var(--fit-gray-100); }
+  .reauth-method-body { flex: 1; min-width: 0; }
+  .reauth-method-title { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .reauth-method-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .reauth-footer {
+    padding: 20px 20px 8px; text-align: center;
+  }
+  .reauth-help {
+    font-size: 13px; color: var(--fit-blue-500);
+    cursor: pointer; font-weight: 500;
+  }
+
+  /* Soft-warning variant (last-method) */
+  .reauth-warn-card {
+    margin: 0 16px 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: rgba(247,201,72,0.08);
+    border: 1px solid rgba(247,201,72,0.3);
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .reauth-warn-card svg { width: 18px; height: 18px; color: #F7C948; flex-shrink: 0; margin-top: 1px; }
+  .reauth-warn-title {
+    font-size: 14px; font-weight: 500; color: var(--fit-text-primary);
+    margin-bottom: 4px;
+  }
+  .reauth-warn-body {
+    font-size: 13px; color: var(--fit-text-secondary); line-height: 1.5;
+  }
+
+  /* ===== PHONE INPUT ===== */
+  .pf-head {
+    padding: 24px 20px 20px; text-align: center;
+  }
+  .pf-icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: var(--fit-selection-gradient);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--fit-text-primary);
+    margin: 0 auto 16px;
+  }
+  .pf-icon svg { width: 28px; height: 28px; }
+  .pf-title {
+    font-size: 20px; font-weight: 600; color: var(--fit-text-primary);
+    margin-bottom: 6px; line-height: 1.3;
+  }
+  .pf-sub {
+    font-size: 14px; color: var(--fit-text-tertiary);
+    line-height: 1.5;
+  }
+  .pf-field {
+    margin: 0 16px 12px;
+    display: flex; align-items: stretch;
+    background: var(--fit-surface-high);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .fit-light .pf-field { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .pf-field.error { border: 1px solid var(--fit-red-400); }
+  .pf-country {
+    display: flex; align-items: center; gap: 6px;
+    padding: 14px 12px 14px 16px;
+    border-right: 1px solid var(--fit-divider);
+    font-size: 15px; color: var(--fit-text-primary);
+    cursor: pointer; flex-shrink: 0;
+  }
+  .pf-country svg { width: 14px; height: 14px; color: var(--fit-text-tertiary); }
+  .pf-input {
+    flex: 1; background: transparent; border: none; outline: none;
+    font-family: var(--fit-font); font-size: 16px;
+    color: var(--fit-text-primary);
+    padding: 0 16px;
+  }
+  .pf-input::placeholder { color: var(--fit-text-tertiary); }
+  .pf-field.error .pf-input { color: var(--fit-red-400); }
+  .pf-err-msg {
+    margin: 0 20px 16px;
+    font-size: 13px; color: var(--fit-red-400);
+    display: flex; align-items: center; gap: 6px;
+    line-height: 1.4;
+  }
+  .pf-err-msg svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  /* ===== OTP ===== */
+  .otp-boxes {
+    display: flex; gap: 8px; justify-content: center;
+    padding: 12px 20px 4px;
+  }
+  .otp-box {
+    width: 44px; height: 54px;
+    border-radius: 12px;
+    background: var(--fit-surface-high);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 500; color: var(--fit-text-primary);
+  }
+  .fit-light .otp-box { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .otp-box.focused {
+    border: 2px solid var(--fit-brand-primary);
+  }
+  .otp-box.filled { background: var(--fit-surface-higher); }
+  .fit-light .otp-box.filled { background: var(--fit-gray-100); border-color: var(--fit-gray-200); }
+  .otp-boxes.error .otp-box { border: 1px solid var(--fit-red-400); color: var(--fit-red-400); }
+  .otp-resend {
+    text-align: center; padding: 16px 20px;
+    font-size: 13px; color: var(--fit-text-tertiary);
+  }
+  .otp-resend a { color: var(--fit-brand-primary); cursor: pointer; font-weight: 500; }
+
+  /* ===== SUCCESS TOAST (inline bottom) ===== */
+  .aa-toast {
+    position: absolute; left: 16px; right: 16px; bottom: 24px;
+    padding: 14px 16px; border-radius: 12px;
+    background: rgba(5,224,166,0.15);
+    border: 1px solid rgba(5,224,166,0.3);
+    display: none; align-items: flex-start; gap: 10px;
+    color: var(--fit-text-primary); font-size: 14px; line-height: 1.4;
+    z-index: 20;
+    animation: fitToastUp 0.25s ease;
+  }
+  .aa-toast.visible { display: flex; }
+  .aa-toast svg { width: 18px; height: 18px; color: var(--fit-teal-500); flex-shrink: 0; margin-top: 1px; }
+  .aa-toast-title { font-weight: 500; margin-bottom: 2px; }
+  @keyframes fitToastUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  /* ===== SHEET ICON HEADER (for warning sheets) ===== */
+  .aa-sheet-head {
+    text-align: center; padding: 8px 20px 20px;
+  }
+  .aa-sheet-icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    display: inline-flex; align-items: center; justify-content: center;
+    margin: 4px auto 16px;
+  }
+  .aa-sheet-icon svg { width: 28px; height: 28px; }
+  .aa-sheet-icon.warn { background: rgba(247,201,72,0.15); color: #F7C948; }
+  .aa-sheet-icon.destructive { background: rgba(240,92,91,0.12); color: var(--fit-red-400); }
+  .aa-sheet-title { font-size: 18px; font-weight: 600; color: var(--fit-text-primary); margin-bottom: 6px; line-height: 1.3; }
+  .aa-sheet-body { font-size: 14px; color: var(--fit-text-secondary); line-height: 1.5; }
+
+  /* Phone flow state switcher */
+  #s-phone-new [data-pf-state] { display: none; }
+  #s-phone-new.pn-add    [data-pf-state="add"]    { display: block; }
+  #s-phone-new.pn-change [data-pf-state="change"] { display: block; }
+  #s-phone-new.pn-taken  [data-pf-state="taken"]  { display: block; }
+  #s-phone-new.pn-invalid [data-pf-state="invalid"] { display: block; }
+
+  #s-phone-otp [data-otp-state] { display: none; }
+  #s-phone-otp.ot-idle    [data-otp-state="idle"]    { display: block; }
+  #s-phone-otp.ot-error   [data-otp-state="error"]   { display: block; }
+  #s-phone-otp.ot-expired [data-otp-state="expired"] { display: block; }
+
+  /* ===== EMAIL SUB-HUB CARD ===== */
+  .em-headcard {
+    margin: 16px;
+    padding: 18px 16px;
+    border-radius: 16px;
+    background: var(--fit-surface-high);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .fit-light .em-headcard { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .em-headcard-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: var(--fit-surface-higher);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-text-primary); flex-shrink: 0;
+  }
+  .em-headcard-icon svg { width: 24px; height: 24px; }
+  .fit-light .em-headcard-icon { background: var(--fit-gray-100); }
+  .em-headcard-label {
+    font-size: 12px; color: var(--fit-text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.4px;
+    margin-bottom: 2px;
+  }
+  .em-headcard-value {
+    font-size: 16px; font-weight: 500; color: var(--fit-text-primary);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .em-pass-meta {
+    font-size: 12px; color: var(--fit-text-tertiary);
+    margin-top: 2px;
+  }
+
+  /* ===== LOADING LINK CENTERED ===== */
+  .aa-center-loader {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; min-height: 420px;
+    padding: 20px;
+  }
+  .aa-spinner {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 3px solid var(--fit-surface-higher);
+    border-top-color: var(--fit-brand-primary);
+    animation: aaSpin 0.8s linear infinite;
+  }
+  @keyframes aaSpin { to { transform: rotate(360deg); } }
+  .aa-loader-label {
+    font-size: 15px; color: var(--fit-text-secondary);
+  }
+
+  /* ===== RESEND TIMER (email) ===== */
+  .em-resend {
+    text-align: center; padding: 16px 20px;
+    font-size: 13px; color: var(--fit-text-tertiary);
+  }
+  .em-resend a { color: var(--fit-brand-primary); cursor: pointer; font-weight: 500; }
+
+  /* Phone flow state switcher reuse for email */
+  #s-email-new [data-em-state] { display: none; }
+  #s-email-new.em-change  [data-em-state="change"]  { display: block; }
+  #s-email-new.em-add     [data-em-state="add"]     { display: block; }
+  #s-email-new.em-taken   [data-em-state="taken"]   { display: block; }
+  #s-email-new.em-invalid [data-em-state="invalid"] { display: block; }
+
+  /* ===== COUNTRY PICKER ===== */
+  .cp-search {
+    padding: 8px 16px 12px;
+    position: sticky; top: 0; z-index: 2;
+    background: var(--fit-screen-bg);
+  }
+  .cp-search-field {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: var(--fit-surface-high);
+    border-radius: 12px;
+    font-size: 15px;
+  }
+  .fit-light .cp-search-field { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .cp-search-field svg { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .cp-search-field input {
+    flex: 1; border: none; background: transparent; outline: none;
+    font-family: var(--fit-font); font-size: 15px;
+    color: var(--fit-text-primary);
+  }
+  .cp-search-field input::placeholder { color: var(--fit-text-tertiary); }
+
+  .cp-section-label {
+    padding: 12px 20px 6px;
+    font-size: 12px; font-weight: 500;
+    color: var(--fit-text-tertiary);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+
+  .cp-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px;
+    background: var(--fit-surface-high);
+    cursor: pointer;
+  }
+  .fit-light .cp-row { background: var(--fit-white); }
+  .cp-row + .cp-row { border-top: 1px solid var(--fit-divider); }
+  .cp-group {
+    margin: 0 16px 12px; border-radius: 14px; overflow: hidden;
+  }
+  .fit-light .cp-group { border: 1px solid var(--fit-gray-100); }
+  .cp-flag { font-size: 22px; line-height: 1; flex-shrink: 0; width: 28px; text-align: center; }
+  .cp-name {
+    flex: 1; font-size: 15px; color: var(--fit-text-primary);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .cp-code {
+    font-size: 14px; color: var(--fit-text-tertiary);
+    font-variant-numeric: tabular-nums;
+  }
+  .cp-row.selected .cp-code { color: var(--fit-brand-primary); font-weight: 500; }
+  .cp-row.selected::after {
+    content: "";
+    position: absolute; left: 0; right: 0;
+  }
+  .cp-check {
+    color: var(--fit-brand-primary);
+    display: none;
+    flex-shrink: 0;
+  }
+  .cp-row.selected .cp-check { display: block; }
+  .cp-check svg { width: 18px; height: 18px; }
+
+  /* Password strength checklist */
+  .pw-rules {
+    margin: 8px 16px 0;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--fit-surface-low);
+  }
+  .fit-light .pw-rules { background: var(--fit-gray-50); }
+  .pw-rule {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--fit-text-tertiary);
+    padding: 2px 0;
+  }
+  .pw-rule svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .pw-rule.ok { color: var(--fit-teal-500); }
+  .pw-rule.fail { color: var(--fit-red-400); }
+  .pw-rule.pending { color: var(--fit-text-tertiary); }
+
+  /* Password flow state switcher */
+  #s-password-new [data-pw-state] { display: none; }
+  #s-password-new.pw-idle     [data-pw-state="idle"]     { display: block; }
+  #s-password-new.pw-typing   [data-pw-state="typing"]   { display: block; }
+  #s-password-new.pw-weak     [data-pw-state="weak"]     { display: block; }
+  #s-password-new.pw-mismatch [data-pw-state="mismatch"] { display: block; }
+  #s-password-new.pw-same     [data-pw-state="same"]     { display: block; }
+
+  /* Password input with eye toggle */
+  .pw-field {
+    margin: 0 16px 10px;
+    display: flex; align-items: center;
+    background: var(--fit-surface-high);
+    border-radius: 14px;
+    overflow: hidden;
+    padding: 0 14px 0 16px;
+  }
+  .fit-light .pw-field { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .pw-field.error { border: 1px solid var(--fit-red-400); }
+  .pw-field input {
+    flex: 1; background: transparent; border: none; outline: none;
+    font-family: var(--fit-font); font-size: 16px;
+    color: var(--fit-text-primary);
+    padding: 16px 0;
+  }
+  .pw-field input::placeholder { color: var(--fit-text-tertiary); }
+  .pw-eye {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-text-tertiary); cursor: pointer;
+    flex-shrink: 0;
+  }
+  .pw-eye svg { width: 18px; height: 18px; }
+  .pw-label {
+    font-size: 13px; color: var(--fit-text-tertiary);
+    padding: 0 20px 6px;
+  }
+
+  /* ===== DELETE ACCOUNT ===== */
+  .del-head {
+    padding: 24px 20px 8px; text-align: center;
+  }
+  .del-icon {
+    width: 64px; height: 64px; border-radius: 18px;
+    background: rgba(240,92,91,0.12);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--fit-red-400);
+    margin: 0 auto 16px;
+  }
+  .del-icon svg { width: 32px; height: 32px; }
+  .del-title {
+    font-size: 22px; font-weight: 600; color: var(--fit-text-primary);
+    margin-bottom: 6px; line-height: 1.3;
+  }
+  .del-sub {
+    font-size: 14px; color: var(--fit-text-secondary);
+    line-height: 1.5; max-width: 320px; margin: 0 auto;
+  }
+
+  .del-consequences {
+    margin: 8px 16px 16px;
+    padding: 4px 0;
+    background: var(--fit-surface-high);
+    border-radius: 14px;
+  }
+  .fit-light .del-consequences { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .del-consequence {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px;
+    font-size: 14px; color: var(--fit-text-secondary);
+  }
+  .del-consequence + .del-consequence { border-top: 1px solid var(--fit-divider); }
+  .del-consequence-icon {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: rgba(240,92,91,0.1);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-red-400); flex-shrink: 0;
+  }
+  .del-consequence-icon svg { width: 14px; height: 14px; }
+
+  .del-note {
+    padding: 8px 20px; text-align: center;
+    font-size: 12px; color: var(--fit-text-tertiary);
+    line-height: 1.5;
+  }
+  .del-note a { color: var(--fit-brand-primary); cursor: pointer; }
+
+  /* Blocker variants (share layout) */
+  .del-blocker-icon {
+    background: rgba(247,201,72,0.15); color: #F7C948;
+  }
+  .del-blocker-list {
+    margin: 8px 16px 16px;
+    padding: 4px 0;
+    background: var(--fit-surface-high);
+    border-radius: 14px;
+  }
+  .fit-light .del-blocker-list { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .del-blocker-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px;
+  }
+  .del-blocker-item + .del-blocker-item { border-top: 1px solid var(--fit-divider); }
+  .del-blocker-item-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--fit-surface-higher);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-text-primary); flex-shrink: 0;
+  }
+  .fit-light .del-blocker-item-icon { background: var(--fit-gray-100); }
+  .del-blocker-item-icon svg { width: 16px; height: 16px; }
+  .del-blocker-item-body { flex: 1; min-width: 0; }
+  .del-blocker-item-title {
+    font-size: 14px; font-weight: 500; color: var(--fit-text-primary);
+    line-height: 1.3;
+  }
+  .del-blocker-item-sub {
+    font-size: 12px; color: var(--fit-text-tertiary); margin-top: 2px;
+  }
+
+  #s-delete-blockers [data-blocker] { display: none; }
+  #s-delete-blockers.bl-sessions  [data-blocker="sessions"]  { display: block; }
+  #s-delete-blockers.bl-payout    [data-blocker="payout"]    { display: block; }
+  #s-delete-blockers.bl-bookings  [data-blocker="bookings"]  { display: block; }
+
+  /* ===== CONTACT SUPPORT ===== */
+  .sup-email-card {
+    margin: 0 16px 12px;
+    padding: 16px;
+    background: var(--fit-surface-high);
+    border-radius: 14px;
+  }
+  .fit-light .sup-email-card { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .sup-email-label {
+    font-size: 11px; font-weight: 500;
+    color: var(--fit-text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.4px;
+    margin-bottom: 6px;
+  }
+  .sup-email-value {
+    font-family: 'SF Mono', 'Menlo', monospace;
+    font-size: 15px; color: var(--fit-text-primary);
+    word-break: break-all;
+  }
+  .sup-meta-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px;
+    font-size: 12px; color: var(--fit-text-tertiary);
+  }
+  .sup-meta-row + .sup-meta-row { border-top: 1px solid var(--fit-divider); }
+  .sup-meta-value {
+    font-family: 'SF Mono', 'Menlo', monospace;
+    color: var(--fit-text-secondary);
+  }
+
+  /* Copy snackbar (inline bottom of support screen) */
+  .sup-snackbar {
+    position: absolute; left: 16px; right: 16px; bottom: 24px;
+    padding: 12px 14px; border-radius: 10px;
+    background: var(--fit-gray-800);
+    color: var(--fit-white);
+    font-size: 13px;
+    display: none; align-items: center; gap: 8px;
+    z-index: 30;
+    animation: fitToastUp 0.25s ease;
+  }
+  .sup-snackbar.visible { display: flex; }
+  .sup-snackbar svg { width: 16px; height: 16px; color: var(--fit-teal-500); flex-shrink: 0; }
+
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+  <div class="label">Hub</div>
+  <button class="active" onclick="go('s-hub',this)">Account Access</button>
+
+  <div class="label">Phone flow</div>
+  <button onclick="go('s-reauth',this)">1 · Re-auth picker</button>
+  <button onclick="setPhoneMode('change',this)">2a · Enter new phone (change)</button>
+  <button onclick="setPhoneMode('add',this)">2b · Enter phone (add)</button>
+  <button onclick="setPhoneMode('taken',this)">&middot; Error · phone taken</button>
+  <button onclick="setPhoneMode('invalid',this)">&middot; Error · invalid format</button>
+  <button onclick="setOtpMode('idle',this)">3 · Enter OTP</button>
+  <button onclick="setOtpMode('error',this)">&middot; OTP · invalid</button>
+  <button onclick="setOtpMode('expired',this)">&middot; OTP · expired</button>
+  <button onclick="go('s-hub',this);showToast('phone');">4 · Success (toast on hub)</button>
+
+  <div class="label">Email flow</div>
+  <button onclick="go('s-email-subhub',this)">1 · Sub-hub · Email &amp; password</button>
+  <button onclick="go('s-reauth',this)">2 · Re-auth (shared)</button>
+  <button onclick="setEmailMode('change',this)">3a · Enter new email (change)</button>
+  <button onclick="setEmailMode('add',this)">3b · Enter email + password (add)</button>
+  <button onclick="setEmailMode('taken',this)">&middot; Error · email taken</button>
+  <button onclick="setEmailMode('invalid',this)">&middot; Error · invalid format</button>
+  <button onclick="go('s-email-check',this)">4 · Check your email</button>
+  <button onclick="go('s-email-loading',this)">5 · Loading link</button>
+  <button onclick="go('s-email-expired',this)">5-err · Link expired</button>
+  <button onclick="go('s-hub',this);showToast('email');">6 · Success (toast)</button>
+
+  <div class="label">Password flow</div>
+  <button onclick="openReauthFor('password');(document.querySelector('.sidebar button[onclick*=openReauthFor]')||{}).classList&&document.querySelector('.sidebar button[onclick*=openReauthFor]').classList.add('active');">1 · Re-auth (for password)</button>
+  <button onclick="setPwMode('idle',this)">2 · Enter new password</button>
+  <button onclick="setPwMode('typing',this)">&middot; Typing (rules live)</button>
+  <button onclick="setPwMode('weak',this)">&middot; Weak (blocked)</button>
+  <button onclick="setPwMode('mismatch',this)">&middot; Passwords don't match</button>
+  <button onclick="setPwMode('same',this)">&middot; Same as current</button>
+  <button onclick="go('s-hub',this);showToast('password');">3 · Success (toast)</button>
+
+  <div class="label">Delete flow</div>
+  <button onclick="go('s-delete-info',this)">1 · Delete info</button>
+  <button onclick="setBlocker('sessions',this)">2a · Blocker &middot; upcoming sessions</button>
+  <button onclick="setBlocker('payout',this)">2b · Blocker &middot; pending payout</button>
+  <button onclick="setBlocker('bookings',this)">2c · Blocker &middot; active bookings</button>
+  <button onclick="openReauthFor('delete');">3 · Re-auth (for delete)</button>
+  <button onclick="go('s-hub',this);openDeleteConfirm();">4 · Final confirm sheet</button>
+  <button onclick="go('s-delete-loading',this)">5 · Loading (transient)</button>
+  <button onclick="go('s-delete-done',this)">6 · Account deleted (done)</button>
+
+  <div class="label">Social flow</div>
+  <button onclick="go('s-hub',this);simulateConnect('apple');">Connect Apple (success)</button>
+  <button onclick="go('s-hub',this);simulateConnect('google');">Connect Google (success)</button>
+  <button onclick="go('s-hub',this);openDisconnectSheet('apple');">Disconnect Apple (sheet)</button>
+  <button onclick="go('s-hub',this);openDisconnectSheet('google');">Disconnect Google (sheet)</button>
+  <button onclick="go('s-hub',this);setHubState('social',null);openDisconnectBlock('apple');">Disconnect block · last method</button>
+
+  <div class="label">Support</div>
+  <button onclick="go('s-contact-support',this)">Contact support</button>
+
+  <div class="label">Pickers</div>
+  <button onclick="go('s-country-picker',this)">Country picker</button>
+
+  <div class="label">Sheets (overlays on hub)</div>
+  <button onclick="go('s-hub',this);openLastMethodSheet();">Last-method warning</button>
+  </div>
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ==================== PHONES ==================== -->
+
+<!-- ===== ACCOUNT ACCESS HUB ===== -->
+<div class="fit-phone fit-dark active hs-full" id="s-hub">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="window.location.href='../coach/settings.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Account Access</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- SECTION: Sign-in methods -->
+    <div class="aa-section-label">Sign-in methods</div>
+
+    <!-- ===== STATE: FULL (all 4 methods active) ===== -->
+    <div data-hub-state="full">
+      <div class="aa-group">
+        <!-- Phone -->
+        <div class="aa-row" onclick="openReauthFor('phone')">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Phone number</div>
+            <div class="aa-row-sub">+995 511 100 000</div>
+          </div>
+          <div class="aa-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+        </div>
+
+        <!-- Email & password (one row) -->
+        <div class="aa-row" onclick="go('s-email-subhub',null)">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Email &amp; password</div>
+            <div class="aa-row-sub">jdoe@mail.com</div>
+          </div>
+          <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+
+        <!-- Apple -->
+        <div class="aa-row" onclick="openDisconnectSheet('apple')">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Apple</div>
+            <div class="aa-row-sub connected"><span class="aa-success-dot"></span>Connected</div>
+          </div>
+          <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+
+        <!-- Google -->
+        <div class="aa-row" onclick="openDisconnectSheet('google')">
+          <div class="aa-row-icon" style="background:#fff;">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          </div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Google</div>
+            <div class="aa-row-sub connected"><span class="aa-success-dot"></span>Connected</div>
+          </div>
+          <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STATE: CREDENTIALS ONLY (phone + email, no social) ===== -->
+    <div data-hub-state="creds">
+      <div class="aa-group">
+        <div class="aa-row">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Phone number</div>
+            <div class="aa-row-sub">+995 511 100 000</div>
+          </div>
+          <div class="aa-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+        </div>
+        <div class="aa-row">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Email &amp; password</div>
+            <div class="aa-row-sub">jdoe@mail.com</div>
+          </div>
+          <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+        <div class="aa-row">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Apple</div>
+            <div class="aa-row-sub muted">Not connected</div>
+          </div>
+          <button class="aa-connect" onclick="simulateConnect('apple')">Connect</button>
+        </div>
+        <div class="aa-row">
+          <div class="aa-row-icon" style="background:#fff;">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          </div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Google</div>
+            <div class="aa-row-sub muted">Not connected</div>
+          </div>
+          <button class="aa-connect" onclick="simulateConnect('google')">Connect</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STATE: SOCIAL ONLY (Apple + Google, no phone/email) ===== -->
+    <div data-hub-state="social">
+      <div class="aa-group">
+        <div class="aa-row">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Phone number</div>
+            <div class="aa-row-sub muted">Not set up</div>
+          </div>
+          <button class="aa-connect">Add</button>
+        </div>
+        <div class="aa-row">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Email &amp; password</div>
+            <div class="aa-row-sub muted">Not set up</div>
+          </div>
+          <button class="aa-connect">Add</button>
+        </div>
+        <div class="aa-row" onclick="openDisconnectSheet('apple')">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Apple</div>
+            <div class="aa-row-sub connected"><span class="aa-success-dot"></span>Connected</div>
+          </div>
+          <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+        <div class="aa-row" onclick="openDisconnectSheet('google')">
+          <div class="aa-row-icon" style="background:#fff;">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          </div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Google</div>
+            <div class="aa-row-sub connected"><span class="aa-success-dot"></span>Connected</div>
+          </div>
+          <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STATE: ONE METHOD (just phone, nothing else) ===== -->
+    <div data-hub-state="one">
+      <div class="aa-group">
+        <div class="aa-row">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Phone number</div>
+            <div class="aa-row-sub">+995 511 100 000</div>
+          </div>
+          <div class="aa-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+        </div>
+        <div class="aa-row">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Email &amp; password</div>
+            <div class="aa-row-sub muted">Not set up</div>
+          </div>
+          <button class="aa-connect">Add</button>
+        </div>
+        <div class="aa-row">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Apple</div>
+            <div class="aa-row-sub muted">Not connected</div>
+          </div>
+          <button class="aa-connect" onclick="simulateConnect('apple')">Connect</button>
+        </div>
+        <div class="aa-row">
+          <div class="aa-row-icon" style="background:#fff;">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          </div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Google</div>
+            <div class="aa-row-sub muted">Not connected</div>
+          </div>
+          <button class="aa-connect" onclick="simulateConnect('google')">Connect</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: Security (V2 placeholders) -->
+    <div class="aa-section-label">Security</div>
+    <div class="aa-group">
+      <div class="aa-row disabled">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <div class="aa-row-body">
+          <div class="aa-row-title">Active sessions</div>
+          <div class="aa-row-sub muted">Manage where you're signed in</div>
+        </div>
+        <span class="aa-soon">Soon</span>
+      </div>
+      <div class="aa-row disabled">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <div class="aa-row-body">
+          <div class="aa-row-title">Two-factor authentication</div>
+          <div class="aa-row-sub muted">Extra layer of security</div>
+        </div>
+        <span class="aa-soon">Soon</span>
+      </div>
+    </div>
+
+    <!-- SECTION: Danger zone -->
+    <div class="aa-section-label">Danger zone</div>
+    <div class="aa-group">
+      <div class="aa-row destructive" onclick="go('s-delete-info',null)">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></div>
+        <div class="aa-row-body">
+          <div class="aa-row-title">Delete account</div>
+          <div class="aa-row-sub muted">Permanently remove your data</div>
+        </div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+    </div>
+
+    <div class="aa-foot-note">
+      Changes to your sign-in methods require verification for security.
+    </div>
+  </div>
+
+  <!-- ===== SHEET: LAST-METHOD WARNING ===== -->
+  <div class="fit-sheet-overlay" id="last-method-sheet" onclick="if(event.target===this)closeLastMethodSheet()">
+    <div class="fit-sheet" style="padding:8px 16px 28px;">
+      <div class="fit-sheet-handle"></div>
+      <div class="aa-sheet-head">
+        <div class="aa-sheet-icon warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+        <div class="aa-sheet-title">This is your only sign-in method</div>
+        <div class="aa-sheet-body">Changing your phone number without a backup means if something goes wrong &mdash; wrong code, lost SIM &mdash; you could lose access. We recommend adding another method first.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-primary" onclick="closeLastMethodSheet();alert('Opens: Add method picker\\n(sheet with phone/email/Apple/Google options)');">Add a backup method first</button>
+        <button class="fit-btn fit-btn-secondary" onclick="closeLastMethodSheet();setPhoneMode('change',document.querySelector('[onclick*=change]'));" style="color:#F7C948;">Continue anyway</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SHEET: DISCONNECT CONFIRM (not last) ===== -->
+  <div class="fit-sheet-overlay" id="disconnect-sheet" onclick="if(event.target===this)closeDisconnectSheet()">
+    <div class="fit-sheet" style="padding:8px 16px 28px;">
+      <div class="fit-sheet-handle"></div>
+      <div class="aa-sheet-head">
+        <div class="aa-sheet-icon destructive">
+          <svg id="dc-icon-apple" style="display:none;" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+          <svg id="dc-icon-google" viewBox="0 0 24 24" width="28" height="28"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        </div>
+        <div class="aa-sheet-title">Disconnect <span id="dc-provider">Google</span>?</div>
+        <div class="aa-sheet-body">You'll no longer be able to sign in with <span class="dc-provider-txt">Google</span>. You can reconnect it later at any time.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-destructive" onclick="confirmDisconnect()">Disconnect</button>
+        <button class="fit-btn fit-btn-secondary" onclick="closeDisconnectSheet()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SHEET: DISCONNECT BLOCK (last method, hard block) ===== -->
+  <div class="fit-sheet-overlay" id="disconnect-block-sheet" onclick="if(event.target===this)closeDisconnectBlock()">
+    <div class="fit-sheet" style="padding:8px 16px 28px;">
+      <div class="fit-sheet-handle"></div>
+      <div class="aa-sheet-head">
+        <div class="aa-sheet-icon warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+        <div class="aa-sheet-title">Can't disconnect <span id="dcb-provider">Apple</span></div>
+        <div class="aa-sheet-body">This is your only sign-in method. Add a phone number, email, or another provider first &mdash; then you can disconnect <span class="dcb-provider-txt">Apple</span>.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-primary" onclick="closeDisconnectBlock();alert('Opens: Add method picker\\n(phone / email / other provider)');">Add another method</button>
+        <button class="fit-btn fit-btn-secondary" onclick="closeDisconnectBlock()">Not now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SHEET: DELETE FINAL CONFIRM ===== -->
+  <div class="fit-sheet-overlay" id="delete-confirm-sheet" onclick="if(event.target===this)closeDeleteConfirm()">
+    <div class="fit-sheet" style="padding:8px 16px 28px;">
+      <div class="fit-sheet-handle"></div>
+      <div class="aa-sheet-head">
+        <div class="aa-sheet-icon destructive"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></div>
+        <div class="aa-sheet-title">Delete your account forever?</div>
+        <div class="aa-sheet-body">This can't be undone. You'll be signed out and your data will be permanently removed.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-destructive" onclick="closeDeleteConfirm();go('s-delete-loading',null);setTimeout(()=>go('s-delete-done',null),1400);">Delete forever</button>
+        <button class="fit-btn fit-btn-secondary" onclick="closeDeleteConfirm()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SUCCESS TOAST ===== -->
+  <div class="aa-toast" id="aa-toast">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <div style="flex:1;">
+      <div class="aa-toast-title" id="aa-toast-title">Phone updated</div>
+      <div id="aa-toast-body" style="font-size:13px;color:var(--fit-text-secondary);">Your new number is +995 511 100 000.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RE-AUTH PICKER ===== -->
+<div class="fit-phone fit-dark" id="s-reauth">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M6 18L18 6"/></svg></button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div class="reauth-head">
+      <div class="reauth-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      <div class="reauth-title">Verify it's you</div>
+      <div class="reauth-sub">To change your phone number, confirm with one of your active sign-in methods.</div>
+    </div>
+
+    <div class="aa-group">
+      <div class="reauth-method" onclick="reauthProceed()">
+        <div class="reauth-method-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+        <div class="reauth-method-body">
+          <div class="reauth-method-title">Use password</div>
+          <div class="reauth-method-sub">Enter your current password</div>
+        </div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <div class="reauth-method" onclick="reauthProceed()">
+        <div class="reauth-method-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+        <div class="reauth-method-body">
+          <div class="reauth-method-title">Email a link</div>
+          <div class="reauth-method-sub">jdoe@mail.com</div>
+        </div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <div class="reauth-method" onclick="reauthProceed()">
+        <div class="reauth-method-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg></div>
+        <div class="reauth-method-body">
+          <div class="reauth-method-title">Continue with Apple</div>
+          <div class="reauth-method-sub">Re-sign in to confirm</div>
+        </div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <div class="reauth-method" onclick="reauthProceed()">
+        <div class="reauth-method-icon" style="background:#fff;">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        </div>
+        <div class="reauth-method-body">
+          <div class="reauth-method-title">Continue with Google</div>
+          <div class="reauth-method-sub">Re-sign in to confirm</div>
+        </div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+    </div>
+
+    <div class="reauth-footer">
+      <span class="reauth-help" onclick="go('s-contact-support',null)">Can't access any of these?</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PHONE FLOW · ENTER PHONE ===== -->
+<div class="fit-phone fit-dark pn-change" id="s-phone-new">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- ===== HEAD variants ===== -->
+    <div data-pf-state="change">
+      <div class="pf-head">
+        <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+        <div class="pf-title">New phone number</div>
+        <div class="pf-sub">Current: <strong style="color:var(--fit-text-secondary);">+995 511 100 000</strong></div>
+      </div>
+    </div>
+    <div data-pf-state="add">
+      <div class="pf-head">
+        <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+        <div class="pf-title">Add phone number</div>
+        <div class="pf-sub">Use it to sign in and recover your account.</div>
+      </div>
+    </div>
+    <div data-pf-state="taken">
+      <div class="pf-head">
+        <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+        <div class="pf-title">New phone number</div>
+        <div class="pf-sub">Current: <strong style="color:var(--fit-text-secondary);">+995 511 100 000</strong></div>
+      </div>
+    </div>
+    <div data-pf-state="invalid">
+      <div class="pf-head">
+        <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+        <div class="pf-title">New phone number</div>
+        <div class="pf-sub">Current: <strong style="color:var(--fit-text-secondary);">+995 511 100 000</strong></div>
+      </div>
+    </div>
+
+    <!-- ===== INPUT ===== -->
+    <div data-pf-state="change">
+      <div class="pf-field">
+        <div class="pf-country" onclick="go('s-country-picker',null)"><span class="pf-country-flag">&#127468;&#127466;</span> <span class="pf-country-code">+995</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+        <input class="pf-input" type="tel" placeholder="511 200 300" value="511 200 300">
+      </div>
+    </div>
+    <div data-pf-state="add">
+      <div class="pf-field">
+        <div class="pf-country" onclick="go('s-country-picker',null)"><span class="pf-country-flag">&#127468;&#127466;</span> <span class="pf-country-code">+995</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+        <input class="pf-input" type="tel" placeholder="511 200 300">
+      </div>
+    </div>
+    <div data-pf-state="taken">
+      <div class="pf-field error">
+        <div class="pf-country" onclick="go('s-country-picker',null)"><span class="pf-country-flag">&#127468;&#127466;</span> <span class="pf-country-code">+995</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+        <input class="pf-input" type="tel" value="511 999 888">
+      </div>
+      <div class="pf-err-msg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        This number is already in use by another account.
+      </div>
+    </div>
+    <div data-pf-state="invalid">
+      <div class="pf-field error">
+        <div class="pf-country" onclick="go('s-country-picker',null)"><span class="pf-country-flag">&#127468;&#127466;</span> <span class="pf-country-code">+995</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+        <input class="pf-input" type="tel" value="511 abc">
+      </div>
+      <div class="pf-err-msg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        Enter a valid phone number.
+      </div>
+    </div>
+
+    <!-- ===== CTA ===== -->
+    <div style="padding:8px 16px 0;">
+      <button class="fit-btn fit-btn-primary" onclick="setOtpMode('idle',document.querySelector('[onclick*=ot-idle]'));">Send code</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== PHONE FLOW · OTP ===== -->
+<div class="fit-phone fit-dark ot-idle" id="s-phone-otp">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="setPhoneMode('change',document.querySelector('[onclick*=setPhoneMode]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div class="pf-head">
+      <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M7 8V5a5 5 0 0110 0v3"/></svg></div>
+      <div class="pf-title">Enter the code</div>
+      <div class="pf-sub">We texted a 6-digit code to <strong style="color:var(--fit-text-secondary);">+995 511 200 300</strong>.</div>
+    </div>
+
+    <!-- Idle -->
+    <div data-otp-state="idle">
+      <div class="otp-boxes">
+        <div class="otp-box filled">4</div>
+        <div class="otp-box filled">8</div>
+        <div class="otp-box filled">2</div>
+        <div class="otp-box focused"></div>
+        <div class="otp-box"></div>
+        <div class="otp-box"></div>
+      </div>
+    </div>
+
+    <!-- Error (wrong code) -->
+    <div data-otp-state="error">
+      <div class="otp-boxes error">
+        <div class="otp-box">1</div>
+        <div class="otp-box">1</div>
+        <div class="otp-box">1</div>
+        <div class="otp-box">1</div>
+        <div class="otp-box">1</div>
+        <div class="otp-box">1</div>
+      </div>
+      <div class="pf-err-msg" style="justify-content:center;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        Code is incorrect. Try again.
+      </div>
+    </div>
+
+    <!-- Expired -->
+    <div data-otp-state="expired">
+      <div class="otp-boxes error">
+        <div class="otp-box">4</div>
+        <div class="otp-box">8</div>
+        <div class="otp-box">2</div>
+        <div class="otp-box">9</div>
+        <div class="otp-box">1</div>
+        <div class="otp-box">5</div>
+      </div>
+      <div class="pf-err-msg" style="justify-content:center;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        Code expired. Request a new one.
+      </div>
+    </div>
+
+    <!-- Resend link -->
+    <div class="otp-resend">
+      <span data-otp-state="idle">Resend in 0:27</span>
+      <span data-otp-state="error"><a>Resend code</a></span>
+      <span data-otp-state="expired"><a>Resend code</a></span>
+    </div>
+
+    <!-- CTA -->
+    <div style="padding:8px 16px 0;">
+      <button class="fit-btn fit-btn-primary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'));setHubState('full',null);showToast('phone');">Verify</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== COUNTRY PICKER ===== -->
+<div class="fit-phone fit-dark" id="s-country-picker">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="setPhoneMode('change',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M6 18L18 6"/></svg></button>
+      <span class="fit-header-title">Country or region</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- Sticky search -->
+    <div class="cp-search">
+      <div class="cp-search-field">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search country or code">
+      </div>
+    </div>
+
+    <!-- Popular -->
+    <div class="cp-section-label">Popular</div>
+    <div class="cp-group">
+      <div class="cp-row selected" onclick="pickCountry(this, '&#127468;&#127466;', 'Georgia', '+995')">
+        <span class="cp-flag">&#127468;&#127466;</span>
+        <span class="cp-name">Georgia</span>
+        <span class="cp-code">+995</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127482;&#127480;', 'United States', '+1')">
+        <span class="cp-flag">&#127482;&#127480;</span>
+        <span class="cp-name">United States</span>
+        <span class="cp-code">+1</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127468;&#127463;', 'United Kingdom', '+44')">
+        <span class="cp-flag">&#127468;&#127463;</span>
+        <span class="cp-name">United Kingdom</span>
+        <span class="cp-code">+44</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127465;&#127466;', 'Germany', '+49')">
+        <span class="cp-flag">&#127465;&#127466;</span>
+        <span class="cp-name">Germany</span>
+        <span class="cp-code">+49</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+    </div>
+
+    <!-- All countries (abbreviated A-Z for prototype) -->
+    <div class="cp-section-label">All countries</div>
+    <div class="cp-group">
+      <div class="cp-row" onclick="pickCountry(this, '&#127462;&#127458;', 'Armenia', '+374')">
+        <span class="cp-flag">&#127462;&#127458;</span>
+        <span class="cp-name">Armenia</span>
+        <span class="cp-code">+374</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127462;&#127487;', 'Azerbaijan', '+994')">
+        <span class="cp-flag">&#127462;&#127487;</span>
+        <span class="cp-name">Azerbaijan</span>
+        <span class="cp-code">+994</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127467;&#127479;', 'France', '+33')">
+        <span class="cp-flag">&#127467;&#127479;</span>
+        <span class="cp-name">France</span>
+        <span class="cp-code">+33</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127470;&#127481;', 'Italy', '+39')">
+        <span class="cp-flag">&#127470;&#127481;</span>
+        <span class="cp-name">Italy</span>
+        <span class="cp-code">+39</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127472;&#127487;', 'Kazakhstan', '+7')">
+        <span class="cp-flag">&#127472;&#127487;</span>
+        <span class="cp-name">Kazakhstan</span>
+        <span class="cp-code">+7</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127475;&#127473;', 'Netherlands', '+31')">
+        <span class="cp-flag">&#127475;&#127473;</span>
+        <span class="cp-name">Netherlands</span>
+        <span class="cp-code">+31</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127477;&#127473;', 'Poland', '+48')">
+        <span class="cp-flag">&#127477;&#127473;</span>
+        <span class="cp-name">Poland</span>
+        <span class="cp-code">+48</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127479;&#127482;', 'Russia', '+7')">
+        <span class="cp-flag">&#127479;&#127482;</span>
+        <span class="cp-name">Russia</span>
+        <span class="cp-code">+7</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127466;&#127480;', 'Spain', '+34')">
+        <span class="cp-flag">&#127466;&#127480;</span>
+        <span class="cp-name">Spain</span>
+        <span class="cp-code">+34</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127481;&#127479;', 'Turkey', '+90')">
+        <span class="cp-flag">&#127481;&#127479;</span>
+        <span class="cp-name">Turkey</span>
+        <span class="cp-code">+90</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127482;&#127462;', 'Ukraine', '+380')">
+        <span class="cp-flag">&#127482;&#127462;</span>
+        <span class="cp-name">Ukraine</span>
+        <span class="cp-code">+380</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+    </div>
+
+    <div class="aa-foot-note">
+      Don't see your country? <a style="color:var(--fit-brand-primary);cursor:pointer;">Contact support</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== EMAIL SUB-HUB (Email & password) ===== -->
+<div class="fit-phone fit-dark" id="s-email-subhub">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Email &amp; password</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- Email card -->
+    <div class="em-headcard">
+      <div class="em-headcard-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+      <div style="flex:1;min-width:0;">
+        <div class="em-headcard-label">Email</div>
+        <div class="em-headcard-value">jdoe@mail.com</div>
+      </div>
+    </div>
+
+    <!-- Action rows -->
+    <div class="aa-group">
+      <div class="aa-row" onclick="openReauthFor('email')">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/><path d="M16 17l2 2 4-4"/></svg></div>
+        <div class="aa-row-body">
+          <div class="aa-row-title">Change email</div>
+          <div class="aa-row-sub muted">Verify + replace current email</div>
+        </div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <div class="aa-row" onclick="openReauthFor('password')">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+        <div class="aa-row-body">
+          <div class="aa-row-title">Change password</div>
+          <div class="aa-row-sub muted">Last changed 2 months ago</div>
+        </div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+    </div>
+
+    <div class="aa-foot-note">
+      A verification link will be sent for any change.
+    </div>
+  </div>
+</div>
+
+<!-- ===== EMAIL · ENTER NEW EMAIL (change / add / taken / invalid) ===== -->
+<div class="fit-phone fit-dark em-change" id="s-email-new">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-email-subhub',document.querySelector('[onclick*=s-email-subhub]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- ===== HEAD variants ===== -->
+    <div data-em-state="change">
+      <div class="pf-head">
+        <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+        <div class="pf-title">New email</div>
+        <div class="pf-sub">Current: <strong style="color:var(--fit-text-secondary);">jdoe@mail.com</strong></div>
+      </div>
+    </div>
+    <div data-em-state="add">
+      <div class="pf-head">
+        <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+        <div class="pf-title">Add email &amp; password</div>
+        <div class="pf-sub">Use it to sign in and recover your account.</div>
+      </div>
+    </div>
+    <div data-em-state="taken">
+      <div class="pf-head">
+        <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+        <div class="pf-title">New email</div>
+        <div class="pf-sub">Current: <strong style="color:var(--fit-text-secondary);">jdoe@mail.com</strong></div>
+      </div>
+    </div>
+    <div data-em-state="invalid">
+      <div class="pf-head">
+        <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+        <div class="pf-title">New email</div>
+        <div class="pf-sub">Current: <strong style="color:var(--fit-text-secondary);">jdoe@mail.com</strong></div>
+      </div>
+    </div>
+
+    <!-- ===== INPUT(s) ===== -->
+    <div data-em-state="change">
+      <div class="pf-field">
+        <input class="pf-input" type="email" placeholder="new@mail.com" value="new.email@gmail.com" style="padding:16px;">
+      </div>
+    </div>
+    <div data-em-state="add">
+      <div class="pf-field">
+        <input class="pf-input" type="email" placeholder="you@mail.com" style="padding:16px;">
+      </div>
+      <div class="pf-field">
+        <input class="pf-input" type="password" placeholder="Password" style="padding:16px;">
+      </div>
+      <div class="pw-rules">
+        <div class="pw-rule pending">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+          At least 8 characters
+        </div>
+        <div class="pw-rule pending">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+          Not a common password
+        </div>
+        <div class="pw-rule pending">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+          Not all numbers
+        </div>
+      </div>
+    </div>
+    <div data-em-state="taken">
+      <div class="pf-field error">
+        <input class="pf-input" type="email" value="taken@mail.com" style="padding:16px;">
+      </div>
+      <div class="pf-err-msg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        This email is already in use by another account.
+      </div>
+    </div>
+    <div data-em-state="invalid">
+      <div class="pf-field error">
+        <input class="pf-input" type="email" value="not-an-email" style="padding:16px;">
+      </div>
+      <div class="pf-err-msg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        Enter a valid email address.
+      </div>
+    </div>
+
+    <!-- ===== CTA ===== -->
+    <div style="padding:16px 16px 0;">
+      <button class="fit-btn fit-btn-primary" onclick="go('s-email-check',document.querySelector('[onclick*=s-email-check]'));">Send verification link</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== EMAIL · CHECK YOUR EMAIL ===== -->
+<div class="fit-phone fit-dark" id="s-email-check">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="setEmailMode('change',document.querySelector('[onclick*=setEmailMode]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div class="pf-head" style="padding-top:40px;">
+      <div class="pf-icon" style="background:rgba(3,178,226,0.15);color:var(--fit-blue-500);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+      <div class="pf-title">Check your email</div>
+      <div class="pf-sub" style="max-width:300px;margin:0 auto;">We sent a verification link to <strong style="color:var(--fit-text-secondary);">new.email@gmail.com</strong>. Tap it to confirm.</div>
+    </div>
+
+    <div style="padding:16px 16px 0;">
+      <button class="fit-btn fit-btn-primary" onclick="alert('Opens native mail app\\n(iOS: mailto: / Android: ACTION_MAIN category email)');">Open Mail</button>
+    </div>
+
+    <div class="em-resend">Resend link in 0:27</div>
+    <div class="em-resend" style="padding-top:0;">Wrong address? <a onclick="setEmailMode('change',null);">Edit email</a></div>
+
+  </div>
+</div>
+
+<!-- ===== EMAIL · LOADING LINK ===== -->
+<div class="fit-phone fit-dark" id="s-email-loading">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="aa-center-loader">
+      <div class="aa-spinner"></div>
+      <div class="aa-loader-label">Verifying your link&hellip;</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== EMAIL · LINK EXPIRED ===== -->
+<div class="fit-phone fit-dark" id="s-email-expired">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M6 18L18 6"/></svg></button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div class="pf-head" style="padding-top:40px;">
+      <div class="pf-icon" style="background:rgba(247,201,72,0.15);color:#F7C948;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+      <div class="pf-title">This link has expired</div>
+      <div class="pf-sub" style="max-width:300px;margin:0 auto;">Verification links expire after 30 minutes. Request a new one to try again.</div>
+    </div>
+
+    <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+      <button class="fit-btn fit-btn-primary" onclick="go('s-email-check',document.querySelector('[onclick*=s-email-check]'));">Send a new link</button>
+      <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'));">Back to Account Access</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PASSWORD · ENTER NEW PASSWORD ===== -->
+<div class="fit-phone fit-dark pw-idle" id="s-password-new">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-email-subhub',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div class="pf-head">
+      <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      <div class="pf-title">Set a new password</div>
+      <div class="pf-sub" style="max-width:290px;margin:0 auto;">Choose something you'll remember. You'll use it to sign in.</div>
+    </div>
+
+    <!-- ===== IDLE ===== -->
+    <div data-pw-state="idle">
+      <div class="pw-label">New password</div>
+      <div class="pw-field">
+        <input type="password" placeholder="At least 8 characters">
+        <span class="pw-eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+      <div class="pw-label" style="margin-top:8px;">Confirm new password</div>
+      <div class="pw-field">
+        <input type="password" placeholder="Re-enter password">
+        <span class="pw-eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+
+      <div class="pw-rules">
+        <div class="pw-rule pending">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+          At least 8 characters
+        </div>
+        <div class="pw-rule pending">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+          Not a common password
+        </div>
+        <div class="pw-rule pending">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+          Not all numbers
+        </div>
+      </div>
+
+      <div style="padding:16px 16px 0;">
+        <button class="fit-btn fit-btn-disabled" style="background:var(--fit-surface-low);color:var(--fit-text-tertiary);cursor:not-allowed;">Update password</button>
+      </div>
+    </div>
+
+    <!-- ===== TYPING (rules live) ===== -->
+    <div data-pw-state="typing">
+      <div class="pw-label">New password</div>
+      <div class="pw-field">
+        <input type="text" value="mysecret1">
+        <span class="pw-eye" style="color:var(--fit-brand-primary);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+      <div class="pw-label" style="margin-top:8px;">Confirm new password</div>
+      <div class="pw-field">
+        <input type="password" value="mysecret1">
+        <span class="pw-eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+
+      <div class="pw-rules">
+        <div class="pw-rule ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          At least 8 characters
+        </div>
+        <div class="pw-rule ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Not a common password
+        </div>
+        <div class="pw-rule ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Not all numbers
+        </div>
+      </div>
+
+      <div style="padding:16px 16px 0;">
+        <button class="fit-btn fit-btn-primary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'));showToast('password');">Update password</button>
+      </div>
+    </div>
+
+    <!-- ===== WEAK (blocked) ===== -->
+    <div data-pw-state="weak">
+      <div class="pw-label">New password</div>
+      <div class="pw-field error">
+        <input type="text" value="12345678">
+        <span class="pw-eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+      <div class="pw-label" style="margin-top:8px;">Confirm new password</div>
+      <div class="pw-field">
+        <input type="password" value="12345678">
+        <span class="pw-eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+
+      <div class="pw-rules">
+        <div class="pw-rule ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          At least 8 characters
+        </div>
+        <div class="pw-rule fail">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+          Not a common password
+        </div>
+        <div class="pw-rule fail">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+          Not all numbers
+        </div>
+      </div>
+
+      <div style="padding:16px 16px 0;">
+        <button class="fit-btn fit-btn-disabled" style="background:var(--fit-surface-low);color:var(--fit-text-tertiary);cursor:not-allowed;">Update password</button>
+      </div>
+    </div>
+
+    <!-- ===== MISMATCH ===== -->
+    <div data-pw-state="mismatch">
+      <div class="pw-label">New password</div>
+      <div class="pw-field">
+        <input type="password" value="StrongPass2025">
+        <span class="pw-eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+      <div class="pw-label" style="margin-top:8px;">Confirm new password</div>
+      <div class="pw-field error">
+        <input type="password" value="StrongPass2026">
+        <span class="pw-eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+      <div class="pf-err-msg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        Passwords don't match.
+      </div>
+
+      <div class="pw-rules">
+        <div class="pw-rule ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          At least 8 characters
+        </div>
+        <div class="pw-rule ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Not a common password
+        </div>
+        <div class="pw-rule ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Not all numbers
+        </div>
+      </div>
+
+      <div style="padding:16px 16px 0;">
+        <button class="fit-btn fit-btn-disabled" style="background:var(--fit-surface-low);color:var(--fit-text-tertiary);cursor:not-allowed;">Update password</button>
+      </div>
+    </div>
+
+    <!-- ===== SAME AS CURRENT ===== -->
+    <div data-pw-state="same">
+      <div class="pw-label">New password</div>
+      <div class="pw-field error">
+        <input type="password" value="OldPassword1">
+        <span class="pw-eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+      <div class="pw-label" style="margin-top:8px;">Confirm new password</div>
+      <div class="pw-field">
+        <input type="password" value="OldPassword1">
+        <span class="pw-eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+      <div class="pf-err-msg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        Pick something different from your current password.
+      </div>
+
+      <div style="padding:16px 16px 0;">
+        <button class="fit-btn fit-btn-disabled" style="background:var(--fit-surface-low);color:var(--fit-text-tertiary);cursor:not-allowed;">Update password</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== DELETE · INFO ===== -->
+<div class="fit-phone fit-dark" id="s-delete-info">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Delete account</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div class="del-head">
+      <div class="del-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></div>
+      <div class="del-title">Delete your account?</div>
+      <div class="del-sub">This can't be undone. We'll permanently remove the following:</div>
+    </div>
+
+    <div class="del-consequences">
+      <div class="del-consequence">
+        <span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></span>
+        <span>Your profile, photo, and personal info</span>
+      </div>
+      <div class="del-consequence">
+        <span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+        <span>Your training history and reviews</span>
+      </div>
+      <div class="del-consequence">
+        <span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>
+        <span>Your messages and chat history</span>
+      </div>
+      <div class="del-consequence">
+        <span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg></span>
+        <span>Your saved payment methods</span>
+      </div>
+    </div>
+
+    <div class="del-note">
+      Some data may be retained for legal or financial reasons. See our <a>Privacy Policy</a>.
+    </div>
+
+    <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+      <button class="fit-btn fit-btn-destructive" onclick="openReauthFor('delete')">Continue to delete</button>
+      <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DELETE · BLOCKERS ===== -->
+<div class="fit-phone fit-dark bl-sessions" id="s-delete-blockers">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-delete-info',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Delete account</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- Coach · Upcoming sessions -->
+    <div data-blocker="sessions">
+      <div class="del-head">
+        <div class="del-icon del-blocker-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14h.01"/></svg></div>
+        <div class="del-title">Cancel your upcoming sessions first</div>
+        <div class="del-sub">You have <strong style="color:var(--fit-text-primary);">3 upcoming sessions</strong> with athletes. Cancel them before deleting your account so your athletes aren't left hanging.</div>
+      </div>
+
+      <div class="del-blocker-list">
+        <div class="del-blocker-item">
+          <div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+          <div class="del-blocker-item-body">
+            <div class="del-blocker-item-title">Mon, Apr 28 &middot; 10:00</div>
+            <div class="del-blocker-item-sub">Padel with Anna M.</div>
+          </div>
+        </div>
+        <div class="del-blocker-item">
+          <div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+          <div class="del-blocker-item-body">
+            <div class="del-blocker-item-title">Tue, Apr 29 &middot; 18:30</div>
+            <div class="del-blocker-item-sub">Group &middot; Tennis (4 athletes)</div>
+          </div>
+        </div>
+        <div class="del-blocker-item">
+          <div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+          <div class="del-blocker-item-body">
+            <div class="del-blocker-item-title">Thu, May 1 &middot; 09:00</div>
+            <div class="del-blocker-item-sub">Padel with John D.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-primary" onclick="alert('Opens Calendar to cancel sessions')">Go to Calendar</button>
+        <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Coach · Pending payout -->
+    <div data-blocker="payout">
+      <div class="del-head">
+        <div class="del-icon del-blocker-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <div class="del-title">Withdraw your pending balance first</div>
+        <div class="del-sub">You have <strong style="color:var(--fit-text-primary);">&euro;320.50 pending payout</strong>. Withdraw it, or wait for Monday's automatic payout, before deleting your account.</div>
+      </div>
+
+      <div class="del-blocker-list">
+        <div class="del-blocker-item">
+          <div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+          <div class="del-blocker-item-body">
+            <div class="del-blocker-item-title">Available balance</div>
+            <div class="del-blocker-item-sub">&euro;245.50 &middot; can withdraw now</div>
+          </div>
+        </div>
+        <div class="del-blocker-item">
+          <div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="del-blocker-item-body">
+            <div class="del-blocker-item-title">Pending (24h hold)</div>
+            <div class="del-blocker-item-sub">&euro;75.00 &middot; releases in 18h</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-primary" onclick="alert('Opens Earnings screen')">Go to Earnings</button>
+        <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Athlete · Upcoming bookings -->
+    <div data-blocker="bookings">
+      <div class="del-head">
+        <div class="del-icon del-blocker-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+        <div class="del-title">Cancel your upcoming bookings first</div>
+        <div class="del-sub">You have <strong style="color:var(--fit-text-primary);">2 upcoming bookings</strong> with coaches. Cancel them before deleting your account &mdash; refunds depend on each coach's policy.</div>
+      </div>
+
+      <div class="del-blocker-list">
+        <div class="del-blocker-item">
+          <div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+          <div class="del-blocker-item-body">
+            <div class="del-blocker-item-title">Mon, Apr 28 &middot; 10:00</div>
+            <div class="del-blocker-item-sub">Padel with Coach Maria</div>
+          </div>
+        </div>
+        <div class="del-blocker-item">
+          <div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+          <div class="del-blocker-item-body">
+            <div class="del-blocker-item-title">Sat, May 3 &middot; 14:00</div>
+            <div class="del-blocker-item-sub">Tennis with Coach Vik</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-primary" onclick="alert('Opens Schedule screen')">Go to My Schedule</button>
+        <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))">Cancel</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== DELETE · LOADING ===== -->
+<div class="fit-phone fit-dark" id="s-delete-loading">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="aa-center-loader">
+      <div class="aa-spinner"></div>
+      <div class="aa-loader-label">Deleting your account&hellip;</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DELETE · DONE ===== -->
+<div class="fit-phone fit-dark" id="s-delete-done">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div class="del-head" style="padding-top:48px;">
+      <div class="del-icon" style="background:rgba(5,224,166,0.12);color:var(--fit-teal-500);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+      <div class="del-title">Your account has been deleted</div>
+      <div class="del-sub">Thanks for trying 321Fit. You've been signed out on all devices. Your data will be removed within 30 days per our Privacy Policy.</div>
+    </div>
+
+    <div style="padding:32px 16px 0;">
+      <button class="fit-btn fit-btn-primary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'));">Back to start</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CONTACT SUPPORT ===== -->
+<div class="fit-phone fit-dark" id="s-contact-support">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M6 18L18 6"/></svg></button>
+      <span class="fit-header-title">Contact support</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div class="pf-head">
+      <div class="pf-icon" style="background:rgba(3,178,226,0.15);color:var(--fit-blue-500);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1v-6h3v4zM3 19a2 2 0 002 2h1v-6H3v4z"/></svg></div>
+      <div class="pf-title">We're here to help</div>
+      <div class="pf-sub" style="max-width:300px;margin:0 auto;">We typically reply within 24 hours. Include your user ID and what you were trying to do.</div>
+    </div>
+
+    <!-- Email address card -->
+    <div class="sup-email-card">
+      <div class="sup-email-label">Email us at</div>
+      <div class="sup-email-value">support@321.fit</div>
+    </div>
+
+    <!-- Helpful meta (prefilled in Open Mail) -->
+    <div class="aa-section-label" style="padding-top:8px;">We'll prefill</div>
+    <div class="aa-group">
+      <div class="sup-meta-row">
+        <span>User ID</span>
+        <span class="sup-meta-value">usr_7G8H9K2L</span>
+      </div>
+      <div class="sup-meta-row">
+        <span>App version</span>
+        <span class="sup-meta-value">1.0.0 (build 42)</span>
+      </div>
+      <div class="sup-meta-row">
+        <span>Device</span>
+        <span class="sup-meta-value">iOS 17.4 &middot; iPhone 15</span>
+      </div>
+    </div>
+
+    <!-- CTAs -->
+    <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+      <button class="fit-btn fit-btn-primary" onclick="alert('Opens native mail composer\\nmailto:support@321.fit?subject=Help%20%5Busr_7G8H9K2L%5D&body=%0A%0A--%0Ausr_7G8H9K2L%0AApp%201.0.0%20(42)%0AiOS%2017.4%20%C2%B7%20iPhone%2015');">Open Mail</button>
+      <button class="fit-btn fit-btn-secondary" onclick="copySupportEmail()">Copy email address</button>
+    </div>
+
+    <div class="del-note" style="padding-top:16px;">
+      In-app ticket form coming soon.
+    </div>
+
+    <div class="sup-snackbar" id="sup-snackbar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Copied <strong>support@321.fit</strong> to clipboard
+    </div>
+
+  </div>
+</div>
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+
+  <div class="ann active" id="ann-s-hub">
+    <span class="ann-role">Shared · Coach + Athlete</span>
+    <h3>Account Access</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setHubState('full',this)">Full</button>
+      <button onclick="setHubState('creds',this)">Credentials only</button>
+      <button onclick="setHubState('social',this)">Social only</button>
+      <button onclick="setHubState('one',this)">Just one</button>
+    </div>
+    <p><strong>Account Access</strong> is the single hub for everything related to identity, sign-in methods, and account lifecycle. Entered from Settings.</p>
+    <ul>
+      <li><strong>Sign-in methods</strong> &mdash; phone, email&amp;password, Apple, Google</li>
+      <li><strong>Security</strong> &mdash; Sessions + 2FA (V2, disabled with <em>Soon</em> badge)</li>
+      <li><strong>Danger zone</strong> &mdash; Delete account (destructive, bottom)</li>
+      <li><em>Log out</em> lives in Settings root, not here</li>
+    </ul>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Full behavior spec</span>
+    <div class="ann-detail">
+      <h4>Email &amp; password row</h4>
+      <p>Single row (not two). Tap pushes to <em>Email &amp; password</em> sub-screen with two actions: <strong>Change email</strong> / <strong>Change password</strong>. Rationale: keeps the hub compact; password without email doesn't exist anyway.</p>
+      <h4>Right-side control</h4>
+      <p>Depends on state:<br>&bull; <strong>Set &amp; changeable</strong> (phone) &rarr; pencil icon<br>&bull; <strong>Set with sub-nav</strong> (email, Apple connected) &rarr; chevron<br>&bull; <strong>Not set / Not connected</strong> &rarr; <em>Add</em> / <em>Connect</em> pill</p>
+      <h4>Android variant</h4>
+      <p>Apple row is hidden on Android. Google row stays. All other rows identical.</p>
+      <h4>Platform parity</h4>
+      <p>Identical for coach and athlete. No role-specific variants here &mdash; identity is identity.</p>
+      <h4>Log out</h4>
+      <p>Intentionally <strong>not</strong> on this screen. Lives on Settings root (top-level CTA). Account Access is about editing identity; logging out is a session action.</p>
+      <h4>Empty / skeleton / offline</h4>
+      <p>Skeleton rows on first fetch (one-time when app opens this screen fresh). Offline banner above the list if no connection, using cached values. No network &rarr; all write actions disabled.</p>
+      <h4>API</h4>
+      <p><code>GET /me/auth-methods</code> &mdash; returns &#123; phone, email, has_password, apple_linked, google_linked &#125;<br>Later: DELETE endpoints per method, POST link endpoints for social.</p>
+    </div>
+  </div>
+
+  <div class="ann" id="ann-s-reauth">
+    <span class="ann-role">Shared · Component</span>
+    <h3>Re-auth Picker</h3>
+    <p>Universal &ldquo;Verify it's you&rdquo; step triggered before sensitive changes: change phone, change email, change password, disconnect social, delete account.</p>
+    <ul>
+      <li>Shows only <strong>available</strong> methods &mdash; target method (the one being changed) is excluded</li>
+      <li>Password row skipped if user has no password set (social-only users)</li>
+      <li>Each method routes to its own verification step (password prompt, OTP, magic link, native social re-sign)</li>
+      <li>Fallback link <em>Can't access any of these?</em> &rarr; Contact Support</li>
+    </ul>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Rules</span>
+    <div class="ann-detail">
+      <h4>Why this exists</h4>
+      <p>Prevents session-hijack attacks where a stolen session could change phone/email/password without re-verifying ownership. Industry standard (Apple ID, Google, Stripe).</p>
+      <h4>Which methods show</h4>
+      <p>All methods the user has set up, <strong>except</strong> the target of the current flow. Example: changing phone &rarr; phone OTP is excluded.</p>
+      <h4>Target is the only method?</h4>
+      <p>Routes to <em>Last-method</em> variant (soft warning, not picker). Uses active session as implicit auth.</p>
+      <h4>Timing window</h4>
+      <p>Re-auth valid for 15 min after success. Further sensitive actions in that window skip the picker. After 15 min &rarr; picker shown again.</p>
+      <h4>Support fallback</h4>
+      <p>Opens Contact Support screen (hybrid C: <em>Open Mail</em> CTA + <em>Copy address</em> fallback, prefilled with user ID).</p>
+    </div>
+  </div>
+
+  <div class="ann" id="ann-s-phone-new">
+    <span class="ann-role">Shared · Flow step</span>
+    <h3>Enter phone number</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setPhoneMode('change',null)">Change</button>
+      <button onclick="setPhoneMode('add',null)">Add</button>
+      <button onclick="setPhoneMode('taken',null)">Taken</button>
+      <button onclick="setPhoneMode('invalid',null)">Invalid</button>
+    </div>
+    <p><strong>Enter phone number</strong> screen &mdash; shared between <em>Change</em> and <em>Add</em> flows. Same layout, different title + optional reference to current number.</p>
+    <ul>
+      <li>Country picker (flag + prefix + caret) opens a search sheet &mdash; out of scope for this flow, reuses onboarding country picker</li>
+      <li>Input = tel keyboard, format as you type (not shown in prototype)</li>
+      <li>CTA <em>Send code</em> &rarr; backend sends OTP &rarr; push to OTP screen</li>
+    </ul>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Validation + errors</span>
+    <div class="ann-detail">
+      <h4>Client-side validation</h4>
+      <p>Format check only: valid phone length for selected country. No libphonenumber heavy dep &mdash; simple regex. CTA disabled until format passes.</p>
+      <h4>Server-side errors</h4>
+      <p><strong>Taken</strong> &mdash; number is registered to another account. Copy: <em>"This number is already in use by another account."</em> No hint about who owns it (privacy). User can retry with different number.</p>
+      <p><strong>Invalid</strong> &mdash; format rejected server-side (edge case, client usually catches this). Generic copy.</p>
+      <p><strong>Rate limited</strong> &mdash; too many OTP requests in short time. Shown as inline banner with retry timer.</p>
+      <h4>API</h4>
+      <p><code>POST /auth/phone/request-otp</code> &rarr; &#123; phone: "+995511200300" &#125;<br>Success: 202 + request_id. Error: 409 (taken), 422 (invalid), 429 (rate limit).</p>
+      <h4>Same screen, two contexts</h4>
+      <p>Copy difference between <em>Change</em> and <em>Add</em>: the "Current: +995..." subtitle is shown only for change. Everything else identical. Keeps the codebase DRY.</p>
+    </div>
+  </div>
+
+  <div class="ann" id="ann-s-phone-otp">
+    <span class="ann-role">Shared · Flow step</span>
+    <h3>Enter OTP code</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setOtpMode('idle',null)">Idle</button>
+      <button onclick="setOtpMode('error',null)">Wrong code</button>
+      <button onclick="setOtpMode('expired',null)">Expired</button>
+    </div>
+    <p>6-digit OTP entry. Same component used across: change phone, add phone, change password via phone, re-auth via phone.</p>
+    <ul>
+      <li>Auto-advance between boxes as user types</li>
+      <li>Paste support &mdash; paste 6-digit string fills all boxes</li>
+      <li>iOS: SMS autofill via <code>textContentType=.oneTimeCode</code> (native)</li>
+      <li>Resend timer: <strong>30s</strong>. After expiry, link becomes tappable</li>
+      <li>Auto-submit when 6th digit entered &mdash; no <em>Verify</em> tap needed (but button stays as fallback)</li>
+    </ul>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Error handling</span>
+    <div class="ann-detail">
+      <h4>Wrong code</h4>
+      <p>Backend returns 401 with attempts_remaining. Show red borders + inline error. Do NOT clear entered digits &mdash; let user edit. After 5 wrong attempts &rarr; OTP invalidated &rarr; Expired state, forcing resend.</p>
+      <h4>Expired code</h4>
+      <p>Default TTL: <strong>5 min</strong>. After expiry or exhaustion, show Expired state. Only option: <em>Resend code</em>.</p>
+      <h4>Resend rate limit</h4>
+      <p>Max 3 resends per 15 min window. After that, 429 error with countdown until next resend allowed.</p>
+      <h4>Back navigation</h4>
+      <p>Back = returns to phone entry (same typed number preserved). OTP session cancelled server-side.</p>
+      <h4>API</h4>
+      <p><code>POST /auth/phone/verify-otp</code> &rarr; &#123; request_id, code &#125;<br>Success: 200 + new token / confirmation. Error: 401 (wrong), 410 (expired).</p>
+    </div>
+  </div>
+
+  <div class="ann" id="ann-s-country-picker">
+    <span class="ann-role">Shared · Picker</span>
+    <h3>Country picker</h3>
+    <p>Full-screen pusher for selecting phone country/region. Triggered by tapping the country chip on any phone input.</p>
+    <ul>
+      <li><strong>Sticky search</strong> at top &mdash; filters by name or dial code</li>
+      <li><strong>Popular</strong> section &mdash; 4 locale-smart defaults (device region + top app regions)</li>
+      <li><strong>All countries</strong> &mdash; alphabetical, flag + name + dial code</li>
+      <li>Selected row: teal checkmark on right, teal code</li>
+      <li>&times; close = cancel without changing; tap a row = pick + return to phone entry</li>
+    </ul>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Data + reuse</span>
+    <div class="ann-detail">
+      <h4>Source of truth</h4>
+      <p>Country list bundled in app (static JSON) &mdash; no API call. Includes ISO code, flag emoji, name, dial code, length rule for validation.</p>
+      <h4>Popular section logic</h4>
+      <p>1st pass: device locale country on top. Then 3 app-level defaults (Georgia, US, UK) filling the rest. Grows smarter as we collect usage data.</p>
+      <h4>Reuse</h4>
+      <p>Same component used in: onboarding signup, add phone, change phone, re-auth via phone. Keep a single source in <code>CountryPicker</code>.</p>
+      <h4>Why full-screen, not sheet</h4>
+      <p>List of 200+ items with search &mdash; needs space. Sheet feels cramped. Full-screen matches WhatsApp, Apple ID, Stripe patterns.</p>
+      <h4>Validation integration</h4>
+      <p>After selection, phone input re-validates using country-specific length rule (Georgia: 9 digits, US: 10, UK: 10-11). Updates CTA enabled/disabled state.</p>
+    </div>
+  </div>
+
+  <div class="ann" id="ann-s-email-subhub">
+    <span class="ann-role">Shared · Flow entry</span>
+    <h3>Email &amp; password sub-hub</h3>
+    <p>Intermediate screen reached by tapping the <strong>Email &amp; password</strong> row on the hub. Splits into two sensitive flows.</p>
+    <ul>
+      <li>Card up top shows <strong>current email</strong> &mdash; confirms what you're about to change</li>
+      <li>Row <strong>Change email</strong> &rarr; re-auth picker &rarr; enter new email</li>
+      <li>Row <strong>Change password</strong> &rarr; re-auth picker &rarr; enter new password (next iteration)</li>
+      <li>Footer note sets expectation: verification link is the mechanism</li>
+    </ul>
+    <hr>
+    <p class="note"><strong>Why a sub-hub and not 2 hub rows:</strong> keeps the main hub compact (4 rows instead of 5), and password without email doesn't exist anyway &mdash; so the split is semantic.</p>
+    <p class="note"><strong>Why not a sheet:</strong> this is push navigation, not a confirmation. Needs back button, persistent in nav stack. Sheet would feel wrong for a pass-through destination.</p>
+  </div>
+
+  <div class="ann" id="ann-s-email-new">
+    <span class="ann-role">Shared · Flow step</span>
+    <h3>Enter new email</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setEmailMode('change',null)">Change</button>
+      <button onclick="setEmailMode('add',null)">Add (+ password)</button>
+      <button onclick="setEmailMode('taken',null)">Taken</button>
+      <button onclick="setEmailMode('invalid',null)">Invalid</button>
+    </div>
+    <p>Shared between Change Email (1 field) and Add Email &amp; Password (2 fields: email + password with inline rules).</p>
+    <ul>
+      <li><strong>Change</strong>: 1 field. Re-auth already done by previous step. CTA sends verification link to the <em>new</em> address</li>
+      <li><strong>Add</strong>: 2 fields + password checklist. No re-auth (adding is non-destructive)</li>
+      <li>Password rules shown inline, update live as user types</li>
+      <li>Validation: email regex on client, uniqueness + backend password rules on server</li>
+    </ul>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Validation + security</span>
+    <div class="ann-detail">
+      <h4>Password rules (backend-authoritative)</h4>
+      <p>From <code>password_validator.py</code>: min 8 chars, not in common-list, not all digits, not similar to email. Inline checklist shows first rule actively; other three validated on blur / submit.</p>
+      <h4>Uniqueness check</h4>
+      <p>Debounced GET to <code>/auth/email-available?email=</code> on typing pause (400ms). Taken state shown inline. Privacy: never disclose who owns the email.</p>
+      <h4>Old email notification</h4>
+      <p>When change succeeds, backend sends a notification to the <strong>old</strong> address: "Your email was changed. If this wasn't you, click here to revert." &mdash; gives the real owner a recovery path if compromised.</p>
+      <h4>API</h4>
+      <p><code>POST /auth/email/request-change</code> &rarr; sends link to new email + alert to old<br><code>POST /auth/email/add-with-password</code> &rarr; for add flow</p>
+    </div>
+  </div>
+
+  <div class="ann" id="ann-s-email-check">
+    <span class="ann-role">Shared · Flow step</span>
+    <h3>Check your email</h3>
+    <p>Static "we sent it" screen. Not auto-advancing &mdash; waits for the user to click the link in their email (async, out-of-app).</p>
+    <ul>
+      <li><strong>Open Mail</strong> CTA uses <code>mailto:</code> as a fallback to open the default mail client</li>
+      <li>Resend timer: 30s. After expiry, becomes tappable link</li>
+      <li><em>Edit email</em> link &mdash; back-step without losing session state (in case of typo in email)</li>
+    </ul>
+    <hr>
+    <p class="note"><strong>Magic link anatomy:</strong> Backend generates token (30min TTL), emails <code>https://321.fit/verify-email?token=&hellip;</code>. Link opens app via universal link (iOS) / app link (Android). If app missing &rarr; web page shows "Install the app to continue".</p>
+    <p class="note"><strong>What if user doesn't receive it:</strong> in real impl, show troubleshooting link "Didn't get the email?" &rarr; expandable help (check spam, try different address, resend).</p>
+  </div>
+
+  <div class="ann" id="ann-s-email-loading">
+    <span class="ann-role">Shared · Transient state</span>
+    <h3>Loading link</h3>
+    <p>Shown for ~1&ndash;2s after user taps the verification link in their email. Backend validates token, applies change, issues new session.</p>
+    <ul>
+      <li>Centered spinner + one-line copy &mdash; deliberately minimal</li>
+      <li>No back button &mdash; this is a transient state, shouldn't be interruptible</li>
+      <li>Success path: toast on hub (<em>"Email updated"</em>)</li>
+      <li>Error path: Link expired screen (if token TTL hit)</li>
+    </ul>
+    <p class="note">Loading spinner pattern per our loading_states rule: centered spinner for first fetch / empty-first-load, not skeleton. Token validation qualifies.</p>
+  </div>
+
+  <div class="ann" id="ann-s-email-expired">
+    <span class="ann-role">Shared · Error state</span>
+    <h3>Link expired</h3>
+    <p>Reached when the verification link is clicked after its 30-min TTL, or after being used once (one-shot tokens).</p>
+    <ul>
+      <li>Yellow warning icon + clear copy</li>
+      <li>Primary CTA <strong>Send a new link</strong> &mdash; restarts at Check your email</li>
+      <li>Secondary CTA <strong>Back to Account Access</strong> &mdash; abort the flow</li>
+      <li>Close (&times;) in header &mdash; also aborts</li>
+    </ul>
+    <hr>
+    <p class="note"><strong>Why a full screen, not a toast:</strong> this is a blocking state &mdash; the flow cannot proceed. Toast would be missed on the redirect. Full screen with actions lets user pick the recovery path.</p>
+  </div>
+
+  <div class="ann" id="ann-s-password-new">
+    <span class="ann-role">Shared · Flow step</span>
+    <h3>Set new password</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setPwMode('idle',null)">Idle</button>
+      <button onclick="setPwMode('typing',null)">Typing (rules live)</button>
+      <button onclick="setPwMode('weak',null)">Weak</button>
+      <button onclick="setPwMode('mismatch',null)">Mismatch</button>
+      <button onclick="setPwMode('same',null)">Same as current</button>
+    </div>
+    <p>Final step in <em>Change password</em>. Reached after re-auth (phone OTP / email link / social re-sign) completes.</p>
+    <ul>
+      <li>Two fields: <strong>New password</strong> + <strong>Confirm new password</strong></li>
+      <li>Eye toggle per field &mdash; reveals on press, hides on release (safer than sticky-reveal)</li>
+      <li>Rules checklist updates live as user types in the first field</li>
+      <li>CTA disabled until all rules pass AND both fields match AND differs from current</li>
+    </ul>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Validation rules (backend-authoritative)</span>
+    <div class="ann-detail">
+      <h4>From password_validator.py</h4>
+      <p><code>MIN_PASSWORD_LENGTH = 8</code>. Blocklist (<em>password</em>, <em>qwerty123</em>, etc.). Not entirely numeric. Not similar to email local-part.</p>
+      <h4>Inline rules we show</h4>
+      <p>Three visible: 8+ chars, not common, not all digits. The &ldquo;not similar to email&rdquo; check runs server-side only (it's email-dependent and hard to phrase well inline).</p>
+      <h4>Mismatch check</h4>
+      <p>Triggers when confirm field has the same length as new field and differs. Debounced 200ms to avoid flicker as user types.</p>
+      <h4>Same as current check</h4>
+      <p>Checked client-side only if we cache the password hash locally (we don't &mdash; so this check is server-side on submit). Shown as inline error under the first field with actionable copy.</p>
+      <h4>Post-success behavior</h4>
+      <p>All other sessions on other devices get <strong>invalidated</strong>. User stays logged in on current device. Toast: <em>"Password updated. You're signed out on other devices."</em></p>
+      <h4>API</h4>
+      <p><code>POST /auth/password/change</code> with reauth token &rarr; &#123; new_password &#125;. 200 on success, 422 with <code>errors: [&hellip;]</code> for server validation failures.</p>
+    </div>
+  </div>
+
+  <div class="ann" id="ann-s-contact-support">
+    <span class="ann-role">Shared · Support</span>
+    <h3>Contact support</h3>
+    <p>Entry for user-initiated support requests. Reached from the re-auth picker's <em>"Can't access any of these?"</em> link, and directly from the Help flow (V2).</p>
+    <ul>
+      <li>Hero with support/headset icon + reassuring copy (24h SLA)</li>
+      <li><strong>support@321.fit</strong> shown in monospace card &mdash; copy-able at a glance</li>
+      <li>Meta block: User ID, App version, Device &mdash; we prefill these in the mail body</li>
+      <li>Primary CTA <strong>Open Mail</strong> &rarr; <code>mailto:</code> with prefilled subject <code>Help [user_id]</code> + body</li>
+      <li>Secondary <strong>Copy email address</strong> &rarr; clipboard + snackbar confirmation</li>
+      <li>Footer teaser: <em>"In-app ticket form coming soon"</em></li>
+    </ul>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Hybrid C rationale</span>
+    <div class="ann-detail">
+      <h4>Why hybrid C (not A, not B)</h4>
+      <p>We evaluated three options:<br>&bull; <strong>A</strong> Native mail composer (MFMailComposeViewController) &mdash; 0 backend, but requires configured mail<br>&bull; <strong>B</strong> In-app ticket form with POST endpoint &mdash; robust but new screen + endpoint + async flow<br>&bull; <strong>C</strong> Screen with Open Mail CTA + Copy fallback &mdash; best of both; works without configured mail via copy path; zero backend work</p>
+      <p>MVP ships C. V2 evolves this screen into a proper ticket form without changing the entry points.</p>
+      <h4>Prefill payload</h4>
+      <p>Subject: <code>Help [usr_xxxx]</code><br>Body: blank lines for user text, then metadata block: user ID, app version, device/OS. Gives support team context to triage fast.</p>
+      <h4>When to route here</h4>
+      <p>&bull; Re-auth picker "Can't access any of these?" link<br>&bull; Delete flow ambiguous states (future)<br>&bull; Link expired / account locked screens (future)<br>&bull; Settings "Help" entry (V2)</p>
+      <h4>Not a blocker</h4>
+      <p>Important: this is a <strong>pressure-release</strong> screen, not a gate. Users hitting real problems shouldn't be told to "email support and wait". This exists for edge cases where no self-serve path works (e.g., lost all factors) &mdash; for common issues we build proper in-app recovery.</p>
+    </div>
+  </div>
+
+  <div class="ann" id="ann-s-delete-info">
+    <span class="ann-role">Shared · Flow entry</span>
+    <h3>Delete account &middot; info</h3>
+    <p>First step in delete flow. Explains consequences clearly before anything destructive happens.</p>
+    <ul>
+      <li>Trash icon (red tinted) + explicit <em>"can't be undone"</em> language</li>
+      <li>Consequence list &mdash; 4 rows with mini icons (profile / history / messages / payment)</li>
+      <li>Footer note links to Privacy Policy (data retention disclosure)</li>
+      <li>Primary CTA <strong>Continue to delete</strong> (tinted red) &rarr; re-auth picker (or blockers first)</li>
+      <li>Secondary <strong>Cancel</strong> &rarr; back to hub</li>
+    </ul>
+    <hr>
+    <p class="note"><strong>Flow order:</strong> Info &rarr; [blocker check] &rarr; re-auth &rarr; confirm sheet &rarr; loading &rarr; done. Blockers checked on backend before re-auth; if any, this step is replaced with the relevant blocker screen.</p>
+    <p class="note"><strong>Copy tone:</strong> informative, not guilt-trip. We accept the user's decision. No retention manipulation ("Are you sure? We'll miss you..."). Respect.</p>
+  </div>
+
+  <div class="ann" id="ann-s-delete-blockers">
+    <span class="ann-role">Shared · Blocker screen</span>
+    <h3>Delete blockers</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setBlocker('sessions',null)">Upcoming sessions (coach)</button>
+      <button onclick="setBlocker('payout',null)">Pending payout (coach)</button>
+      <button onclick="setBlocker('bookings',null)">Active bookings (athlete)</button>
+    </div>
+    <p>Shown instead of re-auth when a pre-check finds unresolved active state. Hard block &mdash; user must clear the blocker before continuing.</p>
+    <ul>
+      <li>Yellow warning icon (vs delete-info's red trash) &mdash; signals "pause" not "stop"</li>
+      <li>Specific count in subtitle (3 sessions, &euro;320.50, 2 bookings) &mdash; no ambiguity</li>
+      <li>List preview of blocking items (3 sessions / balance rows / 2 bookings)</li>
+      <li>Primary CTA routes to the right place (Calendar / Earnings / Schedule)</li>
+      <li>Secondary <strong>Cancel</strong> aborts delete flow</li>
+    </ul>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Precedence &amp; priority</span>
+    <div class="ann-detail">
+      <h4>Pre-check API</h4>
+      <p><code>GET /me/delete-preflight</code> &rarr; returns &#123; blockers: [...] &#125;. Empty array = proceed to re-auth. Non-empty = show blocker screen.</p>
+      <h4>Priority order</h4>
+      <p>If multiple blockers fire, show in this order:<br>1. Upcoming sessions/bookings (user-visible commitment, highest priority)<br>2. Pending payout (coach only; financial)<br>3. Other disputes/holds (not in MVP)</p>
+      <h4>Why block, not warn</h4>
+      <p>Deletion is irreversible. A coach with pending athletes would leave them hanging. A coach with balance on hold loses money. Better to slow down the edge cases than regret later.</p>
+      <h4>Refund policy for bookings</h4>
+      <p>Athlete cancellations follow each coach's cancellation policy (24h / 48h / etc). We surface that in the cancel flow itself, not here &mdash; here we just say "cancel them first".</p>
+    </div>
+  </div>
+
+  <div class="ann" id="ann-s-delete-loading">
+    <span class="ann-role">Shared · Transient state</span>
+    <h3>Deleting account</h3>
+    <p>Transient spinner shown ~1&ndash;2s while backend performs the cascade (revoke sessions, mark account deleted, schedule data purge).</p>
+    <ul>
+      <li>Centered spinner + one-line copy &mdash; no back button (not interruptible)</li>
+      <li>Success: push to Done screen + side-effect logout on other devices</li>
+      <li>Error: revert to Info screen with error toast</li>
+    </ul>
+  </div>
+
+  <div class="ann" id="ann-s-delete-done">
+    <span class="ann-role">Shared · Terminal state</span>
+    <h3>Account deleted</h3>
+    <p>Final screen confirming deletion. User is signed out &mdash; in real app, hub below is replaced with login/welcome.</p>
+    <ul>
+      <li>Green checkmark &mdash; positive feedback for completing the action (even though it's destructive, we respect the decision)</li>
+      <li>Copy includes data retention timeline (<em>"within 30 days"</em>) &mdash; compliance disclosure</li>
+      <li>Single CTA <strong>Back to start</strong> &rarr; welcome/login screen</li>
+      <li>No header back button &mdash; terminal state, can't go back to deleted account</li>
+    </ul>
+    <hr>
+    <p class="note">Real backend: account flag set to <code>deleted_at</code>, sessions revoked, data purge job scheduled per GDPR/privacy policy retention window. User can't re-register with same email for 7 days (cooldown to prevent impulse re-signup confusion).</p>
+  </div>
+
+  <div class="ann" id="ann-delete-confirm-sheet">
+    <span class="ann-role">Shared · Sheet overlay</span>
+    <h3>Delete final confirm</h3>
+    <p>Last chance bottom sheet after re-auth succeeds. Big red trash icon + stark title + single destructive button.</p>
+    <ul>
+      <li>Primary: <strong>Delete forever</strong> (tinted red destructive) &mdash; triggers actual API call</li>
+      <li>Secondary: <strong>Cancel</strong> (neutral) &mdash; dismiss, no changes</li>
+      <li>Tap outside = cancel</li>
+      <li><strong>No "type DELETE"</strong> gate &mdash; considered too heavy for mobile UX. The re-auth step + this double-confirm is enough friction.</li>
+    </ul>
+    <hr>
+    <p class="note"><strong>Why sheet, not screen:</strong> final Y/N after all the explanation was already delivered on the info screen. Sheet feels like the natural "click to execute" moment. Full screen would be overkill.</p>
+  </div>
+
+  <div class="ann" id="ann-disconnect-sheet">
+    <span class="ann-role">Shared · Sheet overlay</span>
+    <h3>Disconnect Apple / Google</h3>
+    <p>Bottom sheet shown when user taps a connected Apple or Google row on the hub. Single confirm step &mdash; destructive, but reversible (user can reconnect any time).</p>
+    <ul>
+      <li>Provider icon (Apple/Google full-color) + title "Disconnect [Provider]?"</li>
+      <li>Body explains consequence + reassurance about reconnect</li>
+      <li>Primary CTA <strong>Disconnect</strong> (tinted red, destructive style)</li>
+      <li>Secondary <strong>Cancel</strong> (neutral)</li>
+      <li>Tap outside / handle-swipe &mdash; cancels</li>
+    </ul>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Mechanics</span>
+    <div class="ann-detail">
+      <h4>Re-auth before disconnect?</h4>
+      <p>Yes, if user has other methods (phone, email, or other provider). Re-auth picker opens after Disconnect tap &mdash; <em>excluding</em> the provider being disconnected.</p>
+      <h4>Last-method guard</h4>
+      <p>Pre-check: if target provider is the <strong>only</strong> sign-in method, open <em>Disconnect block</em> sheet instead (hard block, can't proceed).</p>
+      <h4>What the user loses</h4>
+      <p>After disconnect: token pair with Apple/Google is revoked. Row on hub returns to <em>Not connected</em> + Connect pill. Other methods unaffected.</p>
+      <h4>API</h4>
+      <p><code>POST /me/auth-methods/disconnect</code> with &#123; provider: "apple" | "google" &#125; + re-auth token. 200 on success, 409 if last-method check fires.</p>
+    </div>
+  </div>
+
+  <div class="ann" id="ann-disconnect-block-sheet">
+    <span class="ann-role">Shared · Hard block</span>
+    <h3>Disconnect block &middot; last method</h3>
+    <p>Bottom sheet replacing the regular disconnect sheet when the target provider is the <strong>only</strong> active sign-in method. Unlike change-phone last-method (soft warn), disconnect last-method is a <strong>hard block</strong>.</p>
+    <ul>
+      <li>Lock icon (yellow) + title "Can't disconnect [Provider]"</li>
+      <li>Body explains why + what to do</li>
+      <li>Primary CTA <strong>Add another method</strong> &rarr; opens add-method picker</li>
+      <li>Secondary <strong>Not now</strong> &rarr; dismisses</li>
+      <li>No "Continue anyway" &mdash; zero sign-in methods is unrecoverable</li>
+    </ul>
+    <hr>
+    <p class="note"><strong>Why hard block here, soft warn on change phone:</strong> changing phone leaves you with at least one method (the new number). Disconnecting leaves you with zero. Zero methods = locked out permanently.</p>
+  </div>
+
+  <div class="ann" id="ann-last-method-sheet">
+    <span class="ann-role">Shared · Sheet overlay</span>
+    <h3>Last-method warning</h3>
+    <p>Bottom sheet shown when user tries to change their <strong>only</strong> sign-in method. Soft warning, not hard block.</p>
+    <ul>
+      <li>Icon (warning, yellow) + title + body</li>
+      <li>Primary CTA <strong>Add a backup method first</strong> &mdash; safer recommended path</li>
+      <li>Secondary CTA <strong>Continue anyway</strong> &mdash; yellow text, lets user override</li>
+      <li>Tap outside or handle-swipe &mdash; dismisses sheet (same as Add backup)</li>
+    </ul>
+    <hr>
+    <p class="note"><strong>Why sheet, not screen:</strong> binary decision with risk &mdash; classic confirmation pattern. Keeps user anchored to hub underneath. Lighter than a full screen.</p>
+    <p class="note"><strong>Why no re-auth:</strong> if this is the only method, there's no other factor to verify against. We fall back to the active session token as implicit auth &mdash; user accepts the risk.</p>
+    <p class="note"><strong>Disconnect is different:</strong> for <em>disconnect</em> of last social method, we hard-block (separate screen, no override) &mdash; disconnecting leaves zero methods, unrecoverable.</p>
+  </div>
+
+</div>
+
+<script>
+  function go(id, btn) {
+    document.querySelectorAll('.fit-phone').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+    const ann = document.getElementById('ann-' + id);
+    if (ann) ann.classList.add('active');
+    if (btn) {
+      document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  }
+
+  function switchTheme(mode) {
+    document.querySelectorAll('.fit-phone').forEach(p => {
+      p.classList.remove('fit-dark', 'fit-light');
+      p.classList.add('fit-' + mode);
+    });
+    const darkBtn = document.getElementById('theme-dark');
+    const lightBtn = document.getElementById('theme-light');
+    if (mode === 'dark') {
+      darkBtn.style.background = 'var(--fit-gray-700)'; darkBtn.style.color = 'var(--fit-white)';
+      lightBtn.style.background = 'transparent'; lightBtn.style.color = 'var(--fit-gray-400)';
+    } else {
+      lightBtn.style.background = 'var(--fit-gray-700)'; lightBtn.style.color = 'var(--fit-white)';
+      darkBtn.style.background = 'transparent'; darkBtn.style.color = 'var(--fit-gray-400)';
+    }
+  }
+
+  function setHubState(state, btn) {
+    const hub = document.getElementById('s-hub');
+    hub.classList.remove('hs-full', 'hs-creds', 'hs-social', 'hs-one');
+    hub.classList.add('hs-' + state);
+    if (btn) {
+      btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  }
+
+  function setPhoneMode(mode, btn) {
+    go('s-phone-new', null);
+    const p = document.getElementById('s-phone-new');
+    p.classList.remove('pn-change', 'pn-add', 'pn-taken', 'pn-invalid');
+    p.classList.add('pn-' + mode);
+    // Sync annotation state-toggle buttons
+    document.querySelectorAll('#ann-s-phone-new .state-toggle button').forEach(b => b.classList.remove('active'));
+    const mapAnn = { change: 0, add: 1, taken: 2, invalid: 3 };
+    const annBtns = document.querySelectorAll('#ann-s-phone-new .state-toggle button');
+    if (annBtns[mapAnn[mode]]) annBtns[mapAnn[mode]].classList.add('active');
+    // Sidebar button
+    if (btn) {
+      document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  }
+
+  function setOtpMode(mode, btn) {
+    go('s-phone-otp', null);
+    const p = document.getElementById('s-phone-otp');
+    p.classList.remove('ot-idle', 'ot-error', 'ot-expired');
+    p.classList.add('ot-' + mode);
+    document.querySelectorAll('#ann-s-phone-otp .state-toggle button').forEach(b => b.classList.remove('active'));
+    const mapAnn = { idle: 0, error: 1, expired: 2 };
+    const annBtns = document.querySelectorAll('#ann-s-phone-otp .state-toggle button');
+    if (annBtns[mapAnn[mode]]) annBtns[mapAnn[mode]].classList.add('active');
+    if (btn) {
+      document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  }
+
+  function openLastMethodSheet() {
+    document.getElementById('last-method-sheet').classList.add('visible');
+    document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+    const ann = document.getElementById('ann-last-method-sheet');
+    if (ann) ann.classList.add('active');
+  }
+
+  function closeLastMethodSheet() {
+    document.getElementById('last-method-sheet').classList.remove('visible');
+    document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+    const hubAnn = document.getElementById('ann-s-hub');
+    if (hubAnn) hubAnn.classList.add('active');
+  }
+
+  function showToast(kind) {
+    const t = document.getElementById('aa-toast');
+    const title = document.getElementById('aa-toast-title');
+    const body = document.getElementById('aa-toast-body');
+    if (kind === 'phone') {
+      title.textContent = 'Phone updated';
+      body.textContent = 'Your new number is +995 511 200 300.';
+    } else if (kind === 'email') {
+      title.textContent = 'Email updated';
+      body.textContent = 'Your new email is new.email@gmail.com.';
+    } else if (kind === 'password') {
+      title.textContent = 'Password updated';
+      body.textContent = "You're signed out on other devices.";
+    } else if (kind === 'connect-apple') {
+      title.textContent = 'Apple connected';
+      body.textContent = 'You can now sign in with Apple.';
+    } else if (kind === 'connect-google') {
+      title.textContent = 'Google connected';
+      body.textContent = 'You can now sign in with Google.';
+    } else if (kind === 'disconnect-apple') {
+      title.textContent = 'Apple disconnected';
+      body.textContent = 'You can reconnect it any time.';
+    } else if (kind === 'disconnect-google') {
+      title.textContent = 'Google disconnected';
+      body.textContent = 'You can reconnect it any time.';
+    }
+    t.classList.add('visible');
+    setTimeout(() => t.classList.remove('visible'), 3500);
+  }
+
+  let disconnectProvider = 'google';
+  function simulateConnect(provider) {
+    // In real app: triggers native Apple/Google Sign-In sheet
+    // Prototype: straight to toast
+    showToast('connect-' + provider);
+  }
+  function openDisconnectSheet(provider) {
+    disconnectProvider = provider;
+    const name = provider === 'apple' ? 'Apple' : 'Google';
+    document.getElementById('dc-provider').textContent = name;
+    document.querySelectorAll('.dc-provider-txt').forEach(el => el.textContent = name);
+    document.getElementById('dc-icon-apple').style.display = provider === 'apple' ? 'block' : 'none';
+    document.getElementById('dc-icon-google').style.display = provider === 'google' ? 'block' : 'none';
+    document.getElementById('disconnect-sheet').classList.add('visible');
+  }
+  function closeDisconnectSheet() {
+    document.getElementById('disconnect-sheet').classList.remove('visible');
+  }
+  function confirmDisconnect() {
+    closeDisconnectSheet();
+    // Real app: here would re-auth if not last method, then API call
+    showToast('disconnect-' + disconnectProvider);
+  }
+  function copySupportEmail() {
+    try { navigator.clipboard && navigator.clipboard.writeText('support@321.fit'); } catch(e) {}
+    const sn = document.getElementById('sup-snackbar');
+    sn.classList.add('visible');
+    setTimeout(() => sn.classList.remove('visible'), 2200);
+  }
+
+  function openDeleteConfirm() {
+    document.getElementById('delete-confirm-sheet').classList.add('visible');
+    document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+    const ann = document.getElementById('ann-delete-confirm-sheet');
+    if (ann) ann.classList.add('active');
+  }
+  function closeDeleteConfirm() {
+    document.getElementById('delete-confirm-sheet').classList.remove('visible');
+  }
+  function setBlocker(kind, btn) {
+    go('s-delete-blockers', null);
+    const p = document.getElementById('s-delete-blockers');
+    p.classList.remove('bl-sessions', 'bl-payout', 'bl-bookings');
+    p.classList.add('bl-' + kind);
+    document.querySelectorAll('#ann-s-delete-blockers .state-toggle button').forEach(b => b.classList.remove('active'));
+    const mapAnn = { sessions: 0, payout: 1, bookings: 2 };
+    const annBtns = document.querySelectorAll('#ann-s-delete-blockers .state-toggle button');
+    if (annBtns[mapAnn[kind]]) annBtns[mapAnn[kind]].classList.add('active');
+    if (btn) {
+      document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  }
+
+  function openDisconnectBlock(provider) {
+    const name = provider === 'apple' ? 'Apple' : 'Google';
+    document.getElementById('dcb-provider').textContent = name;
+    document.querySelectorAll('.dcb-provider-txt').forEach(el => el.textContent = name);
+    document.getElementById('disconnect-block-sheet').classList.add('visible');
+  }
+  function closeDisconnectBlock() {
+    document.getElementById('disconnect-block-sheet').classList.remove('visible');
+  }
+
+  function setPwMode(mode, btn) {
+    go('s-password-new', null);
+    const p = document.getElementById('s-password-new');
+    p.classList.remove('pw-idle', 'pw-typing', 'pw-weak', 'pw-mismatch', 'pw-same');
+    p.classList.add('pw-' + mode);
+    document.querySelectorAll('#ann-s-password-new .state-toggle button').forEach(b => b.classList.remove('active'));
+    const mapAnn = { idle: 0, typing: 1, weak: 2, mismatch: 3, same: 4 };
+    const annBtns = document.querySelectorAll('#ann-s-password-new .state-toggle button');
+    if (annBtns[mapAnn[mode]]) annBtns[mapAnn[mode]].classList.add('active');
+    if (btn) {
+      document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  }
+
+  let reauthContext = 'phone';
+  function openReauthFor(ctx) {
+    reauthContext = ctx;
+    go('s-reauth', null);
+    // sync annotation subtitle
+    const subEl = document.querySelector('#s-reauth .reauth-sub');
+    if (subEl) {
+      if (ctx === 'phone') subEl.innerHTML = "To change your phone number, confirm with one of your active sign-in methods.";
+      else if (ctx === 'email') subEl.innerHTML = "To change your email, confirm with one of your active sign-in methods.";
+      else if (ctx === 'password') subEl.innerHTML = "To change your password, confirm with one of your active sign-in methods.";
+      else if (ctx === 'delete') subEl.innerHTML = "To delete your account, confirm with one of your active sign-in methods.";
+    }
+  }
+  function reauthProceed() {
+    if (reauthContext === 'phone') setPhoneMode('change', null);
+    else if (reauthContext === 'email') setEmailMode('change', null);
+    else if (reauthContext === 'password') setPwMode('idle', null);
+    else if (reauthContext === 'delete') openDeleteConfirm();
+  }
+
+  function pickCountry(rowEl, flag, name, code) {
+    // Update selected state in picker
+    document.querySelectorAll('#s-country-picker .cp-row').forEach(r => r.classList.remove('selected'));
+    rowEl.classList.add('selected');
+    // Update all phone-field country displays
+    document.querySelectorAll('.pf-country-flag').forEach(el => el.innerHTML = flag);
+    document.querySelectorAll('.pf-country-code').forEach(el => el.textContent = code);
+    // Go back to phone entry
+    setPhoneMode('change', null);
+  }
+
+  function setEmailMode(mode, btn) {
+    go('s-email-new', null);
+    const p = document.getElementById('s-email-new');
+    p.classList.remove('em-change', 'em-add', 'em-taken', 'em-invalid');
+    p.classList.add('em-' + mode);
+    document.querySelectorAll('#ann-s-email-new .state-toggle button').forEach(b => b.classList.remove('active'));
+    const mapAnn = { change: 0, add: 1, taken: 2, invalid: 3 };
+    const annBtns = document.querySelectorAll('#ann-s-email-new .state-toggle button');
+    if (annBtns[mapAnn[mode]]) annBtns[mapAnn[mode]].classList.add('active');
+    if (btn) {
+      document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  }
+</script>
+
+</body>
+</html>
