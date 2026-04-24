@@ -201,6 +201,7 @@ Each row: icon + label + amount + date + status. Tap → Transaction Detail scre
 | `payout_failed` | Stripe error | +amount back to `available` |
 | `fee` | Instant payout fee deducted | -fee from `available` |
 | `refund` | Session cancelled after earning created | -amount from `pending` or `available` |
+| `dispute_reversal` | Admin resolves in-app dispute or Stripe chargeback affects coach earnings | -amount from `pending` or `available` (or pushes balance negative if already paid out — see § 7 Disputes) |
 | `adjustment` | Admin manual correction | +/- amount |
 
 ---
@@ -284,8 +285,12 @@ Disconnect a provider (Stripe or future). Only allowed if not default or another
 | Athlete cancels > 24h before session | 100% | None |
 | Athlete cancels < 24h before | 50% | 50% (24h hold + weekly payout) |
 | Coach cancels (any time) | 100% | None |
-| Athlete no-show (coach marks `missed`) | 0% | 100% (per policy — TBD strict/lenient) |
+| Athlete no-show (coach marks `missed`) | **0%** | **100%** (24h hold + weekly payout, same as completed) |
 | Cash session cancelled | N/A | N/A |
+
+**Tier 1 decisions baked in:**
+- **Q2 — Missed = 100% to coach (strict no-show forfeit):** Athletes who book and don't show forfeit the full amount. This protects coach time and discourages no-shows. Athlete may dispute via Support if extenuating circumstances (admin can override per Q10 dispute flow).
+- **Q3 — Fixed 24h cancellation window:** Window is platform-wide, not coach-configurable in v1. Coaches don't choose 48h/72h/etc. Reduces matrix of edge cases and athlete confusion ("what's my cancellation window for this coach?"). Configurable per-coach deferred until product data shows demand.
 
 ### Coach earnings
 
@@ -308,6 +313,42 @@ Disconnect a provider (Stripe or future). Only allowed if not default or another
 - iOS/Android UI uses provider-specific native SDKs per account kind.
 - A coach may have multiple accounts listed; only one active as default for weekly sweep.
 
+### Disputes & chargebacks (Tier 1 Q10)
+
+**Architectural principle: balance-based, internal-ledger-first.** Athletes never pay coaches directly — they top up an in-app balance and our backend orchestrates the session-level money movements. Disputes resolve through our ledger, not Stripe-level reversals (except for raw bank chargebacks against top-ups).
+
+**Two distinct dispute surfaces:**
+
+| Surface | Trigger | Mechanics |
+|---|---|---|
+| **In-app dispute** (athlete unhappy with a session) | Athlete opens event detail → "Report an issue" → Contact Support deep-link with pre-filled context (event ID, coach, amount, date). | Admin reviews via Support thread (offline tooling, no in-app dispute messaging in v1 per Q10 Option A). Resolution = ledger entry pair: `+€X` to athlete balance + `dispute_reversal` (`-€X`) on coach earnings ledger. **No Stripe API calls** — all internal arithmetic. |
+| **Bank chargeback** (athlete contests a top-up via their bank) | Stripe webhook `charge.dispute.created` fires against a top-up `payment_intent`. | Backend automatically reverses athlete balance for the disputed top-up amount. Coach earnings are NOT directly affected (top-up is decoupled from any specific session). If athlete's balance goes negative, `athlete_balance.amount < 0` is allowed (debt state). |
+
+**Negative athlete balance:**
+- Permitted state when chargebacks reverse spent funds.
+- Athlete sees: "Account balance: −€20 · Top up to clear before booking again".
+- All booking blocked until balance ≥ session price.
+- Future top-ups apply to debt first (transparently to user), then to spendable amount.
+- Admin tool can manually zero out negative balance for goodwill cases.
+
+**Coach payout reversal (rare edge case):**
+- If admin issues a `dispute_reversal` after coach payout has already cleared, coach's `available` may go negative.
+- Next weekly sweep withholds payouts until earnings net to ≥ €20 again.
+- Stripe-side payout reversal (calling Stripe Connect to claw back) is **only** invoked for fraud or legal mandates, not for routine disputes — admin manual action.
+
+**Admin tool (out of project-spec scope):**
+- `poly-backend` admin panel surfaces dispute queue from Support tickets.
+- Per-event resolution actions: Refund full / Refund partial / Reject.
+- All actions create paired ledger entries (athlete refund + coach withhold) via single transaction.
+- Audit trail mandatory: who resolved, when, reason text.
+
+**Push notifications:**
+- Athlete opens dispute → silent (admin contacts via Support thread).
+- Bank chargeback received → coach push: "Funds reversed for {event} — see Earnings".
+- Admin resolution → both parties notified with outcome.
+
+**v2 plans (deferred):** structured Resolution Center à la Airbnb (athlete + coach inputs, time-boxed responses). Revisit after volume justifies build cost.
+
 ---
 
 ## 8. Edge cases
@@ -317,7 +358,7 @@ Disconnect a provider (Stripe or future). Only allowed if not default or another
 - **Dual device Instant payout (race):** backend idempotency key tied to ledger transaction id. Second attempt fails gracefully.
 - **Stripe webhook delayed / lost:** reconciliation job every 4h fetches pending transfers from Stripe API and updates local ledger.
 - **Coach fulfills session but is in vacation mode:** payout logic unaffected; vacation mode doesn't halt earnings flows.
-- **Chargeback on a paid session:** Stripe creates `charge.dispute.created` → future spec; not handled automatically in v1. Admin intervention.
+- **Chargeback on a top-up:** Stripe webhook `charge.dispute.created` automatically reverses athlete balance per § 7 Disputes. Coach earnings unaffected (top-ups decoupled from sessions). Athlete may go negative balance.
 - **Session marked missed then coach restores via Undo (within 4s):** during undo window, no earning transaction created yet. If undo after 4s, manual reversal via admin.
 - **Fee deducted but payout fails:** fee is also reverted via a `fee_reversal` transaction. Audit visible.
 
@@ -335,13 +376,13 @@ Disconnect a provider (Stripe or future). Only allowed if not default or another
 
 ## 10. Open questions
 
-- [ ] **Missed session refund:** current spec says coach gets 100% even if athlete missed. Some platforms refund partially (50%). **Owner:** product + policy.
-- [ ] **Coach-configurable cancellation window:** allow coach to set 48h / 72h / fixed 24h (current)? Mentioned in old spec, never implemented. **Owner:** product.
+- [x] ~~**Missed session refund:**~~ RESOLVED in Tier 1 Q2: 0% refund / 100% to coach (strict no-show forfeit). Disputes via Support per Q10.
+- [x] ~~**Coach-configurable cancellation window:**~~ RESOLVED in Tier 1 Q3: fixed 24h platform-wide in v1. Configurable per-coach deferred until product data demands.
+- [x] ~~**Dispute / chargeback flow:**~~ RESOLVED in Tier 1 Q10: balance-based internal ledger resolution + Stripe-native top-up chargebacks. Admin tool surfaces from Support tickets. v2: structured Resolution Center.
 - [ ] **Weekly sweep day:** Monday vs. Friday vs. coach-choice? Some coaches prefer weekend arrival. **Owner:** product.
 - [ ] **Instant payout fee structure:** flat 1% + €0.50 or tiered? Align with Stripe pass-through. **Owner:** finance.
 - [ ] **Multi-currency support:** EUR only v1. When to add USD / GBP etc.? Depends on international rollout. **Owner:** growth.
 - [ ] **Third-party payment** ("pay for a friend"): mentioned in legacy spec, not implemented. Scope? **Owner:** product.
-- [ ] **Dispute / chargeback flow:** no automated handling v1. Admin tool + spec to add. **Owner:** ops + legal.
 - [ ] **Revolut Merchant timing:** when second provider lands, do we let coaches switch mid-week (breaking the sweep)? **Owner:** backend architecture.
 
 ---

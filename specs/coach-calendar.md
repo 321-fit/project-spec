@@ -110,14 +110,16 @@ Root tab screen, has the nav bar footer. Acts as both agenda view (for the coach
 6. Drag & drop within same day supported.
 7. Delete: tap event → sheet → Delete button (destructive high, confirmation required).
 
-### Flow 6: Create a past event (log cash session)
+### Flow 6: Create a past event (log cash session) — Tier 1 Q9
 
-1. Coach navigates to a past date via day strip or date picker.
+1. Coach navigates to a past date via day strip or date picker. **Backdate window: 60 days** (= 2 months, consistent with calendar look-back). Date picker `min = today - 60d`. Older dates are not selectable (snackbar: "Can't log sessions older than 60 days").
 2. Tap empty slot or FAB → "Personal session" option.
-3. Fill event details; system skips availability check for past dates.
-4. Submit → event created with status `finished` directly (no approval flow, already happened).
-5. Athlete sees this event retroactively in their completed sessions list only; NOT on their live calendar (prevents overlap confusion).
-6. Used for cash-payment tracking after the fact.
+3. Fill event details; system skips availability check for past dates. **`paymentType` is forced to `cash`** — card events cannot be backdated (Stripe can't retro-charge); this is enforced at backend (`POST /coach/events` validation).
+4. Submit → event created with status `finished` directly (no approval flow, already happened) and `backdated: true` flag.
+5. Coach earnings ledger entry: `cash_collected` with `backdated: true` (auditable, but does NOT trigger payout flow — physical cash is assumed already in coach's hand).
+6. **Athlete-facing behavior:** silent. No push notification. If athlete is linked, the event appears in their training history with a small `Logged retroactively · {date}` badge.
+7. **Stats / maturity:** backdate events do NOT count toward the `sessions_completed_count` used for new→established maturity threshold. They go into a separate `sessions_logged_count` counter for the coach's personal tracking. See [coach-maturity-model.md](./coach-maturity-model.md).
+8. **Reviews:** athletes do not receive a prompt to review backdate events (no live session experience to evaluate).
 
 ### Flow 7: Cancel a planned event
 
@@ -230,7 +232,7 @@ Returns per-day event-type indicators for the month grid above the day strip.
 - **Athlete time-zone differs from coach:** displayed in the viewing user's local TZ. Event stored in UTC.
 - **Coach deletes a custom event with athlete booking already made for that slot (edge):** should not be possible — custom events are always blocking-only, don't share slots with bookings. If accidental overlap from race, last-write-wins with warning push.
 - **Coach on vacation (see [vacation-mode.md](./vacation-mode.md)):** existing `planned` events remain on calendar; new booking requests blocked server-side. Calendar renders normally.
-- **Past event created for a date before coach's first active day on the platform:** allowed for historical logging; enforced `startAt ≥ coach.createdAt - 6 months` max backdate.
+- **Past event created (Tier 1 Q9):** allowed within 60-day backdate window only. `paymentType` forced to `cash`. Tagged `backdated: true` in ledger; does not count toward maturity stats; silent for athlete.
 
 ---
 
@@ -247,7 +249,7 @@ Returns per-day event-type indicators for the month grid above the day strip.
 
 - [ ] **Cross-day drag:** v2 scope? Or stick with Reschedule sheet? **Owner:** product.
 - [ ] **Custom event — recurring option?** Current spec: one-off only. Some coaches want "every Friday gym class". Defer to v2. **Owner:** product.
-- [ ] **Past event backdate limit:** 6 months enough? Some coaches may want full year history. **Owner:** product.
+- [x] ~~**Past event backdate limit:**~~ RESOLVED in Tier 1 Q9: 60 days (= 2 months, consistent with calendar look-back UI). Cash-only, silent for athlete, separate counter from maturity stats.
 - [ ] **External calendar event modification:** read-only in our app. Any use case where we'd want to allow edit → bidirectional sync? Probably no. **Owner:** calendar-sync spec owner.
 - [ ] **Month grid view:** currently expandable from date strip. Rich month view (full grid) as separate screen? **Owner:** design.
 

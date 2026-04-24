@@ -215,7 +215,7 @@ Each step's `done` is computed from the actual profile state (e.g., `phone.done`
 - **6 steps are fixed in v1.** Order of steps is fixed. No per-coach customization.
 - **All 6 required for admin review submission.** No "submit anyway with 5/6" option.
 - **Step order is logical (phone → sports → photo → about → location → session) but not strictly enforced.** User can complete in any order.
-- **Wizard hides permanently after admin approval.** Even if coach later removes something (e.g., deletes their only training session), wizard does NOT re-appear. Account stays approved; they need to re-add the item but via normal Settings, not wizard.
+- **Wizard hides permanently after admin approval.** Even if coach later removes something (e.g., deletes their only training session), wizard does NOT re-appear. Account stays approved; missing items surface as bookability warnings on Dashboard (Tier 1 Q5) — coach is auto-hidden from search via `isBookable: false` until they fix it. See [dashboard.md](./dashboard.md) Flow 11.
 - **Collapsed/expanded state is client-only.** Not persisted server-side. Default is expanded on first render; user's tap preference is kept in-session.
 - **Estimated time per step** is hint-only, shown in the step row as a small subtitle. Optional to display based on design decision.
 - **Deeplink strategy:** step deeplinks must route to the specific screen (not just module root). Each deeplink must handle deeplink-scoped back-navigation: back should return to Dashboard (not to deeper module screens).
@@ -225,7 +225,9 @@ Each step's `done` is computed from the actual profile state (e.g., `phone.done`
 ## 8. Edge cases
 
 - **Coach has done all 6 but server hasn't yet flipped `pending_admin_approval`:** client shows wizard at 100% but state still `dst-new`. On next snapshot fetch (or after 30 s), server catches up; state transitions. Add `allComplete: true` with explicit state mismatch → client can poll or show "Submitting…" micro-indicator briefly.
-- **Coach removes something after completing it (e.g., deletes the only sport):** `sports.done` reverts to `false`. Wizard re-shows that row as pending. If coach had already submitted and is in `pending_admin_approval` or `approved`, the change triggers an admin review restart? **Decision deferred** — see open questions.
+- **Coach removes something after completing it (e.g., deletes the only sport):**
+  - **Pre-approval (`onboarding` or `pending_admin_approval`):** `sports.done` reverts to `false`. Wizard re-shows that row as pending. If state was `pending_admin_approval`, the regression flips back to `onboarding` and admin review queue removes the coach until completion is re-achieved.
+  - **Post-approval (`approved`):** profile **stays approved** per Tier 1 Q5. No re-review. Instead, dashboard renders bookability warning card (`isBookable: false`) and coach is auto-hidden from search until they fix the missing item via normal Settings. Wizard does NOT re-appear.
 - **Network offline during wizard fetch:** client uses last cached progress; updates on reconnect.
 - **Server-side race: coach submits session create right as the 30 s admin-review transition fires:** server serializes; profile enters `pending_admin_approval` after last write wins.
 - **Coach logs into 321Fit on a new device mid-wizard:** state is purely server-driven; new device fetches progress + renders wizard at current state. No conflict.
@@ -243,11 +245,11 @@ Each step's `done` is computed from the actual profile state (e.g., `phone.done`
 
 ## 10. Open questions
 
-- [ ] **Profile mutations after approval:** if a coach removes their only training session post-approval, do they go back to `onboarding`? Or stay `approved` with degraded profile? **Proposal:** stay approved, show warning on Settings "Your profile is live but missing <X>, athletes can't book unless you add it back." **Owner:** product.
+- [x] ~~**Profile mutations after approval:**~~ RESOLVED in Tier 1 Q5: stay approved + bookability warnings on Dashboard. `isBookable` derived flag auto-hides coach from search; warning card overlay until fix.
+- [x] ~~**Rejection flow:**~~ RESOLVED in Tier 1 Q4: pragmatic v1 = `dst-rejected` state with Contact Support deep-link. v2: structured resubmit. See [dashboard.md](./dashboard.md) Flow 2b.
 - [ ] **Athlete wizard — detailed spec:** separate follow-up doc. **Owner:** product + this spec author next.
 - [ ] **Step estimates shown?** Prototype doesn't show "~1 min" next to each step; was it noise? **Owner:** design.
 - [ ] **Admin review UI / tooling:** out of this spec. Does admin have a dedicated tool to queue pending coaches? **Owner:** operations + backend.
-- [ ] **Rejection flow:** if admin rejects → what happens on coach's side? Show a dedicated `dst-rejected` state with guidance? **Owner:** product.
 - [ ] **Step completion incentive:** would a "complete in next 24h for 50% off subscription first month" banner help? **Owner:** growth / product.
 
 ---

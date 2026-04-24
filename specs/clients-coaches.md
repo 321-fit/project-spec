@@ -158,19 +158,52 @@ Tap `+` in Clients tab header → action sheet with 3 options:
    - Stats and history preserved.
    - Mark Paid (on outstanding cash) still works for retroactive bookkeeping.
 
-### Flow 9: CRM client upgrades to app
+### Flow 9: CRM client upgrades to app (Tier 1 Q6 — phone-primary auto-link + invite-token)
 
-1. Coach created CRM client earlier (Flow 3a).
-2. Coach invited them via Flow 3b.
-3. Athlete signs up via the invite link. Backend matches phone/email (or token) → upgrades relationship's `athlete_account_status` from `crm` to `app`.
-4. CRM pill disappears from client card; all previously hidden actions (Schedule training, Block, message) unlock.
-5. Historical CRM-logged sessions and payments remain attributed to this client.
+**Matching priority (deterministic):**
+1. **Invite token** (exact match) — strongest signal: athlete arrived via `/invite/{coach_id}/{token}` link → directly attaches to that coach's CRM record (the one carrying the token, if any) plus the inviting coach's relationship.
+2. **Phone E.164** (normalized exact match) — silent auto-link: backend scans all CRM records with `phone_e164 = athlete.phone_e164` after phone verification at signup → links to all matching coaches simultaneously. Each becomes an `active app-account` relationship.
+3. **Email** (lowercase exact match) — fallback when no phone present in CRM record.
+
+**Origin tagging:** every linked relationship records `origin: "invite" | "auto_phone_match" | "auto_email_match" | "manual"` for analytics and audit. Manual = coach added the relationship after the athlete already had an app account (rare path).
+
+**Multi-coach same phone (intentional, not a conflict):** an athlete may be a real client of several coaches simultaneously. Phone-match links the athlete's app account to each coach's CRM record independently. Each coach sees their own notes/history attached; no cross-coach data leak.
+
+**Steps (typical happy path):**
+1. Coach created CRM client earlier (Flow 3a) with `phone: +491701234567`.
+2. Coach invited them via Flow 3b (uses `/invite/{coach_id}` link — token included).
+3. Athlete signs up via the invite link or directly. Phone is OTP-verified during signup.
+4. Backend job runs on signup AND on phone-verification-change:
+   - Token match (if any) → link to inviting coach's CRM record, mark `origin: invite`.
+   - Phone match → link to all other coaches' CRM records with same phone, mark `origin: auto_phone_match`.
+5. Each linked relationship's `athlete_account_status` flips `crm → app`. CRM pill disappears; previously hidden actions (Schedule training, Block, message) unlock for each coach.
+6. Historical CRM-logged sessions and cash payments remain attributed to this client per coach.
+
+**Edge case — phone changes after signup:** athlete updates their phone in profile → re-link is **not retroactive**. Existing relationships keep their origin tags. New CRM records with the new phone match only future signups.
+
+**Edge case — coach edits CRM phone after match:** the link doesn't break. Phone is just a search/match field at that point; relationship is keyed on athlete_id once linked.
 
 ### Flow 10: Mark Paid (cash) from Client Detail
 
 1. On Client Detail, in Outstanding Cash carousel: cards for each unpaid session, each with `€X owed`.
 2. Tap `Mark paid` on a card → `POST /coach/payments/cash-paid` with event_id.
 3. Optimistic fade; snackbar "Marked paid · Undo" (10s).
+
+### Flow 11: Athlete-initiated disconnect (Tier 1 Q7 — silent for ALL athlete-side actions)
+
+Athletes can pause or block a coach from their side. Per Q7 decision: **all athlete-side actions are silent to the coach** — no push, no inbox entry, no reason-picker. Goal: minimize signal noise for coaches with many athletes; align with industry consumer-pattern (Bumble/LinkedIn/Mindbody silent unmatch).
+
+**Athlete-side actions:**
+- **Pause** (soft archive) — athlete taps "Stop training with {coach}" on coach detail → relationship sets `paused_by_athlete: true`. Coach can still appear in athlete search; future bookings reactivate the relationship implicitly. No reason required.
+- **Block** — athlete taps "Block {coach}" on coach detail → relationship sets `blocked_by_athlete: true`. Coach disappears from athlete's discovery permanently; un-block via Settings only. **Same silent treatment as pause** — no notification to coach, no reason picker. Hard archive; future events auto-cancel with athlete-issued cancellation per [payments.md](./payments.md) refund policy.
+
+**Coach-side surfacing (silent):**
+- Athletes who paused appear in `Inactive Clients` mini-section / filter inside Clients tab, with subtle "No activity since {date}" tag. NO mention of "athlete archived/disconnected you" — avoid creating a public rejection signal for the coach.
+- Blocked-by-athlete athletes vanish from coach's active list; they appear in a separate `Disconnected` row at the bottom of Archived & Blocked screen (NOT mixed with coach-blocked athletes — different semantics). This row is purely for record retention; no actions other than viewing history.
+
+**Re-engagement:** If athlete pauses then later books again → relationship reactivates implicitly (no friction, no coach prompt). Block is harder reversal — only via athlete's Settings unblock action.
+
+**Why no notification at all (even on block):** A coach with 50 athletes doesn't benefit from "Tom blocked you" — it's noise + unclear actionability. If actual safety concern (harassment by coach), athlete reports via Support, which routes to admin (separate, intentional path).
 
 ---
 
@@ -237,7 +270,23 @@ Create a coach-managed CRM contact.
 }
 ```
 
-**Response 200:** new `CoachClientRelationship` with `athlete_account_status: crm`, `relationship_state: active`.
+**Response 200:** new `CoachClientRelationship` with `athlete_account_status: crm`, `relationship_state: active`, `origin: "manual"`.
+
+**Relationship model fields (Q6 + Q7 additions):**
+```typescript
+type CoachAthleteRelationship = {
+  coachId:               UUID,
+  athleteId:             UUID | null,        // null while athlete is CRM-only
+  relationshipState:     "active" | "archived" | "blocked",  // coach-driven
+  athleteAccountStatus:  "app" | "crm" | "deleted",
+  origin:                "invite" | "auto_phone_match" | "auto_email_match" | "manual",
+  pausedByAthlete:       boolean,            // Q7 silent pause
+  blockedByAthlete:      boolean,            // Q7 silent block
+  pausedAt:              ISO8601 | null,
+  blockedByAthleteAt:    ISO8601 | null,
+  // ... existing fields (notes, createdAt, updatedAt)
+}
+```
 
 #### `PATCH /coach/clients/{athlete_id}/relationship`
 
@@ -283,7 +332,8 @@ When coach initiates for an existing active-app client: `status: awaiting` (coac
 - **Archive is coach-side only.** Athlete never sees or hears about it.
 - **Block is coach-side + athlete-side discovery filter.** Athlete-facing: coach disappears from search. Booking attempts return generic error (no reveal).
 - **Block does NOT cancel existing events.** Coach handles manually.
-- **CRM → app upgrade:** automatic on matched signup (phone / email / invite-token). Pre-existing CRM sessions and cash records attach to new app account; no data loss.
+- **CRM → app upgrade (Tier 1 Q6):** automatic on matched signup. Match priority: invite-token (exact) > phone E.164 (exact) > email (lowercase exact). Multi-coach same-phone → links to all coaches simultaneously (not a conflict — each coach gets their own relationship with the same athlete). Origin tagged on relationship: `invite | auto_phone_match | auto_email_match | manual`. Pre-existing CRM sessions + cash records attach to new app account; no data loss.
+- **Athlete-initiated disconnect (Tier 1 Q7):** all silent. Coach receives NO push, NO inbox entry, NO reason. Pause shows as "Inactive Clients" with last-activity tag; Block shows as separate "Disconnected" row in Archived & Blocked screen (record-only, no actions). Future booking reactivates pause; block requires athlete-side unblock from Settings.
 - **Deleted athlete:** coach retains historical records. Deletion cascades via GDPR right-to-be-forgotten path separately (see authentication.md) — not automated from deletion event alone.
 - **CRM sessions are CASH only.** Since no app account → no Stripe. `POST /coach/events` enforces `paymentType: cash` for CRM relationships.
 - **Single blocking relationship at a time** is fine (one coach blocks one athlete). Multiple coaches can independently block the same athlete.
@@ -295,12 +345,12 @@ When coach initiates for an existing active-app client: `status: awaiting` (coac
 ## 8. Edge cases
 
 - **Coach deletes CRM client, then re-creates with same email:** new record, fresh relationship. Previous one soft-deleted.
-- **Athlete signs up via coach A's invite but was already in coach B's CRM:** primary linkage is to coach A (the inviter). Coach B's CRM record is unlinked — stays as `crm` with no matched account. B gets no update.
+- **Athlete signs up via coach A's invite but was already in coach B's CRM (per Q6 multi-coach phone match):** athlete links to BOTH coaches simultaneously. Coach A gets `origin: invite`; Coach B gets `origin: auto_phone_match` (assuming phone match found). Both relationships are valid — athlete is a real client of both. Coach B sees their CRM card upgrade silently to active app account. This replaces the prior "first match wins" rule.
 - **Coach blocks an athlete who later deletes their account:** relationship becomes `(blocked, deleted)` — shown in Blocked tab with Deleted badge + muted avatar. Unblock still works but has no practical effect (athlete is gone).
-- **Athlete-initiated disconnect (removes coach from My Coaches):** coach-side relationship state: stays `active`, but athlete-side flag `isDisconnected: true` flips. Coach's Client row shows no longer — but note: not yet specified. **Open question.**
+- **Athlete-initiated disconnect (Q7 RESOLVED):** silent for coach. `paused_by_athlete` (soft) → athlete in coach's "Inactive Clients" mini-section. `blocked_by_athlete` (hard) → athlete in "Disconnected" row of Archived & Blocked screen (read-only). No coach notification at any tier.
 - **Coach archives a CRM-only contact:** valid. Archived → Archived tab with both CRM + Archived markers.
 - **CRM client has outstanding cash, coach blocks them:** not possible (block not allowed for CRM state).
-- **Two coaches invite the same athlete simultaneously:** first match wins. Second invite becomes orphaned — leaves a stale CRM record for coach 2 that will never auto-link.
+- **Two coaches invite the same athlete simultaneously (revised per Q6):** athlete signs up → both invite tokens may match if delivered through different channels. Whichever invite link the athlete actually opens captures `origin: invite`; the other coach's CRM record links via phone-match with `origin: auto_phone_match` (or stays orphan-CRM if no phone overlap).
 
 ---
 
@@ -315,10 +365,10 @@ When coach initiates for an existing active-app client: `status: awaiting` (coac
 
 ## 10. Open questions
 
-- [ ] **Athlete-initiated disconnect visibility:** if athlete removes coach from My Coaches, should coach be notified? Prototype silent; maybe a soft "{athlete} disconnected" notice? **Owner:** product.
-- [ ] **Block notification to athlete:** currently silent. Ethically, blocking without explanation feels opaque. Some platforms (Slack, Instagram) keep silent, others (Gmail) notify. **Owner:** product + safety.
+- [x] ~~**Athlete-initiated disconnect visibility:**~~ RESOLVED in Tier 1 Q7: silent for ALL athlete-side actions (pause + block). No coach notification. Surfaces in coach UI as quiet "Inactive Clients" / "Disconnected" record rows.
+- [x] ~~**Block notification to athlete (coach blocks):**~~ RESOLVED — coach-side block also stays silent on athlete side per existing spec (matches Q7 symmetry).
+- [x] ~~**CRM → app match logic:**~~ RESOLVED in Tier 1 Q6: invite-token > phone E.164 > email (priority order). Multi-coach same-phone links to all coaches simultaneously (intended, not a conflict). Origin enum tagged on every link.
 - [ ] **Bulk actions on archived list:** unarchive 10 clients at once. Defer until user feedback. **Owner:** product.
-- [ ] **CRM → app match logic:** phone-primary, email-secondary, invite-token-exact? Conflict resolution (two CRM records with same phone)? **Owner:** product.
 - [ ] **Deleted → hard-deleted (GDPR):** separate path, not automatic. Admin tool + retention policy spec. **Owner:** legal + ops.
 - [ ] **Message feature for CRM clients:** currently hidden (no inbox exists). If/when Messenger launches, should CRM clients have an "invited via" or limited chat? **Owner:** product.
 

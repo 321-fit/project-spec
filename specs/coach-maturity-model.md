@@ -123,7 +123,9 @@ No new endpoints. Existing coach GET endpoints return these two fields as part o
 - **Thresholds:** `reviews_count ≥ 1 AND sessions_count ≥ 3` is the graduation rule. Both must be true.
 - **No downgrade.** Once established, a coach stays established regardless of future activity. Absence / inactivity handled separately (vacation-mode spec, archived coaches).
 - **Review spam guard:** reviews_count counts only reviews from distinct athlete accounts with at least 1 completed session. Protects against fake/bot reviews inflating the counter.
-- **Session count:** counts only sessions in `finished` status (not `missed`, not `cancelled`).
+- **Session count (`sessions_completed_count`, Tier 1 Q9):** counts only sessions in `finished` status that flowed through the full live lifecycle (`planned → review → finished`). **Excludes**:
+  - `missed` and `cancelled` events.
+  - **Backdated events** (`backdated: true`) — these go into a separate `sessions_logged_count` for the coach's personal tracking only and never count toward maturity. Rationale: prevents a coach from logging fake past sessions to artificially graduate from `new` → `established`.
 - **Boost multiplier default: 2.0.** Configurable via feature flag. Welcomed discussion if A/B testing changes this.
 - **Carousel size:** 8 coaches max, sorted by most recent approval date. If fewer than 8 new coaches in the area, carousel hides.
 - **Region scoping:** carousel filters by athlete's location (same city / region). If fewer than 3 new coaches locally, falls back to country-wide.
@@ -136,6 +138,7 @@ No new endpoints. Existing coach GET endpoints return these two fields as part o
 
 - **Coach got 3 sessions but zero reviews:** still new until a review arrives. This is by design — reviews signal authentic social proof.
 - **Coach cancelled 2 of their 3 sessions:** cancelled sessions don't count; needs 3 finished.
+- **Coach backdates 3 sessions to graduate quickly (Q9 anti-abuse):** prevented by counter design — backdated events go into `sessions_logged_count`, not `sessions_completed_count`. Maturity stays `new` until 3 live sessions complete naturally.
 - **Coach got a review from a friend (gaming):** 1 review + 3 sessions = established. If we detect patterns later (same payment method, same IP, zero other clients), fraud-detection handles. Out of scope here.
 - **Coach deletes their account and re-signs up:** fresh counters, treated as brand-new. Previous reviews don't carry over.
 - **Established coach's reviews deleted (e.g., athlete account deletion):** if count drops below 1 after deletion, do we re-downgrade? **Decision:** NO. Once established, always established. Review deletions don't roll back maturity.

@@ -66,11 +66,15 @@ Every client render (calendar card, event sheet, dashboard card) + every backend
 ### Flow 3: Planned event → end time → review → finished/missed
 
 1. Event is `planned`, scheduled date reached, session happens.
-2. After session's `endAt`, scheduled task (30-min delay, TBD): status → `review` (coach's perspective only).
+2. After session's `endAt`:
+   - **Athlete view (optimistic):** event renders as `finished` immediately at `endAt`. View-level mapping at API: when an event in server-state `review` is fetched by athlete, it is returned with `status: finished` (athlete-facing). This avoids the "wasn't my session 3 days ago?" confusion.
+   - **Coach view + server state:** event transitions to `review` after a payment-type-aware delay (cash: 10 min after `endAt`; card: end of coach's local day or +4h, whichever first). Handled by scheduled task.
 3. Coach opens Dashboard or Review Queue → sees card in Review state → taps **Mark complete** or **Missed**.
-4. **Mark complete:** status → `finished`. Payment released per [payments.md](./payments.md). Push to athlete: "Session with {coach_name} marked complete."
-5. **Missed:** status → `missed`. Payment policy per payments.md. Push to athlete (optional): silent or neutral.
+4. **Mark complete:** server state `review → finished`. Payment released per [payments.md](./payments.md). Athlete view already shows finished — push is informational ("Session with {coach_name} confirmed").
+5. **Missed:** server state `review → missed`. Athlete view updates from optimistic `finished` to `missed` (refresh + push: "Session with {coach_name} was marked missed"). Payment policy per [payments.md](./payments.md).
 6. See [review-queue.md](./review-queue.md) for full review screen flow.
+
+**Why optimistic mapping (vs showing athletes the `review` state):** athletes have no action to take during review — exposing the in-progress confirmation creates UX noise. The rare correction (coach marks missed) is acceptable cost for the common case (clean "session done" UX for athlete).
 
 ### Flow 4: Reschedule (from any state)
 
@@ -101,7 +105,7 @@ Every client render (calendar card, event sheet, dashboard card) + every backend
 | `planned` | Both | teal-500 (left stripe) | none (default) | "Confirmed session" | `request` (accept), `awaiting` (accept by other party), reschedule new | `cancelled`, `review` |
 | `request` | Receiver only | yellow-600 | "Request" | "Athlete requested this session" (coach-side) | new creation | `planned` (accept), `cancelled` (decline / 48h auto) |
 | `awaiting` | Creator only | gray-400 | "Awaiting" | "Waiting for athlete's response" | new creation (outgoing) | `planned` (other accepts), `cancelled` (other declines / 48h auto / creator cancels) |
-| `review` | Coach only | yellow-600 | "Review" | "Session ended — complete it" | `planned` (past endAt + 30 min) | `finished` (mark complete), `missed` (mark missed) |
+| `review` | Coach only (server state); athletes see this server state mapped to `finished` at the API layer | yellow-600 | "Review" | "Session ended — complete it" | `planned` (past endAt + payment-type delay) | `finished` (mark complete), `missed` (mark missed) |
 | `missed` | Both | red-400 | "Missed" | "Marked as missed" | `review` | (terminal, retained 2 months) |
 | `finished` | Both | teal-500 (0.5 opacity) | none | "Completed on {date}" | `review` | (terminal, retained indefinitely for history) |
 
@@ -189,14 +193,18 @@ Creates new event with `request`/`awaiting` state + cancels old. Body: `{ newSta
 #### Scheduled tasks (server-side)
 
 - **Auto-cancel on no-response:** every `request` older than 48h → `cancelled`. Run every 15 min.
-- **Auto-transition to review:** every `planned` event where `now > endAt + 30 min` and type is `personal` or `group` → `review` (coach side). Run every 15 min.
+- **Auto-transition to review (payment-type-aware):** every `planned` event past `endAt` → `review` after delay:
+  - **Cash event** (1-on-1 or any group with at least one cash participant): `endAt + 10 min`. Triggers push: "Mark who paid · {N} sessions" → deep-links to review queue (1-on-1) or `s-cash` per-participant screen (group, see [review-queue.md](./review-queue.md)).
+  - **Card-only event**: `endAt + 4h` OR end of coach's local day (00:00 of next day in coach's TZ), whichever comes first. Triggers batched morning push: "Yesterday's sessions ready to confirm".
+  - Scheduler runs every 5 min for cash precision; card transitions can use coarser cadence (every 30 min).
+- **Athlete view mapping:** API serializers for athlete-facing endpoints map server state `review → finished` (optimistic), `missed → missed`, all else 1:1. Coach-facing endpoints return raw state.
 
 ---
 
 ## 7. Business rules
 
 - **`cancelled` is terminal** — no coming back. Reschedule creates new event.
-- **Only coach sees `review` state.** Athlete sees the event as `finished` optimistically or remains `planned` until coach acts (TBD — see open questions).
+- **Server state `review` is coach-only. Athlete view maps it to `finished` optimistically.** API serializer for athlete responses translates `review → finished`. If coach later marks `missed`, athlete view updates (push + next fetch). Decided in Tier 1 Q1 — see Flow 3 rationale.
 - **External events** (Google/Apple Calendar sync): separate status-less path. Rendered on calendar as read-only blocks; don't participate in booking lifecycle.
 - **Custom events** (coach-created time blocks, see [coach-calendar.md](./coach-calendar.md) Custom Event section): also status-less. Always displayed; can be deleted.
 - **Cancellation retention:** 2 months in DB, then hard-delete. Cron task nightly.
@@ -218,9 +226,10 @@ Map of state transition → push notification, following push-notifications.md c
 | `request → cancelled` (decline) | Creator | "Your training session request with {name} has been declined." | None |
 | `request → cancelled` (48h auto) | Both | "Request was not answered in time and has been automatically cancelled." | None |
 | `planned → cancelled` | Other party | "Your session on {date} at {time} has been cancelled." | None |
-| `planned → review` | Coach | Silent — surfaced via Dashboard action card | — |
-| `review → finished` (mark complete) | Athlete | "Session with {coach_name} marked complete." + payment info if card | Balance |
-| `review → missed` | Athlete | Silent in v1 (policy TBD) | — |
+| `planned → review` (cash event, +10min) | Coach | "Mark who paid · {N} sessions" (batched if multiple) | Review queue or s-cash screen |
+| `planned → review` (card event, EOD/+4h) | Coach | Morning batch: "Yesterday's sessions ready to confirm" | Review queue |
+| `review → finished` (mark complete) | Athlete | Confirmational only — athlete already saw event as finished optimistically; push is informational: "Session with {coach_name} confirmed" + payment info if card. Many push providers will dedupe; OK to send silent if no payment receipt. | Balance |
+| `review → missed` | Athlete | "Session with {coach_name} was marked missed" — required because athlete optimistic view is corrected | Event detail |
 | Reschedule (new event) | Other party | "The {role_name} has requested to reschedule the session." | Calendar |
 | Invite-based signup (deep link) | Inviter coach | "{athlete_name} joined 321.fit — ready to train?" | Client detail |
 
@@ -237,9 +246,9 @@ Map of state transition → push notification, following push-notifications.md c
 
 ## 10. Open questions
 
-- [ ] **Athlete sees `review` or stays `planned`?** Currently planned: athlete stays seeing `planned` until coach marks outcome. If coach takes days to review, athlete may be confused ("Wasn't my session 3 days ago?"). Alternative: athlete sees `pending_review` (new state, coach view name aligned). **Decision needed** before backend migration. **Owner:** product.
-- [ ] **Auto-transition delay** (`planned → review` after endAt): 30 min default in this spec. Too eager? Too lazy? **Owner:** product + data team (observe coach behavior).
-- [ ] **Missed: silent or informative push?** Athletes may have legitimate reasons they missed; silent avoids shame but also context. **Owner:** product + safety.
+- [x] ~~**Athlete sees `review` or stays `planned`?**~~ — RESOLVED in Tier 1 Q1: athlete view maps `review → finished` optimistically at the API layer. Correction push fires only on `missed`.
+- [x] ~~**Auto-transition delay (`planned → review` after endAt)?**~~ — RESOLVED in Tier 1 Q8: payment-type-aware. Cash = +10 min with prompt push. Card = +4h or EOD (whichever first), batched morning push.
+- [x] ~~**Missed: silent or informative push?**~~ — RESOLVED via Q1: `missed` push is mandatory because the athlete already saw `finished` optimistically and needs the correction.
 - [ ] **External calendar events re-sync rules** — what if a coach's external event is deleted externally? Currently: next sync removes it. **Owner:** calendar-sync spec owner (cross-reference).
 
 ---

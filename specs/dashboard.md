@@ -73,6 +73,16 @@ All references to screen IDs are from `flows/coach/dashboard.html`. Component na
 3. Below banner: section "Optional boosts" — 3 boost cards (Accept card payments → Connect Stripe; Prevent scheduling conflicts → Set available hours; Boost profile conversion 2× → Add video intro).
 4. Tapping any boost card navigates to the relevant setup flow.
 5. On backend approval event (push notification + state refresh) → state auto-transitions to `dst-ready` (if no activity yet) or `dst-default` (if activity already recorded during review wait).
+6. On backend rejection event → state transitions to `dst-rejected` (see Flow 2b).
+
+### Flow 2b: Profile rejected (Tier 1 Q4 — pragmatic v1)
+
+1. Admin rejects the profile in admin tool → server emits rejection push: "Profile review needs attention — tap to contact support."
+2. Push deep-links into the app and lands on `#s-dashboard` in state `dst-rejected`.
+3. Dashboard shows a tinted-red banner: title "Profile not approved", subtitle "Our team flagged some issues. Please contact support to resolve."
+4. Single CTA "Contact support" — opens the existing Contact Support flow with pre-filled context (`reason: profile_rejected`, `coachId`, `submittedAt`).
+5. Coach communicates with support via that thread; once resolved, admin re-flags profile → state returns to `dst-under-review` (or `dst-default` if approved).
+6. **v1 deliberately reuses Contact Support** instead of building a self-service resubmit flow. v2 plans a structured `dst-rejected` state with itemized issues + inline edit ("re-submit" button). Tracked in `coach-maturity-model.md` v2 backlog.
 
 ### Flow 3: Approved but no bookings (ready)
 
@@ -131,6 +141,24 @@ All references to screen IDs are from `flows/coach/dashboard.html`. Component na
 1. From `dst-default` action card "N sessions to review" → push to `#s-review-queue` (part of dashboard flow file, routed in-app, not full navigation).
 2. Behavior fully specified in [review-queue.md](./review-queue.md). Dashboard's responsibility ends at the push trigger.
 
+### Flow 11: Bookability warnings (Tier 1 Q5)
+
+Approved coach can edit profile fields that affect their searchability/bookability (e.g., remove all sports, drop available hours below daily minimum, disconnect Stripe with active card sessions). Per Q5 decision: **profile stays approved** (no re-review), but coach is auto-hidden from search and shown prominent warning cards on dashboard until issues are resolved.
+
+1. Backend computes `isBookable: bool` derived flag on every snapshot:
+   - Requires: ≥ 1 sport selected, ≥ 1 active session template, ≥ 1 available hour slot in next 14 days, profile approved.
+   - Stripe connection only required if any session has `paymentType: card`.
+2. If `isBookable: false` → dashboard renders a `dash-warning-card` at the **top** of the screen, **above** the greeting/Next Session — non-dismissable.
+3. Card content:
+   - Title: "You're hidden from search"
+   - Subtitle: "Fix the issues below to start receiving bookings again."
+   - List of `bookabilityIssues[]` rows, each tappable with deep-link to the relevant setting.
+4. Coach completes the listed fixes → next snapshot fetch shows `isBookable: true` → warning card disappears → coach reappears in search.
+5. **Differs from Tier 2 tips:**
+   - Tier 2 tips are dismissable, optional, suggestion-grade.
+   - Bookability warnings are non-dismissable, blocking (search hidden), required to clear.
+6. Bookability warnings render in **all** approved states (`dst-default`, `dst-quiet`, `dst-zero`, `dst-idle`, `dst-ready`) but **not** in pre-approval states (`dst-new`, `dst-under-review`, `dst-rejected`).
+
 ---
 
 ## 5. States
@@ -140,7 +168,8 @@ State class on `#s-dashboard` root drives visibility. Only one state is rendered
 | State class | When | What's shown | Transitions out |
 |---|---|---|---|
 | `dst-new` | Coach signed up, Tier 1 wizard incomplete | Greeting + wizard widget | → `dst-under-review` when wizard complete |
-| `dst-under-review` | Wizard done, profile pending admin approval | Status banner + Optional boosts (3 cards) | → `dst-ready` or `dst-default` on approval |
+| `dst-under-review` | Wizard done, profile pending admin approval | Status banner + Optional boosts (3 cards) | → `dst-ready` / `dst-default` on approval; → `dst-rejected` on rejection |
+| `dst-rejected` | Admin rejected the profile (Tier 1 Q4 v1 path) | Tinted-red banner + "Contact support" CTA | → `dst-under-review` after admin re-flags post-resolution |
 | `dst-ready` | Approved, zero sessions ever booked | Empty Next Session + CRM hint + Tier 2 Stripe tip | → `dst-default` / `dst-quiet` on first booking |
 | `dst-idle` | Approved, has past sessions, 0 upcoming | Empty Next Session w/ alternate copy + Earnings (may show €0) + Signals + Tier 2 tip | → `dst-default` / `dst-quiet` on new booking |
 | `dst-quiet` | Has upcoming tomorrow+ but nothing today | Tomorrow preview card + minimal action cards + Earnings | → `dst-default` when any session scheduled for today |
@@ -153,6 +182,7 @@ State class on `#s-dashboard` root drives visibility. Only one state is rendered
 
 ```
 if profile.wizard_incomplete             → dst-new
+elif profile.rejected                    → dst-rejected      (Tier 1 Q4)
 elif profile.pending_admin_approval      → dst-under-review
 elif no_sessions_ever                    → dst-ready
 elif no_upcoming_and_has_history         → dst-idle
@@ -163,6 +193,8 @@ elif has_today_sessions:
 ```
 
 Client picks between `dst-loading` / `dst-error` based on snapshot availability + freshness, independent of business state.
+
+**Bookability overlay (Tier 1 Q5):** for approved states (`dst-ready`, `dst-idle`, `dst-quiet`, `dst-default`, `dst-zero`), if `isBookable: false` → render the bookability warning card on top, **regardless of state class**. State class still drives the body of the screen; warning card is an overlay layer.
 
 ---
 
@@ -180,7 +212,18 @@ Returns the full dashboard snapshot for the authenticated coach.
 
 ```json
 {
-  "state": "new" | "under_review" | "ready" | "idle" | "quiet" | "default" | "zero",
+  "state": "new" | "under_review" | "rejected" | "ready" | "idle" | "quiet" | "default" | "zero",
+  "isBookable": true,
+  "bookabilityIssues": [
+    { "key": "no_sports",       "title": "Add at least one sport",        "deeplink": "/settings/sports" },
+    { "key": "no_sessions",     "title": "Create at least one session",   "deeplink": "/settings/sessions" },
+    { "key": "no_hours",        "title": "Set available hours",           "deeplink": "/settings/hours" },
+    { "key": "stripe_required", "title": "Connect Stripe to accept cards","deeplink": "/settings/stripe" }
+  ],
+  "rejectionInfo": {
+    "rejectedAt":   ISO8601,
+    "supportDeeplink": "/support?reason=profile_rejected"
+  } | null,
   "greeting": {
     "timeOfDay":     "morning" | "afternoon" | "evening",
     "firstName":     "Robert",
@@ -232,9 +275,12 @@ Fields nullable per state:
 - `wizard` only for `new`
 - `approvalStatus` only for `under_review`
 - `optionalBoosts` only for `under_review`
-- `nextSession` nullable for `new`, `under_review`, `ready`, `idle`
+- `rejectionInfo` only for `rejected`
+- `bookabilityIssues` empty when `isBookable: true`; populated only for approved states with derived issues
+- `isBookable` always present; defaults to `false` until profile approved
+- `nextSession` nullable for `new`, `under_review`, `rejected`, `ready`, `idle`
 - `pendingActions.*` nullable when count is 0
-- `weekEarnings` nullable for `new`, `under_review`, `ready`
+- `weekEarnings` nullable for `new`, `under_review`, `rejected`, `ready`
 - `signals` may be empty array
 - `tier2Tip` null when no applicable tip
 
@@ -280,7 +326,8 @@ Fields nullable per state:
 
 - **New coach mid-wizard closes app → returns weeks later:** wizard state persists server-side; dashboard re-renders with current progress, no data loss.
 - **Under-review state, user taps a boost, completes it, returns:** boost entry updates `done: true`; dashboard re-fetches on return.
-- **Approval rejected (admin action):** not in current scope. Spec assumes happy path (approval granted). Rejection flow → separate admin-initiated notification, not handled on dashboard.
+- **Approval rejected (admin action):** handled by `dst-rejected` state per Tier 1 Q4. Coach receives push, lands on dashboard with red banner + Contact Support CTA. Self-service resubmit is v2.
+- **Coach edits profile after approval, breaks bookability:** profile stays approved; `isBookable: false` triggers warning card overlay per Q5. Coach hidden from search until issues resolved.
 - **Two devices, same coach:** last snapshot wins. No conflict — all writes go through server.
 - **Timezone mismatch (device local ≠ profile TZ):** always use profile TZ for dashboard. Device TZ is irrelevant here.
 - **Action card count drops to 0 between fetches (e.g., athlete cancelled pending request):** next fetch removes the card. No special transition animation required.
@@ -301,7 +348,8 @@ Fields nullable per state:
 ## 10. Open questions
 
 - [ ] **Admin approval UI:** is there an admin tool where admins actually review? Spec assumes yes; implementation may need admin endpoints separately. **Owner:** product.
-- [ ] **Rejection flow:** what happens if admin rejects the coach's profile? Does dashboard stay in under_review forever, or get a distinct `dst-rejected` state? **Owner:** product.
+- [x] ~~**Rejection flow:**~~ RESOLVED in Tier 1 Q4: pragmatic v1 = `dst-rejected` state with Contact Support deep-link (no self-service resubmit). v2: structured rejection state with itemized issues + inline edit / resubmit.
+- [x] ~~**Profile edit after approval breaks bookability:**~~ RESOLVED in Tier 1 Q5: stay approved, auto-hide from search via `isBookable` flag + non-dismissable warning cards.
 - [ ] **Tier 2 tip rotation algorithm:** current draft says "one tip per state, rotate if multiple applicable". Define exact ordering (most-impactful first?). **Owner:** product + analytics.
 - [ ] **Retention of signals for deleted athletes:** if an athlete who left a review deletes their account, should the review still appear on dashboard? Current assumption: show as "review from a former client" (anonymized). **Owner:** product.
 - [ ] **Real-time refresh mechanism:** websocket vs push-notification vs long-polling. **Owner:** backend architecture.

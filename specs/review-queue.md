@@ -33,7 +33,7 @@ Designed as a **batch-processing workflow** — oldest sessions first, inline ac
 
 ## 3. System Stories
 
-- As the backend, a session must enter `review` state automatically N minutes after its scheduled end time, provided coach hasn't already marked it complete.
+- As the backend, a session must enter `review` state automatically after its scheduled end time, with a **payment-type-aware delay**: cash sessions transition after 10 minutes (prompt cash-collection workflow); card-only sessions transition after 4 hours OR end of coach's local day, whichever comes first. See [event-statuses.md](./event-statuses.md) Flow 3 + scheduled tasks. Coach can mark earlier manually via Calendar event sheet.
 - As the backend, the "oldest first" sort is deterministic by `endedAt ASC`.
 - As the client, inline actions must be optimistically applied (row fades immediately) with server confirmation within 2 seconds; on error, row is restored + snackbar shown.
 - As the backend, `complete` and `missed` outcomes trigger distinct downstream effects (payment release vs. no-show record); these must be reliable and idempotent.
@@ -43,11 +43,19 @@ Designed as a **batch-processing workflow** — oldest sessions first, inline ac
 
 ## 4. Flows
 
-### Flow 1: Entry from Dashboard
+### Flow 1: Entry to review queue
 
-1. Coach on `#s-dashboard` (state `dst-default`) sees action card "3 sessions to review · Oldest: 2 days ago"
-2. Tap → push to `#s-review-queue` (part of the same dashboard flow file)
-3. Queue renders with sessions grouped by date, oldest-first
+Two entry points (Tier 1 Q8 — payment-type-aware push):
+
+1. **Push from cash event auto-transition (10 min after `endedAt`):** push copy "Mark who paid · {N} sessions" → tap deep-links into `#s-review-queue`. Designed for prompt cash-collection while athletes are still nearby.
+2. **Push from card event auto-transition (EOD batched, next morning):** push copy "Yesterday's sessions ready to confirm" → tap deep-links into `#s-review-queue`.
+3. **Dashboard action card:** Coach on `#s-dashboard` (state `dst-default`) sees "3 sessions to review · Oldest: 2 days ago" → tap → push to `#s-review-queue`.
+4. Queue renders with sessions grouped by date, oldest-first.
+
+**Routing per row type:**
+- 1-on-1 cash event row → inline `Mark paid + complete` toggle directly in the queue.
+- 1-on-1 card event row → inline `Mark complete` button.
+- Group event row (any payment mix) → tap row → opens existing `s-cash` Event Completion screen (defined in [coach-calendar.md](./coach-calendar.md), prototype `flows/coach/calendar.html#s-cash`) for per-participant marking. After completion in `s-cash`, navigate back to queue with that group event removed.
 
 ### Flow 2: Mark complete
 
@@ -172,7 +180,10 @@ Restores a recently resolved event back to `review` state. Valid within 30 secon
 
 ## 7. Business rules
 
-- **Auto-transition to review:** event enters `review` state N minutes (N TBD — default 30) after its `endedAt` if coach hasn't marked it. Handled by backend scheduler.
+- **Auto-transition to review (Tier 1 Q8 — payment-type-aware):**
+  - **Cash event** (any with at least one cash participant for groups): `endedAt + 10 min` → `review`. Triggers push: "Mark who paid · {N} sessions" (batched if multiple cash events transitioned within the window).
+  - **Card-only event**: `endedAt + 4h` OR end of coach's local day (00:00 of next day in coach TZ), whichever comes first. Triggers batched morning push: "Yesterday's sessions ready to confirm".
+  - Coach can mark earlier through Calendar event sheet — auto-transition only applies to forgotten events.
 - **Grouping:** events grouped by date of `endedAt` in coach's local TZ. Group header text: weekday + ordinal date (e.g., "Tuesday, Apr 22").
 - **Sorting:** within group, oldest first; groups themselves oldest-first.
 - **"Ended N ago":** precomputed by server using relative time: "Ended N days ago" / "Ended yesterday" / "Ended N hours ago". Client displays verbatim.
@@ -197,17 +208,17 @@ Restores a recently resolved event back to `review` state. Valid within 30 secon
 
 - **iOS:** SwiftUI `List` with `.swipeActions` optional enhancement (swipe-to-complete / swipe-to-miss) — mobile-native, discoverable. Haptic on action: `.light` for complete, `.medium` for missed.
 - **Android:** Compose `LazyColumn` with per-row action row. Optional swipe via `SwipeToDismissBox`. Haptic via `HapticFeedbackConstants.CONTEXT_CLICK`.
-- **Backend:** review-state transition scheduled via Celery beat (N-minute-after-endedAt). Idempotency essential.
+- **Backend:** review-state transition scheduled via Celery beat. Two cadences per Q8: cash sweep every 5 min (precision matters for the 10-min cash push), card sweep every 30 min (looser since EOD batch). Idempotency essential.
 
 ---
 
 ## 10. Open questions
 
-- [ ] **Exact auto-transition delay:** 30 min after `endedAt`? Or longer grace (2 hours)? Trade-off between prompt triage and not surprising coaches. **Owner:** product.
-- [ ] **Missed policy — refund or not?** Current spec defers to payments.md. Need explicit decision per session type (cash / card). **Owner:** product + finance.
+- [x] ~~**Exact auto-transition delay:**~~ RESOLVED in Tier 1 Q8: payment-type-aware. Cash = +10 min with prompt push. Card = +4h or EOD (whichever first), batched morning push. Adjust based on real data after launch.
+- [x] ~~**Missed policy — refund or not?**~~ RESOLVED in Tier 1 Q2: 100% to coach (strict no-show forfeit). See [payments.md](./payments.md) cancellation table.
+- [x] ~~**Push notification copy to athlete:**~~ RESOLVED in Tier 1 Q1: `review → finished` = informational push (athlete already saw `finished` optimistically). `review → missed` = mandatory correction push. See [event-statuses.md](./event-statuses.md) Push table.
 - [ ] **Swipe gestures in MVP?** Or inline buttons only (as prototype)? Prototype uses buttons; native platforms could add swipe as bonus. **Owner:** design.
 - [ ] **Bulk actions (select all → complete)?** Deferred per MVP scope rule. Revisit after 4 weeks of usage data.
-- [ ] **Push notification copy to athlete:** "Session confirmed" vs. silent? Missed → silent, OK? **Owner:** product.
 
 ---
 
