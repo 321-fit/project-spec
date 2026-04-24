@@ -967,6 +967,104 @@
 .fit-toggle.on::after { transform: translateX(20px); }
 
 /* ============================================================
+   SKELETON (list loading placeholder)
+
+   Shimmer-animated placeholders. Use for initial list fetch.
+   Single-element loading should use centered spinner instead.
+
+   Structure:
+     <div class="sk-card">
+       <div class="sk-row">
+         <div class="sk-circle sk-shimmer"></div>
+         <div class="sk-lines">
+           <div class="sk-line sk-shimmer" style="width:55%"></div>
+           <div class="sk-line short sk-shimmer"></div>
+         </div>
+       </div>
+       <div class="sk-block sk-shimmer"></div>
+       <div class="sk-btn-row"><div class="sk-btn sk-shimmer"></div></div>
+     </div>
+
+   Modifiers:
+     .sk-card.compact   — smaller padding/radius (row-style)
+     .sk-card.lg        — explicit larger radius (same default, kept for compat)
+     .sk-circle.sm      — 40px instead of 44px
+     .sk-circle.sq      — rounded-rect 10px (for icon-shaped placeholders)
+   ============================================================ */
+.sk-card {
+  margin: 0 var(--fit-sp-4) var(--fit-sp-3);
+  padding: var(--fit-sp-4);
+  border-radius: var(--fit-radius-md);
+  background: var(--fit-surface-high);
+}
+.fit-light .sk-card {
+  background: var(--fit-white);
+  border: 1px solid var(--fit-gray-100);
+}
+.sk-card:first-child { margin-top: 0; }
+.sk-card.compact {
+  padding: 12px var(--fit-sp-4);
+  border-radius: var(--fit-radius-sm);
+  margin-bottom: var(--fit-sp-2);
+}
+.sk-card.lg {
+  padding: var(--fit-sp-4);
+  border-radius: var(--fit-radius-md);
+  margin-bottom: var(--fit-sp-3);
+  overflow: hidden;
+}
+.sk-card.slot { margin-bottom: var(--fit-sp-2); }
+
+.sk-row {
+  display: flex; align-items: center; gap: var(--fit-sp-3);
+}
+.sk-circle {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.sk-circle.sm { width: 40px; height: 40px; }
+.sk-circle.lg { width: 44px; height: 44px; } /* alias — default is already 44px */
+.sk-circle.sq { border-radius: 10px; }
+
+.sk-lines {
+  flex: 1; display: flex; flex-direction: column; gap: var(--fit-sp-2);
+  min-width: 0;
+}
+.sk-line { height: 12px; border-radius: 6px; }
+.sk-line.short { width: 50%; height: 10px; }
+.sk-block { height: 14px; border-radius: 7px; margin-top: var(--fit-sp-3); }
+
+.sk-btn-row { display: flex; gap: var(--fit-sp-2); margin-top: 14px; }
+.sk-btn { flex: 1; height: 40px; border-radius: 99px; }
+
+.sk-strip {
+  height: 36px;
+  border-top: 1px solid var(--fit-divider);
+  margin-top: 10px;
+}
+
+.sk-shimmer {
+  background: linear-gradient(90deg,
+    var(--fit-gray-800) 0%,
+    var(--fit-gray-700) 50%,
+    var(--fit-gray-800) 100%);
+  background-size: 200% 100%;
+  animation: sk-shimmer 1400ms ease-in-out infinite;
+}
+.fit-light .sk-shimmer {
+  background: linear-gradient(90deg,
+    var(--fit-gray-200) 0%,
+    var(--fit-gray-100) 50%,
+    var(--fit-gray-200) 100%);
+  background-size: 200% 100%;
+}
+@keyframes sk-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ============================================================
    NOTIFICATION TOAST
    ============================================================ */
 .fit-toast {
