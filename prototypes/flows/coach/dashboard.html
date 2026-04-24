@@ -348,6 +348,28 @@
     font-size: 13px; color: var(--fit-text-tertiary);
     line-height: 1.45;
   }
+  .dash-next-cta-row {
+    display: flex; gap: 8px;
+    margin-top: 14px;
+  }
+  .dash-cta-primary {
+    flex: 1; height: 40px; border: none; border-radius: 99px;
+    background: var(--fit-brand-gradient); color: var(--fit-white);
+    font-family: var(--fit-font); font-size: 14px; font-weight: 500;
+    cursor: pointer;
+  }
+  .dash-cta-secondary {
+    flex: 1; height: 40px; border-radius: 99px;
+    background: transparent;
+    border: 1px solid var(--fit-divider);
+    color: var(--fit-text-primary);
+    font-family: var(--fit-font); font-size: 14px; font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .dash-cta-secondary:hover { background: var(--fit-surface-higher); }
+  .fit-light .dash-cta-secondary { border-color: var(--fit-gray-200); }
+  .fit-light .dash-cta-secondary:hover { background: var(--fit-gray-50); }
 
   /* New Coach — onboarding hints */
   .dash-hint {
@@ -555,6 +577,8 @@
   #s-dashboard [data-dash-state] { display: none; }
   #s-dashboard.dst-default [data-dash-state="default"] { display: flex; }
   #s-dashboard.dst-new [data-dash-state="new"] { display: flex; }
+  #s-dashboard.dst-ready [data-dash-state="ready"] { display: flex; }
+  #s-dashboard.dst-idle [data-dash-state="idle"] { display: flex; }
   #s-dashboard.dst-quiet [data-dash-state="quiet"] { display: flex; }
   #s-dashboard.dst-zero [data-dash-state="zero"] { display: flex; }
   #s-dashboard.dst-loading [data-dash-state="loading"] { display: flex; }
@@ -579,9 +603,11 @@
   <button onclick="go('s-review-queue',this)">Sessions to review</button>
   <div class="label">Dashboard states</div>
   <button onclick="go('s-dashboard',this);setDashState('default',null)">Default · active coach</button>
-  <button onclick="go('s-dashboard',this);setDashState('new',null)">New coach · week 1</button>
-  <button onclick="go('s-dashboard',this);setDashState('quiet',null)">Quiet day · no sessions today</button>
-  <button onclick="go('s-dashboard',this);setDashState('zero',null)">All zero · nothing to act on</button>
+  <button onclick="go('s-dashboard',this);setDashState('new',null)">New · setup hints</button>
+  <button onclick="go('s-dashboard',this);setDashState('ready',null)">Ready · setup done, no history</button>
+  <button onclick="go('s-dashboard',this);setDashState('idle',null)">Idle · had sessions, 0 upcoming</button>
+  <button onclick="go('s-dashboard',this);setDashState('quiet',null)">Quiet · no sessions today</button>
+  <button onclick="go('s-dashboard',this);setDashState('zero',null)">All zero · clean inbox</button>
   <button onclick="go('s-dashboard',this);setDashState('loading',null)">Loading · skeleton</button>
   <button onclick="go('s-dashboard',this);setDashState('error',null)">Error · offline banner</button>
   <div class="label">Review queue states</div>
@@ -772,6 +798,91 @@
         <div class="dash-next-empty">
           <div class="dash-next-empty-title">No sessions yet</div>
           <div class="dash-next-empty-sub">Once you finish setup, bookings will show up here. Invite a client to get started faster &mdash; Clients tab &gt; &ldquo;+&rdquo;.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ STATE: READY (setup done, no history yet) ============ -->
+    <div data-dash-state="ready" class="dash-stack">
+      <div class="dash-greeting">
+        <div class="dash-greeting-hello">You&rsquo;re all set, Robert</div>
+        <div class="dash-greeting-sub">Ready to coach &mdash; let&rsquo;s get you your first client</div>
+      </div>
+
+      <div>
+        <div class="dash-section-label">Next session</div>
+        <div class="dash-next-empty">
+          <div class="dash-next-empty-title">No sessions booked yet</div>
+          <div class="dash-next-empty-sub">Share your profile to get your first client.</div>
+          <div class="dash-next-cta-row">
+            <button class="dash-cta-primary" onclick="window.location.href='invite.html'">Invite a client</button>
+            <button class="dash-cta-secondary">Share profile</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="dash-section-label">Already coaching offline?</div>
+        <div class="dash-hint" onclick="window.location.href='clients.html'">
+          <div class="dash-hint-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg></div>
+          <div class="dash-hint-body">
+            <div class="dash-hint-title">Add your existing clients</div>
+            <div class="dash-hint-sub">Create athlete profiles from the Clients tab to track sessions and cash manually</div>
+          </div>
+          <svg class="dash-hint-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ STATE: IDLE (has history, 0 upcoming) ============ -->
+    <div data-dash-state="idle" class="dash-stack">
+      <div class="dash-greeting">
+        <div class="dash-greeting-hello">Good morning, Robert</div>
+        <div class="dash-greeting-sub">Nothing on the schedule &mdash; let&rsquo;s fix that</div>
+      </div>
+
+      <div>
+        <div class="dash-section-label">Next session</div>
+        <div class="dash-next-empty">
+          <div class="dash-next-empty-title">Nothing scheduled</div>
+          <div class="dash-next-empty-sub">Invite a client or reach out to recent ones.</div>
+          <div class="dash-next-cta-row">
+            <button class="dash-cta-primary" onclick="window.location.href='invite.html'">Invite a client</button>
+            <button class="dash-cta-secondary" onclick="window.location.href='clients.html'">See recent clients</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="dash-section-label">Earnings</div>
+        <div class="dash-week" onclick="window.location.href='balance.html'">
+          <div class="dash-week-head">
+            <div class="dash-week-title-row">
+              <span class="dash-week-title">This week &middot; Mon&ndash;Sun</span>
+            </div>
+            <svg class="dash-week-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <div>
+            <span class="dash-week-amount">&euro;0</span>
+            <span class="dash-week-trend down">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l5 5 5-5"/></svg>
+              &euro;320
+            </span>
+          </div>
+          <div class="dash-week-planned">No sessions planned this week</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="dash-section-label">Activity</div>
+        <div class="dash-signals">
+          <div class="dash-signal">
+            <div class="dash-signal-icon star"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg></div>
+            <div class="dash-signal-body">
+              <div class="dash-signal-title">New review &middot; 5&#9733; <span class="author">&mdash; Sarah (last week)</span></div>
+              <div class="dash-signal-meta">&ldquo;Thanks for a great season!&rdquo;</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1138,6 +1249,8 @@
     <div class="state-toggle">
       <button class="active" onclick="setDashState('default',this)">Default</button>
       <button onclick="setDashState('new',this)">New</button>
+      <button onclick="setDashState('ready',this)">Ready</button>
+      <button onclick="setDashState('idle',this)">Idle</button>
       <button onclick="setDashState('quiet',this)">Quiet</button>
       <button onclick="setDashState('zero',this)">Zero</button>
       <button onclick="setDashState('loading',this)">Loading</button>
@@ -1174,14 +1287,22 @@
       <li><code>signals</code> &mdash; new array: <code>[{type, ...}]</code> with latestReview + newClientsThisWeek</li>
     </ul>
     <hr>
-    <p><strong>States</strong></p>
+    <p><strong>States (8 total — coach lifecycle)</strong></p>
     <ul>
       <li><strong>Default</strong> &mdash; typical active coach, all blocks populated</li>
-      <li><strong>New coach</strong> &mdash; week 1, replaces action blocks with setup hints (sport types, session template, available hours, Stripe)</li>
+      <li><strong>New</strong> &mdash; week 1, setup hints (sport types, session template, available hours, Stripe). No earnings/signals shown &mdash; nothing to show</li>
+      <li><strong>Ready</strong> &mdash; setup done, no history yet. Empty Next Session card with <em>Invite a client</em> + <em>Share profile</em> CTAs + CRM tip. No earnings block (€0 = demotivating for new coach)</li>
+      <li><strong>Idle</strong> &mdash; coach has history, 0 upcoming. Same empty-next component as Ready but copy shifts to &ldquo;Nothing scheduled / Invite a client / See recent clients&rdquo;. Earnings still shown (€0 this week with down-trend gives context)</li>
       <li><strong>Quiet day</strong> &mdash; no sessions today, next is tomorrow, copy adapts (&ldquo;enjoy the quiet&rdquo;), when-chip is gray not teal</li>
       <li><strong>All zero</strong> &mdash; active coach, nothing to act on. Actions block hidden; compact &ldquo;All caught up&rdquo; line</li>
       <li><strong>Loading</strong> &mdash; skeleton per section (not a spinner), shimmer animation</li>
       <li><strong>Error</strong> &mdash; inline banner at top (red-tinted) + Retry button + cached content faded 60%</li>
+    </ul>
+    <hr>
+    <p><strong>Next Session empty variant</strong> &mdash; one component, copy adapts by backend flag <code>hasHistory</code>:</p>
+    <ul>
+      <li><code>hasHistory = false</code> &rarr; &ldquo;No sessions booked yet&rdquo; / &ldquo;Share your profile to get your first client&rdquo; / CTAs: Invite a client + Share profile</li>
+      <li><code>hasHistory = true</code> &rarr; &ldquo;Nothing scheduled&rdquo; / &ldquo;Invite a client or reach out to recent ones&rdquo; / CTAs: Invite a client + See recent clients</li>
     </ul>
     <hr>
     <p><strong>Copy rules</strong></p>
@@ -1256,7 +1377,7 @@
 
   function setDashState(state, btn) {
     var el = document.getElementById('s-dashboard');
-    el.classList.remove('dst-default','dst-new','dst-quiet','dst-zero','dst-loading','dst-error');
+    el.classList.remove('dst-default','dst-new','dst-ready','dst-idle','dst-quiet','dst-zero','dst-loading','dst-error');
     el.classList.add('dst-' + state);
     syncStateToggleButtons('#ann-s-dashboard', state);
     if (btn && btn.closest && btn.closest('.sidebar')) {
