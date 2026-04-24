@@ -851,7 +851,7 @@
       <!-- Next Session -->
       <div>
         <div class="dash-section-label">Next session</div>
-        <div class="dash-next">
+        <div class="dash-next" onclick="FitUI.openEventSheet(document.getElementById('s-dashboard'),{state:'planned',event:{athleteName:'Sarah Mitchell',athleteInitials:'SM',title:'Tennis',time:'10:30 – 11:30',location:'Court A',price:'€50',payment:'Card'}})">
           <div class="dash-next-avatar">SM</div>
           <div class="dash-next-body">
             <div class="dash-next-name">Sarah Mitchell</div>
@@ -1173,7 +1173,7 @@
 
       <div>
         <div class="dash-section-label">Next session</div>
-        <div class="dash-next">
+        <div class="dash-next" onclick="FitUI.openEventSheet(document.getElementById('s-dashboard'),{state:'planned',event:{athleteName:'Alex Kim',athleteInitials:'AK',title:'Padel',time:'11:00 – 12:30',location:'Court C',price:'€75',payment:'Card',descriptor:'Confirmed session · Tomorrow'}})">
           <div class="dash-next-avatar" style="background:var(--fit-surface-higher);color:var(--fit-text-primary);">AK</div>
           <div class="dash-next-body">
             <div class="dash-next-name">Alex Kim</div>
@@ -1230,7 +1230,7 @@
 
       <div>
         <div class="dash-section-label">Next session</div>
-        <div class="dash-next">
+        <div class="dash-next" onclick="FitUI.openEventSheet(document.getElementById('s-dashboard'),{state:'planned',event:{athleteName:'Tom Jensen',athleteInitials:'TJ',title:'Tennis',time:'12:00 – 13:00',location:'Court B',price:'€50',payment:'Card'}})">
           <div class="dash-next-avatar">TJ</div>
           <div class="dash-next-body">
             <div class="dash-next-name">Tom Jensen</div>
@@ -1765,12 +1765,29 @@
   }
 
   function openEventDetail(el) {
-    // Placeholder: in real app this opens unified cal-event-sheet in Review state
-    // For prototype: visual hint only (bounce), real sheet lives in calendar.html
     if (!el) return;
-    el.style.transition = 'transform 0.1s ease';
-    el.style.transform = 'scale(0.98)';
-    setTimeout(function(){ el.style.transform = ''; }, 120);
+    var card = el.closest('.review-card');
+    var name = (card && card.dataset.name) || '';
+    var nameEl = card && card.querySelector('.review-name');
+    var metaEl = card && card.querySelector('.review-meta');
+    var athleteName = nameEl ? nameEl.textContent.trim() : name;
+    var metaText = metaEl ? metaEl.textContent.trim().replace(/\s+/g, ' ') : '';
+    var titleMatch = metaText.split(' · ');
+    FitUI.openEventSheet(document.getElementById('s-review-queue'), {
+      state: 'review',
+      event: {
+        athleteName: athleteName,
+        athleteInitials: athleteName.split(' ').map(function(p){ return p.charAt(0); }).join('').slice(0,2),
+        title: titleMatch[0] || '',
+        time: 'Yesterday · ended',
+        location: '',
+        price: '',
+        payment: ''
+      },
+      onAction: function(action) {
+        if (action === 'complete' && card) markReview('complete', card.querySelector('.review-btn-complete'));
+      }
+    });
   }
 </script>
 </body>
