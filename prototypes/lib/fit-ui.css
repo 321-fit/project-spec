@@ -2,129 +2,140 @@
  * FitUI Component Library
  * 321Fit Design System — CSS Components
  *
- * Source: Figma UI Kit + custom components from prototypes
- * Generated from design-tokens + Figma MCP
+ * Source: design-tokens/ repo (Figma → Style Dictionary → generated)
+ * Tokens: fit-ui-tokens.css (generated, do not edit manually)
+ * Components: this file (hand-maintained)
  *
  * Usage: <link rel="stylesheet" href="fit-ui.css">
- * Requires: Google Fonts Rubik
+ * Requires: Google Fonts Rubik, fit-ui-tokens.css in same folder
  */
 
+@import url('./fit-ui-tokens.css');
+
 /* ============================================================
-   TOKENS (from design-tokens repo)
+   COMPAT LAYER — legacy short names mapped to generated tokens.
+   These aliases keep existing CSS/HTML using short names (--fit-gray-800,
+   --fit-sp-4, --fit-radius-md) working without rewriting every
+   consumer. Full migration to generated names happens in Phase 3.
    ============================================================ */
 :root {
   /* Font */
   --fit-font: 'Rubik', -apple-system, sans-serif;
 
-  /* Palette */
-  --fit-white: #FFFFFF;
-  --fit-black: #111213;
-  --fit-gray-50: #F7F7F8;
-  --fit-gray-100: #E4E6E7;
-  --fit-gray-200: #CCCFD2;
-  --fit-gray-300: #ACB1B6;
-  --fit-gray-400: #979EA5;
-  --fit-gray-500: #757E87;
-  --fit-gray-600: #5B6269;
-  --fit-gray-700: #3B4044;
-  --fit-gray-800: #2B2E31;
-  --fit-gray-900: #1F2123;
+  /* Palette aliases */
+  --fit-white:      var(--fit-color-gray-white);
+  --fit-black:      var(--fit-color-gray-black);
+  --fit-gray-50:    var(--fit-color-gray-50);
+  --fit-gray-100:   var(--fit-color-gray-100);
+  --fit-gray-200:   var(--fit-color-gray-200);
+  --fit-gray-300:   var(--fit-color-gray-300);
+  --fit-gray-400:   var(--fit-color-gray-400);
+  --fit-gray-500:   var(--fit-color-gray-500);
+  --fit-gray-600:   var(--fit-color-gray-600);
+  --fit-gray-700:   var(--fit-color-gray-700);
+  --fit-gray-800:   var(--fit-color-gray-800);
+  --fit-gray-900:   var(--fit-color-gray-900);
 
-  --fit-blue-300: #4FDDFC;
-  --fit-blue-400: #22CCF7;
-  --fit-blue-500: #03B2E2;
-  --fit-blue-600: #0A93BD;
-  --fit-blue-700: #06789D;
+  --fit-blue-300:   var(--fit-color-blue-300);
+  --fit-blue-400:   var(--fit-color-blue-400);
+  --fit-blue-500:   var(--fit-color-blue-500);
+  --fit-blue-600:   var(--fit-color-blue-600);
+  --fit-blue-700:   var(--fit-color-blue-700);
 
-  --fit-teal-200: #87F7CC;
-  --fit-teal-400: #22F7B7;
-  --fit-teal-500: #05E0A6;
-  --fit-teal-600: #08B48F;
+  --fit-teal-200:   var(--fit-color-teal-200);
+  --fit-teal-400:   var(--fit-color-teal-400);
+  --fit-teal-500:   var(--fit-color-teal-500);
+  --fit-teal-600:   var(--fit-color-teal-600);
 
-  --fit-red-50: #FFF0F0;
-  --fit-red-400: #F05C5B;
-  --fit-red-700: #AB081F;
-  --fit-red-900: #610315;
+  --fit-red-50:     var(--fit-color-red-50);
+  --fit-red-400:    var(--fit-color-red-400);
+  --fit-red-700:    var(--fit-color-red-700);
+  --fit-red-900:    var(--fit-color-red-900);
 
-  --fit-yellow-50: #FFF8DB;
-  --fit-yellow-400: #F7C948;
-  --fit-yellow-600: #DE911D;
-  --fit-yellow-900: #8D2B0A;
+  --fit-yellow-50:  var(--fit-color-yellow-50);
+  --fit-yellow-400: var(--fit-color-yellow-400);
+  --fit-yellow-600: var(--fit-color-yellow-600);
+  --fit-yellow-900: var(--fit-color-yellow-900);
 
-  --fit-green-50: #EAFBEB;
-  --fit-green-400: #51CA58;
-  --fit-green-500: #36B03D;
-  --fit-green-900: #004806;
+  --fit-green-50:   var(--fit-color-green-50);
+  --fit-green-400:  var(--fit-color-green-400);
+  --fit-green-500:  var(--fit-color-green-500);
+  --fit-green-900:  var(--fit-color-green-900);
 
   /* Brand */
-  --fit-brand-primary: var(--fit-blue-500);
-  --fit-brand-secondary: var(--fit-teal-500);
-  --fit-brand-gradient: linear-gradient(135deg, var(--fit-blue-500), var(--fit-teal-500));
-  --fit-brand-gradient-h: linear-gradient(to right, var(--fit-blue-500), var(--fit-teal-500));
-  --fit-selection-gradient: linear-gradient(to right, rgba(10,147,189,0.2), rgba(5,224,166,0.2));
-  --fit-selection-border: var(--fit-teal-600);
+  --fit-brand-primary:     var(--fit-color-brand-primary);
+  --fit-brand-secondary:   var(--fit-color-brand-secondary);
+  --fit-brand-gradient:    var(--fit-color-brand-gradient-135);
+  --fit-brand-gradient-h:  var(--fit-color-brand-gradient-horizontal);
+  --fit-selection-gradient:var(--fit-color-brand-selection-overlay);
+  --fit-selection-border:  var(--fit-color-border-selection);
 
-  /* Spacing */
-  --fit-sp-0: 0px;
-  --fit-sp-1: 4px;
-  --fit-sp-2: 8px;
-  --fit-sp-3: 12px;
-  --fit-sp-4: 16px;
-  --fit-sp-5: 20px;
-  --fit-sp-6: 24px;
-  --fit-sp-7: 32px;
-  --fit-sp-8: 40px;
-  --fit-sp-9: 48px;
+  /* Spacing — sp-X aliases */
+  --fit-sp-0:   var(--fit-spacing-0);
+  --fit-sp-0_5: var(--fit-spacing-0-5);
+  --fit-sp-1:   var(--fit-spacing-1);
+  --fit-sp-1_5: var(--fit-spacing-1-5);
+  --fit-sp-2:   var(--fit-spacing-2);
+  --fit-sp-2_5: var(--fit-spacing-2-5);
+  --fit-sp-3:   var(--fit-spacing-3);
+  --fit-sp-3_5: var(--fit-spacing-3-5);
+  --fit-sp-4:   var(--fit-spacing-4);
+  --fit-sp-4_5: var(--fit-spacing-4-5);
+  --fit-sp-5:   var(--fit-spacing-5);
+  --fit-sp-6:   var(--fit-spacing-6);
+  --fit-sp-7:   var(--fit-spacing-7);
+  --fit-sp-8:   var(--fit-spacing-8);
+  --fit-sp-9:   var(--fit-spacing-9);
 
-  /* Radius */
-  --fit-radius-xs: 4px;
-  --fit-radius-sm: 8px;
-  --fit-radius-md: 12px;
-  --fit-radius-lg: 16px;
-  --fit-radius-full: 9999px;
+  /* Radius — semantic aliases */
+  --fit-radius-xs:   var(--fit-radius-alias-xs);
+  --fit-radius-sm:   var(--fit-radius-alias-sm);
+  --fit-radius-md:   var(--fit-radius-alias-md);
+  --fit-radius-lg:   var(--fit-radius-alias-lg);
+  /* --fit-radius-full already defined in tokens */
 
   /* Effects */
-  --fit-blur-glass: 12px;
+  --fit-blur-glass: var(--fit-effect-blur-glass);
 }
 
 /* ============================================================
    THEME: DARK (Coach) — apply class .fit-dark
    ============================================================ */
 .fit-dark {
-  --fit-screen-bg: var(--fit-gray-900);
-  --fit-surface-low: var(--fit-black);
-  --fit-surface: var(--fit-gray-800);
-  --fit-surface-high: var(--fit-gray-800);
-  --fit-surface-higher: var(--fit-gray-700);
-  --fit-text-primary: var(--fit-white);
-  --fit-text-secondary: var(--fit-gray-200);
-  --fit-text-tertiary: var(--fit-gray-400);
-  --fit-text-placeholder: var(--fit-gray-500);
-  --fit-divider: var(--fit-gray-700);
-  --fit-text-on-brand: var(--fit-white);
+  --fit-screen-bg:        var(--fit-color-screen-dark);
+  --fit-surface-low:      var(--fit-color-surface-low-dark);
+  --fit-surface:          var(--fit-color-surface-default-dark);
+  --fit-surface-high:     var(--fit-color-surface-high-dark);
+  --fit-surface-higher:   var(--fit-color-surface-higher-dark);
+  --fit-text-primary:     var(--fit-color-text-primary-dark);
+  --fit-text-secondary:   var(--fit-color-text-secondary-dark);
+  --fit-text-tertiary:    var(--fit-color-text-tertiary-dark);
+  --fit-text-placeholder: var(--fit-color-text-placeholder-dark);
+  --fit-divider:          var(--fit-color-divider-dark);
+  --fit-text-on-brand:    var(--fit-color-text-on-brand-dark);
 
   background: var(--fit-screen-bg);
-  color: var(--fit-text-primary);
+  color:      var(--fit-text-primary);
 }
 
 /* ============================================================
    THEME: LIGHT (Athlete) — apply class .fit-light
    ============================================================ */
 .fit-light {
-  --fit-screen-bg: #F2F2F7;
-  --fit-surface-low: var(--fit-gray-100);
-  --fit-surface: var(--fit-white);
-  --fit-surface-high: var(--fit-white);
-  --fit-surface-higher: var(--fit-gray-50);
-  --fit-text-primary: var(--fit-gray-900);
-  --fit-text-secondary: var(--fit-gray-500);
-  --fit-text-tertiary: var(--fit-gray-400);
-  --fit-text-placeholder: var(--fit-gray-400);
-  --fit-divider: var(--fit-gray-100);
-  --fit-text-on-brand: var(--fit-blue-700);
+  --fit-screen-bg:        var(--fit-color-screen-light);
+  --fit-surface-low:      var(--fit-color-surface-low-light);
+  --fit-surface:          var(--fit-color-surface-default-light);
+  --fit-surface-high:     var(--fit-color-surface-high-light);
+  --fit-surface-higher:   var(--fit-color-surface-higher-light);
+  --fit-text-primary:     var(--fit-color-text-primary-light);
+  --fit-text-secondary:   var(--fit-color-text-secondary-light);
+  --fit-text-tertiary:    var(--fit-color-text-tertiary-light);
+  --fit-text-placeholder: var(--fit-color-text-placeholder-light);
+  --fit-divider:          var(--fit-color-divider-light);
+  --fit-text-on-brand:    var(--fit-color-text-on-brand-light);
 
   background: var(--fit-screen-bg);
-  color: var(--fit-text-primary);
+  color:      var(--fit-text-primary);
 }
 
 /* ============================================================
