@@ -217,9 +217,52 @@
   background: var(--fit-surface-high); color: var(--fit-text-primary);
   border: 1px solid var(--fit-divider);
 }
+/* ============================================================
+   DESTRUCTIVE BUTTON TIERS (4-tier severity system)
+
+   Default .fit-btn-destructive = Medium (tinted red). Modifiers
+   override visual weight to match real-world stakes.
+
+   Pick tier by impact — user should sense risk before reading label:
+
+   - --high   → FILLED red. Irreversible data loss.
+                Delete template, delete account, remove recurring series forever.
+   - (none)   → TINTED (Medium default). Cancel with impact on another user.
+                Decline request, cancel confirmed session, remove participant.
+   - --low    → OUTLINED red. Roll back your OWN pending action,
+                other side has not committed. Retract pending invite, mark missed.
+   - --minimal→ TEXT red. Secondary "Cancel" in confirm dialogs where
+                the primary IS destructive ("Cancel" in "Are you sure?").
+
+   Size-neutral — compose with .fit-btn (h=50), .fit-btn-sm, or inline height.
+   ============================================================ */
 .fit-btn-destructive {
-  background: rgba(240,92,91,0.12); color: var(--fit-red-400);
+  background: rgba(240, 92, 91, 0.15);
+  color: var(--fit-red-400);
+  border: none;
 }
+.fit-btn-destructive:hover { background: rgba(240, 92, 91, 0.22); }
+
+.fit-btn-destructive--high {
+  background: var(--fit-red-400);
+  color: var(--fit-white);
+  border: none;
+}
+.fit-btn-destructive--high:hover { background: #D94A4A; }
+
+.fit-btn-destructive--low {
+  background: transparent;
+  color: var(--fit-red-400);
+  border: 1px solid var(--fit-red-400);
+}
+.fit-btn-destructive--low:hover { background: rgba(240, 92, 91, 0.08); }
+
+.fit-btn-destructive--minimal {
+  background: transparent;
+  color: var(--fit-red-400);
+  border: none;
+}
+.fit-btn-destructive--minimal:hover { background: rgba(240, 92, 91, 0.08); }
 .fit-btn-disabled {
   background: var(--fit-surface-low); color: var(--fit-text-tertiary);
   cursor: not-allowed; opacity: 0.7;
