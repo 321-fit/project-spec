@@ -1,151 +1,257 @@
-# Event Statuses & Push Notifications
+# Event Status System & Push Notifications
 
-> Last updated: 2026-04-02
+> Status: Approved (contract) / In Progress (implementation migration)
+> Prototype: [flows/coach/calendar.html](../prototypes/flows/coach/calendar.html) — all 6 states demo
+> Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md) — FitCalEvent, FitCalEventPill
+> Last updated: 2026-04-24
+> Implementation:
+> - iOS:     [321fit_ios/docs/event-statuses-ios.md] (to be created)
+> - Backend: [poly-backend/docs/event-statuses-backend.md] (to be created — includes migration)
+> - Voice:   [voice_control/docs/event-statuses-voice.md] (to be created)
 
-## Overview
-Training events go through a lifecycle of statuses. Each status transition triggers push notifications to the relevant party. This is the source of truth for client-side status naming and notification behavior.
+---
 
-## Current State
-Fully implemented across iOS, backend, and voice assistant.
+## 1. Overview
 
-## Event Statuses (Client-Side Naming)
+Canonical lifecycle states of a **training event** — the base entity for every session between coach and athlete. Replaces the ad-hoc legacy status list (`pending / request / approved / declined / cancelled / auto-declined / rescheduled / paid / cash / invitation / successful`) with a **unified 6-state system for personal events** and a **4-state subset for group events**.
 
-| Status | Description | Who sees it |
+Every client render (calendar card, event sheet, dashboard card) + every backend transition + every push notification references these canonical states. Old legacy names are migrated.
+
+---
+
+## 2. User Stories
+
+### Coach
+
+- As a coach looking at the calendar, I want each event's status to be visually distinct so that I can parse the day at a glance.
+- As a coach, I want state transitions to be unambiguous so that I always know whether a session is confirmed, pending, or past.
+
+### Athlete
+
+- As an athlete, I want the same visual language across my schedule so that the system behaves consistently for me too.
+- As an athlete, when I send a request, I want to see it's **Awaiting** coach's response so that I know what's happening without confusion.
+
+### Voice
+
+- As the voice assistant, when I fetch events, I want a single canonical status enum so that my answers are consistent.
+
+---
+
+## 3. System Stories
+
+- As the backend, every `TrainingEvent` has exactly one current status from the canonical enum. Intermediate legacy statuses are migrated.
+- As the backend, allowed transitions are explicit and enforced. Illegal transitions return 409 Conflict.
+- As the backend, automatic transitions (e.g., `Planned → Review` after end time) are idempotent scheduled tasks.
+- As the client, pill colors and descriptor text map 1:1 from the enum. Clients must not invent state names.
+- As any service, `cancelled` is a terminal state but is **NOT displayed** on calendar — events transition to cancelled and are filtered from the normal calendar view. Retained in DB for 2 months for audit, then hard-deleted.
+
+---
+
+## 4. Flows
+
+### Flow 1: Athlete-initiated booking (personal)
+
+1. Athlete taps "Book" on coach profile → event created in `request` state (coach's perspective) / `awaiting` (athlete's perspective — their outgoing request).
+2. Coach opens their Calendar → sees event with yellow `Request` pill. Opens event sheet → Accept or Decline.
+3. **Accept:** status → `planned` (both sides). Push to athlete: "Your training session request has been approved." Event appears normally on both calendars.
+4. **Decline:** status → `cancelled`. Event removed from calendars. Push to athlete: "Your training session request with {name} has been declined."
+5. **No response for 48 h:** auto-transition `request → cancelled` via scheduler. Pushes on both sides: "Request was not answered in time and was automatically cancelled."
+
+### Flow 2: Coach-initiated booking (Schedule training)
+
+1. Coach uses Schedule flow (see [clients-coaches.md](./clients-coaches.md)) → event created in `awaiting` (coach's perspective — waiting for athlete) / `request` (athlete's perspective).
+2. Athlete opens notification → event sheet in `request` state → Accept or Decline.
+3. Same transitions as Flow 1 but mirror directions.
+
+### Flow 3: Planned event → end time → review → finished/missed
+
+1. Event is `planned`, scheduled date reached, session happens.
+2. After session's `endAt`, scheduled task (30-min delay, TBD): status → `review` (coach's perspective only).
+3. Coach opens Dashboard or Review Queue → sees card in Review state → taps **Mark complete** or **Missed**.
+4. **Mark complete:** status → `finished`. Payment released per [payments.md](./payments.md). Push to athlete: "Session with {coach_name} marked complete."
+5. **Missed:** status → `missed`. Payment policy per payments.md. Push to athlete (optional): silent or neutral.
+6. See [review-queue.md](./review-queue.md) for full review screen flow.
+
+### Flow 4: Reschedule (from any state)
+
+1. Either party taps reschedule on event sheet → opens date/time picker.
+2. Confirm → new event created in `request`/`awaiting` state (same Flow 1 lifecycle). Old event transitions to `cancelled`.
+3. Push: "The {coach_name/athlete_name} has requested to reschedule the training session."
+
+### Flow 5: Cancellation of planned event
+
+1. Either party taps Cancel on a `planned` event.
+2. Confirmation required (destructive — tinted red).
+3. Status → `cancelled`. Event disappears from calendars (UI filter). Push to the other party: "Your session on {date} at {time} has been cancelled."
+
+### Flow 6: Group event join (subset)
+
+1. Athlete joins a group session → event gets athlete-as-participant, status stays `planned` (no 1-on-1 request cycle; group slots are auto-confirmed if available).
+2. End-of-session flow (review/missed/finished) same as personal — coach marks the whole group.
+3. `Request` and `Awaiting` states don't apply to group (no 1-on-1 approval dance).
+
+---
+
+## 5. States
+
+### Personal event — 6 states
+
+| State | Who sees it | Color | Pill | Descriptor (event sheet) | Transitions from | Transitions to |
+|---|---|---|---|---|---|---|
+| `planned` | Both | teal-500 (left stripe) | none (default) | "Confirmed session" | `request` (accept), `awaiting` (accept by other party), reschedule new | `cancelled`, `review` |
+| `request` | Receiver only | yellow-600 | "Request" | "Athlete requested this session" (coach-side) | new creation | `planned` (accept), `cancelled` (decline / 48h auto) |
+| `awaiting` | Creator only | gray-400 | "Awaiting" | "Waiting for athlete's response" | new creation (outgoing) | `planned` (other accepts), `cancelled` (other declines / 48h auto / creator cancels) |
+| `review` | Coach only | yellow-600 | "Review" | "Session ended — complete it" | `planned` (past endAt + 30 min) | `finished` (mark complete), `missed` (mark missed) |
+| `missed` | Both | red-400 | "Missed" | "Marked as missed" | `review` | (terminal, retained 2 months) |
+| `finished` | Both | teal-500 (0.5 opacity) | none | "Completed on {date}" | `review` | (terminal, retained indefinitely for history) |
+
+### Group event — 4 states (subset)
+
+| State | Trigger | Notes |
 |---|---|---|
-| **pending** | Waiting for the other party to respond | The user who created the request |
-| **request** | Incoming request awaiting your action | The user who received the request |
-| **approved** | Both parties confirmed | Both |
-| **declined** | Request was rejected | Both |
-| **canceled** | Confirmed event was cancelled | Both |
-| **auto-declined** | Request expired without response (48h or 24h after event date) | Both |
-| **rescheduled** | Reschedule requested (transitions back to pending/request) | Both |
-| **paid** | Payment held/completed for this event | Both |
-| **cash** | Cash payment method selected | Both |
-| **invitation** | Invite link sent, awaiting action | Both |
-| **successful / completed** | Training session completed | Both |
-| **google event** | Event imported from Google Calendar | Owner only |
-| **apple event** | Event imported from Apple Calendar | Owner only |
+| `planned` | Default when session is scheduled | Participants can join/leave; booking window open until start |
+| `review` | Past endAt + 30 min | Coach-only view; mark whole group complete/missed |
+| `missed` | Coach marks entire session missed | e.g., coach no-show. Terminal. |
+| `finished` | Coach marks complete | Terminal. |
 
-> **Note:** Backend may use different naming internally (e.g., `ApprovalStatus` enum). Always use client-side naming in user-facing contexts.
+Group events skip `request` / `awaiting` because joining is immediate — no 1-on-1 handshake.
 
-### Backend Enum Mapping
-| Client Status | Backend `ApprovalStatus` | Backend `EventSource` |
+### Hidden state: `cancelled`
+
+- Terminal but NOT displayed on calendar.
+- Accessible via direct URL / admin tool / audit log only.
+- Auto-deleted after 2 months retention.
+
+### Legacy → canonical migration
+
+Old statuses map to canonical:
+
+| Legacy | Canonical | Notes |
 |---|---|---|
-| pending | `pending` | — |
-| request | `pending` (viewed by other party) | — |
-| approved | `approved` | — |
-| declined | `declined` | — |
-| canceled | `cancelled` | — |
-| auto-declined | `auto_declined` | — |
-| rescheduled | `rescheduled` | — |
-| successful/completed | (post-confirmation) | — |
-| google event | — | `google` |
-| apple event | — | `apple` |
+| `pending` (initiator side) | `awaiting` | |
+| `pending` (receiver side, legacy naming overload) | `request` | The same underlying record; view depends on who's asking |
+| `approved` | `planned` | |
+| `declined`, `cancelled`, `auto_declined` | `cancelled` | All terminal non-completion states collapse |
+| `rescheduled` | `cancelled` (original) + `request`/`awaiting` (new event) | Reschedule always creates a new event, cancels old |
+| `successful` / `completed` | `finished` | |
+| `paid`, `cash` | NOT a status — payment is a separate field on the event (see [payments.md](./payments.md)) |
+| `invitation` | NOT a status — invite link is a separate entity in deep-linking-referrals spec |
 
-## Status Flows
+Backend migration runs once: maps all legacy values to canonical enum + updates dependent tables.
 
-### New Training Request
+---
 
-**Athlete creates request:**
-```
-Athlete creates event → pending (athlete) / request (coach)
-  → Coach approves → approved (both)
-  → Coach declines → declined (both)
-  → 48h no response → auto-declined (both)
-```
+## 6. API
 
-**Coach creates request:**
-```
-Coach creates event → pending (coach) / request (athlete)
-  → Athlete approves → approved (both)
-  → Athlete declines → declined (both)
-  → 48h no response → auto-declined (both)
+### Enum definition
+
+```typescript
+type EventStatus =
+  | "planned"   // confirmed session, on calendar
+  | "request"   // incoming — awaiting current user's response
+  | "awaiting"  // outgoing — waiting for other party
+  | "review"    // past endAt, coach hasn't resolved yet
+  | "missed"    // coach marked missed
+  | "finished"  // coach marked complete
+  | "cancelled" // terminal, hidden from calendar views
 ```
 
-### Reschedule
-```
-Either party reschedules → pending (initiator) / request (other party)
-  → Same flow as new request
-```
+Fields on `TrainingEvent`:
+- `status`: `EventStatus`
+- `type`: `"personal" | "group" | "custom" | "external"`
+- `endAt`: ISO8601
+- `cancelledAt`: ISO8601 | null (set when transitioning to cancelled)
+- `completedAt`: ISO8601 | null (set when transitioning to finished)
 
-### Cancellation
-```
-Either party cancels approved event → canceled (both)
-```
+### Endpoints (status-related subset)
 
-### Auto-Decline Triggers
-- 48 hours without response to a request
-- Event date has passed + 24 hours
+#### `POST /coach/events/{id}/review`
 
-### Completion
-```
-Approved event date passes → successful/completed (both)
-  → Payment transfer triggered (if card payment)
-```
+Marks event `review → finished` or `review → missed`. See [review-queue.md](./review-queue.md).
 
-### Calendar Events
-```
-Google/Apple Calendar sync → google event / apple event
-  → Read-only, blocks booking slots
-  → User cannot change status
-```
+#### `POST /events/{id}/accept`
 
-## Push Notifications
+Transitions `request → planned`. Auth: receiver must be the current user. Returns updated event.
+**Response 409:** if event is not in `request` state.
 
-### General Rules
-- Push sent on every status change EXCEPT re-sends within pending/request (no duplicate notifications)
-- Each notification has a routing target (which screen to open)
+#### `POST /events/{id}/decline`
 
-### Notification Table
+Transitions `request → cancelled`. Same auth rule.
 
-| Trigger | Recipient | Push Text | Routing |
+#### `POST /events/{id}/cancel`
+
+Transitions `planned → cancelled`. Either party can call.
+
+#### `POST /events/{id}/reschedule`
+
+Creates new event with `request`/`awaiting` state + cancels old. Body: `{ newStartAt, newEndAt }`.
+
+#### Scheduled tasks (server-side)
+
+- **Auto-cancel on no-response:** every `request` older than 48h → `cancelled`. Run every 15 min.
+- **Auto-transition to review:** every `planned` event where `now > endAt + 30 min` and type is `personal` or `group` → `review` (coach side). Run every 15 min.
+
+---
+
+## 7. Business rules
+
+- **`cancelled` is terminal** — no coming back. Reschedule creates new event.
+- **Only coach sees `review` state.** Athlete sees the event as `finished` optimistically or remains `planned` until coach acts (TBD — see open questions).
+- **External events** (Google/Apple Calendar sync): separate status-less path. Rendered on calendar as read-only blocks; don't participate in booking lifecycle.
+- **Custom events** (coach-created time blocks, see [coach-calendar.md](./coach-calendar.md) Custom Event section): also status-less. Always displayed; can be deleted.
+- **Cancellation retention:** 2 months in DB, then hard-delete. Cron task nightly.
+- **State transitions are atomic** — server must not allow a partial transition (e.g., status updated but push not sent). Use database transactions + idempotent outgoing events.
+- **Every visible transition fires a push** unless recipient disabled notifications. See Push table below.
+- **Pill colors map to state, not to role or context.** A yellow pill always means "needs attention" (request or review); gray always means "waiting on other party" (awaiting).
+
+---
+
+## 8. Push Notifications
+
+Map of state transition → push notification, following push-notifications.md convention.
+
+| Trigger | Recipient | Push text | Deeplink |
 |---|---|---|---|
-| Athlete creates request | Coach | "You have a new training session request from {athlete_name}" | Clients/Coaches screen → Requests tab |
-| Athlete request reminder | Coach | "{athlete_name} is still waiting for your reply to their training request." | Clients/Coaches screen → Requests tab |
-| Coach creates request | Athlete | "{coach_name} has requested a new training session." | Clients/Coaches screen → Requests tab |
-| Coach request reminder | Athlete | "Your coach {coach_name} is still waiting for your response to their training request." | Clients/Coaches screen → Requests tab |
-| Request approved | Request creator | "Your training session request has been approved." | Schedule screen → day of event |
-| Request declined | Request creator | "Your training session request with {name} has been declined." | Default (app root) |
-| Event canceled | Other party | "Your training session with {name} on {date} at {time} has been canceled." | Default (app root) |
-| Auto-declined | Both | "Your training session request was not answered in time and has been automatically declined." | Default (app root) |
-| Athlete reschedules | Coach | "The athlete {athlete_name} has requested to reschedule the training session." | Schedule screen → rescheduled date |
-| Coach reschedules | Athlete | "The trainer {coach_name} has requested to reschedule the training session." | Schedule screen → rescheduled date |
-| Athlete onboards via invite | Coach (inviter) | "Great news! {athlete_name} just onboarded to 321.fit. Ready to train?" | Athlete details screen |
-| Session completed (coach) | Coach | "The training session with {athlete_name} was successful." + payment info if card | Balance screen |
-| Session completed (athlete) | Athlete | "The training session with {coach_name} was successful." + payment info if card | Balance screen |
+| New `request` (athlete created) | Coach | "{athlete_name} requested a training session." | Requests inbox |
+| New `request` (coach created — Schedule) | Athlete | "{coach_name} proposed a training session." | Requests inbox |
+| `request → planned` (accept) | Creator | "Your training session request has been approved." | Calendar, event day |
+| `request → cancelled` (decline) | Creator | "Your training session request with {name} has been declined." | None |
+| `request → cancelled` (48h auto) | Both | "Request was not answered in time and has been automatically cancelled." | None |
+| `planned → cancelled` | Other party | "Your session on {date} at {time} has been cancelled." | None |
+| `planned → review` | Coach | Silent — surfaced via Dashboard action card | — |
+| `review → finished` (mark complete) | Athlete | "Session with {coach_name} marked complete." + payment info if card | Balance |
+| `review → missed` | Athlete | Silent in v1 (policy TBD) | — |
+| Reschedule (new event) | Other party | "The {role_name} has requested to reschedule the session." | Calendar |
+| Invite-based signup (deep link) | Inviter coach | "{athlete_name} joined 321.fit — ready to train?" | Client detail |
 
-### Payment-specific Push Additions
-- Coach (card payment): "...{sum} has been transferred to your balance."
-- Athlete (card payment): "...{sum} has been paid to {coach_name}."
+---
 
-## Components
+## 9. Platform notes
 
-### Backend
-- `NotificationCategory` enum: `app/domain/entities/` — defines all notification types
-- `send_push_notification` Celery task: `app/tasks/notifications.py`
-- FCM service: `infra/services/fcm.py`
-- Event approval handlers: `app/handlers/rest/athlete/`, `app/handlers/rest/coach/`
+- **iOS:** `EventStatus` Swift enum matches server enum one-to-one. Calendar rendering uses `FitCalEvent` component with status prop. Deprecation notice on old enum members during migration window.
+- **Android:** Kotlin sealed class `EventStatus` with same cases.
+- **Backend:** PostgreSQL enum type `event_status_enum` — migration adds new values, updates existing rows, drops legacy. Celery beat schedules auto-transitions.
+- **Voice:** `get_my_training_events()` tool returns events with canonical status. Voice-readable descriptor uses state descriptor text (e.g., "You have 3 planned sessions and 1 awaiting confirmation").
 
-### iOS
-- Push notification routing: `Core/PushNotifications/TargetData.swift` — `TargetRoute` enum
-- Event model: `Core/Models/EventModel.swift`
-- Pending requests: `TabBar/Tabs/ClientsTab/Requests/`
-- Schedule display: `TabBar/Tabs/ScheduleTab/`
-- AppDelegate notification handling: `App/AppDelegate.swift`
+---
 
-### Voice Assistant
-- Event status changes via tools: `coach_change_training_event_status_by_id()`, `athlete_change_training_event_status_by_id()`
-- Backend client handles status updates: `src/adapters/agents/tools/client/client.py`
+## 10. Open questions
 
-### Android (Planned)
-- Same push notification handling as iOS
-- FCM integration (backend already supports Android via `FCM_ANDROID_CREDENTIALS_PATH`)
-- Same event status display and routing logic
-- Same notification text and routing targets
+- [ ] **Athlete sees `review` or stays `planned`?** Currently planned: athlete stays seeing `planned` until coach marks outcome. If coach takes days to review, athlete may be confused ("Wasn't my session 3 days ago?"). Alternative: athlete sees `pending_review` (new state, coach view name aligned). **Decision needed** before backend migration. **Owner:** product.
+- [ ] **Auto-transition delay** (`planned → review` after endAt): 30 min default in this spec. Too eager? Too lazy? **Owner:** product + data team (observe coach behavior).
+- [ ] **Missed: silent or informative push?** Athletes may have legitimate reasons they missed; silent avoids shame but also context. **Owner:** product + safety.
+- [ ] **External calendar events re-sync rules** — what if a coach's external event is deleted externally? Currently: next sync removes it. **Owner:** calendar-sync spec owner (cross-reference).
 
-## Known Issues / Tech Debt
-- Backend uses `cancelled` (double L), client uses `canceled` (single L) — normalize
-- `successful/completed` status naming inconsistent across codebase
-- Reminder push timing (for pending requests) not clearly defined in backend
-- iOS `EventStatus` enum also includes `paid`, `cash`, `invitation` — not in original spec but implemented
-- Each iOS status has associated color: blue (pending/rescheduled), yellow (request/invitation), green (approved/paid/cash), red (cancelled/autodeclined)
+---
+
+## Related specs / references
+
+- [coach-calendar.md](./coach-calendar.md) — primary consumer of these states (calendar rendering, event sheets)
+- [review-queue.md](./review-queue.md) — screen that handles `review → finished/missed`
+- [payments.md](./payments.md) — state transitions trigger payment flows (planned → release, missed → policy)
+- [clients-coaches.md](./clients-coaches.md) — Schedule flow that creates `awaiting` events
+- [calendar-sync.md](./calendar-sync.md) — external events (out-of-lifecycle)
+- [notifications.md](./notifications.md) — push notification delivery mechanism
+- Memory: `project_calendar_event_status_system` — all decisions captured during prototyping
+- Prototype: `flows/coach/calendar.html` — state toggle buttons demonstrate all 6 states on event sheets
+- Components: FitCalEvent, FitCalEventPill (see [design-tokens/docs/components.md](../../design-tokens/docs/components.md))
