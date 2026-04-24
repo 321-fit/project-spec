@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Coach Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--fit-font);
+    background: #0a0a0a;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 24px; min-height: 100vh;
+    min-width: 900px;
+  }
+
+  /* ==================== SIDEBAR ==================== */
+  .sidebar {
+    position: fixed;
+    left: max(16px, calc(50% - 195px - 200px - 48px));
+    top: 24px; bottom: 24px; width: 200px;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-scroll {
+    flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+  }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--fit-gray-600);
+    padding: 0 8px; margin: 16px 0 8px;
+  }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button {
+    font-family: var(--fit-font); font-size: 14px; font-weight: 400;
+    padding: 10px 12px; border-radius: 10px; border: none;
+    background: transparent; color: var(--fit-gray-400);
+    cursor: pointer; text-align: left; width: 100%; transition: all 0.15s;
+  }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active {
+    background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500;
+  }
+
+  /* ==================== ANNOTATIONS ==================== */
+  .ann-container {
+    position: fixed;
+    left: calc(50% + 195px + 48px);
+    top: 24px; bottom: 24px; width: 280px;
+    overflow-y: auto;
+  }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; }
+  .ann.active { display: block; }
+  .ann-role {
+    display: inline-block; font-size: 14px; font-weight: 500;
+    padding: 4px 12px; border-radius: 8px; margin-bottom: 16px;
+  }
+  .ann-role.coach { background: rgba(3,178,226,0.15); color: var(--fit-blue-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 14px; padding-left: 18px; font-size: 16px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 6px; }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+
+  /* Screen visibility */
+  .fit-phone { display: none; }
+  .fit-phone.active { display: flex; }
+
+  .fit-dark .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-dark .fit-phone-footer { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+
+  /* State toggle (sidebar annotations) */
+  .state-toggle {
+    display: inline-flex; flex-wrap: wrap; gap: 0; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--fit-gray-700); margin-bottom: 12px;
+  }
+  .state-toggle button {
+    font-family: var(--fit-font); font-size: 12px; font-weight: 500;
+    padding: 4px 10px; border: none; cursor: pointer;
+    background: transparent; color: var(--fit-gray-400);
+    transition: all 0.15s;
+  }
+  .state-toggle button.active { background: var(--fit-gray-700); color: var(--fit-white); }
+
+  /* ==================== DASHBOARD-SPECIFIC ==================== */
+
+  /* Greeting + today summary */
+  .dash-greeting {
+    padding: 4px 0 0;
+  }
+  .dash-greeting-hello {
+    font-size: 24px; font-weight: 600; color: var(--fit-text-primary);
+    letter-spacing: -0.3px;
+  }
+  .dash-greeting-sub {
+    font-size: 14px; color: var(--fit-text-tertiary);
+    margin-top: 4px;
+  }
+  .dash-greeting-sub strong {
+    color: var(--fit-text-secondary); font-weight: 500;
+  }
+
+  /* Section label (sets rhythm above each card) */
+  .dash-section-label {
+    font-size: 12px; font-weight: 500;
+    color: var(--fit-text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 0 4px 8px;
+  }
+
+  /* Next Session — featured card */
+  .dash-next {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px;
+    border-radius: 16px;
+    background: var(--fit-surface-high);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .fit-light .dash-next {
+    background: var(--fit-white);
+    border: 1px solid var(--fit-gray-100);
+  }
+  .dash-next:hover { background: var(--fit-surface-higher); }
+  .fit-light .dash-next:hover { background: var(--fit-gray-50); }
+  .dash-next-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--fit-brand-gradient);
+    color: var(--fit-white);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 600;
+    flex-shrink: 0;
+  }
+  .dash-next-body { flex: 1; min-width: 0; }
+  .dash-next-name {
+    font-size: 16px; font-weight: 500; color: var(--fit-text-primary);
+    margin-bottom: 2px;
+  }
+  .dash-next-meta {
+    font-size: 13px; color: var(--fit-text-tertiary);
+    display: flex; gap: 4px; align-items: center;
+    flex-wrap: wrap;
+  }
+  .dash-next-meta .dot { width: 2px; height: 2px; border-radius: 50%; background: var(--fit-text-tertiary); }
+  .dash-next-when {
+    font-size: 13px; font-weight: 500;
+    color: var(--fit-teal-500);
+    margin-top: 4px;
+  }
+  .dash-next-chev {
+    width: 18px; height: 18px;
+    color: var(--fit-text-tertiary);
+    flex-shrink: 0;
+  }
+
+  /* Action cards */
+  .dash-actions {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .dash-action {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: var(--fit-surface-high);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .fit-light .dash-action {
+    background: var(--fit-white);
+    border: 1px solid var(--fit-gray-100);
+  }
+  .dash-action:hover { background: var(--fit-surface-higher); }
+  .fit-light .dash-action:hover { background: var(--fit-gray-50); }
+  .dash-action-icon {
+    width: 32px; height: 32px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .dash-action-icon svg { width: 16px; height: 16px; }
+  .dash-action-icon.req { background: rgba(3,178,226,0.15); color: var(--fit-blue-500); }
+  .dash-action-icon.cash { background: rgba(16,185,129,0.15); color: var(--fit-teal-500); }
+  .dash-action-icon.review { background: rgba(250,204,21,0.15); color: var(--fit-yellow-400, #facc15); }
+  .dash-action-body { flex: 1; min-width: 0; }
+  .dash-action-title {
+    font-size: 15px; font-weight: 500; color: var(--fit-text-primary);
+    line-height: 1.2;
+  }
+  .dash-action-sub {
+    font-size: 13px; color: var(--fit-text-tertiary);
+    margin-top: 2px;
+  }
+  .dash-action-chev {
+    width: 18px; height: 18px;
+    color: var(--fit-text-tertiary);
+    flex-shrink: 0;
+  }
+
+  /* This week card (with payment split inside) */
+  .dash-week {
+    padding: 16px;
+    border-radius: 16px;
+    background: var(--fit-surface-high);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .fit-light .dash-week {
+    background: var(--fit-white);
+    border: 1px solid var(--fit-gray-100);
+  }
+  .dash-week:hover { background: var(--fit-surface-higher); }
+  .fit-light .dash-week:hover { background: var(--fit-gray-50); }
+  .dash-week-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .dash-week-title-row {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .dash-week-title {
+    font-size: 13px; font-weight: 500;
+    color: var(--fit-text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .dash-week-chev {
+    width: 16px; height: 16px;
+    color: var(--fit-text-tertiary);
+    flex-shrink: 0;
+  }
+  .dash-week-amount {
+    font-size: 28px; font-weight: 600;
+    color: var(--fit-text-primary);
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+  .dash-week-trend {
+    display: inline-flex; align-items: center; gap: 2px;
+    font-size: 12px; font-weight: 500;
+    padding: 3px 8px; border-radius: 99px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .dash-week-trend.up { background: rgba(16,185,129,0.12); color: var(--fit-teal-500); }
+  .dash-week-trend.down { background: rgba(239,68,68,0.12); color: var(--fit-red-400); }
+  .dash-week-trend.flat { background: var(--fit-surface-higher); color: var(--fit-text-tertiary); }
+  .fit-light .dash-week-trend.flat { background: var(--fit-gray-100); }
+  .dash-week-trend svg { width: 10px; height: 10px; }
+  .dash-week-planned {
+    font-size: 13px; color: var(--fit-text-tertiary);
+    margin-top: 6px;
+  }
+  .dash-week-planned strong {
+    color: var(--fit-text-secondary); font-weight: 500;
+  }
+  .dash-week-divider {
+    height: 1px; background: var(--fit-divider);
+    margin: 12px 0;
+  }
+  .dash-split-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+  }
+  .dash-split-cell {
+    display: flex; flex-direction: column; gap: 2px;
+    flex: 1; min-width: 0;
+  }
+  .dash-split-label {
+    font-size: 11px; color: var(--fit-text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .dash-split-value {
+    font-size: 15px; font-weight: 500; color: var(--fit-text-primary);
+  }
+  .dash-split-sub {
+    font-size: 12px; color: var(--fit-text-tertiary);
+    margin-top: 1px;
+  }
+  .dash-split-sep {
+    width: 1px; align-self: stretch; background: var(--fit-divider);
+    margin: 2px 0;
+  }
+
+  /* Signals (activity) card */
+  .dash-signals {
+    padding: 14px;
+    border-radius: 16px;
+    background: var(--fit-surface-high);
+    display: flex; flex-direction: column; gap: 0;
+  }
+  .fit-light .dash-signals {
+    background: var(--fit-white);
+    border: 1px solid var(--fit-gray-100);
+  }
+  .dash-signal {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--fit-divider);
+  }
+  .dash-signal:last-child { border-bottom: none; }
+  .dash-signal:first-child { padding-top: 0; }
+  .dash-signal:last-child { padding-bottom: 0; }
+  .dash-signal-icon {
+    width: 24px; height: 24px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .dash-signal-icon svg { width: 14px; height: 14px; }
+  .dash-signal-icon.star { color: var(--fit-yellow-400, #facc15); }
+  .dash-signal-icon.clients { color: var(--fit-blue-500); }
+  .dash-signal-body { flex: 1; min-width: 0; }
+  .dash-signal-title {
+    font-size: 14px; color: var(--fit-text-primary);
+    line-height: 1.4;
+  }
+  .dash-signal-title .author {
+    color: var(--fit-text-tertiary);
+  }
+  .dash-signal-meta {
+    font-size: 12px; color: var(--fit-text-tertiary);
+    margin-top: 2px;
+  }
+
+  /* Empty Next-Session variant (quiet day) */
+  .dash-next-empty {
+    padding: 16px;
+    border-radius: 16px;
+    background: var(--fit-surface-high);
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .fit-light .dash-next-empty {
+    background: var(--fit-white);
+    border: 1px solid var(--fit-gray-100);
+  }
+  .dash-next-empty-title {
+    font-size: 15px; font-weight: 500;
+    color: var(--fit-text-primary);
+  }
+  .dash-next-empty-sub {
+    font-size: 13px; color: var(--fit-text-tertiary);
+    line-height: 1.45;
+  }
+  .dash-next-cta-row {
+    display: flex; gap: 8px;
+    margin-top: 14px;
+  }
+  .dash-cta-primary {
+    flex: 1; height: 40px; border: none; border-radius: 99px;
+    background: var(--fit-brand-gradient); color: var(--fit-white);
+    font-family: var(--fit-font); font-size: 14px; font-weight: 500;
+    cursor: pointer;
+  }
+  .dash-cta-secondary {
+    flex: 1; height: 40px; border-radius: 99px;
+    background: transparent;
+    border: 1px solid var(--fit-divider);
+    color: var(--fit-text-primary);
+    font-family: var(--fit-font); font-size: 14px; font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .dash-cta-secondary:hover { background: var(--fit-surface-higher); }
+  .fit-light .dash-cta-secondary { border-color: var(--fit-gray-200); }
+  .fit-light .dash-cta-secondary:hover { background: var(--fit-gray-50); }
+
+  /* ===== WIZARD WIDGET (Tier 1 onboarding) ===== */
+  .wiz-card {
+    padding: 16px;
+    border-radius: 16px;
+    background: var(--fit-surface-high);
+    border: 1px solid var(--fit-teal-500);
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .fit-light .wiz-card {
+    background: var(--fit-white);
+    border-color: var(--fit-teal-500);
+  }
+  .wiz-header {
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .wiz-header-text { flex: 1; min-width: 0; }
+  .wiz-title {
+    font-size: 16px; font-weight: 500;
+    color: var(--fit-text-primary);
+    line-height: 1.35;
+  }
+  .wiz-sub {
+    font-size: 14px; color: var(--fit-text-secondary);
+    line-height: 1.35;
+    margin-top: 4px;
+  }
+  .wiz-toggle {
+    width: 32px; height: 32px;
+    border-radius: 99px;
+    background: rgba(117,126,135,0.3);
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    color: var(--fit-text-primary);
+    transition: transform 0.2s ease;
+  }
+  .wiz-toggle svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
+  .wiz-card.expanded .wiz-toggle svg { transform: rotate(180deg); }
+
+  .wiz-progress-row {
+    display: flex; gap: 16px; align-items: baseline;
+    font-size: 14px;
+  }
+  .wiz-progress-count { flex: 1; color: var(--fit-text-primary); }
+  .wiz-progress-pct {
+    background: linear-gradient(to right, #4fddfc, #87f7cc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 500;
+  }
+  .wiz-progress-bar {
+    height: 3px; border-radius: 2px; width: 100%;
+    background: var(--fit-gray-600);
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .wiz-light .wiz-progress-bar,
+  .fit-light .wiz-progress-bar { background: var(--fit-gray-100); }
+  .wiz-progress-fill {
+    height: 100%; border-radius: 2px;
+    background: var(--fit-brand-gradient-h);
+    transition: width 0.3s ease;
+  }
+
+  .wiz-list {
+    display: none; /* shown when .expanded */
+    flex-direction: column; gap: 8px;
+  }
+  .wiz-card.expanded .wiz-list { display: flex; }
+  .wiz-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px;
+    min-height: 48px;
+    border-radius: 12px;
+    cursor: pointer;
+    background: linear-gradient(to right,
+      rgba(3,178,226,0.2),
+      rgba(34,247,183,0.2));
+    border: 0.5px solid var(--fit-teal-500);
+    color: var(--fit-white);
+    font-size: 16px;
+    transition: background 0.15s;
+  }
+  .fit-light .wiz-item { color: var(--fit-text-primary); }
+  .wiz-item-title { flex: 1; min-width: 0; }
+  .wiz-item:hover {
+    background: linear-gradient(to right,
+      rgba(3,178,226,0.28),
+      rgba(34,247,183,0.28));
+  }
+  .wiz-item.done {
+    background: rgba(117,126,135,0.3);
+    border: 0.5px solid rgba(246,247,248,0.5);
+    color: var(--fit-gray-300);
+    cursor: default;
+  }
+  .fit-light .wiz-item.done {
+    background: var(--fit-gray-50);
+    border-color: var(--fit-gray-200);
+    color: var(--fit-text-tertiary);
+  }
+  .wiz-item.done:hover { background: rgba(117,126,135,0.3); }
+  .wiz-item-check {
+    width: 16px; height: 16px;
+    color: var(--fit-teal-500);
+    flex-shrink: 0;
+  }
+
+  /* ===== UNDER-REVIEW BANNER ===== */
+  .review-banner {
+    padding: 16px;
+    border-radius: 16px;
+    background: linear-gradient(to right,
+      rgba(3,178,226,0.2),
+      rgba(34,247,183,0.2));
+    border: 1px solid var(--fit-teal-500);
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .review-banner-head {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .review-banner-head svg {
+    width: 22px; height: 22px;
+    color: var(--fit-teal-500);
+    flex-shrink: 0;
+  }
+  .review-banner-title {
+    flex: 1; min-width: 0;
+    font-size: 16px; font-weight: 500;
+    color: var(--fit-text-primary);
+  }
+  .review-banner-body {
+    font-size: 14px; color: var(--fit-text-secondary);
+    line-height: 1.4;
+  }
+
+  /* ===== OPTIONAL BOOST CARDS ===== */
+  .boost-card {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px;
+    border-radius: 14px;
+    background: var(--fit-surface-high);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .fit-light .boost-card {
+    background: var(--fit-white);
+    border: 1px solid var(--fit-gray-100);
+  }
+  .boost-card:hover { background: var(--fit-surface-higher); }
+  .fit-light .boost-card:hover { background: var(--fit-gray-50); }
+  .boost-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(3,178,226,0.12);
+    color: var(--fit-blue-500);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .boost-icon svg { width: 18px; height: 18px; }
+  .boost-body { flex: 1; min-width: 0; }
+  .boost-title {
+    font-size: 15px; font-weight: 500; color: var(--fit-text-primary);
+    line-height: 1.25;
+  }
+  .boost-action {
+    font-size: 13px; color: var(--fit-text-tertiary);
+    margin-top: 2px;
+  }
+  .boost-chev {
+    width: 18px; height: 18px;
+    color: var(--fit-text-tertiary);
+    flex-shrink: 0;
+  }
+
+  /* ===== TIER 2 TIP CARD (dismissable) ===== */
+  .dash-tip {
+    position: relative;
+    padding: 14px 40px 14px 14px;
+    border-radius: 14px;
+    background: var(--fit-surface-high);
+    border-left: 3px solid var(--fit-teal-500);
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .fit-light .dash-tip {
+    background: var(--fit-white);
+    border: 1px solid var(--fit-gray-100);
+    border-left: 3px solid var(--fit-teal-500);
+  }
+  .dash-tip-icon {
+    width: 24px; height: 24px; flex-shrink: 0;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .dash-tip-body { flex: 1; min-width: 0; }
+  .dash-tip-title {
+    font-size: 14px; font-weight: 500; color: var(--fit-text-primary);
+    line-height: 1.3;
+  }
+  .dash-tip-sub {
+    font-size: 13px; color: var(--fit-text-tertiary);
+    margin-top: 2px; line-height: 1.4;
+    margin-bottom: 10px;
+  }
+  .dash-tip-cta {
+    display: inline-block;
+    font-size: 13px; font-weight: 500;
+    color: var(--fit-blue-500);
+    background: transparent;
+    border: none; padding: 0;
+    cursor: pointer;
+    font-family: var(--fit-font);
+  }
+  .dash-tip-dismiss {
+    position: absolute; top: 10px; right: 10px;
+    width: 24px; height: 24px;
+    border-radius: 50%; border: none;
+    background: transparent;
+    color: var(--fit-text-tertiary);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .dash-tip-dismiss svg { width: 14px; height: 14px; }
+  .dash-tip-dismiss:hover { background: var(--fit-surface-higher); }
+  .fit-light .dash-tip-dismiss:hover { background: var(--fit-gray-100); }
+
+  /* New Coach — onboarding hints */
+  .dash-hint {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px;
+    border-radius: 14px;
+    background: var(--fit-surface-high);
+    border: 1px dashed var(--fit-divider);
+    cursor: pointer;
+  }
+  .fit-light .dash-hint {
+    background: var(--fit-white);
+    border: 1px dashed var(--fit-gray-200);
+  }
+  .dash-hint-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(3,178,226,0.12);
+    color: var(--fit-blue-500);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .dash-hint-icon svg { width: 18px; height: 18px; }
+  .dash-hint-body { flex: 1; min-width: 0; }
+  .dash-hint-title {
+    font-size: 15px; font-weight: 500; color: var(--fit-text-primary);
+  }
+  .dash-hint-sub {
+    font-size: 13px; color: var(--fit-text-tertiary);
+    margin-top: 2px; line-height: 1.4;
+  }
+  .dash-hint-chev {
+    width: 18px; height: 18px;
+    color: var(--fit-text-tertiary);
+    flex-shrink: 0;
+  }
+
+  /* Offline / error banner */
+  .dash-error-banner {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.25);
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: var(--fit-red-400);
+  }
+  .dash-error-banner svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .dash-error-retry {
+    font-size: 13px; font-weight: 500;
+    color: var(--fit-red-400);
+    text-decoration: underline;
+    cursor: pointer; margin-left: auto;
+    background: transparent; border: none;
+    font-family: var(--fit-font);
+  }
+
+  /* Skeleton (loading) */
+  .dash-skel {
+    border-radius: 14px;
+    background: linear-gradient(90deg,
+      var(--fit-surface-high) 0%,
+      var(--fit-surface-higher) 50%,
+      var(--fit-surface-high) 100%);
+    background-size: 200% 100%;
+    animation: dash-skel-shimmer 1400ms ease-in-out infinite;
+  }
+  .fit-light .dash-skel {
+    background: linear-gradient(90deg,
+      var(--fit-gray-100) 0%,
+      var(--fit-gray-50) 50%,
+      var(--fit-gray-100) 100%);
+    background-size: 200% 100%;
+  }
+  @keyframes dash-skel-shimmer {
+    0% { background-position: 200% 50%; }
+    100% { background-position: -200% 50%; }
+  }
+
+  /* ===== REVIEW QUEUE ===== */
+  .review-date-header {
+    font-size: 12px; font-weight: 500;
+    color: var(--fit-text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 16px 20px 8px;
+  }
+  .review-card {
+    margin: 0 16px 12px;
+    padding: 14px;
+    border-radius: 16px;
+    background: var(--fit-surface-high);
+    transition: opacity 0.22s ease, transform 0.22s ease;
+  }
+  .fit-light .review-card {
+    background: var(--fit-white);
+    border: 1px solid var(--fit-gray-100);
+  }
+  .review-card[data-done="1"] {
+    opacity: 0; transform: translateX(-12px);
+    pointer-events: none;
+  }
+  .review-card-head {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 12px; cursor: pointer;
+  }
+  .review-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--fit-brand-gradient);
+    color: var(--fit-white);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 600;
+    flex-shrink: 0;
+  }
+  .review-info { flex: 1; min-width: 0; }
+  .review-name {
+    font-size: 16px; font-weight: 500; color: var(--fit-text-primary);
+    margin-bottom: 2px;
+  }
+  .review-meta {
+    font-size: 13px; color: var(--fit-text-tertiary);
+    display: flex; gap: 4px; align-items: center; flex-wrap: wrap;
+  }
+  .review-meta .dot { width: 2px; height: 2px; border-radius: 50%; background: var(--fit-text-tertiary); }
+  .review-chev {
+    width: 16px; height: 16px;
+    color: var(--fit-text-tertiary);
+    flex-shrink: 0;
+  }
+  .review-line {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 14px; color: var(--fit-text-secondary);
+    margin-bottom: 6px;
+  }
+  .review-line svg { width: 13px; height: 13px; flex-shrink: 0; color: var(--fit-text-tertiary); }
+  .review-money-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin: 10px 0 14px;
+  }
+  .review-money-amount {
+    font-size: 14px; font-weight: 500; color: var(--fit-teal-500);
+  }
+  .review-money-tag {
+    font-size: 12px; color: var(--fit-text-tertiary);
+    background: var(--fit-surface-higher);
+    padding: 2px 6px; border-radius: 4px;
+    margin-left: 6px;
+  }
+  .fit-light .review-money-tag { background: var(--fit-gray-100); }
+  .review-since {
+    font-size: 12px; color: var(--fit-text-tertiary);
+  }
+  .review-actions {
+    display: flex; gap: 8px;
+  }
+  .review-btn-missed {
+    flex: 0 0 auto; padding: 0 18px; height: 44px;
+    border-radius: 99px;
+    background: transparent;
+    border: 1px solid var(--fit-red-400);
+    color: var(--fit-red-400);
+    font-family: var(--fit-font); font-size: 15px; font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .review-btn-missed:hover { background: rgba(240,92,91,0.08); }
+  .review-btn-complete {
+    flex: 1; height: 44px; border: none; border-radius: 99px;
+    background: var(--fit-brand-gradient); color: var(--fit-white);
+    font-family: var(--fit-font); font-size: 16px; font-weight: 500;
+    cursor: pointer;
+  }
+
+  /* Review queue list-state visibility */
+  #s-review-queue [data-list-state] { display: none; }
+  #s-review-queue.rvl-default [data-list-state="default"] { display: block; }
+  #s-review-queue.rvl-single [data-list-state="single"] { display: block; }
+  #s-review-queue.rvl-empty [data-list-state="empty"] { display: block; }
+  #s-review-queue.rvl-loading [data-list-state="loading"] { display: block; }
+
+  /* Skeleton classes migrated to fit-ui.css (Phase 2) */
+
+  /* ===== STATE VISIBILITY ===== */
+  #s-dashboard [data-dash-state] { display: none; }
+  #s-dashboard.dst-default [data-dash-state="default"] { display: flex; }
+  #s-dashboard.dst-new [data-dash-state="new"] { display: flex; }
+  #s-dashboard.dst-under-review [data-dash-state="under-review"] { display: flex; }
+  #s-dashboard.dst-ready [data-dash-state="ready"] { display: flex; }
+  #s-dashboard.dst-idle [data-dash-state="idle"] { display: flex; }
+  #s-dashboard.dst-quiet [data-dash-state="quiet"] { display: flex; }
+  #s-dashboard.dst-zero [data-dash-state="zero"] { display: flex; }
+  #s-dashboard.dst-loading [data-dash-state="loading"] { display: flex; }
+  #s-dashboard.dst-error [data-dash-state="error"] { display: flex; }
+
+  /* Sections stack uniformly */
+  .dash-stack {
+    flex-direction: column;
+    gap: 20px;
+    padding: 0 16px 24px;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+  <div class="label">Screens</div>
+  <button class="active" onclick="go('s-dashboard',this)">Dashboard</button>
+  <button onclick="go('s-review-queue',this)">Sessions to review</button>
+  <div class="label">Dashboard states</div>
+  <button onclick="go('s-dashboard',this);setDashState('default',null)">Default · active coach</button>
+  <button onclick="go('s-dashboard',this);setDashState('new',null)">New · Tier 1 wizard</button>
+  <button onclick="go('s-dashboard',this);setDashState('under-review',null)">Under review · approval pending</button>
+  <button onclick="go('s-dashboard',this);setDashState('ready',null)">Ready · setup done, no history</button>
+  <button onclick="go('s-dashboard',this);setDashState('idle',null)">Idle · had sessions, 0 upcoming</button>
+  <button onclick="go('s-dashboard',this);setDashState('quiet',null)">Quiet · no sessions today</button>
+  <button onclick="go('s-dashboard',this);setDashState('zero',null)">All zero · clean inbox</button>
+  <button onclick="go('s-dashboard',this);setDashState('loading',null)">Loading · skeleton</button>
+  <button onclick="go('s-dashboard',this);setDashState('error',null)">Error · offline banner</button>
+  <div class="label">Review queue states</div>
+  <button onclick="go('s-review-queue',this);setReviewState('default',null);resetReviewDemo()">Filled · 3 items</button>
+  <button onclick="go('s-review-queue',this);setReviewState('single',null)">Single · 1 item</button>
+  <button onclick="go('s-review-queue',this);setReviewState('empty',null)">Empty · all done</button>
+  <button onclick="go('s-review-queue',this);setReviewState('loading',null)">Loading · skeleton</button>
+  </div>
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ==================== PHONE ==================== -->
+
+<div class="fit-phone fit-dark active dst-default" id="s-dashboard">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <span class="fit-header-title" style="flex:1;">Home</span>
+      <button class="fit-icon-btn" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 003.4 0"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-top:4px;">
+
+    <!-- ============ STATE: DEFAULT ============ -->
+    <div data-dash-state="default" class="dash-stack">
+      <!-- Greeting -->
+      <div class="dash-greeting">
+        <div class="dash-greeting-hello">Good morning, Robert</div>
+        <div class="dash-greeting-sub"><strong>3 sessions</strong> &middot; &euro;180 today</div>
+      </div>
+
+      <!-- Next Session -->
+      <div>
+        <div class="dash-section-label">Next session</div>
+        <div class="dash-next" onclick="FitUI.openEventSheet(document.getElementById('s-dashboard'),{state:'planned',event:{athleteName:'Sarah Mitchell',athleteInitials:'SM',title:'Tennis',time:'10:30 – 11:30',location:'Court A',price:'€50',payment:'Card'}})">
+          <div class="dash-next-avatar">SM</div>
+          <div class="dash-next-body">
+            <div class="dash-next-name">Sarah Mitchell</div>
+            <div class="dash-next-meta">
+              <span>Tennis</span><span class="dot"></span><span>60 min</span><span class="dot"></span><span>Court A</span>
+            </div>
+            <div class="dash-next-when">In 45 min &middot; 10:30</div>
+          </div>
+          <svg class="dash-next-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+
+      <!-- Action cards -->
+      <div>
+        <div class="dash-section-label">Needs your attention</div>
+        <div class="dash-actions">
+          <div class="dash-action" onclick="window.location.href='clients.html#s-requests'">
+            <div class="dash-action-icon req"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+            <div class="dash-action-body">
+              <div class="dash-action-title">3 pending requests</div>
+              <div class="dash-action-sub">1 awaiting your reply over 24h</div>
+            </div>
+            <svg class="dash-action-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <div class="dash-action" onclick="window.location.href='clients.html'">
+            <div class="dash-action-icon cash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg></div>
+            <div class="dash-action-body">
+              <div class="dash-action-title">&euro;40 cash to collect</div>
+              <div class="dash-action-sub">From 2 clients &middot; Mark paid</div>
+            </div>
+            <svg class="dash-action-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <div class="dash-action" onclick="go('s-review-queue', document.querySelector('.sidebar button[onclick*=s-review-queue]'));setReviewState('default',null);resetReviewDemo();">
+            <div class="dash-action-icon review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg></div>
+            <div class="dash-action-body">
+              <div class="dash-action-title">3 sessions to review</div>
+              <div class="dash-action-sub">Oldest: 2 days ago &middot; Mark complete or missed</div>
+            </div>
+            <svg class="dash-action-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- This week -->
+      <div>
+        <div class="dash-section-label">Earnings</div>
+        <div class="dash-week" onclick="window.location.href='balance.html'">
+          <div class="dash-week-head">
+            <div class="dash-week-title-row">
+              <span class="dash-week-title">This week &middot; Mon&ndash;Sun</span>
+            </div>
+            <svg class="dash-week-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <div>
+            <span class="dash-week-amount">&euro;480</span>
+            <span class="dash-week-trend up">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l5-5 5 5"/></svg>
+              &euro;80
+            </span>
+          </div>
+          <div class="dash-week-planned">+<strong>&euro;120 planned</strong> &middot; 6 booked</div>
+          <div class="dash-week-divider"></div>
+          <div class="dash-split-row">
+            <div class="dash-split-cell">
+              <div class="dash-split-label">Card</div>
+              <div class="dash-split-value">&euro;320</div>
+              <div class="dash-split-sub">Auto via Stripe</div>
+            </div>
+            <div class="dash-split-sep"></div>
+            <div class="dash-split-cell">
+              <div class="dash-split-label">Cash</div>
+              <div class="dash-split-value">&euro;80</div>
+              <div class="dash-split-sub">From 2 clients</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Signals -->
+      <div>
+        <div class="dash-section-label">Activity</div>
+        <div class="dash-signals">
+          <div class="dash-signal">
+            <div class="dash-signal-icon star"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg></div>
+            <div class="dash-signal-body">
+              <div class="dash-signal-title">New review &middot; 5&#9733; <span class="author">&mdash; Sarah</span></div>
+              <div class="dash-signal-meta">&ldquo;Great session, loved the pacing&rdquo;</div>
+            </div>
+          </div>
+          <div class="dash-signal">
+            <div class="dash-signal-icon clients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg></div>
+            <div class="dash-signal-body">
+              <div class="dash-signal-title">2 new clients this week</div>
+              <div class="dash-signal-meta">Alex Kim, Mira Patel</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-tip" id="tip-default-video">
+        <div class="dash-tip-icon">&#128161;</div>
+        <div class="dash-tip-body">
+          <div class="dash-tip-title">Boost profile conversion 2&times;</div>
+          <div class="dash-tip-sub">Add a 30-second video intro &mdash; coaches with video get twice as many bookings.</div>
+          <button class="dash-tip-cta">Add video &rsaquo;</button>
+        </div>
+        <button class="dash-tip-dismiss" onclick="dismissTip('tip-default-video')" aria-label="Dismiss">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============ STATE: NEW COACH (Tier 1 wizard) ============ -->
+    <div data-dash-state="new" class="dash-stack">
+      <div class="dash-greeting">
+        <div class="dash-greeting-hello">Welcome, Robert</div>
+        <div class="dash-greeting-sub">Let&rsquo;s get your profile ready</div>
+      </div>
+
+      <div class="wiz-card expanded" id="wiz-new">
+        <div class="wiz-header">
+          <div class="wiz-header-text">
+            <div class="wiz-title">Complete your profile setup</div>
+            <div class="wiz-sub">Your profile will be sent for review after the essential setup steps.</div>
+          </div>
+          <button class="wiz-toggle" onclick="wizToggle('wiz-new')" aria-label="Toggle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+
+        <div>
+          <div class="wiz-progress-row">
+            <span class="wiz-progress-count">1 of 6 completed</span>
+            <span class="wiz-progress-pct">17%</span>
+          </div>
+          <div class="wiz-progress-bar"><div class="wiz-progress-fill" style="width:17%;"></div></div>
+        </div>
+
+        <div class="wiz-list">
+          <div class="wiz-item" onclick="window.location.href='../shared/account-access.html'">
+            <span class="wiz-item-title">Add phone number</span>
+          </div>
+          <div class="wiz-item" onclick="window.location.href='settings.html#s-sport-types'">
+            <span class="wiz-item-title">Select your sports</span>
+          </div>
+          <div class="wiz-item">
+            <span class="wiz-item-title">Upload profile photo</span>
+          </div>
+          <div class="wiz-item">
+            <span class="wiz-item-title">Write about yourself</span>
+          </div>
+          <div class="wiz-item">
+            <span class="wiz-item-title">Add training location</span>
+          </div>
+          <div class="wiz-item done">
+            <span class="wiz-item-title">Create your first session</span>
+            <svg class="wiz-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ STATE: UNDER REVIEW (wizard done, waiting approval) ============ -->
+    <div data-dash-state="under-review" class="dash-stack">
+      <div class="review-banner">
+        <div class="review-banner-head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg>
+          <span class="review-banner-title">Your profile is under review</span>
+        </div>
+        <div class="review-banner-body">Up to 24h &middot; We&rsquo;ll notify you when approved. While you wait, a few optional boosts below.</div>
+      </div>
+
+      <div>
+        <div class="dash-section-label">Optional boosts</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="boost-card" onclick="window.location.href='balance.html#s-stripe'">
+            <div class="boost-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg></div>
+            <div class="boost-body">
+              <div class="boost-title">Accept card payments</div>
+              <div class="boost-action">Connect Stripe</div>
+            </div>
+            <svg class="boost-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <div class="boost-card" onclick="window.location.href='settings.html#s-availability'">
+            <div class="boost-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+            <div class="boost-body">
+              <div class="boost-title">Prevent scheduling conflicts</div>
+              <div class="boost-action">Set available hours</div>
+            </div>
+            <svg class="boost-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <div class="boost-card">
+            <div class="boost-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
+            <div class="boost-body">
+              <div class="boost-title">Boost profile conversion 2&times;</div>
+              <div class="boost-action">Add a 30-second video intro</div>
+            </div>
+            <svg class="boost-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ STATE: READY (setup done, no history yet) ============ -->
+    <div data-dash-state="ready" class="dash-stack">
+      <div class="dash-greeting">
+        <div class="dash-greeting-hello">You&rsquo;re all set, Robert</div>
+        <div class="dash-greeting-sub">Ready to coach &mdash; let&rsquo;s get you your first client</div>
+      </div>
+
+      <div>
+        <div class="dash-section-label">Next session</div>
+        <div class="dash-next-empty">
+          <div class="dash-next-empty-title">No sessions booked yet</div>
+          <div class="dash-next-empty-sub">Share your profile to get your first client.</div>
+          <div class="dash-next-cta-row">
+            <button class="dash-cta-primary" onclick="window.location.href='invite.html'">Invite a client</button>
+            <button class="dash-cta-secondary">Share profile</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="dash-section-label">Already coaching offline?</div>
+        <div class="dash-hint" onclick="window.location.href='clients.html'">
+          <div class="dash-hint-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg></div>
+          <div class="dash-hint-body">
+            <div class="dash-hint-title">Add your existing clients</div>
+            <div class="dash-hint-sub">Create athlete profiles from the Clients tab to track sessions and cash manually</div>
+          </div>
+          <svg class="dash-hint-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+
+      <div class="dash-tip" id="tip-ready-stripe">
+        <div class="dash-tip-icon">&#128161;</div>
+        <div class="dash-tip-body">
+          <div class="dash-tip-title">Accept card payments</div>
+          <div class="dash-tip-sub">Connect Stripe to let clients pay by card &mdash; most athletes prefer it.</div>
+          <button class="dash-tip-cta" onclick="window.location.href='balance.html#s-stripe'">Connect Stripe &rsaquo;</button>
+        </div>
+        <button class="dash-tip-dismiss" onclick="dismissTip('tip-ready-stripe')" aria-label="Dismiss">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============ STATE: IDLE (has history, 0 upcoming) ============ -->
+    <div data-dash-state="idle" class="dash-stack">
+      <div class="dash-greeting">
+        <div class="dash-greeting-hello">Good morning, Robert</div>
+        <div class="dash-greeting-sub">Nothing on the schedule &mdash; let&rsquo;s fix that</div>
+      </div>
+
+      <div>
+        <div class="dash-section-label">Next session</div>
+        <div class="dash-next-empty">
+          <div class="dash-next-empty-title">Nothing scheduled</div>
+          <div class="dash-next-empty-sub">Invite a client or reach out to recent ones.</div>
+          <div class="dash-next-cta-row">
+            <button class="dash-cta-primary" onclick="window.location.href='invite.html'">Invite a client</button>
+            <button class="dash-cta-secondary" onclick="window.location.href='clients.html'">See recent clients</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="dash-section-label">Earnings</div>
+        <div class="dash-week" onclick="window.location.href='balance.html'">
+          <div class="dash-week-head">
+            <div class="dash-week-title-row">
+              <span class="dash-week-title">This week &middot; Mon&ndash;Sun</span>
+            </div>
+            <svg class="dash-week-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <div>
+            <span class="dash-week-amount">&euro;0</span>
+            <span class="dash-week-trend down">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l5 5 5-5"/></svg>
+              &euro;320
+            </span>
+          </div>
+          <div class="dash-week-planned">No sessions planned this week</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="dash-section-label">Activity</div>
+        <div class="dash-signals">
+          <div class="dash-signal">
+            <div class="dash-signal-icon star"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg></div>
+            <div class="dash-signal-body">
+              <div class="dash-signal-title">New review &middot; 5&#9733; <span class="author">&mdash; Sarah (last week)</span></div>
+              <div class="dash-signal-meta">&ldquo;Thanks for a great season!&rdquo;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-tip" id="tip-idle-hours">
+        <div class="dash-tip-icon">&#128161;</div>
+        <div class="dash-tip-body">
+          <div class="dash-tip-title">Prevent scheduling conflicts</div>
+          <div class="dash-tip-sub">Set available hours so clients book only when you&rsquo;re free.</div>
+          <button class="dash-tip-cta" onclick="window.location.href='settings.html#s-availability'">Set hours &rsaquo;</button>
+        </div>
+        <button class="dash-tip-dismiss" onclick="dismissTip('tip-idle-hours')" aria-label="Dismiss">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============ STATE: QUIET DAY ============ -->
+    <div data-dash-state="quiet" class="dash-stack">
+      <div class="dash-greeting">
+        <div class="dash-greeting-hello">Good morning, Robert</div>
+        <div class="dash-greeting-sub">Nothing on today &mdash; enjoy the quiet</div>
+      </div>
+
+      <div>
+        <div class="dash-section-label">Next session</div>
+        <div class="dash-next" onclick="FitUI.openEventSheet(document.getElementById('s-dashboard'),{state:'planned',event:{athleteName:'Alex Kim',athleteInitials:'AK',title:'Padel',time:'11:00 – 12:30',location:'Court C',price:'€75',payment:'Card',descriptor:'Confirmed session · Tomorrow'}})">
+          <div class="dash-next-avatar" style="background:var(--fit-surface-higher);color:var(--fit-text-primary);">AK</div>
+          <div class="dash-next-body">
+            <div class="dash-next-name">Alex Kim</div>
+            <div class="dash-next-meta">
+              <span>Padel</span><span class="dot"></span><span>90 min</span><span class="dot"></span><span>Court C</span>
+            </div>
+            <div class="dash-next-when" style="color:var(--fit-text-tertiary);">Tomorrow &middot; 11:00</div>
+          </div>
+          <svg class="dash-next-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+
+      <div>
+        <div class="dash-section-label">Needs your attention</div>
+        <div class="dash-actions">
+          <div class="dash-action" onclick="window.location.href='clients.html#s-requests'">
+            <div class="dash-action-icon req"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+            <div class="dash-action-body">
+              <div class="dash-action-title">1 pending request</div>
+              <div class="dash-action-sub">Mira Patel &middot; Thu 18:00</div>
+            </div>
+            <svg class="dash-action-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="dash-section-label">Earnings</div>
+        <div class="dash-week" onclick="window.location.href='balance.html'">
+          <div class="dash-week-head">
+            <div class="dash-week-title-row">
+              <span class="dash-week-title">This week &middot; Mon&ndash;Sun</span>
+            </div>
+            <svg class="dash-week-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <div>
+            <span class="dash-week-amount">&euro;210</span>
+            <span class="dash-week-trend down">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l5 5 5-5"/></svg>
+              &euro;50
+            </span>
+          </div>
+          <div class="dash-week-planned">+<strong>&euro;90 planned</strong> &middot; 3 booked</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ STATE: ALL ZERO ============ -->
+    <div data-dash-state="zero" class="dash-stack">
+      <div class="dash-greeting">
+        <div class="dash-greeting-hello">Good morning, Robert</div>
+        <div class="dash-greeting-sub"><strong>2 sessions</strong> &middot; &euro;120 today</div>
+      </div>
+
+      <div>
+        <div class="dash-section-label">Next session</div>
+        <div class="dash-next" onclick="FitUI.openEventSheet(document.getElementById('s-dashboard'),{state:'planned',event:{athleteName:'Tom Jensen',athleteInitials:'TJ',title:'Tennis',time:'12:00 – 13:00',location:'Court B',price:'€50',payment:'Card'}})">
+          <div class="dash-next-avatar">TJ</div>
+          <div class="dash-next-body">
+            <div class="dash-next-name">Tom Jensen</div>
+            <div class="dash-next-meta">
+              <span>Tennis</span><span class="dot"></span><span>60 min</span><span class="dot"></span><span>Court B</span>
+            </div>
+            <div class="dash-next-when">In 2h &middot; 12:00</div>
+          </div>
+          <svg class="dash-next-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+
+      <div>
+        <div class="dash-section-label">Earnings</div>
+        <div class="dash-week" onclick="window.location.href='balance.html'">
+          <div class="dash-week-head">
+            <div class="dash-week-title-row">
+              <span class="dash-week-title">This week &middot; Mon&ndash;Sun</span>
+            </div>
+            <svg class="dash-week-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <div>
+            <span class="dash-week-amount">&euro;360</span>
+            <span class="dash-week-trend flat">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h12"/></svg>
+              flat
+            </span>
+          </div>
+          <div class="dash-week-planned">+<strong>&euro;180 planned</strong> &middot; 6 booked</div>
+          <div class="dash-week-divider"></div>
+          <div class="dash-split-row">
+            <div class="dash-split-cell">
+              <div class="dash-split-label">Card</div>
+              <div class="dash-split-value">&euro;360</div>
+              <div class="dash-split-sub">Auto via Stripe</div>
+            </div>
+            <div class="dash-split-sep"></div>
+            <div class="dash-split-cell">
+              <div class="dash-split-label">Cash</div>
+              <div class="dash-split-value">&euro;0</div>
+              <div class="dash-split-sub">None outstanding</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:0 4px;font-size:13px;color:var(--fit-text-tertiary);text-align:center;">
+        All caught up &mdash; no requests, no cash to collect.
+      </div>
+    </div>
+
+    <!-- ============ STATE: LOADING ============ -->
+    <div data-dash-state="loading" class="dash-stack">
+      <div class="dash-greeting">
+        <div class="dash-skel" style="height:28px;width:60%;border-radius:8px;"></div>
+        <div class="dash-skel" style="height:16px;width:40%;border-radius:6px;margin-top:8px;"></div>
+      </div>
+      <div>
+        <div class="dash-skel" style="height:12px;width:80px;border-radius:4px;margin-bottom:8px;"></div>
+        <div class="dash-skel" style="height:78px;"></div>
+      </div>
+      <div>
+        <div class="dash-skel" style="height:12px;width:140px;border-radius:4px;margin-bottom:8px;"></div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="dash-skel" style="height:60px;"></div>
+          <div class="dash-skel" style="height:60px;"></div>
+        </div>
+      </div>
+      <div>
+        <div class="dash-skel" style="height:12px;width:80px;border-radius:4px;margin-bottom:8px;"></div>
+        <div class="dash-skel" style="height:150px;border-radius:16px;"></div>
+      </div>
+    </div>
+
+    <!-- ============ STATE: ERROR ============ -->
+    <div data-dash-state="error" class="dash-stack">
+      <div class="dash-greeting">
+        <div class="dash-greeting-hello">Good morning, Robert</div>
+        <div class="dash-greeting-sub">You&rsquo;re offline &mdash; showing cached data</div>
+      </div>
+
+      <div class="dash-error-banner" style="margin:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l22 22"/><path d="M16.72 11.06A10.94 10.94 0 0119 12.55"/><path d="M5 12.55a10.94 10.94 0 015.17-2.39"/><path d="M10.71 5.05A16 16 0 0122.58 9"/><path d="M1.42 9a15.91 15.91 0 014.7-2.88"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+        <span>Couldn&rsquo;t refresh &mdash; check your connection</span>
+        <button class="dash-error-retry" onclick="setDashState('default',null)">Retry</button>
+      </div>
+
+      <!-- Stale (faded) content -->
+      <div style="opacity:0.6;pointer-events:none;display:flex;flex-direction:column;gap:20px;">
+        <div>
+          <div class="dash-section-label">Next session &middot; cached</div>
+          <div class="dash-next">
+            <div class="dash-next-avatar">SM</div>
+            <div class="dash-next-body">
+              <div class="dash-next-name">Sarah Mitchell</div>
+              <div class="dash-next-meta">
+                <span>Tennis</span><span class="dot"></span><span>60 min</span><span class="dot"></span><span>Court A</span>
+              </div>
+              <div class="dash-next-when">In 45 min &middot; 10:30</div>
+            </div>
+            <svg class="dash-next-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="fit-phone-footer">
+    <div class="fit-navbar">
+      <div class="fit-navbar-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>
+      <div class="fit-navbar-item" onclick="window.location.href='clients.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg></div>
+      <div class="fit-navbar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <div class="fit-navbar-item" onclick="window.location.href='calendar.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      <div class="fit-navbar-item" onclick="window.location.href='settings.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== REVIEW QUEUE ==================== -->
+<div class="fit-phone fit-dark rvl-default" id="s-review-queue">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-dashboard', document.querySelector('.sidebar button[onclick*=s-dashboard]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Sessions to review</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <!-- ========== DEFAULT: 3 items, grouped by date (oldest first) ========== -->
+    <div data-list-state="default">
+      <div class="review-date-header">Tuesday, Apr 22</div>
+
+      <div class="review-card" data-name="Tom">
+        <div class="review-card-head" onclick="openEventDetail(this)">
+          <div class="review-avatar" style="background:var(--fit-gray-600);">TN</div>
+          <div class="review-info">
+            <div class="review-name">Tom N.</div>
+            <div class="review-meta"><span>Boxing Training</span><span class="dot"></span><span>60 min</span></div>
+          </div>
+          <svg class="review-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="review-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          Tue, Apr 22 &middot; 19:30&ndash;20:30
+        </div>
+        <div class="review-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          GYM Bro
+        </div>
+        <div class="review-money-row">
+          <div><span class="review-money-amount">&euro;40</span><span class="review-money-tag">Cash</span></div>
+          <div class="review-since">Ended 2 days ago</div>
+        </div>
+        <div class="review-actions">
+          <button class="review-btn-missed" onclick="markReview('missed', this)">Missed</button>
+          <button class="review-btn-complete" onclick="markReview('complete', this)">Mark complete</button>
+        </div>
+      </div>
+
+      <div class="review-date-header">Wednesday, Apr 23</div>
+
+      <div class="review-card" data-name="Sarah">
+        <div class="review-card-head" onclick="openEventDetail(this)">
+          <div class="review-avatar">SM</div>
+          <div class="review-info">
+            <div class="review-name">Sarah Mitchell</div>
+            <div class="review-meta"><span>Tennis</span><span class="dot"></span><span>60 min</span></div>
+          </div>
+          <svg class="review-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="review-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          Wed, Apr 23 &middot; 10:00&ndash;11:00
+        </div>
+        <div class="review-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          Court A
+        </div>
+        <div class="review-money-row">
+          <div><span class="review-money-amount">&euro;50</span><span class="review-money-tag">Card</span></div>
+          <div class="review-since">Ended yesterday</div>
+        </div>
+        <div class="review-actions">
+          <button class="review-btn-missed" onclick="markReview('missed', this)">Missed</button>
+          <button class="review-btn-complete" onclick="markReview('complete', this)">Mark complete</button>
+        </div>
+      </div>
+
+      <div class="review-card" data-name="Alex">
+        <div class="review-card-head" onclick="openEventDetail(this)">
+          <div class="review-avatar" style="background:var(--fit-surface-higher);color:var(--fit-text-primary);">AK</div>
+          <div class="review-info">
+            <div class="review-name">Alex Kim</div>
+            <div class="review-meta"><span>Padel</span><span class="dot"></span><span>90 min</span></div>
+          </div>
+          <svg class="review-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="review-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          Wed, Apr 23 &middot; 18:00&ndash;19:30
+        </div>
+        <div class="review-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          Court C
+        </div>
+        <div class="review-money-row">
+          <div><span class="review-money-amount">&euro;60</span><span class="review-money-tag">Cash</span></div>
+          <div class="review-since">Ended 15 hours ago</div>
+        </div>
+        <div class="review-actions">
+          <button class="review-btn-missed" onclick="markReview('missed', this)">Missed</button>
+          <button class="review-btn-complete" onclick="markReview('complete', this)">Mark complete</button>
+        </div>
+      </div>
+
+      <div style="padding:0 16px 24px;"></div>
+    </div>
+
+    <!-- ========== SINGLE: 1 item ========== -->
+    <div data-list-state="single">
+      <div class="review-date-header">Wednesday, Apr 23</div>
+
+      <div class="review-card" data-name="Sarah">
+        <div class="review-card-head">
+          <div class="review-avatar">SM</div>
+          <div class="review-info">
+            <div class="review-name">Sarah Mitchell</div>
+            <div class="review-meta"><span>Tennis</span><span class="dot"></span><span>60 min</span></div>
+          </div>
+          <svg class="review-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="review-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          Wed, Apr 23 &middot; 10:00&ndash;11:00
+        </div>
+        <div class="review-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          Court A
+        </div>
+        <div class="review-money-row">
+          <div><span class="review-money-amount">&euro;50</span><span class="review-money-tag">Card</span></div>
+          <div class="review-since">Ended yesterday</div>
+        </div>
+        <div class="review-actions">
+          <button class="review-btn-missed">Missed</button>
+          <button class="review-btn-complete">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== EMPTY ========== -->
+    <div data-list-state="empty">
+      <div class="fit-empty-state" style="padding-top:72px;">
+        <svg class="fes-illus" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="32" cy="32" r="22"/>
+          <path d="M22 32l7 7 13-13"/>
+        </svg>
+        <div class="fit-empty-state-title">All reviews done</div>
+        <div class="fit-empty-state-sub">Past sessions show up here<br>so you can mark them complete or missed.</div>
+      </div>
+    </div>
+
+    <!-- ========== LOADING ========== -->
+    <div data-list-state="loading">
+      <div class="sk-card">
+        <div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:45%;"></div><div class="sk-line short sk-shimmer"></div></div></div>
+        <div class="sk-block sk-shimmer" style="width:60%;"></div>
+        <div class="sk-block sk-shimmer" style="width:75%;height:10px;"></div>
+        <div class="sk-btn-row"><div class="sk-btn sk-shimmer" style="flex:0 0 100px;"></div><div class="sk-btn sk-shimmer"></div></div>
+      </div>
+      <div class="sk-card">
+        <div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:38%;"></div><div class="sk-line short sk-shimmer"></div></div></div>
+        <div class="sk-block sk-shimmer" style="width:70%;"></div>
+        <div class="sk-block sk-shimmer" style="width:65%;height:10px;"></div>
+        <div class="sk-btn-row"><div class="sk-btn sk-shimmer" style="flex:0 0 100px;"></div><div class="sk-btn sk-shimmer"></div></div>
+      </div>
+    </div>
+
+    <!-- Snackbar (Undo) -->
+    <div class="fit-snackbar" id="review-snackbar">
+      <span id="review-snackbar-text">Marked</span>
+      <span class="snack-action" id="review-snackbar-undo" onclick="undoLastReview()">Undo</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+  <div class="ann active" id="ann-s-dashboard"><span class="ann-role coach">Coach</span><h3>Dashboard</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setDashState('default',this)">Default</button>
+      <button onclick="setDashState('new',this)">New</button>
+      <button onclick="setDashState('under-review',this)">Under&nbsp;review</button>
+      <button onclick="setDashState('ready',this)">Ready</button>
+      <button onclick="setDashState('idle',this)">Idle</button>
+      <button onclick="setDashState('quiet',this)">Quiet</button>
+      <button onclick="setDashState('zero',this)">Zero</button>
+      <button onclick="setDashState('loading',this)">Loading</button>
+      <button onclick="setDashState('error',this)">Error</button>
+    </div>
+    <p>Answers <strong>&ldquo;what do I need to know right now?&rdquo;</strong> &mdash; not an analytics panel. Deep financial view lives in Earnings, full agenda in Calendar.</p>
+    <ul>
+      <li><strong>Greeting + summary</strong> &mdash; time-of-day greeting, inline count of today&rsquo;s sessions &amp; earnings</li>
+      <li><strong>Next Session</strong> &mdash; featured card, relative time in teal (&ldquo;In 45 min&rdquo;), tap &rarr; event detail</li>
+      <li><strong>Action cards</strong> &mdash; Pending requests / Cash to collect / Sessions to review. Each card hidden when count = 0</li>
+      <li><strong>This week</strong> &mdash; big amount + trend pill (up/down/flat) + planned earnings + embedded Card/Cash split. Tap &rarr; Earnings</li>
+      <li><strong>Activity (Signals)</strong> &mdash; latest review + new clients this week. Hidden when nothing new</li>
+    </ul>
+    <hr>
+    <p><strong>Navigation:</strong> Home tab root. Bottom nav 5 items. No back chevron. Header = &ldquo;Home&rdquo; + notification bell.</p>
+    <p><strong>Tap targets:</strong></p>
+    <ul>
+      <li>Next Session &rarr; event detail sheet (unified cal-event-sheet in state Planned)</li>
+      <li>Pending requests &rarr; Clients tab, Requests segment</li>
+      <li>Cash to collect &rarr; Clients tab (filtered: outstanding cash)</li>
+      <li>Sessions to review &rarr; Calendar (filtered: Review state)</li>
+      <li>This week &rarr; Earnings</li>
+      <li>Activity rows: review &rarr; Profile reviews section; new clients &rarr; Clients tab</li>
+    </ul>
+    <hr>
+    <p><strong>Data dependency:</strong> <code>GET /coach/dashboard</code> response needs these fields (extending current spec):</p>
+    <ul>
+      <li><code>nextEvent</code> &mdash; (exists) EventModel</li>
+      <li><code>pendingRequestsCount</code> &mdash; (exists)</li>
+      <li><code>cashToCollect</code> &mdash; new: <code>{count, total, currency}</code></li>
+      <li><code>sessionsToReviewCount</code> &mdash; new: Int</li>
+      <li><code>todaySummary</code> &mdash; new: <code>{sessionCount, totalValue}</code></li>
+      <li><code>weekEarnings</code> &mdash; new: <code>{earned, plannedAdditional, bookedCount, cardTotal, cashTotal, cashClientCount, trendVsLastWeek}</code></li>
+      <li><code>signals</code> &mdash; new array: <code>[{type, ...}]</code> with latestReview + newClientsThisWeek</li>
+    </ul>
+    <hr>
+    <p><strong>States (9 total — full coach lifecycle)</strong></p>
+    <ul>
+      <li><strong>Default</strong> &mdash; typical active coach, all blocks populated + Tier 2 tip at bottom</li>
+      <li><strong>New</strong> &mdash; Tier 1 onboarding wizard (6 steps) with progress bar. Collapsible. Nothing else shown &mdash; setup gates everything</li>
+      <li><strong>Under review</strong> &mdash; wizard done, waiting approval (up to 24h). Teal-bordered banner + 3 Optional boosts (Stripe / Hours / Video). No Next Session / Earnings (nothing to show)</li>
+      <li><strong>Ready</strong> &mdash; approved, no history yet. Empty Next Session with Invite + Share CTAs + CRM tip + Tier 2 Stripe tip</li>
+      <li><strong>Idle</strong> &mdash; approved, has history, 0 upcoming. Empty-next copy shifts to &ldquo;Nothing scheduled / Invite / See recent clients&rdquo; + Tier 2 Available hours tip</li>
+      <li><strong>Quiet day</strong> &mdash; no sessions today, next is tomorrow</li>
+      <li><strong>All zero</strong> &mdash; active coach, nothing to act on. No tip (clean inbox is its own reward)</li>
+      <li><strong>Loading</strong> &mdash; skeleton per section, shimmer animation</li>
+      <li><strong>Error</strong> &mdash; inline banner at top + Retry + cached content faded 60%</li>
+    </ul>
+    <hr>
+    <p><strong>Onboarding tiers</strong></p>
+    <ul>
+      <li><strong>Tier 1 (required for approval)</strong> &mdash; 6-step wizard: phone, sports, photo, about, location, first session. Gates coach visibility in search. Auto-hides after approval.</li>
+      <li><strong>Tier 2 (optional, impact-driving)</strong> &mdash; Stripe, Available hours, Video intro. Shown as single rotating <em>tip card</em> in Ready/Idle/Default. Dismissable. Under-review state shows all 3 as &ldquo;Optional boosts&rdquo; since coach is idle anyway.</li>
+      <li><strong>Rules:</strong> never show both tiers at once. Max 1 tip card per state. Dismissed 3&times; &rarr; hide forever. Tip auto-removes when its condition is met (e.g., Stripe connected &rarr; Stripe tip never returns).</li>
+    </ul>
+    <hr>
+    <p><strong>Next Session empty variant</strong> &mdash; one component, copy adapts by backend flag <code>hasHistory</code>:</p>
+    <ul>
+      <li><code>hasHistory = false</code> &rarr; &ldquo;No sessions booked yet&rdquo; / &ldquo;Share your profile to get your first client&rdquo; / CTAs: Invite a client + Share profile</li>
+      <li><code>hasHistory = true</code> &rarr; &ldquo;Nothing scheduled&rdquo; / &ldquo;Invite a client or reach out to recent ones&rdquo; / CTAs: Invite a client + See recent clients</li>
+    </ul>
+    <hr>
+    <p><strong>Copy rules</strong></p>
+    <ul>
+      <li>Sentence case everywhere (&ldquo;Pending requests&rdquo; not &ldquo;Pending Requests&rdquo;)</li>
+      <li>Relative time for next session: &ldquo;In 45 min&rdquo;, &ldquo;In 2h&rdquo;, &ldquo;Tomorrow&rdquo;, &ldquo;Thu 15 Apr&rdquo;</li>
+      <li>Trend pills: &ldquo;&euro;80 up&rdquo; &rarr; icon + value. Flat = neutral copy</li>
+      <li>Plurals explicit: &ldquo;1 pending request&rdquo;, &ldquo;3 pending requests&rdquo;</li>
+    </ul>
+    <p class="note">Athlete dashboard is a separate build &mdash; simpler (next session + requests + balance), no revenue breakdown.</p>
+  </div>
+
+  <div class="ann" id="ann-s-review-queue"><span class="ann-role coach">Coach</span><h3>Sessions to review</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setReviewState('default',this);resetReviewDemo()">Filled</button>
+      <button onclick="setReviewState('single',this)">Single</button>
+      <button onclick="setReviewState('empty',this)">Empty</button>
+      <button onclick="setReviewState('loading',this)">Loading</button>
+    </div>
+    <p>Triage queue for sessions in <strong>Review</strong> state &mdash; events that ended but coach hasn&rsquo;t marked complete or missed yet.</p>
+    <p><strong>Why a dedicated list, not calendar:</strong> for N &gt; 1 a calendar view forces hunting; the queue presents all pending reviews oldest-first for batch handling. For N = 1 we still land here (consistency &gt; saving one tap).</p>
+    <ul>
+      <li><strong>Grouping:</strong> by date, oldest first (most urgent at top)</li>
+      <li><strong>Card:</strong> avatar + name + sport/duration, date/time line, location line, money + payment type, &ldquo;Ended N ago&rdquo; timestamp</li>
+      <li><strong>Inline actions:</strong> <em>Mark complete</em> (primary brand gradient) + <em>Missed</em> (low outlined red &mdash; per 4-tier destructive system, low because it&rsquo;s a judgment call not data loss)</li>
+      <li><strong>Tap card body</strong> &rarr; event detail sheet for full context (notes, past stats) before deciding</li>
+      <li><strong>After tap:</strong> card fades + collapses, snackbar &ldquo;Marked complete&rdquo; / &ldquo;Marked missed&rdquo; with Undo</li>
+      <li><strong>After last card handled:</strong> list transitions to Empty state; action card on dashboard hides</li>
+    </ul>
+    <hr>
+    <p><strong>Entry points</strong></p>
+    <ul>
+      <li>Dashboard &rarr; action card &ldquo;N sessions to review&rdquo;</li>
+      <li>(Future) calendar badge on dates with events in Review state</li>
+    </ul>
+    <hr>
+    <p><strong>States</strong></p>
+    <ul>
+      <li><strong>Filled</strong> &mdash; typical 2&ndash;3 items across recent days</li>
+      <li><strong>Single</strong> &mdash; 1 item queue (same screen, consistent UX)</li>
+      <li><strong>Empty</strong> &mdash; all caught up, illustration + explanation</li>
+      <li><strong>Loading</strong> &mdash; skeleton cards on first fetch</li>
+    </ul>
+    <hr>
+    <p><strong>Missed styling rationale:</strong> low-severity destructive (outlined red) &mdash; marking missed is coach&rsquo;s judgment, reversible within retention window. Not medium (tinted) because no other-user impact at this moment; not high because no data loss.</p>
+    <p class="note">Backend: needs <code>GET /coach/events?status=review</code> or equivalent filtered endpoint. Bulk actions (select-all &rarr; mark complete) deferred until user feedback warrants it.</p>
+  </div>
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+  function switchTheme(theme) {
+    document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
+    document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";
+    document.getElementById("theme-light").style.background = theme === "light" ? "var(--fit-gray-700)" : "transparent";
+    document.getElementById("theme-light").style.color = theme === "light" ? "var(--fit-white)" : "var(--fit-gray-400)";
+    document.querySelectorAll(".fit-phone").forEach(function(phone) {
+      if (theme === "light") { phone.classList.remove("fit-dark"); phone.classList.add("fit-light"); }
+      else { phone.classList.remove("fit-light"); phone.classList.add("fit-dark"); }
+    });
+  }
+
+  function go(id, btn) {
+    document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+    var ann = document.getElementById('ann-' + id);
+    if (ann) ann.classList.add('active');
+  }
+
+  function setDashState(state, btn) {
+    var el = document.getElementById('s-dashboard');
+    el.classList.remove('dst-default','dst-new','dst-under-review','dst-ready','dst-idle','dst-quiet','dst-zero','dst-loading','dst-error');
+    el.classList.add('dst-' + state);
+    syncStateToggleButtons('#ann-s-dashboard', state);
+    if (btn && btn.closest && btn.closest('.sidebar')) {
+      document.querySelectorAll('.sidebar button').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+    }
+    // Restore dismissed tips when switching states (for demo purposes)
+    document.querySelectorAll('.dash-tip').forEach(function(t){ t.style.display = ''; });
+  }
+
+  function wizToggle(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.toggle('expanded');
+  }
+
+  function dismissTip(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(-8px)';
+    setTimeout(function(){ el.style.display = 'none'; }, 220);
+  }
+
+  function setReviewState(state, btn) {
+    var el = document.getElementById('s-review-queue');
+    el.classList.remove('rvl-default','rvl-single','rvl-empty','rvl-loading');
+    el.classList.add('rvl-' + state);
+    syncStateToggleButtons('#ann-s-review-queue', state);
+    if (btn && btn.closest && btn.closest('.sidebar')) {
+      document.querySelectorAll('.sidebar button').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+    }
+  }
+
+  function syncStateToggleButtons(annSelector, state) {
+    var toggle = document.querySelector(annSelector + ' .state-toggle');
+    if (!toggle) return;
+    toggle.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+    var match = Array.from(toggle.querySelectorAll('button')).find(function(b){
+      return b.getAttribute('onclick').indexOf("'"+state+"'") !== -1;
+    });
+    if (match) match.classList.add('active');
+  }
+
+  // ===== REVIEW QUEUE ACTIONS =====
+  var lastReview = null; // { card, action, name }
+
+  function markReview(action, btn) {
+    var card = btn.closest('.review-card');
+    if (!card || card.dataset.done === '1') return;
+    card.dataset.done = '1';
+    var name = card.dataset.name || 'Session';
+    lastReview = { card: card, action: action, name: name };
+
+    // Snackbar
+    var snack = document.getElementById('review-snackbar');
+    var text = document.getElementById('review-snackbar-text');
+    if (text) text.textContent = (action === 'complete')
+      ? (name + ' — marked complete')
+      : (name + ' — marked missed');
+    if (snack) {
+      snack.classList.add('show');
+      clearTimeout(snack._t);
+      snack._t = setTimeout(function(){ snack.classList.remove('show'); }, 3000);
+    }
+
+    // After fade, hide the card and transition to empty if queue is drained
+    setTimeout(function(){
+      card.style.display = 'none';
+      var list = document.querySelector('#s-review-queue [data-list-state="default"]');
+      if (!list) return;
+      var remaining = list.querySelectorAll('.review-card:not([data-done="1"])').length;
+      if (remaining === 0) setReviewState('empty', null);
+    }, 260);
+  }
+
+  function undoLastReview() {
+    if (!lastReview || !lastReview.card) return;
+    // If we'd transitioned to empty, flip back
+    if (document.getElementById('s-review-queue').classList.contains('rvl-empty')) {
+      setReviewState('default', null);
+    }
+    lastReview.card.removeAttribute('data-done');
+    lastReview.card.style.display = '';
+    lastReview = null;
+    var snack = document.getElementById('review-snackbar');
+    if (snack) snack.classList.remove('show');
+  }
+
+  function resetReviewDemo() {
+    document.querySelectorAll('#s-review-queue [data-list-state="default"] .review-card').forEach(function(c){
+      c.removeAttribute('data-done');
+      c.style.display = '';
+    });
+    lastReview = null;
+    var snack = document.getElementById('review-snackbar');
+    if (snack) snack.classList.remove('show');
+  }
+
+  function openEventDetail(el) {
+    if (!el) return;
+    var card = el.closest('.review-card');
+    var name = (card && card.dataset.name) || '';
+    var nameEl = card && card.querySelector('.review-name');
+    var metaEl = card && card.querySelector('.review-meta');
+    var athleteName = nameEl ? nameEl.textContent.trim() : name;
+    var metaText = metaEl ? metaEl.textContent.trim().replace(/\s+/g, ' ') : '';
+    var titleMatch = metaText.split(' · ');
+    FitUI.openEventSheet(document.getElementById('s-review-queue'), {
+      state: 'review',
+      event: {
+        athleteName: athleteName,
+        athleteInitials: athleteName.split(' ').map(function(p){ return p.charAt(0); }).join('').slice(0,2),
+        title: titleMatch[0] || '',
+        time: 'Yesterday · ended',
+        location: '',
+        price: '',
+        payment: ''
+      },
+      onAction: function(action) {
+        if (action === 'complete' && card) markReview('complete', card.querySelector('.review-btn-complete'));
+      }
+    });
+  }
+</script>
+</body>
+</html>

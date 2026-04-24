@@ -28,7 +28,7 @@
 
   /* Header */
   .hub-header {
-    text-align: center; margin-bottom: 48px; max-width: 600px;
+    text-align: center; margin-bottom: 32px; max-width: 600px;
   }
   .hub-logo {
     font-size: 32px; font-weight: 700; margin-bottom: 8px;
@@ -41,6 +41,24 @@
   .hub-version {
     margin-top: 12px; font-size: 12px; color: var(--text-tertiary);
   }
+
+  /* Role tabs */
+  .hub-tabs {
+    display: flex; gap: 0; border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--divider); margin-bottom: 32px;
+    max-width: 320px; width: 100%;
+  }
+  .hub-tab {
+    flex: 1; padding: 12px 0; border: none; cursor: pointer;
+    font-family: 'Rubik', sans-serif; font-size: 14px; font-weight: 500;
+    background: transparent; color: var(--text-tertiary);
+    transition: all 0.2s;
+  }
+  .hub-tab.active {
+    background: var(--surface-high); color: var(--text);
+  }
+  .hub-tab.coach.active { color: var(--brand-primary); }
+  .hub-tab.athlete.active { color: var(--brand-secondary); }
 
   /* Flow cards grid */
   .hub-grid {
@@ -60,6 +78,12 @@
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(0,0,0,0.3);
   }
+  .hub-card.planned {
+    opacity: 0.5; cursor: default;
+  }
+  .hub-card.planned:hover {
+    border-color: var(--divider); transform: none; box-shadow: none;
+  }
   .hub-card-header {
     display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
   }
@@ -71,7 +95,7 @@
   .hub-card-icon svg { width: 22px; height: 22px; }
   .hub-card-icon.coach { background: rgba(0,167,208,0.15); color: var(--brand-primary); }
   .hub-card-icon.athlete { background: rgba(0,226,157,0.15); color: var(--brand-secondary); }
-  .hub-card-icon.both { background: var(--surface-high); color: var(--text-secondary); }
+  .hub-card-icon.shared { background: var(--surface-high); color: var(--text-secondary); }
   .hub-card-title { font-size: 18px; font-weight: 500; }
   .hub-card-desc {
     font-size: 14px; color: var(--text-secondary); line-height: 1.5;
@@ -82,7 +106,7 @@
     font-size: 12px; color: var(--text-tertiary);
   }
   .hub-card-badge {
-    font-size: 11px; font-weight: 500; padding: 3px 8px;
+    font-size: 12px; font-weight: 500; padding: 3px 8px;
     border-radius: 6px;
   }
   .hub-card-badge.ready { background: rgba(0,226,157,0.12); color: var(--brand-secondary); }
@@ -92,11 +116,15 @@
 
   /* Section labels */
   .hub-section {
-    font-size: 13px; font-weight: 600; text-transform: uppercase;
+    font-size: 14px; font-weight: 600; text-transform: uppercase;
     letter-spacing: 1px; color: var(--text-tertiary);
     margin: 32px 0 16px; max-width: 960px; width: 100%;
     padding-left: 4px;
   }
+
+  /* Content panels */
+  .hub-panel { display: none; width: 100%; max-width: 960px; }
+  .hub-panel.active { display: block; }
 
   /* Footer */
   .hub-footer {
@@ -110,119 +138,224 @@
 
 <div class="hub-header">
   <div class="hub-logo">321Fit</div>
-  <div class="hub-sub">Interactive prototype hub — click a flow to explore screens with annotations</div>
+  <div class="hub-sub">Interactive prototype hub — click a module to explore screens</div>
   <div class="hub-version">Design System: fit-ui.css · Last updated: April 2026</div>
 </div>
 
-<div class="hub-section">Core Flows</div>
-<div class="hub-grid">
+<!-- Role tabs -->
+<div class="hub-tabs">
+  <button class="hub-tab coach active" onclick="switchRole('coach')">Coach</button>
+  <button class="hub-tab athlete" onclick="switchRole('athlete')">Athlete</button>
+</div>
 
-  <a href="flows/group-training.html" class="hub-card">
-    <div class="hub-card-header">
-      <div class="hub-card-icon both">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg>
+<!-- ==================== COACH ==================== -->
+<div class="hub-panel active" id="panel-coach">
+
+  <div class="hub-section">Core Modules</div>
+  <div class="hub-grid">
+
+    <a href="flows/coach/dashboard.html" class="hub-card">
+      <div class="hub-card-header">
+        <div class="hub-card-icon coach">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+        </div>
+        <span class="hub-card-title">Dashboard</span>
       </div>
-      <span class="hub-card-title">Group Training</span>
+      <div class="hub-card-desc">Home tab — greeting, next session, action cards, this week earnings with card/cash split, activity signals</div>
+      <div class="hub-card-meta">
+        <span class="hub-card-badge ready">Ready</span>
+        <span class="hub-card-screens">6 states</span>
+      </div>
+    </a>
+
+    <a href="flows/coach/calendar.html" class="hub-card">
+      <div class="hub-card-header">
+        <div class="hub-card-icon coach">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        </div>
+        <span class="hub-card-title">Calendar</span>
+      </div>
+      <div class="hub-card-desc">24h timeline, event detail, cash payment completion, reschedule/cancel sheets, drag & drop</div>
+      <div class="hub-card-meta">
+        <span class="hub-card-badge ready">Ready</span>
+        <span class="hub-card-screens">3 screens</span>
+      </div>
+    </a>
+
+    <a href="flows/coach/clients.html" class="hub-card">
+      <div class="hub-card-header">
+        <div class="hub-card-icon coach">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/><path d="M19.5 14.5a4 4 0 013 3.87V21"/></svg>
+        </div>
+        <span class="hub-card-title">Clients</span>
+      </div>
+      <div class="hub-card-desc">CRM client list, requests inbox, client detail, training history, create CRM athlete</div>
+      <div class="hub-card-meta">
+        <span class="hub-card-badge ready">Ready</span>
+        <span class="hub-card-screens">5 screens</span>
+      </div>
+    </a>
+
+    <a href="flows/coach/invite.html" class="hub-card">
+      <div class="hub-card-header">
+        <div class="hub-card-icon coach">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
+        </div>
+        <span class="hub-card-title">Invite</span>
+      </div>
+      <div class="hub-card-desc">Select training, pick date & time, review & send invite with deep link</div>
+      <div class="hub-card-meta">
+        <span class="hub-card-badge ready">Ready</span>
+        <span class="hub-card-screens">4 screens</span>
+      </div>
+    </a>
+
+    <a href="flows/coach/settings.html" class="hub-card">
+      <div class="hub-card-header">
+        <div class="hub-card-icon coach">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        </div>
+        <span class="hub-card-title">Settings</span>
+      </div>
+      <div class="hub-card-desc">Sessions (create/edit), training locations, available hours, calendar sync, personal data</div>
+      <div class="hub-card-meta">
+        <span class="hub-card-badge ready">Ready</span>
+        <span class="hub-card-screens">17 screens</span>
+      </div>
+    </a>
+
+    <a href="flows/coach/balance.html" class="hub-card">
+      <div class="hub-card-header">
+        <div class="hub-card-icon coach">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <span class="hub-card-title">Earnings</span>
+      </div>
+      <div class="hub-card-desc">Balance, payouts, Stripe Connect, transactions ledger with states (connected/zero/needs-bank)</div>
+      <div class="hub-card-meta">
+        <span class="hub-card-badge ready">Ready</span>
+        <span class="hub-card-screens">6 screens</span>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="hub-section">Planned</div>
+  <div class="hub-grid">
+    <div class="hub-card planned">
+      <div class="hub-card-header">
+        <div class="hub-card-icon coach"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+        <span class="hub-card-title">Messenger</span>
+      </div>
+      <div class="hub-card-desc">In-app chat with athletes, session cards, voice messages</div>
+      <div class="hub-card-meta"><span class="hub-card-badge planned">Planned</span></div>
     </div>
-    <div class="hub-card-desc">Create group sessions, booking calendar, join flow, cash payment tracking, recurring events, calendar sync & settings</div>
+  </div>
+</div>
+
+<!-- ==================== ATHLETE ==================== -->
+<div class="hub-panel" id="panel-athlete">
+
+  <div class="hub-section">Core Modules</div>
+  <div class="hub-grid">
+
+    <a href="flows/athlete/calendar.html" class="hub-card">
+      <div class="hub-card-header">
+        <div class="hub-card-icon athlete">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        </div>
+        <span class="hub-card-title">My Schedule</span>
+      </div>
+      <div class="hub-card-desc">Athlete calendar view, upcoming trainings, post-training feedback</div>
+      <div class="hub-card-meta">
+        <span class="hub-card-badge ready">Ready</span>
+        <span class="hub-card-screens">1 screen</span>
+      </div>
+    </a>
+
+    <div class="hub-card planned">
+      <div class="hub-card-header">
+        <div class="hub-card-icon athlete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div>
+        <span class="hub-card-title">Search & Favorites</span>
+      </div>
+      <div class="hub-card-desc">Find coaches, filters, favorites list</div>
+      <div class="hub-card-meta"><span class="hub-card-badge planned">Planned</span></div>
+    </div>
+
+    <div class="hub-card planned">
+      <div class="hub-card-header">
+        <div class="hub-card-icon athlete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div>
+        <span class="hub-card-title">Settings</span>
+      </div>
+      <div class="hub-card-desc">Calendar sync, personal data, balance top-up</div>
+      <div class="hub-card-meta"><span class="hub-card-badge planned">Planned</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==================== SHARED (always visible) ==================== -->
+<div class="hub-section">Shared (Both Roles)</div>
+<div class="hub-grid" style="max-width:960px;">
+
+  <a href="flows/shared/profile.html" class="hub-card">
+    <div class="hub-card-header">
+      <div class="hub-card-icon shared">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
+      </div>
+      <span class="hub-card-title">Coach Profile & Booking</span>
+    </div>
+    <div class="hub-card-desc">Coach profile v1/v2, all reviews, book trainings, booking calendar, group detail/joined/full</div>
     <div class="hub-card-meta">
       <span class="hub-card-badge ready">Ready</span>
       <span>Coach + Athlete</span>
-      <span class="hub-card-screens">12 screens</span>
+      <span class="hub-card-screens">8 screens</span>
     </div>
   </a>
 
-  <a href="flows/settings.html" class="hub-card">
+  <a href="flows/shared/account-access.html" class="hub-card">
     <div class="hub-card-header">
-      <div class="hub-card-icon both">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      <div class="hub-card-icon shared">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
       </div>
-      <span class="hub-card-title">Settings & Calendar Sync</span>
+      <span class="hub-card-title">Account Access</span>
     </div>
-    <div class="hub-card-desc">Settings, calendar sync, Google/Apple calendar detail with error states, Apple CalDAV connect</div>
+    <div class="hub-card-desc">Sign-in methods, change phone/email/password, connect/disconnect Apple & Google, country picker, delete account, support</div>
     <div class="hub-card-meta">
       <span class="hub-card-badge ready">Ready</span>
-      <span>Coach</span>
-      <span class="hub-card-screens">5 screens</span>
+      <span>Coach + Athlete</span>
+      <span class="hub-card-screens">14+ screens</span>
     </div>
   </a>
-
-  <div class="hub-card" style="opacity:0.5;cursor:default;">
-    <div class="hub-card-header">
-      <div class="hub-card-icon both">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-      </div>
-      <span class="hub-card-title">Calendar & Booking</span>
-    </div>
-    <div class="hub-card-desc">Coach calendar, athlete schedule, personal booking flow, slot selection, availability, reschedule</div>
-    <div class="hub-card-meta">
-      <span class="hub-card-badge planned">Planned</span>
-      <span>Coach + Athlete</span>
-    </div>
-  </div>
-
-  <div class="hub-card" style="opacity:0.5;cursor:default;">
-    <div class="hub-card-header">
-      <div class="hub-card-icon both">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
-      </div>
-      <span class="hub-card-title">Auth & Onboarding</span>
-    </div>
-    <div class="hub-card-desc">Login, signup, OTP, password reset, onboarding wizard (7 steps for coach, 5 for athlete)</div>
-    <div class="hub-card-meta">
-      <span class="hub-card-badge planned">Planned</span>
-      <span>Coach + Athlete</span>
-    </div>
-  </div>
-
-  <div class="hub-card" style="opacity:0.5;cursor:default;">
-    <div class="hub-card-header">
-      <div class="hub-card-icon athlete">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      </div>
-      <span class="hub-card-title">Discovery & Coaches</span>
-    </div>
-    <div class="hub-card-desc">Search coaches, filters, coach profile, favorites, connections management</div>
-    <div class="hub-card-meta">
-      <span class="hub-card-badge planned">Planned</span>
-      <span>Athlete</span>
-    </div>
-  </div>
-
-  <div class="hub-card" style="opacity:0.5;cursor:default;">
-    <div class="hub-card-header">
-      <div class="hub-card-icon both">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
-      </div>
-      <span class="hub-card-title">Dashboard</span>
-    </div>
-    <div class="hub-card-desc">Home screen, next session, pending requests, revenue chart (coach), balance (athlete)</div>
-    <div class="hub-card-meta">
-      <span class="hub-card-badge planned">Planned</span>
-      <span>Coach + Athlete</span>
-    </div>
-  </div>
-
-  <div class="hub-card" style="opacity:0.5;cursor:default;">
-    <div class="hub-card-header">
-      <div class="hub-card-icon both">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-      </div>
-      <span class="hub-card-title">Messenger</span>
-    </div>
-    <div class="hub-card-desc">In-app chat, session cards inline, voice messages, image sharing</div>
-    <div class="hub-card-meta">
-      <span class="hub-card-badge planned">Planned</span>
-      <span>Feature (draft)</span>
-    </div>
-  </div>
 
 </div>
 
 <div class="hub-footer">
-  <p>321Fit Design System · <a href="../../design-tokens/">Design Tokens</a></p>
+  <p>321Fit Design System · <a href="../design-tokens/">Design Tokens</a></p>
   <p>Built with fit-ui.css + fit-ui.js</p>
 </div>
+
+<script>
+function switchRole(role) {
+  // Update tabs
+  document.querySelectorAll('.hub-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.hub-tab.' + role).classList.add('active');
+
+  // Show/hide panels
+  document.querySelectorAll('.hub-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + role).classList.add('active');
+
+  // Update URL
+  history.replaceState(null, '', '?role=' + role);
+}
+
+// Init from URL param
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var role = params.get('role');
+  if (role === 'athlete') switchRole('athlete');
+})();
+</script>
 
 </body>
 </html>

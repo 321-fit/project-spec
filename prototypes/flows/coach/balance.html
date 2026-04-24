@@ -1,0 +1,1881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Coach Earnings</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--fit-font);
+    background: #0a0a0a;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 24px; min-height: 100vh;
+    min-width: 900px;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    left: max(16px, calc(50% - 195px - 200px - 48px));
+    top: 24px; bottom: 24px; width: 200px;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-scroll {
+    flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+  }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--fit-gray-600);
+    padding: 0 8px; margin: 16px 0 8px;
+  }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button {
+    font-family: var(--fit-font); font-size: 14px; font-weight: 400;
+    padding: 10px 12px; border-radius: 10px; border: none;
+    background: transparent; color: var(--fit-gray-400);
+    cursor: pointer; text-align: left; width: 100%; transition: all 0.15s;
+  }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active {
+    background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500;
+  }
+
+  /* Annotations */
+  .ann-container {
+    position: fixed;
+    left: calc(50% + 195px + 48px);
+    top: 24px; bottom: 24px; width: 280px;
+    overflow-y: auto;
+  }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; }
+  .ann.active { display: block; }
+  .ann-role {
+    display: inline-block; font-size: 14px; font-weight: 500;
+    padding: 4px 12px; border-radius: 8px; margin-bottom: 16px;
+  }
+  .ann-role.coach { background: rgba(3,178,226,0.15); color: var(--fit-blue-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 14px; padding-left: 18px; font-size: 16px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 6px; }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  .ann-detail {
+    margin-top: 8px; padding: 4px 0 4px 16px;
+    border-left: 2px solid var(--fit-brand-primary);
+    display: none;
+  }
+  .ann-detail.open { display: block; }
+  .ann-detail-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; color: var(--fit-blue-500); cursor: pointer;
+    margin-top: 12px; font-weight: 500;
+  }
+  .ann-detail-toggle svg { width: 14px; height: 14px; transition: transform 0.2s; }
+  .ann-detail-toggle.open svg { transform: rotate(90deg); }
+  .ann-detail h4 { font-size: 14px; font-weight: 500; color: var(--fit-gray-300); margin-bottom: 6px; }
+  .ann-detail h4 + p { margin-bottom: 12px; }
+  .ann-detail p { font-size: 14px; line-height: 1.5; color: var(--fit-gray-500); margin-bottom: 8px; }
+  .ann-detail code { font-size: 12px; background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 3px; color: var(--fit-gray-400); }
+
+  /* Screen visibility */
+  .fit-phone { display: none; }
+  .fit-phone.active { display: flex; }
+
+  svg.i { width: 16px; height: 16px; vertical-align: middle; }
+
+  .fit-dark .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-dark .fit-phone-footer { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+
+  /* State toggle (sidebar-driven) */
+  .state-toggle {
+    display: inline-flex; gap: 0; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--fit-gray-700); margin-bottom: 12px;
+  }
+  .state-toggle button {
+    font-family: var(--fit-font); font-size: 12px; font-weight: 500;
+    padding: 4px 10px; border: none; cursor: pointer;
+    background: transparent; color: var(--fit-gray-400);
+    transition: all 0.15s;
+  }
+  .state-toggle button.active { background: var(--fit-gray-700); color: var(--fit-white); }
+
+  /* ===== EARNINGS HERO ===== */
+  .earn-hero {
+    margin: 0 16px;
+    border-radius: 20px;
+    padding: 20px;
+    background: var(--fit-brand-gradient);
+    color: var(--fit-white);
+    position: relative;
+    overflow: hidden;
+  }
+  .earn-hero::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 90% 0%, rgba(255,255,255,0.15), transparent 40%);
+    pointer-events: none;
+  }
+  .earn-hero-row {
+    display: flex; gap: 20px; align-items: flex-start;
+    position: relative; z-index: 1;
+  }
+  .earn-hero-col { flex: 1; min-width: 0; }
+  .earn-hero-label {
+    font-size: 12px; font-weight: 500; opacity: 0.85;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .earn-hero-label svg {
+    width: 12px; height: 12px; opacity: 0.7; cursor: pointer;
+  }
+  .earn-hero-value {
+    font-size: 32px; font-weight: 600; line-height: 1.1;
+    letter-spacing: -0.5px;
+  }
+  .earn-hero-value.pending { opacity: 0.8; font-size: 24px; padding-top: 6px; }
+  .earn-hero-divider {
+    width: 1px; background: rgba(255,255,255,0.2); align-self: stretch;
+    margin: 4px 0;
+  }
+  .earn-hero-footer {
+    margin-top: 16px; padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,0.18);
+    display: flex; justify-content: space-between; align-items: center;
+    position: relative; z-index: 1;
+  }
+  .earn-hero-next {
+    font-size: 13px; opacity: 0.9;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .earn-hero-next svg { width: 14px; height: 14px; opacity: 0.85; }
+  .earn-hero-withdraw {
+    font-size: 13px; font-weight: 500; color: var(--fit-white);
+    text-decoration: none; cursor: pointer;
+    padding: 6px 10px; border-radius: 99px;
+    background: rgba(255,255,255,0.18);
+    transition: background 0.15s;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .earn-hero-withdraw:hover { background: rgba(255,255,255,0.28); }
+  .earn-hero-withdraw svg { width: 12px; height: 12px; }
+
+  /* Hero variant: empty / no bank */
+  .earn-hero.zero { background: var(--fit-surface-high); color: var(--fit-text-primary); }
+  .earn-hero.zero .earn-hero-label { opacity: 0.7; }
+  .earn-hero.zero .earn-hero-divider { background: var(--fit-divider); }
+  .earn-hero.zero .earn-hero-footer { border-top-color: var(--fit-divider); }
+  .earn-hero.zero .earn-hero-withdraw {
+    background: var(--fit-surface-higher);
+    color: var(--fit-text-secondary);
+    pointer-events: none; opacity: 0.5;
+  }
+  .fit-light .earn-hero.zero { background: var(--fit-white); box-shadow: 0 1px 12px rgba(0,0,0,0.06); }
+
+  /* Locked CTA plate (needs connection) */
+  .earn-lock {
+    margin: 16px;
+    border-radius: 16px;
+    background: var(--fit-surface-high);
+    border: 1px dashed var(--fit-divider);
+    padding: 24px 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    text-align: center;
+  }
+  .fit-light .earn-lock { background: var(--fit-white); border-color: var(--fit-gray-200); }
+  .earn-lock-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: var(--fit-selection-gradient);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-text-primary);
+  }
+  .earn-lock-title { font-size: 17px; font-weight: 500; color: var(--fit-text-primary); }
+  .earn-lock-sub { font-size: 14px; color: var(--fit-text-tertiary); line-height: 1.5; max-width: 280px; }
+
+  /* Section */
+  .earn-section { padding: 24px 16px 0; }
+  .earn-section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .earn-section-title { font-size: 16px; color: var(--fit-text-secondary); }
+  .earn-section-action {
+    font-size: 13px; color: var(--fit-brand-primary); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 2px;
+  }
+  .earn-section-action svg { width: 12px; height: 12px; }
+
+  /* Payout method card */
+  .earn-method-card {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    background: var(--fit-surface-high);
+    border-radius: 14px;
+    cursor: pointer;
+  }
+  .fit-light .earn-method-card { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .earn-method-card + .earn-method-card { margin-top: 8px; }
+  .earn-method-card.disabled { opacity: 0.6; cursor: not-allowed; }
+  .earn-method-logo {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--fit-surface-higher);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 15px;
+    flex-shrink: 0;
+  }
+  .earn-method-logo.stripe { color: #635BFF; }
+  .earn-method-logo.revolut { color: #0075EB; }
+  .earn-method-info { flex: 1; min-width: 0; }
+  .earn-method-title { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .earn-method-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .earn-method-sub.connected { color: var(--fit-teal-500); }
+  .earn-method-sub.warn { color: var(--fit-yellow-400); }
+  .earn-method-chev { color: var(--fit-text-tertiary); }
+
+  /* Transaction row */
+  .earn-txn {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px;
+    background: var(--fit-surface-high);
+    cursor: pointer;
+  }
+  .fit-light .earn-txn { background: var(--fit-white); }
+  .earn-txn-group { border-radius: 14px; overflow: hidden; }
+  .fit-light .earn-txn-group { border: 1px solid var(--fit-gray-100); }
+  .earn-txn + .earn-txn {
+    border-top: 1px solid var(--fit-divider);
+  }
+  .earn-txn-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .earn-txn-icon.earning { background: rgba(5,224,166,0.12); color: var(--fit-teal-500); }
+  .earn-txn-icon.payout  { background: rgba(3,178,226,0.12); color: var(--fit-blue-500); }
+  .earn-txn-icon.refund  { background: rgba(240,92,91,0.12); color: var(--fit-red-400); }
+  .earn-txn-icon svg { width: 16px; height: 16px; }
+  .earn-txn-body { flex: 1; min-width: 0; }
+  .earn-txn-title {
+    font-size: 15px; font-weight: 500; color: var(--fit-text-primary);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .earn-txn-sub {
+    font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px;
+  }
+  .earn-txn-amt {
+    font-size: 15px; font-weight: 500; white-space: nowrap;
+  }
+  .earn-txn-amt.plus { color: var(--fit-teal-500); }
+  .earn-txn-amt.minus { color: var(--fit-text-secondary); }
+
+  /* Transaction date header */
+  .earn-txn-date {
+    padding: 16px 16px 6px;
+    font-size: 13px; color: var(--fit-text-tertiary);
+  }
+
+  /* Lifetime strip */
+  .earn-lifetime {
+    margin: 32px 16px 16px;
+    padding: 16px;
+    border-radius: 14px;
+    background: var(--fit-surface-low);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: 14px; color: var(--fit-text-secondary);
+  }
+  .fit-light .earn-lifetime { background: var(--fit-gray-100); }
+  .earn-lifetime strong { color: var(--fit-text-primary); font-weight: 600; }
+
+  /* Skeleton for txn loading */
+  .earn-sk {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    background: var(--fit-surface-high);
+  }
+  .earn-sk + .earn-sk { border-top: 1px solid var(--fit-divider); }
+  .earn-sk-group { border-radius: 14px; overflow: hidden; margin: 0 16px; }
+  .earn-sk-circle {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--fit-gray-800);
+    animation: sk-pulse 1.4s ease-in-out infinite;
+  }
+  .fit-light .earn-sk-circle { background: var(--fit-gray-200); }
+  .earn-sk-lines { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .earn-sk-line {
+    height: 10px; border-radius: 6px;
+    background: var(--fit-gray-800);
+    animation: sk-pulse 1.4s ease-in-out infinite;
+  }
+  .earn-sk-line.short { width: 40%; height: 8px; }
+  .fit-light .earn-sk-line { background: var(--fit-gray-200); }
+  @keyframes sk-pulse { 0%,100%{opacity:0.5;} 50%{opacity:1;} }
+
+  /* Withdraw sheet */
+  .wd-amount-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 14px 0;
+  }
+  .wd-amount-row + .wd-amount-row { border-top: 1px solid var(--fit-divider); }
+  .wd-amount-label { font-size: 14px; color: var(--fit-text-secondary); }
+  .wd-amount-value { font-size: 17px; font-weight: 500; color: var(--fit-text-primary); }
+  .wd-amount-value.final { color: var(--fit-teal-500); }
+  .wd-amount-value.fee { color: var(--fit-text-tertiary); font-weight: 400; }
+
+  /* State switcher for #s-earnings */
+  #s-earnings [data-state-block] { display: none; }
+  #s-earnings.st-full [data-state-block="full"]    { display: block; }
+  #s-earnings.st-premium [data-state-block="full"] { display: block; }
+  #s-earnings.st-zero [data-state-block="zero"]    { display: block; }
+  #s-earnings.st-lock [data-state-block="lock"]    { display: block; }
+
+  /* Instant payout (Withdraw now) — premium only, not in MVP */
+  .earn-hero-withdraw { display: none; }
+  #s-earnings.st-premium .earn-hero-withdraw { display: inline-flex; }
+  /* Premium notice banner — scoped with #id to beat .earn-banner specificity */
+  #s-earnings [data-premium-notice] { display: none; }
+  #s-earnings.st-premium [data-premium-notice] { display: flex; }
+  /* Premium badge on Withdraw pill */
+  .earn-premium-tag {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.3px;
+    padding: 2px 6px; border-radius: 99px;
+    background: rgba(255,255,255,0.25);
+    text-transform: uppercase;
+    margin-left: 4px;
+  }
+
+  /* State switcher for #s-transactions */
+  #s-transactions [data-txn-state] { display: none; }
+  #s-transactions.ts-filled  [data-txn-state="filled"]  { display: block; }
+  #s-transactions.ts-empty   [data-txn-state="empty"]   { display: block; }
+  #s-transactions.ts-loading [data-txn-state="loading"] { display: block; }
+
+  /* State switcher for #s-stripe */
+  #s-stripe [data-stripe-state] { display: none; }
+  #s-stripe.ss-none     [data-stripe-state="none"]     { display: block; }
+  #s-stripe.ss-pending  [data-stripe-state="pending"]  { display: block; }
+  #s-stripe.ss-done     [data-stripe-state="done"]     { display: block; }
+  #s-stripe.ss-action   [data-stripe-state="action"]   { display: block; }
+
+  /* Inline banner (blocking / warn) */
+  .earn-banner {
+    margin: 0 16px 16px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    display: flex; gap: 12px; align-items: flex-start;
+    font-size: 14px; line-height: 1.4;
+  }
+  .earn-banner svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+  .earn-banner.warn {
+    background: rgba(247,201,72,0.08);
+    border: 1px solid rgba(247,201,72,0.3);
+    color: var(--fit-text-primary);
+  }
+  .earn-banner.warn svg { color: #F7C948; }
+  .earn-banner.info {
+    background: rgba(3,178,226,0.08);
+    border: 1px solid rgba(3,178,226,0.22);
+    color: var(--fit-text-primary);
+  }
+  .earn-banner.info svg { color: var(--fit-blue-500); }
+  .earn-banner-body { flex: 1; }
+  .earn-banner-title { font-weight: 500; margin-bottom: 2px; }
+  .earn-banner-link { color: inherit; text-decoration: underline; font-weight: 500; cursor: pointer; }
+
+  /* Key-value rows for Stripe screen */
+  .earn-kv {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px;
+    background: var(--fit-surface-high);
+  }
+  .fit-light .earn-kv { background: var(--fit-white); }
+  .earn-kv-group { border-radius: 14px; overflow: hidden; margin: 0 16px; }
+  .fit-light .earn-kv-group { border: 1px solid var(--fit-gray-100); }
+  .earn-kv + .earn-kv { border-top: 1px solid var(--fit-divider); }
+  .earn-kv-label { font-size: 14px; color: var(--fit-text-secondary); }
+  .earn-kv-value { font-size: 14px; color: var(--fit-text-primary); font-weight: 500; }
+  .earn-kv-value.muted { color: var(--fit-text-tertiary); }
+
+  /* Section head above an earn-kv-group (e.g. "Session", "Payment", "Summary") */
+  .earn-section-head { padding: 24px 16px 8px; }
+  .earn-section-label {
+    font-size: 14px;
+    color: var(--fit-text-tertiary);
+    margin-bottom: 8px;
+  }
+
+  /* Info paragraph under a header (e.g. state explanations, Stripe notes) */
+  .earn-info-para {
+    padding: 8px 16px 16px;
+    font-size: 13px;
+    color: var(--fit-text-tertiary);
+    line-height: 1.5;
+  }
+
+  /* Method radio indicator (iOS-style) */
+  .earn-method-radio {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 1.5px solid var(--fit-gray-600);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .fit-light .earn-method-radio { border-color: var(--fit-gray-300); }
+  .earn-method-radio-inner {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: transparent;
+    transition: background 0.15s;
+  }
+  .earn-method-radio.checked { border-color: var(--fit-teal-600); }
+  .earn-method-radio.checked .earn-method-radio-inner { background: var(--fit-teal-500); }
+
+  /* ⋯ button on method card */
+  .earn-method-more {
+    width: 32px; height: 32px; flex-shrink: 0;
+    border-radius: 50%; background: transparent; border: none;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-text-tertiary); cursor: pointer;
+    position: relative;
+  }
+  .earn-method-more:hover { background: rgba(255,255,255,0.06); }
+  .fit-light .earn-method-more:hover { background: rgba(0,0,0,0.05); }
+  .earn-method-more::before {
+    content: ""; position: absolute; inset: -6px;
+  }
+  .earn-method-more svg { width: 18px; height: 18px; }
+
+  /* Payout methods state visibility */
+  #s-methods [data-mm-state] { display: none; }
+  #s-methods.mm-empty [data-mm-state="empty"] { display: block; }
+  #s-methods.mm-single [data-mm-state="single"] { display: block; }
+  #s-methods.mm-multi [data-mm-state="multi"] { display: block; }
+
+  /* Inline Connect CTA on empty state */
+  .earn-method-connect {
+    flex-shrink: 0;
+    padding: 6px 14px; border-radius: 99px;
+    background: var(--fit-brand-gradient);
+    color: var(--fit-white); font-size: 13px; font-weight: 500;
+    border: none; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .earn-method-connect svg { width: 12px; height: 12px; }
+  .earn-method-soon {
+    flex-shrink: 0;
+    padding: 6px 12px; border-radius: 99px;
+    background: var(--fit-surface-higher);
+    color: var(--fit-text-tertiary); font-size: 12px; font-weight: 500;
+  }
+  .fit-light .earn-method-soon { background: var(--fit-gray-100); }
+
+  /* Disconnect sheet variant visibility */
+  #disconnect-sheet [data-dc-variant] { display: none; }
+  #disconnect-sheet.dc-only [data-dc-variant="only"] { display: block; }
+  #disconnect-sheet.dc-backup [data-dc-variant="backup"] { display: block; }
+
+  /* Context menu: hide Set-as-default when already default */
+  #mm-menu.ctx-is-default [data-ctx-set-default] { display: none; }
+
+  /* Stripe preview card on Earnings — swap subtext by stripe state */
+  [data-stripe-preview="action"] { display: none; }
+  .stripe-state-action [data-stripe-preview="ok"] { display: none; }
+  .stripe-state-action [data-stripe-preview="action"] { display: flex; }
+
+  /* Context menu */
+  .earn-ctx {
+    position: absolute; z-index: 60;
+    background: var(--fit-surface-higher);
+    border-radius: 12px; padding: 6px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+    display: none; min-width: 180px;
+  }
+  .fit-light .earn-ctx {
+    background: var(--fit-white);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+    border: 1px solid var(--fit-gray-100);
+  }
+  .earn-ctx.open { display: block; }
+  .earn-ctx-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 8px;
+    font-size: 14px; color: var(--fit-text-primary);
+    cursor: pointer;
+  }
+  .earn-ctx-item:hover { background: rgba(255,255,255,0.04); }
+  .fit-light .earn-ctx-item:hover { background: var(--fit-gray-100); }
+  .earn-ctx-item.danger { color: var(--fit-red-400); }
+  .earn-ctx-item svg { width: 16px; height: 16px; }
+
+  .earn-success-dot {
+    display: inline-flex; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--fit-teal-500); margin-right: 6px;
+  }
+  .earn-warn-dot {
+    display: inline-flex; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--fit-yellow-400); margin-right: 6px;
+  }
+
+  /* Empty state */
+  .earn-empty {
+    padding: 56px 32px; text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+  }
+  .earn-empty svg { width: 56px; height: 56px; color: var(--fit-gray-600); }
+  .fit-light .earn-empty svg { color: var(--fit-gray-400); }
+  .earn-empty-title { font-size: 17px; font-weight: 500; color: var(--fit-text-secondary); }
+  .earn-empty-sub { font-size: 14px; color: var(--fit-text-tertiary); line-height: 1.5; max-width: 260px; }
+
+  /* Snackbar (error / validation) */
+  .earn-snackbar {
+    position: absolute; left: 16px; right: 16px; bottom: 24px;
+    padding: 12px 16px; border-radius: 12px;
+    background: rgba(240,92,91,0.12);
+    border: 1px solid rgba(240,92,91,0.35);
+    color: var(--fit-text-primary);
+    font-size: 14px;
+    display: flex; align-items: center; gap: 10px;
+    opacity: 0; transform: translateY(8px); pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .earn-snackbar.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .earn-snackbar svg { width: 18px; height: 18px; color: var(--fit-red-400); flex-shrink: 0; }
+  .earn-snackbar-retry { margin-left: auto; color: var(--fit-blue-500); font-weight: 500; cursor: pointer; }
+
+  /* Filter chips on transactions */
+  .earn-filters {
+    display: flex; gap: 8px; padding: 0 16px 12px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .earn-filters::-webkit-scrollbar { display: none; }
+  .earn-filter {
+    padding: 6px 14px; border-radius: 99px;
+    background: var(--fit-surface-high); color: var(--fit-text-secondary);
+    font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap;
+    border: 1px solid transparent;
+  }
+  .fit-light .earn-filter { background: var(--fit-white); border-color: var(--fit-gray-100); }
+  .earn-filter.active {
+    background: var(--fit-selection-gradient);
+    color: var(--fit-white);
+    border-color: var(--fit-selection-border);
+  }
+
+  /* Detail hero */
+  .earn-detail-hero {
+    margin: 0 16px; padding: 24px; border-radius: 16px;
+    background: var(--fit-surface-high);
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .fit-light .earn-detail-hero { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .earn-detail-hero-amt { font-size: 32px; font-weight: 600; letter-spacing: -0.5px; }
+  .earn-detail-hero-amt.plus { color: var(--fit-teal-500); }
+  .earn-detail-hero-amt.minus { color: var(--fit-text-primary); }
+  .earn-detail-hero-sub { font-size: 14px; color: var(--fit-text-tertiary); }
+
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+  <div class="label">Overview</div>
+  <button class="active" onclick="go('s-earnings',this)">Earnings</button>
+  <div class="label">Flows</div>
+  <button onclick="go('s-transactions',this)">Transactions</button>
+  <button onclick="go('s-txn-earning',this)">Earning Detail</button>
+  <button onclick="go('s-txn-payout',this)">Payout Detail</button>
+  <button onclick="go('s-methods',this)">Payout Methods</button>
+  <button onclick="go('s-stripe',this)">Stripe Connect</button>
+  <div class="label">Actions</div>
+  <button onclick="go('s-earnings',this);forcePremiumState();openWithdrawSheet();">Withdraw Sheet (Premium)</button>
+  <button onclick="go('s-earnings',this);showPayoutError();">Payout Failed</button>
+  <button onclick="openPendingInfo();">Why Pending? Sheet</button>
+  <button onclick="showStripeActionOnEarnings(this);">Stripe: Action Required</button>
+  <button onclick="go('s-methods',this);setMethodsEmpty();">Methods &middot; Empty</button>
+  <button onclick="go('s-methods',this);forceMethodsMulti();">Methods &middot; Multi (future)</button>
+  <button onclick="go('s-methods',this);forceMethodsMulti();openDisconnectFromShortcut('multi-backup','revolut');">Disconnect Sheet (backup)</button>
+  <button onclick="go('s-methods',this);openDisconnectFromShortcut('single','stripe');">Disconnect Sheet (only)</button>
+  </div>
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ==================== PHONES ==================== -->
+
+<!-- ===== EARNINGS (main) ===== -->
+<div class="fit-phone fit-dark active st-full" id="s-earnings">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="window.location.href='settings.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Earnings</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- ========== STATE: FULL (connected + balance) ========== -->
+    <div data-state-block="full">
+      <div class="earn-hero">
+        <div class="earn-hero-row">
+          <div class="earn-hero-col">
+            <div class="earn-hero-label">Available</div>
+            <div class="earn-hero-value">&euro;340.50</div>
+          </div>
+          <div class="earn-hero-divider"></div>
+          <div class="earn-hero-col">
+            <div class="earn-hero-label" onclick="event.stopPropagation();openPendingInfo();" style="cursor:pointer;">
+              Pending
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+            </div>
+            <div class="earn-hero-value pending">&euro;75.00</div>
+          </div>
+        </div>
+        <div class="earn-hero-footer">
+          <div class="earn-hero-next">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Next payout · Mon, Apr 27
+          </div>
+          <span class="earn-hero-withdraw" onclick="openWithdrawSheet()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Withdraw now
+            <span class="earn-premium-tag">Premium</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Premium-only notice (shown only when Instant Payout is toggled on) -->
+      <div class="earn-banner info" data-premium-notice style="margin:16px 16px 0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4 2 7-6.5-4-6.5 4 2-7L2 9h7z"/></svg>
+        <div class="earn-banner-body">
+          <div class="earn-banner-title">Instant Payout &middot; Premium (post-MVP)</div>
+          <div style="font-size:13px;line-height:1.45;">Not in v1. Weekly batch is the only payout path for MVP. This state previews the future paid add-on &mdash; keep it in spec but don't ship the "Withdraw now" pill yet.</div>
+        </div>
+      </div>
+
+      <div class="earn-section">
+        <div class="earn-section-head">
+          <span class="earn-section-title">Payout methods</span>
+          <span class="earn-section-action" onclick="go('s-methods',document.querySelector('[onclick*=s-methods]'))">Manage
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </span>
+        </div>
+        <div class="earn-method-card stripe-preview" onclick="go('s-stripe',document.querySelector('[onclick*=s-stripe]'))">
+          <div class="earn-method-logo stripe">S</div>
+          <div class="earn-method-info">
+            <div class="earn-method-title">Stripe</div>
+            <div class="earn-method-sub connected" data-stripe-preview="ok"><span class="earn-success-dot"></span>Connected &middot; Default</div>
+            <div class="earn-method-sub warn" data-stripe-preview="action"><span class="earn-warn-dot"></span>Action required &middot; Tap to resolve</div>
+          </div>
+          <svg class="earn-method-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+
+      <div class="earn-section" data-section="recent-activity" data-limit="4">
+        <div class="earn-section-head">
+          <span class="earn-section-title">Recent activity</span>
+          <span class="earn-section-action" onclick="go('s-transactions',document.querySelector('[onclick*=s-transactions]'))">View all
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </span>
+        </div>
+        <div class="earn-txn-group">
+          <div class="earn-txn" onclick="go('s-txn-earning',document.querySelector('[onclick*=s-txn-earning]'))">
+            <div class="earn-txn-icon earning">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg>
+            </div>
+            <div class="earn-txn-body">
+              <div class="earn-txn-title">Marco Rossi</div>
+              <div class="earn-txn-sub">Tennis training &middot; Tue, Apr 21 &middot; 18:00</div>
+            </div>
+            <div class="earn-txn-amt plus">+&euro;25.00</div>
+          </div>
+          <div class="earn-txn">
+            <div class="earn-txn-icon earning">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg>
+            </div>
+            <div class="earn-txn-body">
+              <div class="earn-txn-title">Group training &middot; Padel</div>
+              <div class="earn-txn-sub">4 athletes &middot; Mon, Apr 20 &middot; 19:00</div>
+            </div>
+            <div class="earn-txn-amt plus">+&euro;60.00</div>
+          </div>
+          <div class="earn-txn" onclick="go('s-txn-payout',document.querySelector('[onclick*=s-txn-payout]'))">
+            <div class="earn-txn-icon payout">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+            </div>
+            <div class="earn-txn-body">
+              <div class="earn-txn-title">Payout to Stripe</div>
+              <div class="earn-txn-sub">Weekly batch &middot; Mon, Apr 20</div>
+            </div>
+            <div class="earn-txn-amt minus">&minus;&euro;275.00</div>
+          </div>
+          <div class="earn-txn">
+            <div class="earn-txn-icon earning">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg>
+            </div>
+            <div class="earn-txn-body">
+              <div class="earn-txn-title">Sarah Chen</div>
+              <div class="earn-txn-sub">Padel training &middot; Sun, Apr 19 &middot; 10:00</div>
+            </div>
+            <div class="earn-txn-amt plus">+&euro;30.00</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="earn-lifetime">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-teal-500);"><path d="M12 2l2.39 4.85L20 7.72l-4 3.9.94 5.5L12 14.77 7.06 17.12 8 11.62l-4-3.9 5.61-.87z"/></svg>
+        You've earned <strong>&euro;2,840</strong> with 321Fit
+      </div>
+    </div>
+
+    <!-- ========== STATE: ZERO (connected, no balance yet) ========== -->
+    <div data-state-block="zero">
+      <div class="earn-hero zero">
+        <div class="earn-hero-row">
+          <div class="earn-hero-col">
+            <div class="earn-hero-label">Available</div>
+            <div class="earn-hero-value">&euro;0.00</div>
+          </div>
+          <div class="earn-hero-divider"></div>
+          <div class="earn-hero-col">
+            <div class="earn-hero-label">Pending</div>
+            <div class="earn-hero-value pending">&euro;0.00</div>
+          </div>
+        </div>
+        <div class="earn-hero-footer">
+          <div class="earn-hero-next" style="color:var(--fit-text-tertiary);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            No payouts scheduled
+          </div>
+          <span class="earn-hero-withdraw">Withdraw now</span>
+        </div>
+      </div>
+
+      <div class="earn-empty" style="padding-top:40px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
+        <div class="earn-empty-title">No earnings yet</div>
+        <div class="earn-empty-sub">Completed sessions will appear here. Funds release 24 hours after each training.</div>
+      </div>
+    </div>
+
+    <!-- ========== STATE: LOCK (no payout method connected) ========== -->
+    <div data-state-block="lock">
+      <div class="earn-hero zero" style="opacity:0.5;pointer-events:none;">
+        <div class="earn-hero-row">
+          <div class="earn-hero-col">
+            <div class="earn-hero-label">Available</div>
+            <div class="earn-hero-value">&euro;0.00</div>
+          </div>
+          <div class="earn-hero-divider"></div>
+          <div class="earn-hero-col">
+            <div class="earn-hero-label">Pending</div>
+            <div class="earn-hero-value pending">&euro;75.00</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="earn-lock">
+        <div class="earn-lock-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        </div>
+        <div class="earn-lock-title">Connect payouts to start earning</div>
+        <div class="earn-lock-sub">Add a payout method to receive money from completed sessions. Funds stay on hold until you connect.</div>
+        <button class="fit-btn fit-btn-primary" style="width:auto;padding:0 24px;" onclick="go('s-methods',document.querySelector('[onclick*=s-methods]'));setMethodsEmpty();">Connect account</button>
+      </div>
+
+      <div class="earn-section">
+        <div class="earn-section-head">
+          <span class="earn-section-title">Recent activity</span>
+        </div>
+        <div class="earn-txn-group">
+          <div class="earn-txn">
+            <div class="earn-txn-icon earning">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            </div>
+            <div class="earn-txn-body">
+              <div class="earn-txn-title">Marco Rossi</div>
+              <div class="earn-txn-sub">Pending &middot; releases Tue, Apr 22 &middot; 18:00</div>
+            </div>
+            <div class="earn-txn-amt" style="color:var(--fit-text-tertiary);">&euro;25.00</div>
+          </div>
+          <div class="earn-txn">
+            <div class="earn-txn-icon earning">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            </div>
+            <div class="earn-txn-body">
+              <div class="earn-txn-title">Group &middot; Padel</div>
+              <div class="earn-txn-sub">Pending &middot; releases Mon, Apr 21 &middot; 19:00</div>
+            </div>
+            <div class="earn-txn-amt" style="color:var(--fit-text-tertiary);">&euro;50.00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== WITHDRAW SHEET ===== -->
+  <div class="fit-sheet-overlay" id="withdraw-sheet">
+    <div class="fit-sheet compact">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin:8px 0 4px;">Withdraw now</div>
+      <div style="font-size:14px;color:var(--fit-text-tertiary);margin-bottom:20px;line-height:1.5;">
+        Instant transfer to your default Stripe account. Arrives within 30 minutes.
+      </div>
+
+      <div style="background:var(--fit-surface-low);border-radius:14px;padding:0 16px;margin-bottom:16px;">
+        <div class="wd-amount-row">
+          <span class="wd-amount-label">Available</span>
+          <span class="wd-amount-value">&euro;340.50</span>
+        </div>
+        <div class="wd-amount-row">
+          <span class="wd-amount-label">Instant payout fee (1%)</span>
+          <span class="wd-amount-value fee">&minus;&euro;3.41</span>
+        </div>
+        <div class="wd-amount-row">
+          <span class="wd-amount-label" style="color:var(--fit-text-primary);font-weight:500;">You receive</span>
+          <span class="wd-amount-value final">&euro;337.09</span>
+        </div>
+      </div>
+
+      <div class="earn-banner info" style="margin:0 0 20px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        <div class="earn-banner-body">
+          <div style="font-size:13px;line-height:1.45;">Prefer free payouts? Your next weekly payout of <strong>&euro;340.50</strong> arrives <strong>Mon, Apr 27</strong> with no fee.</div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-primary" onclick="confirmInstant()">Confirm instant payout</button>
+        <button class="fit-btn fit-btn-secondary" onclick="closeWithdrawSheet()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== WHY PENDING? INFO SHEET ===== -->
+  <div class="fit-sheet-overlay" id="pending-info-sheet">
+    <div class="fit-sheet compact">
+      <div class="fit-sheet-handle"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin:12px 0 20px;text-align:center;">
+        <div style="width:48px;height:48px;border-radius:50%;background:rgba(3,178,226,0.12);display:flex;align-items:center;justify-content:center;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        </div>
+        <div style="font-size:18px;font-weight:500;">Why is this pending?</div>
+        <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.55;max-width:300px;">
+          Funds from completed sessions wait <strong style="color:var(--fit-text-primary);">24 hours</strong> before becoming available. This window covers cancellations and no-shows &mdash; so what moves into your balance is final.
+        </div>
+      </div>
+
+      <div style="background:var(--fit-surface-low);border-radius:14px;padding:0 16px;margin-bottom:20px;">
+        <div class="wd-amount-row">
+          <span class="wd-amount-label">Session marked complete</span>
+          <span class="wd-amount-value" style="font-size:14px;">Now</span>
+        </div>
+        <div class="wd-amount-row">
+          <span class="wd-amount-label">Moves to Available</span>
+          <span class="wd-amount-value" style="font-size:14px;color:var(--fit-teal-500);">+24h</span>
+        </div>
+        <div class="wd-amount-row">
+          <span class="wd-amount-label">Paid out</span>
+          <span class="wd-amount-value" style="font-size:14px;">Next Monday</span>
+        </div>
+      </div>
+
+      <button class="fit-btn fit-btn-primary" onclick="closePendingInfo()">Got it</button>
+    </div>
+  </div>
+
+  <!-- ===== SUCCESS TOAST (bottom right corner) ===== -->
+  <div class="fit-toast" id="payout-success-toast" style="border-left:3px solid var(--fit-teal-500);">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>
+    <span style="font-size:14px;">Instant payout on the way</span>
+  </div>
+
+  <!-- ===== ERROR SNACKBAR ===== -->
+  <div class="earn-snackbar" id="payout-error-snackbar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+    <span>Payout couldn't go through</span>
+    <span class="earn-snackbar-retry" onclick="openWithdrawSheet();hideSnackbar();">Retry</span>
+  </div>
+</div>
+
+
+<!-- ===== TRANSACTIONS (full list) ===== -->
+<div class="fit-phone fit-dark ts-filled" id="s-transactions">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-earnings',document.querySelector('[onclick*=s-earnings]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Transactions</span>
+    </div>
+  </div>
+
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+    <!-- Filter chips -->
+    <div class="earn-filters">
+      <div class="earn-filter active" onclick="setFilter(this)">All</div>
+      <div class="earn-filter" onclick="setFilter(this)">Earnings</div>
+      <div class="earn-filter" onclick="setFilter(this)">Payouts</div>
+      <div class="earn-filter" onclick="setFilter(this)">Refunds</div>
+    </div>
+
+    <!-- FILLED -->
+    <div data-txn-state="filled">
+      <div class="earn-txn-date">April 2026</div>
+      <div class="earn-txn-group">
+        <div class="earn-txn" onclick="go('s-txn-earning',document.querySelector('[onclick*=s-txn-earning]'))">
+          <div class="earn-txn-icon earning">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg>
+          </div>
+          <div class="earn-txn-body">
+            <div class="earn-txn-title">Marco Rossi</div>
+            <div class="earn-txn-sub">Tennis training &middot; Tue, Apr 21 &middot; 18:00</div>
+          </div>
+          <div class="earn-txn-amt plus">+&euro;25.00</div>
+        </div>
+        <div class="earn-txn">
+          <div class="earn-txn-icon earning">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg>
+          </div>
+          <div class="earn-txn-body">
+            <div class="earn-txn-title">Group &middot; Padel</div>
+            <div class="earn-txn-sub">4 athletes &middot; Mon, Apr 20 &middot; 19:00</div>
+          </div>
+          <div class="earn-txn-amt plus">+&euro;60.00</div>
+        </div>
+        <div class="earn-txn" onclick="go('s-txn-payout',document.querySelector('[onclick*=s-txn-payout]'))">
+          <div class="earn-txn-icon payout">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+          </div>
+          <div class="earn-txn-body">
+            <div class="earn-txn-title">Payout to Stripe</div>
+            <div class="earn-txn-sub">Weekly batch &middot; Mon, Apr 20</div>
+          </div>
+          <div class="earn-txn-amt minus">&minus;&euro;275.00</div>
+        </div>
+        <div class="earn-txn">
+          <div class="earn-txn-icon earning">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg>
+          </div>
+          <div class="earn-txn-body">
+            <div class="earn-txn-title">Sarah Chen</div>
+            <div class="earn-txn-sub">Padel training &middot; Sun, Apr 19 &middot; 10:00</div>
+          </div>
+          <div class="earn-txn-amt plus">+&euro;30.00</div>
+        </div>
+        <div class="earn-txn">
+          <div class="earn-txn-icon refund">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l3-3 3 3M3 4v10a3 3 0 003 3h10M21 17l-3 3-3-3M21 20V10a3 3 0 00-3-3H8"/></svg>
+          </div>
+          <div class="earn-txn-body">
+            <div class="earn-txn-title">Refund &middot; Luis Garcia</div>
+            <div class="earn-txn-sub">Cancelled &lt; 24h &middot; Fri, Apr 17</div>
+          </div>
+          <div class="earn-txn-amt" style="color:var(--fit-red-400);">&minus;&euro;12.50</div>
+        </div>
+      </div>
+
+      <div class="earn-txn-date">March 2026</div>
+      <div class="earn-txn-group">
+        <div class="earn-txn">
+          <div class="earn-txn-icon payout">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+          </div>
+          <div class="earn-txn-body">
+            <div class="earn-txn-title">Payout to Stripe</div>
+            <div class="earn-txn-sub">Weekly batch &middot; Mon, Mar 30</div>
+          </div>
+          <div class="earn-txn-amt minus">&minus;&euro;405.00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMPTY -->
+    <div data-txn-state="empty">
+      <div class="earn-empty" style="padding-top:48px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
+        <div class="earn-empty-title">No transactions yet</div>
+        <div class="earn-empty-sub">Earnings and payouts will appear here as sessions complete.</div>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div data-txn-state="loading">
+      <div class="earn-sk-group" style="margin-top:12px;">
+        <div class="earn-sk">
+          <div class="earn-sk-circle"></div>
+          <div class="earn-sk-lines">
+            <div class="earn-sk-line" style="width:60%;"></div>
+            <div class="earn-sk-line short"></div>
+          </div>
+        </div>
+        <div class="earn-sk">
+          <div class="earn-sk-circle"></div>
+          <div class="earn-sk-lines">
+            <div class="earn-sk-line" style="width:50%;"></div>
+            <div class="earn-sk-line short"></div>
+          </div>
+        </div>
+        <div class="earn-sk">
+          <div class="earn-sk-circle"></div>
+          <div class="earn-sk-lines">
+            <div class="earn-sk-line" style="width:70%;"></div>
+            <div class="earn-sk-line short"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== EARNING DETAIL ===== -->
+<div class="fit-phone fit-dark" id="s-txn-earning">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-transactions',document.querySelector('[onclick*=s-transactions]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Earning</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+    <div class="earn-detail-hero">
+      <div class="earn-detail-hero-amt plus">+&euro;25.00</div>
+      <div class="earn-detail-hero-sub">Tue, Apr 21 &middot; 18:00</div>
+      <div style="margin-top:4px;padding:4px 10px;border-radius:99px;background:rgba(5,224,166,0.12);color:var(--fit-teal-500);font-size:12px;font-weight:500;">Available</div>
+    </div>
+
+    <div class="earn-section-head">
+      <div class="earn-section-label">Session</div>
+    </div>
+    <div class="earn-kv-group">
+      <div class="earn-kv">
+        <span class="earn-kv-label">Athlete</span>
+        <span class="earn-kv-value">Marco Rossi</span>
+      </div>
+      <div class="earn-kv">
+        <span class="earn-kv-label">Training</span>
+        <span class="earn-kv-value">Tennis 1:1</span>
+      </div>
+      <div class="earn-kv">
+        <span class="earn-kv-label">Duration</span>
+        <span class="earn-kv-value">60 min</span>
+      </div>
+      <div class="earn-kv">
+        <span class="earn-kv-label">Location</span>
+        <span class="earn-kv-value">TNT Studio</span>
+      </div>
+    </div>
+
+    <div class="earn-section-head">
+      <div class="earn-section-label">Payment</div>
+    </div>
+    <div class="earn-kv-group">
+      <div class="earn-kv">
+        <span class="earn-kv-label">Session price</span>
+        <span class="earn-kv-value">&euro;25.00</span>
+      </div>
+      <div class="earn-kv">
+        <span class="earn-kv-label">Platform fee</span>
+        <span class="earn-kv-value muted">&euro;0.00</span>
+      </div>
+      <div class="earn-kv">
+        <span class="earn-kv-label">You earned</span>
+        <span class="earn-kv-value" style="color:var(--fit-teal-500);">&euro;25.00</span>
+      </div>
+      <div class="earn-kv">
+        <span class="earn-kv-label">Released</span>
+        <span class="earn-kv-value">Wed, Apr 22 &middot; 18:00</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== PAYOUT DETAIL ===== -->
+<div class="fit-phone fit-dark" id="s-txn-payout">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-transactions',document.querySelector('[onclick*=s-transactions]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Payout</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+    <div class="earn-detail-hero">
+      <div class="earn-detail-hero-amt minus">&euro;275.00</div>
+      <div class="earn-detail-hero-sub">Weekly batch &middot; Mon, Apr 20</div>
+      <div style="margin-top:4px;padding:4px 10px;border-radius:99px;background:rgba(3,178,226,0.12);color:var(--fit-blue-500);font-size:12px;font-weight:500;">Completed</div>
+    </div>
+
+    <div class="earn-section-head">
+      <div class="earn-section-label">Payout</div>
+    </div>
+    <div class="earn-kv-group">
+      <div class="earn-kv">
+        <span class="earn-kv-label">Destination</span>
+        <span class="earn-kv-value">Stripe &middot; &bull;&bull;&bull;&bull; 4821</span>
+      </div>
+      <div class="earn-kv">
+        <span class="earn-kv-label">Initiated</span>
+        <span class="earn-kv-value">Mon, Apr 20 &middot; 09:00</span>
+      </div>
+      <div class="earn-kv">
+        <span class="earn-kv-label">Arrived</span>
+        <span class="earn-kv-value">Tue, Apr 21 &middot; 11:24</span>
+      </div>
+      <div class="earn-kv">
+        <span class="earn-kv-label">Fee</span>
+        <span class="earn-kv-value muted">&euro;0.00</span>
+      </div>
+    </div>
+
+    <div class="earn-section-head">
+      <div class="earn-section-label">Included earnings (8)</div>
+    </div>
+    <div class="earn-txn-group">
+      <div class="earn-txn">
+        <div class="earn-txn-icon earning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg></div>
+        <div class="earn-txn-body"><div class="earn-txn-title">Luis Garcia</div><div class="earn-txn-sub">Tennis &middot; Sun, Apr 19</div></div>
+        <div class="earn-txn-amt plus">+&euro;25.00</div>
+      </div>
+      <div class="earn-txn">
+        <div class="earn-txn-icon earning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg></div>
+        <div class="earn-txn-body"><div class="earn-txn-title">Group &middot; Padel</div><div class="earn-txn-sub">4 athletes &middot; Sat, Apr 18</div></div>
+        <div class="earn-txn-amt plus">+&euro;60.00</div>
+      </div>
+      <div class="earn-txn">
+        <div class="earn-txn-icon earning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg></div>
+        <div class="earn-txn-body"><div class="earn-txn-title">Sarah Chen</div><div class="earn-txn-sub">Padel &middot; Fri, Apr 17</div></div>
+        <div class="earn-txn-amt plus">+&euro;30.00</div>
+      </div>
+      <div class="earn-txn" style="justify-content:center;color:var(--fit-text-tertiary);font-size:13px;cursor:default;">+5 more</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== PAYOUT METHODS ===== -->
+<div class="fit-phone fit-dark mm-single" id="s-methods">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-earnings',document.querySelector('[onclick*=s-earnings]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Payout methods</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;position:relative;">
+
+    <!-- ===== STATE: EMPTY (no methods connected) ===== -->
+    <div data-mm-state="empty">
+      <div class="earn-info-para">
+        Choose how you'll receive payouts. You can add more methods later.
+      </div>
+
+      <div style="padding:0 16px;">
+        <div class="earn-method-card" onclick="startStripeOnboarding()">
+          <div class="earn-method-logo stripe">S</div>
+          <div class="earn-method-info">
+            <div class="earn-method-title">Stripe</div>
+            <div class="earn-method-sub">Fast setup &middot; 2&ndash;5 minutes</div>
+          </div>
+          <button class="earn-method-connect" onclick="event.stopPropagation();startStripeOnboarding();">
+            Connect
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+
+        <div class="earn-method-card disabled" style="margin-top:8px;">
+          <div class="earn-method-logo revolut">R</div>
+          <div class="earn-method-info">
+            <div class="earn-method-title">Revolut Business</div>
+            <div class="earn-method-sub">Coming soon</div>
+          </div>
+          <span class="earn-method-soon">Soon</span>
+        </div>
+      </div>
+
+      <div style="padding:24px 16px;">
+        <div style="font-size:13px;color:var(--fit-text-tertiary);line-height:1.5;">
+          We never hold your banking details &mdash; Stripe handles verification and transfers securely.
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STATE: SINGLE (MVP — 1 method connected) ===== -->
+    <div data-mm-state="single">
+      <div class="earn-info-para">
+        Your payouts go to the default method. Add more to keep backups.
+      </div>
+
+      <div style="padding:0 16px;">
+        <div class="earn-method-card" onclick="go('s-stripe',document.querySelector('[onclick*=s-stripe]'))">
+          <div class="earn-method-logo stripe">S</div>
+          <div class="earn-method-info">
+            <div class="earn-method-title">Stripe &middot; &bull;&bull;&bull;&bull; 4821</div>
+            <div class="earn-method-sub connected"><span class="earn-success-dot"></span>Connected &middot; Default</div>
+          </div>
+          <button class="earn-method-more" onclick="event.stopPropagation();openMethodMenu(this,'stripe','single');">
+            <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+          </button>
+        </div>
+
+        <div class="earn-method-card disabled" style="margin-top:8px;">
+          <div class="earn-method-logo revolut">R</div>
+          <div class="earn-method-info">
+            <div class="earn-method-title">Revolut Business</div>
+            <div class="earn-method-sub">Coming soon</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STATE: MULTI (future — 2+ methods connected) ===== -->
+    <div data-mm-state="multi">
+      <div class="earn-info-para">
+        Tap the circle to change your default payout method.
+      </div>
+
+      <div style="padding:0 16px;">
+        <div class="earn-method-card" onclick="go('s-stripe',document.querySelector('[onclick*=s-stripe]'))">
+          <div class="earn-method-radio checked" onclick="event.stopPropagation();setDefault(this,'stripe');">
+            <div class="earn-method-radio-inner"></div>
+          </div>
+          <div class="earn-method-logo stripe">S</div>
+          <div class="earn-method-info">
+            <div class="earn-method-title">Stripe &middot; &bull;&bull;&bull;&bull; 4821</div>
+            <div class="earn-method-sub connected"><span class="earn-success-dot"></span>Default</div>
+          </div>
+          <button class="earn-method-more" onclick="event.stopPropagation();openMethodMenu(this,'stripe','multi-default');">
+            <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+          </button>
+        </div>
+
+        <div class="earn-method-card" style="margin-top:8px;">
+          <div class="earn-method-radio" onclick="event.stopPropagation();setDefault(this,'revolut');">
+            <div class="earn-method-radio-inner"></div>
+          </div>
+          <div class="earn-method-logo revolut">R</div>
+          <div class="earn-method-info">
+            <div class="earn-method-title">Revolut &middot; &bull;&bull;&bull;&bull; 2198</div>
+            <div class="earn-method-sub connected"><span class="earn-success-dot"></span>Connected</div>
+          </div>
+          <button class="earn-method-more" onclick="event.stopPropagation();openMethodMenu(this,'revolut','multi-backup');">
+            <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:24px 16px;">
+      <div style="font-size:13px;color:var(--fit-text-tertiary);line-height:1.5;">
+        More providers will be available soon. If you need a specific one, let us know.
+      </div>
+    </div>
+
+    <!-- Context menu + backdrop -->
+    <div class="fit-context-menu-backdrop" id="mm-menu-backdrop" onclick="closeMethodMenu()"></div>
+    <div class="earn-ctx" id="mm-menu">
+      <div class="earn-ctx-item" data-ctx-set-default onclick="setDefaultFromMenu()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Set as default
+      </div>
+      <div class="earn-ctx-item danger" onclick="openDisconnectSheet()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 11-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+        Disconnect
+      </div>
+    </div>
+
+    <!-- Toast for "set as default" -->
+    <div class="fit-toast" id="mm-default-toast" style="border-left:3px solid var(--fit-teal-500);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>
+      <span style="font-size:14px;" id="mm-default-toast-text">Stripe is now your default</span>
+    </div>
+  </div>
+
+  <!-- ===== DISCONNECT WARNING SHEET ===== -->
+  <div class="fit-sheet-overlay" id="disconnect-sheet">
+    <div class="fit-sheet compact">
+      <div class="fit-sheet-handle"></div>
+
+      <!-- ONLY method variant (warning — payouts will pause) -->
+      <div data-dc-variant="only">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin:12px 0 20px;text-align:center;">
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(247,201,72,0.12);display:flex;align-items:center;justify-content:center;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F7C948" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div style="font-size:18px;font-weight:500;">Disconnect your only payout method?</div>
+          <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:300px;">
+            Payouts will be paused until you add another method &mdash; your earnings will stay on hold, but completed sessions still bank correctly.
+          </div>
+        </div>
+      </div>
+
+      <!-- BACKUP-exists variant (soft confirm — payouts re-route) -->
+      <div data-dc-variant="backup">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin:12px 0 20px;text-align:center;">
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(240,92,91,0.12);display:flex;align-items:center;justify-content:center;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 11-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+          </div>
+          <div style="font-size:18px;font-weight:500;">Disconnect <span data-dc-provider-name>Stripe</span>?</div>
+          <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:300px;">
+            Your next payout will go to <strong data-dc-fallback-name>Revolut</strong>. You can reconnect anytime.
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-destructive" onclick="confirmDisconnect()">Disconnect</button>
+        <button class="fit-btn fit-btn-secondary" onclick="closeDisconnectSheet()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== STRIPE CONNECT ===== -->
+<div class="fit-phone fit-dark ss-done" id="s-stripe">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-methods',document.querySelector('[onclick*=s-methods]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Stripe</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- STATE: NONE (not set up) -->
+    <div data-stripe-state="none">
+      <div style="padding:32px 24px 24px;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;">
+        <div class="earn-method-logo stripe" style="width:64px;height:64px;font-size:28px;border-radius:16px;">S</div>
+        <div style="font-size:20px;font-weight:500;color:var(--fit-text-primary);">Connect Stripe to receive payouts</div>
+        <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:300px;">
+          Stripe verifies your identity and lets us transfer your earnings securely. Takes 2&ndash;5 minutes.
+        </div>
+      </div>
+
+      <div style="padding:8px 16px 0;">
+        <div class="earn-kv-group">
+          <div class="earn-kv">
+            <span class="earn-kv-label" style="display:flex;align-items:center;gap:10px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Identity verification
+            </span>
+          </div>
+          <div class="earn-kv">
+            <span class="earn-kv-label" style="display:flex;align-items:center;gap:10px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Bank account
+            </span>
+          </div>
+          <div class="earn-kv">
+            <span class="earn-kv-label" style="display:flex;align-items:center;gap:10px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Tax details
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATE: PENDING (in progress) -->
+    <div data-stripe-state="pending">
+      <div class="earn-section-head">
+        <div class="earn-banner info" style="margin:0;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          <div class="earn-banner-body">
+            <div class="earn-banner-title">Setup in progress</div>
+            <div style="font-size:13px;">Stripe is reviewing your information. Payouts start once verification is complete.</div>
+          </div>
+        </div>
+      </div>
+      <div class="earn-kv-group" style="margin-top:12px;">
+        <div class="earn-kv"><span class="earn-kv-label">Status</span><span class="earn-kv-value"><span class="earn-warn-dot"></span>Verifying</span></div>
+        <div class="earn-kv"><span class="earn-kv-label">Submitted</span><span class="earn-kv-value">Tue, Apr 23 &middot; 09:42</span></div>
+      </div>
+    </div>
+
+    <!-- STATE: DONE (connected) -->
+    <div data-stripe-state="done">
+      <div style="padding:24px 16px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;">
+        <div class="earn-method-logo stripe" style="width:56px;height:56px;font-size:24px;border-radius:14px;">S</div>
+        <div style="font-size:17px;font-weight:500;color:var(--fit-text-primary);">Stripe connected</div>
+        <div style="font-size:13px;color:var(--fit-teal-500);display:inline-flex;align-items:center;gap:6px;">
+          <span class="earn-success-dot"></span>Active &middot; Default
+        </div>
+      </div>
+
+      <div class="earn-kv-group">
+        <div class="earn-kv"><span class="earn-kv-label">Account</span><span class="earn-kv-value">acct_1Q&hellip;Zq4</span></div>
+        <div class="earn-kv"><span class="earn-kv-label">Bank</span><span class="earn-kv-value">&bull;&bull;&bull;&bull; 4821</span></div>
+        <div class="earn-kv"><span class="earn-kv-label">Country</span><span class="earn-kv-value">Spain &middot; EUR</span></div>
+        <div class="earn-kv"><span class="earn-kv-label">Payout schedule</span><span class="earn-kv-value">Weekly &middot; Monday</span></div>
+      </div>
+
+      <div style="padding:16px;display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-secondary">Manage on Stripe</button>
+        <button class="fit-btn fit-btn-destructive" onclick="openDisconnectFromShortcut('single','stripe')">Disconnect Stripe</button>
+      </div>
+    </div>
+
+    <!-- STATE: ACTION REQUIRED -->
+    <div data-stripe-state="action">
+      <div class="earn-section-head">
+        <div class="earn-banner warn" style="margin:0;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <div class="earn-banner-body">
+            <div class="earn-banner-title">Action needed</div>
+            <div style="font-size:13px;">Stripe needs additional documents to keep payouts active. Payouts are paused until this is resolved.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="earn-kv-group" style="margin-top:12px;">
+        <div class="earn-kv"><span class="earn-kv-label">Missing</span><span class="earn-kv-value" style="color:var(--fit-yellow-400);">Proof of address</span></div>
+        <div class="earn-kv"><span class="earn-kv-label">Deadline</span><span class="earn-kv-value">Fri, May 1</span></div>
+      </div>
+    </div>
+
+    <!-- Footer CTA (shared across states) -->
+    <div style="padding:16px;" data-stripe-state="none"><button class="fit-btn fit-btn-primary">Start setup</button></div>
+    <div style="padding:16px;" data-stripe-state="pending"><button class="fit-btn fit-btn-secondary">Continue in Stripe</button></div>
+    <div style="padding:16px;" data-stripe-state="action"><button class="fit-btn fit-btn-primary">Resolve now</button></div>
+  </div>
+</div>
+
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+
+  <div class="ann active" id="ann-s-earnings"><span class="ann-role coach">Coach</span><h3>Earnings</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setEarningsState('full',this)">MVP (default)</button>
+      <button onclick="setEarningsState('premium',this)">+ Instant Payout</button>
+      <button onclick="setEarningsState('zero',this)">Zero</button>
+      <button onclick="setEarningsState('lock',this)">Needs payout method</button>
+    </div>
+    <p><strong>Earnings</strong> &mdash; coach-side of money. Hero shows <strong>Available</strong> (withdrawable) and <strong>Pending</strong> (released 24h after each session).</p>
+    <ul>
+      <li><strong>Next payout</strong> banner predicts when money arrives &mdash; the heart of trust</li>
+      <li><strong>MVP</strong>: weekly auto-payout only, no manual withdraw</li>
+      <li><strong>Instant Payout</strong> (premium) &mdash; deferred post-MVP, previewed as a separate state so devs know what to wire later</li>
+      <li>Payout methods + recent activity previews below</li>
+    </ul>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Full behavior spec</span>
+    <div class="ann-detail">
+      <h4>Payout model (MVP)</h4>
+      <p>Weekly auto-payout only (Monday sweep). Coach does nothing, money lands. <strong>No manual withdraw</strong> in v1 &mdash; removes fee complexity and keeps cashflow consolidation on our side.</p>
+      <h4>Instant Payout (post-MVP, premium)</h4>
+      <p>Future paid add-on: 1% fee charged to coach, money arrives within 30 min via Stripe Instant Payouts. Previewed in the <em>+ Instant Payout</em> state so devs can see the intended UI and wire backend support, but <strong>not shipped in v1</strong>. Decision on monetization (per-transfer fee vs subscription bundle) deferred.</p>
+      <h4>Hold period</h4>
+      <p>Funds enter <strong>Pending</strong> when the session is marked complete. After <strong>24h</strong> (no refund/no-show), they move to <strong>Available</strong>. This window protects us against corrections.</p>
+      <h4>Minimum threshold</h4>
+      <p>Auto-payout fires only when Available &geq; <strong>&euro;20</strong>. Below threshold &mdash; rolls to next week.</p>
+      <h4>States</h4>
+      <p><strong>MVP:</strong> hero with Next payout only, no Withdraw pill.<br><strong>+ Instant Payout:</strong> Withdraw now pill + Premium tag + notice banner explaining this is post-MVP.<br><strong>Zero:</strong> neutral hero, no Withdraw, empty-state copy.<br><strong>Needs payout method:</strong> hero dimmed, lock plate with CTA. Pending earnings listed but not withdrawable.</p>
+      <h4>Cross-state signals</h4>
+      <p><strong>Stripe preview card</strong> reflects Stripe account status inline &mdash; "Connected &middot; Default" (teal dot) normally, or "Action required &middot; Tap to resolve" (yellow dot) when <code>requirements.currently_due</code> is non-empty. No separate banner on Earnings &mdash; the card itself is the signal, and tapping pushes to Stripe detail where the full warn-banner lives.</p>
+      <h4>Pending info sheet</h4>
+      <p>Tap on the <strong>Pending</strong> hero label (or its info icon) opens a bottom sheet explaining the 24-hour hold window + visual timeline (session complete &rarr; +24h available &rarr; Monday payout). Addresses the "why is my money stuck?" support ticket pre-emptively.</p>
+      <h4>Recent activity limit</h4>
+      <p>Earnings screen shows <strong>4 most recent transactions</strong>. Devs: <code>GET /coach/transactions/?limit=4</code>. "View all &rsaquo;" pushes to full Transactions screen which has its own pagination.</p>
+      <h4>API</h4>
+      <p><code>GET /coach/balance/</code> &mdash; &#123; available, pending, currency, next_payout_at &#125;<br><code>GET /coach/transactions/?limit=4</code> &mdash; preview for Earnings screen<br><code>GET /coach/transactions/?cursor=...</code> &mdash; full ledger with pagination<br><code>POST /coach/payout/instant/</code> &mdash; triggers Stripe Instant Payout (post-MVP)</p>
+      <h4>Backend gap</h4>
+      <p>Currently coach balance is computed on-the-fly from completed events. Needs real <code>coach_balance</code> table + append-only <code>coach_transactions</code> ledger. See <em>project_coach_balance_decisions.md</em>.</p>
+    </div>
+  </div>
+
+  <div class="ann" id="ann-s-transactions"><span class="ann-role coach">Coach</span><h3>Transactions</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setTxnState('filled',this)">Filled</button>
+      <button onclick="setTxnState('empty',this)">Empty</button>
+      <button onclick="setTxnState('loading',this)">Loading</button>
+    </div>
+    <p>Full chronological ledger: earnings, payouts, refunds. Grouped by month. Filter chips at top.</p>
+    <ul>
+      <li>Earning rows &mdash; athlete + session + date &middot; green + amount</li>
+      <li>Payout rows &mdash; destination + batch label &middot; neutral &minus; amount</li>
+      <li>Refund rows &mdash; red, cancellation reason in subtitle</li>
+      <li>Tap any row &rarr; detail screen</li>
+    </ul>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Filter + pagination</span>
+    <div class="ann-detail">
+      <h4>Filters</h4>
+      <p>Chips: All / Earnings / Payouts / Refunds. Single-select. Default = All.</p>
+      <h4>Pagination</h4>
+      <p>Infinite scroll by month. First fetch = current + previous month. Scrolling to bottom loads older months.</p>
+      <h4>Empty</h4>
+      <p>Shown when <code>/coach/transactions/</code> returns 0 items AND filter = All. With filter active, empty copy should adapt: <em>"No payouts yet"</em>, etc.</p>
+      <h4>Loading</h4>
+      <p>Skeleton rows during first fetch. For infinite scroll &mdash; inline spinner at the bottom of the list (not skeleton).</p>
+    </div>
+  </div>
+
+  <div class="ann" id="ann-s-txn-earning"><span class="ann-role coach">Coach</span><h3>Earning detail</h3>
+    <p>Drill-down on a single earning. Amount up top with status pill (Pending / Available / Paid out).</p>
+    <ul>
+      <li>Session section &mdash; athlete, training, duration, location</li>
+      <li>Payment section &mdash; price, platform fee (0 today), net, release date</li>
+      <li>From here &rarr; tap athlete &rarr; Client Detail (cross-flow)</li>
+    </ul>
+    <hr>
+    <p class="note"><strong>Status pill:</strong> Pending (gray) &rarr; Available (teal) &rarr; Paid out (blue). When included in a payout batch, shows link to that payout.</p>
+  </div>
+
+  <div class="ann" id="ann-s-txn-payout"><span class="ann-role coach">Coach</span><h3>Payout detail</h3>
+    <p>Batched payout &mdash; shows all included earnings. Amount neutral (not minus red; payout isn't "bad").</p>
+    <ul>
+      <li>Hero with pill: Completed / In transit / Failed</li>
+      <li>Payout metadata: destination, initiated, arrived, fee</li>
+      <li>Included earnings list (grouped, expandable to full list)</li>
+    </ul>
+    <hr>
+    <p class="note"><strong>For Instant payouts:</strong> fee row shows 1% deduction. For weekly batch &mdash; fee = &euro;0.</p>
+  </div>
+
+  <div class="ann" id="ann-s-methods"><span class="ann-role coach">Coach</span><h3>Payout methods</h3>
+    <div class="state-toggle">
+      <button onclick="setMethodsState('empty',this)">Empty</button>
+      <button class="active" onclick="setMethodsState('single',this)">Single (MVP)</button>
+      <button onclick="setMethodsState('multi',this)">Multi (future)</button>
+    </div>
+    <p>Managing connected payout providers. <strong>Default</strong> receives weekly batch (and future Instant) payouts. Others are backup.</p>
+    <ul>
+      <li><strong>Radio on the left</strong> (shown only in Multi) &mdash; primary way to switch default. Instant with toast.</li>
+      <li><strong>&#8943; menu on the right</strong> &mdash; secondary actions: Set as default, Disconnect</li>
+      <li>Tap rest of card &rarr; provider detail (Stripe Connect screen)</li>
+    </ul>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Interaction details</span>
+    <div class="ann-detail">
+      <h4>Empty state</h4>
+      <p>Coach has no payout accounts connected yet &mdash; reached from Earnings <em>Needs payout method</em> CTA. Each provider shows inline "Connect" action. Tapping <strong>Connect</strong> on Stripe launches the <strong>StripeConnect embedded component</strong> (native iOS SDK, <em>not</em> WebView) &mdash; form lives in-app, validation + doc upload + selfie verification all native.</p>
+      <p>After Stripe webhook fires <code>account.updated</code> with <code>charges_enabled &amp; payouts_enabled</code> &rarr; backend creates <code>PayoutAccount</code> with <code>is_default=true</code> &rarr; user returns to <strong>Single (MVP)</strong> state. If webhook reports <code>requirements.currently_due</code> non-empty &rarr; Stripe screen shows <em>Action required</em>.</p>
+      <h4>Single state (MVP)</h4>
+      <p>Only Stripe connected, no radio (default is implicit), &#8943; menu has only Disconnect. Revolut is a "Coming soon" placeholder to show provider abstraction intent.</p>
+      <h4>Multi state (future)</h4>
+      <p>2+ methods connected. Each card has an iOS-style radio on the left. Tapping empty radio = instant switch (toast "X is now your default"). Tapping filled radio does nothing. "Set as default" in &#8943; menu is hidden when the method is already default.</p>
+      <h4>Disconnect behavior</h4>
+      <p><strong>Backup exists:</strong> soft confirm sheet &mdash; "Your next payout will go to &#123;fallback&#125;". Destructive red CTA.</p>
+      <p><strong>Only method:</strong> warning sheet &mdash; yellow triangle + "Payouts will be paused until you add another method &mdash; your earnings will stay on hold". Explicit tradeoff. User can still proceed (not blocked). On confirm &rarr; falls to Needs-payout-method state on Earnings screen.</p>
+      <h4>API</h4>
+      <p><code>GET /coach/payout-methods/</code> &mdash; list (returns &#123;&#125; for empty state)<br><code>POST /coach/payout-methods/stripe/session/</code> &mdash; returns &#123;client_secret&#125; for embedded onboarding component<br><code>PATCH /coach/payout-methods/&#123;id&#125;/ &#123;is_default: true&#125;</code> &mdash; switch default<br><code>DELETE /coach/payout-methods/&#123;id&#125;/</code> &mdash; disconnect (backend must re-route default to next available; pause payouts if none left)</p>
+    </div>
+  </div>
+
+  <div class="ann" id="ann-s-stripe"><span class="ann-role coach">Coach</span><h3>Stripe Connect</h3>
+    <div class="state-toggle">
+      <button onclick="setStripeState('none',this)">Not set up</button>
+      <button onclick="setStripeState('pending',this)">Verifying</button>
+      <button class="active" onclick="setStripeState('done',this)">Connected</button>
+      <button onclick="setStripeState('action',this)">Action required</button>
+    </div>
+    <p>Per-provider detail screen. Four states reflect the Stripe Connect account lifecycle.</p>
+    <ul>
+      <li><strong>Not set up</strong> &mdash; intro + checklist &rarr; "Start setup"</li>
+      <li><strong>Verifying</strong> &mdash; info banner &rarr; "Continue in Stripe"</li>
+      <li><strong>Connected</strong> &mdash; account info + "Manage on Stripe"</li>
+      <li><strong>Action required</strong> &mdash; warn banner + missing items &rarr; "Resolve now"</li>
+    </ul>
+    <hr>
+    <p class="note"><strong>iOS native SDK:</strong> uses <code>StripeConnect</code> module &mdash; not WebView. Nativecontroller rendered in-app. Backend needs to expose <code>account_session</code> client_secret.</p>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Integration plan</span>
+    <div class="ann-detail">
+      <h4>iOS</h4>
+      <p><code>StripeAPI.shared.publishableKey = ...</code><br><code>let mgr = EmbeddedComponentManager(fetchClientSecret: ...)</code><br><code>let vc = mgr.createAccountOnboarding(...)</code></p>
+      <h4>Backend</h4>
+      <p><code>POST /coach/stripe/account-session/</code> &mdash; returns &#123; client_secret &#125; for embedded components. Replaces current <code>/coach/stripe-onboarding</code> redirect URL.</p>
+      <h4>State mapping</h4>
+      <p>Stripe webhooks &rarr; update <code>PayoutAccount.status</code>: <code>none &rarr; pending &rarr; done</code>. Action-required triggered by <code>requirements.currently_due</code> becoming non-empty. Earnings screen's Stripe preview card mirrors this automatically.</p>
+      <h4>Disconnect entry points</h4>
+      <p>Coach can reach Disconnect either via <strong>&#8943; menu on the method card in Payout methods</strong> list, OR via the <strong>destructive button on the Connected state of this Stripe detail</strong>. Both open the same warning sheet &mdash; backup-variant if other methods exist, only-variant if Stripe is the single connected method.</p>
+    </div>
+  </div>
+
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+  function switchTheme(theme) {
+    document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
+    document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";
+    document.getElementById("theme-light").style.background = theme === "light" ? "var(--fit-gray-700)" : "transparent";
+    document.getElementById("theme-light").style.color = theme === "light" ? "var(--fit-white)" : "var(--fit-gray-400)";
+    document.querySelectorAll(".fit-phone").forEach(function(phone) {
+      if (theme === "light") { phone.classList.remove("fit-dark"); phone.classList.add("fit-light"); }
+      else { phone.classList.remove("fit-light"); phone.classList.add("fit-dark"); }
+    });
+  }
+
+  function go(id, btn) {
+    document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+    const ann = document.getElementById('ann-' + id);
+    if (ann) ann.classList.add('active');
+    if (window.FitUI && FitUI.initAll) FitUI.initAll(document.getElementById(id));
+  }
+
+  // State toggles
+  function setEarningsState(state, btn) {
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    var el = document.getElementById('s-earnings');
+    el.classList.remove('st-full','st-premium','st-zero','st-lock');
+    el.classList.add('st-' + state);
+  }
+  function forcePremiumState() {
+    var el = document.getElementById('s-earnings');
+    el.classList.remove('st-full','st-zero','st-lock');
+    el.classList.add('st-premium');
+    // reflect in toggle buttons
+    var toggle = document.querySelector('#ann-s-earnings .state-toggle');
+    if (toggle) {
+      toggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      var btn = toggle.querySelectorAll('button')[1];
+      if (btn) btn.classList.add('active');
+    }
+  }
+  function setTxnState(state, btn) {
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    var el = document.getElementById('s-transactions');
+    el.classList.remove('ts-filled','ts-empty','ts-loading');
+    el.classList.add('ts-' + state);
+  }
+  function setStripeState(state, btn) {
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    var el = document.getElementById('s-stripe');
+    el.classList.remove('ss-none','ss-pending','ss-done','ss-action');
+    el.classList.add('ss-' + state);
+    syncStripeStateGlobal(state);
+  }
+  // Mirror Stripe state on Earnings preview card (swap "Connected" vs "Action required" subtext)
+  function syncStripeStateGlobal(state) {
+    document.body.classList.toggle('stripe-state-action', state === 'action');
+  }
+
+  // Transaction filter chips
+  function setFilter(btn) {
+    btn.parentElement.querySelectorAll('.earn-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  // Payout methods state
+  function setMethodsState(state, btn) {
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    var el = document.getElementById('s-methods');
+    el.classList.remove('mm-empty','mm-single','mm-multi');
+    el.classList.add('mm-' + state);
+    closeMethodMenu();
+  }
+  function setMethodsEmpty() {
+    var el = document.getElementById('s-methods');
+    el.classList.remove('mm-single','mm-multi');
+    el.classList.add('mm-empty');
+    var toggle = document.querySelector('#ann-s-methods .state-toggle');
+    if (toggle) {
+      toggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      var btns = toggle.querySelectorAll('button');
+      if (btns[0]) btns[0].classList.add('active');
+    }
+  }
+  // From empty Methods → start Stripe Connect onboarding
+  // In iOS: presents StripeConnect embedded component (native, not WebView)
+  // In prototype: navigate to s-stripe in 'none' state as a stand-in
+  function startStripeOnboarding() {
+    go('s-stripe', document.querySelector('[onclick*=s-stripe]'));
+    var el = document.getElementById('s-stripe');
+    el.classList.remove('ss-pending','ss-done','ss-action');
+    el.classList.add('ss-none');
+    var toggle = document.querySelector('#ann-s-stripe .state-toggle');
+    if (toggle) {
+      toggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      var btns = toggle.querySelectorAll('button');
+      if (btns[0]) btns[0].classList.add('active');
+    }
+  }
+
+  // Context menu for method cards
+  var _mmCurrent = { providerId: null, providerKind: null, isDefault: false };
+  function openMethodMenu(btn, providerId, kind) {
+    _mmCurrent = {
+      providerId: providerId,
+      providerKind: kind,
+      isDefault: kind === 'single' || kind === 'multi-default'
+    };
+    var menu = document.getElementById('mm-menu');
+    var backdrop = document.getElementById('mm-menu-backdrop');
+    // Position menu near the more-button (below + right-aligned)
+    var rect = btn.getBoundingClientRect();
+    var parentRect = btn.closest('.fit-phone-content').getBoundingClientRect();
+    menu.style.top = (rect.bottom - parentRect.top + 4) + 'px';
+    menu.style.right = (parentRect.right - rect.right) + 'px';
+    menu.style.left = 'auto';
+    // Toggle "Set as default" visibility via class
+    menu.classList.toggle('ctx-is-default', _mmCurrent.isDefault);
+    menu.classList.add('open');
+    backdrop.classList.add('visible');
+  }
+  function closeMethodMenu() {
+    var menu = document.getElementById('mm-menu');
+    var backdrop = document.getElementById('mm-menu-backdrop');
+    if (menu) menu.classList.remove('open','ctx-is-default');
+    if (backdrop) backdrop.classList.remove('visible');
+  }
+  function setDefaultFromMenu() {
+    closeMethodMenu();
+    // Flip radio state if in multi mode
+    var sec = document.querySelector('#s-methods [data-mm-state="multi"]');
+    if (sec) {
+      sec.querySelectorAll('.earn-method-radio').forEach(r => r.classList.remove('checked'));
+      var card = sec.querySelector('.earn-method-card:nth-child(' + (_mmCurrent.providerId === 'stripe' ? 1 : 2) + ')');
+      // Simpler: mark by provider logo color (stripe vs revolut)
+      sec.querySelectorAll('.earn-method-card').forEach(function(c) {
+        var logo = c.querySelector('.earn-method-logo');
+        if (logo && logo.classList.contains(_mmCurrent.providerId)) {
+          var radio = c.querySelector('.earn-method-radio');
+          if (radio) radio.classList.add('checked');
+          var sub = c.querySelector('.earn-method-sub');
+          if (sub) sub.innerHTML = '<span class="earn-success-dot"></span>Default';
+        } else {
+          var sub = c.querySelector('.earn-method-sub');
+          if (sub) sub.innerHTML = '<span class="earn-success-dot"></span>Connected';
+        }
+      });
+    }
+    showDefaultToast(_mmCurrent.providerId === 'stripe' ? 'Stripe' : 'Revolut');
+  }
+  function setDefault(radio, providerId) {
+    _mmCurrent.providerId = providerId;
+    setDefaultFromMenu();
+  }
+  function showDefaultToast(name) {
+    var toast = document.getElementById('mm-default-toast');
+    document.getElementById('mm-default-toast-text').textContent = name + ' is now your default';
+    toast.classList.add('show');
+    setTimeout(function(){ toast.classList.remove('show'); }, 2400);
+  }
+
+  // Disconnect sheet
+  function openDisconnectSheet() {
+    closeMethodMenu();
+    var sheet = document.getElementById('disconnect-sheet');
+    sheet.classList.remove('dc-only','dc-backup');
+    var isOnly = _mmCurrent.providerKind === 'single';
+    sheet.classList.add(isOnly ? 'dc-only' : 'dc-backup');
+    // Fill provider names for backup variant
+    if (!isOnly) {
+      var providerName = _mmCurrent.providerId === 'stripe' ? 'Stripe' : 'Revolut';
+      var fallbackName = _mmCurrent.providerId === 'stripe' ? 'Revolut' : 'Stripe';
+      sheet.querySelectorAll('[data-dc-provider-name]').forEach(el => el.textContent = providerName);
+      sheet.querySelectorAll('[data-dc-fallback-name]').forEach(el => el.textContent = fallbackName);
+    }
+    sheet.classList.add('visible');
+  }
+  function closeDisconnectSheet() {
+    document.getElementById('disconnect-sheet').classList.remove('visible');
+  }
+  function confirmDisconnect() {
+    closeDisconnectSheet();
+    // Prototype: just show a success toast (no real DOM mutation)
+    var toast = document.getElementById('mm-default-toast');
+    document.getElementById('mm-default-toast-text').textContent =
+      (_mmCurrent.providerId === 'stripe' ? 'Stripe' : 'Revolut') + ' disconnected';
+    toast.classList.add('show');
+    setTimeout(function(){ toast.classList.remove('show'); }, 2400);
+  }
+
+  // Sidebar shortcuts
+  function forceMethodsMulti() {
+    var el = document.getElementById('s-methods');
+    el.classList.remove('mm-single');
+    el.classList.add('mm-multi');
+    var toggle = document.querySelector('#ann-s-methods .state-toggle');
+    if (toggle) {
+      toggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      var btns = toggle.querySelectorAll('button');
+      if (btns[1]) btns[1].classList.add('active');
+    }
+  }
+  function openDisconnectFromShortcut(kind, providerId) {
+    _mmCurrent = {
+      providerId: providerId,
+      providerKind: kind,
+      isDefault: kind === 'single' || kind === 'multi-default'
+    };
+    openDisconnectSheet();
+  }
+
+  // Withdraw sheet
+  function openWithdrawSheet() {
+    document.getElementById('withdraw-sheet').classList.add('visible');
+  }
+  function closeWithdrawSheet() {
+    document.getElementById('withdraw-sheet').classList.remove('visible');
+  }
+  function confirmInstant() {
+    closeWithdrawSheet();
+    var toast = document.getElementById('payout-success-toast');
+    toast.classList.add('show');
+    setTimeout(function(){ toast.classList.remove('show'); }, 2600);
+  }
+
+  // Error snackbar
+  function showPayoutError() {
+    document.getElementById('payout-error-snackbar').classList.add('show');
+  }
+
+  // Why-pending info sheet
+  function openPendingInfo() {
+    document.getElementById('pending-info-sheet').classList.add('visible');
+  }
+  function closePendingInfo() {
+    document.getElementById('pending-info-sheet').classList.remove('visible');
+  }
+
+  // Demo shortcut — set Stripe action state and stay on Earnings to preview card swap
+  function showStripeActionOnEarnings(btn) {
+    // flip stripe state to action
+    var el = document.getElementById('s-stripe');
+    el.classList.remove('ss-none','ss-pending','ss-done');
+    el.classList.add('ss-action');
+    syncStripeStateGlobal('action');
+    // stay on earnings in full state
+    go('s-earnings', document.querySelector('[onclick*=s-earnings]'));
+    var e = document.getElementById('s-earnings');
+    if (!e.classList.contains('st-full') && !e.classList.contains('st-premium')) {
+      e.classList.remove('st-zero','st-lock');
+      e.classList.add('st-full');
+    }
+  }
+  function hideSnackbar() {
+    document.getElementById('payout-error-snackbar').classList.remove('show');
+  }
+
+  // Close sheet on backdrop click
+  document.querySelectorAll('.fit-sheet-overlay').forEach(function(ov) {
+    ov.addEventListener('click', function(e) {
+      if (e.target === ov) ov.classList.remove('visible');
+    });
+  });
+</script>
+</body>
+</html>

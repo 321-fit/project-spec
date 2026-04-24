@@ -584,7 +584,7 @@ All user-facing strings for this flow:
 "Apple ID" / "your@icloud.com"
 "App-specific password" / "xxxx-xxxx-xxxx-xxxx"
 "How to create an app-specific password:"
-"1. Go to appleid.apple.com"
+"1. Go to account.apple.com"
 "2. Sign in with your Apple ID"
 "3. Sign-In and Security → App-Specific Passwords"
 "4. Generate a password and paste it here"

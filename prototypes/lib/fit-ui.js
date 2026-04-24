@@ -615,6 +615,153 @@
   });
   observer.observe(document.body, { childList: true, subtree: true });
 
+  // ============================================================
+  // EVENT SHEET — dynamic injection helper
+  //
+  // Opens the unified event-detail sheet anywhere in the app.
+  // CSS contract lives in fit-ui.css (.fit-sheet, .fit-sheet-status-header,
+  // .fit-sheet-descriptor, .fit-sheet-footer-variant.ev-*).
+  //
+  // Usage:
+  //   FitUI.openEventSheet(containerOrEl, {
+  //     state:    'planned',  // planned | request | awaiting | review | missed | finished
+  //     event: {
+  //       athleteName: 'Anna K.',
+  //       athleteInitials: 'AK',
+  //       title:     'Basketball Training',
+  //       time:      '08:00 – 09:00',
+  //       location:  'TNT Studio',
+  //       price:     '€50',
+  //       payment:   'Card',           // 'Cash' | 'Card' — optional
+  //       descriptor:'Confirmed session' // optional override
+  //     },
+  //     onAction: (action) => { /* action = 'reschedule' | 'cancel' | 'accept' | ... */ }
+  //   });
+  //
+  // container: the .fit-phone element or any element to mount the sheet into.
+  //            If null, uses the nearest .fit-phone of document.activeElement.
+  // ============================================================
+
+  const EVENT_STATES = {
+    planned:  { descriptor: 'Confirmed session',              pill: null },
+    request:  { descriptor: 'Athlete requested this session', pill: { text: 'Request',  mod: 'request'  } },
+    awaiting: { descriptor: "Waiting for athlete's response", pill: { text: 'Awaiting', mod: 'awaiting' } },
+    review:   { descriptor: 'Session ended — complete it',    pill: { text: 'Review',   mod: 'review'   } },
+    missed:   { descriptor: 'Marked as missed',               pill: { text: 'Missed',   mod: 'missed'   } },
+    finished: { descriptor: 'Completed',                      pill: null }
+  };
+
+  function buildEventSheetHTML(opts) {
+    const ev = opts.event || {};
+    const state = opts.state || 'planned';
+    const meta = EVENT_STATES[state] || EVENT_STATES.planned;
+    const descriptor = ev.descriptor || meta.descriptor;
+    const pillHTML = meta.pill
+      ? `<span class="fit-cal-event-pill fit-cal-event-pill--${meta.pill.mod}">${meta.pill.text}</span>`
+      : '';
+    const badgeHTML = ev.payment
+      ? `<span class="fit-badge fit-badge-neutral">${ev.payment}</span>`
+      : '';
+
+    return `
+<div class="fit-sheet-overlay fit-event-sheet-overlay" data-fit-event-sheet>
+  <div class="fit-sheet" data-event-state="${state}">
+    <div class="fit-sheet-handle"></div>
+    <div class="fit-sheet-status-header">
+      <div class="fit-sheet-descriptor">${descriptor}</div>
+      ${pillHTML}
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;cursor:pointer;" data-fit-ev-person>
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">${ev.athleteInitials || '?'}</div>
+      <div style="flex:1;">
+        <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">${ev.athleteName || 'Athlete'}</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+    <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);margin-bottom:12px;">${ev.title || ''}</div>
+    <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      ${ev.time || ''}
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;">
+      <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        ${ev.location || ''}
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">${ev.price || ''}</span>
+        ${badgeHTML}
+      </div>
+    </div>
+    <div class="fit-sheet-footer-variant ev-planned">
+      <button style="width:50px;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" data-ev-action="message">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </button>
+      <button class="fit-btn fit-btn-secondary" style="flex:1;height:50px;font-size:16px;" data-ev-action="reschedule">Reschedule</button>
+      <button class="fit-btn fit-btn-destructive" style="flex:1;height:50px;font-size:16px;" data-ev-action="cancel">Cancel</button>
+    </div>
+    <div class="fit-sheet-footer-variant ev-request">
+      <button class="fit-btn fit-btn-destructive" style="flex:1;height:50px;font-size:16px;" data-ev-action="decline">Decline</button>
+      <button class="fit-btn fit-btn-primary" style="flex:1;height:50px;font-size:16px;" data-ev-action="accept">Accept</button>
+    </div>
+    <div class="fit-sheet-footer-variant ev-awaiting">
+      <button class="fit-btn fit-btn-destructive--low" style="flex:1;height:50px;font-size:16px;" data-ev-action="cancel-request">Cancel request</button>
+    </div>
+    <div class="fit-sheet-footer-variant ev-review">
+      <button class="fit-btn fit-btn-primary" style="flex:1;height:50px;font-size:16px;" data-ev-action="complete">Complete training</button>
+    </div>
+    <div class="fit-sheet-footer-variant ev-missed">
+      <button class="fit-btn fit-btn-secondary" style="flex:1;height:50px;font-size:16px;" data-ev-action="reschedule">Reschedule</button>
+    </div>
+    <div class="fit-sheet-footer-variant ev-finished">
+      <button class="fit-btn fit-btn-secondary" style="flex:1;height:50px;font-size:16px;" data-ev-action="view-history">View history</button>
+    </div>
+  </div>
+</div>`.trim();
+  }
+
+  function openEventSheet(container, opts) {
+    if (!opts) { opts = container; container = null; }
+    const host = container || document.querySelector('.fit-phone.active') || document.querySelector('.fit-phone');
+    if (!host) return null;
+
+    // Clean up any previously-injected sheet in this host
+    host.querySelectorAll('[data-fit-event-sheet]').forEach(function(el){ el.remove(); });
+
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = buildEventSheetHTML(opts);
+    const overlay = wrapper.firstElementChild;
+    host.appendChild(overlay);
+
+    // Dismiss on overlay background tap
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) close();
+    });
+    // Action button handlers
+    overlay.querySelectorAll('[data-ev-action]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        const action = btn.getAttribute('data-ev-action');
+        close();
+        if (typeof opts.onAction === 'function') opts.onAction(action);
+      });
+    });
+
+    // Show
+    requestAnimationFrame(function() { overlay.classList.add('visible'); });
+
+    function close() {
+      overlay.classList.remove('visible');
+      setTimeout(function(){ overlay.remove(); }, 250);
+    }
+
+    return { close: close, element: overlay };
+  }
+
   // Expose for manual init
-  window.FitUI = { initAll, selectDay: fitDayStripToday, updateCounters };
+  window.FitUI = {
+    initAll,
+    selectDay: fitDayStripToday,
+    updateCounters,
+    openEventSheet: openEventSheet
+  };
 })();

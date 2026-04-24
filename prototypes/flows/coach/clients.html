@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Coach Clients</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--fit-font);
+    background: #0a0a0a;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 24px; min-height: 100vh;
+    min-width: 900px;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    left: max(16px, calc(50% - 195px - 200px - 48px));
+    top: 24px; bottom: 24px; width: 200px;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-scroll {
+    flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+  }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--fit-gray-600);
+    padding: 0 8px; margin: 16px 0 8px;
+  }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button {
+    font-family: var(--fit-font); font-size: 14px; font-weight: 400;
+    padding: 10px 12px; border-radius: 10px; border: none;
+    background: transparent; color: var(--fit-gray-400);
+    cursor: pointer; text-align: left; width: 100%; transition: all 0.15s;
+  }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active {
+    background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500;
+  }
+
+  /* Annotations */
+  .ann-container {
+    position: fixed;
+    left: calc(50% + 195px + 48px);
+    top: 24px; bottom: 24px; width: 280px;
+    overflow-y: auto;
+  }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; }
+  .ann.active { display: block; }
+  .ann-role {
+    display: inline-block; font-size: 14px; font-weight: 500;
+    padding: 4px 12px; border-radius: 8px; margin-bottom: 16px;
+  }
+  .ann-role.coach { background: rgba(3,178,226,0.15); color: var(--fit-blue-500); }
+  .ann-role.athlete { background: rgba(5,224,166,0.15); color: var(--fit-teal-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 14px; padding-left: 18px; font-size: 16px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 6px; }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  /* Expandable details (subtle — left accent, no bordered card) */
+  .ann-detail {
+    margin-top: 8px; padding: 4px 0 4px 16px;
+    border-left: 2px solid var(--fit-brand-primary);
+    display: none;
+  }
+  .ann-detail.open { display: block; }
+  .ann-detail h4:first-child { margin-top: 0; }
+  .ann-detail h4 + p { margin-bottom: 12px; }
+  .ann-detail-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; color: var(--fit-blue-500); cursor: pointer;
+    margin-top: 12px; font-weight: 500;
+  }
+  .ann-detail-toggle svg { width: 14px; height: 14px; transition: transform 0.2s; }
+  .ann-detail-toggle.open svg { transform: rotate(90deg); }
+  .ann-detail h4 { font-size: 14px; font-weight: 500; color: var(--fit-gray-300); margin-bottom: 6px; }
+  .ann-detail p { font-size: 14px; line-height: 1.5; color: var(--fit-gray-500); margin-bottom: 8px; }
+  .ann-detail code { font-size: 12px; background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 3px; color: var(--fit-gray-400); }
+
+  /* Screen visibility */
+  .fit-phone { display: none; }
+  .fit-phone.active { display: flex; }
+
+  /* SVG icon defaults */
+  svg.i { width: 16px; height: 16px; vertical-align: middle; }
+  svg.i-sm { width: 14px; height: 14px; vertical-align: middle; margin-right: 4px; }
+
+  /* Dark header/footer bg */
+  .fit-dark .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-dark .fit-phone-footer { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+
+  /* All component styles now in fit-ui.css */
+
+  /* State toggle in annotation */
+  .state-toggle {
+    display: inline-flex; gap: 0; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--fit-gray-700); margin-bottom: 12px;
+  }
+  .state-toggle button {
+    font-family: var(--fit-font); font-size: 12px; font-weight: 500;
+    padding: 4px 10px; border: none; cursor: pointer;
+    background: transparent; color: var(--fit-gray-400);
+    transition: all 0.15s;
+  }
+  .state-toggle button.active {
+    background: var(--fit-gray-700); color: var(--fit-white);
+  }
+
+  /* Empty state subtitle (title already in fit-ui.css, sub not yet — drift) */
+  .fit-empty-state svg.fes-illus { width: 56px; height: 56px; margin-bottom: 16px; color: var(--fit-gray-600); }
+  .fit-empty-state-sub { font-size: 14px; color: var(--fit-text-tertiary); margin-bottom: 20px; line-height: 1.5; }
+  .fit-light .fit-empty-state svg.fes-illus { color: var(--fit-gray-400); }
+
+  /* List state switcher — generalized (ls-* class on screen, [data-list-state] on children) */
+  .fit-phone [data-list-state] { display: none; }
+  .fit-phone.ls-default [data-list-state="default"],
+  .fit-phone.ls-empty [data-list-state="empty"],
+  .fit-phone.ls-loading [data-list-state="loading"],
+  .fit-phone.ls-fresh [data-list-state="fresh"] { display: block; }
+
+  /* Skeleton classes migrated to fit-ui.css (Phase 2) */
+
+  /* Contenteditable placeholder */
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: var(--fit-text-placeholder);
+    pointer-events: none;
+  }
+
+  /* Light theme overrides */
+  .fit-light .set-card { background: var(--fit-white); }
+  .fit-light .fit-card { background: var(--fit-white); }
+  .fit-light .fit-input { background: var(--fit-gray-100); }
+  .fit-light .fit-navbar { background: rgba(255,255,255,0.75); box-shadow: 0 0 24px rgba(0,0,0,0.15); }
+  .fit-light .fit-navbar-item { color: var(--fit-gray-400); }
+  .fit-light .fit-navbar-item.active { color: var(--fit-text-primary); }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+  <div class="label">Clients</div>
+  <button class="active" onclick="go('s-clients',this)">Clients</button>
+  <button onclick="go('s-requests',this)">Requests</button>
+  <button onclick="go('s-client-detail',this)">Client Detail</button>
+  <button onclick="go('s-client-history',this)">Client History</button>
+  <button onclick="go('s-client-notes-editor',this)">Client Notes Editor</button>
+  <button onclick="go('s-archived',this)">Archived &amp; Blocked</button>
+  <button onclick="go('s-create-client',this)">Create Client</button>
+  </div>
+  <!-- Dark/Light toggle at bottom -->
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ===== COACH: CLIENTS LIST ===== -->
+<div class="fit-phone fit-dark active ls-default" id="s-clients">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <span class="fit-header-title" style="flex:1;">Clients</span>
+      <div style="display:flex;gap:12px;">
+        <!-- Bell icon with badge → requests screen -->
+        <div style="position:relative;cursor:pointer;" onclick="go('s-requests',document.querySelector('[onclick*=s-requests]'))">
+          <button style="width:32px;height:32px;border-radius:50%;background:var(--fit-surface-high);border:none;display:flex;align-items:center;justify-content:center;color:var(--fit-text-primary);cursor:pointer;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          </button>
+          <div id="cd-bell-badge" style="position:absolute;top:-2px;right:-2px;width:18px;height:18px;border-radius:50%;background:var(--fit-red-400);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--fit-white);"><span id="cd-bell-count">3</span></div>
+        </div>
+        <!-- + button → add client sheet -->
+        <button style="width:32px;height:32px;border-radius:50%;background:var(--fit-surface-high);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--fit-text-primary);" onclick="document.getElementById('add-client-sheet').classList.add('visible')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <!-- === DEFAULT STATE: filled list === -->
+    <div data-list-state="default">
+
+    <!-- Client 1: Anna — all good -->
+    <div class="set-card" style="margin:0 16px 8px;cursor:pointer;" onclick="go('s-client-detail',document.querySelector('[onclick*=s-client-detail]'))">
+      <div style="display:flex;align-items:center;gap:12px;width:100%;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">AK</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Anna K.</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">12 sessions · €580</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+
+    <!-- Client 2: Mark — owes money -->
+    <div class="set-card" style="margin:0 16px 8px;cursor:pointer;" onclick="go('s-client-detail',document.querySelector('[onclick*=s-client-detail]'))">
+      <div style="display:flex;align-items:center;gap:12px;width:100%;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">MS</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Mark S.</span>
+            <span class="fit-badge fit-badge-danger">€50 owed</span>
+          </div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">8 sessions · €400</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+
+    <!-- Client 3 -->
+    <div class="set-card" style="margin:0 16px 8px;cursor:pointer;" onclick="go('s-client-detail',document.querySelector('[onclick*=s-client-detail]'))">
+      <div style="display:flex;align-items:center;gap:12px;width:100%;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">JD</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Julia D.</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">5 sessions · €250</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+
+    <!-- Client 4 -->
+    <div class="set-card" style="margin:0 16px 8px;cursor:pointer;">
+      <div style="display:flex;align-items:center;gap:12px;width:100%;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">PW</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Paul W.</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">3 sessions · €150</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+
+    <!-- Client 5: Ivan — deleted account (athlete-initiated soft-delete; coach retains history) -->
+    <div class="set-card" style="margin:0 16px 8px;cursor:pointer;" onclick="go('s-client-detail',document.querySelector('[onclick*=s-client-detail]'))">
+      <div style="display:flex;align-items:center;gap:12px;width:100%;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;opacity:0.5;">IK</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:16px;font-weight:500;color:var(--fit-text-tertiary);">Ivan K.</span>
+            <span style="font-size:10px;font-weight:500;color:var(--fit-text-tertiary);background:transparent;border:1px solid var(--fit-divider);padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:0.3px;">Deleted</span>
+          </div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">8 sessions &middot; &euro;400</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+
+    <!-- Client 6: Marta — CRM contact (coach-created, no app account; teal CRM badge) -->
+    <div class="set-card" style="margin:0 16px 8px;cursor:pointer;" onclick="go('s-client-detail',document.querySelector('[onclick*=s-client-detail]'))">
+      <div style="display:flex;align-items:center;gap:12px;width:100%;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">MV</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Marta V.</span>
+            <span style="font-size:10px;font-weight:500;color:var(--fit-teal-500);background:rgba(5,224,166,0.08);border:1px solid rgba(5,224,166,0.3);padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:0.3px;">CRM</span>
+          </div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">5 sessions &middot; &euro;250</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+
+    <!-- Archived & Blocked entry (iOS Mail "Trash" pattern — muted row at list bottom; hidden when count=0) -->
+    <div id="cd-archived-row" style="margin:16px 16px 0;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="go('s-archived',document.querySelector('[onclick*=s-archived]'))">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M3 12h18"/></svg>
+      <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">Archived &amp; Blocked</span>
+      <span style="font-size:14px;color:var(--fit-text-tertiary);">5</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+
+    </div><!-- /data-list-state="default" -->
+
+    <!-- === EMPTY STATE: coach has no clients yet === -->
+    <div data-list-state="empty">
+      <div class="fit-empty-state" style="padding-top:72px;">
+        <svg class="fes-illus" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="26" cy="24" r="8"/>
+          <path d="M12 52v-2a10 10 0 0110-10h8a10 10 0 0110 10v2"/>
+          <circle cx="46" cy="20" r="6"/>
+          <path d="M42 40h4a8 8 0 018 8v2"/>
+        </svg>
+        <div class="fit-empty-state-title">No clients yet</div>
+        <div class="fit-empty-state-sub">Add an athlete to start tracking<br>sessions, payments, and notes.</div>
+        <button class="fit-btn fit-btn-primary" style="display:inline-flex;width:auto;height:44px;padding:0 24px;font-size:16px;" onclick="document.getElementById('add-client-sheet').classList.add('visible')">Add first client</button>
+      </div>
+    </div>
+
+    <!-- === LOADING STATE: skeleton cards === -->
+    <div data-list-state="loading" style="padding-top:16px;">
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:48%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:62%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:40%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:55%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+    </div>
+
+  </div>
+  <div class="fit-phone-footer">
+    <div class="fit-navbar">
+      <div class="fit-navbar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>
+      <div class="fit-navbar-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg></div>
+      <div class="fit-navbar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <div class="fit-navbar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      <div class="fit-navbar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+    </div>
+  </div>
+
+  <!-- Add client sheet -->
+  <div class="fit-sheet-overlay" id="add-client-sheet">
+    <div class="fit-sheet" >
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:600;margin-bottom:28px;">Add Client</div>
+      <div class="fit-sheet-item" onclick="document.getElementById('add-client-sheet').classList.remove('visible');go('s-create-client',document.querySelector('[onclick*=s-create-client]'));">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/><path d="M20 8v6M23 11h-6"/></svg>
+        Create athlete profile
+      </div>
+      <div class="fit-sheet-item" onclick="document.getElementById('add-client-sheet').classList.remove('visible');">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        Invite to app
+      </div>
+      <div class="fit-sheet-item" onclick="document.getElementById('add-client-sheet').classList.remove('visible');location.href='../coach/invite.html?mode=invite&amp;origin=s-clients#s-invite-select'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v4M10 16h4"/></svg>
+        Invite to training
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== COACH: REQUESTS INBOX ===== -->
+<div class="fit-phone fit-dark ls-default" id="s-requests">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Requests</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <!-- === DEFAULT STATE: filled inbox === -->
+    <div data-list-state="default">
+
+    <!-- Request 1 -->
+    <div class="req-card" data-name="Tom" style="margin:0 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">TN</div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Tom N.</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">wants to book a session</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);margin-bottom:8px;">Boxing Training</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:8px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        Thu, Apr 17 · 19:30 – 20:30
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          GYM Bro
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">€40</span>
+          <span style="font-size:12px;color:var(--fit-text-tertiary);background:var(--fit-gray-700);padding:2px 6px;border-radius:4px;">Cash</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="fit-btn fit-btn-destructive" style="flex:1;height:44px;font-size:16px;" onclick="setRequestAction('decline',this)">Decline</button>
+        <button style="flex:1;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="setRequestAction('accept',this)">Accept</button>
+      </div>
+    </div>
+
+    <!-- Request 2 -->
+    <div class="req-card" data-name="Sara" style="margin:0 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">SK</div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Sara K.</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">wants to book a session</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);margin-bottom:8px;">Basketball Training</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:8px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        Fri, Apr 18 · 10:00 – 11:00
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          TNT Studio
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">€50</span>
+          <span style="font-size:12px;color:var(--fit-text-tertiary);background:var(--fit-gray-700);padding:2px 6px;border-radius:4px;">Card</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="fit-btn fit-btn-destructive" style="flex:1;height:44px;font-size:16px;" onclick="setRequestAction('decline',this)">Decline</button>
+        <button style="flex:1;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="setRequestAction('accept',this)">Accept</button>
+      </div>
+    </div>
+
+    <!-- Request 3 (group) -->
+    <div class="req-card" data-name="Lena" style="margin:0 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">LR</div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Lena R.</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">wants to book a session</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);margin-bottom:8px;">Yoga Morning Flow</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:8px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        Mon, Apr 21 · 08:00 – 09:30
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          GYM Bro
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">€15</span>
+          <span style="font-size:12px;color:var(--fit-text-tertiary);background:var(--fit-gray-700);padding:2px 6px;border-radius:4px;">Cash</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="fit-btn fit-btn-destructive" style="flex:1;height:44px;font-size:16px;" onclick="setRequestAction('decline',this)">Decline</button>
+        <button style="flex:1;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="setRequestAction('accept',this)">Accept</button>
+      </div>
+    </div>
+
+    </div><!-- /data-list-state="default" -->
+
+    <!-- === EMPTY STATE: inbox zero === -->
+    <div data-list-state="empty">
+      <div class="fit-empty-state" style="padding-top:72px;">
+        <svg class="fes-illus" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 18l4-8h36l4 8v30a4 4 0 01-4 4H14a4 4 0 01-4-4V18z"/>
+          <path d="M10 18h16l4 6h4l4-6h16"/>
+          <path d="M24 36l6 6 12-12"/>
+        </svg>
+        <div class="fit-empty-state-title">All caught up</div>
+        <div class="fit-empty-state-sub">New training requests from athletes<br>will appear here.</div>
+      </div>
+    </div>
+
+    <!-- Snackbar for Accept/Decline confirmation -->
+    <div class="fit-snackbar" id="req-snackbar">Request handled</div>
+
+    <!-- === LOADING STATE: skeleton request cards === -->
+    <div data-list-state="loading">
+      <div class="sk-card lg">
+        <div class="sk-row"><div class="sk-circle lg sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:45%;"></div><div class="sk-line short sk-shimmer"></div></div></div>
+        <div class="sk-block sk-shimmer" style="width:60%;"></div>
+        <div class="sk-block sk-shimmer" style="width:80%;height:10px;"></div>
+        <div class="sk-btn-row"><div class="sk-btn sk-shimmer"></div><div class="sk-btn sk-shimmer"></div></div>
+      </div>
+      <div class="sk-card lg">
+        <div class="sk-row"><div class="sk-circle lg sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:38%;"></div><div class="sk-line short sk-shimmer"></div></div></div>
+        <div class="sk-block sk-shimmer" style="width:70%;"></div>
+        <div class="sk-block sk-shimmer" style="width:75%;height:10px;"></div>
+        <div class="sk-btn-row"><div class="sk-btn sk-shimmer"></div><div class="sk-btn sk-shimmer"></div></div>
+      </div>
+      <div class="sk-card lg">
+        <div class="sk-row"><div class="sk-circle lg sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:52%;"></div><div class="sk-line short sk-shimmer"></div></div></div>
+        <div class="sk-block sk-shimmer" style="width:55%;"></div>
+        <div class="sk-block sk-shimmer" style="width:78%;height:10px;"></div>
+        <div class="sk-btn-row"><div class="sk-btn sk-shimmer"></div><div class="sk-btn sk-shimmer"></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== COACH: CLIENT DETAIL ===== -->
+<div class="fit-phone fit-dark ls-default" id="s-client-detail">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div style="display:flex;gap:8px;">
+        <button style="width:32px;height:32px;border-radius:50%;background:var(--fit-surface-high);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--fit-text-primary);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </button>
+        <button style="width:32px;height:32px;border-radius:50%;background:var(--fit-surface-high);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--fit-text-primary);" onclick="openClientMenu()" aria-label="Client options">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <!-- Avatar + name + info (row layout like Coach Profile v2) -->
+    <div style="display:flex;align-items:center;gap:16px;padding:0 16px 12px;">
+      <div style="width:72px;height:72px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:600;color:var(--fit-white);flex-shrink:0;">AK</div>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span style="font-size:20px;font-weight:600;color:var(--fit-text-primary);">Anna Kowalski</span>
+          <span id="cd-name-pill" style="display:none;font-size:10px;font-weight:500;color:var(--fit-teal-500);background:rgba(5,224,166,0.08);border:1px solid rgba(5,224,166,0.3);padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:0.3px;">CRM</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:14px;color:var(--fit-text-secondary);">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          Warsaw, Poland
+        </div>
+      </div>
+    </div>
+    <!-- Sport chips -->
+    <div style="display:flex;gap:6px;padding:0 16px 24px;">
+      <span class="fit-sport-chip" style="margin:0;"><svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>basketball</span>
+      <span class="fit-sport-chip" style="margin:0;"><svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>fitness</span>
+    </div>
+
+    <!-- Status banners (hidden by default, toggleable via annotation) -->
+    <div id="cd-banner-archived" style="display:none;margin:0 16px 24px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--fit-divider);align-items:center;gap:10px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-secondary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M3 12h18"/></svg>
+      <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">This client is archived</span>
+      <button style="height:32px;padding:0 14px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;" onclick="showClientSnack('Anna restored')">Restore</button>
+    </div>
+    <div id="cd-banner-blocked" style="display:none;margin:0 16px 24px;padding:12px 14px;border-radius:12px;background:rgba(240,92,91,0.08);border:1px solid rgba(240,92,91,0.2);align-items:center;gap:10px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M5.64 5.64l12.72 12.72"/></svg>
+      <span style="flex:1;font-size:14px;color:var(--fit-red-400);">This athlete is blocked</span>
+      <button style="height:32px;padding:0 14px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;" onclick="showClientSnack('Anna unblocked')">Unblock</button>
+    </div>
+    <div id="cd-banner-deleted" style="display:none;margin:0 16px 24px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--fit-divider);align-items:center;gap:10px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/><path d="M17 13l4 4M21 13l-4 4"/></svg>
+      <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">This account was deleted &middot; Apr 18</span>
+    </div>
+    <!-- ===== DEFAULT STATE: filled client profile ===== -->
+    <div data-list-state="default">
+
+    <!-- Stats card -->
+    <div style="display:flex;justify-content:space-around;padding:14px 16px;margin:0 16px 24px;border-radius:12px;background:var(--fit-surface-high);">
+      <div style="text-align:center;">
+        <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">12</div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);">Sessions</div>
+      </div>
+      <div style="width:1px;background:var(--fit-divider);"></div>
+      <div style="text-align:center;">
+        <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">3</div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);">Upcoming</div>
+      </div>
+      <div style="width:1px;background:var(--fit-divider);"></div>
+      <div style="text-align:center;">
+        <div style="font-size:18px;font-weight:600;color:var(--fit-teal-500);" id="cd-stat-revenue">&euro;580</div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);">Revenue</div>
+      </div>
+      <div style="width:1px;background:var(--fit-divider);"></div>
+      <div style="text-align:center;">
+        <div style="font-size:18px;font-weight:600;color:var(--fit-red-400);" id="cd-stat-owed">&euro;75</div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);">Owed</div>
+      </div>
+    </div>
+
+    <!-- Pending Payments (horizontal scroll) -->
+    <div id="cd-pending-section">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 16px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Pending Payments</span>
+        <span class="fit-badge fit-badge-danger" id="cd-pending-count">2</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;padding:0 16px 24px;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;scroll-padding-left:16px;" id="cd-pending-list">
+      <div class="cd-pending-card" data-amount="50" style="min-width:280px;padding:12px 14px;border-radius:14px;background:rgba(240,92,91,0.06);border:1px solid rgba(240,92,91,0.2);flex-shrink:0;scroll-snap-align:start;transition:opacity 0.2s ease, transform 0.2s ease;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Basketball Training</span>
+          <span style="font-size:14px;font-weight:500;color:var(--fit-red-400);">&euro;50</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;color:var(--fit-text-tertiary);">Apr 14 &middot; Cash</span>
+          <button style="height:28px;padding:0 12px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:12px;font-weight:500;cursor:pointer;" onclick="setMarkPaid(this)">Mark Paid</button>
+        </div>
+      </div>
+      <div class="cd-pending-card" data-amount="25" style="min-width:280px;padding:12px 14px;border-radius:14px;background:rgba(240,92,91,0.06);border:1px solid rgba(240,92,91,0.2);flex-shrink:0;scroll-snap-align:start;transition:opacity 0.2s ease, transform 0.2s ease;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">HIIT Group Session</span>
+          <span style="font-size:14px;font-weight:500;color:var(--fit-red-400);">&euro;25</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;color:var(--fit-text-tertiary);">Apr 10 &middot; Cash</span>
+          <button style="height:28px;padding:0 12px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:12px;font-weight:500;cursor:pointer;" onclick="setMarkPaid(this)">Mark Paid</button>
+        </div>
+      </div>
+    </div>
+    </div><!-- /#cd-pending-section -->
+
+    <!-- Upcoming Sessions (horizontal scroll) -->
+    <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);padding:0 16px;margin-bottom:10px;">Upcoming Sessions</div>
+    <div style="display:flex;gap:10px;padding:0 16px 24px;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;scroll-padding-left:16px;">
+      <div style="min-width:280px;padding:14px;border-radius:14px;background:var(--fit-surface-high);flex-shrink:0;scroll-snap-align:start;">
+        <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);margin-bottom:4px;">Basketball Training</div>
+        <div style="font-size:12px;color:var(--fit-text-secondary);margin-bottom:4px;">Mon, Apr 21 · 08:00 - 09:00</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;color:var(--fit-brand-primary);">TNT Studio</span>
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">€50</span>
+        </div>
+      </div>
+      <div style="min-width:280px;padding:14px;border-radius:14px;background:var(--fit-surface-high);flex-shrink:0;scroll-snap-align:start;">
+        <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);margin-bottom:4px;">Basketball Training</div>
+        <div style="font-size:12px;color:var(--fit-text-secondary);margin-bottom:4px;">Wed, Apr 23 · 08:00 - 09:00</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;color:var(--fit-brand-primary);">TNT Studio</span>
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">€50</span>
+        </div>
+      </div>
+      <div style="min-width:280px;padding:14px;border-radius:14px;background:var(--fit-surface-high);flex-shrink:0;scroll-snap-align:start;">
+        <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);margin-bottom:4px;">HIIT Group Session</div>
+        <div style="font-size:12px;color:var(--fit-text-secondary);margin-bottom:4px;">Thu, Apr 24 · 18:00 - 19:00</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;color:var(--fit-brand-primary);">GYM Bro</span>
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">€25</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes (outline card — tap anywhere opens editor) -->
+    <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);padding:0 16px;margin-bottom:10px;">Notes</div>
+    <div class="cd-notes-card" style="margin:0 16px 24px;padding:14px;border-radius:12px;background:transparent;border:1px solid var(--fit-divider);font-size:14px;line-height:1.5;color:var(--fit-text-secondary);cursor:pointer;" onclick="go('s-client-notes-editor',document.querySelector('[onclick*=s-client-notes-editor]'))">
+      Knee injury (left) — avoid high impact jumping. Prefers morning sessions. Pays cash usually.
+    </div>
+
+    <!-- History link -->
+    <div style="margin:0 16px 24px;cursor:pointer;" onclick="go('s-client-history',document.querySelector('[onclick*=s-client-history]'))">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;border-radius:12px;background:var(--fit-surface-high);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          <span style="font-size:16px;color:var(--fit-text-primary);">Training History</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:14px;color:var(--fit-text-tertiary);">12 sessions</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    </div><!-- /data-list-state="default" -->
+
+    <!-- ===== FRESH STATE: existing client, no activity yet ===== -->
+    <div data-list-state="fresh">
+
+      <!-- Stats card (zeros) -->
+      <div style="display:flex;justify-content:space-around;padding:14px 16px;margin:0 16px 24px;border-radius:12px;background:var(--fit-surface-high);">
+        <div style="text-align:center;">
+          <div style="font-size:18px;font-weight:600;color:var(--fit-text-tertiary);">0</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">Sessions</div>
+        </div>
+        <div style="width:1px;background:var(--fit-divider);"></div>
+        <div style="text-align:center;">
+          <div style="font-size:18px;font-weight:600;color:var(--fit-text-tertiary);">0</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">Upcoming</div>
+        </div>
+        <div style="width:1px;background:var(--fit-divider);"></div>
+        <div style="text-align:center;">
+          <div style="font-size:18px;font-weight:600;color:var(--fit-text-tertiary);">&euro;0</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">Revenue</div>
+        </div>
+        <div style="width:1px;background:var(--fit-divider);"></div>
+        <div style="text-align:center;">
+          <div style="font-size:18px;font-weight:600;color:var(--fit-text-tertiary);">&euro;0</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">Owed</div>
+        </div>
+      </div>
+
+      <!-- Pending Payments: hidden when 0 -->
+
+      <!-- Upcoming Sessions — empty with CTA -->
+      <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);padding:0 16px;margin-bottom:10px;">Upcoming Sessions</div>
+      <div style="margin:0 16px 24px;padding:20px;border-radius:12px;background:transparent;border:1px solid var(--fit-divider);text-align:center;">
+        <div style="font-size:14px;color:var(--fit-text-tertiary);margin-bottom:12px;line-height:1.5;">No upcoming sessions yet.</div>
+        <button class="fit-btn fit-btn-primary" style="display:inline-flex;width:auto;height:40px;padding:0 20px;font-size:14px;" onclick="location.href='../coach/invite.html?mode=schedule&amp;origin=s-client-detail#s-invite-select'">Schedule training</button>
+      </div>
+
+      <!-- Notes — empty outline card -->
+      <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);padding:0 16px;margin-bottom:10px;">Notes</div>
+      <div class="cd-notes-card" style="margin:0 16px 24px;padding:14px;border-radius:12px;background:transparent;border:1px solid var(--fit-divider);font-size:14px;line-height:1.5;color:var(--fit-text-tertiary);cursor:pointer;display:flex;align-items:center;gap:8px;" onclick="go('s-client-notes-editor',document.querySelector('[onclick*=s-client-notes-editor]'))">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+        Add notes
+      </div>
+
+      <!-- Training History: hidden when 0 sessions -->
+
+    </div><!-- /data-list-state="fresh" -->
+
+    <!-- ===== LOADING STATE: skeletons for stats + sections ===== -->
+    <div data-list-state="loading">
+
+      <!-- Stats card skeleton -->
+      <div style="display:flex;justify-content:space-around;padding:14px 16px;margin:0 16px 24px;border-radius:12px;background:var(--fit-surface-high);">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;"><div class="sk-line sk-shimmer" style="width:24px;"></div><div class="sk-line short sk-shimmer" style="width:50px;"></div></div>
+        <div style="width:1px;background:var(--fit-divider);"></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;"><div class="sk-line sk-shimmer" style="width:24px;"></div><div class="sk-line short sk-shimmer" style="width:56px;"></div></div>
+        <div style="width:1px;background:var(--fit-divider);"></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;"><div class="sk-line sk-shimmer" style="width:36px;"></div><div class="sk-line short sk-shimmer" style="width:48px;"></div></div>
+        <div style="width:1px;background:var(--fit-divider);"></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;"><div class="sk-line sk-shimmer" style="width:28px;"></div><div class="sk-line short sk-shimmer" style="width:40px;"></div></div>
+      </div>
+
+      <!-- Upcoming carousel skeleton -->
+      <div class="sk-line sk-shimmer" style="width:140px;margin:0 16px 10px;"></div>
+      <div style="display:flex;gap:10px;padding:0 16px 24px;overflow-x:hidden;">
+        <div style="min-width:280px;padding:14px;border-radius:14px;background:var(--fit-surface-high);flex-shrink:0;">
+          <div class="sk-line sk-shimmer" style="width:60%;margin-bottom:8px;"></div>
+          <div class="sk-line short sk-shimmer" style="width:70%;margin-bottom:10px;"></div>
+          <div class="sk-line short sk-shimmer" style="width:40%;"></div>
+        </div>
+        <div style="min-width:280px;padding:14px;border-radius:14px;background:var(--fit-surface-high);flex-shrink:0;">
+          <div class="sk-line sk-shimmer" style="width:55%;margin-bottom:8px;"></div>
+          <div class="sk-line short sk-shimmer" style="width:68%;margin-bottom:10px;"></div>
+          <div class="sk-line short sk-shimmer" style="width:38%;"></div>
+        </div>
+      </div>
+
+      <!-- Notes skeleton -->
+      <div class="sk-line sk-shimmer" style="width:56px;margin:0 16px 10px;"></div>
+      <div style="margin:0 16px 24px;padding:14px;border-radius:12px;background:var(--fit-surface-high);">
+        <div class="sk-line sk-shimmer" style="width:92%;margin-bottom:8px;"></div>
+        <div class="sk-line sk-shimmer" style="width:74%;"></div>
+      </div>
+
+      <!-- History row skeleton -->
+      <div style="margin:0 16px 24px;padding:14px;border-radius:12px;background:var(--fit-surface-high);display:flex;justify-content:space-between;align-items:center;">
+        <div class="sk-line sk-shimmer" style="width:40%;"></div>
+        <div class="sk-line short sk-shimmer" style="width:20%;"></div>
+      </div>
+
+    </div><!-- /data-list-state="loading" -->
+
+  </div>
+
+  <!-- Mark Paid snackbar (iOS HUD-style, confirms side-effect) -->
+  <div class="fit-snackbar" id="cd-paid-snackbar">Payment recorded</div>
+
+  <!-- Client options context menu (iOS UIMenu — floating popover near ⋯ button) -->
+  <div class="fit-context-menu-backdrop" id="client-menu-backdrop" onclick="closeClientMenu()"></div>
+  <div class="fit-context-menu" id="client-menu" style="top:56px;right:12px;">
+    <div class="fit-context-menu-item" data-menu-item="schedule" onclick="closeClientMenu();location.href='../coach/invite.html?mode=schedule&amp;origin=s-client-detail#s-invite-select'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v4M10 16h4"/></svg>
+      Schedule training
+    </div>
+    <div class="fit-context-menu-item" data-menu-item="invite-app" style="display:none;" onclick="closeClientMenu();showClientSnack('Invite link copied')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/><path d="M20 8v6M23 11h-6"/></svg>
+      Invite to app
+    </div>
+    <div class="fit-context-menu-item" data-menu-item="invite-training" style="display:none;" onclick="closeClientMenu();location.href='../coach/invite.html?mode=invite&amp;origin=s-client-detail#s-invite-select'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v4M10 16h4"/></svg>
+      Invite to training
+    </div>
+    <div class="fit-context-menu-item" data-menu-item="edit" onclick="closeClientMenu();">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Edit info
+    </div>
+    <div class="fit-context-menu-divider" data-menu-item="divider"></div>
+    <div class="fit-context-menu-item destructive" data-menu-item="archive" onclick="closeClientMenu();document.getElementById('archive-confirm-sheet').classList.add('visible')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M3 12h18"/></svg>
+      Archive client
+    </div>
+    <div class="fit-context-menu-item destructive" data-menu-item="block" onclick="closeClientMenu();document.getElementById('block-confirm-sheet').classList.add('visible')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.64 5.64l12.72 12.72"/></svg>
+      Block athlete
+    </div>
+  </div>
+
+  <!-- Archive confirmation sheet -->
+  <div class="fit-sheet-overlay" id="archive-confirm-sheet">
+    <div class="fit-sheet" >
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Archive Anna Kowalski?</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);line-height:1.55;margin-bottom:28px;">
+        Hides Anna from your active clients list. All training history, stats, and notes stay saved — you can restore her anytime from Archived list.
+        <br><br>
+        Anna will still be able to book sessions with you — a new request will bring her back to active clients.
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('archive-confirm-sheet').classList.remove('visible')">Cancel</button>
+        <button class="fit-btn fit-btn-destructive" style="flex:1;height:50px;font-size:16px;" onclick="document.getElementById('archive-confirm-sheet').classList.remove('visible');showClientSnack('Anna archived')">Archive</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Block confirmation sheet -->
+  <div class="fit-sheet-overlay" id="block-confirm-sheet">
+    <div class="fit-sheet" >
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Block Anna Kowalski?</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);line-height:1.55;margin-bottom:28px;">
+        Anna won't be able to book new sessions with you and your profile won't appear in her search results. Past history and stats are preserved — you can unblock her anytime.
+        <br><br>
+        Upcoming sessions stay scheduled — you'll need to cancel them manually if needed.
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('block-confirm-sheet').classList.remove('visible')">Cancel</button>
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-red-400);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('block-confirm-sheet').classList.remove('visible');showClientSnack('Anna blocked')">Block</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== COACH: CLIENT HISTORY ===== -->
+<div class="fit-phone fit-dark ls-default" id="s-client-history">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Training history</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 16px 16px;">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">AK</div>
+      <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Anna Kowalski</span>
+      <span style="font-size:14px;color:var(--fit-text-tertiary);">· 12 sessions</span>
+    </div>
+
+    <!-- Past events list -->
+    <div style="padding:0 16px;">
+      <div style="padding:14px 0;border-bottom:1px solid var(--fit-divider);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Basketball Training</div>
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">€50</span>
+        </div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);">Mon, Apr 14 · 08:00 - 09:00 · TNT Studio</div>
+        <span style="font-size:12px;color:var(--fit-green-500);margin-top:4px;display:inline-block;">Completed · Paid</span>
+      </div>
+
+      <div style="padding:14px 0;border-bottom:1px solid var(--fit-divider);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Basketball Training</div>
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">€50</span>
+        </div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);">Wed, Apr 9 · 08:00 - 09:00 · TNT Studio</div>
+        <span style="font-size:12px;color:var(--fit-green-500);margin-top:4px;display:inline-block;">Completed · Paid</span>
+      </div>
+
+      <div style="padding:14px 0;border-bottom:1px solid var(--fit-divider);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">HIIT Group Session</div>
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">€25</span>
+        </div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);">Thu, Apr 3 · 18:00 - 19:00 · GYM Bro</div>
+        <span style="font-size:12px;color:var(--fit-green-500);margin-top:4px;display:inline-block;">Completed · Paid</span>
+      </div>
+
+      <div style="padding:14px 0;border-bottom:1px solid var(--fit-divider);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Basketball Training</div>
+          <span style="font-size:14px;font-weight:500;color:var(--fit-text-tertiary);text-decoration:line-through;">€50</span>
+        </div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);">Mon, Mar 31 · 08:00 - 09:00 · TNT Studio</div>
+        <span style="font-size:12px;color:var(--fit-red-400);margin-top:4px;display:inline-block;">Cancelled by athlete</span>
+      </div>
+
+      <div style="padding:14px 0;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Basketball Training</div>
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">€50</span>
+        </div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);">Wed, Mar 26 · 08:00 - 09:00 · TNT Studio</div>
+        <span style="font-size:12px;color:var(--fit-green-500);margin-top:4px;display:inline-block;">Completed · Paid</span>
+      </div>
+    </div>
+    </div><!-- /data-list-state="default" -->
+
+    <!-- === EMPTY STATE: no sessions yet === -->
+    <div data-list-state="empty">
+      <div class="fit-empty-state" style="padding-top:72px;">
+        <svg class="fes-illus" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="32" cy="32" r="22"/>
+          <path d="M32 20v12l8 6"/>
+        </svg>
+        <div class="fit-empty-state-title">No sessions yet</div>
+        <div class="fit-empty-state-sub">Completed sessions with this athlete<br>will appear here.</div>
+      </div>
+    </div>
+
+    <!-- === LOADING STATE: row skeletons === -->
+    <div data-list-state="loading" style="padding:0 16px;">
+      <div style="padding:14px 0;border-bottom:1px solid var(--fit-divider);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div class="sk-line sk-shimmer" style="width:48%;"></div>
+          <div class="sk-line short sk-shimmer" style="width:16%;"></div>
+        </div>
+        <div class="sk-line short sk-shimmer" style="width:70%;margin-bottom:6px;"></div>
+        <div class="sk-line short sk-shimmer" style="width:30%;"></div>
+      </div>
+      <div style="padding:14px 0;border-bottom:1px solid var(--fit-divider);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div class="sk-line sk-shimmer" style="width:52%;"></div>
+          <div class="sk-line short sk-shimmer" style="width:16%;"></div>
+        </div>
+        <div class="sk-line short sk-shimmer" style="width:68%;margin-bottom:6px;"></div>
+        <div class="sk-line short sk-shimmer" style="width:28%;"></div>
+      </div>
+      <div style="padding:14px 0;border-bottom:1px solid var(--fit-divider);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div class="sk-line sk-shimmer" style="width:42%;"></div>
+          <div class="sk-line short sk-shimmer" style="width:16%;"></div>
+        </div>
+        <div class="sk-line short sk-shimmer" style="width:72%;margin-bottom:6px;"></div>
+        <div class="sk-line short sk-shimmer" style="width:32%;"></div>
+      </div>
+      <div style="padding:14px 0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div class="sk-line sk-shimmer" style="width:46%;"></div>
+          <div class="sk-line short sk-shimmer" style="width:16%;"></div>
+        </div>
+        <div class="sk-line short sk-shimmer" style="width:66%;margin-bottom:6px;"></div>
+        <div class="sk-line short sk-shimmer" style="width:30%;"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== COACH: ARCHIVED & BLOCKED ===== -->
+<div class="fit-phone fit-dark" id="s-archived" data-tab="archived">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Archived &amp; Blocked</span>
+    </div>
+    <!-- Segmented tabs (pill toggle) -->
+    <div style="display:flex;margin:0 16px 12px;border-radius:10px;overflow:hidden;background:var(--fit-surface-high);padding:3px;">
+      <button id="arch-tab-archived" onclick="switchArchivedTab('archived')" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;background:var(--fit-brand-gradient);color:var(--fit-white);">Archived (3)</button>
+      <button id="arch-tab-blocked" onclick="switchArchivedTab('blocked')" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;background:transparent;color:var(--fit-text-secondary);">Blocked (2)</button>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <!-- ARCHIVED TAB -->
+    <div id="arch-panel-archived">
+
+      <div class="set-card" style="margin:0 16px 8px;">
+        <div style="display:flex;align-items:center;gap:12px;width:100%;">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;opacity:0.6;">JD</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:16px;font-weight:500;color:var(--fit-text-secondary);">Julia D.</div>
+            <div style="font-size:12px;color:var(--fit-text-tertiary);">Archived Apr 18 &middot; 5 sessions</div>
+          </div>
+          <button style="height:32px;padding:0 14px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;" onclick="showArchivedSnack('Julia restored')">Restore</button>
+        </div>
+      </div>
+
+      <div class="set-card" style="margin:0 16px 8px;">
+        <div style="display:flex;align-items:center;gap:12px;width:100%;">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;opacity:0.5;">KL</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:16px;font-weight:500;color:var(--fit-text-secondary);">Karl L.</span>
+              <span style="font-size:10px;font-weight:500;color:var(--fit-text-tertiary);background:transparent;border:1px solid var(--fit-divider);padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:0.3px;">Deleted</span>
+            </div>
+            <div style="font-size:12px;color:var(--fit-text-tertiary);">Archived Mar 30 &middot; 18 sessions</div>
+          </div>
+          <button style="height:32px;padding:0 14px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;" onclick="showArchivedSnack('Karl restored')">Restore</button>
+        </div>
+      </div>
+
+      <div class="set-card" style="margin:0 16px 8px;">
+        <div style="display:flex;align-items:center;gap:12px;width:100%;">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;opacity:0.6;">SV</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:16px;font-weight:500;color:var(--fit-text-secondary);">Sofia V.</div>
+            <div style="font-size:12px;color:var(--fit-text-tertiary);">Archived Feb 12 &middot; 2 sessions</div>
+          </div>
+          <button style="height:32px;padding:0 14px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;" onclick="showArchivedSnack('Sofia restored')">Restore</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BLOCKED TAB -->
+    <div id="arch-panel-blocked" style="display:none;">
+
+      <div class="set-card" style="margin:0 16px 8px;">
+        <div style="display:flex;align-items:center;gap:12px;width:100%;">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;opacity:0.6;">DM</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:16px;font-weight:500;color:var(--fit-text-secondary);">David M.</div>
+            <div style="font-size:12px;color:var(--fit-text-tertiary);">Blocked Mar 22 &middot; repeated no-shows</div>
+          </div>
+          <button style="height:32px;padding:0 14px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;" onclick="showArchivedSnack('David unblocked')">Unblock</button>
+        </div>
+      </div>
+
+      <div class="set-card" style="margin:0 16px 8px;">
+        <div style="display:flex;align-items:center;gap:12px;width:100%;">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;opacity:0.6;">RV</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Roman V.</div>
+            <div style="font-size:12px;color:var(--fit-text-tertiary);">Blocked Jan 8</div>
+          </div>
+          <button style="height:32px;padding:0 14px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;" onclick="showArchivedSnack('Roman unblocked')">Unblock</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Archived snackbar (reused for restore/unblock confirmation) -->
+  <div class="fit-snackbar" id="arch-snackbar">Restored</div>
+</div>
+
+<!-- ===== COACH: CLIENT NOTES EDITOR (full-screen) ===== -->
+<div class="fit-phone fit-dark" id="s-client-notes-editor">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;">
+      <button style="border:none;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;cursor:pointer;" onclick="go('s-client-detail',document.querySelector('[onclick*=s-client-detail]'))">Cancel</button>
+      <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Notes</span>
+      <button style="border:none;background:transparent;color:var(--fit-brand-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="go('s-client-detail',document.querySelector('[onclick*=s-client-detail]'))">Save</button>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding:0;">
+    <div style="padding:16px;height:100%;">
+      <div contenteditable="true" data-placeholder="Injuries, preferences, payment habits, personal reminders..." style="width:100%;min-height:300px;font-family:var(--fit-font);font-size:16px;line-height:1.6;color:var(--fit-text-primary);outline:none;background:transparent;">Knee injury (left) — avoid high impact jumping. Prefers morning sessions. Pays cash usually.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== COACH: CREATE CRM CLIENT ===== -->
+<div class="fit-phone fit-dark" id="s-create-client">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">New client</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <!-- Optional avatar (same as Personal Data) -->
+    <div style="display:flex;justify-content:center;padding:0 0 20px;">
+      <div style="position:relative;cursor:pointer;">
+        <div style="width:80px;height:80px;border-radius:50%;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
+        </div>
+        <div style="position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;border:2px solid var(--fit-screen-bg);">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="fit-input-group" style="padding:0 16px;" data-required="fname">
+      <span class="fit-input-label">First name</span>
+      <div class="fit-input" contenteditable="true" data-placeholder="Enter first name" style="outline:none;cursor:text;"></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;" data-required="lname">
+      <span class="fit-input-label">Last name</span>
+      <div class="fit-input" contenteditable="true" data-placeholder="Enter last name" style="outline:none;cursor:text;"></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;" data-optional-format="phone-or-email">
+      <span class="fit-input-label">Phone or Email <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <div class="fit-input" contenteditable="true" data-placeholder="+1 234 567 8900 or email" style="outline:none;cursor:text;"></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Sport</span>
+      <div class="fit-input" style="cursor:pointer;"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg></span> Basketball<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Notes <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <div class="fit-input" style="min-height:80px;align-items:flex-start;padding-top:14px;cursor:pointer;">
+        <span style="color:var(--fit-text-placeholder);">Injuries, preferences, payment habits...</span>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;">
+    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" onclick="validateCreateClient()">Create Client</button>
+  </div>
+  <!-- Validation snackbar -->
+  <div class="fit-snackbar" id="cc-validation-snack"><span class="snack-dot" style="background:var(--fit-red-400);"></span>Please fill in required fields</div>
+</div>
+
+<!-- Annotations -->
+<div class="ann-container">
+  <div class="ann active" id="ann-s-clients"><span class="ann-role coach">Coach</span><h3>Clients</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setClientsState('default',this)">Filled</button>
+      <button onclick="setClientsState('empty',this)">Empty</button>
+      <button onclick="setClientsState('loading',this)">Loading</button>
+    </div>
+    <div class="state-toggle" style="margin-top:8px;">
+      <button class="active" onclick="setArchivedRow(true,this)">With archived row</button>
+      <button onclick="setArchivedRow(false,this)">No archived yet</button>
+    </div>
+    <p>CRM-style client list. Root tab screen (no back arrow).</p><ul><li><strong>Bell icon</strong> with red badge (3) → Requests inbox</li><li><strong>"+"</strong> icon → sheet with 3 options</li><li><strong>"€50 owed"</strong> red badge (Mark S.) — client has unpaid cash session</li><li><strong>"Deleted" badge</strong> (Ivan K.) — athlete removed their account. Muted avatar + text-tertiary name. History intact, tappable to Client Detail.</li><li><strong>"CRM" badge</strong> (Marta V.) — coach-created contact without app account. Teal-tinted pill, normal avatar color. Coach tracks sessions/cash manually; can later Invite to app to upgrade.</li><li>Tap client → Client Detail</li></ul><hr><p class="note"><strong>"+" sheet actions:</strong><br>• <strong>Create athlete profile</strong> → CRM form (New Client screen)<br>• <strong>Invite to app</strong> → opens native iOS share sheet directly. Prefilled: "Join me on 321Fit: https://321.fit/invite/coach_id". No intermediate screen.<br>• <strong>Invite to training</strong> → intermediate screen to select training template, then generates deep link with event attached.</p><hr><p class="note"><strong>Empty:</strong> fresh coach — «Add first client» CTA opens the same add-client sheet. <strong>Loading:</strong> 4 skeleton rows during initial fetch. <strong>Archived row</strong> at bottom is hidden when 0 archived+blocked — appears only after first use.</p></div>
+  <div class="ann" id="ann-s-requests"><span class="ann-role coach">Coach</span><h3>Requests</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setRequestsState('default',this)">Filled</button>
+      <button onclick="setRequestsState('empty',this)">Empty</button>
+      <button onclick="setRequestsState('loading',this)">Loading</button>
+    </div>
+    <div class="state-toggle" style="margin-top:8px;">
+      <button onclick="resetRequestsDemo()">Reset Accept/Decline demo</button>
+    </div>
+    <p>Full-screen inbox for pending booking requests.</p><ul><li>Cards with unified layout: avatar + name + training + time + location + price + payment badge</li><li><strong>[Decline] [Accept]</strong> buttons per card</li><li>Avatar row tappable → athlete profile</li><li>After accept: event created, athlete added to clients if new</li></ul><hr><p class="note"><strong>Empty:</strong> inbox-zero — no CTA (nothing to act on, requests arrive asynchronously). <strong>Loading:</strong> 3 skeleton cards matching request layout (avatar + text + button row).</p><hr><p class="note"><strong>Accept</strong> → card fade-out, snackbar «Request accepted — event added to calendar», bell badge decrements. <strong>Decline</strong> → fade-out, snackbar «Request declined». When last card is handled, screen auto-transitions to Empty (inbox-zero) and bell badge hides.</p></div>
+  <div class="ann" id="ann-s-client-detail"><span class="ann-role coach">Coach</span><h3>Client Detail</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setClientDetailState('default',this)">Filled</button>
+      <button onclick="setClientDetailState('fresh',this)">Fresh</button>
+      <button onclick="setClientDetailState('loading',this)">Loading</button>
+    </div>
+    <div class="state-toggle" style="margin-top:8px;">
+      <button class="active" onclick="setClientBanner('none',this)">No banner</button>
+      <button onclick="setClientBanner('archived',this)">Archived</button>
+      <button onclick="setClientBanner('blocked',this)">Blocked</button>
+      <button onclick="setClientBanner('deleted',this)">Deleted</button>
+      <button onclick="setClientBanner('crm',this)">CRM</button>
+    </div>
+    <div class="state-toggle" style="margin-top:8px;">
+      <button onclick="resetMarkPaidDemo()">Reset Mark Paid demo</button>
+    </div>
+    <p>Full athlete profile from coach's perspective.</p><ul><li><strong>Header:</strong> avatar, name, location, sport chips — always visible (instant header, reused from list)</li><li><strong>Stats card:</strong> Sessions | Upcoming | Revenue | Owed. Fresh = all zeros in muted color.</li><li><strong>Pending Payments:</strong> section appears only when unpaid exists (hidden at 0). Tap <strong>Mark Paid</strong> → card fades, snackbar confirms, Owed/Revenue stats update, badge decrements. Last card cleared → whole section collapses.</li><li><strong>Upcoming Sessions:</strong> carousel of cards; when empty → outline card with <strong>Schedule training</strong> CTA</li><li><strong>Notes:</strong> outline card (transparent bg + divider border). Tap anywhere opens full-screen editor. Empty variant shows pencil + <strong>Add notes</strong>.</li><li><strong>Training History →</strong> row hidden when 0 sessions</li><li><strong>⋯ menu</strong> (header right): floating iOS UIMenu pattern. Menu items scoped per client state:<br>&bull; <strong>Normal</strong> → Schedule training / Edit / Archive / Block<br>&bull; <strong>Deleted</strong> → Archive only (can't act on a gone account)<br>&bull; <strong>CRM</strong> → Invite to app / Invite to training / Edit / Archive (no Schedule — no push target; no Block — not in app anyway)</li><li><strong>Status banners</strong> at top: Archived (gray, Restore) / Blocked (red, Unblock) / Deleted (gray, date-stamped, no action).</li><li><strong>CRM indicator</strong>: small teal <code>CRM</code> pill inline next to name (same pattern as in Clients list). No banner — less visual noise. «Invite to app» action lives in ⋯ menu.</li></ul><hr><p class="note"><strong>Schedule training</strong> (⋯ menu + fresh-state Upcoming CTA) → navigates to <code>invite.html?mode=schedule&amp;origin=s-client-detail</code>. Reuses Select Training + Date/Time screens with Request-badge review instead of Invitation-badge. Send Request → back to Client Detail.</p></div>
+  <div class="ann" id="ann-s-client-history"><span class="ann-role coach">Coach</span><h3>Client History</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setClientHistoryState('default',this)">Filled</button>
+      <button onclick="setClientHistoryState('empty',this)">Empty</button>
+      <button onclick="setClientHistoryState('loading',this)">Loading</button>
+    </div>
+    <p>Full training history with athlete.</p><ul><li>All past events: name, date/time, location, price, status</li><li><strong>Completed + Paid:</strong> green label</li><li><strong>Cancelled:</strong> red label, price struck through</li><li>Sorted newest first</li></ul><hr><p class="note"><strong>Empty:</strong> brand-new client with 0 past sessions — no CTA (coaches initiate training from Client Detail, not here).</p></div>
+  <div class="ann" id="ann-s-archived"><span class="ann-role coach">Coach</span><h3>Archived &amp; Blocked</h3><p>List of clients removed from active Clients tab — by archive (soft) or block (hard).</p><ul><li><strong>Segmented tabs</strong>: Archived / Blocked with counts</li><li><strong>Muted cards</strong> (opacity avatar) — signals inactive status</li><li><strong>Restore</strong> / <strong>Unblock</strong> buttons: single-tap (no confirm) → snackbar feedback</li><li>Tap card → Client Detail with status banner (see banner preview in Client Detail annotation)</li><li><strong>Archive</strong> = soft, reversible, athlete unaffected — a new request brings them back</li><li><strong>Block</strong> = silent shadow-ban, coach invisible in athlete's search, upcoming sessions untouched</li><li><strong>Deleted badge</strong> (Karl L.) — athlete who deleted their account AND was archived by coach. Compound state. Restore still works: returns to active list with Deleted badge intact.</li></ul><hr><p class="note">Entry: "Archived &amp; Blocked" row at bottom of Clients list (iOS Mail "Trash" pattern).</p></div>
+  <div class="ann" id="ann-s-client-notes-editor"><span class="ann-role coach">Coach</span><h3>Client Notes Editor</h3><p>Full-screen editor for coach's private notes about an athlete. Same pattern as About Me editor — Cancel / title / Save header, contenteditable body, no character counter.</p><ul><li>Opens from Notes card on Client Detail (tap whole card — filled or empty variant)</li><li>Accumulating journal: injuries, preferences, payment habits, personal reminders</li><li>No length limit — notes grow over months of coaching</li><li>Keyboard auto-opens; Save pops back to Client Detail</li></ul><hr><p class="note">Distinct from <strong>event note</strong> (group training, per-session, 200 char limit) — client notes are long-lived and persistent.</p></div>
+  <div class="ann" id="ann-s-create-client"><span class="ann-role coach">Coach</span><h3>Create Client</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setCreateClientState('default',this)">Default</button>
+      <button onclick="setCreateClientState('errors',this)">Validation errors</button>
+    </div>
+    <p>CRM card for athletes without app account.</p><ul><li><strong>First name / Last name</strong> — required</li><li><strong>Phone or Email</strong> — optional, but if filled validates format (must contain @ for email, or start with + / digit for phone)</li><li><strong>Sport</strong> — dropdown from coach's sports</li><li><strong>Notes</strong> — tap opens full-screen editor (injuries, preferences)</li></ul><hr><p class="note"><strong>Validation:</strong> tap <strong>Create Client</strong> → red border + red label on missing/invalid fields (all at once) + auto-scroll to first error + snackbar «Please fill in required fields» for 2.5s. Error styles auto-clear after 3s so user can retype. Mirrors Create Session pattern.</p><p>Created athlete appears in Clients list. Coach can track sessions/payments.</p></div>
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+function switchTheme(theme) {
+  document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.getElementById("theme-light").style.background = theme === "light" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-light").style.color = theme === "light" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.querySelectorAll(".fit-phone").forEach(function(phone) {
+    if (theme === "light") { phone.classList.remove("fit-dark"); phone.classList.add("fit-light"); }
+    else { phone.classList.remove("fit-light"); phone.classList.add("fit-dark"); }
+  });
+}
+
+function go(id, btn) {
+  document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+  const ann = document.getElementById('ann-' + id);
+  if (ann) ann.classList.add('active');
+  // Re-init FitUI for newly visible screen
+  FitUI.initAll(document.getElementById(id));
+}
+
+// === STATE TOGGLES ===
+function setClientsState(state, btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  var list = document.getElementById('s-clients');
+  list.classList.remove('ls-default', 'ls-empty', 'ls-loading');
+  list.classList.add('ls-' + state);
+}
+// Toggle archived row visibility (only visible when count > 0)
+function setArchivedRow(visible, btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  var row = document.getElementById('cd-archived-row');
+  if (row) row.style.display = visible ? 'flex' : 'none';
+}
+function setRequestsState(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  var list = document.getElementById('s-requests');
+  list.classList.remove('ls-default', 'ls-empty', 'ls-loading');
+  list.classList.add('ls-' + state);
+}
+
+// === ACCEPT/DECLINE REQUEST (inbox card action) ===
+function setRequestAction(action, btn) {
+  var card = btn.closest('.req-card');
+  if (!card || card.dataset.done === '1') return;
+  card.dataset.done = '1';
+  var name = card.dataset.name || 'Athlete';
+
+  // Fade card out
+  card.style.opacity = '0';
+  card.style.transform = 'translateX(-12px)';
+
+  // Update bell badge count on s-clients
+  var badge = document.getElementById('cd-bell-badge');
+  var countEl = document.getElementById('cd-bell-count');
+  var remaining = document.querySelectorAll('#s-requests .req-card:not([data-done="1"])').length;
+  if (countEl) countEl.textContent = String(remaining);
+  if (badge) badge.style.display = remaining > 0 ? 'flex' : 'none';
+
+  // Snackbar
+  var snack = document.getElementById('req-snackbar');
+  if (snack) {
+    snack.textContent = action === 'accept'
+      ? (name + ' accepted — event added to calendar')
+      : (name + '’s request declined');
+    snack.classList.add('show');
+    setTimeout(function(){ snack.classList.remove('show'); }, 2500);
+  }
+
+  // After fade, collapse height; transition to empty state if none left
+  setTimeout(function(){
+    card.style.display = 'none';
+    if (remaining === 0) setRequestsState('empty', null);
+  }, 220);
+}
+
+// === CREATE CLIENT VALIDATION ===
+function validateCreateClient() {
+  var screen = document.getElementById('s-create-client');
+  var content = screen.querySelector('.fit-phone-content');
+
+  // Clear previous errors
+  screen.querySelectorAll('.fit-input-group.error').forEach(g => g.classList.remove('error'));
+
+  var firstError = null;
+
+  // First name required
+  var fnameGroup = screen.querySelector('[data-required="fname"]');
+  var fnameEl = fnameGroup && fnameGroup.querySelector('.fit-input');
+  if (!fnameEl || !fnameEl.textContent.trim()) {
+    fnameGroup && fnameGroup.classList.add('error');
+    if (!firstError) firstError = fnameGroup;
+  }
+
+  // Last name required
+  var lnameGroup = screen.querySelector('[data-required="lname"]');
+  var lnameEl = lnameGroup && lnameGroup.querySelector('.fit-input');
+  if (!lnameEl || !lnameEl.textContent.trim()) {
+    lnameGroup && lnameGroup.classList.add('error');
+    if (!firstError) firstError = lnameGroup;
+  }
+
+  // Phone/Email format (optional, only when filled)
+  var contactGroup = screen.querySelector('[data-optional-format="phone-or-email"]');
+  var contactEl = contactGroup && contactGroup.querySelector('.fit-input');
+  var contact = contactEl && contactEl.textContent.trim();
+  if (contact) {
+    var isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact);
+    var isPhone = /^[+\d][\d\s-]{6,}$/.test(contact);
+    if (!isEmail && !isPhone) {
+      contactGroup && contactGroup.classList.add('error');
+      if (!firstError) firstError = contactGroup;
+    }
+  }
+
+  if (firstError) {
+    setTimeout(function(){
+      var rect = firstError.getBoundingClientRect();
+      var contentRect = content.getBoundingClientRect();
+      var offset = rect.top - contentRect.top + content.scrollTop - 10;
+      content.scrollTo({ top: offset, behavior: 'smooth' });
+    }, 50);
+
+    var snack = document.getElementById('cc-validation-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 2500);
+    }
+
+    // Auto-clear errors after 3s (user can focus + retype)
+    setTimeout(function(){
+      screen.querySelectorAll('.fit-input-group.error').forEach(g => g.classList.remove('error'));
+    }, 3000);
+    return false;
+  }
+
+  // Success case — in prototype just navigate back (no backend)
+  showClientSnack('Client created');
+  setTimeout(function(){
+    var btn = document.querySelector('.sidebar button[onclick*="s-clients"]');
+    if (btn) go('s-clients', btn);
+  }, 800);
+  return true;
+}
+
+function setCreateClientState(state, btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  var screen = document.getElementById('s-create-client');
+  // Clear any lingering errors + snackbar
+  screen.querySelectorAll('.fit-input-group.error').forEach(g => g.classList.remove('error'));
+  var snack = document.getElementById('cc-validation-snack');
+  if (snack) snack.classList.remove('show');
+  if (state === 'errors') {
+    // Clear required inputs + put invalid phone/email → validate runs error pass
+    var fname = screen.querySelector('[data-required="fname"] .fit-input');
+    if (fname) fname.textContent = '';
+    var lname = screen.querySelector('[data-required="lname"] .fit-input');
+    if (lname) lname.textContent = '';
+    var contact = screen.querySelector('[data-optional-format="phone-or-email"] .fit-input');
+    if (contact) contact.textContent = 'not-an-email';
+    validateCreateClient();
+  }
+}
+
+// Reset demo — restore all request cards + bell badge + default state
+function resetRequestsDemo() {
+  document.querySelectorAll('#s-requests .req-card').forEach(function(c){
+    c.dataset.done = '';
+    c.style.display = '';
+    c.style.opacity = '';
+    c.style.transform = '';
+  });
+  var badge = document.getElementById('cd-bell-badge');
+  var countEl = document.getElementById('cd-bell-count');
+  if (countEl) countEl.textContent = '3';
+  if (badge) badge.style.display = 'flex';
+  setRequestsState('default', null);
+  // Reset annotation toggle active state
+  var toggle = document.querySelector('#ann-s-requests .state-toggle button.active');
+  if (toggle) toggle.classList.remove('active');
+  var first = document.querySelector('#ann-s-requests .state-toggle button');
+  if (first) first.classList.add('active');
+}
+function setClientDetailState(state, btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  var screen = document.getElementById('s-client-detail');
+  screen.classList.remove('ls-default', 'ls-fresh', 'ls-loading');
+  screen.classList.add('ls-' + state);
+}
+function setClientHistoryState(state, btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  var screen = document.getElementById('s-client-history');
+  screen.classList.remove('ls-default', 'ls-empty', 'ls-loading');
+  screen.classList.add('ls-' + state);
+}
+
+// === CONTEXT MENU (iOS UIMenu pattern) ===
+function openClientMenu() {
+  document.getElementById('client-menu').classList.add('visible');
+  document.getElementById('client-menu-backdrop').classList.add('visible');
+}
+function closeClientMenu() {
+  document.getElementById('client-menu').classList.remove('visible');
+  document.getElementById('client-menu-backdrop').classList.remove('visible');
+}
+
+// === MARK PAID (snackbar + card fade + stats update) ===
+function setMarkPaid(btn) {
+  var card = btn.closest('.cd-pending-card');
+  if (!card || card.dataset.paid === '1') return;
+  card.dataset.paid = '1';
+  var amount = parseInt(card.dataset.amount, 10) || 0;
+
+  // Fade card out
+  card.style.opacity = '0';
+  card.style.transform = 'translateX(-12px)';
+
+  // Update stats (Owed down, Revenue up)
+  var owedEl = document.getElementById('cd-stat-owed');
+  var revEl = document.getElementById('cd-stat-revenue');
+  var owed = parseInt((owedEl.textContent || '').replace(/[^0-9]/g,''), 10) || 0;
+  var rev = parseInt((revEl.textContent || '').replace(/[^0-9]/g,''), 10) || 0;
+  owedEl.textContent = '€' + (owed - amount);
+  revEl.textContent = '€' + (rev + amount);
+
+  // Update count badge
+  var list = document.getElementById('cd-pending-list');
+  var remaining = list.querySelectorAll('.cd-pending-card:not([data-paid="1"])').length;
+  var countEl = document.getElementById('cd-pending-count');
+  if (countEl) countEl.textContent = String(remaining);
+
+  // Show snackbar
+  var snack = document.getElementById('cd-paid-snackbar');
+  snack.textContent = 'Payment recorded · €' + amount;
+  snack.classList.add('show');
+  setTimeout(function(){ snack.classList.remove('show'); }, 2500);
+
+  // After fade, remove from layout + collapse section if empty
+  setTimeout(function(){
+    card.style.display = 'none';
+    if (remaining === 0) {
+      var section = document.getElementById('cd-pending-section');
+      if (section) section.style.display = 'none';
+    }
+  }, 220);
+}
+
+// === ARCHIVED/BLOCKED TABS ===
+function switchArchivedTab(tab) {
+  var screen = document.getElementById('s-archived');
+  screen.dataset.tab = tab;
+  var other = tab === 'archived' ? 'blocked' : 'archived';
+  document.getElementById('arch-panel-' + tab).style.display = '';
+  document.getElementById('arch-panel-' + other).style.display = 'none';
+  var on = document.getElementById('arch-tab-' + tab);
+  var off = document.getElementById('arch-tab-' + other);
+  on.style.background = 'var(--fit-brand-gradient)';
+  on.style.color = 'var(--fit-white)';
+  off.style.background = 'transparent';
+  off.style.color = 'var(--fit-text-secondary)';
+}
+function showArchivedSnack(msg) {
+  var snack = document.getElementById('arch-snackbar');
+  if (!snack) return;
+  snack.textContent = msg;
+  snack.classList.add('show');
+  setTimeout(function(){ snack.classList.remove('show'); }, 2500);
+}
+
+// Generic reusable snackbar on Client Detail (for confirm-action toasts)
+function showClientSnack(msg) {
+  var snack = document.getElementById('cd-paid-snackbar');
+  if (!snack) return;
+  snack.textContent = msg;
+  snack.classList.add('show');
+  setTimeout(function(){ snack.classList.remove('show'); }, 2500);
+}
+
+// Toggle client status banner (archived / blocked / deleted / crm / none) + scope ⋯ menu items
+function setClientBanner(state, btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  var banners = {
+    archived: document.getElementById('cd-banner-archived'),
+    blocked:  document.getElementById('cd-banner-blocked'),
+    deleted:  document.getElementById('cd-banner-deleted')
+  };
+  Object.keys(banners).forEach(function(key){
+    if (banners[key]) banners[key].style.display = state === key ? 'flex' : 'none';
+  });
+  // CRM uses an inline name-pill instead of a banner (less noise)
+  var namePill = document.getElementById('cd-name-pill');
+  if (namePill) namePill.style.display = state === 'crm' ? 'inline-flex' : 'none';
+
+  // Menu item visibility per state
+  // schedule:  hidden on deleted, crm (no push-target)
+  // invite-app, invite-training: visible only on crm
+  // edit:      hidden on deleted
+  // block:     hidden on deleted, crm (nothing to block)
+  // divider + archive: always visible
+  var visibility = {
+    'none':     { schedule:1, 'invite-app':0, 'invite-training':0, edit:1, divider:1, archive:1, block:1 },
+    'archived': { schedule:1, 'invite-app':0, 'invite-training':0, edit:1, divider:1, archive:1, block:1 },
+    'blocked':  { schedule:1, 'invite-app':0, 'invite-training':0, edit:1, divider:1, archive:1, block:1 },
+    'deleted':  { schedule:0, 'invite-app':0, 'invite-training':0, edit:0, divider:0, archive:1, block:0 },
+    'crm':      { schedule:0, 'invite-app':1, 'invite-training':1, edit:1, divider:1, archive:1, block:0 }
+  }[state] || {};
+  var menu = document.getElementById('client-menu');
+  Object.keys(visibility).forEach(function(key){
+    var el = menu.querySelector('[data-menu-item="' + key + '"]');
+    if (el) el.style.display = visibility[key] ? '' : 'none';
+  });
+}
+
+// Reset demo (annotation button): restore all cards + stats to default
+function resetMarkPaidDemo() {
+  var cards = document.querySelectorAll('#cd-pending-list .cd-pending-card');
+  cards.forEach(function(c){
+    c.dataset.paid = '';
+    c.style.display = '';
+    c.style.opacity = '';
+    c.style.transform = '';
+  });
+  document.getElementById('cd-stat-owed').textContent = '€75';
+  document.getElementById('cd-stat-revenue').textContent = '€580';
+  var countEl = document.getElementById('cd-pending-count');
+  if (countEl) countEl.textContent = '2';
+  var section = document.getElementById('cd-pending-section');
+  if (section) section.style.display = '';
+}
+
+// Deep-link via URL hash (e.g. clients.html#s-client-detail)
+(function() {
+  var hash = (location.hash || '').replace('#','');
+  if (!hash) return;
+  var target = document.getElementById(hash);
+  if (!target || !target.classList.contains('fit-phone')) return;
+  var btn = document.querySelector('.sidebar button[onclick*="\'' + hash + '\'"]');
+  if (btn) go(hash, btn);
+})();
+</script>
+</body>
+</html>
