@@ -426,6 +426,131 @@
     100% { background-position: -200% 50%; }
   }
 
+  /* ===== REVIEW QUEUE ===== */
+  .review-date-header {
+    font-size: 12px; font-weight: 500;
+    color: var(--fit-text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 16px 20px 8px;
+  }
+  .review-card {
+    margin: 0 16px 12px;
+    padding: 14px;
+    border-radius: 16px;
+    background: var(--fit-surface-high);
+    transition: opacity 0.22s ease, transform 0.22s ease;
+  }
+  .fit-light .review-card {
+    background: var(--fit-white);
+    border: 1px solid var(--fit-gray-100);
+  }
+  .review-card[data-done="1"] {
+    opacity: 0; transform: translateX(-12px);
+    pointer-events: none;
+  }
+  .review-card-head {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 12px; cursor: pointer;
+  }
+  .review-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--fit-brand-gradient);
+    color: var(--fit-white);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 600;
+    flex-shrink: 0;
+  }
+  .review-info { flex: 1; min-width: 0; }
+  .review-name {
+    font-size: 16px; font-weight: 500; color: var(--fit-text-primary);
+    margin-bottom: 2px;
+  }
+  .review-meta {
+    font-size: 13px; color: var(--fit-text-tertiary);
+    display: flex; gap: 4px; align-items: center; flex-wrap: wrap;
+  }
+  .review-meta .dot { width: 2px; height: 2px; border-radius: 50%; background: var(--fit-text-tertiary); }
+  .review-chev {
+    width: 16px; height: 16px;
+    color: var(--fit-text-tertiary);
+    flex-shrink: 0;
+  }
+  .review-line {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 14px; color: var(--fit-text-secondary);
+    margin-bottom: 6px;
+  }
+  .review-line svg { width: 13px; height: 13px; flex-shrink: 0; color: var(--fit-text-tertiary); }
+  .review-money-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin: 10px 0 14px;
+  }
+  .review-money-amount {
+    font-size: 14px; font-weight: 500; color: var(--fit-teal-500);
+  }
+  .review-money-tag {
+    font-size: 12px; color: var(--fit-text-tertiary);
+    background: var(--fit-surface-higher);
+    padding: 2px 6px; border-radius: 4px;
+    margin-left: 6px;
+  }
+  .fit-light .review-money-tag { background: var(--fit-gray-100); }
+  .review-since {
+    font-size: 12px; color: var(--fit-text-tertiary);
+  }
+  .review-actions {
+    display: flex; gap: 8px;
+  }
+  .review-btn-missed {
+    flex: 0 0 auto; padding: 0 18px; height: 44px;
+    border-radius: 99px;
+    background: transparent;
+    border: 1px solid var(--fit-red-400);
+    color: var(--fit-red-400);
+    font-family: var(--fit-font); font-size: 15px; font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .review-btn-missed:hover { background: rgba(240,92,91,0.08); }
+  .review-btn-complete {
+    flex: 1; height: 44px; border: none; border-radius: 99px;
+    background: var(--fit-brand-gradient); color: var(--fit-white);
+    font-family: var(--fit-font); font-size: 16px; font-weight: 500;
+    cursor: pointer;
+  }
+
+  /* Review queue list-state visibility */
+  #s-review-queue [data-list-state] { display: none; }
+  #s-review-queue.rvl-default [data-list-state="default"] { display: block; }
+  #s-review-queue.rvl-single [data-list-state="single"] { display: block; }
+  #s-review-queue.rvl-empty [data-list-state="empty"] { display: block; }
+  #s-review-queue.rvl-loading [data-list-state="loading"] { display: block; }
+
+  /* Local skeleton (mirrors clients.html — migrate to fit-ui in Phase 2) */
+  .sk-card {
+    margin: 0 16px 12px; padding: 16px; border-radius: 16px;
+    background: var(--fit-surface-high);
+  }
+  .fit-light .sk-card { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .sk-row { display: flex; align-items: center; gap: 12px; }
+  .sk-circle { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; }
+  .sk-lines { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .sk-line { height: 12px; border-radius: 6px; }
+  .sk-line.short { width: 50%; height: 10px; }
+  .sk-block { height: 14px; border-radius: 7px; margin-top: 12px; }
+  .sk-btn-row { display: flex; gap: 8px; margin-top: 14px; }
+  .sk-btn { flex: 1; height: 40px; border-radius: 99px; }
+  .sk-shimmer {
+    background: linear-gradient(90deg, var(--fit-surface-higher) 0%, var(--fit-surface-high) 50%, var(--fit-surface-higher) 100%);
+    background-size: 200% 100%;
+    animation: sk-shimmer 1400ms ease-in-out infinite;
+  }
+  .fit-light .sk-shimmer {
+    background: linear-gradient(90deg, var(--fit-gray-100) 0%, var(--fit-gray-50) 50%, var(--fit-gray-100) 100%);
+    background-size: 200% 100%;
+  }
+  @keyframes sk-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
   /* ===== STATE VISIBILITY ===== */
   #s-dashboard [data-dash-state] { display: none; }
   #s-dashboard.dst-default [data-dash-state="default"] { display: flex; }
@@ -449,15 +574,21 @@
 <!-- ==================== SIDEBAR ==================== -->
 <nav class="sidebar">
   <div class="sidebar-scroll">
-  <div class="label">Screen</div>
+  <div class="label">Screens</div>
   <button class="active" onclick="go('s-dashboard',this)">Dashboard</button>
-  <div class="label">States</div>
-  <button onclick="setDashState('default',this)">Default · active coach</button>
-  <button onclick="setDashState('new',this)">New coach · week 1</button>
-  <button onclick="setDashState('quiet',this)">Quiet day · no sessions today</button>
-  <button onclick="setDashState('zero',this)">All zero · nothing to act on</button>
-  <button onclick="setDashState('loading',this)">Loading · skeleton</button>
-  <button onclick="setDashState('error',this)">Error · offline banner</button>
+  <button onclick="go('s-review-queue',this)">Sessions to review</button>
+  <div class="label">Dashboard states</div>
+  <button onclick="go('s-dashboard',this);setDashState('default',null)">Default · active coach</button>
+  <button onclick="go('s-dashboard',this);setDashState('new',null)">New coach · week 1</button>
+  <button onclick="go('s-dashboard',this);setDashState('quiet',null)">Quiet day · no sessions today</button>
+  <button onclick="go('s-dashboard',this);setDashState('zero',null)">All zero · nothing to act on</button>
+  <button onclick="go('s-dashboard',this);setDashState('loading',null)">Loading · skeleton</button>
+  <button onclick="go('s-dashboard',this);setDashState('error',null)">Error · offline banner</button>
+  <div class="label">Review queue states</div>
+  <button onclick="go('s-review-queue',this);setReviewState('default',null);resetReviewDemo()">Filled · 3 items</button>
+  <button onclick="go('s-review-queue',this);setReviewState('single',null)">Single · 1 item</button>
+  <button onclick="go('s-review-queue',this);setReviewState('empty',null)">Empty · all done</button>
+  <button onclick="go('s-review-queue',this);setReviewState('loading',null)">Loading · skeleton</button>
   </div>
   <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
     <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
@@ -523,11 +654,11 @@
             </div>
             <svg class="dash-action-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
           </div>
-          <div class="dash-action" onclick="window.location.href='calendar.html'">
+          <div class="dash-action" onclick="go('s-review-queue', document.querySelector('.sidebar button[onclick*=s-review-queue]'));setReviewState('default',null);resetReviewDemo();">
             <div class="dash-action-icon review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg></div>
             <div class="dash-action-body">
-              <div class="dash-action-title">1 session to review</div>
-              <div class="dash-action-sub">Yesterday &middot; Mark complete or missed</div>
+              <div class="dash-action-title">3 sessions to review</div>
+              <div class="dash-action-sub">Oldest: 2 days ago &middot; Mark complete or missed</div>
             </div>
             <svg class="dash-action-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
           </div>
@@ -831,6 +962,176 @@
   </div>
 </div>
 
+<!-- ==================== REVIEW QUEUE ==================== -->
+<div class="fit-phone fit-dark rvl-default" id="s-review-queue">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-dashboard', document.querySelector('.sidebar button[onclick*=s-dashboard]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Sessions to review</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <!-- ========== DEFAULT: 3 items, grouped by date (oldest first) ========== -->
+    <div data-list-state="default">
+      <div class="review-date-header">Tuesday, Apr 22</div>
+
+      <div class="review-card" data-name="Tom">
+        <div class="review-card-head" onclick="openEventDetail(this)">
+          <div class="review-avatar" style="background:var(--fit-gray-600);">TN</div>
+          <div class="review-info">
+            <div class="review-name">Tom N.</div>
+            <div class="review-meta"><span>Boxing Training</span><span class="dot"></span><span>60 min</span></div>
+          </div>
+          <svg class="review-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="review-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          Tue, Apr 22 &middot; 19:30&ndash;20:30
+        </div>
+        <div class="review-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          GYM Bro
+        </div>
+        <div class="review-money-row">
+          <div><span class="review-money-amount">&euro;40</span><span class="review-money-tag">Cash</span></div>
+          <div class="review-since">Ended 2 days ago</div>
+        </div>
+        <div class="review-actions">
+          <button class="review-btn-missed" onclick="markReview('missed', this)">Missed</button>
+          <button class="review-btn-complete" onclick="markReview('complete', this)">Mark complete</button>
+        </div>
+      </div>
+
+      <div class="review-date-header">Wednesday, Apr 23</div>
+
+      <div class="review-card" data-name="Sarah">
+        <div class="review-card-head" onclick="openEventDetail(this)">
+          <div class="review-avatar">SM</div>
+          <div class="review-info">
+            <div class="review-name">Sarah Mitchell</div>
+            <div class="review-meta"><span>Tennis</span><span class="dot"></span><span>60 min</span></div>
+          </div>
+          <svg class="review-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="review-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          Wed, Apr 23 &middot; 10:00&ndash;11:00
+        </div>
+        <div class="review-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          Court A
+        </div>
+        <div class="review-money-row">
+          <div><span class="review-money-amount">&euro;50</span><span class="review-money-tag">Card</span></div>
+          <div class="review-since">Ended yesterday</div>
+        </div>
+        <div class="review-actions">
+          <button class="review-btn-missed" onclick="markReview('missed', this)">Missed</button>
+          <button class="review-btn-complete" onclick="markReview('complete', this)">Mark complete</button>
+        </div>
+      </div>
+
+      <div class="review-card" data-name="Alex">
+        <div class="review-card-head" onclick="openEventDetail(this)">
+          <div class="review-avatar" style="background:var(--fit-surface-higher);color:var(--fit-text-primary);">AK</div>
+          <div class="review-info">
+            <div class="review-name">Alex Kim</div>
+            <div class="review-meta"><span>Padel</span><span class="dot"></span><span>90 min</span></div>
+          </div>
+          <svg class="review-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="review-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          Wed, Apr 23 &middot; 18:00&ndash;19:30
+        </div>
+        <div class="review-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          Court C
+        </div>
+        <div class="review-money-row">
+          <div><span class="review-money-amount">&euro;60</span><span class="review-money-tag">Cash</span></div>
+          <div class="review-since">Ended 15 hours ago</div>
+        </div>
+        <div class="review-actions">
+          <button class="review-btn-missed" onclick="markReview('missed', this)">Missed</button>
+          <button class="review-btn-complete" onclick="markReview('complete', this)">Mark complete</button>
+        </div>
+      </div>
+
+      <div style="padding:0 16px 24px;"></div>
+    </div>
+
+    <!-- ========== SINGLE: 1 item ========== -->
+    <div data-list-state="single">
+      <div class="review-date-header">Wednesday, Apr 23</div>
+
+      <div class="review-card" data-name="Sarah">
+        <div class="review-card-head">
+          <div class="review-avatar">SM</div>
+          <div class="review-info">
+            <div class="review-name">Sarah Mitchell</div>
+            <div class="review-meta"><span>Tennis</span><span class="dot"></span><span>60 min</span></div>
+          </div>
+          <svg class="review-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="review-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          Wed, Apr 23 &middot; 10:00&ndash;11:00
+        </div>
+        <div class="review-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          Court A
+        </div>
+        <div class="review-money-row">
+          <div><span class="review-money-amount">&euro;50</span><span class="review-money-tag">Card</span></div>
+          <div class="review-since">Ended yesterday</div>
+        </div>
+        <div class="review-actions">
+          <button class="review-btn-missed">Missed</button>
+          <button class="review-btn-complete">Mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== EMPTY ========== -->
+    <div data-list-state="empty">
+      <div class="fit-empty-state" style="padding-top:72px;">
+        <svg class="fes-illus" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="32" cy="32" r="22"/>
+          <path d="M22 32l7 7 13-13"/>
+        </svg>
+        <div class="fit-empty-state-title">All reviews done</div>
+        <div class="fit-empty-state-sub">Past sessions show up here<br>so you can mark them complete or missed.</div>
+      </div>
+    </div>
+
+    <!-- ========== LOADING ========== -->
+    <div data-list-state="loading">
+      <div class="sk-card">
+        <div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:45%;"></div><div class="sk-line short sk-shimmer"></div></div></div>
+        <div class="sk-block sk-shimmer" style="width:60%;"></div>
+        <div class="sk-block sk-shimmer" style="width:75%;height:10px;"></div>
+        <div class="sk-btn-row"><div class="sk-btn sk-shimmer" style="flex:0 0 100px;"></div><div class="sk-btn sk-shimmer"></div></div>
+      </div>
+      <div class="sk-card">
+        <div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:38%;"></div><div class="sk-line short sk-shimmer"></div></div></div>
+        <div class="sk-block sk-shimmer" style="width:70%;"></div>
+        <div class="sk-block sk-shimmer" style="width:65%;height:10px;"></div>
+        <div class="sk-btn-row"><div class="sk-btn sk-shimmer" style="flex:0 0 100px;"></div><div class="sk-btn sk-shimmer"></div></div>
+      </div>
+    </div>
+
+    <!-- Snackbar (Undo) -->
+    <div class="fit-snackbar" id="review-snackbar">
+      <span id="review-snackbar-text">Marked</span>
+      <span class="snack-action" id="review-snackbar-undo" onclick="undoLastReview()">Undo</span>
+    </div>
+
+  </div>
+</div>
+
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
   <div class="ann active" id="ann-s-dashboard"><span class="ann-role coach">Coach</span><h3>Dashboard</h3>
@@ -892,6 +1193,42 @@
     </ul>
     <p class="note">Athlete dashboard is a separate build &mdash; simpler (next session + requests + balance), no revenue breakdown.</p>
   </div>
+
+  <div class="ann" id="ann-s-review-queue"><span class="ann-role coach">Coach</span><h3>Sessions to review</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setReviewState('default',this);resetReviewDemo()">Filled</button>
+      <button onclick="setReviewState('single',this)">Single</button>
+      <button onclick="setReviewState('empty',this)">Empty</button>
+      <button onclick="setReviewState('loading',this)">Loading</button>
+    </div>
+    <p>Triage queue for sessions in <strong>Review</strong> state &mdash; events that ended but coach hasn&rsquo;t marked complete or missed yet.</p>
+    <p><strong>Why a dedicated list, not calendar:</strong> for N &gt; 1 a calendar view forces hunting; the queue presents all pending reviews oldest-first for batch handling. For N = 1 we still land here (consistency &gt; saving one tap).</p>
+    <ul>
+      <li><strong>Grouping:</strong> by date, oldest first (most urgent at top)</li>
+      <li><strong>Card:</strong> avatar + name + sport/duration, date/time line, location line, money + payment type, &ldquo;Ended N ago&rdquo; timestamp</li>
+      <li><strong>Inline actions:</strong> <em>Mark complete</em> (primary brand gradient) + <em>Missed</em> (low outlined red &mdash; per 4-tier destructive system, low because it&rsquo;s a judgment call not data loss)</li>
+      <li><strong>Tap card body</strong> &rarr; event detail sheet for full context (notes, past stats) before deciding</li>
+      <li><strong>After tap:</strong> card fades + collapses, snackbar &ldquo;Marked complete&rdquo; / &ldquo;Marked missed&rdquo; with Undo</li>
+      <li><strong>After last card handled:</strong> list transitions to Empty state; action card on dashboard hides</li>
+    </ul>
+    <hr>
+    <p><strong>Entry points</strong></p>
+    <ul>
+      <li>Dashboard &rarr; action card &ldquo;N sessions to review&rdquo;</li>
+      <li>(Future) calendar badge on dates with events in Review state</li>
+    </ul>
+    <hr>
+    <p><strong>States</strong></p>
+    <ul>
+      <li><strong>Filled</strong> &mdash; typical 2&ndash;3 items across recent days</li>
+      <li><strong>Single</strong> &mdash; 1 item queue (same screen, consistent UX)</li>
+      <li><strong>Empty</strong> &mdash; all caught up, illustration + explanation</li>
+      <li><strong>Loading</strong> &mdash; skeleton cards on first fetch</li>
+    </ul>
+    <hr>
+    <p><strong>Missed styling rationale:</strong> low-severity destructive (outlined red) &mdash; marking missed is coach&rsquo;s judgment, reversible within retention window. Not medium (tinted) because no other-user impact at this moment; not high because no data loss.</p>
+    <p class="note">Backend: needs <code>GET /coach/events?status=review</code> or equivalent filtered endpoint. Bulk actions (select-all &rarr; mark complete) deferred until user feedback warrants it.</p>
+  </div>
 </div>
 
 <script src="../../lib/fit-ui.js"></script>
@@ -921,19 +1258,96 @@
     var el = document.getElementById('s-dashboard');
     el.classList.remove('dst-default','dst-new','dst-quiet','dst-zero','dst-loading','dst-error');
     el.classList.add('dst-' + state);
-    // Sync both toggle groups (annotation + sidebar)
-    document.querySelectorAll('.ann .state-toggle button').forEach(function(b){ b.classList.remove('active'); });
-    var annMatch = Array.from(document.querySelectorAll('.ann .state-toggle button')).find(function(b){
-      return b.textContent.toLowerCase() === state || b.getAttribute('onclick').indexOf("'"+state+"'") !== -1;
-    });
-    if (annMatch) annMatch.classList.add('active');
-    if (btn && btn.classList) {
-      // If clicked in sidebar, sync sidebar active
-      if (btn.closest && btn.closest('.sidebar')) {
-        document.querySelectorAll('.sidebar button').forEach(function(b){ b.classList.remove('active'); });
-        btn.classList.add('active');
-      }
+    syncStateToggleButtons('#ann-s-dashboard', state);
+    if (btn && btn.closest && btn.closest('.sidebar')) {
+      document.querySelectorAll('.sidebar button').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
     }
+  }
+
+  function setReviewState(state, btn) {
+    var el = document.getElementById('s-review-queue');
+    el.classList.remove('rvl-default','rvl-single','rvl-empty','rvl-loading');
+    el.classList.add('rvl-' + state);
+    syncStateToggleButtons('#ann-s-review-queue', state);
+    if (btn && btn.closest && btn.closest('.sidebar')) {
+      document.querySelectorAll('.sidebar button').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+    }
+  }
+
+  function syncStateToggleButtons(annSelector, state) {
+    var toggle = document.querySelector(annSelector + ' .state-toggle');
+    if (!toggle) return;
+    toggle.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+    var match = Array.from(toggle.querySelectorAll('button')).find(function(b){
+      return b.getAttribute('onclick').indexOf("'"+state+"'") !== -1;
+    });
+    if (match) match.classList.add('active');
+  }
+
+  // ===== REVIEW QUEUE ACTIONS =====
+  var lastReview = null; // { card, action, name }
+
+  function markReview(action, btn) {
+    var card = btn.closest('.review-card');
+    if (!card || card.dataset.done === '1') return;
+    card.dataset.done = '1';
+    var name = card.dataset.name || 'Session';
+    lastReview = { card: card, action: action, name: name };
+
+    // Snackbar
+    var snack = document.getElementById('review-snackbar');
+    var text = document.getElementById('review-snackbar-text');
+    if (text) text.textContent = (action === 'complete')
+      ? (name + ' — marked complete')
+      : (name + ' — marked missed');
+    if (snack) {
+      snack.classList.add('show');
+      clearTimeout(snack._t);
+      snack._t = setTimeout(function(){ snack.classList.remove('show'); }, 3000);
+    }
+
+    // After fade, hide the card and transition to empty if queue is drained
+    setTimeout(function(){
+      card.style.display = 'none';
+      var list = document.querySelector('#s-review-queue [data-list-state="default"]');
+      if (!list) return;
+      var remaining = list.querySelectorAll('.review-card:not([data-done="1"])').length;
+      if (remaining === 0) setReviewState('empty', null);
+    }, 260);
+  }
+
+  function undoLastReview() {
+    if (!lastReview || !lastReview.card) return;
+    // If we'd transitioned to empty, flip back
+    if (document.getElementById('s-review-queue').classList.contains('rvl-empty')) {
+      setReviewState('default', null);
+    }
+    lastReview.card.removeAttribute('data-done');
+    lastReview.card.style.display = '';
+    lastReview = null;
+    var snack = document.getElementById('review-snackbar');
+    if (snack) snack.classList.remove('show');
+  }
+
+  function resetReviewDemo() {
+    document.querySelectorAll('#s-review-queue [data-list-state="default"] .review-card').forEach(function(c){
+      c.removeAttribute('data-done');
+      c.style.display = '';
+    });
+    lastReview = null;
+    var snack = document.getElementById('review-snackbar');
+    if (snack) snack.classList.remove('show');
+  }
+
+  function openEventDetail(el) {
+    // Placeholder: in real app this opens unified cal-event-sheet in Review state
+    // For prototype: visual hint only (bounce), real sheet lives in calendar.html
+    if (!el) return;
+    el.style.transition = 'transform 0.1s ease';
+    el.style.transform = 'scale(0.98)';
+    setTimeout(function(){ el.style.transform = ''; }, 120);
   }
 </script>
 </body>
