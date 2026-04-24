@@ -1,7 +1,7 @@
 # Onboarding Wizard
 
 > Status: Draft
-> Prototype: [flows/coach/dashboard.html](../prototypes/flows/coach/dashboard.html) (state `dst-new`)
+> Prototype: [flows/coach/dashboard.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/dashboard.html) (state `dst-new`)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
 > Last updated: 2026-04-24
 > GitHub issue: [321fit_ios#130](https://github.com/321-fit/321fit_ios/issues/130)

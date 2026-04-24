@@ -1,7 +1,7 @@
 # Coach Calendar
 
 > Status: Approved (contract) / In Progress (event sheet + custom event migration)
-> Prototype: [flows/coach/calendar.html](../prototypes/flows/coach/calendar.html)
+> Prototype: [flows/coach/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
 > Last updated: 2026-04-24
 > Implementation:

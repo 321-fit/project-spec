@@ -1,7 +1,7 @@
 # Settings
 
 > Status: Draft
-> Prototype: [settings.html](../prototypes/flows/settings.html)
+> Prototype: [settings.html](https://321-fit.github.io/project-spec/prototypes/flows/settings.html)
 > Last updated: 2026-04-13
 
 ## Overview

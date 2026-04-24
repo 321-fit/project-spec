@@ -1,7 +1,7 @@
 # Coach Maturity Model
 
 > Status: Draft
-> Prototype: [flows/shared/profile.html](../prototypes/flows/shared/profile.html) (Coach Profile v2 — new-coach state variants)
+> Prototype: [flows/shared/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/profile.html) (Coach Profile v2 — new-coach state variants)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
 > Last updated: 2026-04-24
 > Implementation:

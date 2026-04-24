@@ -1,7 +1,7 @@
 # Account Access
 
 > Status: Draft
-> Prototype: [account-access.html](../prototypes/flows/shared/account-access.html)
+> Prototype: [account-access.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/account-access.html)
 > Related spec: [authentication.md](./authentication.md) — covers login/signup flows
 > Last updated: 2026-04-24
 
@@ -49,7 +49,7 @@ Some endpoints re-used from auth module (OTP request, password reset). New endpo
 
 ## Screens & Flows
 
-See prototype [account-access.html](../prototypes/flows/shared/account-access.html) for all screens. Summary below with key states + transitions.
+See prototype [account-access.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/account-access.html) for all screens. Summary below with key states + transitions.
 
 ### 1. Account Access Hub (`s-hub`)
 

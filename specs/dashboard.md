@@ -1,7 +1,7 @@
 # Dashboard (Coach)
 
 > Status: Draft
-> Prototype: [flows/coach/dashboard.html](../prototypes/flows/coach/dashboard.html)
+> Prototype: [flows/coach/dashboard.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/dashboard.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
 > Last updated: 2026-04-24
 > Implementation:
@@ -315,6 +315,6 @@ Fields nullable per state:
 - [coach-maturity-model.md](./coach-maturity-model.md) — new-coach vs established rules (dashboard uses; not owned here)
 - [payments.md](./payments.md) — Coach Earnings source of truth for weekEarnings fields
 - [event-statuses.md](./event-statuses.md) — 6-state event system used by `nextSession.status`
-- Prototype: [`flows/coach/dashboard.html`](../prototypes/flows/coach/dashboard.html)
+- Prototype: [`flows/coach/dashboard.html`](https://321-fit.github.io/project-spec/prototypes/flows/coach/dashboard.html)
 - Components: FitHeader, FitNavbar, FitIconBtn (bell), FitAvatar (next session), FitBadge (payment tag), FitButton (CTAs), FitSheet (event detail), FitSkeleton family (loading). All in [design-tokens/docs/components.md](../../design-tokens/docs/components.md).
 - Memory rules applied: navbar visibility, destructive tiers, sheet padding, spacing/typography scale with documented exceptions.

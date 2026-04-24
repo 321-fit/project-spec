@@ -1,7 +1,7 @@
 # Clients & Coaches
 
 > Status: Approved (contract) / In Progress (Archive/Block + CRM + Deleted migration)
-> Prototype: [flows/coach/clients.html](../prototypes/flows/coach/clients.html)
+> Prototype: [flows/coach/clients.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/clients.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
 > Last updated: 2026-04-24
 > Implementation:

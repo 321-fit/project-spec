@@ -1,7 +1,7 @@
 # Payments, Balance & Coach Earnings
 
 > Status: Approved (athlete balance — implemented) / Draft (coach earnings — rewrite)
-> Prototype: [flows/coach/balance.html](../prototypes/flows/coach/balance.html)
+> Prototype: [flows/coach/balance.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/balance.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
 > Last updated: 2026-04-24
 > Implementation:

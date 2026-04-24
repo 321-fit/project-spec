@@ -1,7 +1,7 @@
 # Event Status System & Push Notifications
 
 > Status: Approved (contract) / In Progress (implementation migration)
-> Prototype: [flows/coach/calendar.html](../prototypes/flows/coach/calendar.html) — all 6 states demo
+> Prototype: [flows/coach/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html) — all 6 states demo
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md) — FitCalEvent, FitCalEventPill
 > Last updated: 2026-04-24
 > Implementation:

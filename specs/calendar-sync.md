@@ -1,7 +1,7 @@
 # Calendar Sync
 
 > Status: Draft
-> Prototype: [settings.html](https://321-fit.github.io/project-spec/prototypes/flows/settings.html) ([source](../prototypes/flows/settings.html))
+> Prototype: [settings.html](https://321-fit.github.io/project-spec/prototypes/flows/settings.html) ([source](https://321-fit.github.io/project-spec/prototypes/flows/settings.html))
 > Last updated: 2026-04-13
 
 ## Overview

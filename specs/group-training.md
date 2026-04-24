@@ -1,7 +1,7 @@
 # Group Training
 
 > Status: Draft
-> Prototype: [group-training.html](../prototypes/flows/group-training.html)
+> Prototype: [group-training.html](https://321-fit.github.io/project-spec/prototypes/flows/group-training.html)
 > Last updated: 2026-04-10
 
 ## Overview

@@ -1,7 +1,7 @@
 # Review Queue
 
 > Status: Draft
-> Prototype: [flows/coach/dashboard.html](../prototypes/flows/coach/dashboard.html) (push-screen `#s-review-queue`)
+> Prototype: [flows/coach/dashboard.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/dashboard.html) (push-screen `#s-review-queue`)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
 > Last updated: 2026-04-24
 > Implementation:
@@ -217,5 +217,5 @@ Restores a recently resolved event back to `review` state. Valid within 30 secon
 - [event-statuses.md](./event-statuses.md) — 6-state event system (review is one of the 6)
 - [payments.md](./payments.md) — payout release on complete, missed-policy
 - [coach-calendar.md](./coach-calendar.md) — alternative path (coach can also mark complete from an event sheet in calendar; this queue is the batch-triage path)
-- Prototype screen: `#s-review-queue` within [`flows/coach/dashboard.html`](../prototypes/flows/coach/dashboard.html)
+- Prototype screen: `#s-review-queue` within [`flows/coach/dashboard.html`](https://321-fit.github.io/project-spec/prototypes/flows/coach/dashboard.html)
 - Components: FitButton (primary `Mark complete` + low-tier outlined destructive `Missed`), FitAvatar, FitBadge (Cash/Card), FitEmptyState, FitSkeleton family, FitSnackbar (with Undo), FitUI.openEventSheet. See [design-tokens/docs/components.md](../../design-tokens/docs/components.md).
