@@ -1758,7 +1758,12 @@
         <span style="font-size:16px;color:var(--fit-gray-200);">Account</span>
         <div class="set-card" style="cursor:pointer;" onclick="window.location.href='../shared/account-access.html'"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><div class="set-info"><div class="set-title">Account Access</div><div class="set-sub">Sign-in, password, delete</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;padding:0 4px;cursor:pointer;"><svg style="width:24px;height:24px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span style="font-size:18px;font-weight:500;">Log out</span></div>
+      <div onclick="doLogout()" style="display:flex;align-items:center;gap:8px;padding:0 4px;cursor:pointer;"><svg style="width:24px;height:24px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span style="font-size:18px;font-weight:500;">Log out</span></div>
+    </div>
+    <!-- Signed out toast (top) -->
+    <div class="fit-toast" id="logout-toast" style="border-left:3px solid var(--fit-teal-500);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>
+      <span style="font-size:14px;">Signed out</span>
     </div>
   </div>
   </div>
@@ -2759,7 +2764,10 @@
   <div class="ann" id="ann-s-loc-homevisit"><span class="ann-role coach">Coach</span><h3>Home Visit</h3><p>Settings for home visit training type.</p><ul><li><strong>Info banner:</strong> explains concept — coach travels to athlete</li><li><strong>Travel buffer:</strong> 15/30/45/60 min chips. Applied before AND after session</li><li><strong>Visual timeline:</strong> shows buffer + training + buffer = total blocked</li><li><strong>Service area:</strong> optional max distance (km). Athletes outside won't see home visit</li></ul><hr><p class="note"><strong>Backend:</strong> <code>location_type='home_visit'</code>, <code>travel_buffer_minutes</code>, <code>service_area_km</code> (optional). At booking: athlete's address + distance check against service area.</p></div>
   <div class="ann" id="ann-s-loc-online"><span class="ann-role coach">Coach</span><h3>Add Online Location</h3><p>Form for virtual meeting location.</p><ul><li><strong>Platform:</strong> Zoom / Google Meet / Teams / Custom link</li><li><strong>Meeting link:</strong> URL input</li><li><strong>Display name:</strong> optional</li><li><strong>Description:</strong> optional</li></ul><p><strong>Backend needed:</strong> <code>location_type</code> enum + <code>meeting_link</code> field. Make lat/lon optional.</p></div>
   <div class="ann" id="ann-s-settings"><span class="ann-role coach">Coach</span><h3>Settings</h3>
-    <p><strong>Coach:</strong> Profile, Coaching, Payments, Account.</p><ul><li>set-card: icon + title + sub + chevron</li><li>Calendar Sync, Training Sessions, Locations all accessible from here</li></ul></div>
+    <div style="display:inline-flex;gap:0;border-radius:6px;overflow:hidden;border:1px solid var(--fit-gray-700);margin-bottom:12px;">
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-teal-500);" onclick="doLogout()">Trigger Log out toast</button>
+    </div>
+    <p><strong>Coach:</strong> Profile, Coaching, Payments, Account.</p><ul><li>set-card: icon + title + sub + chevron</li><li>Calendar Sync, Training Sessions, Locations all accessible from here</li><li><strong>Log out:</strong> no confirmation — tap → toast "Signed out" → (in production: clears session, navigates to sign-in). Reversible action, no data loss, friction-free per HIG precedent (Apple Fitness, Strava).</li></ul></div>
   <div class="ann" id="ann-s-calsync"><span class="ann-role coach">Coach</span><h3>Calendar Sync</h3>
     <div style="display:inline-flex;gap:0;border-radius:6px;overflow:hidden;border:1px solid var(--fit-gray-700);margin-bottom:12px;">
       <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="toggleCalSync('connected',this)">Connected</button>
@@ -4048,6 +4056,14 @@ document.addEventListener('DOMContentLoaded', function() {
   pdCaptureSeed('sport');
   pdUpdateMultiFooter('sport');
 });
+
+// Log out — prototype: show toast. In production: clears session + navigates to sign-in.
+function doLogout() {
+  var t = document.getElementById('logout-toast');
+  if (!t) return;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
 </script>
 </body>
 </html>
