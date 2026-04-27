@@ -166,50 +166,35 @@ References to screen IDs are from `flows/coach/settings.html`.
 
 ## 6. API
 
+> **Backend mapping note.** Existing poly-backend endpoints `/api/v1.0.0/coach/training-sessions` already handle session templates (personal only). Phase 4 **extends** this resource with group-related fields (`isGroup`, `maxParticipants`, `minParticipants`, `recurringDays`, `recurringTime`, `isRecurring`, `oneOffDate`). New `scope` parameter on update operations governs how impactful changes ripple to existing events. No URL renames; iOS keeps using `coach/training-sessions`.
+
 ### Endpoints
 
-#### `GET /coach/sessions`
+#### `GET /coach/training-sessions`
 Returns the coach's session templates (both personal and group).
 **Auth:** JWT (coach role).
+**Response 200:** array of `TrainingSession` (see Models).
 
-**Response 200:**
-```json
-[
-  {
-    "id":            "uuid",
-    "name":          "HIIT Group Session",
-    "sportId":       "uuid",
-    "locationId":    "uuid",
-    "isGroup":       true,
-    "maxParticipants": 10,
-    "minParticipants": 3,
-    "durationMinutes": 60,
-    "price":         { "amount": 2500, "currency": "EUR" },
-    "paymentMethods": ["cash", "card"],
-    "isRecurring":   true,
-    "recurringDays": [1, 3],
-    "recurringTime": "18:00",
-    "oneOffDate":    null,
-    "createdAt":     ISO8601
-  }
-]
-```
-
-#### `POST /coach/sessions`
+#### `POST /coach/training-sessions`
 Creates a new session template. If `isRecurring && isGroup`, server auto-generates events for the next 2 months (per group-training.md).
 
-**Body:** same shape as response item (without `id`, `createdAt`).
-
+**Body:** `CreateTrainingSessionRequest` (extension of existing).
 **Response 201:** created template.
 **Response 422:** validation error with field-level details.
 
-#### `PATCH /coach/sessions/{id}`
-Updates a session template. **Requires `scope` parameter when impactful fields change.**
+#### `GET /coach/training-sessions/{id}`
+Returns a single template.
 
-**Body:**
+#### `PUT /coach/training-sessions/{id}`
+Full replace. **Requires `scope` parameter when impactful fields change.**
+
+#### `PATCH /coach/training-sessions/{id}`
+Partial update. **Requires `scope` parameter when impactful fields change.**
+
+**Body (extension of existing `PatchTrainingSessionRequest`):**
 ```json
 {
-  "fields": { "...": "partial template" },
+  "fields": { "trainingName": "...", "isRecurring": true /* etc */ },
   "scope":  "this" | "following" | "all"
 }
 ```
@@ -219,14 +204,14 @@ Updates a session template. **Requires `scope` parameter when impactful fields c
 - `following` = update template + future not-yet-generated occurrences
 - `all` = update template + all future already-generated events + notify affected participants
 
-**Impactful field list** (server-authoritative): `durationMinutes`, `recurringTime`, `recurringDays`, `oneOffDate`, `locationId`.
+**Impactful field list** (server-authoritative): `duration`, `recurringTime`, `recurringDays`, `oneOffDate`, `address`.
 
 **Response 200:** updated template + count of affected events + count of affected participants (so client can show in UI).
 
-#### `DELETE /coach/sessions/{id}`
+#### `DELETE /coach/training-sessions/{id}`
 Deletes a session template.
 
-**Body:**
+**Body (Phase 4 extension):**
 ```json
 { "cancelExistingEvents": true }
 ```
@@ -237,7 +222,36 @@ Deletes a session template.
 **Response 204:** deleted.
 **Response 200:** with summary `{ "cancelledEventCount": N, "refundedParticipantCount": M }` when `cancelExistingEvents: true`.
 
-### Models — see Section 6 of [group-training.md](./group-training.md) for `training_session` table schema (`is_group`, `max_participants`, `min_participants`, `recurring_days`, `recurring_time`, `is_recurring`).
+### Models
+
+#### `TrainingSession` (extended `TrainingSessionDetailResponse` from baseline)
+
+Existing fields (preserved):
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | integer | |
+| `trainingName` | string | required |
+| `sportTypes` | array of `SportTypeDetailResponse` | **multi-sport** per template (one template can serve multiple sports) |
+| `duration` | string | ISO-8601 duration or HH:MM:SS |
+| `price` | number? | nullable when `priceOnDemand: true` |
+| `priceOnDemand` | bool | "Contact for price" mode |
+| `paymentType` | string | `"cash"` or `"card"` — single value (multi-payment is V2) |
+| `priceCurrency` | string | ISO-4217 |
+| `address` | `Address` reference | sourced from [location-picker.md](./location-picker.md) |
+
+**New fields (Phase 4 extension):**
+
+| Field | Type | Notes |
+|---|---|---|
+| `isGroup` | bool | `false` (default) = personal; `true` = group |
+| `maxParticipants` | int? | required when `isGroup: true`; range 2-50 |
+| `minParticipants` | int? | optional, ≤ `maxParticipants` |
+| `isRecurring` | bool | meaningful for `isGroup: true` |
+| `recurringDays` | array of int? | 0=Mon, 6=Sun; required when `isGroup && isRecurring` |
+| `recurringTime` | string? | "HH:MM" 24h; required when `isGroup && isRecurring` |
+| `oneOffDate` | string? | ISO date; required when `isGroup && !isRecurring` |
+| `createdAt` | string | ISO-8601 UTC |
 
 ---
 
@@ -343,6 +357,7 @@ Deletes a session template.
 
 ## 10. Open questions
 
+- [ ] **Payment method — single vs multi.** Backend baseline accepts a single `paymentType` string per template; the prototype shows multi-select chips ("Cash" + "Card" simultaneously). Either constrain UI to a single choice (radio, not chips) or extend backend to accept an array. **Owner:** product. Reco: keep UI multi (better coach UX), backend extend `paymentType: string` → `paymentTypes: array<string>` in Phase 4 — additive, backward compatible by accepting single strings.
 - [ ] Draft persistence for unsaved form (kill app mid-create) — MVP says no, V2 candidate. **Owner:** product.
 - [ ] Server-side availability data for time picker — should it include external calendar busy intervals? Currently only own-app events. **Owner:** product + [calendar-sync](./calendar-sync.md).
 - [ ] Time picker expansion behavior — accordion (one open at a time) vs all expanded? Prototype uses accordion. **Confirmed.**

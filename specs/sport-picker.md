@@ -108,12 +108,56 @@ References to screen IDs are from `flows/coach/settings.html`.
 
 ## 6. API
 
+> **Backend mapping note.** Existing poly-backend endpoints `/api/v1.0.0/coach/sports` (and the athlete equivalent) handle the user's selected sports. Bulk assignment goes through `/api/v1.0.0/coach/sports/assign-sports`. Sport IDs are **integers** (autoincrement, stable). Canonical taxonomy listing (the 33-sport master list grouped by section) does **not** exist as a dedicated endpoint in the current baseline — see Open question. Backend currently allows `POST /coach/sports` with `isGlobal: false` for custom sports; in Phase 4 the **UI does not expose** custom-sport creation, but the endpoint is not removed (admin / future use).
+
 ### Endpoints
 
-#### `GET /sports`
-Returns the canonical taxonomy.
-**Auth:** JWT (any role).
-**Response 200:**
+#### `GET /coach/sports`
+Returns the coach's selected sports.
+**Auth:** JWT (coach role).
+**Response 200:** array of `SportTypeResponse`.
+
+(Athlete-side analogue: `/athlete/sports` — same shape.)
+
+#### `POST /coach/sports/assign-sports`
+Replaces the coach's selection (atomic). Accepts an integer ID list.
+**Body:**
+```json
+{ "specialities": [12, 8, 7] }
+```
+**Response 201:** array of `SportTypeResponse` reflecting the new selection.
+**Response 422:** validation (empty list, unknown sport id).
+
+(Athlete-side analogue: `/athlete/sports/assign-sports`.)
+
+#### `GET /coach/sports/{id}`, `PUT /coach/sports/{id}`, `DELETE /coach/sports/{id}`
+Individual CRUD on a coach-sport association. Phase 4 UI uses bulk `assign-sports` exclusively; these per-id endpoints are not exposed in this picker.
+
+#### `POST /coach/sports`
+Creates a new sport entry (with `isGlobal: false` for a custom sport). **Not exposed in Phase 4 UI** — closed-list discipline is enforced client-side. Endpoint left in place for admin / future use.
+
+#### Canonical taxonomy listing (TBD — see Open question)
+The picker needs the master list of 33 sports grouped by 8 sections to render. The current baseline does not expose this as a flat catalog. Two options:
+- **(a)** Add `GET /sports` returning the seeded master list, optionally grouped by section
+- **(b)** Hardcode the taxonomy in the design-tokens / shared client bundle (sport ID + section key + icon asset path), and rely on `GET /coach/sports` only for the user's selection
+- Backend architect to decide during `/architect impl-doc sport-picker` based on localization plans (option (a) easier to localize).
+
+### Models
+
+#### `SportTypeResponse` (existing)
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | integer | autoincrement; stable across renames |
+| `name` | string | display name |
+| `isGlobal` | bool | `true` = canonical seeded sport; `false` = custom (UI does not create) |
+| `iconPng` | string? | optional asset path |
+| `iconSvg` | string? | optional asset path |
+
+#### Future / extended (option a above)
+
+If a `GET /sports` taxonomy endpoint lands:
+
 ```json
 {
   "sections": [
@@ -121,41 +165,14 @@ Returns the canonical taxonomy.
       "key":   "fitness_strength",
       "name":  "Fitness & Strength",
       "sports": [
-        { "id": "fitness",  "name": "Fitness (gym)", "iconKey": "fitness" },
-        { "id": "crossfit", "name": "CrossFit",      "iconKey": "crossfit" }
+        { "id": 1, "name": "Fitness (gym)", "isGlobal": true, "iconKey": "fitness" }
       ]
     }
   ]
 }
 ```
 
-#### `GET /me/sports`
-Returns the current user's selected sport IDs.
-**Auth:** JWT.
-**Response 200:** `{ "sportIds": ["basketball", "padel", "tennis"] }`
-
-#### `PUT /me/sports`
-Replaces the current user's selection (atomic).
-**Body:** `{ "sportIds": ["basketball", "padel"] }`
-**Validation:** `sportIds` non-empty, each ID present in canonical taxonomy.
-**Response 200:** `{ "sportIds": ["basketball", "padel"] }`
-**Response 422:** validation error (empty array, unknown ID).
-
-### Models
-
-#### `SportSection`
-| Field | Type | Notes |
-|---|---|---|
-| `key` | string | Stable section key (`fitness_strength`, `racket`, etc.) |
-| `name` | string | Display name (localized in future versions) |
-| `sports` | `Sport[]` | Sports in section, ordered |
-
-#### `Sport`
-| Field | Type | Notes |
-|---|---|---|
-| `id` | string | **Stable** sport ID (e.g. `basketball`); never changes after seed |
-| `name` | string | Display name (localized) |
-| `iconKey` | string | Lookup into icon asset bundle |
+A `sectionKey` field on `SportTypeResponse` is the minimum required to group sports client-side without a dedicated taxonomy endpoint.
 
 ---
 
@@ -232,6 +249,8 @@ Replaces the current user's selection (atomic).
 
 ## 10. Open questions
 
+- [ ] **Canonical taxonomy delivery.** Baseline has no flat `GET /sports` catalog. Decide: add the endpoint (server-side, easier to localize) OR ship the 33-sport master list in design-tokens (client-side, no extra backend work). **Owner:** backend architect during `/architect impl-doc sport-picker`. Reco: server-side endpoint, since localization is on the roadmap.
+- [ ] **Custom-sport endpoint** (`POST /coach/sports` with `isGlobal: false`) exists in baseline but is not exposed in Phase 4 UI. Confirm: leave endpoint in place for admin use, or deprecate it explicitly? **Owner:** backend architect.
 - [ ] Localization of sport display names — V1 ships English-only? **Owner:** product. Reco: English V1, localize in Phase 2 alongside other strings.
 - [ ] Maximum cap on selected sports — leave unbounded or cap at e.g. 10? **Owner:** product. Reco: unbounded; if a coach picks all 33, that's their problem (search will rank them low for irrelevant matches).
 - [ ] Phase 2 sports list — confirm Surfing / Kitesurfing / SUP / Sailing / Equestrian as the geo-expansion batch. **Owner:** product.

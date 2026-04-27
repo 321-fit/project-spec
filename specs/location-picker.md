@@ -136,94 +136,71 @@ References to screen IDs are from `flows/coach/settings.html`.
 
 ## 6. API
 
+> **Backend mapping note.** Existing poly-backend endpoint `/api/v1.0.0/coach/addresses` already handles in-person locations. Phase 4 **extends** this resource with a `type` discriminator (`"in_person"` / `"online"` / `"home_visit"`) and new optional fields per type, rather than introducing parallel endpoints. Existing rows are backfilled with `type: "in_person"`. No URL renames; iOS keeps using `coach/addresses`.
+
 ### Endpoints
 
-#### `GET /coach/locations`
-Returns the coach's locations grouped by type.
+#### `GET /coach/addresses`
+Returns the coach's addresses (all types).
 **Auth:** JWT (coach role).
 
-**Response 200:**
-```json
-{
-  "inPerson": [
-    {
-      "id":                 "uuid",
-      "name":               "TNT Studio",
-      "address":            { "fullText": "...", "lat": 56.95, "lng": 24.10, "placeId": "..." },
-      "isDefault":          true,
-      "templateUsageCount": 3
-    }
-  ],
-  "online": [
-    {
-      "id":                 "uuid",
-      "provider":           "zoom" | "meet" | "custom",
-      "name":               "My Zoom Room",
-      "url":                "https://...",
-      "templateUsageCount": 2
-    }
-  ],
-  "homeVisit": {
-    "id":                   "uuid",
-    "travelBufferMinutes":  30,
-    "templateUsageCount":   1
-  } | null
-}
-```
+**Response 200:** array of `Address` (see Models).
 
-#### `POST /coach/locations/in-person`
-**Body:** `{ "name", "address": { "fullText", "lat", "lng", "placeId" }, "isDefault" }`
-**Response 201:** created entry. If `isDefault: true` → server atomically clears `isDefault` on previous default.
+#### `POST /coach/addresses`
+Creates a new address of any type. Server discriminates by `type`.
+**Body:** `Address` (without `id`, `createdAt`, `updatedAt`).
+**Response 201:** created entry. If `isDefault: true` and `type: "in_person"` → server atomically clears `isDefault` on previous default in-person.
 
-#### `PATCH /coach/locations/in-person/{id}`
-Updates `name` and/or `isDefault`. **Address is immutable.**
+#### `GET /coach/addresses/{id}`
+Returns a single address.
 
-#### `POST /coach/locations/online`
-**Body:** `{ "provider", "url", "name" }`
-**Response 201:** created entry. URL must be HTTPS; for `zoom`/`meet`, server validates known domain.
+#### `PUT /coach/addresses/{id}`
+Full replace.
 
-#### `PATCH /coach/locations/online/{id}`
-Updates provider, url, name.
+#### `PATCH /coach/addresses/{id}`
+Partial update. For `type: "in_person"` — `lat`/`lon`/`addressLine` immutable post-create (re-add to change). For `type: "online"` — `provider`/`url` editable. For `type: "home_visit"` — `travelBufferMinutes` editable.
 
-#### `PUT /coach/locations/home-visit`
-Idempotent upsert (one per coach).
-**Body:** `{ "travelBufferMinutes": 30 }`
-
-#### `DELETE /coach/locations/{type}/{id}`
+#### `DELETE /coach/addresses/{id}`
 **Response 204:** deleted.
 **Response 409 — `TEMPLATE_DEPENDENCY`:**
 ```json
 { "error": "TEMPLATE_DEPENDENCY",
-  "templates": [{ "id": "uuid", "name": "HIIT Group Session" }] }
+  "templates": [{ "id": 42, "name": "HIIT Group Session" }] }
 ```
 Client surfaces this in the warning sheet; delete blocked until templates reassigned.
 
 ### Models
 
-#### `LocationInPerson`
+#### `Address` (extended `AddressResponse` from baseline)
+
+Existing fields (preserved from current poly-backend `AddressResponse`):
+
 | Field | Type | Notes |
 |---|---|---|
-| `id` | UUID | |
-| `name` | string | |
-| `address` | object | `{ fullText, lat, lng, placeId }`; placeId from Google Places |
-| `isDefault` | bool | exactly one in-person can be true |
+| `id` | integer | |
+| `lat` | number | nullable when `type ≠ "in_person"` |
+| `lon` | number | nullable when `type ≠ "in_person"` |
+| `addressLine` | string | nullable when `type ≠ "in_person"` |
+| `locationName` | string | display name, all types ("TNT Studio", "My Zoom Room", "Home Visit") |
+| `isDefault` | bool | meaningful for `type: "in_person"` only |
+| `city` | string? | optional |
+| `countryCode` | string? | optional |
+| `description` | string? | optional |
+
+**New fields (Phase 4 extension):**
+
+| Field | Type | Notes |
+|---|---|---|
+| `type` | enum | `"in_person"` / `"online"` / `"home_visit"`. Backfill defaults existing rows to `"in_person"`. |
+| `provider` | enum? | `"zoom"` / `"meet"` / `"custom"` — only for `type: "online"` |
+| `url` | string? | HTTPS only; provider-domain validated for `zoom`/`meet`. Only for `type: "online"` |
+| `travelBufferMinutes` | int? | Only for `type: "home_visit"`. Applied before AND after each home-visit session |
 | `templateUsageCount` | int | derived; for delete warning |
 
-#### `LocationOnline`
-| Field | Type | Notes |
-|---|---|---|
-| `id` | UUID | |
-| `provider` | enum | `zoom` / `meet` / `custom` |
-| `name` | string | |
-| `url` | string | HTTPS only; provider-domain validated for known providers |
-| `templateUsageCount` | int | derived |
-
-#### `LocationHomeVisit`
-| Field | Type | Notes |
-|---|---|---|
-| `id` | UUID | one per coach |
-| `travelBufferMinutes` | int | applied before AND after each home visit session |
-| `templateUsageCount` | int | derived |
+**Discriminator behavior:**
+- `type: "in_person"` — `lat`, `lon`, `addressLine` required; `provider`/`url`/`travelBufferMinutes` ignored
+- `type: "online"` — `provider`, `url` required; `lat`/`lon`/`addressLine` null
+- `type: "home_visit"` — `travelBufferMinutes` required; `lat`/`lon`/`addressLine` null. **Singleton per coach** — only one home-visit address allowed (server enforces 409 on attempted second).
 
 ---
 
