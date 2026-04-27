@@ -1,0 +1,673 @@
+openapi: 3.1.0
+info:
+  title: Dashboard API
+  description: |
+    Contract fragment for the coach dashboard.
+    Source: project-spec/specs/dashboard.md
+    Backend impl-doc: poly-backend/docs/dashboard-backend.md
+
+    Scope: coach dashboard only. Athlete dashboard ships in a separate fragment.
+  version: 1.0.0
+
+servers:
+  - url: https://api.321fit.example/api/v1.0.0
+    description: Production
+  - url: http://localhost:8000/api/v1.0.0
+    description: Local dev
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: dashboard
+    description: Coach Home tab — composed snapshot + dismissal endpoints.
+
+paths:
+  /coach/dashboard:
+    get:
+      tags: [dashboard]
+      summary: Get coach dashboard snapshot
+      description: |
+        Returns the full `CoachDashboardSnapshot` for the authenticated coach.
+        Extends the existing baseline endpoint per `feedback_keep_existing_endpoints`;
+        new fields are additive — composition is now driven by `state`,
+        `isBookable`, `pendingActions`, `weekEarnings`, `signals`, `tier2Tip`.
+
+        See [project-spec/specs/dashboard.md](../specs/dashboard.md#6-api).
+
+        Snapshot is cached server-side for up to 5 minutes; clients should
+        not poll faster than the spec's stale threshold.
+      operationId: getCoachDashboard
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Snapshot composed for the coach.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoachDashboardSnapshot"
+        "401":
+          description: Missing or expired JWT.
+          content:
+            application/json:
+              schema:
+                $ref: "_baseline.openapi.yaml#/components/schemas/Error"
+        "500":
+          description: Server error — clients should fall back to cached snapshot.
+          content:
+            application/json:
+              schema:
+                $ref: "_baseline.openapi.yaml#/components/schemas/Error"
+
+  /coach/dashboard/boosts/{boostKey}/dismiss:
+    post:
+      tags: [dashboard]
+      summary: Dismiss an under-review optional boost
+      description: |
+        Marks an Optional Boost (under-review state) as dismissed. The boost
+        disappears from `optionalBoosts` once `done: true` (completed) — this
+        endpoint records an explicit user dismissal and does not toggle `done`.
+
+        Idempotent — re-dismissing increments the server-side counter but
+        produces no user-visible change beyond the returned snapshot.
+      operationId: dismissDashboardBoost
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: boostKey
+          required: true
+          schema:
+            $ref: "#/components/schemas/OptionalBoostKey"
+      responses:
+        "200":
+          description: Updated snapshot with the boost recorded as dismissed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoachDashboardSnapshot"
+        "400":
+          description: Unknown boost key.
+          content:
+            application/json:
+              schema:
+                $ref: "_baseline.openapi.yaml#/components/schemas/ValidationError"
+        "401":
+          description: Missing or expired JWT.
+          content:
+            application/json:
+              schema:
+                $ref: "_baseline.openapi.yaml#/components/schemas/Error"
+        "404":
+          description: Coach profile not found for this user.
+          content:
+            application/json:
+              schema:
+                $ref: "_baseline.openapi.yaml#/components/schemas/Error"
+
+  /coach/dashboard/tips/{tipKey}/dismiss:
+    post:
+      tags: [dashboard]
+      summary: Dismiss a Tier 2 tip
+      description: |
+        Records a dismissal for a Tier 2 tip. Per spec section 7, after the
+        third dismiss of the same key the tip is suppressed forever for this
+        coach. Counter is server-side and persists across devices.
+      operationId: dismissDashboardTip
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: tipKey
+          required: true
+          schema:
+            $ref: "#/components/schemas/Tier2TipKey"
+      responses:
+        "200":
+          description: Updated snapshot with the tip recorded as dismissed (and possibly suppressed).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoachDashboardSnapshot"
+        "400":
+          description: Unknown tip key.
+          content:
+            application/json:
+              schema:
+                $ref: "_baseline.openapi.yaml#/components/schemas/ValidationError"
+        "401":
+          description: Missing or expired JWT.
+          content:
+            application/json:
+              schema:
+                $ref: "_baseline.openapi.yaml#/components/schemas/Error"
+        "404":
+          description: Coach profile not found for this user.
+          content:
+            application/json:
+              schema:
+                $ref: "_baseline.openapi.yaml#/components/schemas/Error"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # ----- Top-level snapshot -----
+
+    CoachDashboardSnapshot:
+      type: object
+      description: Full dashboard snapshot for an authenticated coach.
+      required:
+        - state
+        - isBookable
+        - bookabilityIssues
+        - greeting
+        - optionalBoosts
+        - pendingActions
+        - signals
+        - snapshotTakenAt
+      properties:
+        state:
+          $ref: "#/components/schemas/CoachDashboardState"
+        isBookable:
+          type: boolean
+          description: |
+            Derived flag. Defaults to `false` until profile is approved and
+            all bookability requirements are met. When `false`, clients render
+            a non-dismissable warning card listing `bookabilityIssues`.
+        bookabilityIssues:
+          type: array
+          description: Empty when `isBookable` is `true`. Populated only for approved states with derived issues.
+          items:
+            $ref: "#/components/schemas/BookabilityIssue"
+        rejectionInfo:
+          oneOf:
+            - $ref: "#/components/schemas/RejectionInfo"
+            - type: "null"
+          description: Only populated when `state == "rejected"`.
+        greeting:
+          $ref: "#/components/schemas/Greeting"
+        wizard:
+          oneOf:
+            - $ref: "#/components/schemas/Wizard"
+            - type: "null"
+          description: Only populated when `state == "new"`.
+        approvalStatus:
+          oneOf:
+            - $ref: "#/components/schemas/ApprovalStatus"
+            - type: "null"
+          description: Only populated when `state == "under_review"`.
+        optionalBoosts:
+          type: array
+          description: |
+            Cards shown under the under-review banner. Only meaningful when
+            `state == "under_review"`; in other states the array is empty.
+          items:
+            $ref: "#/components/schemas/OptionalBoost"
+        nextSession:
+          oneOf:
+            - $ref: "#/components/schemas/EventModel"
+            - type: "null"
+          description: |
+            Null for `new`, `under_review`, `rejected`, `ready`, `idle`.
+            For `quiet`, refers to tomorrow-or-later. For `default` / `zero`,
+            refers to today's next event.
+        pendingActions:
+          $ref: "#/components/schemas/PendingActions"
+        weekEarnings:
+          oneOf:
+            - $ref: "#/components/schemas/WeekEarnings"
+            - type: "null"
+          description: Null for `new`, `under_review`, `rejected`, `ready`.
+        signals:
+          type: array
+          description: Up to N most recent signals, may be empty.
+          items:
+            $ref: "#/components/schemas/Signal"
+        tier2Tip:
+          oneOf:
+            - $ref: "#/components/schemas/Tier2Tip"
+            - type: "null"
+          description: Null when no applicable tip exists or the tip has been dismissed 3+ times.
+        snapshotTakenAt:
+          type: string
+          format: date-time
+          description: ISO-8601 UTC, used for the "Stale • X min ago" indicator client-side.
+          example: "2026-04-27T10:00:00Z"
+
+    # ----- Enums -----
+
+    CoachDashboardState:
+      type: string
+      description: Coarse classification of the dashboard's current presentation. Drives which sections render client-side.
+      enum:
+        - new
+        - under_review
+        - rejected
+        - ready
+        - idle
+        - quiet
+        - default
+        - zero
+
+    BookabilityIssueKey:
+      type: string
+      description: Closed set of issues that prevent the coach from being bookable / surfaced in search.
+      enum:
+        - no_sports
+        - no_sessions
+        - no_hours
+        - stripe_required
+
+    OptionalBoostKey:
+      type: string
+      description: Closed set of optional-boost cards shown during under-review.
+      enum:
+        - stripe
+        - hours
+        - video
+
+    Tier2TipKey:
+      type: string
+      description: Closed set of Tier 2 tip keys; new keys are additive over time.
+      enum:
+        - stripe
+        - hours
+        - video
+        - bio
+
+    SignalType:
+      type: string
+      description: Discriminator for the `Signal` polymorphic union.
+      enum:
+        - new_review
+        - new_clients
+
+    EventStatus:
+      type: string
+      description: |
+        Event status as defined in [event-statuses.md](../specs/event-statuses.md).
+        Mirrors the 6-state system; see that spec for transitions.
+      enum:
+        - planned
+        - request
+        - awaiting
+        - review
+        - missed
+        - finished
+
+    PaymentType:
+      type: string
+      enum:
+        - card
+        - cash
+        - both
+
+    TimeOfDay:
+      type: string
+      enum:
+        - morning
+        - afternoon
+        - evening
+
+    # ----- Money -----
+
+    Money:
+      type: object
+      description: Amount in minor units (cents) plus ISO-4217 currency code.
+      required: [amount, currency]
+      properties:
+        amount:
+          type: integer
+          description: Minor units; `2500` = €25.00.
+          example: 2500
+        currency:
+          type: string
+          description: ISO-4217 currency code.
+          example: EUR
+
+    # ----- Sub-models -----
+
+    BookabilityIssue:
+      type: object
+      required: [key, title, deeplink]
+      properties:
+        key:
+          $ref: "#/components/schemas/BookabilityIssueKey"
+        title:
+          type: string
+          description: Short human-readable label for the issue row.
+          example: Add at least one sport
+        deeplink:
+          type: string
+          description: In-app deep link to the relevant setting screen.
+          example: /settings/sports
+
+    RejectionInfo:
+      type: object
+      required: [rejectedAt, supportDeeplink]
+      properties:
+        rejectedAt:
+          type: string
+          format: date-time
+          description: ISO-8601 UTC timestamp of admin rejection.
+        supportDeeplink:
+          type: string
+          description: Deep-link into Contact Support with rejection context pre-filled.
+          example: /support?reason=profile_rejected
+
+    Greeting:
+      type: object
+      required: [timeOfDay, firstName]
+      properties:
+        timeOfDay:
+          $ref: "#/components/schemas/TimeOfDay"
+        firstName:
+          type: string
+          description: Coach's first name; falls back to empty string if unset.
+          example: Robert
+        todaySummary:
+          oneOf:
+            - $ref: "#/components/schemas/TodaySummary"
+            - type: "null"
+          description: Null when there are no events today.
+
+    TodaySummary:
+      type: object
+      required: [sessionCount, totalValue]
+      properties:
+        sessionCount:
+          type: integer
+          minimum: 0
+          example: 3
+        totalValue:
+          $ref: "#/components/schemas/Money"
+
+    WizardStep:
+      type: object
+      required: [key, title, done]
+      properties:
+        key:
+          type: string
+          description: Stable wizard step identifier (e.g. `phone`, `sports`, `session`, `hours`).
+          example: phone
+        title:
+          type: string
+          example: Add phone number
+        done:
+          type: boolean
+
+    Wizard:
+      type: object
+      required: [required, totalSteps, completedSteps, steps]
+      properties:
+        required:
+          type: boolean
+          description: Always `true` for the coach onboarding wizard; reserved for future variants.
+        totalSteps:
+          type: integer
+          minimum: 1
+          example: 6
+        completedSteps:
+          type: integer
+          minimum: 0
+          example: 1
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/WizardStep"
+
+    ApprovalStatus:
+      type: object
+      required: [underReview, submittedAt, estimatedHours]
+      properties:
+        underReview:
+          type: boolean
+          description: Always `true` while the snapshot's `state == "under_review"`.
+        submittedAt:
+          type: string
+          format: date-time
+          description: ISO-8601 UTC timestamp at which the wizard finalised and admin review started.
+        estimatedHours:
+          type: integer
+          minimum: 0
+          description: SLA copy hint shown in the banner (e.g. `24`).
+          example: 24
+
+    OptionalBoost:
+      type: object
+      required: [key, title, action, done]
+      properties:
+        key:
+          $ref: "#/components/schemas/OptionalBoostKey"
+        title:
+          type: string
+          example: Accept card payments
+        action:
+          type: string
+          description: CTA label rendered on the card.
+          example: Connect Stripe
+        done:
+          type: boolean
+          description: When `true`, the boost is removed from the list on the next snapshot.
+
+    EventModel:
+      type: object
+      description: |
+        Subset of the canonical event model used as `nextSession`.
+        Mirrors the existing `TrainingEventResponse` baseline schema but
+        camelCase and trimmed to the dashboard surface.
+      required:
+        - id
+        - status
+        - datetimeStart
+        - datetimeEnd
+        - paymentType
+      properties:
+        id:
+          type: integer
+          description: Internal numeric ID used by `FitUI.openEventSheet({ event })`.
+        status:
+          $ref: "#/components/schemas/EventStatus"
+        name:
+          type: string
+          description: Display name (training session name or coach-set override).
+        datetimeStart:
+          type: string
+          format: date-time
+          description: ISO-8601 UTC.
+        datetimeEnd:
+          type: string
+          format: date-time
+        paymentType:
+          $ref: "#/components/schemas/PaymentType"
+        price:
+          oneOf:
+            - $ref: "#/components/schemas/Money"
+            - type: "null"
+          description: Null when the session is `priceOnDemand`.
+        athlete:
+          oneOf:
+            - $ref: "#/components/schemas/PersonRef"
+            - type: "null"
+        coach:
+          oneOf:
+            - $ref: "#/components/schemas/PersonRef"
+            - type: "null"
+        location:
+          type: string
+          description: Optional human-readable location label.
+
+    PersonRef:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        avatar:
+          type: string
+          description: Avatar URL if available.
+
+    PendingActions:
+      type: object
+      description: |
+        Each sub-field is null when its count is 0 — dashboard never shows
+        "0 pending requests".
+      properties:
+        requests:
+          oneOf:
+            - $ref: "#/components/schemas/RequestsAction"
+            - type: "null"
+        cashToCollect:
+          oneOf:
+            - $ref: "#/components/schemas/CashToCollectAction"
+            - type: "null"
+        sessionsToReview:
+          oneOf:
+            - $ref: "#/components/schemas/SessionsToReviewAction"
+            - type: "null"
+
+    RequestsAction:
+      type: object
+      required: [count]
+      properties:
+        count:
+          type: integer
+          minimum: 1
+        oldestAtHours:
+          type: integer
+          minimum: 0
+          description: Age of the oldest pending request, in whole hours.
+          example: 26
+
+    CashToCollectAction:
+      type: object
+      required: [count, total]
+      properties:
+        count:
+          type: integer
+          minimum: 1
+        total:
+          $ref: "#/components/schemas/Money"
+
+    SessionsToReviewAction:
+      type: object
+      required: [count]
+      properties:
+        count:
+          type: integer
+          minimum: 1
+        oldestAgeDays:
+          type: integer
+          minimum: 0
+          description: Age of the oldest unreviewed session, in whole days.
+          example: 2
+
+    WeekEarnings:
+      type: object
+      description: |
+        Aggregates over the coach's local Monday 00:00 → Sunday 23:59 window.
+        See spec section 7 for trend / week boundary rules.
+      required:
+        - earned
+        - plannedAdditional
+        - bookedCount
+        - cardTotal
+        - cashTotal
+        - cashClientCount
+        - trendVsLastWeek
+        - weekStartsAt
+      properties:
+        earned:
+          $ref: "#/components/schemas/Money"
+        plannedAdditional:
+          $ref: "#/components/schemas/Money"
+        bookedCount:
+          type: integer
+          minimum: 0
+          description: Count of upcoming planned sessions in the current week.
+        cardTotal:
+          $ref: "#/components/schemas/Money"
+        cashTotal:
+          $ref: "#/components/schemas/Money"
+        cashClientCount:
+          type: integer
+          minimum: 0
+          description: Distinct cash-paying athletes this week.
+        trendVsLastWeek:
+          $ref: "#/components/schemas/Money"
+        weekStartsAt:
+          type: string
+          format: date-time
+          description: ISO-8601 UTC instant corresponding to coach-local Monday 00:00.
+
+    Signal:
+      oneOf:
+        - $ref: "#/components/schemas/NewReviewSignal"
+        - $ref: "#/components/schemas/NewClientsSignal"
+      discriminator:
+        propertyName: type
+        mapping:
+          new_review: "#/components/schemas/NewReviewSignal"
+          new_clients: "#/components/schemas/NewClientsSignal"
+
+    NewReviewSignal:
+      type: object
+      required: [type, rating, excerpt, athleteName]
+      properties:
+        type:
+          type: string
+          enum: [new_review]
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        excerpt:
+          type: string
+          description: Short truncated review body, suitable for a single-line dashboard row.
+        athleteName:
+          type: string
+          description: Display name of the reviewing athlete; for deleted athletes, server returns "a former client".
+
+    NewClientsSignal:
+      type: object
+      required: [type, count, names]
+      properties:
+        type:
+          type: string
+          enum: [new_clients]
+        count:
+          type: integer
+          minimum: 1
+        names:
+          type: array
+          items:
+            type: string
+          description: Up to a few display names; may be truncated server-side.
+
+    Tier2Tip:
+      type: object
+      required: [key, title, cta, targetDeeplink]
+      properties:
+        key:
+          $ref: "#/components/schemas/Tier2TipKey"
+        title:
+          type: string
+          example: Boost profile conversion 2×
+        cta:
+          type: string
+          description: Button label shown on the tip card.
+          example: Add video
+        targetDeeplink:
+          type: string
+          description: In-app deep link the tip's CTA navigates to.
+          example: /settings/profile/video

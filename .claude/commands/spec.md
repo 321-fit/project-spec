@@ -13,7 +13,7 @@ Argument: `$ARGUMENTS` — the spec file name without extension (e.g. `dashboard
 ## Pre-flight inputs (read in parallel via the Agent tool)
 
 **Required:**
-- `project-spec/specs/<spec-name>.md` — the spec being broken down (source of truth)
+- `project-spec/specs/<spec-name>.md` — the spec being broken down (source of truth). **Pay special attention to the bottom-of-file "Related specs / references" section** — every link in it must be propagated into each generated issue's "Related specs" block, so dev agents do not miss cross-spec dependencies (e.g. dashboard depends on onboarding-wizard step semantics, review-queue data source, event-statuses enum)
 - `project-spec/SPEC_TEMPLATE.md` — confirms section semantics
 - `project-spec/CLAUDE.md` — repo and Project #2 conventions
 - `project-spec/contracts/_baseline.openapi.yaml` — backend baseline (for backend issues that touch endpoints)
@@ -96,6 +96,9 @@ Every issue body must be **self-contained** so a developer (human or AI agent) c
 - Prototype: [<flow file>#<screen-id>](https://321-fit.github.io/project-spec/prototypes/flows/<...>.html#<screen-id>)
 - Contract (if backend): `project-spec/contracts/<spec-name>.openapi.yaml` — fragment to create / extend
 - Impl-doc target: `<repo>/docs/<spec-name>-<platform>.md` (to be created by /architect impl-doc)
+
+## Related specs (read these too — implementation depends on them)
+<populate from the spec's bottom "Related specs / references" section. For each entry, copy the link AND add a one-line note saying *why* this spec matters for the current issue — e.g. "defines the 6 wizard steps and their semantics" or "defines sessionsToReview data source (uses training_event filtered by status='review')". Do NOT skip this — the dry run on dashboard.md proved that without it, /architect agents fabricate questions that are already answered in sibling specs.>
 
 ## Summary
 <2-3 sentences: what this issue delivers from the spec, scoped to this platform>
