@@ -375,4 +375,6 @@ Existing fields (preserved):
 - Prototype: [flows/coach/settings.html#s-create](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html#s-create)
 - Prototype: [flows/coach/settings.html#s-edit](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html#s-edit)
 - Memory: `project_create_session_rules` (defaults, validation, side-effects), `project_group_training_decisions` (group-specific behavior)
-- Components: `FitInputGroup`, `FitInputChevron`, `FitSelectionGroup`/`FitSelectionChip` (Personal/Group, Recurring/One-off), `FitDayPicker` (M-S circles), `FitWheelPicker` (duration), `FitTimePickerSheet`, `FitDatePickerSheet`, `FitButton`, `FitToggle`. All in `design-tokens/docs/components.md`.
+- Components: `FitInput` (with chevron variant for picker rows), `FitSelectionGroup` (single mode for Personal/Group + Recurring/One-off; multi mode for payment Cash/Card), `FitButton`, `FitToggle`. All in `design-tokens/docs/components.md`.
+- Native pickers (per `feedback_native_pickers`): wheel duration picker = SwiftUI `Picker(.wheel)` / Android `wheeltimepicker` Gradle module; time picker bottom sheet = custom layout in SwiftUI `.sheet` / Compose `ModalBottomSheet`; date picker = SwiftUI `DatePicker` / Material 3 `DatePicker`.
+- Inline implementation (single use, not extracted): M-S weekday circles for recurring schedule — 7 circular toggles in a Row, no design-tokens component. If reused later, extract as `FitDayPicker`.

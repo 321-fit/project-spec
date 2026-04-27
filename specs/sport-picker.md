@@ -266,4 +266,5 @@ A `sectionKey` field on `SportTypeResponse` is the minimum required to group spo
 - Prototype: [flows/coach/settings.html#s-sport-types](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html#s-sport-types)
 - Memory: `project_sport_taxonomy` (canonical 33-sport list, sections, deferred Phase 2 sports, icon strategy)
 - Memory: `feedback_selection_chips` (rule: no hardcoded checkmark SVGs; CSS-driven `.selected` class only)
-- Components: `FitInputSearch`, `FitSportCard` (`.sp-card` with `.selected` state), `FitSheet` (discard confirm), `FitButton` (sticky Save). All in `design-tokens/docs/components.md`.
+- Components: `FitInput` (search variant — sticky), `FitSheet` (discard confirm), `FitButton` (sticky Save). All in `design-tokens/docs/components.md`.
+- Inline implementation (single use): sport card with icon + label + `.selected` state — 2-column grid item with `surfaceHigh` bg / `selectionGradient` bg on selected, no design-tokens component. If reused later, extract as `FitSportCard`.

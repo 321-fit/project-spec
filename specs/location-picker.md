@@ -263,4 +263,5 @@ Existing fields (preserved from current poly-backend `AddressResponse`):
 - [notifications.md](./notifications.md) — online URL push delivery (TBD when notifications fully specced)
 - Prototype: [flows/coach/settings.html#s-locations](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html#s-locations)
 - Memory: `project_locations_decisions` (decisions source), `project_create_session_rules` (Location default rule)
-- Components: `FitInputGroup`, `FitInputChevron`, `FitIconBtn`, `FitSheet` (delete confirm), `FitButton`, `FitToggle` (default), `FitRadio` (online provider). All in `design-tokens/docs/components.md`.
+- Components: `FitInput` (with chevron variant for picker rows), `FitIconBtn`, `FitSheet` (delete confirm), `FitButton`, `FitToggle` (default flag), `FitSelectionGroup` (single mode for online provider Zoom/Meet/Custom). All in `design-tokens/docs/components.md`.
+- Native (per `feedback_native_pickers`): map place picker = `MapKit` + Google Places SDK (iOS) / Maps Compose + Google Places API (Android); current-location button uses OS geolocation prompt.
