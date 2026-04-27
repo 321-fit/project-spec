@@ -1,0 +1,250 @@
+# Sport Picker (Coach & Athlete)
+
+> Status: Draft
+> Prototype: [flows/coach/settings.html#s-sport-types](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html#s-sport-types)
+> Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
+> Last updated: 2026-04-27
+> Implementation:
+> - iOS:     [321fit_ios/docs/sport-picker-ios.md] (to be created)
+> - Backend: [poly-backend/docs/sport-picker-backend.md] (to be created)
+> - Voice:   not applicable
+> - Android: [321fit_android/docs/sport-picker-android.md] (when available)
+
+**Scope note:** this spec covers the **shared sport selection component** used by both coach (sports I teach) and athlete (sports I practice). The taxonomy itself (closed list of 33 sports across 8 sections) is canonical — same data on every screen that touches sports.
+
+---
+
+## 1. Overview
+
+321Fit uses a **closed list** of sports — coaches and athletes pick from a fixed taxonomy on onboarding and from profile settings. Sport ID is the join key for discovery, search, filter, suggestion feeds, and coach-athlete matching. Free-text sports are **not allowed**, by design — they would break every discovery surface (typos, synonyms, long-tail ID explosion).
+
+V1 ships **33 sports across 8 sections** (Fitness & Strength, Racket, Team & court, Combat, Endurance, Mind & body, Recovery & therapy, Other). Adding a sport = product decision + backend seed + icon — never a runtime user action.
+
+The sport picker is a **multi-select push screen** with sticky search, sectioned grid layout, and a sticky save footer.
+
+---
+
+## 2. User Stories
+
+### Coach
+- As a coach, I want to pick the sports I teach so that athletes can find me by sport.
+- As a coach offering several disciplines, I want to multi-select so that I'm represented in all relevant search results.
+- As a coach searching for a specific sport in a long list, I want a search bar that filters live so that I find it without scrolling 33 entries.
+
+### Athlete
+- As an athlete, I want to pick the sports I practice so that the platform recommends relevant coaches and group trainings.
+- As an athlete who tries multiple sports, I want to multi-select so that all my interests are represented.
+
+---
+
+## 3. System Stories
+
+- As any client, the picker must render the canonical taxonomy from the server — never a client-side hardcoded list — so that adding a sport server-side propagates without an app update.
+- As the backend, sport IDs must be **stable** across renames — display name can change in seeds, ID never. All FKs (`session.sport_id`, `profile.sport_ids`) reference the stable ID.
+- As any client, search filters across all sections live as the user types; empty sections auto-hide; the "No matches" state appears only when zero sports remain visible.
+- As any client, Save is disabled until the user's selection differs from the seed value **and** at least one sport is picked. Backing out with a dirty selection prompts a discard sheet.
+- As the backend, the user's sport selection persists atomically — either the full new set replaces the old set, or nothing changes (no partial writes).
+
+---
+
+## 4. Flows
+
+References to screen IDs are from `flows/coach/settings.html`.
+
+### Flow 1: Open the picker (multi-select)
+1. From Settings → "Sport types" set-card → push `#s-sport-types`
+2. Screen opens with current selection seeded (each previously-picked sport has `.selected` class on its card)
+3. Sticky search bar at top of content
+4. Sections rendered as non-sticky text headers + 2-column card grid below each
+5. Each card: sport icon + name; tap toggles `.selected` (no checkmark SVG — CSS-driven from the class)
+6. Sticky footer button: "Save (N selected)" — disabled until selection differs from seed **and** ≥ 1 sport picked
+7. Tap Save → return to Settings, Sport types subtitle updates to "Up to 3 names, +N more"
+
+### Flow 2: Search filtering
+1. User types in sticky search input
+2. Cards filter live (case-insensitive, substring match on display name)
+3. Sections with zero matching cards auto-hide (header included)
+4. If zero matches across all sections → show "No matches" placeholder centered
+5. Clearing the search restores the full list with previously-toggled state preserved
+
+### Flow 3: Save confirmation
+1. User adjusts selection (tap on / off cards)
+2. Save button label updates: "Save (N selected)"
+3. Save enabled state:
+   - **Disabled** when selection equals seed (no change)
+   - **Disabled** when 0 selected (must pick at least one)
+   - **Enabled** otherwise
+4. Tap Save → server PUT, on success → return to Settings, subtitle reflects new selection
+
+### Flow 4: Discard dirty changes
+1. User taps Back with selection ≠ seed
+2. Bottom sheet `#discard-sport-sheet` opens:
+   - Title: "Discard changes?"
+   - Subtitle: "Your sport selection won't be saved."
+   - Buttons: **Discard** (destructive) / **Cancel**
+3. Tap Discard → revert to seed, return to Settings
+4. Tap Cancel → dismiss sheet, stay on `#s-sport-types`
+5. If selection equals seed (no changes) → Back returns to Settings directly without sheet
+
+### Flow 5: Display in Settings
+1. Settings hub → "Sport types" set-card subtitle: comma-separated list of up to **3 names**, then **"+N more"** if user has more than 3 selected (e.g. "Basketball, Padel, Tennis, +2 more")
+2. Empty selection: subtitle "Add the sports you teach" (coach) / "Add the sports you practice" (athlete)
+
+---
+
+## 5. States
+
+| State | When shown | What user sees | Transition |
+|---|---|---|---|
+| `sp-list` | Picker just opened with seeded selection | Search + sectioned grid + Save (disabled) | → `sp-dirty` on any toggle |
+| `sp-search` | User typed in search input | Filtered cards, empty sections hidden | → `sp-list` on clear search |
+| `sp-no-matches` | Search query yields zero matches | "No matches" placeholder | → `sp-list` on backspace clearing search |
+| `sp-dirty` | Selection differs from seed | Save button enabled with "Save (N selected)" | → `sp-saving` on tap, → `sp-discard-confirm` on Back |
+| `sp-saving` | Save tapped, server processing | Save button shows inline spinner | → return to Settings on success, → `sp-error` on failure |
+| `sp-error` | Save failed (network / server) | Snackbar "Failed to save. Try again." | → `sp-dirty` (state preserved) |
+| `sp-discard-confirm` | Back tapped with dirty selection | Bottom sheet with Discard / Cancel | → Settings (Discard) or `sp-dirty` (Cancel) |
+
+---
+
+## 6. API
+
+### Endpoints
+
+#### `GET /sports`
+Returns the canonical taxonomy.
+**Auth:** JWT (any role).
+**Response 200:**
+```json
+{
+  "sections": [
+    {
+      "key":   "fitness_strength",
+      "name":  "Fitness & Strength",
+      "sports": [
+        { "id": "fitness",  "name": "Fitness (gym)", "iconKey": "fitness" },
+        { "id": "crossfit", "name": "CrossFit",      "iconKey": "crossfit" }
+      ]
+    }
+  ]
+}
+```
+
+#### `GET /me/sports`
+Returns the current user's selected sport IDs.
+**Auth:** JWT.
+**Response 200:** `{ "sportIds": ["basketball", "padel", "tennis"] }`
+
+#### `PUT /me/sports`
+Replaces the current user's selection (atomic).
+**Body:** `{ "sportIds": ["basketball", "padel"] }`
+**Validation:** `sportIds` non-empty, each ID present in canonical taxonomy.
+**Response 200:** `{ "sportIds": ["basketball", "padel"] }`
+**Response 422:** validation error (empty array, unknown ID).
+
+### Models
+
+#### `SportSection`
+| Field | Type | Notes |
+|---|---|---|
+| `key` | string | Stable section key (`fitness_strength`, `racket`, etc.) |
+| `name` | string | Display name (localized in future versions) |
+| `sports` | `Sport[]` | Sports in section, ordered |
+
+#### `Sport`
+| Field | Type | Notes |
+|---|---|---|
+| `id` | string | **Stable** sport ID (e.g. `basketball`); never changes after seed |
+| `name` | string | Display name (localized) |
+| `iconKey` | string | Lookup into icon asset bundle |
+
+---
+
+## 7. Business rules
+
+### Taxonomy (V1)
+33 sports across 8 sections (full list in memory `project_sport_taxonomy`):
+- **Fitness & Strength:** Fitness (gym), CrossFit, Functional training, HIIT, Weightlifting, Calisthenics
+- **Racket:** Tennis, Padel, Badminton, Squash, Table tennis
+- **Team & court:** Basketball, Football (soccer), Volleyball
+- **Combat / martial arts:** Boxing, Kickboxing / Muay Thai, MMA, BJJ, Karate
+- **Endurance / cardio:** Running, Cycling, Swimming, Triathlon
+- **Mind-body:** Yoga, Pilates, Stretching
+- **Recovery & therapy:** Massage, Sports massage, Physiotherapy
+- **Other:** Golf, Climbing, Skiing / Snowboarding, Dance
+
+### Selection rules
+- **Multi-select** (both roles)
+- **Minimum 1** sport required to save (coach can't have 0 sports if profile is published; athlete can't have 0 if discovery is enabled)
+- **No maximum** in MVP — coach can pick all 33 if they want
+- Selection is **atomic** — server replaces the entire set on PUT
+
+### Save button states
+- Disabled when selection == seed (no change to commit)
+- Disabled when 0 selected
+- Enabled otherwise; label shows "Save (N selected)"
+
+### Discard
+- Back with dirty selection → bottom sheet, default safest option (Cancel = stay)
+- Discard reverts to seed, returns to Settings
+
+### Closed list — no custom sports
+- Backend rejects unknown sport IDs at the `PUT` boundary
+- No "Other / custom" free-text option in MVP — explicitly rejected design decision (per memory)
+
+### Sport ID stability
+- Sport IDs are **immutable** after seed — renaming a display name does NOT change the ID
+- Reordering within a section is allowed (display order tweak)
+
+### Icons (MVP fallback strategy)
+- V1: Tabler Icons + Material Symbols Outlined as primary source
+- Hand-drawn / adapted for ~5 icons that Tabler / MS don't cover well: Padel, BJJ, Muay Thai, Physiotherapy, Massage
+- V2 (Phase 3 of design-tokens roadmap): commission a custom 33-icon set matching Lucide stroke 1.8 — `iconKey` stays stable so code doesn't change
+- Icon files live in `design-tokens/assets/icons/sport/<id>.svg`
+
+### Subtitle truncation
+- Settings subtitle shows up to **3 names** comma-separated, then "+N more"
+- Empty selection shows role-specific empty hint
+
+---
+
+## 8. Edge cases
+
+- User with 0 sports (legacy account) → Settings subtitle shows empty hint; picker opens with no `.selected` cards; Save disabled until ≥ 1 picked
+- User selects a sport, immediately deselects it back to original seed → Save disables again (no-op detection by set comparison, not change-count)
+- Search query matches only sports in one section → other section headers hidden
+- Search query while user has unsaved selection → selected state preserved across filter (cards keep `.selected` even when hidden by search; hidden card's selection still counts in "Save (N selected)")
+- Network failure on PUT → snackbar "Failed to save. Try again." — local selection state preserved, Save remains enabled
+- Two devices change sports simultaneously → last-write-wins (PUT replaces full set)
+- Server adds a new sport (post-app-version) → app fetches GET on each picker open, new sport renders without app update
+- User on older app version, server has a sport the app doesn't know how to render → fallback icon (generic question mark or sport-genre default) + display name
+- Backend deprecates a sport but user has it selected → keep displaying it as selected (read-only badge "Deprecated"); user can deselect but can't reselect after save
+
+---
+
+## 9. Platform notes
+
+- **iOS:** picker as SwiftUI `NavigationStack` push. 2-column grid via `LazyVGrid`. Sticky search via `.searchable` with custom positioning to keep it sticky. Discard sheet via `.confirmationDialog`.
+- **Android:** push composable in NavHost. 2-column grid via `LazyVerticalGrid(GridCells.Fixed(2))`. Sticky search via custom layout (Column with non-scrolling search row + scrolling LazyVerticalGrid). Discard via `ModalBottomSheet`.
+- **Backend:** taxonomy seed in Alembic migration, fetch is read-only and cacheable (5-minute TTL acceptable). User selection is per-row updates on a `profile_sport` join table — replace strategy.
+- **Voice:** not applicable — sport selection is visual.
+
+---
+
+## 10. Open questions
+
+- [ ] Localization of sport display names — V1 ships English-only? **Owner:** product. Reco: English V1, localize in Phase 2 alongside other strings.
+- [ ] Maximum cap on selected sports — leave unbounded or cap at e.g. 10? **Owner:** product. Reco: unbounded; if a coach picks all 33, that's their problem (search will rank them low for irrelevant matches).
+- [ ] Phase 2 sports list — confirm Surfing / Kitesurfing / SUP / Sailing / Equestrian as the geo-expansion batch. **Owner:** product.
+- [ ] Should athlete picker have a "Skip" option in onboarding, or is sport selection mandatory? **Owner:** product. Reco: mandatory for athlete (drives recommendations).
+
+---
+
+## Related specs / references
+
+- [session-creation.md](./session-creation.md) — Sport field on session template uses this picker
+- [onboarding-wizard.md](./onboarding-wizard.md) — "Select your sports" wizard step
+- [profile-settings.md](./profile-settings.md) — Settings hub entry point
+- Prototype: [flows/coach/settings.html#s-sport-types](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html#s-sport-types)
+- Memory: `project_sport_taxonomy` (canonical 33-sport list, sections, deferred Phase 2 sports, icon strategy)
+- Memory: `feedback_selection_chips` (rule: no hardcoded checkmark SVGs; CSS-driven `.selected` class only)
+- Components: `FitInputSearch`, `FitSportCard` (`.sp-card` with `.selected` state), `FitSheet` (discard confirm), `FitButton` (sticky Save). All in `design-tokens/docs/components.md`.
