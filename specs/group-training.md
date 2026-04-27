@@ -48,98 +48,19 @@ Add group training sessions to 321Fit. Coaches create reusable templates with pa
 ### Coach Flow
 
 #### 1. Create Group Session
-[Prototype screen: Create Session]
 
-Form to create a group training template. Shared form for personal and group — group-specific fields show/hide based on type toggle.
+The create / edit form is shared between personal and group templates and is documented in [session-creation.md](./session-creation.md). Group fields (max/min participants, recurring schedule, days, date, start time, time/date picker sheets), validation, side-effect resets, and the impactful-changes scope picker all live there.
 
-**Fields (group mode):**
-| Field | Type | Default | Required |
-|---|---|---|---|
-| Training name | Text input | empty | ✓ |
-| Sport type | Select (from profile) | first sport | ✓ (prefilled) |
-| Location | Select (from addresses) | first address | ✓ (prefilled) |
-| Training type | Selection chips [Personal/Group] | Personal | ✓ |
-| Max participants | Stepper (2–50) | 10 | ✓ (group) |
-| Min participants | Stepper (0–max, optional) | 3 | ✗ |
-| Duration | Wheel picker (H:MM) | empty | ✓ |
-| Price per participant | Number + currency | empty | ✓ |
-| Payment method | Multi-select chips [Cash/Card] | Cash | ✓ (prefilled) |
-| Schedule | Selection chips [Recurring/One-off] | Recurring | ✓ (group) |
-| Days | Day circles M-S (multi-select) | current weekday | ✓ (recurring) |
-| Date | Calendar picker (bottom sheet) | today | ✓ (one-off) |
-| Start time | Time picker (bottom sheet) | empty | ✓ (group) |
-
-**Visibility rules:**
-- Personal selected → hide: max/min participants, schedule section
-- Group selected → show all group fields
-- Recurring selected → show day picker, hide date picker
-- One-off selected → show date picker, hide day picker
-
-**Keyboard behavior:**
-| Field | Keyboard Type | Action Button |
-|---|---|---|
-| Training name | default | Next |
-| Price | decimalPad | Next (if more fields below) or Done |
-
-- "Next" moves focus to next input field
-- "Done"/"Go" on last field triggers Save action
-- Keyboard covers footer button — "Go" on keyboard = same as tapping Save
-- Dismiss keyboard by tapping outside inputs
-
-**Validation:**
-- Save button always active (never disabled)
-- On tap: validate required fields → red border + label on empty → auto-scroll to first error → snackbar "Please fill in required fields"
-- Errors auto-clear after 3 seconds
-
-**Side-effect resets:**
-- Duration changed after time selected → reset time to "Select time" → snackbar "Time slot reset — duration changed"
-- Date changed (one-off) after time selected → reset time → snackbar "Time slot reset — date changed"
-
-**Time picker (bottom sheet):**
-- Accordion list of available hours based on coach's schedule
-- Busy hours: greyed out + event name (e.g., "Busy · Basketball Training")
-- Partial hours: "2/4" badge (some 15-min intervals blocked)
-- Tap hour → expand minute chips (00, 15, 30, 45)
-- Disabled minutes greyed based on availability
-- Confirm button: "Confirm · HH:MM — HH:MM"
-- Fixed height sheet, content scrolls inside
-
-**Date picker (one-off, bottom sheet):**
-- Month calendar grid
-- Past dates greyed out
-- Today: brand border
-- Selected: gradient circle
-- Confirm button with selected date
+**Group-specific behavior layered on top of the shared form:**
+- Selecting Group reveals max/min participants and the schedule section
+- On save with `is_group: true && is_recurring: true`, server auto-generates events for the next 2 months (see Section "Recurring Events" below)
+- One-off mode (`is_recurring: false`) creates a single event and gets the "Special" badge on the coach profile
 
 #### 2. My Training Sessions
-[Prototype screen: My Sessions]
 
-List of coach's training templates (both personal and group).
-
-- Group templates: badge "Group · max 10", price as "€25/person"
+The list screen, edit-mode behavior, and impactful-vs-non-impactful change rules are documented in [session-creation.md](./session-creation.md). On a group template card, badges and price strings differ from personal:
+- Group templates: badge "Group · max 10", price shown as "€25/person"
 - Personal templates: badge "Personal"
-- FAB "+" to create new template
-- Pencil icon → edit template (same Create Session form, prefilled, "Save" button)
-
-**Edit Template behavior:**
-- Same form as Create Session but prefilled with existing data
-- Save button instead of Create
-- **Non-impactful changes** (name, price, max/min participants): apply silently to all future events, no notification
-- **Impactful changes** (time, days, duration, location): show scope picker before saving:
-  - "Future events only" — only not-yet-generated events get new values
-  - "All upcoming events (X events)" — all future events updated
-  - Warning: "Y participants across affected events will be notified"
-  - Affected participants receive push with change details
-
-| Change Type | Impactful? | Notification? |
-|---|---|---|
-| Name | No | No |
-| Price | No | No |
-| Max / Min participants | No | No |
-| Duration | Yes | Yes — end time changes |
-| Time | Yes | Yes — full reschedule |
-| Days (recurring) | Yes | Yes — events added/removed |
-| Location | Yes | Yes — different venue |
 
 #### 3. Calendar
 [Prototype screen: Calendar]
@@ -534,31 +455,7 @@ All bottom sheets in the app follow these spacing and interaction rules:
 
 ## Delete Template
 
-When coach deletes a group training template:
-
-**Sheet content:**
-```
-Delete "HIIT Group Session"?
-
-This will stop generating new sessions.
-
-You currently have 12 upcoming events
-with 47 total registrations.
-
-○ Keep existing events
-  (stop creating new ones only)
-  
-○ Cancel all upcoming events
-  ⚠ 47 participants will be notified 
-  and refunded
-
-[Delete] (red)
-```
-
-- "Keep existing events" = template deleted, auto-generation stops, existing events continue as standalone
-- "Cancel all upcoming events" = template deleted + all future events cancelled + all participants notified & refunded
-- Past/completed events never affected
-- Note: shows total registrations count so coach understands the impact
+The delete sheet (Keep existing / Cancel all + warning + refund count) is documented in [session-creation.md](./session-creation.md) Flow 5. Group-specific note: when "Cancel all upcoming events" is chosen, all participants across affected events are notified and refunded (card holds released, cash markers cleared); past / completed events are never affected.
 
 ## Data Model Notes
 
