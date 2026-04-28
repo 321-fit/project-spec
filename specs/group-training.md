@@ -498,3 +498,7 @@ The delete sheet (Keep existing / Cancel all + warning + refund count) is docume
 - Dedicated group training feed/discovery tab
 - Cross-day drag & drop for events
 - Coach-configurable cancellation policy per template
+
+## Platform notes
+
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.

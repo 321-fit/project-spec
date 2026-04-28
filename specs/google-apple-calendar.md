@@ -169,3 +169,7 @@ When user connects calendar after already having events:
 - Apple Calendar iOS UI not fully implemented (EventKit imported but not used for sync)
 - Google Calendar webhook reliability depends on external service
 - Periodic sync interval (15 min) may cause temporary inconsistencies
+
+## Platform notes
+
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.

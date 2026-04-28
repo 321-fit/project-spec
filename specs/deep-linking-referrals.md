@@ -156,3 +156,7 @@ Same as above plus training session token for session-specific invites.
 - `InviteToTrainingSessionDeeeplinkModel` typo (triple 'e')
 - No referral rewards implemented yet (tracking only)
 - Deep link routing could be more granular (some links go to default screen)
+
+## Platform notes
+
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.

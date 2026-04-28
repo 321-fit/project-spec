@@ -206,6 +206,8 @@ Restores a recently resolved event back to `review` state. Valid within 30 secon
 
 ## 9. Platform notes
 
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.
+
 - **iOS:** SwiftUI `List` with `.swipeActions` optional enhancement (swipe-to-complete / swipe-to-miss) — mobile-native, discoverable. Haptic on action: `.light` for complete, `.medium` for missed.
 - **Android:** Compose `LazyColumn` with per-row action row. Optional swipe via `SwipeToDismissBox`. Haptic via `HapticFeedbackConstants.CONTEXT_CLICK`.
 - **Backend:** review-state transition scheduled via Celery beat. Two cadences per Q8: cash sweep every 5 min (precision matters for the 10-min cash push), card sweep every 30 min (looser since EOD batch). Idempotency essential.

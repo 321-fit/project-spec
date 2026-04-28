@@ -348,6 +348,8 @@ Existing fields (preserved):
 
 ## 9. Platform notes
 
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.
+
 - **iOS:** wheel pickers via SwiftUI `Picker(selection:)` with `.wheel` style; bottom sheets via `.sheet(isPresented:)` with `.medium` detent. Form scrolls; sheet doesn't dismiss form.
 - **Android:** wheel pickers via the local `wheeltimepicker` Gradle module (already in project). Bottom sheets via `ModalBottomSheet` (Material 3).
 - **Backend:** template create + auto-gen of recurring events should complete in ≤ 800 ms P95 (gen runs sync within the POST). Heavier auto-gen for long-running (e.g. 60 events) acceptable up to 2 s.

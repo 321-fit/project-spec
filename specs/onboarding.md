@@ -72,3 +72,7 @@ Profile data is saved via standard profile update endpoints during each step.
 ## Known Issues / Tech Debt
 - Calendar sync step is optional but shown to all users
 - No progress indicator showing which step user is on
+
+## Platform notes
+
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.

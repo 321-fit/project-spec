@@ -453,6 +453,8 @@ See memory entries for cross-cutting rules:
 
 ## Implementation Notes
 
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.
+
 - **iOS:** New screens go under `Settings/AccountAccess/`. Re-auth picker is a shared component reusable across flows. Country picker exists in onboarding — reuse.
 - **Android (planned):** Mirror iOS; hide Apple row on Android (Apple Sign-In has Android limitations).
 - **Backend:** Needs new tables (`user_reauth_tokens`, `user_email_change_requests`, `user_delete_requests`) + ~15 new endpoints. Most heavy work is in delete flow (cascading cleanup + purge scheduling).

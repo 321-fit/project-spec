@@ -610,6 +610,8 @@ When implementing this flow with AI-assisted coding (Claude Code):
 
 ## Platform Differences
 
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.
+
 | Feature | iOS | Android |
 |---|---|---|
 | Google connect | GoogleSignIn SDK | Google Sign-In SDK |

@@ -176,3 +176,7 @@ Merge "Account & Password" and "Account Access" into a single "Login & Security"
 - "Login & Security" screen from spec not fully implemented — split between two settings screens
 - Email verification uses OTP-style flow (code), not traditional email link (spec says link)
 - Google Sign-In not in original spec but is implemented and works
+
+## Platform notes
+
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.

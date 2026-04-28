@@ -229,6 +229,8 @@ Client uses this to render the pause message + disable CTA.
 
 ## 9. Platform notes
 
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.
+
 - **iOS:** Settings row shows pause state via FitSettingsCard with teal-tint subtitle. Dashboard banner uses custom info banner component (yellow-tinted per memory `feedback_note_block`). Date pickers — native SwiftUI `DatePicker`.
 - **Android:** Compose `Card` with subtitle in teal. Material 3 `DatePicker` for date selection.
 - **Backend:** cron job via Celery beat, checks every coach with active vacation at 00:00 their local TZ. Requires per-coach TZ schedule (stagger), not a single global midnight.

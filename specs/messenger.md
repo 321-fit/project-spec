@@ -133,3 +133,7 @@ Athletes and coaches currently have no way to communicate within the app. All co
 - Search inside messages
 - Auto-suggest booking times
 - Payment reminders via AI
+
+## Platform notes
+
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.

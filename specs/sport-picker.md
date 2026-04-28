@@ -240,6 +240,8 @@ A `sectionKey` field on `SportTypeResponse` is the minimum required to group spo
 
 ## 9. Platform notes
 
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.
+
 - **iOS:** picker as SwiftUI `NavigationStack` push. 2-column grid via `LazyVGrid`. Sticky search via `.searchable` with custom positioning to keep it sticky. Discard sheet via `.confirmationDialog`.
 - **Android:** push composable in NavHost. 2-column grid via `LazyVerticalGrid(GridCells.Fixed(2))`. Sticky search via custom layout (Column with non-scrolling search row + scrolling LazyVerticalGrid). Discard via `ModalBottomSheet`.
 - **Backend:** taxonomy seed in Alembic migration, fetch is read-only and cacheable (5-minute TTL acceptable). User selection is per-row updates on a `profile_sport` join table — replace strategy.

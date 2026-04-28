@@ -236,6 +236,8 @@ Each step's `done` is computed from the actual profile state (e.g., `phone.done`
 
 ## 9. Platform notes
 
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.
+
 - **iOS:** SwiftUI implementation — wizard widget is a custom composite view (not a FitUI component, specific to Dashboard). Uses FitButton for chevron (wrapped in FitIconBtn-like style). Step rows use custom background (gradient) + FitColors tokens.
 - **Android:** Compose mirror. Row background via `Brush.horizontalGradient`. Progress bar via Material 3 `LinearProgressIndicator` with custom colors.
 - **Backend:** `coach.profile_state` enum: `{ onboarding, pending_admin_approval, approved, suspended }`. State machine transitions triggered by wizard completion + admin actions.

@@ -366,6 +366,8 @@ Disconnect a provider (Stripe or future). Only allowed if not default or another
 
 ## 9. Platform notes
 
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.
+
 - **iOS (Stripe Connect embedded):** replaces old `WebView` approach. Use `StripeConnect` SDK (Connect iOS) — embedded UI component, native feel. Requires `account_session` from backend (new endpoint `/coach/stripe/connect/session`).
 - **iOS (Stripe PaymentSheet):** existing integration continues for athlete top-up.
 - **Android (future):** `StripeConnect` Android SDK equivalent (in beta). Same backend contract.

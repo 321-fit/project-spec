@@ -178,3 +178,7 @@ See [Deep Linking & Referrals spec](deep-linking-referrals.md) for details.
 ## Known Issues / Tech Debt
 - Settings enum uses `accountAndPassword` but screen is named "Account & Password" — could align
 - Some settings (location, sessions, availableHours) only visible to coaches but the enum includes all
+
+## Platform notes
+
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.

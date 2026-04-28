@@ -41,5 +41,11 @@ No text inputs on main settings screen.
 
 ## Theme
 
+> ⚠️ The role-based "Coach=dark / Athlete=light" rule below is **superseded** by [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract): theme is a user preference, not role-based. Both roles must support both themes. Hardcoded hex values listed here must be replaced with `theme.screenBg` / `theme.surfaceDefault` tokens. Tracked in `audit_remaining`.
+
 - Coach: dark theme (always)
 - Athlete: light theme (always, screen bg `#F7F7F8`, cards `#FFFFFF`)
+
+## Platform notes
+
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.

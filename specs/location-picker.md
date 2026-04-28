@@ -238,6 +238,8 @@ Existing fields (preserved from current poly-backend `AddressResponse`):
 
 ## 9. Platform notes
 
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.
+
 - **iOS:** map = MapKit (no extra dependency). Place autocomplete = Google Places SDK (already in project — see `321fit_ios/CLAUDE.md` GoogleMaps/Places). Picker mode of `#s-locations` returns selection via Coordinator.
 - **Android:** map = Maps Compose. Place autocomplete = Google Places API. Picker mode returns selection via NavController saved state.
 - **Backend:** location-template referential integrity enforced via FK; `templateUsageCount` derived per fetch (single COUNT query), not stored.

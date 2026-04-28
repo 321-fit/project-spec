@@ -157,3 +157,7 @@ See [Event Statuses spec](event-statuses.md) for complete push notification text
 - WhatsApp toggle endpoint has typo: `toogle` instead of `toggle`
 - Notification templates not fully utilized (some notifications are hardcoded)
 - No notification preferences screen in iOS (can't choose which notifications to receive)
+
+## Platform notes
+
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.

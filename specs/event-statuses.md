@@ -237,6 +237,8 @@ Map of state transition → push notification, following push-notifications.md c
 
 ## 9. Platform notes
 
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.
+
 - **iOS:** `EventStatus` Swift enum matches server enum one-to-one. Calendar rendering uses `FitCalEvent` component with status prop. Deprecation notice on old enum members during migration window.
 - **Android:** Kotlin sealed class `EventStatus` with same cases.
 - **Backend:** PostgreSQL enum type `event_status_enum` — migration adds new values, updates existing rows, drops legacy. Celery beat schedules auto-transitions.

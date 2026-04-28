@@ -338,6 +338,8 @@ Fields nullable per state:
 
 ## 9. Platform notes
 
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.
+
 - **iOS:** native pull-to-refresh via `.refreshable` on the dashboard list. Haptic feedback on tap of action cards (`UIImpactFeedbackGenerator(style: .light)`). Event sheet opens as SwiftUI `.sheet(isPresented:)` with `.medium` detent.
 - **Android:** pull-to-refresh via `SwipeRefreshLayout` or Compose `PullRefreshIndicator`. Event sheet = `ModalBottomSheet` (Material 3). Haptic via `HapticFeedbackConstants.CONTEXT_CLICK`.
 - **Backend:** snapshot composition benefits heavily from Redis caching with event-driven invalidation. Target < 400 ms P95.

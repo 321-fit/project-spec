@@ -148,6 +148,8 @@ No new endpoints. Existing coach GET endpoints return these two fields as part o
 
 ## 9. Platform notes
 
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.
+
 - **iOS:** badge rendered as inline `FitBadge` component with `FitBadgeStyle.crm`-like teal-tint; progress indicator as `Text` row under stats.
 - **Android:** Compose equivalent `FitBadge(text = "New", style = FitBadgeStyle.Crm)`.
 - **Backend:** counters cached on `coach` table; boosts applied at search-service level; no client logic for ranking (server does it). Recomputation is event-driven (on `session.finished` / `review.created` events).

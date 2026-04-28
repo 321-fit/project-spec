@@ -238,6 +238,8 @@ Returns per-day event-type indicators for the month grid above the day strip.
 
 ## 9. Platform notes
 
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.
+
 - **iOS:** SwiftUI `ScrollView` with absolute-positioned event blocks (using `.offset(y:)`). HorizonCalendar for date navigation. Long-press gesture for drag mode. Haptic: `.medium` on grab, `.light` on drop.
 - **Android:** Compose LazyColumn for hour rows + `Box` for absolute positioning of events. Material 3 bottom sheet for event detail.
 - **Backend:** Day-worth query is a composite (events + work_hours + external + athlete busy). Benefits from materialized view per coach updated on event CUD.

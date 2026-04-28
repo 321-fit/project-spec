@@ -164,3 +164,7 @@ On connection, the agent receives:
 - Agent connection timeout (10s) may be too short on slow networks
 - Transcription quality depends on OpenAI Realtime API
 - Entity resolution can fail with very common names
+
+## Platform notes
+
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.

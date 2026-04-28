@@ -123,3 +123,7 @@ Coach declines → declined (both)
 - Booking flow requires multiple screens — could be streamlined
 - Coach availability can be stale if not refreshed (no real-time updates)
 - No "suggest alternative time" feature when preferred slot is taken
+
+## Platform notes
+
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.

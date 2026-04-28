@@ -356,6 +356,8 @@ When coach initiates for an existing active-app client: `status: awaiting` (coac
 
 ## 9. Platform notes
 
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.
+
 - **iOS:** relationship state drives conditional rendering of Client Detail menu items (SwiftUI `if` expressions). Uses `FitContextMenu` for ⋯ menu.
 - **Android:** Compose conditional composition + Material 3 DropdownMenu.
 - **Backend:** new DB table `coach_athlete_relationship` with columns `coach_id`, `athlete_id`, `relationship_state`, `athlete_account_status`, `created_at`, `updated_at`, plus audit log table for state changes. Migration from existing `user_exclusion` table + `coach.clients` linkage.
