@@ -247,6 +247,22 @@ If a needed pattern is not in `design-tokens/docs/components.md`, the order is:
 
 Inlining a parallel implementation in `321fit_ios` or `321fit_android_new` is a memory-anti-pattern (see `feedback_no_parallel_theme`) — fix the library, not the screen.
 
+### Greenfield isolation — new modules go in new files
+
+Phase 4 modules are **not migrations** of legacy screens. Each module ships as **net-new files in a new namespace**, sitting next to the legacy version, not on top of it. The legacy screen keeps working until the redesign cuts over wholesale.
+
+**Rule:**
+
+- New iOS screen for module `Foo` lives in **its own folder** under the relevant tab — e.g. `TabBar/Tabs/Dashboard/V2/…` or `Foo/V2/…`. Type names take a `V2` / `New` suffix when they collide (`DashboardV2View`, `DashboardV2ViewModel`).
+- New Android screen lives in **its own package** — e.g. `ui/screens/coach_dashboard_v2/…`. File names take the same `V2` / `New` suffix where collisions exist (`CoachDashboardV2Screen.kt`).
+- Legacy file is **not touched** — not for refactors, not for "while we're here" tweaks, not for opportunistic style fixes. If it has a real bug, fix the bug in legacy as a separate task.
+- Legacy → new switch happens at the **navigation / Coordinator layer** (route the tab / coordinator at the V2 entry point), not by editing the legacy view.
+- When all screens for a feature are V2 and the legacy is unreachable, a discrete cleanup task removes the legacy files. Until then the two coexist.
+
+**Why:** mixing legacy and FitUI in the same file means one screen ends up with both `Color(0xFF…)` and `theme.surfaceDefault`, both `Card()` and `FitCard`, both role-gated and user-pref theme — i.e. the worst of both worlds, harder to review and harder to delete later. Greenfield isolation keeps the diff tight, the review obvious, and the legacy removal trivial.
+
+**For agents (`/ios-develop`, `/android-develop`):** when the file map mentions an existing screen, **add a new file beside it; do not modify the existing one.** This rule supersedes any "modify existing X" instruction inherited from older skill docs.
+
 ### Why these rules exist
 
 This contract exists because Phase 4 dashboard pilot on Android shipped with hardcoded `#242424` / role-gated theme / bare `Card()` calls — the design-tokens module was technically present but the app had a parallel `NewTheme.kt` that bypassed it entirely. Result: the implementation visually diverged from the prototype (no fills, wrong navbar gradient, wrong tab content), and the gap was architectural, not stylistic. New code is written against this contract from day one.
