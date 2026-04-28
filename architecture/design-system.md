@@ -219,6 +219,10 @@ How the design system flows into iOS (SwiftUI) and Android (Compose) screens. **
 - **Use FitUI primitives** for every dimension that has a token: `FitSpacing.sp4`, `FitRadius.card`, `FitFont.body1`, `FitSize.tapMin`. No raw `dp` / `pt` literals where a token exists.
 - **Theme is a user preference.** A single `isDark` switch per device, persisted, applies to both Coach and Athlete identically. Never derive theme from role (`isCoach`) or from a stale Compose `MaterialTheme`.
 - **For tinted backgrounds use `bg.<status>-subtle` / `bg.<status>-tinted` tokens** — never compose tints inline (`.opacity(N)` / `.copy(alpha = N)` over a base color). Alpha that reads on white differs from alpha that reads on dark; tokens carry per-theme opacities. Memory: `feedback_native_theme_tokens`.
+- **Respect device safe areas.** Screen content must not slide under the status bar / Dynamic Island / home indicator. Default-on; opt out only for explicitly full-bleed backgrounds, and even then keep foreground content (header, scrollable, footer CTA) inside the safe area.
+  - SwiftUI: do **not** apply `.ignoresSafeArea(.top)` on the screen root; either let the default safe-area handling take over, or use `.ignoresSafeArea(.container, edges: .top)` *only* on a background layer with foreground content layered above. For full-bleed visuals use `safeAreaInset(edge: .top) { … }`.
+  - Compose: wrap the screen root in `Modifier.systemBarsPadding()` (or `Modifier.statusBarsPadding()` + `Modifier.navigationBarsPadding()`); avoid `WindowCompat.setDecorFitsSystemWindows(window, false)` without compensating insets in the host.
+  - The header (`FitHeader`) sits below the status bar at all times. The bottom `FitNavbar` floats above the home-indicator area with `safeAreaInset(.bottom)` / `Modifier.navigationBarsPadding()`.
 
 ### Forbidden in new screens (anti-patterns)
 
@@ -239,13 +243,16 @@ How the design system flows into iOS (SwiftUI) and Android (Compose) screens. **
 
 If a needed pattern is not in `design-tokens/docs/components.md`, the order is:
 
-1. Spec the component in `design-tokens/docs/components.md` (purpose, props, states, dark/light, iOS/Android notes).
+1. Spec the component in `design-tokens/docs/components.md` (purpose, props, states, dark/light, iOS/Android/Web notes).
 2. Build the SwiftUI version in `Sources/FitUI/Components/<Name>.swift`.
 3. Build the Compose mirror in `android/src/main/kotlin/.../components/<file>.kt`.
-4. Reference tokens — never hardcode dimensions or colors.
-5. **Then** consume in app screens.
+4. Add the CSS class in `project-spec/prototypes/lib/fit-ui.css` (e.g. `.fit-<name>` with `--<variant>` modifiers consuming the `tokens.css` variables).
+5. Reference tokens — never hardcode dimensions or colors.
+6. **Then** consume in app screens / prototypes.
 
-Inlining a parallel implementation in `321fit_ios` or `321fit_android_new` is a memory-anti-pattern (see `feedback_no_parallel_theme`) — fix the library, not the screen.
+This applies equally to **decorative elements** that often live in CSS-only on the prototype (icon plates, accent dots, custom dividers, status badges, leading-icon containers). They are real components — spec them, mirror across all four artifacts, give them a name. Inlining a parallel implementation in `321fit_ios` / `321fit_android_new` is a memory-anti-pattern (see `feedback_no_parallel_theme`) — fix the library, not the screen.
+
+**For architect agents (`/ios-architect impl-doc`, `/android-architect impl-doc`):** when reading the prototype CSS, every recurring decorative class is a candidate component. Don't paper over it with inline styling instructions in §6 UI mapping — propose the kit component first, spec it, then reference it from the impl-doc.
 
 ### Greenfield isolation — new modules go in new files
 
