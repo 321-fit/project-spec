@@ -263,6 +263,30 @@ Phase 4 modules are **not migrations** of legacy screens. Each module ships as *
 
 **For agents (`/ios-develop`, `/android-develop`):** when the file map mentions an existing screen, **add a new file beside it; do not modify the existing one.** This rule supersedes any "modify existing X" instruction inherited from older skill docs.
 
+### Coexistence patterns (V2 next to legacy)
+
+Five patterns govern how V2 modules ship next to a still-running legacy version. Apply them on every Phase 4 module, not just dashboard.
+
+**1. V2-default with reverse legacy flag.**
+Each module defines a `<module>LegacyEnabled: Bool` (default `false`) in `EnvironmentConfig`. Default is V2. Flipping the flag (debug menu / xcconfig override) routes the tab back to the legacy screen. The flag is a safety-net for QA side-by-side, not a long-lived feature switch.
+
+**2. Transitional bridging — V2 may push into legacy screens.**
+When a V2 module references a destination that does not yet have a V2 (e.g. dashboard V2 has no Earnings V2 screen), the Effect/Coordinator pushes to the **existing legacy screen** instead. The V2 module is not modified to follow the legacy code; it just routes there. When the destination ships in V2, the Effect's destination changes — the ViewModel surface stays the same.
+
+**3. Per-module deeplink handler — no central router yet.**
+Each V2 module owns a `<Module>V2DeeplinkHandler` (new file in its V2 namespace) that subscribes to the existing `AppFlowManager` event bus / Combine subjects. **Do not modify `AppFlowManager` itself** to add module-specific routing. Once all top modules are V2, a future task extracts a unified `DeeplinkRouter` — until then, per-module is fine.
+
+**4. V2 lives inside existing top-level navigation routes.**
+Do **not** add new cases to `MainFlow` / top-level navigation enums. V2 is a detail of "what `.tab(.dashboard)` resolves to", chosen at the AppCoordinator / TabBar layer. Top-level navigation graph is untouched.
+
+**5. Mock flag via extension in new file.**
+Per-module mock toggles (`MOCK_DASHBOARD`, `MOCK_CLIENTS`, …) live in xcconfig keys (Dev / Prod / additional config files) **plus** an extension in a new file at the env-config path:
+
+- iOS: `Core/EnvironmentConfig/EnvironmentConfig+MockFlags.swift` (extension, not modification of `EnvironmentConfig.swift`)
+- Android: `app/src/main/java/com/threetwoonefit/core/config/MockFlags.kt` (or similar — new file in same package, not modifying existing config classes)
+
+Adding xcconfig / `.gradle.properties` keys is config-infrastructure, not a "modification of legacy code", and is the only acceptable seam between V2 modules and config plumbing.
+
 ### Why these rules exist
 
 This contract exists because Phase 4 dashboard pilot on Android shipped with hardcoded `#242424` / role-gated theme / bare `Card()` calls — the design-tokens module was technically present but the app had a parallel `NewTheme.kt` that bypassed it entirely. Result: the implementation visually diverged from the prototype (no fills, wrong navbar gradient, wrong tab content), and the gap was architectural, not stylistic. New code is written against this contract from day one.
