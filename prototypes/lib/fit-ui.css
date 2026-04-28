@@ -1623,3 +1623,463 @@
 /* SVG icon sizes */
 svg.i { width: 16px; height: 16px; vertical-align: middle; }
 svg.i-sm { width: 14px; height: 14px; vertical-align: middle; margin-right: 4px; }
+
+/* ============================================================
+   GAP-BATCH ADDITIONS (2026-04-28)
+   New kit components + extensions to existing ones. Don't
+   migrate existing screens to these classes yet — that's a
+   separate task. Adding classes here unblocks new screens.
+   ============================================================ */
+
+/* ============================================================
+   FitParticipant — state modifiers (extension)
+   Existing .fit-participant base in §PARTICIPANT ROW above stays
+   untouched. State-tinted rows simply add one of the modifiers
+   below, optionally combined with --leading-icon/--trailing-edit.
+   ============================================================ */
+.fit-participant--connected,
+.fit-participant--disconnected,
+.fit-participant--destructive {
+  border-radius: var(--fit-radius-md);
+  border-bottom: none;
+  padding: var(--fit-sp-3);
+}
+.fit-participant--connected    { background: var(--fit-bg-success-subtle); }
+.fit-participant--disconnected { background: var(--fit-bg-warning-subtle); }
+.fit-participant--destructive  { background: var(--fit-bg-error-subtle); }
+.fit-participant--destructive .fit-participant-name { color: var(--fit-red-400); }
+.fit-participant--destructive .fit-participant-sub  { color: var(--fit-red-400); opacity: 0.85; }
+.fit-participant--disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+.fit-participant--disabled .fit-participant-name {
+  text-decoration: line-through;
+  color: var(--fit-text-tertiary);
+}
+
+/* Trailing affordances (extension) */
+.fit-participant-trailing-edit { color: var(--fit-text-tertiary); }
+.fit-participant-trailing-edit svg { width: 16px; height: 16px; }
+.fit-participant-trailing-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+
+/* ============================================================
+   FitChip — size modifiers (extension)
+   ============================================================ */
+.fit-chip {
+  /* Default size = md. Other sizes change height + font. */
+  display: inline-flex; align-items: center; gap: var(--fit-sp-2);
+  height: 48px; padding: 0 var(--fit-sp-3);
+  border-radius: var(--fit-radius-md);
+  background: var(--fit-surface-high);
+  font: 400 16px/1.35 var(--fit-font);
+  color: var(--fit-text-primary);
+  border: 1px solid transparent;
+  cursor: pointer; user-select: none;
+}
+.fit-chip.selected {
+  background: var(--fit-selection-gradient);
+  border-color: var(--fit-selection-border);
+}
+.fit-chip--sm { height: 40px; font-size: 14px; }
+.fit-chip--lg { height: 56px; font-size: 16px; }
+
+/* ============================================================
+   FitSettingsCard — context + default (extension)
+   Reuses existing .set-card / .fit-settings-card layouts; these
+   modifiers add the location/space icon container and Default
+   badge slot. Single-line ellipsis for address subtitle.
+   ============================================================ */
+.fit-settings-card--location .fit-settings-card-icon,
+.fit-settings-card--space    .fit-settings-card-icon {
+  width: 40px; height: 40px;
+  border-radius: var(--fit-radius-sm);
+  background: var(--fit-surface-higher);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.fit-settings-card--location .fit-settings-card-icon svg,
+.fit-settings-card--space    .fit-settings-card-icon svg {
+  width: 20px; height: 20px; color: var(--fit-text-primary);
+}
+.fit-settings-card-address {
+  font-size: 14px; color: var(--fit-text-secondary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.fit-settings-card-default-badge {
+  /* Inline next to the title — uses .fit-badge-accent visuals. */
+  display: inline-flex; align-items: center;
+  margin-left: var(--fit-sp-2);
+  padding: 3px 10px;
+  border-radius: var(--fit-radius-sm);
+  background: rgba(5,224,166,0.12);
+  color: var(--fit-teal-500);
+  font: 500 12px/1.4 var(--fit-font);
+}
+
+/* ============================================================
+   FitDayStrip — standalone day button (extension)
+   .fit-day-btn is the kit form of .day-btn / .mg-day for invite
+   and select flows that don't render an entire month strip.
+   Same 50×62 visual as a strip cell.
+   ============================================================ */
+.fit-day-btn {
+  width: 50px; height: 62px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border-radius: var(--fit-radius-lg);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  gap: var(--fit-sp-1);
+}
+.fit-day-btn .fit-day-btn-name {
+  font: 500 10px/1 var(--fit-font);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--fit-text-tertiary);
+}
+.fit-day-btn .fit-day-btn-num {
+  font: 500 16px/1 var(--fit-font);
+  color: var(--fit-text-secondary);
+}
+.fit-day-btn--today .fit-day-btn-num { color: var(--fit-brand-primary); }
+.fit-day-btn.selected,
+.fit-day-btn--selected {
+  background: var(--fit-selection-gradient);
+  border-color: var(--fit-selection-border);
+}
+.fit-day-btn.selected .fit-day-btn-name,
+.fit-day-btn--selected .fit-day-btn-name { color: var(--fit-text-primary); }
+.fit-day-btn.selected .fit-day-btn-num,
+.fit-day-btn--selected .fit-day-btn-num {
+  color: var(--fit-text-primary); font-weight: 600;
+}
+.fit-day-btn-dots {
+  display: flex; gap: 3px; height: 4px;
+}
+.fit-day-btn-dots .dot {
+  width: 4px; height: 4px; border-radius: 50%;
+}
+.fit-day-btn-dots .dot--personal { background: var(--fit-teal-500); }
+.fit-day-btn-dots .dot--group    { background: var(--fit-brand-primary); }
+.fit-day-btn-dots .dot--external { background: var(--fit-text-tertiary); }
+
+/* ============================================================
+   FitStatTile — clickable card-level stat (NEW)
+   Kit form of .dash-action.
+   ============================================================ */
+.fit-stat-tile {
+  display: flex; align-items: center; gap: var(--fit-sp-3);
+  padding: var(--fit-sp-3) 14px;
+  background: var(--fit-surface-high);
+  border: 1px solid var(--fit-divider);
+  border-radius: var(--fit-radius-lg);
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-family: var(--fit-font);
+  color: var(--fit-text-primary);
+}
+.fit-stat-tile:active { opacity: 0.85; }
+.fit-stat-tile-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.fit-stat-tile-title {
+  font-size: 15px; font-weight: 500; line-height: 1.3;
+  color: var(--fit-text-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.fit-stat-tile-sub {
+  font-size: 13px; line-height: 1.3;
+  color: var(--fit-text-tertiary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.fit-stat-tile-chevron {
+  flex-shrink: 0; width: 18px; height: 18px;
+  color: var(--fit-text-tertiary);
+}
+.fit-stat-tile-chevron svg { width: 18px; height: 18px; }
+
+/* ============================================================
+   FitTransactionRow — balance txn entry (NEW)
+   ============================================================ */
+.fit-transaction-row {
+  display: flex; align-items: center; gap: var(--fit-sp-3);
+  padding: var(--fit-sp-3) 0;
+  width: 100%;
+  font-family: var(--fit-font);
+  color: var(--fit-text-primary);
+  cursor: pointer;
+  background: transparent;
+  border: none; text-align: left;
+}
+.fit-transaction-row-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.fit-transaction-row-title {
+  font-size: 15px; font-weight: 500; line-height: 1.3;
+  color: var(--fit-text-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.fit-transaction-row-sub {
+  font-size: 13px; line-height: 1.3;
+  color: var(--fit-text-tertiary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.fit-transaction-row-amount-col {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+}
+.fit-transaction-row-amount {
+  font: 500 15px/1.3 var(--fit-font);
+}
+.fit-transaction-row-amount--earning,
+.fit-transaction-row-amount--payout  { color: var(--fit-teal-500); }
+.fit-transaction-row-amount--refund  { color: var(--fit-red-400); }
+.fit-transaction-row-amount--pending { color: var(--fit-text-tertiary); }
+.fit-transaction-row-date {
+  font: 400 11px/1 var(--fit-font);
+  color: var(--fit-text-tertiary);
+}
+
+/* ============================================================
+   FitEarningsHero — balance hero (NEW)
+   ============================================================ */
+.fit-earnings-hero {
+  background: var(--fit-surface-high);
+  border-radius: var(--fit-radius-lg);
+  padding: var(--fit-sp-4);
+  display: flex; flex-direction: column; gap: var(--fit-sp-3);
+  font-family: var(--fit-font);
+  color: var(--fit-text-primary);
+}
+.fit-earnings-hero-header {
+  display: flex; align-items: baseline; gap: var(--fit-sp-3);
+}
+.fit-earnings-hero-amount-block { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.fit-earnings-hero-amount {
+  font: 600 28px/1.2 var(--fit-font);
+  color: var(--fit-text-primary);
+}
+.fit-earnings-hero-period {
+  font: 400 13px/1.3 var(--fit-font);
+  color: var(--fit-text-tertiary);
+}
+.fit-earnings-hero-trend {
+  /* Renders as .fit-badge-success / .fit-badge-danger / .fit-badge-neutral */
+  flex-shrink: 0;
+}
+.fit-earnings-hero-divider {
+  height: 1px; background: var(--fit-divider); width: 100%;
+}
+.fit-earnings-hero-breakdown {
+  display: grid; grid-template-columns: 60% 40%;
+  gap: var(--fit-sp-3);
+}
+.fit-earnings-hero-breakdown-col { display: flex; flex-direction: column; gap: 2px; }
+.fit-earnings-hero-breakdown-label {
+  font: 400 13px/1.3 var(--fit-font);
+  color: var(--fit-text-tertiary);
+}
+.fit-earnings-hero-breakdown-value {
+  font: 500 16px/1.3 var(--fit-font);
+  color: var(--fit-text-primary);
+}
+.fit-earnings-hero-planned {
+  font: 400 13px/1.3 var(--fit-font);
+  color: var(--fit-text-tertiary);
+}
+
+/* ============================================================
+   FitPaymentMethodCard — provider selector (NEW)
+   ============================================================ */
+.fit-payment-method-card {
+  display: flex; align-items: center; gap: var(--fit-sp-3);
+  padding: var(--fit-sp-3) 14px;
+  background: var(--fit-surface-high);
+  border-radius: var(--fit-radius-md);
+  width: 100%;
+  font-family: var(--fit-font);
+  color: var(--fit-text-primary);
+  cursor: pointer;
+  text-align: left;
+  border: none;
+}
+.fit-payment-method-card--disabled { opacity: 0.6; pointer-events: none; }
+.fit-payment-method-card-logo {
+  width: 40px; height: 40px;
+  border-radius: var(--fit-radius-sm);
+  background: var(--fit-surface-higher);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font: 600 18px/1 var(--fit-font);
+  color: var(--fit-text-primary);
+}
+.fit-payment-method-card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.fit-payment-method-card-title {
+  font: 500 15px/1.3 var(--fit-font);
+  color: var(--fit-text-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.fit-payment-method-card-sub-row {
+  display: flex; align-items: center; gap: var(--fit-sp-1);
+}
+.fit-payment-method-card-status-dot {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+}
+.fit-payment-method-card-status-dot--connected      { background: var(--fit-teal-500); }
+.fit-payment-method-card-status-dot--action-required{ background: var(--fit-yellow-400); }
+.fit-payment-method-card-sub {
+  font: 400 13px/1.3 var(--fit-font);
+  color: var(--fit-text-tertiary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.fit-payment-method-card-trailing { flex-shrink: 0; }
+
+/* ============================================================
+   FitAvailabilityDay — coach availability row (NEW)
+   ============================================================ */
+.fit-availability-day {
+  display: flex; flex-direction: column; gap: var(--fit-sp-3);
+  font-family: var(--fit-font);
+  width: 100%;
+}
+.fit-availability-day-header {
+  display: flex; align-items: center; gap: var(--fit-sp-3);
+}
+.fit-availability-day-name {
+  font: 500 16px/1.3 var(--fit-font);
+  color: var(--fit-text-primary);
+}
+.fit-availability-day--inactive .fit-availability-day-name {
+  color: var(--fit-text-tertiary);
+}
+.fit-availability-day-intervals {
+  display: flex; flex-direction: column; gap: var(--fit-sp-2);
+  /* Indent matches checkbox + gap so intervals align with day name */
+  padding-left: calc(28px + var(--fit-sp-3));
+}
+.fit-availability-day-interval-row {
+  display: flex; align-items: center; gap: var(--fit-sp-2);
+}
+.fit-availability-day-time {
+  width: 56px; height: 56px;
+  border-radius: var(--fit-radius-md);
+  background: var(--fit-surface-low);
+  display: flex; align-items: center; justify-content: center;
+  font: 500 14px/1 var(--fit-font);
+  color: var(--fit-text-primary);
+  cursor: pointer; border: none;
+}
+.fit-availability-day-to {
+  font: 400 14px/1 var(--fit-font);
+  color: var(--fit-text-secondary);
+}
+.fit-availability-day-remove {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: rgba(240,92,91,0.10);
+  color: var(--fit-red-400);
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  margin-left: auto;
+}
+.fit-availability-day-remove svg { width: 12px; height: 12px; }
+.fit-availability-day-add {
+  display: inline-flex; align-items: center; gap: var(--fit-sp-2);
+  background: transparent; border: none;
+  color: var(--fit-brand-primary);
+  font: 400 14px/1.3 var(--fit-font);
+  cursor: pointer; padding: 0;
+}
+.fit-availability-day-add svg { width: 14px; height: 14px; }
+.fit-availability-day-error {
+  font: 400 13px/1.3 var(--fit-font);
+  color: var(--fit-red-400);
+  padding-left: calc(28px + var(--fit-sp-3));
+}
+
+/* ============================================================
+   FitSpotCounter — group training spots (NEW)
+   ============================================================ */
+.fit-spot-counter {
+  position: relative;
+  width: 100%;
+  height: 12px;
+  background: var(--fit-surface-high);
+  border-radius: var(--fit-radius-md);
+  overflow: hidden;
+}
+.fit-spot-counter--compact { height: 8px; }
+.fit-spot-counter-fill {
+  position: absolute; top: 0; left: 0; bottom: 0;
+  background: var(--fit-teal-500);
+  border-radius: var(--fit-radius-md);
+  transition: width 200ms ease;
+}
+.fit-spot-counter-label {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font: 500 11px/1 var(--fit-font);
+  color: var(--fit-text-primary);
+}
+.fit-spot-counter--compact .fit-spot-counter-label { display: none; }
+
+/* ============================================================
+   FitProfileHeader — coach/athlete profile hero (NEW)
+   ============================================================ */
+.fit-profile-header {
+  display: flex; flex-direction: column; gap: var(--fit-sp-4);
+  padding: var(--fit-sp-4);
+  font-family: var(--fit-font);
+  color: var(--fit-text-primary);
+}
+.fit-profile-header-top {
+  display: flex; align-items: flex-start; gap: var(--fit-sp-4);
+}
+.fit-profile-header-avatar {
+  /* Reuses .fit-avatar; size 80×80 enforced by .fit-avatar-lg or
+     direct size override. */
+  width: 80px; height: 80px; flex-shrink: 0;
+}
+.fit-profile-header-info {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: var(--fit-sp-1);
+}
+.fit-profile-header-title-row {
+  display: flex; align-items: flex-start; gap: var(--fit-sp-2);
+}
+.fit-profile-header-name {
+  flex: 1; min-width: 0;
+  font: 600 24px/1.2 var(--fit-font);
+  color: var(--fit-text-primary);
+}
+.fit-profile-header-meta {
+  font: 400 14px/1.35 var(--fit-font);
+  color: var(--fit-text-tertiary);
+}
+.fit-profile-header-bio {
+  font: 400 16px/1.4 var(--fit-font);
+  color: var(--fit-text-secondary);
+}
+
+/* ============================================================
+   FitPasswordRule — auth password rule list (NEW)
+   ============================================================ */
+.fit-password-rules {
+  display: flex; flex-direction: column; gap: 6px;
+  font-family: var(--fit-font);
+}
+.fit-password-rule {
+  display: flex; align-items: center; gap: var(--fit-sp-2);
+  font: 400 14px/1.4 var(--fit-font);
+  color: var(--fit-text-tertiary);
+}
+.fit-password-rule-icon {
+  width: 12px; height: 12px; flex-shrink: 0;
+  color: var(--fit-text-tertiary);
+}
+.fit-password-rule-icon svg { width: 12px; height: 12px; }
+.fit-password-rule--met {
+  color: var(--fit-text-secondary);
+}
+.fit-password-rule--met .fit-password-rule-icon {
+  color: var(--fit-teal-500);
+}
