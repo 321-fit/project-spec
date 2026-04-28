@@ -141,6 +141,17 @@ developers either invent placeholder copy or strip the prototype's full
 sentence down to a bare badge — both regressions caught only at visual
 review.
 
+##### L10n key naming convention
+
+To keep keys grep-able and consistent across modules, follow this hierarchy:
+
+- **Base form:** `<Module>.<Section>.<Property>` — e.g. `Dashboard.NextSession.MetaSeparator`, `Dashboard.PaymentSplit.CashLabel`
+- **Pluralization:** suffix `Singular` / `Plural` (or sub-key with `One`/`Other` for ICU pluralization on Android `<plurals>`) — e.g. `Dashboard.ActionCard.Subtitle.Requests` (plural) + `Dashboard.ActionCard.Subtitle.RequestsSingular` (n=1)
+- **Conditional copy** (different sentence depending on data slice): suffix `When<Condition>` — e.g. `Dashboard.NextSession.WhenInMinutes`, `Dashboard.NextSession.WhenToday`, `Dashboard.NextSession.WhenTomorrow`
+- **Empty / fallback states:** suffix `None` / `Empty` — e.g. `Dashboard.WeekEarnings.PlannedNone` ("No sessions planned this week")
+
+Android `R.string` keys translate the dot-hierarchy to snake_case: `Dashboard.NextSession.MetaSeparator` → `dashboard_next_session_meta_separator`. iOS `L10n.*` keeps the dot path. Architect agents list keys as iOS-style in the Field map; `/android-develop` handles the snake_case translation when adding to `strings.xml`.
+
 ---
 
 ## 6. Platform quirks
