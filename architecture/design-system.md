@@ -203,6 +203,56 @@ Generated CSS exposes theme-qualified tokens (`--fit-color-text-primary-dark`); 
 
 ---
 
+## Native theming contract
+
+How the design system flows into iOS (SwiftUI) and Android (Compose) screens. **This is the canonical rule for native code** — every native-bound spec links here under Platform notes.
+
+### Required
+
+- **Wrap screens in the FitUI theme provider** at the root composable / view:
+  - SwiftUI: `FitTheme(.dark) { … }` (or `.light`) — provides `@Environment(\.fitTheme)`
+  - Compose: `FitTheme(isDark = isDark) { … }` — provides `LocalFitTheme.current`
+- **Read all colors via the theme**, not via Material / system defaults:
+  - SwiftUI: `theme.surfaceDefault`, `theme.textPrimary`, `theme.divider`, `theme.bgErrorTinted`, etc.
+  - Compose: `LocalFitTheme.current.surfaceDefault`, etc.
+- **Use FitUI components** (`FitCard`, `FitNavbar`, `FitButton`, `FitHeader`, `FitSheet`, `FitInput`, `FitSelectRow`, `FitToast`, …) instead of bare `Card` / `NavigationBar` / `Button` / `BottomSheet` from Material / UIKit.
+- **Use FitUI primitives** for every dimension that has a token: `FitSpacing.sp4`, `FitRadius.card`, `FitFont.body1`, `FitSize.tapMin`. No raw `dp` / `pt` literals where a token exists.
+- **Theme is a user preference.** A single `isDark` switch per device, persisted, applies to both Coach and Athlete identically. Never derive theme from role (`isCoach`) or from a stale Compose `MaterialTheme`.
+- **For tinted backgrounds use `bg.<status>-subtle` / `bg.<status>-tinted` tokens** — never compose tints inline (`.opacity(N)` / `.copy(alpha = N)` over a base color). Alpha that reads on white differs from alpha that reads on dark; tokens carry per-theme opacities. Memory: `feedback_native_theme_tokens`.
+
+### Forbidden in new screens (anti-patterns)
+
+| ❌ Don't | ✅ Do |
+|---|---|
+| `Color(0xFF1F2123)` / `Color.Black` / `Color.White` literals | `LocalFitTheme.current.screenBg` / `theme.textPrimary` |
+| `Color(red:0.1,green:…)` / `Color(hex:"#1F2123")` in SwiftUI | `theme.screenBg` from `FitTheme` |
+| `MaterialTheme.colorScheme.background` in screens | `LocalFitTheme.current.surfaceDefault` |
+| Custom `darkColorScheme(...)` / `lightColorScheme(...)` parallel themes | One `FitTheme` provider; never declare a parallel `ColorScheme` |
+| `if (isCoach) DarkScheme else LightScheme` | `FitTheme(isDark = userPrefersDark)` — role-agnostic |
+| `Color.Red.copy(alpha = 0.12f)` / `.opacity(0.18)` over base color | `theme.bgErrorSubtle` / `theme.bgErrorTinted` (per-theme alphas) |
+| `Card { … }` / `NavigationBar { … }` / `Button { … }` (bare Material) | `FitCard { … }` / `FitNavbar(...)` / `FitButton(...)` |
+| `8.dp` / `16.dp` / `12.pt` literals on layout | `FitSpacing.sp2` / `sp4` / `sp3` |
+| Hardcoded `RoundedCornerShape(16.dp)` for cards | `RoundedCornerShape(FitRadius.card)` |
+| Local `enum Theme { Coach, Athlete }` shadow systems | Read theme from `FitTheme` only |
+
+### Missing component? Add it upstream
+
+If a needed pattern is not in `design-tokens/docs/components.md`, the order is:
+
+1. Spec the component in `design-tokens/docs/components.md` (purpose, props, states, dark/light, iOS/Android notes).
+2. Build the SwiftUI version in `Sources/FitUI/Components/<Name>.swift`.
+3. Build the Compose mirror in `android/src/main/kotlin/.../components/<file>.kt`.
+4. Reference tokens — never hardcode dimensions or colors.
+5. **Then** consume in app screens.
+
+Inlining a parallel implementation in `321fit_ios` or `321fit_android_new` is a memory-anti-pattern (see `feedback_no_parallel_theme`) — fix the library, not the screen.
+
+### Why these rules exist
+
+This contract exists because Phase 4 dashboard pilot on Android shipped with hardcoded `#242424` / role-gated theme / bare `Card()` calls — the design-tokens module was technically present but the app had a parallel `NewTheme.kt` that bypassed it entirely. Result: the implementation visually diverged from the prototype (no fills, wrong navbar gradient, wrong tab content), and the gap was architectural, not stylistic. New code is written against this contract from day one.
+
+---
+
 ## Sheet layout rules
 
 Canonical per memory `feedback_sheet_rules`:

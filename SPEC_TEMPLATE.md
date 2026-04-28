@@ -169,6 +169,8 @@ data-race, null handling.
 
 ## 9. Platform notes
 
+**Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.
+
 High-level differences only. One or two sentences per platform. Detailed
 implementation lives in impl-docs.
 
