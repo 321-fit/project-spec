@@ -109,7 +109,41 @@ Platform-specific patterns.
 
 ---
 
-## 5. Platform quirks
+## 5. States
+
+For every state surfaced by the screen (e.g. `dst-default`, `dst-empty`,
+`dst-error`, `dst-new-coach`, `dst-loading`), include:
+
+1. **Trigger** — which contract field / boolean flag selects this state.
+2. **Field map** — required table mapping each visible slot in the prototype
+   to its source data, format, and L10n key. Every literal text fragment from
+   the prototype HTML must appear here so the developer knows whether to ship
+   a fixed string or derive it from snapshot data.
+
+#### Field map
+
+> Required for every state. One row per visible slot. Plain prototype values
+> like `"26h"` or `"€40"` are NEVER what ships — the prototype's full
+> sentence (e.g. `"Oldest: 26h waiting · Reply now"`) is the spec.
+
+| View slot | Source | Format / placeholder | L10n key |
+|---|---|---|---|
+| NextSession.title | `snapshot.nextSession.athleteName` | direct | — |
+| NextSession.meta | `[snapshot.nextSession.sport, snapshot.nextSession.durationMin + " min", snapshot.nextSession.location].filter { $0 != nil }.joined(separator: " · ")` | derived | — |
+| NextSession.when | `snapshot.nextSession.startTime` | `humanizedRelative` formatter | `Dashboard.NextSession.WhenInMinutes` (`"In %d min · %@"`) |
+| NextSession.pill | `snapshot.nextSession.eventState` | `state == .planned ? nil : FitCalEventPill(state)` | — |
+| ActionCard.cashSubtitle | `snapshot.cashOwed.clientCount` | `"From %d clients · Mark paid"` | `Dashboard.ActionCard.Subtitle.Cash` |
+| … | … | … | … |
+
+The Field map makes copy/format obligations explicit. Architect agents must
+fill it from prototype HTML during impl-doc generation. Without this table
+developers either invent placeholder copy or strip the prototype's full
+sentence down to a bare badge — both regressions caught only at visual
+review.
+
+---
+
+## 6. Platform quirks
 
 Non-obvious platform-specific behaviors not derivable from the spec.
 
@@ -134,7 +168,7 @@ Non-obvious platform-specific behaviors not derivable from the spec.
 
 ---
 
-## 6. Edge cases (platform-specific)
+## 7. Edge cases (platform-specific)
 
 Edge cases that only manifest in this platform. General ones stay in spec.
 
@@ -146,7 +180,7 @@ Edge cases that only manifest in this platform. General ones stay in spec.
 
 ---
 
-## 7. Tests
+## 8. Tests
 
 List of tests to write with key assertions.
 
@@ -167,7 +201,7 @@ Backend adds: load tests (100 req/sec), migration rollback test.
 
 ---
 
-## 8. Open items
+## 9. Open items
 
 TODOs, known limitations, follow-ups deferred for later.
 
