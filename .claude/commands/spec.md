@@ -91,6 +91,46 @@ For **reusable component specs** (sport-picker, location-picker, session-creatio
 Every issue body must be **self-contained** so a developer (human or AI agent) can pick it up and work autonomously without further questions. Required sections:
 
 ```markdown
+## How to run (via OpenClaw in Mattermost)
+
+Send to the bot in the issue thread, verbatim:
+
+> запусти `/<architect-command> impl-doc <spec-name>`
+
+Where `<architect-command>` is:
+- `architect` for `repo:poly-backend`
+- `ios-architect` for `repo:321fit_ios`
+- `android-architect` for `repo:321fit_android_new`
+
+The bot translates this into a Claude Code agent run with the spec name as argument. Do NOT ask the bot to "choose between impl-doc / spec / analyze" — `impl-doc` is the canonical Phase 4 command; the rest are not used for this flow.
+
+## Cross-repo paths the agent needs
+
+The spec, prototype, and contract live in the sibling `project-spec` repo (not the platform repo this issue lives in):
+
+- Spec source: `project-spec/specs/<spec-name>.md` — fetch via [GitHub Pages](https://321-fit.github.io/project-spec/specs/<spec-name>.md) if no local checkout
+- Prototype HTML: `project-spec/prototypes/flows/<role>/<flow>.html` — fetch via Pages URL if no local checkout
+- Contract: `project-spec/contracts/<spec-name>.openapi.yaml` — produced by the backend issue in this batch
+- Design system + native theming contract: `project-spec/architecture/design-system.md`
+- Baseline OpenAPI: `project-spec/contracts/_baseline.openapi.yaml`
+
+If only the platform repo is checked out, the GitHub Pages URLs above are authoritative — use `WebFetch` / `curl` to read them. Do not stop because local fs lacks `contracts/`, `specs/`, or `prototypes/`.
+
+## If backend contract is missing — DO NOT STOP   *(client-platform issues only; omit from backend issue body)*
+
+The contract `project-spec/contracts/<spec-name>.openapi.yaml` may not exist yet at the time you run impl-doc. **This is the expected state.** The backend issue in this batch generates it in parallel.
+
+Per `MOCK_POLICY.md` + skill rules, the agent must proceed **mock-first**:
+
+1. Generate `<repo>/docs/<spec-name>-<platform>.md` with a contract sketch in §6 marked `TBD: backend#<n> finalizes`
+2. Build the mock provider so it returns full snapshots for every state from spec §5
+3. Wire the `MOCK_<MODULE>` build flag (xcconfig on iOS, gradle.properties on Android) so the dev can run the screen against mocks without a backend
+4. When the backend issue merges → swap the contract reference, flip the mock flag to false, re-test
+
+Do NOT ask "impl-doc или spec?" — `impl-doc` is correct. The contract gap is handled by the mock layer, not by switching mode.
+
+---
+
 ## Spec
 - Spec: [project-spec/specs/<spec-name>.md](https://321-fit.github.io/project-spec/specs/<spec-name>.md) — sections relevant to this issue
 - Prototype: [<flow file>#<screen-id>](https://321-fit.github.io/project-spec/prototypes/flows/<...>.html#<screen-id>)
@@ -131,9 +171,11 @@ Every issue body must be **self-contained** so a developer (human or AI agent) c
 - [ ] PR description references this issue (`Closes #<issue-number>`) and mirrors these criteria in its Test plan
 
 ## Memory rules to apply
+- `feedback_read_prototype_first` — read prototype HTML + annotations before asking any product question
 - `feedback_keep_existing_endpoints` — extend existing paths, don't rename
 - `feedback_native_pickers` — wheel/time/date/map = native, not Fit components
 - `feedback_skills_language` — all code/docs/PR descriptions in English
+- `feedback_openclaw_issue_body` — when bot asks "which mode" or stops on missing contract, point it at the How-to-run + If-contract-missing blocks at the top of this issue
 - (Add module-specific memory references if they exist, e.g. `project_locations_decisions`)
 
 ## Dependencies
