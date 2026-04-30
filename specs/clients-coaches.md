@@ -3,7 +3,7 @@
 > Status: Approved (contract) / In Progress (Archive/Block + CRM + Deleted migration)
 > Prototype: [flows/coach/clients.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/clients.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-04-24
+> Last updated: 2026-04-30
 > Implementation:
 > - iOS:     [321fit_ios/docs/clients-coaches-ios.md] (to be created)
 > - Backend: [poly-backend/docs/clients-coaches-backend.md] (to be created — includes relationship model migration)
@@ -73,6 +73,7 @@ This spec focuses on the **coach-side Clients tab** (the more complex half) and 
 4. Accept → `POST /events/{id}/accept` → event becomes `planned`; card fades out; snackbar confirmation.
 5. Decline → destructive confirmation (optional) → `POST /events/{id}/decline` → card fades; snackbar.
 6. Empty state: illustration + "All caught up" + "New training requests from athletes will appear here."
+7. **Avatar / row tap** → push Client Detail (`#s-client-detail`) for that athlete. **No separate "athlete profile" screen exists** — from the coach's perspective, athlete profile IS Client Detail. The same screen the Clients-list tap reaches; this inbox is just an additional entry point. The avatar in the Client Detail header itself is decorative (no tap — already on this athlete's profile).
 
 ### Flow 3: Add client — 3 paths
 
@@ -201,6 +202,14 @@ Athletes can pause or block a coach from their side. Per Q7 decision: **all athl
 - Athletes who paused appear in `Inactive Clients` mini-section / filter inside Clients tab, with subtle "No activity since {date}" tag. NO mention of "athlete archived/disconnected you" — avoid creating a public rejection signal for the coach.
 - Blocked-by-athlete athletes vanish from coach's active list; they appear in a separate `Disconnected` row at the bottom of Archived & Blocked screen (NOT mixed with coach-blocked athletes — different semantics). This row is purely for record retention; no actions other than viewing history.
 
+**V1 MVP scope (decided 2026-04-30):** the **data model lands** in V1 (`paused_by_athlete` and `blocked_by_athlete` booleans on the relationship — needed for athlete-side discovery filter), but the **coach-side surfaces are deferred to V2**:
+- iOS / Android V1 receive the boolean fields in the API response but render NO surface.
+- `blocked_by_athlete: true` clients are filtered server-side from the active list (athlete fully invisible to coach).
+- `paused_by_athlete: true` clients show in the active list with no visual difference (no "Inactive Clients" mini-section in V1, no "No activity since X" tag).
+- The dedicated "Disconnected" row at the bottom of Archived & Blocked is **not rendered in V1**.
+
+V2 follow-up tracks both surfaces as a separate ticket once the prototype gains the section design.
+
 **Re-engagement:** If athlete pauses then later books again → relationship reactivates implicitly (no friction, no coach prompt). Block is harder reversal — only via athlete's Settings unblock action.
 
 **Why no notification at all (even on block):** A coach with 50 athletes doesn't benefit from "Tom blocked you" — it's noise + unclear actionability. If actual safety concern (harassment by coach), athlete reports via Support, which routes to admin (separate, intentional path).
@@ -237,7 +246,7 @@ Client Detail `⋯` menu visibility, per (relationship_state × account_status):
 | | active · app | active · crm | active · deleted | archived · any | blocked · any |
 |---|---|---|---|---|---|
 | Schedule training | ✓ | — (no push target) | — | — | — |
-| Edit info | ✓ | ✓ (coach owns card) | ✓ (coach owns notes) | ✓ | ✓ |
+| Edit info | ✓ (App mode) | ✓ (CRM mode) | ✓ (App mode) | ✓ | ✓ |
 | Notes (private) | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Training history | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Mark Paid (cash) | ✓ | ✓ | ✓ | ✓ | — |
@@ -247,6 +256,19 @@ Client Detail `⋯` menu visibility, per (relationship_state × account_status):
 | Block athlete | ✓ | — (no app to block) | — | ✓ (already archived → can still block) | — (already blocked) |
 | Unblock | — | — | — | — | ✓ |
 | Restore (unarchive) | — | — | — | ✓ | — |
+
+### Edit info — two modes (single screen, mode auto-derived from `athlete_account_status`)
+
+Edit info opens one screen with two modes — **same form scaffolding** (avatar + input rows + push-screen sub-selectors), but field set differs by `athlete_account_status` because the coach owns CRM contacts entirely while app-account athletes own their own identity.
+
+| Mode trigger | Editable fields | Endpoint |
+|---|---|---|
+| `athlete_account_status = crm` (**CRM mode**) — coach owns the contact card | First name · Last name · Phone · Email · Sport · Notes · optional Avatar (full Create-Client form) | `PATCH /coach/crm-clients/{id}` |
+| `athlete_account_status ∈ {app, deleted}` (**App mode**) — coach does NOT edit athlete identity | Read-only identity card on top (avatar + name + sport chips, footnote "Managed by athlete · contact athlete to update"). Editable: **Sport-of-coaching** (which sport coach trains them in — different from athlete's own sport list) + **Notes** (coach-private). | `PATCH /coach/clients/{id}/update-profile` (narrowed payload — no identity fields) |
+
+**Why two modes, not two separate screens:** dirty-tracking + validation + save state machinery is identical; only the visible field set differs. Same code path, different `Mode` enum case.
+
+**Why not reuse the dedicated Personal Data screen:** Personal Data is the user's own identity edit; Edit Client is coach-side metadata about ANOTHER user. Different endpoints, different field semantics, different visibility. Reuses the same FitInput / FitSelectionGroup / push-screen text editor components, but stays scoped to coach's editing rights.
 
 ---
 
@@ -363,6 +385,16 @@ When coach initiates for an existing active-app client: `status: awaiting` (coac
 - **Backend:** new DB table `coach_athlete_relationship` with columns `coach_id`, `athlete_id`, `relationship_state`, `athlete_account_status`, `created_at`, `updated_at`, plus audit log table for state changes. Migration from existing `user_exclusion` table + `coach.clients` linkage.
 - **Voice:** `get_connected_athletes()` should filter by `relationship_state = active`. Adding arg `includeArchived: bool`.
 
+### Component contract (cross-platform)
+
+Both iOS and Android consume the same FitUI component set from [`design-tokens`](../../design-tokens/docs/components.md). Notable choices for this module:
+
+- **`FitSegmented`** — the Archived / Blocked tabs on `#s-archived` use `FitSegmented` (iOS-style segmented control, slid-pill in a well, `count:` callback for the `(N)` suffix). Distinct from `FitSelectionGroup` (form-input chip group with selection border). Component landed in design-tokens 2026-04-30; spec at [components.md § FitSegmented](../../design-tokens/docs/components.md#fitsegmented).
+- **`FitContextMenu`** (iOS) / Material 3 `DropdownMenu` (Android) — for the ⋯ menu on Client Detail.
+- **`FitBadge`** — `CRM` (teal/`.success`), `Deleted` (gray/`.neutral`), `€X owed` (red/`.danger`), `Archived {date}` (subtitle on archived list rows).
+- **Edit Client form** — reuses `FitInput`, `FitSelectionGroup`, push-screen text editor + sport selector. Two modes per the table in §5 above; **single screen, single ViewModel** (mode parameter), not a fork into two separate screens.
+- **Avatar tap target** — Requests inbox cards' avatar/row tap pushes Client Detail. Coach-side "athlete profile" IS Client Detail; no separate athlete-profile screen exists. Avatar in Client Detail header is decorative.
+
 ---
 
 ## 10. Open questions
@@ -370,6 +402,10 @@ When coach initiates for an existing active-app client: `status: awaiting` (coac
 - [x] ~~**Athlete-initiated disconnect visibility:**~~ RESOLVED in Tier 1 Q7: silent for ALL athlete-side actions (pause + block). No coach notification. Surfaces in coach UI as quiet "Inactive Clients" / "Disconnected" record rows.
 - [x] ~~**Block notification to athlete (coach blocks):**~~ RESOLVED — coach-side block also stays silent on athlete side per existing spec (matches Q7 symmetry).
 - [x] ~~**CRM → app match logic:**~~ RESOLVED in Tier 1 Q6: invite-token > phone E.164 > email (priority order). Multi-coach same-phone links to all coaches simultaneously (intended, not a conflict). Origin enum tagged on every link.
+- [x] ~~**Avatar tap target on Requests / Client Detail header:**~~ RESOLVED 2026-04-30: avatar/row tap on Requests inbox card pushes Client Detail (same screen as Clients-list tap). Coach-side "athlete profile" IS Client Detail — no separate screen. Client Detail header avatar is decorative (no tap). Documented in Flow 2 + §9 component contract.
+- [x] ~~**Edit info form scope:**~~ RESOLVED 2026-04-30: single screen with two modes auto-derived from `athlete_account_status` — CRM mode = full Create-Client field set (`PATCH /coach/crm-clients/{id}`); App mode (covers `app` + `deleted`) = read-only identity card + editable Sport-of-coaching + Notes (`PATCH /coach/clients/{id}/update-profile`). Reuses Personal Data form components but stays scoped to coach-editable fields. Documented in §5 menu scoping subsection.
+- [x] ~~**Q7 silent-disconnect surfaces ("Inactive Clients" + "Disconnected" rows):**~~ RESOLVED 2026-04-30: deferred to V2 of Clients module. Data fields (`paused_by_athlete`, `blocked_by_athlete`) land in V1 backend (needed for athlete-side filter), but iOS / Android V1 render no surface. Documented in Flow 11 V1 MVP scope note.
+- [x] ~~**Segmented control component:**~~ RESOLVED 2026-04-30: `FitSegmented` landed in design-tokens (commit `895aa16`) as a distinct component from `FitSelectionGroup`. Use for tab switcher / view filter UX (Archived / Blocked tabs). Documented in §9 component contract.
 - [ ] **Bulk actions on archived list:** unarchive 10 clients at once. Defer until user feedback. **Owner:** product.
 - [ ] **Deleted → hard-deleted (GDPR):** separate path, not automatic. Admin tool + retention policy spec. **Owner:** legal + ops.
 - [ ] **Message feature for CRM clients:** currently hidden (no inbox exists). If/when Messenger launches, should CRM clients have an "invited via" or limited chat? **Owner:** product.
