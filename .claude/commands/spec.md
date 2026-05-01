@@ -72,7 +72,7 @@ Build a planned issue list. Each entry has:
 For **module specs** (dashboard, payments, etc.), produce:
 - 1 issue per platform repo (backend, iOS, Android — skip platforms not touched by the spec)
 - Each titled `feat(<module>): <module-name> <platform-suffix>` (e.g. `feat(dashboard): dashboard backend`, `feat(dashboard): dashboard iOS`)
-- Backend issue should add `type:contract` if a new contract fragment is needed
+- Backend issue should add `type:contract` if this module introduces a new `<module>-api.md` doc (i.e. new endpoints, not just extending existing ones)
 
 For **cross-cutting / flow specs** (group-training, vacation-mode, onboarding-wizard):
 1. Epic issue in `project-spec` repo:
@@ -112,15 +112,14 @@ The bot translates this into a Claude Code agent run with the spec name as argum
 
 ## Cross-repo paths the agent needs
 
-The spec, prototype, and contract live in the sibling `project-spec` repo (not the platform repo this issue lives in):
+The spec and prototype live in the sibling `project-spec` repo (not the platform repo this issue lives in). The per-module API reference lives in `poly-backend/docs/<spec-name>-api.md` (see lookup order in next section):
 
 - Spec source: `project-spec/specs/<spec-name>.md` — fetch via [GitHub Pages](https://321-fit.github.io/project-spec/specs/<spec-name>.md) if no local checkout
 - Prototype HTML: `project-spec/prototypes/flows/<role>/<flow>.html` — fetch via Pages URL if no local checkout
-- Contract: `project-spec/contracts/<spec-name>.openapi.yaml` — produced by the backend issue in this batch
 - Design system + native theming contract: `project-spec/architecture/design-system.md`
-- Baseline OpenAPI: `project-spec/contracts/_baseline.openapi.yaml`
+- Legacy baseline OpenAPI (read-only, pre-Phase-4 endpoints): `project-spec/contracts/_baseline.openapi.yaml`
 
-If only the platform repo is checked out, the GitHub Pages URLs above are authoritative — use `WebFetch` / `curl` to read them. Do not stop because local fs lacks `contracts/`, `specs/`, or `prototypes/`.
+If only the platform repo is checked out, the GitHub Pages URLs above are authoritative — use `WebFetch` / `curl` to read them. Do not stop because local fs lacks `specs/` or `prototypes/`.
 
 ## If backend API reference is missing — DO NOT STOP   *(client-platform issues only; omit from backend issue body)*
 
@@ -161,7 +160,7 @@ Do NOT ask "impl-doc или spec?" — `impl-doc` is correct. The API gap is han
 - Legacy baseline (read-only): `project-spec/contracts/_baseline.openapi.yaml`
 
 ## Implementation order
-1. Run `/architect impl-doc <spec-name>` (in this repo) to generate impl-doc + contract fragment if needed
+1. Run `/architect impl-doc <spec-name>` (in this repo) to generate impl-doc + `<spec-name>-api.md` skeleton (backend only)
 2. Run `/develop implement <spec-name>` — branches off the active integration branch (read from `.claude/CURRENT_INTEGRATION_BRANCH`)
 3. Open PR into the integration branch with the test plan from `/develop`
 
