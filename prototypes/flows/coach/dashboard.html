@@ -1647,7 +1647,7 @@
       <button class="fit-header-back" onclick="go('s-dashboard', document.querySelector('.sidebar button[onclick*=s-dashboard]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
       <span class="fit-header-title">Notifications</span>
       <button class="fit-icon-btn" aria-label="More" onclick="markAllNotifRead(event)" id="notif-more-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
       </button>
     </div>
   </div>
@@ -2023,6 +2023,8 @@
     <p><strong>Component &mdash; new for FitUI:</strong> <code>FitNotificationRow</code>. <code>FitTransactionRow</code> doesn't fit (its trailing slot is semantic-colored amount, variants are payment-typed). To be specced in <code>design-tokens/docs/components.md</code> alongside this PR.</p>
     <p><strong>Backend (already shipped):</strong> <code>GET /notifications</code> &middot; <code>GET /notifications/count</code> &middot; <code>POST /notifications/mark-read</code> &middot; <code>POST /notifications/mark-all-read</code> &middot; <code>POST /notifications/mark-informational-read</code>. FCM routing on 9 <code>TargetRoute</code> types. UI is the only gap.</p>
     <p class="note"><strong>Open backend questions for /architect impl-doc:</strong> (1) <code>mark-informational-read</code> vs <code>mark-read</code> semantics &mdash; verify against live API; (2) pagination shape (cursor vs offset+limit); (3) does <code>GET /notifications</code> return <code>TargetData</code> inline so tap can navigate without re-fetch?</p>
+    <hr>
+    <p><strong>Screen entry animation</strong> &mdash; standard push transition: <code>translateX(100%)</code> &rarr; <code>0</code>, <strong>300ms ease-out</strong> per <code>feedback_animation_tokens</code>. Native default: iOS <code>UINavigationController.pushViewController</code>, Android Compose <code>NavHost</code> <code>slideInHorizontally</code>. Back gesture/back button mirrors with <code>0</code> &rarr; <code>translateX(100%)</code>. Prototype doesn&rsquo;t demo motion (sidebar = demo navigation, not runtime); spec captures contract here so devs implement consistently.</p>
   </div>
 </div>
 
