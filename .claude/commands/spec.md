@@ -68,6 +68,7 @@ Build a planned issue list. Each entry has:
 - Assignees (from `reference_team_assignees`)
 - Body (full template, see Step 3)
 - Project: #2
+- **Integration branch (resolved)** — for each touched repo, read `<repo>/.claude/CURRENT_INTEGRATION_BRANCH` (e.g. `cat poly-backend/.claude/CURRENT_INTEGRATION_BRANCH`) and capture the current value. Embed this verbatim in Implementation order step 2/3 + Acceptance criteria of THIS issue. Per `feedback_task_creation` Branch reference criterion — agent reads file at run time (resilient to renames), reader sees current value without leaving GitHub.
 
 For **module specs** (dashboard, payments, etc.), produce:
 - 1 issue per platform repo (backend, iOS, Android — skip platforms not touched by the spec)
@@ -161,8 +162,10 @@ Do NOT ask "impl-doc или spec?" — `impl-doc` is correct. The API gap is han
 
 ## Implementation order
 1. Run `/architect impl-doc <spec-name>` (in this repo) to generate impl-doc + `<spec-name>-api.md` skeleton (backend only)
-2. Run `/develop implement <spec-name>` — branches off the active integration branch (read from `.claude/CURRENT_INTEGRATION_BRANCH`)
-3. Open PR into the integration branch with the test plan from `/develop`
+2. Run `/develop implement <spec-name>` — branches off the active integration branch (read from `.claude/CURRENT_INTEGRATION_BRANCH`, currently `<RESOLVED-BRANCH>`)
+3. Open PR into `<RESOLVED-BRANCH>` with the test plan from `/develop`
+
+> **Author note when generating this issue:** replace both `<RESOLVED-BRANCH>` placeholders with the actual current value of `<repo>/.claude/CURRENT_INTEGRATION_BRANCH` at issue-creation time. Do not leave the placeholder literal — readers won't know the branch without leaving GitHub. See Step 2 Plan issues "Integration branch (resolved)" bullet.
 
 ## Acceptance criteria
 
@@ -178,6 +181,8 @@ Do NOT ask "impl-doc или spec?" — `impl-doc` is correct. The API gap is han
 - [ ] Tests per spec section 9: happy + 401/403/404 (backend) or state transitions (UI)
 - [ ] No drift between code and API doc — `/architect review` passes
 - [ ] **Backward compatibility verified** (backend only) — no removed/renamed/retyped fields on existing endpoints; legacy compat fields documented in `<spec-name>-api.md` BC table per `feedback_backward_compat_endpoints`
+- [ ] **Verification evidence** (backend only) — Tier 1 + Tier 2 outputs (ruff / mypy / import smoke / alembic / pytest) included in PR body, not "skipped, reviewer please run", per `feedback_backend_verification_gate`
+- [ ] PR opened against the integration branch from `.claude/CURRENT_INTEGRATION_BRANCH` (currently `<RESOLVED-BRANCH>`)
 - [ ] PR description references this issue (`Closes #<issue-number>`) and mirrors these criteria in its Test plan
 
 ## Memory rules to apply
