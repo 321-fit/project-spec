@@ -86,6 +86,19 @@ prototypes/
 ### Architecture (`architecture/`)
 - System-level decisions, data model, API versioning, design system reference
 
+### API documentation (lives in `poly-backend`)
+
+For each backend module, the canonical client-facing endpoint reference is **`poly-backend/docs/<module>-api.md`** — a human-readable per-endpoint doc maintained alongside backend code. Specs link to it; they don't duplicate request/response shapes.
+
+- **Live API (dev-test):** `https://polybackend-dev-test.up.railway.app` — Swagger path TBD pending instance bootstrap (verify with `/docs`, `/schema/swagger`, `/schema/openapi.json` on first access). This is the wire format source of truth for shipped endpoints.
+- **Pattern memory:** `feedback_endpoint_doc_pattern` — full template + responsibilities.
+- **Spec section 6 should be short:** overview table of endpoints + link to `<module>-api.md` + link to live URL. Don't paste large JSON samples — those go in the API doc.
+- **Deprecated for new modules:** `contracts/<module>.openapi.yaml` files. Existing 3 files are archival only — do not update them. `_baseline.openapi.yaml` stays as legacy reference for pre-Phase-4 endpoints.
+
+### Backward compatibility (universal rule for backend specs)
+
+Specs and impl-docs must respect that existing endpoints are running in prod with installed iOS/Android clients on multiple versions. Spec section 6 must call out when an endpoint is being **extended** (additive — safe) vs when a new endpoint is being **added**. Never propose renames, type changes, or field removals without an explicit migration plan documented in §7 Business rules + a deprecation entry in `<module>-api.md`. See memory `feedback_backward_compat_endpoints`.
+
 ## Slash Commands
 
 ### `/product` — Product Spec Generator

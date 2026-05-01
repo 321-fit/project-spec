@@ -1,14 +1,16 @@
 # Dashboard (Coach)
 
-> Status: Draft
+> Status: In Progress
 > Prototype: [flows/coach/dashboard.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/dashboard.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-04-24
+> Last updated: 2026-05-01
 > Implementation:
 > - iOS:     [321fit_ios/docs/dashboard-ios.md] (to be created)
-> - Backend: [poly-backend/docs/dashboard-backend.md] (to be created)
+> - Backend: [poly-backend/docs/dashboard-backend.md] (impl-doc) + [poly-backend/docs/dashboard-api.md] (endpoint reference)
 > - Voice:   [voice_control/docs/dashboard-voice.md] (to be created — minimal, reuses subset)
 > - Android: (future)
+> API reference: [poly-backend/docs/dashboard-api.md](../../poly-backend/docs/dashboard-api.md) — canonical per-endpoint doc (replaces deprecated OpenAPI fragment)
+> Live API (dev-test): `https://polybackend-dev-test.up.railway.app` — Swagger path TBD pending instance bootstrap
 
 **Scope note:** this spec covers **coach dashboard only**. Athlete dashboard has its own spec (simpler: Next Session + Requests + Balance, no earnings breakdown, no Tier 1/Tier 2 system). To be written in a follow-up.
 
@@ -18,7 +20,7 @@
 
 The Home tab for coaches. Answers the question "what do I need to know and do right now?" — not an analytics panel. Deep financial detail lives in Earnings, full agenda in Calendar. Dashboard is a fast glance that surfaces the single most urgent piece of information and the most valuable next action.
 
-Dashboard morphs across the coach lifecycle: a brand-new coach sees an onboarding wizard; a coach awaiting profile approval sees a status banner; an established coach sees their live agenda, action queue, weekly earnings, and activity signals. Nine distinct states cover this spectrum.
+Dashboard morphs across the coach lifecycle: a brand-new coach sees an onboarding wizard; a coach awaiting profile approval sees a status banner; an established coach sees their live agenda, action queue, weekly earnings, and activity signals. Eight server-driven states cover this spectrum (plus two client-only states — loading and error — that exist purely on the client).
 
 ---
 
@@ -50,6 +52,7 @@ Dashboard morphs across the coach lifecycle: a brand-new coach sees an onboardin
 - As the voice layer, `get_dashboard()` must fit the response into a TTS-friendly summary (~150 tokens max).
 - As any client, offline reads must return the last cached snapshot with a visible `stale since X minutes ago` indicator so users know the data is not fresh.
 - As any client, transitions between states must not flash a loading skeleton if we already have a cached snapshot — apply the snapshot and refresh in place.
+- As the backend, the `signals[]` array is wired but not yet populated — it returns `[]` until the reviews and clients modules ship and expose their repos. Clients must treat empty `signals[]` as "no activity to surface" and never error on it.
 
 ---
 
@@ -200,106 +203,40 @@ Client picks between `dst-loading` / `dst-error` based on snapshot availability 
 
 ## 6. API
 
-### Endpoints
+> **Canonical endpoint reference:** [`poly-backend/docs/dashboard-api.md`](../../poly-backend/docs/dashboard-api.md) — full request/response shapes, key fields, error codes, edge cases, and backward-compat status per endpoint.
+>
+> **Live API (dev-test):** `https://polybackend-dev-test.up.railway.app` — Swagger path TBD pending instance bootstrap (verify with `/docs`, `/schema/swagger`, `/schema/openapi.json` on first access).
+>
+> The deprecated per-module OpenAPI contract (`project-spec/contracts/dashboard.openapi.yaml`) is archival only and not updated going forward. See `feedback_endpoint_doc_pattern` for the current convention.
 
-#### `GET /coach/dashboard`
+### Endpoints (overview)
 
-Returns the full dashboard snapshot for the authenticated coach.
+| Method | Path | Auth | Purpose |
+|---|---|---|---|
+| GET | `/api/v1.0.0/coach/dashboard` | JWT (coach) | Composed `CoachDashboardSnapshot` for the Home tab. State-driven — `state` field selects which sub-objects render. |
+| POST | `/api/v1.0.0/coach/dashboard/boosts/{boostKey}/dismiss` | JWT (coach) | Records dismissal of an Optional Boost (under-review state). Returns updated snapshot. |
+| POST | `/api/v1.0.0/coach/dashboard/tips/{tipKey}/dismiss` | JWT (coach) | Records dismissal of a Tier 2 tip. After 3 dismisses of same key → suppressed forever. Returns updated snapshot. |
 
-**Auth:** JWT (coach role) required.
+### Snapshot shape (high level)
 
-**Response 200 — `CoachDashboardSnapshot`:**
+`CoachDashboardSnapshot` carries:
+- `state` — drives client rendering (`new`, `under_review`, `rejected`, `ready`, `idle`, `quiet`, `default`, `zero`)
+- `isBookable` + `bookabilityIssues[]` — Tier 1 Q5 derived flag and warning card content
+- `greeting` — name + time-of-day + optional `todaySummary` (session count + total value as Money DTO)
+- `wizard` (only for `state=new`) — 6 steps, fixed order
+- `approvalStatus` (only for `state=under_review`) — submitted timestamp + SLA copy hint
+- `rejectionInfo` (only for `state=rejected`) — admin rejection timestamp + Contact Support deep-link
+- `optionalBoosts[]` (only for `state=under_review`) — 3 keys: `stripe`, `hours`, `video`
+- `nextSession` — `EventModel` (id, status, datetimes, Money price, athlete/coach refs) or null
+- `pendingActions.{requests, cashToCollect, sessionsToReview}` — each null when its count is 0
+- `weekEarnings` (null for pre-approval states) — Money fields for earned, plannedAdditional, cardTotal, cashTotal, trendVsLastWeek + counts
+- `signals[]` — discriminated union (`new_review` / `new_clients`); **currently always empty**, see §3 System Stories
+- `tier2Tip` — single tip card per fixed-priority rotation (see §7)
+- `snapshotTakenAt` — UTC ISO-8601 for Stale indicator
 
-```json
-{
-  "state": "new" | "under_review" | "rejected" | "ready" | "idle" | "quiet" | "default" | "zero",
-  "isBookable": true,
-  "bookabilityIssues": [
-    { "key": "no_sports",       "title": "Add at least one sport",        "deeplink": "/settings/sports" },
-    { "key": "no_sessions",     "title": "Create at least one session",   "deeplink": "/settings/sessions" },
-    { "key": "no_hours",        "title": "Set available hours",           "deeplink": "/settings/hours" },
-    { "key": "stripe_required", "title": "Connect Stripe to accept cards","deeplink": "/settings/stripe" }
-  ],
-  "rejectionInfo": {
-    "rejectedAt":   ISO8601,
-    "supportDeeplink": "/support?reason=profile_rejected"
-  } | null,
-  "greeting": {
-    "timeOfDay":     "morning" | "afternoon" | "evening",
-    "firstName":     "Robert",
-    "todaySummary":  { "sessionCount": 3, "totalValue": 180.0, "currency": "EUR" } | null
-  },
-  "wizard": {
-    "required":      true,
-    "totalSteps":    6,
-    "completedSteps":1,
-    "steps":         [{ "key": "phone", "title": "Add phone number", "done": true }, ...]
-  } | null,
-  "approvalStatus": {
-    "underReview":   true,
-    "submittedAt":   ISO8601,
-    "estimatedHours":24
-  } | null,
-  "optionalBoosts": [
-    { "key": "stripe",  "title": "Accept card payments",       "action": "Connect Stripe",    "done": false },
-    { "key": "hours",   "title": "Prevent scheduling conflicts","action": "Set available hours","done": false },
-    { "key": "video",   "title": "Boost profile conversion 2×","action": "Add video intro",   "done": false }
-  ],
-  "nextSession":    EventModel | null,
-  "pendingActions": {
-    "requests":           { "count": 3, "oldestAtHours": 26 } | null,
-    "cashToCollect":      { "count": 2, "total": 40.0, "currency": "EUR" } | null,
-    "sessionsToReview":   { "count": 3, "oldestAgeDays": 2 } | null
-  },
-  "weekEarnings": {
-    "earned":              480.0,
-    "plannedAdditional":   120.0,
-    "bookedCount":         6,
-    "cardTotal":           320.0,
-    "cashTotal":           80.0,
-    "cashClientCount":     2,
-    "trendVsLastWeek":     80.0,
-    "weekStartsAt":        ISO8601,
-    "currency":            "EUR"
-  } | null,
-  "signals": [
-    { "type": "new_review",    "rating": 5, "excerpt": "Great session…", "athleteName": "Sarah" },
-    { "type": "new_clients",   "count": 2, "names": ["Alex Kim", "Mira Patel"] }
-  ],
-  "tier2Tip":       { "key": "video", "title": "Boost profile conversion 2×", "cta": "Add video", "targetDeeplink": "..." } | null,
-  "snapshotTakenAt":ISO8601
-}
-```
+**Money fields use `{ amount: int (minor units), currency: ISO-4217 }`** per `feedback_money_serialization`. Example: €25.00 → `{ amount: 2500, currency: "EUR" }`.
 
-Fields nullable per state:
-- `wizard` only for `new`
-- `approvalStatus` only for `under_review`
-- `optionalBoosts` only for `under_review`
-- `rejectionInfo` only for `rejected`
-- `bookabilityIssues` empty when `isBookable: true`; populated only for approved states with derived issues
-- `isBookable` always present; defaults to `false` until profile approved
-- `nextSession` nullable for `new`, `under_review`, `rejected`, `ready`, `idle`
-- `pendingActions.*` nullable when count is 0
-- `weekEarnings` nullable for `new`, `under_review`, `rejected`, `ready`
-- `signals` may be empty array
-- `tier2Tip` null when no applicable tip
-
-**Response 401:** auth expired → client triggers re-auth flow.
-**Response 500:** server error → client shows cached snapshot + error banner.
-
-#### `POST /coach/dashboard/boosts/{boostKey}/dismiss`
-
-(New endpoint) marks an Optional Boost as dismissed (under-review state) — user doesn't want it shown.
-
-**Body:** empty.
-**Response 200:** updated snapshot (or 204 no content).
-
-#### `POST /coach/dashboard/tips/{tipKey}/dismiss`
-
-(New endpoint) dismisses a Tier 2 tip. After 3 dismisses of same key → stop showing permanently.
-
-**Body:** empty.
-**Response 200:** updated snapshot.
+For full sample payloads, per-field intent, and error responses, read [`dashboard-api.md`](../../poly-backend/docs/dashboard-api.md).
 
 ### Push / real-time (optional, nice-to-have)
 
@@ -312,6 +249,7 @@ Fields nullable per state:
 - **Wizard completion auto-triggers admin review.** No manual "submit for review" button.
 - **Admin approval SLA:** 24 hours (banner copy). If approval takes longer → escalate via internal tooling; no client-side change.
 - **Tier 2 tip dismissal persistence:** server-side per coach per tip key. 3 dismisses → suppressed forever. Counter survives device change.
+- **Tier 2 tip rotation:** fixed priority order `stripe → hours → video → bio` — server picks the first key whose precondition is satisfied AND whose dismissal counter is below 3. No randomization, no time-based rotation. (Resolved 2026-05-01 — was Tier 2 question in §10.)
 - **Optional boosts in under-review:** shown as long as `done: false`. When coach completes (e.g., connects Stripe) → boost disappears from the list. No manual dismiss from under-review.
 - **"Today" definition:** coach's local timezone (from profile setting, not device). Day boundary = 00:00 local.
 - **"This week" definition:** Monday 00:00 through Sunday 23:59 local. Ties with memory `feedback_copy_standards` date formatting.
@@ -352,7 +290,7 @@ Fields nullable per state:
 - [ ] **Admin approval UI:** is there an admin tool where admins actually review? Spec assumes yes; implementation may need admin endpoints separately. **Owner:** product.
 - [x] ~~**Rejection flow:**~~ RESOLVED in Tier 1 Q4: pragmatic v1 = `dst-rejected` state with Contact Support deep-link (no self-service resubmit). v2: structured rejection state with itemized issues + inline edit / resubmit.
 - [x] ~~**Profile edit after approval breaks bookability:**~~ RESOLVED in Tier 1 Q5: stay approved, auto-hide from search via `isBookable` flag + non-dismissable warning cards.
-- [ ] **Tier 2 tip rotation algorithm:** current draft says "one tip per state, rotate if multiple applicable". Define exact ordering (most-impactful first?). **Owner:** product + analytics.
+- [x] ~~**Tier 2 tip rotation algorithm:**~~ RESOLVED 2026-05-01: fixed priority `stripe → hours → video → bio` — first eligible by precondition (and dismissal counter < 3) wins. Recorded in §7 Business rules. Implemented in `backend/app/handlers/rest/coach/dashboard.py` (`_TIER2_TIP_PRIORITY` tuple).
 - [ ] **Retention of signals for deleted athletes:** if an athlete who left a review deletes their account, should the review still appear on dashboard? Current assumption: show as "review from a former client" (anonymized). **Owner:** product.
 - [ ] **Real-time refresh mechanism:** websocket vs push-notification vs long-polling. **Owner:** backend architecture.
 
