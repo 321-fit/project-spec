@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Coach Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--fit-font);
+    background: #0a0a0a;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 24px; min-height: 100vh;
+    min-width: 900px;
+  }
+
+  /* ==================== SIDEBAR ==================== */
+  .sidebar {
+    position: fixed;
+    left: max(16px, calc(50% - 195px - 200px - 48px));
+    top: 24px; bottom: 24px; width: 200px;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--fit-gray-600);
+    padding: 0 8px; margin: 16px 0 8px;
+  }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button {
+    font-family: var(--fit-font); font-size: 14px; font-weight: 400;
+    padding: 10px 12px; border-radius: 10px; border: none;
+    background: transparent; color: var(--fit-gray-400);
+    cursor: pointer; text-align: left; width: 100%; transition: all 0.15s;
+  }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active { background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500; }
+
+  /* ==================== ANNOTATIONS ==================== */
+  .ann-container {
+    position: fixed;
+    left: calc(50% + 195px + 48px);
+    top: 24px; bottom: 24px; width: 280px;
+    overflow-y: auto;
+  }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; }
+  .ann.active { display: block; }
+  .ann-role {
+    display: inline-block; font-size: 14px; font-weight: 500;
+    padding: 4px 12px; border-radius: 8px; margin-bottom: 16px;
+  }
+  .ann-role.coach { background: rgba(3,178,226,0.15); color: var(--fit-blue-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); margin-bottom: 12px; }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 10px; padding-left: 18px; font-size: 14px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 6px; }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  .ann code { font-size: 12px; background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 3px; color: var(--fit-gray-400); }
+  .state-toggle {
+    display: inline-flex; flex-wrap: wrap; gap: 0; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--fit-gray-700); margin-bottom: 12px;
+  }
+  .state-toggle button {
+    font-family: var(--fit-font); font-size: 12px; font-weight: 500;
+    padding: 4px 10px; border: none; cursor: pointer;
+    background: transparent; color: var(--fit-gray-400); transition: all 0.15s;
+  }
+  .state-toggle button.active { background: var(--fit-gray-700); color: var(--fit-white); }
+
+  .fit-phone { display: none; }
+  .fit-phone.active { display: flex; }
+  .fit-dark .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-dark .fit-phone-footer { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+
+  /* ==================== COACH PROFILE — page-local layout ==================== */
+
+  /* Section header (profile "warm" variant: 16px medium normal case)
+     KIT CANDIDATE: .fit-section-title-md — kit currently only has the 12px uppercase
+     variant. Per memory project_coach_profile_v2: profile sections use this warm style. */
+  .cp-section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 var(--fit-sp-4) 10px;
+  }
+  .cp-section-head--tap { cursor: pointer; }
+  .cp-section-head--tap:hover { opacity: 0.85; }
+  .cp-section-title {
+    font-size: 16px; font-weight: 500; color: var(--fit-text-primary);
+  }
+  .cp-section-meta {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 14px; color: var(--fit-text-tertiary);
+  }
+  .cp-edit-pencil {
+    flex-shrink: 0; width: 18px; height: 18px;
+    color: var(--fit-text-tertiary);
+  }
+  .cp-edit-pencil svg { width: 18px; height: 18px; }
+  .cp-section { margin-bottom: 28px; }
+
+  /* Header media (3 fallback variants) — KIT CANDIDATE: FitProfileHero */
+  .cp-hero { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden; }
+  .cp-hero-media {
+    display: none; position: absolute; inset: 0;
+    align-items: center; justify-content: center;
+  }
+  #s-coach-profile.cv-established .cp-hero-media--video,
+  #s-coach-profile.cv-new-video .cp-hero-media--video { display: flex; background: linear-gradient(135deg,#1a1a2e,#16213e); }
+  #s-coach-profile.cv-new-image .cp-hero-media--image {
+    display: flex;
+    background-image:
+      linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.4)),
+      linear-gradient(135deg, #2d5a3d, #4a7c59);
+  }
+  #s-coach-profile.cv-new-default .cp-hero-media--default {
+    display: flex; background: var(--fit-brand-gradient);
+  }
+  .cp-hero-initials {
+    font-size: 56px; font-weight: 600;
+    color: rgba(255,255,255,0.95); letter-spacing: 2px;
+  }
+  .cp-hero-caption {
+    position: absolute; bottom: 10px; right: 12px;
+    color: rgba(255,255,255,0.6); font-size: 11px;
+  }
+  .cp-hero-edit {
+    position: absolute; top: 12px; right: 12px; z-index: 2;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+    border: none; cursor: pointer; color: white;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cp-hero-edit svg { width: 18px; height: 18px; }
+
+  /* State variant visibility */
+  #s-coach-profile .cv-new-only,
+  #s-coach-profile .cv-new-only-flex,
+  #s-coach-profile .cv-new-only-inline { display: none; }
+  #s-coach-profile.cv-new-video .cv-established-only,
+  #s-coach-profile.cv-new-image .cv-established-only,
+  #s-coach-profile.cv-new-default .cv-established-only { display: none !important; }
+  #s-coach-profile.cv-new-video .cv-new-only,
+  #s-coach-profile.cv-new-image .cv-new-only,
+  #s-coach-profile.cv-new-default .cv-new-only { display: block; }
+  #s-coach-profile.cv-new-video .cv-new-only-flex,
+  #s-coach-profile.cv-new-image .cv-new-only-flex,
+  #s-coach-profile.cv-new-default .cv-new-only-flex { display: flex; }
+  #s-coach-profile.cv-new-video .cv-new-only-inline,
+  #s-coach-profile.cv-new-image .cv-new-only-inline,
+  #s-coach-profile.cv-new-default .cv-new-only-inline { display: inline-flex; }
+
+  /* New-coach inline badge (next to name) */
+  .cp-new-badge {
+    align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 99px;
+    background: var(--fit-teal-500); color: var(--fit-white);
+    font-size: 11px; font-weight: 500;
+    margin-top: 6px; width: fit-content;
+  }
+
+  /* Identity row (avatar + name + location, full-row tappable) */
+  .cp-identity {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px 16px 16px;
+    cursor: pointer;
+  }
+  .cp-identity:active { opacity: 0.85; }
+  .cp-identity-avatar { position: relative; flex-shrink: 0; }
+  .cp-identity-name { font-size: 22px; font-weight: 600; color: var(--fit-text-primary); line-height: 1.2; }
+  .cp-identity-location {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 14px; color: var(--fit-text-secondary); margin-top: 4px;
+  }
+  .cp-identity-location svg { width: 13px; height: 13px; }
+  .cp-identity-chev { flex-shrink: 0; width: 18px; height: 18px; color: var(--fit-text-tertiary); }
+  .cp-identity-chev svg { width: 18px; height: 18px; }
+  /* Avatar edit pip (camera icon) */
+  .cp-avatar-pip {
+    position: absolute; bottom: -2px; right: -2px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--fit-brand-primary); border: 2px solid var(--fit-screen-bg);
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+  }
+  .cp-avatar-pip svg { width: 11px; height: 11px; }
+
+  /* Tile group wrapper (vertical stack of fit-stat-tiles with shared margins) */
+  .cp-tile-group { display: flex; flex-direction: column; gap: 8px; padding: 0 16px; margin-bottom: 28px; }
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+  <div class="label">Screens</div>
+  <button class="active" onclick="go('s-coach-profile',this)">Coach Profile</button>
+  <div class="label">Profile states</div>
+  <button onclick="setProfileState('established',this)">Established · video</button>
+  <button onclick="setProfileState('new-video',this)">New · video</button>
+  <button onclick="setProfileState('new-image',this)">New · cover image</button>
+  <button onclick="setProfileState('new-default',this)">New · default fallback</button>
+  </div>
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ==================== PHONE ==================== -->
+
+<div class="fit-phone fit-dark active cv-established" id="s-coach-profile">
+
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <span class="fit-header-title" style="flex:1;">Profile</span>
+      <button class="fit-icon-btn" aria-label="Settings" onclick="window.location.href='./settings.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="fit-phone-content" style="padding-top:0;">
+
+    <!-- ============ HERO MEDIA (3 fallback variants) ============ -->
+    <div class="cp-hero">
+      <button class="cp-hero-edit" aria-label="Edit cover" onclick="window.location.href='./personal-data.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </button>
+      <div class="cp-hero-media cp-hero-media--video">
+        <div style="text-align:center;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="white" opacity="0.8"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <div style="color:rgba(255,255,255,0.6);font-size:12px;margin-top:8px;">Your intro video</div>
+        </div>
+      </div>
+      <div class="cp-hero-media cp-hero-media--image">
+        <span class="cp-hero-caption">Your cover photo</span>
+      </div>
+      <div class="cp-hero-media cp-hero-media--default">
+        <div class="cp-hero-initials">JM</div>
+      </div>
+    </div>
+
+    <!-- ============ IDENTITY (avatar + name + location) → personal-data ============ -->
+    <div class="cp-identity" onclick="window.location.href='./personal-data.html'">
+      <div class="cp-identity-avatar">
+        <div class="fit-avatar fit-avatar-lg fit-avatar-brand">JM</div>
+        <span class="cp-avatar-pip" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="3"/></svg>
+        </span>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div class="cp-identity-name">John Miller</div>
+        <div class="cp-identity-location">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          Warsaw, Poland
+        </div>
+        <span class="cp-new-badge cv-new-only-inline">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          New coach
+        </span>
+      </div>
+      <span class="cp-identity-chev">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </span>
+    </div>
+
+    <!-- ============ STATS STRIP — FitStatStrip ============ -->
+    <!-- Established: real values -->
+    <div class="fit-stat-strip cv-established-only">
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">4.8</div><div class="fit-stat-strip-label">Rating</div></div>
+      <div class="fit-stat-strip-divider"></div>
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">42</div><div class="fit-stat-strip-label">Reviews</div></div>
+      <div class="fit-stat-strip-divider"></div>
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">156</div><div class="fit-stat-strip-label">Sessions</div></div>
+      <div class="fit-stat-strip-divider"></div>
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value fit-stat-strip-value--accent">&euro;25</div><div class="fit-stat-strip-label">Price from</div></div>
+    </div>
+    <!-- New coach: zero-state values -->
+    <div class="fit-stat-strip cv-new-only-flex">
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">&mdash;</div><div class="fit-stat-strip-label">Rating</div></div>
+      <div class="fit-stat-strip-divider"></div>
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">0</div><div class="fit-stat-strip-label">Reviews</div></div>
+      <div class="fit-stat-strip-divider"></div>
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">1</div><div class="fit-stat-strip-label">Sessions</div></div>
+      <div class="fit-stat-strip-divider"></div>
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value fit-stat-strip-value--accent">&euro;25</div><div class="fit-stat-strip-label">Price from</div></div>
+    </div>
+
+    <!-- ============ MATURITY PROGRESS (new coach only) — FitMaturityProgress ============ -->
+    <div class="fit-maturity-progress cv-new-only">
+      <div class="fit-maturity-progress-head">
+        <span class="fit-icon-plate fit-icon-plate--success fit-icon-plate--md" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </span>
+        <div class="fit-maturity-progress-title">You&rsquo;re a new coach</div>
+      </div>
+      <div class="fit-maturity-progress-sub">Complete a few sessions and earn your first review to graduate to <strong>Established</strong> &mdash; your profile will rank higher in search.</div>
+      <div class="fit-maturity-progress-rows">
+        <div class="fit-maturity-progress-row">
+          <span class="fit-maturity-progress-check todo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <span><strong>1 of 3</strong> sessions completed</span>
+        </div>
+        <div class="fit-maturity-progress-row">
+          <span class="fit-maturity-progress-check todo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <span><strong>0 of 1</strong> reviews received</span>
+        </div>
+      </div>
+      <span class="fit-maturity-progress-learn" onclick="alert('Maturity model explainer push — TBD');">
+        Learn more
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </span>
+    </div>
+
+    <!-- ============ MY SPORTS (visual preview + edit pencil) → sport-types ============ -->
+    <section class="cp-section">
+      <div class="cp-section-head cp-section-head--tap" onclick="window.location.href='./sport-types.html'">
+        <span class="cp-section-title">My Sports</span>
+        <span class="cp-edit-pencil" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 113 3L7 19l-4 1 1-4z"/></svg>
+        </span>
+      </div>
+      <div style="display:flex;gap:6px;padding:0 var(--fit-sp-4);flex-wrap:wrap;">
+        <span class="fit-sport-chip"><svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>fitness</span>
+        <span class="fit-sport-chip" style="margin-left:0;"><svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 8l8 8M16 8l-8 8"/></svg>yoga</span>
+        <span class="fit-sport-chip" style="margin-left:0;"><svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>boxing</span>
+      </div>
+    </section>
+
+    <!-- ============ ABOUT ME (visual preview + edit pencil) → personal-data ============ -->
+    <section class="cp-section">
+      <div class="cp-section-head cp-section-head--tap" onclick="window.location.href='./personal-data.html'">
+        <span class="cp-section-title">About Me</span>
+        <span class="cp-edit-pencil" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 113 3L7 19l-4 1 1-4z"/></svg>
+        </span>
+      </div>
+      <div class="fit-profile-bio" style="padding-bottom:0;">Certified fitness &amp; yoga coach with 8 years of experience. Multi-sport coach working with tennis, padel, and basketball players. Focused on improving technique, coordination, and game understanding. <span class="fit-see-more">See more</span></div>
+    </section>
+
+    <!-- ============ MANAGEMENT TILES (Languages / Sessions / Locations / Hours) ============ -->
+    <div class="cp-tile-group">
+      <button class="fit-stat-tile" onclick="window.location.href='./personal-data.html'">
+        <span class="fit-icon-plate fit-icon-plate--neutral fit-icon-plate--md" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14M5 12h14M5 16h10"/></svg>
+        </span>
+        <div class="fit-stat-tile-body">
+          <div class="fit-stat-tile-title">Languages</div>
+          <div class="fit-stat-tile-sub">English, Polish</div>
+        </div>
+        <span class="fit-stat-tile-chevron">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </span>
+      </button>
+
+      <button class="fit-stat-tile" onclick="window.location.href='./sessions.html'">
+        <span class="fit-icon-plate fit-icon-plate--neutral fit-icon-plate--md" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        </span>
+        <div class="fit-stat-tile-body">
+          <div class="fit-stat-tile-title">Training Sessions</div>
+          <div class="fit-stat-tile-sub cv-established-only">3 templates &middot; from &euro;25</div>
+          <div class="fit-stat-tile-sub cv-new-only">1 template &middot; from &euro;25</div>
+        </div>
+        <span class="fit-stat-tile-chevron">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </span>
+      </button>
+
+      <button class="fit-stat-tile" onclick="window.location.href='./locations.html'">
+        <span class="fit-icon-plate fit-icon-plate--neutral fit-icon-plate--md" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        </span>
+        <div class="fit-stat-tile-body">
+          <div class="fit-stat-tile-title">Locations</div>
+          <div class="fit-stat-tile-sub cv-established-only">3 places &middot; CityGym, Park Łazienki, Online</div>
+          <div class="fit-stat-tile-sub cv-new-only">1 place &middot; Online</div>
+        </div>
+        <span class="fit-stat-tile-chevron">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </span>
+      </button>
+
+      <button class="fit-stat-tile" onclick="window.location.href='./available-hours.html'">
+        <span class="fit-icon-plate fit-icon-plate--neutral fit-icon-plate--md" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        </span>
+        <div class="fit-stat-tile-body">
+          <div class="fit-stat-tile-title">Available Hours</div>
+          <div class="fit-stat-tile-sub">Mon&ndash;Fri 8:00&ndash;20:00 &middot; Sat 10:00&ndash;14:00</div>
+        </div>
+        <span class="fit-stat-tile-chevron">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </span>
+      </button>
+    </div>
+
+    <!-- ============ REVIEWS (read-only) ============ -->
+    <section class="cp-section">
+      <div class="cp-section-head">
+        <span class="cp-section-title">Reviews</span>
+        <div class="cp-section-meta cv-established-only">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--fit-teal-500)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          4.8 &middot; 42 reviews
+        </div>
+      </div>
+
+      <!-- Empty (new coach) — visibility handled by .cv-new-only class -->
+      <div class="fit-empty-state cv-new-only">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <div class="fit-empty-state-title">No reviews yet</div>
+        <div>Reviews appear after your athletes complete their first session with you.</div>
+      </div>
+
+      <!-- Carousel (established) — FitReviewCarousel + FitReviewCard -->
+      <div class="fit-review-carousel cv-established-only">
+        <div class="fit-review-card">
+          <div class="fit-review-card-head">
+            <div class="fit-avatar fit-avatar-sm">AK</div>
+            <div style="flex:1;min-width:0;">
+              <div class="fit-review-card-name">Anna K.</div>
+              <div class="fit-review-card-when">2 weeks ago</div>
+            </div>
+          </div>
+          <div class="fit-review-card-stars">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--fit-teal-500)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--fit-teal-500)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--fit-teal-500)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--fit-teal-500)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--fit-teal-500)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div class="fit-review-card-body">Amazing energy! John pushes you hard but keeps it fun. The HIIT sessions are exactly what I needed. Would definitely recommend to anyone looking for a great workout.</div>
+        </div>
+        <div class="fit-review-card">
+          <div class="fit-review-card-head">
+            <div class="fit-avatar fit-avatar-sm">MR</div>
+            <div style="flex:1;min-width:0;">
+              <div class="fit-review-card-name">Mike R.</div>
+              <div class="fit-review-card-when">1 month ago</div>
+            </div>
+          </div>
+          <div class="fit-review-card-stars">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--fit-teal-500)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--fit-teal-500)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--fit-teal-500)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--fit-teal-500)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--fit-text-tertiary)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div class="fit-review-card-body">Great boxing technique coaching. Very patient and explains every movement clearly. Helped me improve my form significantly in just a few sessions.</div>
+        </div>
+        <div class="fit-review-card fit-review-card--show-all">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+          <div>Show all 42 reviews</div>
+        </div>
+      </div>
+    </section>
+
+    <div style="height:16px;"></div>
+  </div>
+
+  <!-- ============ TAB NAVBAR (Profile active = slot 5) ============ -->
+  <div class="fit-phone-footer">
+    <div class="fit-navbar">
+      <div class="fit-navbar-item" onclick="window.location.href='./dashboard.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>
+      <div class="fit-navbar-item" onclick="window.location.href='./clients.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg></div>
+      <div class="fit-navbar-item" aria-label="Messenger" style="opacity:0.5;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <div class="fit-navbar-item" onclick="window.location.href='./calendar.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      <div class="fit-navbar-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+
+  <div class="ann active" id="ann-s-coach-profile">
+    <span class="ann-role coach">Coach</span>
+    <h3>Coach Profile</h3>
+    <p>Tab 5 of 5. <strong>Preview of the public-facing profile</strong> as athletes see it, with <strong>tap-to-edit</strong> on every section. Top-right <strong>⚙️ gear</strong> pushes to Settings (secondary entry; primary entry is in-place edits here).</p>
+
+    <p><strong>State variants</strong> — same media fallback hierarchy as athlete-side <code>s-coach-v2</code>:</p>
+    <div class="state-toggle">
+      <button class="active" onclick="setProfileState('established',this)">Established</button>
+      <button onclick="setProfileState('new-video',this)">New · video</button>
+      <button onclick="setProfileState('new-image',this)">New · cover</button>
+      <button onclick="setProfileState('new-default',this)">New · default</button>
+    </div>
+
+    <hr>
+
+    <p><strong>Component map</strong> (kit-aligned per <code>fit-ui.css</code>):</p>
+    <ul>
+      <li><code>.fit-icon-btn</code> — gear in header</li>
+      <li><code>.fit-avatar.fit-avatar-lg.fit-avatar-brand</code> — main avatar; <code>.fit-avatar-sm</code> — reviewers</li>
+      <li><code>.fit-profile-bio</code> + <code>.fit-see-more</code> — About Me</li>
+      <li><code>.fit-sport-chip</code> — My Sports</li>
+      <li><code>.fit-stat-tile</code> + <code>-body/-title/-sub/-chevron</code> — Languages / Sessions / Locations / Hours rows</li>
+      <li><code>.fit-icon-plate--md</code> + <code>--success/--neutral</code> — leading icons</li>
+      <li><code>.fit-empty-state</code> + <code>-title</code> — reviews empty</li>
+      <li><code>.fit-navbar</code> + <code>-item</code> — tab nav</li>
+    </ul>
+
+    <p><strong>New kit additions (2026-05-11)</strong> — added to <code>fit-ui.css</code> + Swift + Compose + <code>components.md</code> during this build:</p>
+    <ul>
+      <li><code>.fit-stat-strip</code> + cols/dividers — 4-column readout (Rating/Reviews/Sessions/Price from)</li>
+      <li><code>.fit-maturity-progress</code> + head/sub/rows/check/learn — new-coach progress block</li>
+      <li><code>.fit-review-card</code> + <code>.fit-review-carousel</code> — single review card + horizontal scroller</li>
+    </ul>
+
+    <p><strong>Still kit candidates</strong> (not yet landed):</p>
+    <ul>
+      <li><code>FitProfileHero</code> — 16:9 hero with 3-variant media fallback (video / cover / gradient+initials) + camera overlay</li>
+      <li><code>FitSectionTitle--md</code> — 16px medium normal-case section title (kit only has 12px uppercase variant; profile uses warm style per memory <code>project_coach_profile_v2</code>)</li>
+    </ul>
+
+    <hr>
+
+    <p><strong>Edit routing</strong> — each tappable section pushes to a Settings sub-module:</p>
+    <ul>
+      <li>Hero camera overlay + Avatar + Name/Location → <code>personal-data.html</code></li>
+      <li>My Sports (header pencil + whole header tap) → <code>sport-types.html</code></li>
+      <li>About Me (header pencil) → <code>personal-data.html</code> bio editor</li>
+      <li>Languages tile → <code>personal-data.html</code> language picker</li>
+      <li>Training Sessions tile → <code>sessions.html</code></li>
+      <li>Locations tile → <code>locations.html</code></li>
+      <li>Available Hours tile → <code>available-hours.html</code></li>
+    </ul>
+
+    <hr>
+
+    <p><strong>Read-only / system-computed</strong> (no edit affordance):</p>
+    <ul>
+      <li>Stats strip — derived from completed sessions + reviews + session templates</li>
+      <li>Reviews carousel</li>
+      <li>Maturity progress (new coach only; auto-hides after graduation)</li>
+    </ul>
+
+    <hr>
+
+    <p><strong>Maturity rule</strong>: graduation = <code>reviews_count &ge; 1 AND sessions_count &ge; 3</code>. Benefits-not-burden framing per memory <code>project_coach_maturity</code>. "Learn more" → explainer push (TBD).</p>
+
+    <p class="note">Header is title-only (tab root, no back chevron). Gear is the only right-slot action. Navbar slot 5 is Profile.</p>
+  </div>
+
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+  function switchTheme(theme) {
+    document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
+    document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";
+    document.getElementById("theme-light").style.background = theme === "light" ? "var(--fit-gray-700)" : "transparent";
+    document.getElementById("theme-light").style.color = theme === "light" ? "var(--fit-white)" : "var(--fit-gray-400)";
+    document.querySelectorAll(".fit-phone").forEach(function(phone) {
+      if (theme === "light") { phone.classList.remove("fit-dark"); phone.classList.add("fit-light"); }
+      else { phone.classList.remove("fit-light"); phone.classList.add("fit-dark"); }
+    });
+  }
+
+  function go(id, btn) {
+    document.querySelectorAll('.fit-phone').forEach(function(s){ s.classList.remove('active'); });
+    var screen = document.getElementById(id);
+    if (screen) screen.classList.add('active');
+    document.querySelectorAll('.sidebar button').forEach(function(b){ b.classList.remove('active'); });
+    if (btn) btn.classList.add('active');
+    document.querySelectorAll('.ann').forEach(function(a){ a.classList.remove('active'); });
+    var ann = document.getElementById('ann-' + id);
+    if (ann) ann.classList.add('active');
+  }
+
+  function setProfileState(state, btn) {
+    var screen = document.getElementById('s-coach-profile');
+    screen.classList.remove('cv-established', 'cv-new-video', 'cv-new-image', 'cv-new-default');
+    screen.classList.add('cv-' + state);
+    if (btn && btn.closest && btn.closest('.sidebar')) {
+      document.querySelectorAll('.sidebar button').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+    }
+    var toggle = document.querySelector('#ann-s-coach-profile .state-toggle');
+    if (toggle) {
+      toggle.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+      var match = Array.from(toggle.querySelectorAll('button')).find(function(b){
+        return b.getAttribute('onclick').indexOf("'"+state+"'") !== -1;
+      });
+      if (match) match.classList.add('active');
+    }
+  }
+</script>
+</body>
+</html>
