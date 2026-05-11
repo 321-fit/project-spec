@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>321Fit — Settings</title>
+<title>321Fit — Calendar Sync</title>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../lib/fit-ui.css">
 <style>
@@ -599,16 +599,13 @@
 <!-- ==================== SIDEBAR ==================== -->
 <nav class="sidebar">
   <div class="sidebar-scroll">
-  <div class="label">Settings</div>
-  <button class="active" onclick="go('s-settings',this)">Settings root</button>
-  <div class="label">Sub-modules (open in new tab)</div>
-  <button onclick="window.location.href='./personal-data.html'">Personal Data</button>
-  <button onclick="window.location.href='./sport-types.html'">Sport Types</button>
-  <button onclick="window.location.href='./sessions.html'">Training Sessions</button>
-  <button onclick="window.location.href='./locations.html'">Training Locations</button>
-  <button onclick="window.location.href='./available-hours.html'">Available Hours</button>
-  <button onclick="window.location.href='./calendar-sync.html'">Calendar Sync</button>
-  <button onclick="window.location.href='../shared/account-access.html'">Account Access</button>
+  <div class="label">Calendar Sync</div>
+  <button class="active" onclick="go('s-calsync',this)">Calendar Sync</button>
+  <button onclick="go('s-cal-detail',this)">Google Detail</button>
+  <button onclick="go('s-apple-connect',this)">Apple Connect</button>
+  <button onclick="go('s-apple-detail',this)">Apple Detail</button>
+  <div class="label">Other modules</div>
+  <button onclick="window.location.href='./settings.html'">← Back to Settings</button>
   </div>
   <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
     <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
@@ -617,57 +614,219 @@
 </nav>
 
 <!-- ==================== PHONE ==================== -->
-<!-- ===== COACH: SETTINGS ===== -->
-<div class="fit-phone fit-dark active" id="s-settings">
+<!-- ===== CALENDAR SYNC ===== -->
+<div class="fit-phone fit-dark active" id="s-calsync">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header"><button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button><span class="fit-header-title">Calendar sync</span></div>
+  </div>
+  <div class="fit-phone-content">
+    <!-- ZERO STATE (nothing connected) -->
+    <div id="calsync-zero" style="display:none;padding:0 16px 16px;flex-direction:column;gap:12px;">
+      <div style="padding:8px 0 4px;">
+        <div style="font-size:16px;font-weight:500;color:var(--fit-text-secondary);margin-bottom:4px;">No calendars connected</div>
+        <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;">Sync your external calendars to avoid scheduling conflicts.</div>
+      </div>
+      <div class="set-card" style="cursor:pointer;"><div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div><div class="set-info" style="flex:1;"><div class="set-title">Google Calendar</div><div class="set-sub">Not connected</div></div><button class="fit-btn fit-btn-primary fit-btn-sm" style="width:auto;padding:0 16px;height:32px;font-size:12px;border-radius:99px;">Connect</button></div>
+      <div class="set-card" style="cursor:pointer;" onclick="go('s-apple-connect',document.querySelector('[onclick*=s-apple-connect]'))"><div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/apple-calendar.svg" style="width:20px;height:20px;"></div><div class="set-info" style="flex:1;"><div class="set-title">Apple Calendar</div><div class="set-sub">Not connected</div></div><button class="fit-btn fit-btn-primary fit-btn-sm" style="width:auto;padding:0 16px;height:32px;font-size:12px;border-radius:99px;">Connect</button></div>
+    </div>
+    <!-- Success toast -->
+    <div class="fit-toast" id="connect-success-toast" style="border-left:3px solid var(--fit-teal-500);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>
+      <span style="font-size:14px;">Google Calendar connected</span>
+    </div>
+    <!-- CONNECTED STATE -->
+    <div id="calsync-connected" style="padding:0 16px 16px;display:flex;flex-direction:column;gap:12px;">
+      <div class="set-card" style="cursor:pointer;padding:14px 12px;" onclick="go('s-cal-detail',document.querySelector('[onclick*=s-cal-detail]'))"><div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div><div class="set-info"><div class="set-title">Google Calendar</div><div style="font-size:14px;color:var(--fit-blue-400);margin-top:2px;">john.miller@gmail.com</div><div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;" id="sync-status-ok">2 of 3 calendars synced</div><div style="display:none;font-size:12px;font-weight:500;color:var(--fit-red-400);margin-top:2px;" id="sync-status-error">⚠ Sync error</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="set-card" style="padding:14px 12px;opacity:0.7;"><div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div><div class="set-info"><div class="set-title">Google Calendar</div><div style="font-size:14px;color:var(--fit-blue-400);margin-top:2px;">coach.work@gmail.com</div><div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;display:flex;align-items:center;gap:6px;"><div class="cal-spinner" style="width:10px;height:10px;border-width:1.5px;"></div>Fetching calendars...</div></div></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border:1px dashed var(--fit-gray-700);border-radius:16px;cursor:pointer;"><svg style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span style="font-size:14px;color:var(--fit-blue-500);font-weight:500;">Add Google account</span></div>
+      <div style="height:1px;background:var(--fit-gray-700);margin:4px 0;"></div>
+      <div class="set-card"><div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/apple-calendar.svg" style="width:20px;height:20px;"></div><div class="set-info" style="flex:1;"><div class="set-title">Apple Calendar</div><div class="set-sub">Not connected</div></div><button class="fit-btn fit-btn-primary fit-btn-sm" style="width:auto;padding:0 16px;height:32px;font-size:12px;border-radius:99px;" onclick="event.stopPropagation();go('s-apple-connect',document.querySelector('[onclick*=s-apple-connect]'))">Connect</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== GOOGLE CALENDAR DETAIL ===== -->
+<div class="fit-phone fit-dark" id="s-cal-detail">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header"><button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button><span class="fit-header-title">Google Calendar</span><button class="fit-icon-btn" style="background:rgba(240,92,91,0.1);" onclick="document.getElementById('disconnect-sheet').classList.add('visible')"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div>
+  </div>
+  <div class="fit-phone-content">
+    <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:16px;">
+      <div id="error-initial" style="display:none;padding:12px;background:rgba(240,92,91,0.08);border-radius:12px;">
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;">
+          <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span style="font-size:14px;color:var(--fit-text-secondary);line-height:1.4;">Could not load your calendars. Check your connection and try again.</span>
+        </div>
+        <button class="fit-btn fit-btn-secondary fit-btn-sm" style="width:auto;padding:0 16px;height:36px;font-size:14px;border-radius:99px;">Retry</button>
+      </div>
+      <div id="error-sync" style="display:none;padding:12px;background:rgba(240,92,91,0.08);border-radius:12px;">
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;">
+          <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span style="font-size:14px;color:var(--fit-text-secondary);line-height:1.4;">Last sync failed. Your events may be outdated.</span>
+        </div>
+        <button class="fit-btn fit-btn-secondary fit-btn-sm" style="width:auto;padding:0 16px;height:36px;font-size:14px;border-radius:99px;" onclick="this.innerHTML='Syncing...';var self=this;setTimeout(function(){self.innerHTML='Retry Sync';document.getElementById('error-sync').style.display='none';},2000);">Retry Sync</button>
+      </div>
+      <div id="error-auth" style="display:none;padding:12px;background:rgba(247,201,72,0.08);border-radius:12px;">
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;">
+          <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-yellow-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span style="font-size:14px;color:var(--fit-text-secondary);line-height:1.4;">Your Google session has expired. Reconnect to resume syncing.</span>
+        </div>
+        <button class="fit-btn fit-btn-primary fit-btn-sm" style="width:auto;padding:0 16px;height:36px;font-size:14px;border-radius:99px;">Reconnect</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:0 4px;"><div style="width:40px;height:40px;border-radius:50%;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div><div><div style="font-size:16px;font-weight:500;">john.miller@gmail.com</div><div style="font-size:12px;color:var(--fit-teal-500);">Connected</div></div></div>
+      <div><div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:10px;">Select calendars to sync</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div class="cal-select-row selected" onclick="this.classList.toggle('selected')"><div style="width:10px;height:10px;border-radius:50%;background:#4285F4;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Personal</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" onclick="this.classList.toggle('selected')"><div style="width:10px;height:10px;border-radius:50%;background:#EA4335;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Work</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" onclick="this.classList.toggle('selected')"><div style="width:10px;height:10px;border-radius:50%;background:#FBBC04;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Birthdays</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" onclick="this.classList.toggle('selected')"><div style="width:10px;height:10px;border-radius:50%;background:#34A853;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Holidays in Poland</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fit-sheet-overlay" id="disconnect-sheet">
+    <div class="fit-sheet" >
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Disconnect Google Calendar?</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:20px;line-height:1.5;">john.miller@gmail.com will be disconnected. Synced events will be removed from your schedule.</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-destructive" style="border-radius:99px;" onclick="document.getElementById('disconnect-sheet').classList.remove('visible');">Disconnect</button>
+        <button class="fit-btn fit-btn-secondary" style="border-radius:99px;height:48px;" onclick="document.getElementById('disconnect-sheet').classList.remove('visible');">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" style="border-radius:99px;">Save</button></div>
+</div>
+
+<!-- ===== APPLE CALENDAR CONNECT ===== -->
+<div class="fit-phone fit-dark" id="s-apple-connect">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header"><button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button><span class="fit-header-title">Apple Calendar</span></div>
+  </div>
+  <div class="fit-phone-content">
+    <div style="margin:0 16px 16px;padding:14px;background:rgba(3,178,226,0.08);border-radius:12px;display:flex;gap:10px;align-items:flex-start;"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;width:18px;height:18px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;">Apple Calendar uses CalDAV, which requires an <strong style="color:var(--fit-text-primary);">app-specific password</strong> instead of your iCloud password.</div></div>
+    <div class="fit-input-group" id="apple-id-field"><span class="fit-input-label">Apple ID</span><input class="fit-input" type="email" placeholder="your@icloud.com" style="outline:none;border:none;"></div>
+    <div class="fit-input-group" id="apple-pass-field"><span class="fit-input-label">App-specific password</span><div class="fit-input" style="padding-right:0;">
+        <input type="password" placeholder="xxxx-xxxx-xxxx-xxxx" style="outline:none;border:none;flex:1;font-size:16px;font-family:var(--fit-font);color:var(--fit-text-primary);background:transparent;" id="apple-pass-input">
+        <button style="background:none;border:none;cursor:pointer;padding:8px 12px;color:var(--fit-text-tertiary);flex-shrink:0;" onclick="var inp=document.getElementById('apple-pass-input');var h=inp.type==='password';inp.type=h?'text':'password';this.querySelector('.eye-on').style.display=h?'block':'none';this.querySelector('.eye-off').style.display=h?'none':'block';">
+          <svg class="eye-on" style="display:none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div></div>
+    <div style="padding:0 16px;margin-bottom:20px;">
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:10px;">How to create an app-specific password:</div>
+      <div style="background:var(--fit-surface-high);border-radius:12px;padding:14px;font-size:14px;color:var(--fit-text-secondary);line-height:1.6;">
+        <div style="display:flex;gap:8px;margin-bottom:10px;"><span style="color:var(--fit-blue-500);font-weight:600;flex-shrink:0;">1.</span> Go to <strong style="color:var(--fit-text-primary);">appleid.apple.com</strong></div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;"><span style="color:var(--fit-blue-500);font-weight:600;flex-shrink:0;">2.</span> Sign in with your Apple ID</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;"><span style="color:var(--fit-blue-500);font-weight:600;flex-shrink:0;">3.</span> <span><strong style="color:var(--fit-text-primary);">Sign-In and Security</strong> &rarr; <strong style="color:var(--fit-text-primary);">App-Specific Passwords</strong></span></div>
+        <div style="display:flex;gap:8px;margin-bottom:14px;"><span style="color:var(--fit-blue-500);font-weight:600;flex-shrink:0;">4.</span> Generate a password and paste it here</div>
+        <button class="fit-btn fit-btn-secondary fit-btn-sm" style="width:auto;padding:0 16px;height:36px;font-size:14px;border-radius:99px;gap:6px;"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open Apple ID Settings</button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-toast" id="apple-error-toast" style="border-left:3px solid var(--fit-red-400);">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+    <span id="apple-error-text">Invalid credentials. Check your Apple ID and password.</span>
+  </div>
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" onclick="validateAppleConnect()">Connect</button></div>
+</div>
+
+<!-- ===== APPLE CALENDAR DETAIL ===== -->
+<div class="fit-phone fit-dark" id="s-apple-detail">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
       <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Settings</span>
+      <span class="fit-header-title">Apple Calendar</span>
+      <button class="fit-icon-btn" style="background:rgba(240,92,91,0.1);" onclick="document.getElementById('apple-disconnect-sheet').classList.add('visible')"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
     </div>
   </div>
   <div class="fit-phone-content">
-    <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:24px;">
-      <div style="display:flex;flex-direction:column;gap:12px;">
-        <span style="font-size:16px;color:var(--fit-gray-200);">Profile</span>
-        <div class="set-card" style="cursor:pointer;" onclick="window.location.href='./personal-data.html'"><div class="fit-avatar fit-avatar-brand" style="width:24px;height:24px;font-size:10px;border-radius:60px;">RH</div><div class="set-info"><div class="set-title">Edit personal info</div><div class="set-sub">Avatar, name, gender, height weight</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
-        <div class="set-card" style="cursor:pointer;"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><div class="set-info"><div class="set-title">Invite a Coach</div><div class="set-sub">Recommend the app to a friend</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+    <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:16px;">
+      <div id="apple-error-revoked" style="display:none;padding:12px;background:rgba(240,92,91,0.08);border-radius:12px;">
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;">
+          <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span style="font-size:14px;color:var(--fit-text-secondary);line-height:1.4;">Your app-specific password was revoked. This usually happens when you change your Apple ID password. Create a new app-specific password and reconnect.</span>
+        </div>
+        <button class="fit-btn fit-btn-primary fit-btn-sm" style="width:auto;padding:0 16px;height:36px;font-size:14px;border-radius:99px;" onclick="go('s-apple-connect',document.querySelector('[onclick*=s-apple-connect]'))">Create New Password</button>
       </div>
-      <div style="display:flex;flex-direction:column;gap:12px;">
-        <span style="font-size:16px;color:var(--fit-gray-200);">Coaching</span>
-        <div class="set-card" style="cursor:pointer;" onclick="window.location.href='./sport-types.html'"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg><div class="set-info"><div class="set-title">Sport types</div><div class="set-sub" id="set-sport-sub">Basketball, Padel, Tennis</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
-        <div class="set-card" style="cursor:pointer;" onclick="window.location.href='./sessions.html'"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><div class="set-info"><div class="set-title">Training sessions</div><div class="set-sub">Added 3</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
-        <div class="set-card" style="cursor:pointer;" onclick="window.location.href='./available-hours.html'"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><div class="set-info"><div class="set-title">Available hours</div><div class="set-sub">5 days active</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
-        <div class="set-card" style="cursor:pointer;" onclick="window.location.href='./locations.html'"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg><div class="set-info"><div class="set-title">GYM locations</div><div class="set-sub">Added 2 locations</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
-        <div class="set-card" style="cursor:pointer;" onclick="window.location.href='./calendar-sync.html'"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15.36 6.36L3 16"/></svg><div class="set-info"><div class="set-title">Calendar Sync</div><div class="set-sub">Google connected</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div id="apple-error-2fa" style="display:none;padding:12px;background:rgba(247,201,72,0.08);border-radius:12px;">
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;">
+          <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-yellow-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span style="font-size:14px;color:var(--fit-text-secondary);line-height:1.4;">Two-factor authentication is required for app-specific passwords. Enable it in your Apple ID settings.</span>
+        </div>
+        <button class="fit-btn fit-btn-secondary fit-btn-sm" style="width:auto;padding:0 16px;height:36px;font-size:14px;border-radius:99px;gap:6px;"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open Apple ID Settings</button>
       </div>
-      <div style="display:flex;flex-direction:column;gap:12px;">
-        <span style="font-size:16px;color:var(--fit-gray-200);">Payments</span>
-        <div class="set-card" style="cursor:pointer;" onclick="window.location.href='balance.html'"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg><div class="set-info"><div class="set-title">Earnings</div><div class="set-sub">&euro;340.50 available</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
-        <div class="set-card" style="cursor:pointer;" onclick="window.location.href='balance.html#s-stripe'"><div style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#635BFF;flex-shrink:0;">S</div><div class="set-info"><div class="set-title">Stripe Connect</div><div class="set-sub" style="color:var(--fit-teal-500);">Connected</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div id="apple-error-sync" style="display:none;padding:12px;background:rgba(240,92,91,0.08);border-radius:12px;">
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;">
+          <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span style="font-size:14px;color:var(--fit-text-secondary);line-height:1.4;">Last sync failed. Your events may be outdated.</span>
+        </div>
+        <button class="fit-btn fit-btn-secondary fit-btn-sm" style="width:auto;padding:0 16px;height:36px;font-size:14px;border-radius:99px;">Retry Sync</button>
       </div>
-      <div style="display:flex;flex-direction:column;gap:12px;">
-        <span style="font-size:16px;color:var(--fit-gray-200);">Account</span>
-        <div class="set-card" style="cursor:pointer;" onclick="window.location.href='../shared/account-access.html'"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><div class="set-info"><div class="set-title">Account Access</div><div class="set-sub">Sign-in, password, delete</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:0 4px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;">
+          <img src="../../../design-tokens/assets/icons/apple-calendar.svg" style="width:20px;height:20px;">
+        </div>
+        <div>
+          <div style="font-size:16px;font-weight:500;">youri@icloud.com</div>
+          <div style="font-size:12px;color:var(--fit-teal-500);" id="apple-conn-status">Connected</div>
+        </div>
       </div>
-      <div onclick="doLogout()" style="display:flex;align-items:center;gap:8px;padding:0 4px;cursor:pointer;"><svg style="width:24px;height:24px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span style="font-size:18px;font-weight:500;">Log out</span></div>
-    </div>
-    <!-- Signed out toast (top) -->
-    <div class="fit-toast" id="logout-toast" style="border-left:3px solid var(--fit-teal-500);">
-      <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>
-      <span style="font-size:14px;">Signed out</span>
+      <div id="apple-cal-list">
+        <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:10px;">Select calendars to sync</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div class="cal-select-row selected" onclick="this.classList.toggle('selected')"><div style="width:10px;height:10px;border-radius:50%;background:#FF3B30;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Personal</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row selected" onclick="this.classList.toggle('selected')"><div style="width:10px;height:10px;border-radius:50%;background:#5856D6;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Work</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" onclick="this.classList.toggle('selected')"><div style="width:10px;height:10px;border-radius:50%;background:#FF9500;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Family</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        </div>
+      </div>
     </div>
   </div>
+  <div class="fit-sheet-overlay" id="apple-disconnect-sheet">
+    <div class="fit-sheet" >
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Disconnect Apple Calendar?</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:20px;line-height:1.5;">youri@icloud.com will be disconnected. Synced events will be removed from your schedule.</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-destructive" style="border-radius:99px;" onclick="document.getElementById('apple-disconnect-sheet').classList.remove('visible');">Disconnect</button>
+        <button class="fit-btn fit-btn-secondary" style="border-radius:99px;height:48px;" onclick="document.getElementById('apple-disconnect-sheet').classList.remove('visible');">Cancel</button>
+      </div>
+    </div>
   </div>
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" style="border-radius:99px;">Save</button></div>
 </div>
+
 
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
-  <div class="ann" id="ann-s-settings"><span class="ann-role coach">Coach</span><h3>Settings</h3>
+  <div class="ann" id="ann-s-calsync"><span class="ann-role coach">Coach</span><h3>Calendar Sync</h3>
     <div style="display:inline-flex;gap:0;border-radius:6px;overflow:hidden;border:1px solid var(--fit-gray-700);margin-bottom:12px;">
-      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-teal-500);" onclick="doLogout()">Trigger Log out toast</button>
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="toggleCalSync('connected',this)">Connected</button>
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="toggleCalSync('zero',this)">Zero State</button>
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-teal-500);" onclick="var t=document.getElementById('connect-success-toast');t.classList.add('show');setTimeout(function(){t.classList.remove('show')},3000)">Toast</button>
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-red-400);" onclick="var ok=document.getElementById('sync-status-ok');var err=document.getElementById('sync-status-error');var show=err.style.display==='none';ok.style.display=show?'none':'block';err.style.display=show?'block':'none';">Sync Error</button>
     </div>
-    <p><strong>Coach:</strong> Profile, Coaching, Payments, Account.</p><ul><li>set-card: icon + title + sub + chevron</li><li>Calendar Sync, Training Sessions, Locations all accessible from here</li><li><strong>Log out:</strong> no confirmation — tap → toast "Signed out" → (in production: clears session, navigates to sign-in). Reversible action, no data loss, friction-free per HIG precedent (Apple Fitness, Strava).</li></ul></div>
+    <p><strong>Connected:</strong> account cards with details. <strong>Zero:</strong> provider cards with Connect CTAs.</p><ul><li>Zero: two provider cards (Google + Apple) with full-width Connect buttons</li><li>Connected: account cards + dashed "Add" + Apple with inline Connect</li></ul><span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Connection flows</span><div class="ann-detail"><h4>Google OAuth</h4><p>Tap "+" → system Google Sign-In → OAuth → backend stores tokens → auto-creates "321 Fit" calendar → loading → calendars fetched.</p><h4>Apple CalDAV</h4><p>Tap Connect → Apple ID + app-specific password form. Backend validates → stores encrypted → fetches calendars.</p><h4>Sync</h4><p>Bidirectional. External events anonymized. Webhook + 15-min fallback.</p></div></div>
+  <div class="ann" id="ann-s-cal-detail"><span class="ann-role coach">Coach</span><h3>Google Calendar Detail</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;border-radius:6px;margin-bottom:12px;">
+      <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="setDetailState('normal',this)">Normal</button>
+      <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setDetailState('initial',this)">Fetch Failed</button>
+      <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setDetailState('sync',this)">Sync Error</button>
+      <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setDetailState('auth',this)">Auth Expired</button>
+    </div><p>Dedicated screen per account. 4 states via toggle.</p><ul><li>Selectable rows with Google calendar colors</li><li>"321 Fit" calendar NOT shown (auto-created)</li><li>Save in footer, trash icon for disconnect</li></ul></div>
+  <div class="ann" id="ann-s-apple-connect"><span class="ann-role coach">Coach</span><h3>Apple Calendar Connect</h3><p>CalDAV connection. Apple ID + <strong>app-specific password</strong>.</p><ul><li>Info banner explains CalDAV requirement</li><li>Steps always visible (not expandable)</li><li>"Open Apple ID Settings" → Safari</li><li>Password: eye toggle inside input</li><li>Validation: empty → red border, backend error → toast</li></ul></div>
+  <div class="ann" id="ann-s-apple-detail"><span class="ann-role coach">Coach</span><h3>Apple Calendar Detail</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;">
+      <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="setAppleDetailState('normal',this)">Normal</button>
+      <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setAppleDetailState('revoked',this)">Revoked</button>
+      <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setAppleDetailState('2fa',this)">2FA Issue</button>
+      <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setAppleDetailState('sync',this)">Sync Error</button>
+    </div>
+    <p>Apple-specific error states differ from Google.</p><ul><li><strong>Normal:</strong> calendars (iCloud colors), Save + Disconnect</li><li><strong>Revoked:</strong> password changed → "Create New Password"</li><li><strong>2FA Issue:</strong> yellow warning + "Open Apple ID Settings"</li><li><strong>Sync Error:</strong> Retry button, calendars stale but usable</li></ul></div>
 </div>
 
 <script src="../../lib/fit-ui.js"></script>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>321Fit — Settings</title>
+<title>321Fit — Personal Data</title>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../lib/fit-ui.css">
 <style>
@@ -599,16 +599,15 @@
 <!-- ==================== SIDEBAR ==================== -->
 <nav class="sidebar">
   <div class="sidebar-scroll">
-  <div class="label">Settings</div>
-  <button class="active" onclick="go('s-settings',this)">Settings root</button>
-  <div class="label">Sub-modules (open in new tab)</div>
-  <button onclick="window.location.href='./personal-data.html'">Personal Data</button>
-  <button onclick="window.location.href='./sport-types.html'">Sport Types</button>
-  <button onclick="window.location.href='./sessions.html'">Training Sessions</button>
-  <button onclick="window.location.href='./locations.html'">Training Locations</button>
-  <button onclick="window.location.href='./available-hours.html'">Available Hours</button>
-  <button onclick="window.location.href='./calendar-sync.html'">Calendar Sync</button>
-  <button onclick="window.location.href='../shared/account-access.html'">Account Access</button>
+  <div class="label">Personal Data</div>
+  <button class="active" onclick="go('s-personal-data',this)">Personal Data</button>
+  <button onclick="go('s-notes-editor',this)">About Me Editor</button>
+  <button onclick="go('s-tz-select',this)">Time Zone</button>
+  <button onclick="go('s-country-select',this)">Home Country</button>
+  <button onclick="go('s-lang-select',this)">Languages</button>
+  <button onclick="go('s-personal-data',this);setTimeout(openDobPicker,100);">DOB Picker</button>
+  <div class="label">Other modules</div>
+  <button onclick="window.location.href='./settings.html'">← Back to Settings</button>
   </div>
   <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
     <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
@@ -617,57 +616,382 @@
 </nav>
 
 <!-- ==================== PHONE ==================== -->
-<!-- ===== COACH: SETTINGS ===== -->
-<div class="fit-phone fit-dark active" id="s-settings">
+<!-- ===== SETTINGS: PERSONAL DATA ===== -->
+<div class="fit-phone fit-dark active" id="s-personal-data">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
-      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Settings</span>
+      <button class="fit-header-back" onclick="handlePdBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Personal data</span>
     </div>
   </div>
   <div class="fit-phone-content">
-    <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:24px;">
-      <div style="display:flex;flex-direction:column;gap:12px;">
-        <span style="font-size:16px;color:var(--fit-gray-200);">Profile</span>
-        <div class="set-card" style="cursor:pointer;" onclick="window.location.href='./personal-data.html'"><div class="fit-avatar fit-avatar-brand" style="width:24px;height:24px;font-size:10px;border-radius:60px;">RH</div><div class="set-info"><div class="set-title">Edit personal info</div><div class="set-sub">Avatar, name, gender, height weight</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
-        <div class="set-card" style="cursor:pointer;"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><div class="set-info"><div class="set-title">Invite a Coach</div><div class="set-sub">Recommend the app to a friend</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+
+    <!-- Loading skeleton — shown while PD.fs-loading -->
+    <div class="pd-fs-skel">
+      <div class="pd-sk-avatar sk-shimmer"></div>
+      <div class="pd-sk-group"><div class="pd-sk-label sk-shimmer"></div><div class="pd-sk-input sk-shimmer"></div></div>
+      <div class="pd-sk-group"><div class="pd-sk-label sk-shimmer"></div><div class="pd-sk-input sk-shimmer"></div></div>
+      <div class="pd-sk-group"><div class="pd-sk-label sk-shimmer" style="width:22%;"></div><div class="pd-sk-input sk-shimmer" style="height:80px;"></div></div>
+      <div class="pd-sk-group"><div class="pd-sk-label sk-shimmer" style="width:26%;"></div><div class="pd-sk-input sk-shimmer"></div></div>
+      <div class="pd-sk-row">
+        <div class="pd-sk-col"><div class="pd-sk-label sk-shimmer"></div><div class="pd-sk-input sk-shimmer"></div></div>
+        <div class="pd-sk-col"><div class="pd-sk-label sk-shimmer"></div><div class="pd-sk-input sk-shimmer"></div></div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:12px;">
-        <span style="font-size:16px;color:var(--fit-gray-200);">Coaching</span>
-        <div class="set-card" style="cursor:pointer;" onclick="window.location.href='./sport-types.html'"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg><div class="set-info"><div class="set-title">Sport types</div><div class="set-sub" id="set-sport-sub">Basketball, Padel, Tennis</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
-        <div class="set-card" style="cursor:pointer;" onclick="window.location.href='./sessions.html'"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><div class="set-info"><div class="set-title">Training sessions</div><div class="set-sub">Added 3</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
-        <div class="set-card" style="cursor:pointer;" onclick="window.location.href='./available-hours.html'"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><div class="set-info"><div class="set-title">Available hours</div><div class="set-sub">5 days active</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
-        <div class="set-card" style="cursor:pointer;" onclick="window.location.href='./locations.html'"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg><div class="set-info"><div class="set-title">GYM locations</div><div class="set-sub">Added 2 locations</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
-        <div class="set-card" style="cursor:pointer;" onclick="window.location.href='./calendar-sync.html'"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15.36 6.36L3 16"/></svg><div class="set-info"><div class="set-title">Calendar Sync</div><div class="set-sub">Google connected</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:12px;">
-        <span style="font-size:16px;color:var(--fit-gray-200);">Payments</span>
-        <div class="set-card" style="cursor:pointer;" onclick="window.location.href='balance.html'"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg><div class="set-info"><div class="set-title">Earnings</div><div class="set-sub">&euro;340.50 available</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
-        <div class="set-card" style="cursor:pointer;" onclick="window.location.href='balance.html#s-stripe'"><div style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#635BFF;flex-shrink:0;">S</div><div class="set-info"><div class="set-title">Stripe Connect</div><div class="set-sub" style="color:var(--fit-teal-500);">Connected</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:12px;">
-        <span style="font-size:16px;color:var(--fit-gray-200);">Account</span>
-        <div class="set-card" style="cursor:pointer;" onclick="window.location.href='../shared/account-access.html'"><svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><div class="set-info"><div class="set-title">Account Access</div><div class="set-sub">Sign-in, password, delete</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
-      </div>
-      <div onclick="doLogout()" style="display:flex;align-items:center;gap:8px;padding:0 4px;cursor:pointer;"><svg style="width:24px;height:24px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span style="font-size:18px;font-weight:500;">Log out</span></div>
     </div>
-    <!-- Signed out toast (top) -->
-    <div class="fit-toast" id="logout-toast" style="border-left:3px solid var(--fit-teal-500);">
-      <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>
-      <span style="font-size:14px;">Signed out</span>
+
+  <div class="pd-fs-content">
+    <div style="display:flex;justify-content:center;padding:0 0 20px;">
+      <div id="pd-avatar-wrap" style="position:relative;cursor:pointer;" onclick="openSheet('pd-avatar-sheet')">
+        <div id="pd-avatar-img" style="width:80px;height:80px;border-radius:50%;background:var(--fit-brand-gradient);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:600;color:var(--fit-white);overflow:hidden;background-size:cover;background-position:center;">JM</div>
+        <div style="position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;border:2px solid var(--fit-screen-bg);">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+        </div>
+      </div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">First name</span>
+      <div class="fit-input" style="color:var(--fit-text-primary);">John</div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Last name</span>
+      <div class="fit-input" style="color:var(--fit-text-primary);">Miller</div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">About me</span>
+      <div class="fit-input" style="min-height:80px;align-items:flex-start;padding-top:14px;cursor:pointer;" onclick="go('s-notes-editor',document.querySelector('[onclick*=s-notes-editor]'))">
+        <span style="color:var(--fit-text-secondary);font-size:14px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">Certified fitness & yoga coach with 8 years of experience. Multi-sport coach working with tennis, padel, and basketball players.</span>
+      </div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Time Zone</span>
+      <div class="fit-input" style="cursor:pointer;" onclick="go('s-tz-select',document.querySelector('[onclick*=s-tz-select]'))"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span> <span id="pd-tz-value">Warsaw, Europe (GMT+1)</span><span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Home location</span>
+      <div class="fit-input" style="cursor:pointer;" onclick="go('s-country-select',document.querySelector('[onclick*=s-country-select]'))"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:14px;"><rect x="1" y="5" width="22" height="14" rx="2"/></svg></span> <span id="pd-country-value">Poland</span><span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Languages</span>
+      <div class="fit-input" style="cursor:pointer;" onclick="go('s-lang-select',document.querySelector('[onclick*=s-lang-select]'))"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg></span> <span id="pd-lang-value">Polski</span><span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    </div>
+    <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);padding:0 16px;margin:8px 0 8px;">Body metrics</div>
+    <div class="fit-selection-group">
+      <div class="fit-selection-chip" style="gap:6px;">Woman</div>
+      <div class="fit-selection-chip selected" style="gap:6px;">Man</div>
+    </div>
+    <div style="display:flex;gap:12px;padding:0 16px;">
+      <div class="fit-input-group" style="flex:1;padding:0;min-width:0;">
+        <span class="fit-input-label">Weight</span>
+        <div class="fit-input pd-num-wrap" id="pd-weight-wrap" style="gap:8px;">
+          <input type="text" inputmode="decimal" class="pd-num-input" id="pd-weight-input" value="95.5" onblur="pdWeightValidate()"/>
+          <span style="color:var(--fit-text-tertiary);font-size:14px;flex-shrink:0;">kg</span>
+        </div>
+        <div class="pd-num-error" id="pd-weight-err" style="display:none;"></div>
+      </div>
+      <div class="fit-input-group" style="flex:1;padding:0;min-width:0;">
+        <span class="fit-input-label">Height</span>
+        <div class="fit-input pd-num-wrap" id="pd-height-wrap" style="gap:8px;">
+          <input type="text" inputmode="numeric" class="pd-num-input" id="pd-height-input" value="185" onblur="pdHeightValidate()"/>
+          <span style="color:var(--fit-text-tertiary);font-size:14px;flex-shrink:0;">cm</span>
+        </div>
+        <div class="pd-num-error" id="pd-height-err" style="display:none;"></div>
+      </div>
+    </div>
+    <div class="fit-input-group" id="pd-dob-group" style="padding:0 16px;">
+      <span class="fit-input-label">Date of birth</span>
+      <div class="fit-input" style="cursor:pointer;" onclick="openDobPicker()"><span id="pd-dob-value" style="color:var(--fit-text-placeholder);">Select your date of birth</span><span class="fit-input-chevron" style="margin-left:auto;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+      <div class="fit-input-error-text" id="pd-dob-error" style="display:none;margin-top:6px;color:var(--fit-red-400);font-size:13px;line-height:1.4;">Must be 13 or older</div>
+    </div>
+  </div><!-- /.pd-fs-content -->
+  </div>
+
+  <!-- Save error banner (above footer) -->
+  <div class="pd-save-error">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12" y2="16.5"/></svg>
+    <div class="pd-save-error-body"><strong>Couldn't save changes.</strong> Check your connection and try again.</div>
+    <button class="pd-save-error-retry" onclick="handlePdSave()">Retry</button>
+  </div>
+
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;">
+    <button id="pd-save-btn" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" onclick="handlePdSave()"><span class="pd-save-spinner"></span>Save</button>
+  </div>
+
+  <!-- Saved snackbar -->
+  <div class="fit-snackbar" id="pd-saved-snack">Personal data updated</div>
+
+  <!-- Discard changes confirm sheet -->
+  <div class="fit-sheet-overlay" id="pd-discard-sheet">
+    <div class="fit-sheet" >
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Discard changes?</div>
+      <div class="fit-sheet-subtitle">Your profile changes will be lost.</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
+        <button class="fit-btn fit-btn-destructive" style="height:50px;font-size:16px;" onclick="pdDiscardConfirm()">Discard</button>
+        <button style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="closeSheet('pd-discard-sheet')">Keep editing</button>
+      </div>
     </div>
   </div>
+
+  <!-- Avatar action sheet (Take photo / Choose from library / Remove) -->
+  <div class="fit-sheet-overlay" id="pd-avatar-sheet">
+    <div class="fit-sheet" >
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Profile photo</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+        <button class="pd-avatar-action" onclick="pdAvatarAction('camera')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <span>Take photo</span>
+        </button>
+        <button class="pd-avatar-action" onclick="pdAvatarAction('library')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span>Choose from library</span>
+        </button>
+        <button class="pd-avatar-action pd-avatar-destructive" id="pd-avatar-remove" style="display:none;" onclick="pdAvatarAction('remove')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+          <span>Remove photo</span>
+        </button>
+      </div>
+      <button style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;margin-top:16px;" onclick="closeSheet('pd-avatar-sheet')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- DOB picker sheet (3-wheel: Day / Month / Year) — mounted inside Personal Data so it renders on top of this screen -->
+  <div class="fit-sheet-overlay" id="dob-picker-sheet">
+    <div class="fit-sheet" >
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Date of birth</div>
+      <div class="fit-sheet-subtitle">You must be at least 13 years old</div>
+      <div class="avail-tp-wheels" style="gap:12px;">
+        <div class="avail-tp-wheel" id="dob-wheel-day" style="flex:0 1 72px;max-width:72px;"></div>
+        <div class="avail-tp-wheel" id="dob-wheel-month" style="flex:0 1 110px;max-width:110px;"></div>
+        <div class="avail-tp-wheel" id="dob-wheel-year" style="flex:0 1 96px;max-width:96px;"></div>
+      </div>
+      <div id="dob-sheet-error" style="display:none;margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(240,92,91,0.12);color:var(--fit-red-400);font-size:13px;line-height:1.4;text-align:center;">Must be 13 or older on today's date</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
+        <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="confirmDobPicker()">Set</button>
+        <button style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="closeSheet('dob-picker-sheet')">Cancel</button>
+      </div>
+    </div>
   </div>
 </div>
 
+<!-- ===== ABOUT ME EDITOR ===== -->
+<div class="fit-phone fit-dark" id="s-notes-editor">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;">
+      <button style="border:none;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;cursor:pointer;">Cancel</button>
+      <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">About Me</span>
+      <button style="border:none;background:transparent;color:var(--fit-brand-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Save</button>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding:0;">
+    <div style="padding:16px;height:100%;">
+      <div contenteditable="true" style="width:100%;min-height:300px;font-family:var(--fit-font);font-size:16px;line-height:1.6;color:var(--fit-text-primary);outline:none;background:transparent;">Certified fitness & yoga coach with 8 years of experience. Multi-sport coach working with tennis, padel, and basketball players. Focused on improving technique, coordination, and game understanding.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== TIME ZONE SELECT — push screen ===== -->
+<div class="fit-phone fit-dark" id="s-tz-select">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-personal-data',document.querySelector('[onclick*=s-personal-data]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Time zone</span>
+    </div>
+    <div class="pd-search-wrap">
+      <div class="pd-search" id="tz-search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="search" id="tz-search-input" placeholder="Search" autocomplete="off" oninput="filterPdList(this,'tz')"/>
+        <button class="pd-search-clear" onclick="clearPdSearch('tz')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="pd-list" id="tz-list" data-pd-list="tz" data-pd-mode="single">
+      <div class="cal-select-row" data-label="Honolulu, Pacific (GMT-10)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Honolulu, Pacific (GMT-10)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Anchorage, America (GMT-9)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Anchorage, America (GMT-9)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Los Angeles, America (GMT-8)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Los Angeles, America (GMT-8)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Denver, America (GMT-7)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Denver, America (GMT-7)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Chicago, America (GMT-6)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Chicago, America (GMT-6)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="New York, America (GMT-5)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">New York, America (GMT-5)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Halifax, America (GMT-4)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Halifax, America (GMT-4)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="São Paulo, America (GMT-3)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">São Paulo, America (GMT-3)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Azores, Atlantic (GMT-1)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Azores, Atlantic (GMT-1)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="London, Europe (GMT+0)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">London, Europe (GMT+0)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row selected" data-label="Warsaw, Europe (GMT+1)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Warsaw, Europe (GMT+1)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Cairo, Africa (GMT+2)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Cairo, Africa (GMT+2)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Moscow, Europe (GMT+3)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Moscow, Europe (GMT+3)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Dubai, Asia (GMT+4)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Dubai, Asia (GMT+4)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Karachi, Asia (GMT+5)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Karachi, Asia (GMT+5)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Bangkok, Asia (GMT+7)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Bangkok, Asia (GMT+7)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Singapore, Asia (GMT+8)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Singapore, Asia (GMT+8)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Tokyo, Asia (GMT+9)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Tokyo, Asia (GMT+9)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Sydney, Australia (GMT+10)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Sydney, Australia (GMT+10)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Auckland, Pacific (GMT+12)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Auckland, Pacific (GMT+12)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+    </div>
+    <div class="pd-empty" id="tz-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      <div class="pd-empty-title">No matches</div>
+      <div class="pd-empty-sub">Try a different city or region</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HOME COUNTRY SELECT — push screen ===== -->
+<div class="fit-phone fit-dark" id="s-country-select">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-personal-data',document.querySelector('[onclick*=s-personal-data]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Home country</span>
+    </div>
+    <div class="pd-search-wrap">
+      <div class="pd-search" id="country-search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="search" id="country-search-input" placeholder="Search" autocomplete="off" oninput="filterPdList(this,'country')"/>
+        <button class="pd-search-clear" onclick="clearPdSearch('country')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="pd-list" data-pd-list="country" data-pd-mode="single">
+      <div class="cal-select-row" data-label="Argentina" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇦🇷</div><span style="flex:1;">Argentina</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Australia" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇦🇺</div><span style="flex:1;">Australia</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Brazil" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇧🇷</div><span style="flex:1;">Brazil</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Canada" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇨🇦</div><span style="flex:1;">Canada</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="China" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇨🇳</div><span style="flex:1;">China</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Czech Republic" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇨🇿</div><span style="flex:1;">Czech Republic</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Denmark" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇩🇰</div><span style="flex:1;">Denmark</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Egypt" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇪🇬</div><span style="flex:1;">Egypt</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Finland" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇫🇮</div><span style="flex:1;">Finland</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="France" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇫🇷</div><span style="flex:1;">France</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Germany" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇩🇪</div><span style="flex:1;">Germany</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="India" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇮🇳</div><span style="flex:1;">India</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Indonesia" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇮🇩</div><span style="flex:1;">Indonesia</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Ireland" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇮🇪</div><span style="flex:1;">Ireland</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Israel" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇮🇱</div><span style="flex:1;">Israel</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Italy" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇮🇹</div><span style="flex:1;">Italy</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Japan" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇯🇵</div><span style="flex:1;">Japan</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Mexico" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇲🇽</div><span style="flex:1;">Mexico</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Netherlands" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇳🇱</div><span style="flex:1;">Netherlands</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="New Zealand" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇳🇿</div><span style="flex:1;">New Zealand</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Norway" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇳🇴</div><span style="flex:1;">Norway</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row selected" data-label="Poland" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇵🇱</div><span style="flex:1;">Poland</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Portugal" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇵🇹</div><span style="flex:1;">Portugal</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Romania" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇷🇴</div><span style="flex:1;">Romania</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Singapore" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇸🇬</div><span style="flex:1;">Singapore</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="South Africa" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇿🇦</div><span style="flex:1;">South Africa</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Spain" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇪🇸</div><span style="flex:1;">Spain</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Sweden" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇸🇪</div><span style="flex:1;">Sweden</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Switzerland" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇨🇭</div><span style="flex:1;">Switzerland</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Turkey" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇹🇷</div><span style="flex:1;">Turkey</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Ukraine" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇺🇦</div><span style="flex:1;">Ukraine</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="United Arab Emirates" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇦🇪</div><span style="flex:1;">United Arab Emirates</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="United Kingdom" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇬🇧</div><span style="flex:1;">United Kingdom</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="United States" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇺🇸</div><span style="flex:1;">United States</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Vietnam" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇻🇳</div><span style="flex:1;">Vietnam</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+    </div>
+    <div class="pd-empty" id="country-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      <div class="pd-empty-title">No matches</div>
+      <div class="pd-empty-sub">Try a different country name</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LANGUAGES SELECT — push screen, multi ===== -->
+<div class="fit-phone fit-dark" id="s-lang-select">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="pdLangBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Languages</span>
+    </div>
+    <div class="pd-search-wrap">
+      <div class="pd-search" id="lang-search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="search" id="lang-search-input" placeholder="Search" autocomplete="off" oninput="filterPdList(this,'lang')"/>
+        <button class="pd-search-clear" onclick="clearPdSearch('lang')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="pd-list" data-pd-list="lang" data-pd-mode="multi">
+      <div class="cal-select-row" data-label="العربية · Arabic" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">العربية · Arabic</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="বাংলা · Bengali" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">বাংলা · Bengali</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="中文 · Chinese (Simplified)" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">中文 · Chinese (Simplified)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Čeština · Czech" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Čeština · Czech</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Dansk · Danish" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Dansk · Danish</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Nederlands · Dutch" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Nederlands · Dutch</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="English · English" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">English · English</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Suomi · Finnish" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Suomi · Finnish</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Français · French" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Français · French</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Deutsch · German" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Deutsch · German</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Ελληνικά · Greek" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Ελληνικά · Greek</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="עברית · Hebrew" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">עברית · Hebrew</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="हिन्दी · Hindi" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">हिन्दी · Hindi</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Magyar · Hungarian" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Magyar · Hungarian</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Indonesia · Indonesian" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Indonesia · Indonesian</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Italiano · Italian" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Italiano · Italian</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="日本語 · Japanese" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">日本語 · Japanese</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="한국어 · Korean" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">한국어 · Korean</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Norsk · Norwegian" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Norsk · Norwegian</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="فارسی · Persian" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">فارسی · Persian</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row selected" data-label="Polski · Polish" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Polski · Polish</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Português · Portuguese" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Português · Portuguese</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Română · Romanian" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Română · Romanian</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Русский · Russian" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Русский · Russian</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Español · Spanish" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Español · Spanish</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Svenska · Swedish" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Svenska · Swedish</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="ไทย · Thai" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">ไทย · Thai</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Türkçe · Turkish" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Türkçe · Turkish</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Українська · Ukrainian" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Українська · Ukrainian</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Tiếng Việt · Vietnamese" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Tiếng Việt · Vietnamese</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+    </div>
+    <div class="pd-empty" id="lang-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      <div class="pd-empty-title">No matches</div>
+      <div class="pd-empty-sub">Try the native name or English</div>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;">
+    <button id="lang-save-btn" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;opacity:0.5;pointer-events:none;" onclick="pdLangSave()">Save<span class="pd-save-count" id="lang-save-count">(1 selected)</span></button>
+  </div>
+
+  <!-- Discard changes confirm sheet -->
+  <div class="fit-sheet-overlay" id="lang-discard-sheet">
+    <div class="fit-sheet" >
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Discard changes?</div>
+      <div class="fit-sheet-subtitle">Your language selection will not be saved.</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
+        <button class="fit-btn fit-btn-destructive" style="height:50px;font-size:16px;" onclick="pdLangDiscardConfirm()">Discard</button>
+        <button style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="closeSheet('lang-discard-sheet')">Keep editing</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
-  <div class="ann" id="ann-s-settings"><span class="ann-role coach">Coach</span><h3>Settings</h3>
-    <div style="display:inline-flex;gap:0;border-radius:6px;overflow:hidden;border:1px solid var(--fit-gray-700);margin-bottom:12px;">
-      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-teal-500);" onclick="doLogout()">Trigger Log out toast</button>
+  <div class="ann" id="ann-s-personal-data"><span class="ann-role coach">Coach</span><h3>Personal Data</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setPdFlow('default',this)">Default</button>
+      <button onclick="setPdFlow('loading',this)">Loading</button>
+      <button onclick="setPdFlow('saving',this)">Saving</button>
+      <button onclick="setPdFlow('error',this)">Save error</button>
+      <button onclick="setPdFlow('saved',this)">Saved</button>
     </div>
-    <p><strong>Coach:</strong> Profile, Coaching, Payments, Account.</p><ul><li>set-card: icon + title + sub + chevron</li><li>Calendar Sync, Training Sessions, Locations all accessible from here</li><li><strong>Log out:</strong> no confirmation — tap → toast "Signed out" → (in production: clears session, navigates to sign-in). Reversible action, no data loss, friction-free per HIG precedent (Apple Fitness, Strava).</li></ul></div>
+    <p>Edit profile from Settings.</p><ul><li><strong>Avatar</strong> (initials fallback) — tap anywhere on circle or pencil → <code>pd-avatar-sheet</code> with 3 actions: Take photo / Choose from library / <em>Remove photo</em> (Medium destructive, tinted red 15%). Remove is hidden when no photo is set (initials-only).</li><li><strong>Name:</strong> first + last</li><li><strong>About me:</strong> 3-line clamp, tap → full-screen editor</li><li><strong>Dropdowns:</strong> Time Zone / Home Country / Languages — all full-screen push, device-detected values pre-filled at onboarding</li><li><strong>Body metrics:</strong> gender chips; weight (kg) + height (cm) — metric only for MVP. Weight 20-300 kg, height 50-250 cm — out-of-range = red outline + inline tip on blur. <code>inputmode="decimal"</code> (weight) / <code>numeric"</code> (height) for mobile keypad.</li><li><strong>DOB:</strong> 3-wheel sheet (Day/Month/Year), year list capped at <code>currentYear − 13</code>; strict <code>≥ 13y</code> validation on Set — inline red banner in sheet on fail. Prod = <code>UIDatePicker .compact</code> (iOS) / <code>MaterialDatePicker</code> (Android)</li></ul></div>
+  <div class="ann" id="ann-s-notes-editor"><span class="ann-role coach">Coach</span><h3>About Me Editor</h3><p>Full-screen text editor. Cancel/Save header. Reusable for About Me and Notes fields.</p></div>
+  <div class="ann" id="ann-s-lang-select"><span class="ann-role coach">Coach</span><h3>Languages</h3><p>Full-screen push from Personal Data. <strong>Multi-select</strong> — tap toggles row, Save commits all changes.</p><ul><li><strong>Row:</strong> <code>native · English</code> (e.g. "Polski · Polish") — users search in either</li><li><strong>Sticky footer Save</strong> — enabled only when selection differs from initial AND at least 1 is selected; shows "(N selected)" count</li><li><strong>Back button:</strong> if dirty → <code>Discard changes?</code> sheet (Discard = Medium destructive tinted red, Keep editing = text)</li><li><strong>On Save:</strong> Personal Data input shows first 2 languages or "Polski +N more"</li><li><strong>Seed</strong> captured on screen load + re-captured after each Save to reset dirty state</li></ul><p class="note">Prototype = 30 common languages. Production pulls full BCP-47 list.</p></div>
+  <div class="ann" id="ann-s-country-select"><span class="ann-role coach">Coach</span><h3>Home Country</h3><p>Full-screen push from Personal Data. Same pattern as Time Zone — single-select, auto-dismiss.</p><ul><li><strong>Leading slot:</strong> flag emoji 24×18 (prod: SVG flag set from country code)</li><li>Row = flag + country name; alphabetical</li><li>Current country detected from device at account creation — pre-selected</li><li>Used for tax/currency derivation on backend, not shown elsewhere in UI</li></ul><p class="note">Prototype uses ~35 countries covering major markets. Production pulls full ISO 3166-1 list.</p></div>
+  <div class="ann" id="ann-s-tz-select"><span class="ann-role coach">Coach</span><h3>Time Zone</h3><p>Full-screen push from Personal Data. <strong>Single-select</strong> — tap row auto-dismisses back to Personal Data with the new value.</p><ul><li><strong>Sticky search</strong> under header — live filters list by city/region/GMT</li><li><strong>Row pattern:</strong> <code>cal-select-row</code> — 56px, teal accent on <code>.selected</code>, trailing checkmark toggled by class (no hardcoded SVG state)</li><li><strong>Default:</strong> current TZ detected from device at account creation — shown scrolled into view + checkmarked</li><li><strong>Empty state:</strong> "No matches" when filter returns zero</li><li>Reusable pattern for Country and Languages selectors</li></ul><p class="note">Prototype uses ~20 representative TZs. Production pulls full IANA zone list from device.</p></div>
 </div>
 
 <script src="../../lib/fit-ui.js"></script>
