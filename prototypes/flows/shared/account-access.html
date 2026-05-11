@@ -394,7 +394,7 @@
   #s-phone-new [data-pf-state] { display: none; }
   #s-phone-new.pn-add    [data-pf-state="add"]    { display: block; }
   #s-phone-new.pn-change [data-pf-state="change"] { display: block; }
-  #s-phone-new.pn-taken  [data-pf-state="taken"]  { display: block; }
+  /* pn-taken state removed 2026-05-11: phone is non-unique across accounts, no 409 path */
   #s-phone-new.pn-invalid [data-pf-state="invalid"] { display: block; }
 
   #s-phone-otp [data-otp-state] { display: none; }
@@ -729,7 +729,6 @@
   <button onclick="go('s-reauth',this)">1 · Re-auth picker</button>
   <button onclick="setPhoneMode('change',this)">2a · Enter new phone (change)</button>
   <button onclick="setPhoneMode('add',this)">2b · Enter phone (add)</button>
-  <button onclick="setPhoneMode('taken',this)">&middot; Error · phone taken</button>
   <button onclick="setPhoneMode('invalid',this)">&middot; Error · invalid format</button>
   <button onclick="setOtpMode('idle',this)">3 · Enter OTP</button>
   <button onclick="setOtpMode('error',this)">&middot; OTP · invalid</button>
@@ -808,8 +807,8 @@
     <!-- ===== STATE: FULL (all 4 methods active) ===== -->
     <div data-hub-state="full">
       <div class="aa-group">
-        <!-- Phone -->
-        <div class="aa-row" onclick="openReauthFor('phone')">
+        <!-- Phone (Contact section — direct edit, no re-auth picker; OTP on save only) -->
+        <div class="aa-row" onclick="setPhoneMode('change', null)">
           <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
           <div class="aa-row-body">
             <div class="aa-row-title">Phone number</div>
@@ -1102,7 +1101,7 @@
     <div class="reauth-head">
       <div class="reauth-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
       <div class="reauth-title">Verify it's you</div>
-      <div class="reauth-sub">To change your phone number, confirm with one of your active sign-in methods.</div>
+      <div class="reauth-sub">To change your email, confirm with one of your active sign-in methods.</div>
     </div>
 
     <div class="aa-group">
@@ -1171,14 +1170,7 @@
       <div class="pf-head">
         <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
         <div class="pf-title">Add phone number</div>
-        <div class="pf-sub">Use it to sign in and recover your account.</div>
-      </div>
-    </div>
-    <div data-pf-state="taken">
-      <div class="pf-head">
-        <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
-        <div class="pf-title">New phone number</div>
-        <div class="pf-sub">Current: <strong style="color:var(--fit-text-secondary);">+995 511 100 000</strong></div>
+        <div class="pf-sub">So your coach can reach you and we can send training reminders.</div>
       </div>
     </div>
     <div data-pf-state="invalid">
@@ -1200,16 +1192,6 @@
       <div class="pf-field">
         <div class="pf-country" onclick="go('s-country-picker',null)"><span class="pf-country-flag">&#127468;&#127466;</span> <span class="pf-country-code">+995</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
         <input class="pf-input" type="tel" placeholder="511 200 300">
-      </div>
-    </div>
-    <div data-pf-state="taken">
-      <div class="pf-field error">
-        <div class="pf-country" onclick="go('s-country-picker',null)"><span class="pf-country-flag">&#127468;&#127466;</span> <span class="pf-country-code">+995</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
-        <input class="pf-input" type="tel" value="511 999 888">
-      </div>
-      <div class="pf-err-msg">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
-        This number is already in use by another account.
       </div>
     </div>
     <div data-pf-state="invalid">
@@ -2128,7 +2110,7 @@
     <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Rules</span>
     <div class="ann-detail">
       <h4>Why this exists</h4>
-      <p>Prevents session-hijack attacks where a stolen session could change phone/email/password without re-verifying ownership. Industry standard (Apple ID, Google, Stripe).</p>
+      <p>Prevents session-hijack attacks where a stolen session could change email/password without re-verifying ownership. Industry standard (Apple ID, Google, Stripe). <em>Phone changes no longer trigger re-auth post-2026-05-11 — phone is an outreach attribute, not a login credential, so the threat model doesn't apply.</em></p>
       <h4>Which methods show</h4>
       <p>All methods the user has set up, <strong>except</strong> the target of the current flow. Example: changing phone &rarr; phone OTP is excluded.</p>
       <h4>Target is the only method?</h4>
@@ -2146,7 +2128,6 @@
     <div class="state-toggle">
       <button class="active" onclick="setPhoneMode('change',null)">Change</button>
       <button onclick="setPhoneMode('add',null)">Add</button>
-      <button onclick="setPhoneMode('taken',null)">Taken</button>
       <button onclick="setPhoneMode('invalid',null)">Invalid</button>
     </div>
     <p><strong>Enter phone number</strong> screen &mdash; shared between <em>Change</em> and <em>Add</em> flows. Same layout, different title + optional reference to current number.</p>
@@ -2160,11 +2141,11 @@
       <h4>Client-side validation</h4>
       <p>Format check only: valid phone length for selected country. No libphonenumber heavy dep &mdash; simple regex. CTA disabled until format passes.</p>
       <h4>Server-side errors</h4>
-      <p><strong>Taken</strong> &mdash; number is registered to another account. Copy: <em>"This number is already in use by another account."</em> No hint about who owns it (privacy). User can retry with different number.</p>
       <p><strong>Invalid</strong> &mdash; format rejected server-side (edge case, client usually catches this). Generic copy.</p>
       <p><strong>Rate limited</strong> &mdash; too many OTP requests in short time. Shown as inline banner with retry timer.</p>
+      <p class="note"><em>Removed 2026-05-11:</em> the <strong>Taken</strong> server error. Phone is non-unique across accounts &mdash; same number may be set on multiple users (family / shared device). Backend no longer returns 409 for duplicate phone.</p>
       <h4>API</h4>
-      <p><code>POST /auth/phone/request-otp</code> &rarr; &#123; phone: "+995511200300" &#125;<br>Success: 202 + request_id. Error: 409 (taken), 422 (invalid), 429 (rate limit).</p>
+      <p><code>POST /auth/phone/request-otp</code> &rarr; &#123; phone: "+995511200300" &#125;<br>Success: 202 + request_id. Error: 422 (invalid), 429 (rate limit). No 409 (taken) &mdash; phone is non-unique.</p>
       <h4>Same screen, two contexts</h4>
       <p>Copy difference between <em>Change</em> and <em>Add</em>: the "Current: +995..." subtitle is shown only for change. Everything else identical. Keeps the codebase DRY.</p>
     </div>
@@ -2178,7 +2159,7 @@
       <button onclick="setOtpMode('error',null)">Wrong code</button>
       <button onclick="setOtpMode('expired',null)">Expired</button>
     </div>
-    <p>6-digit OTP entry. Same component used across: change phone, add phone, change password via phone, re-auth via phone.</p>
+    <p>6-digit OTP entry. Same component used across: change phone, add phone (ownership proof on save). Re-auth via phone removed 2026-05-11 — re-auth uses password / email magic-link / Apple / Google only.</p>
     <ul>
       <li>Auto-advance between boxes as user types</li>
       <li>Paste support &mdash; paste 6-digit string fills all boxes</li>
@@ -2219,7 +2200,7 @@
       <h4>Popular section logic</h4>
       <p>1st pass: device locale country on top. Then 3 app-level defaults (Georgia, US, UK) filling the rest. Grows smarter as we collect usage data.</p>
       <h4>Reuse</h4>
-      <p>Same component used in: onboarding signup, add phone, change phone, re-auth via phone. Keep a single source in <code>CountryPicker</code>.</p>
+      <p>Same component used in: onboarding signup, add phone, change phone. (Re-auth via phone removed 2026-05-11.) Keep a single source in <code>CountryPicker</code>.</p>
       <h4>Why full-screen, not sheet</h4>
       <p>List of 200+ items with search &mdash; needs space. Sheet feels cramped. Full-screen matches WhatsApp, Apple ID, Stripe patterns.</p>
       <h4>Validation integration</h4>
@@ -2555,11 +2536,11 @@
   function setPhoneMode(mode, btn) {
     go('s-phone-new', null);
     const p = document.getElementById('s-phone-new');
-    p.classList.remove('pn-change', 'pn-add', 'pn-taken', 'pn-invalid');
+    p.classList.remove('pn-change', 'pn-add', 'pn-invalid');
     p.classList.add('pn-' + mode);
-    // Sync annotation state-toggle buttons
+    // Sync annotation state-toggle buttons. `taken` removed 2026-05-11 — phone is non-unique.
     document.querySelectorAll('#ann-s-phone-new .state-toggle button').forEach(b => b.classList.remove('active'));
-    const mapAnn = { change: 0, add: 1, taken: 2, invalid: 3 };
+    const mapAnn = { change: 0, add: 1, invalid: 2 };
     const annBtns = document.querySelectorAll('#ann-s-phone-new .state-toggle button');
     if (annBtns[mapAnn[mode]]) annBtns[mapAnn[mode]].classList.add('active');
     // Sidebar button
@@ -2707,22 +2688,20 @@
     }
   }
 
-  let reauthContext = 'phone';
+  let reauthContext = 'email';
   function openReauthFor(ctx) {
     reauthContext = ctx;
     go('s-reauth', null);
-    // sync annotation subtitle
+    // sync annotation subtitle. Phone removed 2026-05-11 — phone is no longer a re-auth context.
     const subEl = document.querySelector('#s-reauth .reauth-sub');
     if (subEl) {
-      if (ctx === 'phone') subEl.innerHTML = "To change your phone number, confirm with one of your active sign-in methods.";
-      else if (ctx === 'email') subEl.innerHTML = "To change your email, confirm with one of your active sign-in methods.";
+      if (ctx === 'email') subEl.innerHTML = "To change your email, confirm with one of your active sign-in methods.";
       else if (ctx === 'password') subEl.innerHTML = "To change your password, confirm with one of your active sign-in methods.";
       else if (ctx === 'delete') subEl.innerHTML = "To delete your account, confirm with one of your active sign-in methods.";
     }
   }
   function reauthProceed() {
-    if (reauthContext === 'phone') setPhoneMode('change', null);
-    else if (reauthContext === 'email') setEmailMode('change', null);
+    if (reauthContext === 'email') setEmailMode('change', null);
     else if (reauthContext === 'password') setPwMode('idle', null);
     else if (reauthContext === 'delete') openDeleteConfirm();
   }

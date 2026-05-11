@@ -3,18 +3,31 @@
 > Status: Draft
 > Prototype: [account-access.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/account-access.html)
 > Related spec: [authentication.md](./authentication.md) — covers login/signup flows
-> Last updated: 2026-04-24
+> Last updated: 2026-05-11
 
 ## Overview
 
 **Account Access** is the post-login module for managing identity and account lifecycle. A user accesses it from Settings ("Account Access" row) once authenticated. It covers:
 
-- Managing sign-in methods (phone, email+password, Apple, Google)
-- Re-authentication before sensitive changes
+- Managing **sign-in methods** (email+password, Apple, Google)
+- Managing **phone** as a contact attribute (separate "Contact" section, not under sign-in methods — see § 2026-05-11 update)
+- Re-authentication before sensitive changes to **login methods only**
 - Account deletion with blocker checks
 - Support fallback when users can't self-serve
 
 Account Access is **shared** between coach and athlete roles — identity management is role-agnostic.
+
+## 2026-05-11 update — phone is no longer a sign-in method
+
+Hub layout changes accordingly:
+- **Sign-in methods section** = Email & password / Apple / Google. Phone removed from this section.
+- **Contact section** (new) = Phone, with pencil → direct edit. No re-auth picker upstream of phone changes. OTP still required on save (proof of ownership).
+- **Re-auth contexts** = email, password, social-disconnect, delete. Phone removed from this list.
+- **Re-auth method picker** offers email / Apple / Google only. Phone is never offered as a verification method (it's not a login credential and same phone may exist on multiple accounts, so it can't attest to a specific account).
+- **Last-method protection** applies only to login methods. Phone removal is always safe; the prior "change phone when target = only method" soft-warn no longer applies.
+- **Phone uniqueness constraint** dropped at backend — same phone may live on multiple accounts. The 409 "phone taken" path is removed from change/add phone flows.
+
+See `project_account_access_decisions` memory (canonical) for the full rationale.
 
 ## Current State
 
@@ -55,60 +68,68 @@ See prototype [account-access.html](https://321-fit.github.io/project-spec/proto
 
 Entry point from `Settings → Account Access` row.
 
-**Sections:**
-- **Sign-in methods** — 4 rows: Phone / Email & password / Apple / Google
+**Sections (after 2026-05-11):**
+- **Sign-in methods** — 3 rows: Email & password / Apple / Google
+- **Contact** — 1 row: Phone (outreach attribute; pencil → direct edit, no re-auth)
 - **Security** — Active sessions + Two-factor authentication (both V2, disabled `Soon` rows)
 - **Danger zone** — Delete account (destructive, bottom)
 
 **Row states:**
 | State | Right-side control | Tap action |
 |---|---|---|
-| Set, changeable (Phone with value) | Pencil icon | Re-auth picker → Enter new phone |
+| **Phone** with value (Contact section) | Pencil icon | Direct edit → `s-phone-new` (no re-auth; OTP only on save for ownership re-verification) |
 | Set, has sub-nav (Email, Social connected) | Chevron | Push to sub-screen / disconnect sheet |
 | Not set | "Add" pill (brand gradient) | Directly to add flow (no re-auth) |
 | Not connected | "Connect" pill | Triggers native OS sheet |
 
 **Hub state variants (prototype demo via state-toggle):**
-- Full — all 4 methods active
-- Credentials only — phone + email, no social
-- Social only — Apple + Google connected (dangerous: no credential backup)
-- Just one — single method active (edge case for last-method flows)
+- Full — all 3 sign-in methods + phone present
+- Credentials only — email only as sign-in, phone present, no social
+- Social only — Apple + Google connected (dangerous: no credential backup), phone present
+- Just one — single sign-in method active (edge case for last-method flows). Phone presence/absence does NOT affect last-method check.
 
 ### 2. Re-auth picker (`s-reauth`)
 
-Universal screen triggered before sensitive changes. Context-aware via caller passing a context: `phone`, `email`, `password`, or `delete`.
+Universal screen triggered before sensitive changes to **login-credential surfaces**. Context-aware via caller passing a context: `email`, `password`, `social-disconnect`, or `delete`.
+
+**Not triggered for** (post-2026-05-11): phone add/change/remove, settings edits, profile edits. Phone changes use OTP for ownership re-verification but skip the re-auth picker.
 
 **Content:**
 - Hero icon (lock) + title "Verify it's you" + subtitle with context
-- List of available methods — user's active methods **minus the target** (e.g., change phone → phone OTP excluded)
+- List of available login methods — user's active sign-in methods **minus the target** (e.g., change email excludes email magic-link)
 - Footer: "Can't access any of these?" → Contact Support
 
 **Per-method verification routes:**
 | Method | Verification step |
 |---|---|
 | Password | Password prompt (single field, validates against current hash) |
-| Phone | Send OTP to current phone → OTP entry |
 | Email | Send magic link to current email → user clicks → loading → verified |
 | Apple | Native Apple re-sign-in sheet |
 | Google | Native Google re-sign-in sheet |
 
+*Phone is NOT a re-auth method.* Reasoning: phone is no longer a login credential, and same phone may exist on multiple accounts — it cannot attest to a specific account.
+
 **Re-auth token TTL:** 15 minutes. Further sensitive actions within the window skip the picker.
 
-### 3. Phone flow
+### 3. Phone flow (Contact section — post-2026-05-11)
 
 **Change phone:**
-`Hub → Phone row → Re-auth picker → pick method → verify → s-phone-new (change) → Enter new phone → Send code → s-phone-otp → Verify → Hub + success toast`
+`Hub → Phone row pencil → s-phone-new (change, NO re-auth) → Enter new phone → Send code → s-phone-otp → Verify → Hub + success toast`
 
 **Add phone:**
 `Hub → Phone Add pill → s-phone-new (add, NO re-auth) → Enter phone → Send code → s-phone-otp → Verify → Hub + toast`
+
+**Remove phone** (new flow, always permitted):
+`Hub → Phone row pencil → Remove button on s-phone-new → Confirm sheet → Save → Hub + info toast "Phone removed. We won't send SMS reminders until you add one back."`
 
 **States on `s-phone-new`:**
 | State | Notes |
 |---|---|
 | Change | Shows "Current: +995 511 100 000" subtitle |
 | Add | Welcoming subtitle, no current number reference |
-| Taken | Red border + inline error "This number is already in use by another account" (privacy: no hint of owner) |
 | Invalid | Red border + "Enter a valid phone number" |
+
+> **Removed 2026-05-11:** the `Taken` state ("This number is already in use by another account"). Phone is non-unique across accounts; the backend no longer returns 409 for duplicate phone. Multiple accounts may legitimately share a number (family, shared device).
 
 **States on `s-phone-otp`:**
 | State | Notes |
@@ -211,7 +232,9 @@ Real flow after confirm: if not last method → re-auth picker → API call. Pro
 **Disconnect (last method — HARD BLOCK):**
 `Hub → Connected Apple/Google row → disconnect-block-sheet (NO disconnect option) → Add another method / Not now`
 
-Unlike change-phone (soft warn with Continue anyway), disconnect-last is **hard block**. Rationale: zero sign-in methods = permanent lockout, unrecoverable.
+Unlike change-email or change-password (soft warn with Continue anyway when target = only login method), disconnect-last is **hard block**. Rationale: zero sign-in methods = permanent lockout, unrecoverable.
+
+> *Pre-2026-05-11 this section referenced change-phone in the soft-warn category. Since phone is no longer a sign-in method, phone changes are now never part of last-method logic.*
 
 ### 7. Delete account
 
@@ -272,23 +295,25 @@ User must clear the blocker before proceeding. Blockers are **hard** — no over
 **`user_auth_methods`** (if not already covered by existing schema):
 ```
 user_id (FK users)
-method_type (enum: phone, email, apple, google)
-identifier (phone number / email / apple_sub / google_sub)
+method_type (enum: email, apple, google)
+identifier (email / apple_sub / google_sub)
 verified_at (timestamp)
 created_at, updated_at
 ```
 
-Queried by: hub state rendering, last-method check, re-auth picker method list.
+Queried by: hub state rendering, last-method check, re-auth picker method list. **Phone is NOT stored here** (post-2026-05-11) — it lives on the user profile / contact attributes, not as a login method record. No UNIQUE constraint on phone (multiple accounts may share a number).
 
 **`user_reauth_tokens`** (new):
 ```
 token (uuid, primary)
 user_id (FK users)
-context (enum: phone, email, password, delete)
+context (enum: email, password, social-disconnect, delete)
 issued_at (timestamp)
 expires_at (issued_at + 15 min)
 consumed_at (nullable timestamp)
 ```
+
+> `phone` removed from the `context` enum 2026-05-11 — phone changes no longer require re-auth tokens.
 
 Issued on successful re-auth. Single-use. Required on all sensitive write endpoints.
 
@@ -316,20 +341,26 @@ reason (optional, nullable string)
 
 **Re-auth (issue token):**
 - `POST /auth/reauth/password` — body: `{ password, context }` → 200 with re-auth token
-- `POST /auth/reauth/phone-otp` — body: `{ otp, context }` (OTP sent separately via /auth/phone/request-otp)
 - `POST /auth/reauth/email-link` — body: `{ token, context }` (token from magic link)
 - `POST /auth/reauth/apple` — body: `{ apple_token, context }`
 - `POST /auth/reauth/google` — body: `{ google_token, context }`
 
+> `POST /auth/reauth/phone-otp` removed 2026-05-11 — phone is no longer a re-auth method.
+
 **Auth methods management:**
-- `GET /me/auth-methods` → `{ phone, email, has_password, apple_linked, google_linked, method_count }`
-- `POST /me/auth-methods/phone/change` — body: `{ new_phone, otp, reauth_token }` → 200
-- `POST /me/auth-methods/phone/add` — body: `{ phone, otp }` → 200 (no re-auth needed for add)
+- `GET /me/auth-methods` → `{ email, has_password, apple_linked, google_linked, method_count }` (note: `method_count` counts login methods only — phone is excluded)
 - `POST /me/auth-methods/email/request-change` — body: `{ new_email, reauth_token }` → sends magic link
 - `POST /me/auth-methods/email/confirm-change` — body: `{ token }` → 200 (from magic link)
 - `POST /me/auth-methods/email/add-with-password` — body: `{ email, password }` → sends magic link
 - `POST /me/auth-methods/password/change` — body: `{ new_password, reauth_token }` → 200 (invalidates other sessions)
 - `POST /me/auth-methods/disconnect` — body: `{ provider: "apple" | "google", reauth_token }` → 200, or 409 if last method
+
+**Phone contact management** (separate from auth methods — post-2026-05-11):
+- `GET /me/phone` → `{ phone, verified_at }` or `null`
+- `POST /me/phone/change` — body: `{ new_phone, otp }` → 200 (no `reauth_token`; OTP attests to ownership of new phone)
+- `POST /me/phone/add` — body: `{ phone, otp }` → 200
+- `DELETE /me/phone` → 200 (always permitted, no constraints)
+- Backend enforces no UNIQUE constraint on phone; 409 path removed.
 
 **Email availability check (debounced during input):**
 - `GET /auth/email-available?email=` → `{ available: bool }` (rate-limited)

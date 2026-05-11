@@ -88,7 +88,7 @@ Backend infra fully implemented across iOS and backend. Inbox UI in progress for
 | Channel | Service | Usage |
 |---|---|---|
 | Push (FCM) | Firebase Admin SDK | Primary — all event notifications |
-| SMS | Twilio | OTP codes, phone verification |
+| SMS | Twilio | OTP codes (signup ownership verification, password reset), training reminders. **Phone is non-unique across accounts (post-2026-05-11)** — the same phone may receive notifications for multiple users; recipient_user_id on the `notification` record is the source of truth, not the destination phone. |
 | Email | SendGrid | Password reset, welcome emails |
 | WhatsApp | WhatsApp Business API | Optional — user opt-in required |
 

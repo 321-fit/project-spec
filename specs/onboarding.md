@@ -52,17 +52,18 @@ personalInfo → sports → avatarAndBio → location → gymLocations* → trai
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `requestOTPCode(phone)` | Phone verification | Send OTP during onboarding |
-| `confirm(code, phone)` | Phone verification | Verify OTP code |
+| `requestOTPCode(phone)` | Phone verification | Send OTP during onboarding — **ownership proof, not login** (post-2026-05-11) |
+| `confirm(code, phone)` | Phone verification | Verify OTP code; attaches phone to the already-created account as a contact attribute |
 | `setRole(UserRole)` | Role selection | Set athlete or coach role |
 | `setOnboarding()` | Mark started | Begin onboarding flow |
 | `setOnboardingCompleted()` | Mark completed | Finish onboarding |
 
 Profile data is saved via standard profile update endpoints during each step.
 
+> **Phone OTP role (post-2026-05-11):** anti-spam ownership verification only. Account creation happens via email+password or social signup BEFORE this step. Phone is attached as an outreach attribute; it never establishes a login credential. Phone is required and verified, but non-unique across accounts (same phone may exist on multiple users).
+
 ## Entry Points
-- After new account registration (any auth method)
-- After phone OTP creates new account
+- After new account registration via email+password or social (Apple / Google)
 - User cannot skip onboarding — must complete all required steps
 
 ## Post-Onboarding

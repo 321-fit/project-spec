@@ -1,19 +1,32 @@
 # Authentication & Login Security
 
-> Last updated: 2026-04-02
+> Last updated: 2026-05-11
 
 ## Overview
 The authentication system allows users to create and access accounts using multiple login methods. Methods can be used independently or combined within a single account.
 
+## 2026-05-11 update — phone removed as login method
+
+Phone is **no longer a login credential**. It is now an outreach attribute only (notifications + SMS reminders + ownership-verified contact). Backend phone-OTP-as-login endpoints remain technically callable but the product surfaces them only for signup ownership verification, never for login. Concrete consequences:
+
+- **Login methods** = Email+password + Apple + Google. **Phone is removed** from the supported methods table (rows below mark it as Deprecated as a login method, retained as a contact attribute).
+- **Phone uniqueness constraint dropped.** Same phone may be set on multiple accounts (family/roommates sharing a number). Backend must not enforce a UNIQUE index on phone for users. The "phone already taken" 409 path is gone.
+- **Phone OTP at signup** still fires — but only as **proof of ownership** (anti-spam, prevent attaching someone else's number). Verifying does not establish a login credential.
+- **Phone changes/removal** no longer trigger re-auth (per `project_account_access_decisions` updated 2026-05-11). OTP is still required when saving a new phone (ownership re-verification), but no re-auth picker upstream.
+- **Account Safety "last method" rule** applies only to email/Apple/Google. Phone removal is always safe.
+- **Phone visibility** remains hidden between users (athletes don't see coach phone, coaches don't see athlete phone — even more important now that phones may overlap).
+
+Sections below describe the **historical implementation** (passwordless phone OTP login). Treat them as informational about deployed code, not as forward-looking contract. The new contract is the bullets above + `project_account_access_decisions` memory.
+
 ## Current State
-Fully implemented across iOS and backend. Voice assistant uses child JWT sessions for authentication.
+Fully implemented across iOS and backend. Voice assistant uses child JWT sessions for authentication. Backend phone OTP login endpoints exist but are not exposed by the UI as of 2026-05-11.
 
 ## Supported Authentication Methods
 
 | Method | Status | Notes |
 |---|---|---|
 | Email + Password | Implemented | Registration, login, password reset |
-| Phone Number (OTP) | Implemented | Passwordless via Twilio SMS |
+| Phone Number (OTP) | Deprecated as login (2026-05-11) | Backend endpoints still exist for legacy reasons; UI no longer exposes phone as a sign-in option. Phone is now an outreach attribute, see § 2026-05-11 update. |
 | Sign in with Apple | Implemented | Apple ID token verification |
 | Sign in with Google | Implemented | Google OAuth2 (also used for Calendar sync scopes) |
 
@@ -61,10 +74,11 @@ All authentication methods link to a single user account. An account may contain
 
 A user can authenticate using ANY of the methods linked to their account.
 
-**Examples:**
-- User registers with phone → later adds email/password → can login with either
-- User signs in with Apple → adds phone → can login with either
-- User signs in with Google → adds email/password → can login with either
+**Examples (after 2026-05-11):**
+- User registers with email+password → adds phone for reminders → still logs in via email+password only
+- User signs in with Apple → adds phone → still logs in via Apple only
+- User signs in with Google → adds email+password → can login with Google or email+password
+- *(Phone is never an example login surface — it's always an outreach attachment regardless of which login method was used to create the account.)*
 
 ## Auth Flows
 
@@ -74,14 +88,17 @@ A user can authenticate using ANY of the methods linked to their account.
 3. After verification, account becomes active
 4. User proceeds to onboarding
 
-### Phone OTP (Login & Registration Unified)
+### Phone OTP — current role (after 2026-05-11)
+
+Phone OTP is **no longer a login or registration entry point.** It runs only during **signup ownership verification** (one onboarding step after the user has already created an account via email or social):
+
 1. User enters phone number + country code
 2. System sends OTP via Twilio SMS
 3. User enters verification code
-4. **If phone exists** → login to existing account
-5. **If phone is new** → create account → proceed to onboarding
+4. Phone is **attached** to the already-created account as a contact attribute
+5. **Phone is non-unique** — if another account already has this phone, both accounts coexist; no 409 conflict
 
-> Phone login and registration use the same flow — no separate screens needed.
+> Historical (deprecated 2026-05-11): phone OTP previously acted as a unified login + registration flow ("if phone exists → login, if new → create account"). Backend endpoints still support this branch, but the product no longer surfaces it. New users always enter via email or social signup.
 
 ### Sign in with Apple
 1. Apple returns unique Apple ID token
@@ -162,9 +179,10 @@ Merge "Account & Password" and "Account Access" into a single "Login & Security"
 - After multiple failures: require new code or temporary block
 
 ### Account Safety
-- User must ALWAYS have at least one login method connected
+- User must ALWAYS have at least one **login method** connected (email+password, Apple, or Google)
 - Cannot remove last remaining login method
-- Example: if only phone connected → must add email before phone can be removed
+- **Phone is NOT a login method** (post-2026-05-11) — phone removal is always permitted and never triggers last-method warnings
+- Example: if only Apple connected → must add email or Google before disconnecting Apple. Phone presence/absence is irrelevant to this check.
 
 ### Account Deletion
 - Available in settings
