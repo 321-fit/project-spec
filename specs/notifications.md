@@ -289,10 +289,13 @@ Three levels — only A0 + A in v1.0; B deferred:
    - `athleteId: int | null` — for `onboardingDone` / `declined` / `expired` (resolved from event's `athlete_id`, or set directly for onboarding-completed notifications)
 4. **Retention TTL — none in v1.0.** No backend cleanup task; `notification` table grows unbounded. Manual cleanup acceptable; revisit if DB volume becomes a concern. Document explicitly in `notifications-api.md`.
 
-## Known backend bugs (flagged 2026-05-12 — fix in same PR as the additive `TargetData` work)
+## Known backend bugs (flagged 2026-05-12 — fixed in PR #56)
 
-- **Badge off-by-one in push payload.** `notification_sender.py:42-43` sets `badge_count = unread_count + 1` after the notification row is already persisted with `status=CREATED`. Since `count_unread_push` filters `status != READ` (CREATED is included), the just-created notification is double-counted — push badge arrives 1 higher than reality. Fix: remove `+ 1`.
-- **`/count` vs list `unreadCount` divergence.** `GET /notifications/count` calls `count_unread_push` (push method only), but `GET /notifications` reports `unreadCount` via `count_unread` (all methods including email/sms). For users with email/sms notifications enabled, bell/tab badge will show one number and the inbox list header will show another. Fix: unify on `count_unread_push` for both (bell badge semantic = "unread that produced a push you'd want to catch up on").
+- **`/count` vs list `unreadCount` divergence (fixed).** `GET /notifications/count` calls `count_unread_push` (push method only), but `GET /notifications` reported `unreadCount` via `count_unread` (all methods including email/sms). For users with email/sms notifications enabled, bell/tab badge and inbox list header would show different numbers. Fix: list endpoint now uses `count_unread_push` too. Both surfaces agree.
+
+## Open audit items (post-PR #56)
+
+- **Badge calculation in push payload is consistent but `count_unread_push` filter is narrow.** `notification_sender.py` sends `badge = count_unread_push() + 1` — the `+ 1` is correct because `count_unread_push` filters by `status == SENT` only, so the just-CREATED row isn't yet counted. The bigger question is whether the bell/tab/app-icon badge should reflect "SENT-only" or "any unread push" (would include CREATED + DELIVERED + FAILED). Affects what users see on the bell badge — file a follow-up to audit the semantics across `notification_sender.py`, `count_unread_push`, and the inbox spec.
 
 ## Known Issues / Tech Debt
 - WhatsApp toggle endpoint has typo: `toogle` instead of `toggle`
