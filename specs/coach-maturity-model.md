@@ -1,9 +1,9 @@
 # Coach Maturity Model
 
 > Status: Draft
-> Prototype: [flows/shared/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/profile.html) (Coach Profile v2 — new-coach state variants)
-> Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-04-24
+> Prototype: [flows/coach/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/profile.html) (coach-side `FitMaturityProgress` block, `cv-new-*` state variants) + [flows/shared/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/profile.html) (athlete-side new-coach badge)
+> Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md) — `FitMaturityProgress` (kit-aligned, lands 2026-05-11)
+> Last updated: 2026-05-12
 > Implementation:
 > - iOS:     [321fit_ios/docs/coach-maturity-ios.md] (to be created)
 > - Backend: [poly-backend/docs/coach-maturity-backend.md] (to be created)
@@ -169,10 +169,10 @@ No new endpoints. Existing coach GET endpoints return these two fields as part o
 
 ## Related specs / references
 
+- [coach-profile.md](./coach-profile.md) — **coach-side** profile module that renders `FitMaturityProgress` block. Includes hero state variants `cv-established / cv-new-video / cv-new-image / cv-new-default` (auto-hide of the maturity block when graduation thresholds met).
 - [onboarding-wizard.md](./onboarding-wizard.md) — the wizard that precedes new-coach state (wizard complete → pending approval → approved + new coach)
 - [dashboard.md](./dashboard.md) — dashboard states `new`, `under-review`, `ready` cover the pre-established lifecycle
-- [profile-settings.md](./profile-settings.md) — Coach Profile v2 includes new-coach state variants
+- [profile-settings.md](./profile-settings.md) — historical combined doc; superseded by coach-profile.md for the coach side
 - [clients-coaches.md](./clients-coaches.md) — related discovery/search context
 - Memory: `project_coach_maturity` — decisions captured during prototyping
-- Prototype: Coach Profile v2 state toggles in `flows/shared/profile.html`
-- Components: FitBadge (New), FitAvatar, FitButton. See [design-tokens/docs/components.md](../../design-tokens/docs/components.md).
+- Components: `FitMaturityProgress` (visualises this model), `FitBadge` (New), `FitAvatar`. See [design-tokens/docs/components.md](../../design-tokens/docs/components.md).

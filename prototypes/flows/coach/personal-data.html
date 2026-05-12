@@ -485,16 +485,60 @@
   /* Multi-select footer count */
   .pd-save-count { opacity: 0.7; margin-left: 6px; font-weight: 400; }
 
-  /* ===== PD NUMERIC INPUT (Weight / Height) ===== */
-  .pd-num-input {
+  /* ===== PD INTRO VIDEO (URL paste, embed-only) ===== */
+  .pd-video-input {
     flex: 1; border: none; outline: none; background: transparent;
     font-family: var(--fit-font); font-size: 16px; color: var(--fit-text-primary);
     padding: 0; min-width: 0;
   }
-  .pd-num-input::-webkit-inner-spin-button,
-  .pd-num-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-  .pd-num-wrap.error { border: 1px solid var(--fit-red-400); }
-  .pd-num-error { font-size: 13px; color: var(--fit-red-400); margin-top: 6px; line-height: 1.4; }
+  .pd-video-input::placeholder { color: var(--fit-text-placeholder); }
+  .pd-video-wrap.error { border: 1px solid var(--fit-red-400); }
+  .pd-video-wrap.ok { border: 1px solid var(--fit-teal-500); }
+  .pd-video-wrap.pending { border: 1px solid var(--fit-yellow-400); }
+  .pd-video-clear {
+    flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
+    border: none; background: var(--fit-surface-higher);
+    color: var(--fit-text-secondary); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pd-video-clear svg { width: 12px; height: 12px; }
+  .pd-video-help {
+    font-size: 13px; line-height: 1.4; margin-top: 6px;
+    color: var(--fit-text-tertiary);
+  }
+  .pd-video-help code {
+    font-size: 12px; padding: 1px 4px; border-radius: 3px;
+    background: var(--fit-surface-high); color: var(--fit-text-secondary);
+  }
+  .pd-video-help-error { color: var(--fit-red-400); }
+  .pd-video-help-ok { color: var(--fit-teal-500); }
+  .pd-video-help-pending { color: var(--fit-yellow-400); }
+
+  /* ===== PD COVER IMAGE (16:9 upload, fallback to default) ===== */
+  .pd-cover-wrap {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 12px; min-height: 64px;
+    background: var(--fit-surface-high); border-radius: 12px;
+    cursor: pointer;
+  }
+  .pd-cover-wrap:active { transform: scale(0.99); }
+  .pd-cover-thumb {
+    width: 80px; aspect-ratio: 16/9;
+    border-radius: 8px; flex-shrink: 0;
+    background: var(--fit-brand-gradient);
+    background-size: cover; background-position: center;
+  }
+  .pd-cover-info { flex: 1; min-width: 0; }
+  .pd-cover-title {
+    font-size: 15px; font-weight: 500; color: var(--fit-text-primary);
+    line-height: 1.3;
+  }
+  .pd-cover-sub {
+    font-size: 13px; color: var(--fit-text-tertiary);
+    line-height: 1.35; margin-top: 2px;
+  }
+  .pd-cover-chev { flex-shrink: 0; color: var(--fit-text-tertiary); }
+  .pd-cover-chev svg { width: 16px; height: 16px; }
 
   /* ===== PD AVATAR ACTION ROWS ===== */
   .pd-avatar-action {
@@ -540,6 +584,44 @@
   #s-personal-data.fs-saving .pd-save-spinner { display: inline-block; }
   #s-personal-data.fs-saving #pd-save-btn { cursor: wait; opacity: 0.85; pointer-events: none; }
   @keyframes pd-spin { to { transform: rotate(360deg); } }
+
+  /* Save gate: disabled when client validation fails (DOB <13 or invalid video URL).
+     Pointer-events stay on so tap can scroll to first error. */
+  #pd-save-btn.is-disabled { opacity: 0.5; cursor: not-allowed; }
+  @keyframes pd-field-flash {
+    0%, 100% { background-color: transparent; }
+    30%      { background-color: rgba(240,92,91,0.15); }
+  }
+  .pd-field-flash { animation: pd-field-flash 0.6s ease 2; }
+
+  /* Network error: initial GET failed — centered retry block. Hides skeleton + content + footer. */
+  .pd-network-error {
+    display: none; flex-direction: column; align-items: center;
+    padding: 60px 24px; text-align: center; gap: 12px;
+  }
+  .pd-network-error svg.pd-ne-illus {
+    width: 56px; height: 56px; color: var(--fit-text-tertiary);
+    margin-bottom: 4px;
+  }
+  .pd-network-error-title {
+    font-size: 17px; font-weight: 500; color: var(--fit-text-primary);
+  }
+  .pd-network-error-sub {
+    font-size: 14px; color: var(--fit-text-tertiary); line-height: 1.5;
+    max-width: 280px;
+  }
+  .pd-network-error-retry {
+    margin-top: 8px;
+    padding: 10px 24px;
+    border: none; border-radius: 99px;
+    background: var(--fit-brand-gradient); color: var(--fit-white);
+    font-family: var(--fit-font); font-size: 15px; font-weight: 500;
+    cursor: pointer;
+  }
+  #s-personal-data.fs-network-error .pd-fs-content { display: none; }
+  #s-personal-data.fs-network-error .pd-fs-skel { display: none; }
+  #s-personal-data.fs-network-error .fit-phone-footer { display: none; }
+  #s-personal-data.fs-network-error .pd-network-error { display: flex; }
 
   /* Save error banner */
   .pd-save-error {
@@ -627,6 +709,14 @@
   </div>
   <div class="fit-phone-content">
 
+    <!-- Network error — shown while PD.fs-network-error (initial GET failed) -->
+    <div class="pd-network-error">
+      <svg class="pd-ne-illus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12.5a11 11 0 0122 0M5 16.5a7 7 0 0114 0M9 20.5a3 3 0 016 0"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+      <div class="pd-network-error-title">Couldn&rsquo;t load your data</div>
+      <div class="pd-network-error-sub">Check your connection and try again. Nothing is lost &mdash; your data stays on the server.</div>
+      <button class="pd-network-error-retry" onclick="handlePdNetworkRetry()">Retry</button>
+    </div>
+
     <!-- Loading skeleton — shown while PD.fs-loading -->
     <div class="pd-fs-skel">
       <div class="pd-sk-avatar sk-shimmer"></div>
@@ -649,6 +739,42 @@
         </div>
       </div>
     </div>
+
+    <!-- ============ INTRO VIDEO (YouTube URL paste, embed-only) ============ -->
+    <div class="fit-input-group" id="pd-video-group" style="padding:0 16px;">
+      <span class="fit-input-label">Intro video</span>
+      <div class="fit-input pd-video-wrap" id="pd-video-wrap" style="gap:8px;">
+        <span class="fit-input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></span>
+        <input type="url" inputmode="url" autocapitalize="off" autocomplete="off" spellcheck="false"
+               class="pd-video-input" id="pd-video-input"
+               placeholder="Paste YouTube URL"
+               value="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+               onblur="pdVideoValidate()" oninput="pdVideoValidate()"/>
+        <button type="button" class="pd-video-clear" id="pd-video-clear" aria-label="Clear" onclick="pdVideoClear()" style="display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="pd-video-help" id="pd-video-help">
+        <span class="pd-video-help-default">Accepts <code>youtube.com</code>, <code>youtu.be</code> and <code>youtube.com/shorts</code>. Embedded as 16:9 hero on your public profile.</span>
+        <span class="pd-video-help-error" style="display:none;">Doesn&rsquo;t look like a YouTube URL.</span>
+        <span class="pd-video-help-ok" style="display:none;">&#10003; Video will appear on your public profile.</span>
+        <span class="pd-video-help-pending" style="display:none;">URL accepted &mdash; we&rsquo;ll verify the video is public and embeddable after you save. If not, you&rsquo;ll get a notification.</span>
+      </div>
+    </div>
+
+    <!-- ============ COVER IMAGE (16:9, fallback when no video) ============ -->
+    <div class="fit-input-group" id="pd-cover-group" style="padding:0 16px;">
+      <span class="fit-input-label">Cover image</span>
+      <div class="pd-cover-wrap" id="pd-cover-wrap" onclick="openSheet('pd-cover-sheet')">
+        <div class="pd-cover-thumb" id="pd-cover-thumb"></div>
+        <div class="pd-cover-info">
+          <div class="pd-cover-title">Tap to upload</div>
+          <div class="pd-cover-sub">Used when no intro video. 16:9 photo, up to 10 MB.</div>
+        </div>
+        <span class="pd-cover-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+      </div>
+    </div>
+
     <div class="fit-input-group" style="padding:0 16px;">
       <span class="fit-input-label">First name</span>
       <div class="fit-input" style="color:var(--fit-text-primary);">John</div>
@@ -675,28 +801,10 @@
       <span class="fit-input-label">Languages</span>
       <div class="fit-input" style="cursor:pointer;" onclick="go('s-lang-select',document.querySelector('[onclick*=s-lang-select]'))"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg></span> <span id="pd-lang-value">Polski</span><span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
     </div>
-    <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);padding:0 16px;margin:8px 0 8px;">Body metrics</div>
+    <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);padding:0 16px;margin:8px 0 8px;">Gender</div>
     <div class="fit-selection-group">
       <div class="fit-selection-chip" style="gap:6px;">Woman</div>
       <div class="fit-selection-chip selected" style="gap:6px;">Man</div>
-    </div>
-    <div style="display:flex;gap:12px;padding:0 16px;">
-      <div class="fit-input-group" style="flex:1;padding:0;min-width:0;">
-        <span class="fit-input-label">Weight</span>
-        <div class="fit-input pd-num-wrap" id="pd-weight-wrap" style="gap:8px;">
-          <input type="text" inputmode="decimal" class="pd-num-input" id="pd-weight-input" value="95.5" onblur="pdWeightValidate()"/>
-          <span style="color:var(--fit-text-tertiary);font-size:14px;flex-shrink:0;">kg</span>
-        </div>
-        <div class="pd-num-error" id="pd-weight-err" style="display:none;"></div>
-      </div>
-      <div class="fit-input-group" style="flex:1;padding:0;min-width:0;">
-        <span class="fit-input-label">Height</span>
-        <div class="fit-input pd-num-wrap" id="pd-height-wrap" style="gap:8px;">
-          <input type="text" inputmode="numeric" class="pd-num-input" id="pd-height-input" value="185" onblur="pdHeightValidate()"/>
-          <span style="color:var(--fit-text-tertiary);font-size:14px;flex-shrink:0;">cm</span>
-        </div>
-        <div class="pd-num-error" id="pd-height-err" style="display:none;"></div>
-      </div>
     </div>
     <div class="fit-input-group" id="pd-dob-group" style="padding:0 16px;">
       <span class="fit-input-label">Date of birth</span>
@@ -719,6 +827,14 @@
 
   <!-- Saved snackbar -->
   <div class="fit-snackbar" id="pd-saved-snack">Personal data updated</div>
+  <div class="fit-snackbar" id="pd-validation-snack" style="background:#3B1F1F;border-color:rgba(240,92,91,0.35);">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12" y2="16.5"/></svg>
+    Fix the highlighted fields
+  </div>
+  <div class="fit-snackbar" id="pd-upload-error-snack" style="background:#3B1F1F;border-color:rgba(240,92,91,0.35);">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12" y2="16.5"/></svg>
+    <span id="pd-upload-error-text">Couldn&rsquo;t upload &mdash; try again</span>
+  </div>
 
   <!-- Discard changes confirm sheet -->
   <div class="fit-sheet-overlay" id="pd-discard-sheet">
@@ -753,6 +869,30 @@
         </button>
       </div>
       <button style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;margin-top:16px;" onclick="closeSheet('pd-avatar-sheet')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Cover image action sheet (Take photo / Choose from library / Remove) -->
+  <div class="fit-sheet-overlay" id="pd-cover-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Cover image</div>
+      <div class="fit-sheet-subtitle">Used as fallback when you have no intro video. 16:9, up to 10 MB.</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+        <button class="pd-avatar-action" onclick="pdCoverAction('camera')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <span>Take photo</span>
+        </button>
+        <button class="pd-avatar-action" onclick="pdCoverAction('library')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span>Choose from library</span>
+        </button>
+        <button class="pd-avatar-action pd-avatar-destructive" id="pd-cover-remove" style="display:none;" onclick="pdCoverAction('remove')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+          <span>Remove cover</span>
+        </button>
+      </div>
+      <button style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;margin-top:16px;" onclick="closeSheet('pd-cover-sheet')">Cancel</button>
     </div>
   </div>
 
@@ -979,15 +1119,65 @@
 
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
-  <div class="ann" id="ann-s-personal-data"><span class="ann-role coach">Coach</span><h3>Personal Data</h3>
+  <div class="ann active" id="ann-s-personal-data"><span class="ann-role coach">Coach</span><h3>Personal Data</h3>
     <div class="state-toggle">
       <button class="active" onclick="setPdFlow('default',this)">Default</button>
       <button onclick="setPdFlow('loading',this)">Loading</button>
+      <button onclick="setPdFlow('network-error',this)">Network error (initial)</button>
       <button onclick="setPdFlow('saving',this)">Saving</button>
       <button onclick="setPdFlow('error',this)">Save error</button>
       <button onclick="setPdFlow('saved',this)">Saved</button>
+      <button onclick="pdSimulateInvalid('dob')">DOB invalid (&lt;13)</button>
+      <button onclick="pdSimulateInvalid('video')">Video URL invalid</button>
+      <button onclick="pdSimulateUploadError('avatar')">Avatar upload error</button>
+      <button onclick="pdSimulateUploadError('cover')">Cover upload error</button>
+      <button onclick="pdSimulateVideoPending()">Video pending verify</button>
     </div>
-    <p>Edit profile from Settings.</p><ul><li><strong>Avatar</strong> (initials fallback) — tap anywhere on circle or pencil → <code>pd-avatar-sheet</code> with 3 actions: Take photo / Choose from library / <em>Remove photo</em> (Medium destructive, tinted red 15%). Remove is hidden when no photo is set (initials-only).</li><li><strong>Name:</strong> first + last</li><li><strong>About me:</strong> 3-line clamp, tap → full-screen editor</li><li><strong>Dropdowns:</strong> Time Zone / Home Country / Languages — all full-screen push, device-detected values pre-filled at onboarding</li><li><strong>Body metrics:</strong> gender chips; weight (kg) + height (cm) — metric only for MVP. Weight 20-300 kg, height 50-250 cm — out-of-range = red outline + inline tip on blur. <code>inputmode="decimal"</code> (weight) / <code>numeric"</code> (height) for mobile keypad.</li><li><strong>DOB:</strong> 3-wheel sheet (Day/Month/Year), year list capped at <code>currentYear − 13</code>; strict <code>≥ 13y</code> validation on Set — inline red banner in sheet on fail. Prod = <code>UIDatePicker .compact</code> (iOS) / <code>MaterialDatePicker</code> (Android)</li></ul></div>
+    <p>Edit profile from Settings. <strong>Coach-side</strong> — intentionally omits Weight/Height (not needed for marketplace function).</p>
+
+    <p><strong>Fields</strong></p>
+    <ul>
+      <li><strong>Avatar</strong> (initials fallback) — tap circle or pencil → <code>pd-avatar-sheet</code> with 3 actions: Take photo / Choose from library / <em>Remove photo</em> (Medium destructive, tinted red 15%). Remove hidden when no photo.</li>
+      <li><strong>Intro video</strong> — YouTube URL paste (embed-only; native upload deferred to Phase 2). <code>youtube-nocookie.com</code> embed for GDPR. Validation accepts <code>youtube.com/watch?v=</code> / <code>youtu.be/</code> / <code>youtube.com/shorts/</code>. Backend stores <code>video_provider: youtube</code> + <code>video_id: String</code> (not raw URL).</li>
+      <li><strong>Cover image</strong> — single 16:9, up to 10 MB. S3 single-size (no transcode). Hero fallback chain: video → cover → brand gradient + initials.</li>
+      <li><strong>First/Last name</strong> — required, <code>maxlength=50</code>, trimmed. Empty on Save → inline error pattern matching DOB. Server normalizes whitespace.</li>
+      <li><strong>About me</strong> — 3-line clamp, tap → full-screen editor. Server max 500 chars; client warns at 450 (matches <code>feedback_character_counter</code>).</li>
+      <li><strong>Dropdowns:</strong> Time Zone / Home Country / Languages — all full-screen push, device-detected pre-fill at onboarding.</li>
+      <li><strong>Gender:</strong> Woman / Man chips, single-select. Used for athlete-side filter in Discovery.</li>
+      <li><strong>DOB</strong> — 3-wheel sheet (Day/Month/Year), year capped at <code>currentYear − 13</code>; strict <code>≥ 13y</code> on Set — inline red banner in sheet. Prod = <code>UIDatePicker .compact</code> (iOS) / <code>MaterialDatePicker</code> (Android).</li>
+    </ul>
+
+    <hr>
+
+    <p><strong>Flow states</strong> (sidebar to toggle)</p>
+    <ul>
+      <li><strong>Loading</strong> — <code>.fs-loading</code> shows shimmer skeleton, footer hidden.</li>
+      <li><strong>Network error (initial)</strong> — <code>.fs-network-error</code> hides skeleton + content + footer, shows centered illustration + Retry. <strong>Required</strong> — skeleton must not loop indefinitely.</li>
+      <li><strong>Saving</strong> — Save button shows inline spinner, <code>pointer-events:none</code>.</li>
+      <li><strong>Save error</strong> — red banner above footer with Retry. Generic copy for any 5xx / network mid-save.</li>
+      <li><strong>Saved</strong> — snackbar 1400ms.</li>
+    </ul>
+
+    <p><strong>Save gate (client-side validation)</strong></p>
+    <ul>
+      <li>Save button takes <code>.is-disabled</code> style (opacity 0.5, cursor not-allowed) when DOB inline-error visible OR video URL <code>.error</code>.</li>
+      <li>Tap on disabled Save → smooth-scroll to first invalid field + 600ms red flash twice + snackbar "Fix the highlighted fields". No network call fired.</li>
+      <li>Pending-verify on video URL (yellow border) is <strong>not</strong> a blocker — client accepts it, server confirms post-save.</li>
+    </ul>
+
+    <p><strong>Upload errors</strong> (avatar / cover)</p>
+    <ul>
+      <li>File &gt; 10 MB / wrong format / network fail → toast: "Couldn&rsquo;t upload cover — file too large (max 10 MB)" or "Couldn&rsquo;t upload photo — try again". 3-second dismissal. Sheet stays open so user can retry.</li>
+      <li>iOS / Android picker enforces type filter at OS level; toast is the second line of defense.</li>
+    </ul>
+
+    <p><strong>Server contracts the prototype does NOT model — devs implement:</strong></p>
+    <ul>
+      <li><strong>401 on Save</strong> — token expired → push to <code>account-access</code> re-auth flow with context "return-to: personal-data, restore-form-state". After re-auth, restore unsaved form + auto-retry Save once.</li>
+      <li><strong>Server-side field validation echo</strong> — backend returns <code>{field, message}</code> per error. Map into inline error pattern matching DOB (<code>.fit-input-error-text</code> below the field). If field can&rsquo;t be mapped (unknown key), fall back to generic <code>.pd-save-error</code> banner with server message.</li>
+      <li><strong>Video URL post-save verification</strong> — server attempts oEmbed call to YouTube. If private/age-restricted/unavailable, server sets <code>video_status: rejected</code> and sends a notification (<code>TargetRoute=PROFILE_VIDEO</code> per notifications spec) — coach taps it to land back here and replace the URL. Profile renders gradient+initials fallback meanwhile.</li>
+      <li><strong>Rate limit 429</strong> — falls into <code>.pd-save-error</code> with server-provided message; no per-state dedicated UI.</li>
+    </ul></div>
   <div class="ann" id="ann-s-notes-editor"><span class="ann-role coach">Coach</span><h3>About Me Editor</h3><p>Full-screen text editor. Cancel/Save header. Reusable for About Me and Notes fields.</p></div>
   <div class="ann" id="ann-s-lang-select"><span class="ann-role coach">Coach</span><h3>Languages</h3><p>Full-screen push from Personal Data. <strong>Multi-select</strong> — tap toggles row, Save commits all changes.</p><ul><li><strong>Row:</strong> <code>native · English</code> (e.g. "Polski · Polish") — users search in either</li><li><strong>Sticky footer Save</strong> — enabled only when selection differs from initial AND at least 1 is selected; shows "(N selected)" count</li><li><strong>Back button:</strong> if dirty → <code>Discard changes?</code> sheet (Discard = Medium destructive tinted red, Keep editing = text)</li><li><strong>On Save:</strong> Personal Data input shows first 2 languages or "Polski +N more"</li><li><strong>Seed</strong> captured on screen load + re-captured after each Save to reset dirty state</li></ul><p class="note">Prototype = 30 common languages. Production pulls full BCP-47 list.</p></div>
   <div class="ann" id="ann-s-country-select"><span class="ann-role coach">Coach</span><h3>Home Country</h3><p>Full-screen push from Personal Data. Same pattern as Time Zone — single-select, auto-dismiss.</p><ul><li><strong>Leading slot:</strong> flag emoji 24×18 (prod: SVG flag set from country code)</li><li>Row = flag + country name; alphabetical</li><li>Current country detected from device at account creation — pre-selected</li><li>Used for tax/currency derivation on backend, not shown elsewhere in UI</li></ul><p class="note">Prototype uses ~35 countries covering major markets. Production pulls full ISO 3166-1 list.</p></div>
@@ -1791,11 +1981,103 @@ function clearPdSearch(key) {
 function pdSetFlowClass(state) {
   const screen = document.getElementById('s-personal-data');
   if (!screen) return;
-  ['loading','saving','error'].forEach(function(s) { screen.classList.remove('fs-' + s); });
+  ['loading','saving','error','network-error'].forEach(function(s) { screen.classList.remove('fs-' + s); });
   if (state && state !== 'default') screen.classList.add('fs-' + state);
 }
 
+// Retry from network-error → loading → default (simulated load).
+function handlePdNetworkRetry() {
+  pdSetFlowClass('loading');
+  setTimeout(function(){ pdSetFlowClass('default'); }, 1100);
+}
+
+// Demo helper: toggle inline-error state without going through real validators.
+function pdSimulateInvalid(kind) {
+  if (kind === 'dob') {
+    const err = document.getElementById('pd-dob-error');
+    if (err) err.style.display = 'block';
+    const val = document.getElementById('pd-dob-value');
+    if (val) { val.textContent = '5 Jun 2018'; val.style.color = 'var(--fit-text-primary)'; }
+  } else if (kind === 'video') {
+    const inp = document.getElementById('pd-video-input');
+    if (inp) { inp.value = 'https://example.com/video.mp4'; pdVideoValidate(); }
+  }
+  pdUpdateSaveGate();
+}
+
+// Upload error toast — simulates avatar/cover upload failure.
+function pdSimulateUploadError(kind) {
+  const snack = document.getElementById('pd-upload-error-snack');
+  const text = document.getElementById('pd-upload-error-text');
+  if (!snack) return;
+  if (text) {
+    text.textContent = kind === 'cover'
+      ? "Couldn't upload cover — file too large (max 10 MB)"
+      : "Couldn't upload photo — try again";
+  }
+  snack.classList.add('show');
+  clearTimeout(snack._t);
+  snack._t = setTimeout(function(){ snack.classList.remove('show'); }, 3000);
+}
+
+// Video pending-verify — URL is well-formed but we haven't confirmed embeddability yet.
+function pdSimulateVideoPending() {
+  const wrap = document.getElementById('pd-video-wrap');
+  const help = document.getElementById('pd-video-help');
+  if (!wrap || !help) return;
+  wrap.classList.remove('error', 'ok'); wrap.classList.add('pending');
+  help.querySelector('.pd-video-help-default').style.display = 'none';
+  help.querySelector('.pd-video-help-error').style.display = 'none';
+  help.querySelector('.pd-video-help-ok').style.display = 'none';
+  help.querySelector('.pd-video-help-pending').style.display = '';
+  // Pending = client-side parsed OK, NOT a save-blocker. Gate stays open.
+  pdUpdateSaveGate();
+}
+
+// Client-side validation gate. Returns array of invalid field anchor IDs (empty = valid).
+function pdInvalidFields() {
+  const invalid = [];
+  const dobErr = document.getElementById('pd-dob-error');
+  if (dobErr && dobErr.style.display !== 'none' && dobErr.style.display !== '') {
+    invalid.push('pd-dob-group');
+  } else if (dobErr && dobErr.style.display === 'block') {
+    invalid.push('pd-dob-group');
+  }
+  const videoWrap = document.getElementById('pd-video-wrap');
+  if (videoWrap && videoWrap.classList.contains('error')) {
+    invalid.push('pd-video-group');
+  }
+  return invalid;
+}
+
+// Refresh Save-btn disabled state based on current validity.
+function pdUpdateSaveGate() {
+  const btn = document.getElementById('pd-save-btn');
+  if (!btn) return;
+  btn.classList.toggle('is-disabled', pdInvalidFields().length > 0);
+}
+
 function handlePdSave() {
+  // Gate: client-side validation must pass before sending to server.
+  const bad = pdInvalidFields();
+  if (bad.length > 0) {
+    const firstId = bad[0];
+    const el = document.getElementById(firstId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.remove('pd-field-flash');
+      void el.offsetWidth; // restart animation
+      el.classList.add('pd-field-flash');
+      setTimeout(function(){ el.classList.remove('pd-field-flash'); }, 1300);
+    }
+    const snack = document.getElementById('pd-validation-snack');
+    if (snack) {
+      snack.classList.add('show');
+      clearTimeout(snack._t);
+      snack._t = setTimeout(function(){ snack.classList.remove('show'); }, 2200);
+    }
+    return;
+  }
   pdSetFlowClass('saving');
   setTimeout(function() {
     pdSetFlowClass('default');
@@ -1853,40 +2135,80 @@ function pdAvatarAction(kind) {
   closeSheet('pd-avatar-sheet');
 }
 
-// ===== WEIGHT / HEIGHT — metric-only (kg / cm) =====
-// Validation ranges: weight 20-300 kg; height 50-250 cm
-function pdParseNum(s) {
-  const n = parseFloat(String(s).replace(',', '.').trim());
-  return isFinite(n) ? n : null;
+// ===== INTRO VIDEO URL (YouTube embed-only) =====
+// Extracts canonical video ID from common YouTube URL shapes. Returns null if not a YouTube URL.
+function pdExtractYouTubeId(url) {
+  if (!url) return null;
+  const s = String(url).trim();
+  // Patterns: youtube.com/watch?v=ID, youtu.be/ID, youtube.com/shorts/ID, youtube.com/embed/ID
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtube\.com\/shorts\/|youtu\.be\/)([A-Za-z0-9_-]{6,15})/,
+  ];
+  for (const re of patterns) {
+    const m = s.match(re);
+    if (m && m[1]) return m[1];
+  }
+  return null;
 }
 
-function pdWeightValidate() {
-  const inp = document.getElementById('pd-weight-input');
-  const wrap = document.getElementById('pd-weight-wrap');
-  const err = document.getElementById('pd-weight-err');
-  const kg = pdParseNum(inp.value);
-  let msg = '';
-  if (inp.value.trim() && kg != null) {
-    if (kg < 20) msg = 'Weight seems too low';
-    else if (kg > 300) msg = 'Weight seems too high';
+function pdVideoValidate() {
+  const inp = document.getElementById('pd-video-input');
+  const wrap = document.getElementById('pd-video-wrap');
+  const help = document.getElementById('pd-video-help');
+  const clearBtn = document.getElementById('pd-video-clear');
+  if (!inp || !wrap || !help) return;
+  const val = inp.value.trim();
+  if (clearBtn) clearBtn.style.display = val ? 'flex' : 'none';
+  // Reset state
+  wrap.classList.remove('error', 'ok');
+  help.querySelector('.pd-video-help-default').style.display = '';
+  help.querySelector('.pd-video-help-error').style.display = 'none';
+  help.querySelector('.pd-video-help-ok').style.display = 'none';
+  if (!val) return; // empty = neutral
+  const id = pdExtractYouTubeId(val);
+  if (id) {
+    wrap.classList.add('ok');
+    help.querySelector('.pd-video-help-default').style.display = 'none';
+    help.querySelector('.pd-video-help-ok').style.display = '';
+  } else {
+    wrap.classList.add('error');
+    help.querySelector('.pd-video-help-default').style.display = 'none';
+    help.querySelector('.pd-video-help-error').style.display = '';
   }
-  wrap.classList.toggle('error', !!msg);
-  if (err) { err.textContent = msg; err.style.display = msg ? 'block' : 'none'; }
+  pdUpdateSaveGate();
 }
 
-function pdHeightValidate() {
-  const inp = document.getElementById('pd-height-input');
-  const wrap = document.getElementById('pd-height-wrap');
-  const err = document.getElementById('pd-height-err');
-  const cm = pdParseNum(inp.value);
-  let msg = '';
-  if (inp.value.trim() && cm != null) {
-    if (cm < 50) msg = 'Height seems too low';
-    else if (cm > 250) msg = 'Height seems too high';
-  }
-  wrap.classList.toggle('error', !!msg);
-  if (err) { err.textContent = msg; err.style.display = msg ? 'block' : 'none'; }
+function pdVideoClear() {
+  const inp = document.getElementById('pd-video-input');
+  if (inp) { inp.value = ''; pdVideoValidate(); inp.focus(); }
 }
+
+// ===== COVER IMAGE ACTION SHEET =====
+function pdCoverAction(kind) {
+  const thumb = document.getElementById('pd-cover-thumb');
+  const removeBtn = document.getElementById('pd-cover-remove');
+  const title = document.querySelector('#pd-cover-wrap .pd-cover-title');
+  if (kind === 'remove') {
+    thumb.style.backgroundImage = '';
+    thumb.style.background = 'var(--fit-brand-gradient)';
+    if (title) title.textContent = 'Tap to upload';
+    if (removeBtn) removeBtn.style.display = 'none';
+  } else {
+    // Take photo / Library — simulate pick with a placeholder cover
+    const demo = 'https://picsum.photos/seed/coach-cover/640/360';
+    thumb.style.backgroundImage = 'url(' + demo + ')';
+    thumb.style.background = 'var(--fit-brand-gradient) center/cover';
+    thumb.style.backgroundImage = 'url(' + demo + ')';
+    thumb.style.backgroundSize = 'cover';
+    thumb.style.backgroundPosition = 'center';
+    if (title) title.textContent = 'Cover image set';
+    if (removeBtn) removeBtn.style.display = 'flex';
+  }
+  closeSheet('pd-cover-sheet');
+}
+
+// Initial validation on load (existing demo value)
+document.addEventListener('DOMContentLoaded', function(){ pdVideoValidate(); pdUpdateSaveGate(); });
 
 // ===== DOB PICKER (3-wheel) =====
 var DOB_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -2007,6 +2329,7 @@ function confirmDobPicker() {
   const errInline = document.getElementById('pd-dob-error');
   if (errInline) errInline.style.display = 'none';
   closeSheet('dob-picker-sheet');
+  pdUpdateSaveGate();
 }
 
 // Snapshot of initial selected labels per multi-select key (for dirty check)

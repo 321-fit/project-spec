@@ -2264,3 +2264,110 @@ svg.i-sm { width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;
   font: 500 16px/1.3 var(--fit-font);
 }
 .fit-review-card--show-all svg { width: 28px; height: 28px; }
+
+/* ============================================================
+   FitProfileHero — 16:9 hero media block with 3-variant fallback.
+   Variants are sibling .fit-profile-hero-media-* divs, only one
+   displayed at a time via parent state class:
+     .has-video   → .fit-profile-hero-media--video
+     .has-cover   → .fit-profile-hero-media--cover
+     (none)       → .fit-profile-hero-media--default (gradient + initials)
+   Optional .fit-profile-hero-edit overlay (camera icon, top-right) is
+   shown when caller wires onEdit handler.
+   Used by coach-profile (coach owner view) + athlete-side coach view.
+   ============================================================ */
+.fit-profile-hero {
+  position: relative;
+  width: 100%; aspect-ratio: 16/9;
+  background: #000; overflow: hidden;
+}
+.fit-profile-hero-media {
+  display: none; position: absolute; inset: 0;
+  align-items: center; justify-content: center;
+}
+.fit-profile-hero.has-video .fit-profile-hero-media--video,
+.fit-profile-hero.has-cover .fit-profile-hero-media--cover,
+.fit-profile-hero:not(.has-video):not(.has-cover) .fit-profile-hero-media--default {
+  display: flex;
+}
+.fit-profile-hero-media--video { background: linear-gradient(135deg, #1a1a2e, #16213e); }
+.fit-profile-hero-media--cover {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.4)),
+    linear-gradient(135deg, #2d5a3d, #4a7c59);
+  background-size: cover; background-position: center;
+}
+.fit-profile-hero-media--default { background: var(--fit-brand-gradient); }
+.fit-profile-hero-initials {
+  font: 600 56px/1 var(--fit-font);
+  color: rgba(255,255,255,0.95); letter-spacing: 2px;
+}
+.fit-profile-hero-caption {
+  position: absolute; bottom: 10px; right: 12px;
+  color: rgba(255,255,255,0.6); font-size: 11px;
+}
+.fit-profile-hero-edit {
+  position: absolute; top: 12px; right: 12px; z-index: 2;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+  border: none; cursor: pointer; color: white;
+  display: flex; align-items: center; justify-content: center;
+}
+.fit-profile-hero-edit svg { width: 18px; height: 18px; }
+
+/* ============================================================
+   FitSectionTitle--md (warm variant) — 16px medium normal-case section
+   header. Profile / settings list sections use this variant rather than
+   the kit's default 12px UPPERCASE .fit-section-title which is too cold
+   for warm contexts (per memory project_coach_profile_v2 § Section titles).
+   Layout: row with optional trailing edit pencil / meta.
+   ============================================================ */
+.fit-section-title--md {
+  font: 500 16px/1.3 var(--fit-font);
+  color: var(--fit-text-primary);
+  text-transform: none;
+  letter-spacing: normal;
+  padding: 0 var(--fit-sp-4);
+  margin-bottom: 10px;
+}
+.fit-section-title--md-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--fit-sp-4); margin-bottom: 10px;
+}
+.fit-section-title--md-row .fit-section-title--md {
+  padding: 0; margin: 0;
+}
+.fit-section-title--md-row.tap { cursor: pointer; }
+.fit-section-title--md-row.tap:hover { opacity: 0.85; }
+.fit-section-title-edit {
+  flex-shrink: 0; width: 18px; height: 18px;
+  color: var(--fit-text-tertiary);
+}
+.fit-section-title-edit svg { width: 18px; height: 18px; }
+
+/* ============================================================
+   FitInviteRow — referral list row (no trailing pill in MVP).
+   Avatar + name + when. Optional trailing slot for Phase 2 pills /
+   chevrons. Mirrors .ic-invite-row used in invite-coach prototype.
+   ============================================================ */
+.fit-invite-row {
+  display: flex; align-items: center; gap: 12px;
+  margin: 0 var(--fit-sp-4) 8px;
+  padding: 12px;
+  background: var(--fit-surface-high);
+  border-radius: 12px;
+  font-family: var(--fit-font);
+}
+.fit-light .fit-invite-row { background: var(--fit-white); border: 1px solid var(--fit-gray-200); }
+.fit-invite-row-body { flex: 1; min-width: 0; }
+.fit-invite-row-name {
+  font: 500 15px/1.3 var(--fit-font);
+  color: var(--fit-text-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.fit-invite-row-when {
+  font: 400 13px/1.3 var(--fit-font);
+  color: var(--fit-text-tertiary);
+  margin-top: 2px;
+}
+.fit-invite-row-trailing { flex-shrink: 0; }

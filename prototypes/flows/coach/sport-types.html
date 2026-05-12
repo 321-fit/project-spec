@@ -592,6 +592,99 @@
   .sp-card-label { font-size: 14px; line-height: 1.2; }
   .sp-card.hidden { display: none; }
   .sp-section.hidden { display: none; }
+
+  /* ===== SPORT TYPES — flow states (loading / saving / error / network-error / saved) ===== */
+  #s-sport-types .sp-fs-skel { display: none; padding: 0 16px; }
+  #s-sport-types.fs-loading .sp-fs-content { display: none; }
+  #s-sport-types.fs-loading .sp-fs-skel { display: flex; flex-direction: column; gap: 20px; }
+  #s-sport-types.fs-loading .fit-phone-footer { display: none; }
+  #s-sport-types.fs-loading .pd-search-wrap { display: none; }
+
+  .sp-sk-section { display: flex; flex-direction: column; gap: 10px; }
+  .sp-sk-title { height: 12px; width: 40%; border-radius: 6px; }
+  .sp-sk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .sp-sk-card { height: 56px; border-radius: 14px; }
+
+  /* Saving spinner */
+  .sp-save-spinner {
+    display: none;
+    width: 16px; height: 16px; vertical-align: -3px; margin-right: 8px;
+    border: 2px solid rgba(255,255,255,0.35);
+    border-top-color: var(--fit-white);
+    border-radius: 50%;
+    animation: pd-spin 0.9s linear infinite;
+  }
+  #s-sport-types.fs-saving .sp-save-spinner { display: inline-block; }
+  #s-sport-types.fs-saving #sport-save-btn { cursor: wait; opacity: 0.85 !important; pointer-events: none !important; }
+
+  /* Save error banner */
+  .sp-save-error {
+    display: none; align-items: center; gap: 10px;
+    margin: 0 16px 12px; padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(240,92,91,0.08);
+    border: 1px solid rgba(240,92,91,0.22);
+    font: 400 14px/1.4 var(--fit-font);
+  }
+  #s-sport-types.fs-error .sp-save-error { display: flex; }
+  .sp-save-error svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--fit-red-400); }
+  .sp-save-error-body { flex: 1; color: var(--fit-text-primary); }
+  .sp-save-error-body strong { color: var(--fit-red-400); font-weight: 500; }
+  .sp-save-error-retry {
+    font: 500 13px/1.3 var(--fit-font);
+    color: var(--fit-red-400); background: transparent; border: none;
+    cursor: pointer; padding: 4px 8px; margin: -4px -8px;
+  }
+
+  /* Network error initial load */
+  .sp-network-error {
+    display: none; flex-direction: column; align-items: center;
+    padding: 60px 24px; text-align: center; gap: 12px;
+  }
+  .sp-network-error svg.sp-ne-illus {
+    width: 56px; height: 56px; color: var(--fit-text-tertiary);
+    margin-bottom: 4px;
+  }
+  .sp-network-error-title { font: 500 17px/1.3 var(--fit-font); color: var(--fit-text-primary); }
+  .sp-network-error-sub {
+    font: 400 14px/1.5 var(--fit-font); color: var(--fit-text-tertiary);
+    max-width: 280px;
+  }
+  .sp-network-error-retry {
+    margin-top: 8px; padding: 10px 24px;
+    border: none; border-radius: 99px;
+    background: var(--fit-brand-gradient); color: var(--fit-white);
+    font: 500 15px/1.3 var(--fit-font); cursor: pointer;
+  }
+  #s-sport-types.fs-network-error .sp-fs-content { display: none; }
+  #s-sport-types.fs-network-error .sp-fs-skel { display: none; }
+  #s-sport-types.fs-network-error .fit-phone-footer { display: none; }
+  #s-sport-types.fs-network-error .pd-search-wrap { display: none; }
+  #s-sport-types.fs-network-error .sp-network-error { display: flex; }
+
+  /* Selection hints (zero / many) — non-blocking nudges, sit above the grid */
+  .sp-hint {
+    display: none; align-items: flex-start; gap: 10px;
+    margin: 0 16px 16px; padding: 12px 14px;
+    border-radius: 12px;
+    font: 400 13px/1.45 var(--fit-font);
+  }
+  .sp-hint svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+  .sp-hint-body strong { font-weight: 500; }
+  .sp-hint--zero {
+    background: rgba(3,178,226,0.08);
+    border: 1px solid rgba(3,178,226,0.22);
+    color: var(--fit-text-primary);
+  }
+  .sp-hint--zero svg { color: var(--fit-blue-500); }
+  .sp-hint--many {
+    background: rgba(247,201,72,0.08);
+    border: 1px solid rgba(247,201,72,0.22);
+    color: var(--fit-text-primary);
+  }
+  .sp-hint--many svg { color: #F7C948; }
+  #s-sport-types.sp-zero .sp-hint--zero { display: flex; }
+  #s-sport-types.sp-many .sp-hint--many { display: flex; }
 </style>
 </head>
 <body>
@@ -628,6 +721,51 @@
     </div>
   </div>
   <div class="fit-phone-content" data-pd-list="sport" data-pd-mode="multi">
+
+    <!-- Network error (initial GET failed) -->
+    <div class="sp-network-error">
+      <svg class="sp-ne-illus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12.5a11 11 0 0122 0M5 16.5a7 7 0 0114 0M9 20.5a3 3 0 016 0"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+      <div class="sp-network-error-title">Couldn&rsquo;t load sports</div>
+      <div class="sp-network-error-sub">Check your connection and try again. Your existing selection stays on the server.</div>
+      <button class="sp-network-error-retry" onclick="handleSpNetworkRetry()">Retry</button>
+    </div>
+
+    <!-- Loading skeleton (initial GET) -->
+    <div class="sp-fs-skel">
+      <div class="sp-sk-section">
+        <div class="sp-sk-title sk-shimmer"></div>
+        <div class="sp-sk-grid">
+          <div class="sp-sk-card sk-shimmer"></div><div class="sp-sk-card sk-shimmer"></div>
+          <div class="sp-sk-card sk-shimmer"></div><div class="sp-sk-card sk-shimmer"></div>
+        </div>
+      </div>
+      <div class="sp-sk-section">
+        <div class="sp-sk-title sk-shimmer" style="width:30%;"></div>
+        <div class="sp-sk-grid">
+          <div class="sp-sk-card sk-shimmer"></div><div class="sp-sk-card sk-shimmer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save error banner (above grid) -->
+    <div class="sp-save-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12" y2="16.5"/></svg>
+      <div class="sp-save-error-body"><strong>Couldn&rsquo;t save your sports.</strong> Check your connection and try again.</div>
+      <button class="sp-save-error-retry" onclick="pdSportSave()">Retry</button>
+    </div>
+
+    <!-- Hint banners (zero / many) — non-blocking nudges -->
+    <div class="sp-hint sp-hint--zero">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div class="sp-hint-body"><strong>Pick at least one sport</strong> so athletes can find you in search.</div>
+    </div>
+    <div class="sp-hint sp-hint--many">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 20 2 20 12 2"/><line x1="12" y1="9" x2="12" y2="14"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div class="sp-hint-body"><strong>Lots of sports selected.</strong> Picking many can dilute your specialty &mdash; focus on what you actually coach.</div>
+    </div>
+
+    <!-- Real content wrapper (only one of these renders at a time per fs-* state) -->
+    <div class="sp-fs-content">
 
     <!-- Fitness & Strength -->
     <div class="sp-section">
@@ -718,6 +856,8 @@
       </div>
     </div>
 
+    </div><!-- /.sp-fs-content -->
+
     <!-- Empty state (search no matches) -->
     <div class="pd-empty" id="sport-empty">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -726,8 +866,10 @@
     </div>
   </div>
   <div class="fit-phone-footer" style="padding:12px 16px 40px;">
-    <button id="sport-save-btn" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;opacity:0.5;pointer-events:none;" onclick="pdSportSave()">Save<span class="pd-save-count" id="sport-save-count">(1 selected)</span></button>
+    <button id="sport-save-btn" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;opacity:0.5;pointer-events:none;" onclick="pdSportSave()"><span class="sp-save-spinner"></span>Save<span class="pd-save-count" id="sport-save-count">(1 selected)</span></button>
   </div>
+
+  <div class="fit-snackbar" id="sport-saved-snack">Sport selection updated</div>
 
   <!-- Discard changes confirm sheet -->
   <div class="fit-sheet-overlay" id="sport-discard-sheet">
@@ -746,7 +888,26 @@
 
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
-  <div class="ann" id="ann-s-sport-types"><span class="ann-role coach">Coach</span><h3>Sport types</h3><p>Push screen opened from <strong>Sport types</strong> set-card in Settings. <strong>Closed list</strong> of 33 sports across 8 sections — no custom sports (discovery, search, filter, matching all depend on canonical sport ID).</p><ul><li><strong>Sticky search</strong> filters live across all sections; empty sections auto-hide; "No matches" if zero results</li><li><strong>2-column card grid</strong> per section with non-sticky section headers (Fitness &amp; Strength, Racket, Team &amp; court, Combat, Endurance, Mind &amp; body, Recovery &amp; therapy, Other)</li><li><strong>Multi-select</strong>: <code>.sp-card.selected</code> only — teal border + gradient; no hardcoded tick SVGs per card (CSS-driven from class)</li><li><strong>Sticky footer Save</strong> disabled until selection differs from seed AND at least 1 picked; shows "(N selected)"</li><li><strong>Back</strong> → discard-sheet if dirty; Discard reverts to seed + goes to Settings</li><li><strong>On Save</strong>: Settings "Sport types" subtitle shows up to 3 names, then "+N more"</li></ul><p class="note">Recovery &amp; therapy section exists because home-visit location type makes massage/physio a significant offering. Deferred from v1: Surfing / Kitesurfing / SUP / Equestrian — added on geo expansion.</p><p class="note">Icons = draft adapted Tabler/Material style. Formal 33-icon set goes to <code>design-tokens/assets/icons/sport/</code> as Phase 3 task (stable IDs, Style Dictionary pipeline).</p></div>
+  <div class="ann active" id="ann-s-sport-types"><span class="ann-role coach">Coach</span><h3>Sport types</h3>
+    <p>Push screen opened from <strong>Sport types</strong> set-card in Settings. <strong>Closed list</strong> of 33 sports across 8 sections — no custom sports (discovery, search, filter, matching all depend on canonical sport ID).</p>
+
+    <h4>Flow states</h4>
+    <div class="state-toggle">
+      <button class="active" onclick="setSpFlow('default',this)">Default</button>
+      <button onclick="setSpFlow('loading',this)">Loading</button>
+      <button onclick="setSpFlow('network-error',this)">Network error</button>
+      <button onclick="setSpFlow('saving',this)">Saving</button>
+      <button onclick="setSpFlow('error',this)">Save error</button>
+      <button onclick="setSpFlow('saved',this)">Saved</button>
+    </div>
+
+    <h4>Selection hints</h4>
+    <div class="state-toggle">
+      <button onclick="spSimulateZero()">Zero selected</button>
+      <button onclick="spSimulateMany()">Many selected (10)</button>
+    </div>
+
+    <ul><li><strong>Sticky search</strong> filters live across all sections; empty sections auto-hide; "No matches" if zero results</li><li><strong>2-column card grid</strong> per section with non-sticky section headers (Fitness &amp; Strength, Racket, Team &amp; court, Combat, Endurance, Mind &amp; body, Recovery &amp; therapy, Other)</li><li><strong>Multi-select</strong>: <code>.sp-card.selected</code> only — teal border + gradient; no hardcoded tick SVGs per card (CSS-driven from class)</li><li><strong>Sticky footer Save</strong> disabled until selection differs from seed AND at least 1 picked; shows "(N selected)"</li><li><strong>Back</strong> → discard-sheet if dirty; Discard reverts to seed + goes to Settings</li><li><strong>On Save</strong>: Settings "Sport types" subtitle shows up to 3 names, then "+N more"</li><li><strong>Zero-selected hint</strong> (blue info-banner) — "Pick at least one sport so athletes can find you in search"; non-blocking, Save button already disabled</li><li><strong>Many-selected hint</strong> (yellow warning-banner, threshold 8) — "Picking many can dilute your specialty — focus on what you actually coach"; non-blocking</li></ul><p class="note">Recovery &amp; therapy section exists because home-visit location type makes massage/physio a significant offering. Deferred from v1: Surfing / Kitesurfing / SUP / Equestrian — added on geo expansion.</p><p class="note">Icons = draft adapted Tabler/Material style. Formal 33-icon set goes to <code>design-tokens/assets/icons/sport/</code> as Phase 3 task (stable IDs, Style Dictionary pipeline).</p></div>
 </div>
 
 <script src="../../lib/fit-ui.js"></script>
@@ -1791,6 +1952,7 @@ function pdIsDirty(key) {
 function pdToggleMulti(row, key) {
   row.classList.toggle('selected');
   pdUpdateMultiFooter(key);
+  if (key === 'sport' && typeof spUpdateHints === 'function') spUpdateHints();
 }
 
 function pdUpdateMultiFooter(key) {
@@ -1857,19 +2019,109 @@ function filterSportList(inputEl) {
 function pdSportSave() {
   const list = document.querySelector('[data-pd-list="sport"]');
   if (!list) return;
-  const labels = Array.from(list.querySelectorAll('.sp-card.selected'))
-    .map(c => c.getAttribute('data-label'));
-  const sub = document.getElementById('set-sport-sub');
-  if (sub) {
-    sub.textContent = labels.length === 0 ? 'Not set yet' :
-      labels.length <= 3 ? labels.join(', ') :
-      labels.slice(0,2).join(', ') + ' +' + (labels.length - 2) + ' more';
-  }
-  pdCaptureSeed('sport');
-  pdUpdateMultiFooter('sport');
-  const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
-  if (typeof go === 'function') go('s-settings', btn);
+  // Client gate: ≥1 sport required. Footer button is disabled already, but defend in depth.
+  const selectedCount = list.querySelectorAll('.sp-card.selected').length;
+  if (selectedCount === 0) { spUpdateHints(); return; }
+
+  // Simulated save with optional injected failure (set via sidebar).
+  spSetFlowClass('saving');
+  setTimeout(function() {
+    if (window.__spForceError) {
+      window.__spForceError = false; // one-shot
+      spSetFlowClass('error');
+      return;
+    }
+    spSetFlowClass('default');
+    const labels = Array.from(list.querySelectorAll('.sp-card.selected')).map(c => c.getAttribute('data-label'));
+    const sub = document.getElementById('set-sport-sub');
+    if (sub) {
+      sub.textContent = labels.length === 0 ? 'Not set yet' :
+        labels.length <= 3 ? labels.join(', ') :
+        labels.slice(0,2).join(', ') + ' +' + (labels.length - 2) + ' more';
+    }
+    pdCaptureSeed('sport');
+    pdUpdateMultiFooter('sport');
+    const snack = document.getElementById('sport-saved-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+    // Push back to settings root after successful save.
+    setTimeout(function(){
+      const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+      if (typeof go === 'function') go('s-settings', btn);
+    }, 200);
+  }, 900);
 }
+
+// Flow state class management (mirrors personal-data pattern)
+function spSetFlowClass(state) {
+  const screen = document.getElementById('s-sport-types');
+  if (!screen) return;
+  ['loading','saving','error','network-error'].forEach(function(s){ screen.classList.remove('fs-' + s); });
+  if (state && state !== 'default') screen.classList.add('fs-' + state);
+}
+
+function handleSpNetworkRetry() {
+  spSetFlowClass('loading');
+  setTimeout(function(){ spSetFlowClass('default'); }, 1100);
+}
+
+// Hint classes (zero / many) — call after every toggle.
+const SP_MANY_THRESHOLD = 8;
+function spUpdateHints() {
+  const screen = document.getElementById('s-sport-types');
+  const list = document.querySelector('[data-pd-list="sport"]');
+  if (!screen || !list) return;
+  const n = list.querySelectorAll('.sp-card.selected').length;
+  screen.classList.toggle('sp-zero', n === 0);
+  screen.classList.toggle('sp-many', n >= SP_MANY_THRESHOLD);
+}
+
+// Sidebar demo helpers
+function setSpFlow(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+  if (state === 'saved') {
+    spSetFlowClass('default');
+    const snack = document.getElementById('sport-saved-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+    return;
+  }
+  spSetFlowClass(state);
+}
+
+function spSimulateSaveError() {
+  window.__spForceError = true;
+  // Caller should tap Save — but to demo, fire it immediately if there is selection.
+  pdSportSave();
+}
+
+function spSimulateZero() {
+  const list = document.querySelector('[data-pd-list="sport"]');
+  if (!list) return;
+  list.querySelectorAll('.sp-card.selected').forEach(c => c.classList.remove('selected'));
+  pdUpdateMultiFooter('sport');
+  spUpdateHints();
+}
+
+function spSimulateMany() {
+  const list = document.querySelector('[data-pd-list="sport"]');
+  if (!list) return;
+  const cards = Array.from(list.querySelectorAll('.sp-card'));
+  // Pick first 10 to trip the many-threshold.
+  cards.forEach((c, i) => c.classList.toggle('selected', i < 10));
+  pdUpdateMultiFooter('sport');
+  spUpdateHints();
+}
+
+// Initial hint pass on load + after every toggle
+document.addEventListener('DOMContentLoaded', spUpdateHints);
 
 function pdSportBack() {
   if (pdIsDirty('sport')) {

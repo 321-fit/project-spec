@@ -425,6 +425,31 @@
     cursor: pointer; padding: 4px 8px; margin: -4px -8px;
   }
 
+  /* Network error (initial GET failed) — centered retry block. */
+  .avail-network-error {
+    display: none; flex-direction: column; align-items: center;
+    padding: 60px 24px; text-align: center; gap: 12px;
+  }
+  .avail-network-error svg.avail-ne-illus {
+    width: 56px; height: 56px; color: var(--fit-text-tertiary);
+    margin-bottom: 4px;
+  }
+  .avail-network-error-title { font: 500 17px/1.3 var(--fit-font); color: var(--fit-text-primary); }
+  .avail-network-error-sub {
+    font: 400 14px/1.5 var(--fit-font); color: var(--fit-text-tertiary);
+    max-width: 280px;
+  }
+  .avail-network-error-retry {
+    margin-top: 8px; padding: 10px 24px;
+    border: none; border-radius: 99px;
+    background: var(--fit-brand-gradient); color: var(--fit-white);
+    font: 500 15px/1.3 var(--fit-font); cursor: pointer;
+  }
+  #s-availability.fs-network-error .avail-fs-content { display: none; }
+  #s-availability.fs-network-error .avail-fs-skel { display: none; }
+  #s-availability.fs-network-error .fit-phone-footer { display: none; }
+  #s-availability.fs-network-error .avail-network-error { display: flex; }
+
   /* Selection band (centered 36px highlight) */
   .avail-tp-wheels::before {
     content: "";
@@ -621,6 +646,14 @@
     </div>
   </div>
   <div class="fit-phone-content">
+
+    <!-- Network error (initial GET failed) -->
+    <div class="avail-network-error">
+      <svg class="avail-ne-illus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12.5a11 11 0 0122 0M5 16.5a7 7 0 0114 0M9 20.5a3 3 0 016 0"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+      <div class="avail-network-error-title">Couldn&rsquo;t load your hours</div>
+      <div class="avail-network-error-sub">Check your connection and try again. Your existing schedule stays on the server.</div>
+      <button class="avail-network-error-retry" onclick="handleAvailNetworkRetry()">Retry</button>
+    </div>
 
     <!-- Loading skeleton (shown during initial fetch) -->
     <div class="avail-fs-skel">
@@ -863,7 +896,7 @@
 
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
-  <div class="ann" id="ann-s-availability"><span class="ann-role coach">Coach</span><h3>Available Hours</h3>
+  <div class="ann active" id="ann-s-availability"><span class="ann-role coach">Coach</span><h3>Available Hours</h3>
     <div class="state-toggle" style="margin-bottom:6px;">
       <button class="active" onclick="setAvailState('default',this)">Default</button>
       <button onclick="setAvailState('errors',this)">Validation</button>
@@ -871,7 +904,9 @@
       <button onclick="setAvailState('existing',this)">Existing bookings</button>
     </div>
     <div class="state-toggle">
+      <button onclick="setAvailFlow('default',this)">Default</button>
       <button onclick="setAvailFlow('loading',this)">Loading</button>
+      <button onclick="setAvailFlow('network-error',this)">Network error</button>
       <button onclick="setAvailFlow('saving',this)">Saving</button>
       <button onclick="setAvailFlow('error',this)">Save error</button>
       <button onclick="setAvailFlow('saved',this)">Saved</button>
@@ -1513,8 +1548,13 @@ function closeSheet(id) {
 function availSetFlowClass(state) {
   const screen = document.getElementById('s-availability');
   if (!screen) return;
-  ['default','loading','saving','error'].forEach(function(s){ screen.classList.remove('fs-' + s); });
+  ['default','loading','saving','error','network-error'].forEach(function(s){ screen.classList.remove('fs-' + s); });
   if (state !== 'default') screen.classList.add('fs-' + state);
+}
+
+function handleAvailNetworkRetry() {
+  availSetFlowClass('loading');
+  setTimeout(function(){ availSetFlowClass('default'); }, 1100);
 }
 
 function handleAvailSave() {

@@ -3,7 +3,7 @@
 > Status: Draft
 > Prototype: [flows/coach/settings.html#s-sport-types](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html#s-sport-types)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-04-27
+> Last updated: 2026-05-12
 > Implementation:
 > - iOS:     [321fit_ios/docs/sport-picker-ios.md] (to be created)
 > - Backend: [poly-backend/docs/sport-picker-backend.md] (to be created)
@@ -94,15 +94,39 @@ References to screen IDs are from `flows/coach/settings.html`.
 
 ## 5. States
 
+### Selection states (content)
+
 | State | When shown | What user sees | Transition |
 |---|---|---|---|
 | `sp-list` | Picker just opened with seeded selection | Search + sectioned grid + Save (disabled) | → `sp-dirty` on any toggle |
 | `sp-search` | User typed in search input | Filtered cards, empty sections hidden | → `sp-list` on clear search |
 | `sp-no-matches` | Search query yields zero matches | "No matches" placeholder | → `sp-list` on backspace clearing search |
 | `sp-dirty` | Selection differs from seed | Save button enabled with "Save (N selected)" | → `sp-saving` on tap, → `sp-discard-confirm` on Back |
-| `sp-saving` | Save tapped, server processing | Save button shows inline spinner | → return to Settings on success, → `sp-error` on failure |
-| `sp-error` | Save failed (network / server) | Snackbar "Failed to save. Try again." | → `sp-dirty` (state preserved) |
 | `sp-discard-confirm` | Back tapped with dirty selection | Bottom sheet with Discard / Cancel | → Settings (Discard) or `sp-dirty` (Cancel) |
+
+### Flow states (added 2026-05-12 — mirrors `personal-data.md` pattern)
+
+Class toggle on `#s-sport-types`:
+
+| Class | Skeleton | Content | Search bar | Footer | Banner |
+|---|---|---|---|---|---|
+| (none) / default | hidden | shown | shown | shown | none |
+| `fs-loading` | shown (`.sp-fs-skel` shimmer) | hidden | hidden | hidden | none |
+| `fs-network-error` | hidden | hidden | hidden | hidden | centered illustration + Retry |
+| `fs-saving` | hidden | shown | shown | shown (spinner in Save) | none |
+| `fs-error` | hidden | shown | shown | shown | red `.sp-save-error` banner with Retry |
+| `fs-saved` (snackbar fire) | — | shown | shown | shown | `sport-saved-snack` 1400ms |
+
+### Selection hints (added 2026-05-12 — non-blocking nudges)
+
+Hint classes `sp-zero` / `sp-many` toggled on `#s-sport-types` based on selected count:
+
+| Class | Threshold | Banner copy | Color |
+|---|---|---|---|
+| `sp-zero` | `selected === 0` | "Pick at least one sport so athletes can find you in search" | blue info |
+| `sp-many` | `selected >= 8` (`SP_MANY_THRESHOLD`) | "Picking many sports dilutes your specialty — focus on what you actually coach" | yellow warning |
+
+Both are **informational, not blocking**. Save button gate (`selected > 0 AND dirty`) is the actual mechanism preventing 0-sport saves. Threshold of 8 chosen arbitrarily — tune based on athlete-side discovery analytics.
 
 ---
 

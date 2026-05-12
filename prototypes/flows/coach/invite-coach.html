@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Invite a Coach</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--fit-font);
+    background: #0a0a0a;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 24px; min-height: 100vh;
+    min-width: 900px;
+  }
+
+  /* ==================== SIDEBAR ==================== */
+  .sidebar {
+    position: fixed;
+    left: max(16px, calc(50% - 195px - 200px - 48px));
+    top: 24px; bottom: 24px; width: 200px;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--fit-gray-600);
+    padding: 0 8px; margin: 16px 0 8px;
+  }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button {
+    font-family: var(--fit-font); font-size: 14px; font-weight: 400;
+    padding: 10px 12px; border-radius: 10px; border: none;
+    background: transparent; color: var(--fit-gray-400);
+    cursor: pointer; text-align: left; width: 100%; transition: all 0.15s;
+  }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active { background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500; }
+
+  /* ==================== ANNOTATIONS ==================== */
+  .ann-container {
+    position: fixed;
+    left: calc(50% + 195px + 48px);
+    top: 24px; bottom: 24px; width: 280px;
+    overflow-y: auto;
+  }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; }
+  .ann.active { display: block; }
+  .ann-role {
+    display: inline-block; font-size: 14px; font-weight: 500;
+    padding: 4px 12px; border-radius: 8px; margin-bottom: 16px;
+  }
+  .ann-role.coach { background: rgba(3,178,226,0.15); color: var(--fit-blue-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann h4 { font-size: 14px; font-weight: 500; color: var(--fit-gray-300); margin: 14px 0 6px; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); margin-bottom: 10px; }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 6px; padding-left: 18px; font-size: 14px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 4px; }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  .ann code {
+    font-size: 12px; padding: 1px 4px; border-radius: 3px;
+    background: rgba(255,255,255,0.06); color: var(--fit-gray-400);
+  }
+  .state-toggle {
+    display: inline-flex; flex-wrap: wrap; gap: 0; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--fit-gray-700); margin-bottom: 12px;
+  }
+  .state-toggle button {
+    font-family: var(--fit-font); font-size: 12px; font-weight: 500;
+    padding: 4px 10px; border: none; cursor: pointer;
+    background: transparent; color: var(--fit-gray-400); transition: all 0.15s;
+  }
+  .state-toggle button.active { background: var(--fit-gray-700); color: var(--fit-white); }
+
+  .fit-phone { display: none; }
+  .fit-phone.active { display: flex; }
+  .fit-dark .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-dark .fit-phone-footer { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+
+  /* ==================== INVITE-COACH — page-local layout ==================== */
+
+  /* Hero (illustration + title + sub) */
+  .ic-hero {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 24px 24px 28px; text-align: center;
+  }
+  .ic-hero-illus {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    background: var(--fit-brand-gradient);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px;
+  }
+  .ic-hero-illus svg { width: 44px; height: 44px; color: var(--fit-white); }
+  .ic-hero-title {
+    font: 600 22px/1.25 var(--fit-font);
+    color: var(--fit-text-primary);
+    margin-bottom: 8px;
+  }
+  .ic-hero-sub {
+    font: 400 14px/1.5 var(--fit-font);
+    color: var(--fit-text-secondary);
+    max-width: 320px;
+  }
+
+  /* Section header — warm style, profile-aligned */
+  .ic-section-title {
+    font: 500 16px/1.3 var(--fit-font);
+    color: var(--fit-text-primary);
+    padding: 0 16px;
+    margin-bottom: 10px;
+  }
+  .ic-section { margin-bottom: 28px; }
+  .ic-section-meta {
+    margin-left: auto;
+    font: 400 13px/1.3 var(--fit-font);
+    color: var(--fit-text-tertiary);
+  }
+  .ic-section-head {
+    display: flex; align-items: center;
+    padding: 0 16px;
+    margin-bottom: 10px;
+  }
+  .ic-section-head .ic-section-title { padding: 0; margin: 0; }
+
+  /* Link card — display URL + Copy CTA inline */
+  .ic-link-card {
+    display: flex; align-items: center; gap: 8px;
+    margin: 0 16px;
+    padding: 10px 12px;
+    background: var(--fit-surface-high);
+    border-radius: 12px;
+    border: 1px solid var(--fit-divider);
+  }
+  .fit-light .ic-link-card { border-color: var(--fit-gray-200); }
+  .ic-link-icon {
+    flex-shrink: 0; width: 20px; height: 20px;
+    color: var(--fit-text-tertiary);
+  }
+  .ic-link-icon svg { width: 20px; height: 20px; }
+  .ic-link-url {
+    flex: 1; min-width: 0;
+    font: 400 14px/1.4 var(--fit-font);
+    color: var(--fit-text-primary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .ic-link-copy {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border: none; border-radius: 99px;
+    background: var(--fit-brand-gradient); color: var(--fit-white);
+    font: 500 13px/1.3 var(--fit-font);
+    cursor: pointer;
+  }
+  .ic-link-copy:active { transform: scale(0.97); }
+
+  /* Share CTA (primary) */
+  .ic-share-cta {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin: 14px 16px 0;
+    width: calc(100% - 32px);
+    height: 50px;
+    border: none; border-radius: 99px;
+    background: var(--fit-surface-high);
+    color: var(--fit-text-primary);
+    font: 500 16px/1.3 var(--fit-font);
+    cursor: pointer;
+  }
+  .ic-share-cta:active { transform: scale(0.99); }
+  .ic-share-cta svg { width: 18px; height: 18px; }
+
+  /* Invite row (avatar + name + when + status pill) */
+  .ic-invite-row {
+    display: flex; align-items: center; gap: 12px;
+    margin: 0 16px 8px;
+    padding: 12px;
+    background: var(--fit-surface-high);
+    border-radius: 12px;
+  }
+  .ic-invite-body { flex: 1; min-width: 0; }
+  .ic-invite-name {
+    font: 500 15px/1.3 var(--fit-font);
+    color: var(--fit-text-primary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .ic-invite-when {
+    font: 400 13px/1.3 var(--fit-font);
+    color: var(--fit-text-tertiary);
+    margin-top: 2px;
+  }
+  /* Status pills (Pending / Joined / Active) intentionally REMOVED for MVP.
+     Share-link path doesn't capture invitee contact, so "pending" is unknowable.
+     Re-add in Phase 2 alongside invite-by-email path and rewards mechanic. */
+
+  /* See all link */
+  .ic-see-all {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin: 12px 16px 0;
+    font: 500 14px/1.3 var(--fit-font);
+    color: var(--fit-brand-primary);
+    cursor: pointer;
+  }
+  .ic-see-all svg { width: 14px; height: 14px; }
+
+  /* List state switcher */
+  #s-invite-coach .ic-list-default,
+  #s-invite-coach .ic-list-empty,
+  #s-invite-coach .ic-list-loading,
+  #s-invite-coach .ic-list-error { display: none; }
+  #s-invite-coach.ls-default .ic-list-default { display: block; }
+  #s-invite-coach.ls-empty   .ic-list-empty   { display: flex; flex-direction: column; align-items: center; }
+  #s-invite-coach.ls-loading .ic-list-loading { display: flex; flex-direction: column; gap: 8px; padding: 0 16px; }
+  #s-invite-coach.ls-error   .ic-list-error   { display: flex; }
+
+  /* Skeleton rows */
+  .ic-sk-row { height: 64px; border-radius: 12px; }
+
+  /* Full-list rows share .ic-invite-row atom with main screen. */
+  #s-invite-coach-list .ic-invite-row { margin: 0 16px 8px; }
+  #s-invite-coach-list .fit-phone-content { padding-top: 0; }
+
+  /* Filter chips intentionally removed — see status-pills comment above. */
+
+  /* Inline error banner */
+  .ic-list-error {
+    display: none; align-items: center; gap: 10px;
+    margin: 0 16px; padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(240,92,91,0.08);
+    border: 1px solid rgba(240,92,91,0.22);
+    font: 400 14px/1.4 var(--fit-font);
+  }
+  .ic-list-error svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--fit-red-400); }
+  .ic-list-error-body { flex: 1; color: var(--fit-text-primary); }
+  .ic-list-error-body strong { color: var(--fit-red-400); font-weight: 500; }
+  .ic-list-error-retry {
+    font: 500 13px/1.3 var(--fit-font);
+    color: var(--fit-red-400); background: transparent; border: none;
+    cursor: pointer; padding: 4px 8px; margin: -4px -8px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+  <div class="label">Screens</div>
+  <button class="active" onclick="go('s-invite-coach',this)">Invite a coach</button>
+  <button onclick="go('s-invite-coach-list',this)">All invites (push)</button>
+  </div>
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ==================== PHONE ==================== -->
+
+<div class="fit-phone fit-dark active ls-default" id="s-invite-coach">
+
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="window.location.href='./settings.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Invite a coach</span>
+    </div>
+  </div>
+
+  <div class="fit-phone-content">
+
+    <!-- ============ HERO ============ -->
+    <div class="ic-hero">
+      <div class="ic-hero-illus">
+        <!-- Handshake icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 5-5"/><path d="M21 12c0 5-4 9-9 9s-9-4-9-9 4-9 9-9c2.4 0 4.6.9 6.3 2.5"/></svg>
+      </div>
+      <div class="ic-hero-title">Grow the community</div>
+      <div class="ic-hero-sub">Know a coach who&rsquo;d thrive on 321Fit? Share your invite link &mdash; we&rsquo;ll track who joined through you for future rewards.</div>
+    </div>
+
+    <!-- ============ INVITE LINK ============ -->
+    <div class="ic-section">
+      <div class="ic-section-title">Your invite link</div>
+      <div class="ic-link-card">
+        <span class="ic-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></span>
+        <span class="ic-link-url" id="ic-link-url">321fit.app/i/jm-r3F7q9</span>
+        <button class="ic-link-copy" onclick="icCopyLink()">Copy</button>
+      </div>
+      <button class="ic-share-cta" onclick="icShareLink()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        Share invite link
+      </button>
+    </div>
+
+    <!-- ============ YOUR INVITES ============ -->
+    <div class="ic-section">
+      <div class="ic-section-head">
+        <span class="ic-section-title">Your invites</span>
+        <span class="ic-section-meta" id="ic-count">3 joined</span>
+      </div>
+
+      <!-- DEFAULT: list of coaches who joined via your link.
+           We only show those who actually signed up — share-link path doesn't
+           capture email/phone so we can't track "pending" / "didn't accept".
+           Statuses (Pending / Joined / Active) come back in Phase 2 when
+           rewards mechanic + invite-by-email path land. -->
+      <div class="ic-list-default">
+        <div class="ic-invite-row">
+          <div class="fit-avatar fit-avatar-md fit-avatar-brand">KP</div>
+          <div class="ic-invite-body">
+            <div class="ic-invite-name">Karl Pawlak</div>
+            <div class="ic-invite-when">Joined 1 week ago</div>
+          </div>
+        </div>
+
+        <div class="ic-invite-row">
+          <div class="fit-avatar fit-avatar-md fit-avatar-brand">DH</div>
+          <div class="ic-invite-body">
+            <div class="ic-invite-name">Daniel Horvath</div>
+            <div class="ic-invite-when">Joined 2 weeks ago</div>
+          </div>
+        </div>
+
+        <div class="ic-invite-row">
+          <div class="fit-avatar fit-avatar-md fit-avatar-brand">EW</div>
+          <div class="ic-invite-body">
+            <div class="ic-invite-name">Ewa Wojcik</div>
+            <div class="ic-invite-when">Joined 1 month ago</div>
+          </div>
+        </div>
+
+        <div class="ic-see-all" onclick="go('s-invite-coach-list', document.querySelector('.sidebar button[onclick*=s-invite-coach-list]'))">
+          See all invites
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+
+      <!-- EMPTY: no invites yet -->
+      <div class="ic-list-empty fit-empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/><path d="M19.5 14.5a4 4 0 013 3.87V21"/></svg>
+        <div class="fit-empty-state-title">No invites yet</div>
+        <div>Share your link with a coach you trust &mdash; they&rsquo;ll show up here once invited.</div>
+      </div>
+
+      <!-- LOADING: skeleton rows -->
+      <div class="ic-list-loading">
+        <div class="ic-sk-row sk-shimmer"></div>
+        <div class="ic-sk-row sk-shimmer"></div>
+        <div class="ic-sk-row sk-shimmer"></div>
+      </div>
+
+      <!-- ERROR: failed to load -->
+      <div class="ic-list-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12" y2="16.5"/></svg>
+        <div class="ic-list-error-body"><strong>Couldn&rsquo;t load your invites.</strong> Check your connection and try again.</div>
+        <button class="ic-list-error-retry" onclick="setIcListState('loading', null);setTimeout(function(){setIcListState('default', null);},900);">Retry</button>
+      </div>
+    </div>
+
+    <div style="height:16px;"></div>
+  </div>
+
+  <!-- Snackbars -->
+  <div class="fit-snackbar" id="ic-copied-snack">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    Link copied
+  </div>
+  <div class="fit-snackbar" id="ic-shared-snack">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    Invite shared
+  </div>
+</div>
+
+<!-- ==================== ALL INVITES (push from main screen) ==================== -->
+<div class="fit-phone fit-dark" id="s-invite-coach-list">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-invite-coach', document.querySelector('.sidebar button[onclick*=s-invite-coach]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Your invites</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <!-- Flat list — joined coaches only. No status pills / no filters until
+         Phase 2 rewards mechanic + invite-by-email path land. -->
+    <div style="height:12px;"></div>
+
+    <div class="ic-invite-row">
+      <div class="fit-avatar fit-avatar-md fit-avatar-brand">KP</div>
+      <div class="ic-invite-body">
+        <div class="ic-invite-name">Karl Pawlak</div>
+        <div class="ic-invite-when">Joined 1 week ago</div>
+      </div>
+    </div>
+
+    <div class="ic-invite-row">
+      <div class="fit-avatar fit-avatar-md fit-avatar-brand">AB</div>
+      <div class="ic-invite-body">
+        <div class="ic-invite-name">Anna Brzezinska</div>
+        <div class="ic-invite-when">Joined 2 weeks ago</div>
+      </div>
+    </div>
+
+    <div class="ic-invite-row">
+      <div class="fit-avatar fit-avatar-md fit-avatar-brand">DH</div>
+      <div class="ic-invite-body">
+        <div class="ic-invite-name">Daniel Horvath</div>
+        <div class="ic-invite-when">Joined 2 weeks ago</div>
+      </div>
+    </div>
+
+    <div class="ic-invite-row">
+      <div class="fit-avatar fit-avatar-md fit-avatar-brand">TK</div>
+      <div class="ic-invite-body">
+        <div class="ic-invite-name">Tomek Kowal</div>
+        <div class="ic-invite-when">Joined 3 weeks ago</div>
+      </div>
+    </div>
+
+    <div class="ic-invite-row">
+      <div class="fit-avatar fit-avatar-md fit-avatar-brand">EW</div>
+      <div class="ic-invite-body">
+        <div class="ic-invite-name">Ewa Wojcik</div>
+        <div class="ic-invite-when">Joined 1 month ago</div>
+      </div>
+    </div>
+
+    <div class="ic-invite-row">
+      <div class="fit-avatar fit-avatar-md fit-avatar-brand">MK</div>
+      <div class="ic-invite-body">
+        <div class="ic-invite-name">Marek Krol</div>
+        <div class="ic-invite-when">Joined 1 month ago</div>
+      </div>
+    </div>
+
+    <div class="ic-invite-row">
+      <div class="fit-avatar fit-avatar-md fit-avatar-brand">RG</div>
+      <div class="ic-invite-body">
+        <div class="ic-invite-name">Robert Gajewski</div>
+        <div class="ic-invite-when">Joined 6 weeks ago</div>
+      </div>
+    </div>
+
+    <div class="ic-invite-row">
+      <div class="fit-avatar fit-avatar-md fit-avatar-brand">PL</div>
+      <div class="ic-invite-body">
+        <div class="ic-invite-name">Pawel Lisowski</div>
+        <div class="ic-invite-when">Joined 2 months ago</div>
+      </div>
+    </div>
+
+    <div class="ic-invite-row">
+      <div class="fit-avatar fit-avatar-md fit-avatar-brand">IW</div>
+      <div class="ic-invite-body">
+        <div class="ic-invite-name">Iwona Walczak</div>
+        <div class="ic-invite-when">Joined 3 months ago</div>
+      </div>
+    </div>
+
+    <div style="height:24px;"></div>
+  </div>
+</div>
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+
+  <div class="ann active" id="ann-s-invite-coach">
+    <span class="ann-role coach">Coach</span>
+    <h3>Invite a coach (referral)</h3>
+    <p>Coach-to-coach referral. <strong>Separate from</strong> <code>coach/invite.html</code> (which is invite an athlete to a training event). Reached from Settings root card "Invite a Coach".</p>
+
+    <h4>States (sidebar to toggle)</h4>
+    <div class="state-toggle">
+      <button class="active" onclick="setIcListState('default',this)">Default</button>
+      <button onclick="setIcListState('empty',this)">Empty</button>
+      <button onclick="setIcListState('loading',this)">Loading</button>
+      <button onclick="setIcListState('error',this)">Error</button>
+    </div>
+
+    <hr>
+
+    <h4>UI atoms (kit-aligned)</h4>
+    <ul>
+      <li><code>.fit-avatar.fit-avatar-md.fit-avatar-brand</code> for invitee initials</li>
+      <li><code>.fit-empty-state</code> + <code>-title</code> for "No invites yet"</li>
+      <li><code>.fit-snackbar</code> for "Link copied" / "Invite shared" confirmations</li>
+      <li><code>.sk-shimmer</code> for loading skeleton rows</li>
+    </ul>
+    <p><strong>Kit candidate:</strong> <code>FitInviteRow</code> + <code>FitInvitePill</code> — reused on athlete-side referral too once landed. Will propose to kit when athlete-side flow is built.</p>
+
+    <hr>
+
+    <h4>List content (MVP)</h4>
+    <p>Flat list of coaches who <strong>signed up</strong> through the inviter&rsquo;s link. <strong>No status pills, no filter chips in MVP</strong> — share-link path doesn&rsquo;t capture invitee contact, so &ldquo;pending&rdquo; / &ldquo;didn&rsquo;t accept&rdquo; states are unknowable. CSS/JS for pills was removed to avoid suggesting capability we don&rsquo;t have.</p>
+    <p>Each row: <code>FitAvatar(.md, .brand)</code> + name + &ldquo;Joined N ago&rdquo;. Most-recent-first.</p>
+
+    <hr>
+
+    <h4>Phase 2 — when to bring back status pills</h4>
+    <p>Two triggers, either one unlocks pill UI:</p>
+    <ul>
+      <li><strong>Invite-by-email path</strong> ships — coach enters invitee&rsquo;s email/phone, backend creates a row with <code>status: pending</code>, transitions to <code>joined</code> on signup. Then we can render the yellow <strong>Pending</strong> pill.</li>
+      <li><strong>Rewards mechanic</strong> lands — &ldquo;Active&rdquo; (joined + completed a qualifying session) becomes meaningful for reward eligibility. Show the teal <strong>Active</strong> pill and surface session count.</li>
+    </ul>
+    <p>Until either lands, the list stays flat &mdash; nothing on screen that the backend can&rsquo;t actually verify.</p>
+
+    <hr>
+
+    <h4>Backend contract — devs implement</h4>
+    <p>Referral tracking is the load-bearing piece, not the UI.</p>
+
+    <p><strong>Tables / fields:</strong></p>
+    <ul>
+      <li><code>referrals</code> table: <code>id</code>, <code>inviter_user_id</code> (coach), <code>referral_token</code> (unique slug, used in link), <code>invited_contact</code> (NULL for MVP share-link path — populated only when invite-by-email lands in Phase 2), <code>invitee_user_id</code> (FK, NULL until signup), <code>status</code>, <code>created_at</code>, <code>joined_at</code>, <code>activated_at</code></li>
+      <li>Token format <code>jm-r3F7q9</code> = <code>{first_initial}{last_initial}-{6char base62}</code>. Globally unique. Stable per coach — same token reused across all their invites for attribution simplicity.</li>
+      <li><strong>Status column reachable values (MVP):</strong> only <code>joined</code> on share-link path. Rows are NOT created at link-share time (we have nothing to write — no invitee contact). Rows appear only when someone actually signs up with the token.</li>
+      <li><strong>Phase 2 status values:</strong> <code>pending</code> (invite-by-email row created at send time, no <code>invitee_user_id</code> yet), <code>active</code> (joined + first completed session). Same table, additive fields/values per <code>feedback_backward_compat_endpoints</code>.</li>
+    </ul>
+
+    <p><strong>Endpoints (additive — per <code>feedback_backward_compat_endpoints</code>):</strong></p>
+    <ul>
+      <li><code>GET /coach/me/referral-link</code> → <code>{ url, token }</code></li>
+      <li><code>GET /coach/me/invites?limit=N&amp;cursor=...</code> → paginated list of joined coaches with relative timestamps. <strong>Does not</strong> include status field in response yet — adds it in Phase 2 alongside pill UI.</li>
+      <li><code>POST /referrals/track-open</code> (called from <code>/i/&lt;token&gt;</code> public landing) — logs that someone opened the link. Optional, used for funnel analytics; never creates a row.</li>
+      <li>Signup endpoint accepts <code>referral_token</code> param → backend resolves to inviter, creates the referral row with <code>status: joined</code>, <code>invitee_user_id</code> set.</li>
+      <li><strong>Phase 2:</strong> first-completed-session hook flips <code>status → active</code>, fires push notification to inviter (<code>TargetRoute=REFERRAL_ACTIVATED</code>).</li>
+    </ul>
+
+    <p><strong>Rewards mechanic intentionally NOT in MVP scope</strong> per <code>project_invite_a_coach</code> memory (2026-04-22). Track all data now; reward UX comes Phase 2 once we see traction. Hero subtitle copy "we&rsquo;ll track who joined through you for future rewards" sets expectation without committing.</p>
+
+    <hr>
+
+    <h4>Share flow</h4>
+    <ul>
+      <li><strong>Copy</strong> button → JS clipboard API + snackbar "Link copied" 1400ms</li>
+      <li><strong>Share invite link</strong> CTA → native OS share sheet (iOS <code>UIActivityViewController</code>, Android <code>Intent.ACTION_SEND</code>). On platforms without share API, falls back to mailto / WhatsApp deep-link with pre-filled text.</li>
+      <li>Pre-filled share text: "Join me on 321Fit &mdash; the marketplace for coaches and athletes. {link}"</li>
+    </ul>
+
+    <hr>
+
+    <h4>See all invites</h4>
+    <p>Inline list shows last 3 by default. <code>See all invites</code> link pushes to <code>s-invite-coach-list</code> — full paginated list with sticky filter chips (All / Pending / Joined / Active) at top.</p>
+
+    <h4>Edge cases</h4>
+    <ul>
+      <li>Invitee self-signs with different email than what you tracked &mdash; backend matches on <code>referral_token</code>, not contact info.</li>
+      <li>Invitee was already a member when they opened the link &mdash; show benign message on landing page "Welcome back", no referral linked.</li>
+      <li>Coach deletes account &mdash; referrals stay; <code>inviter_user_id</code> may be soft-nulled with anonymous label.</li>
+    </ul>
+  </div>
+
+  <div class="ann" id="ann-s-invite-coach-list">
+    <span class="ann-role coach">Coach</span>
+    <h3>All invites</h3>
+    <p>Push screen — full list of coaches who joined through this inviter&rsquo;s link. Reached from <code>See all invites</code> at the bottom of the inline list on <code>s-invite-coach</code>.</p>
+
+    <h4>Layout (MVP)</h4>
+    <ul>
+      <li>Header: back chevron + &ldquo;Your invites&rdquo;.</li>
+      <li>Flat scrollable list — <code>.ic-invite-row</code> atom: avatar + name + &ldquo;Joined N ago&rdquo;. No pills, no filters.</li>
+      <li>Sort: most-recent-first (<code>joined_at</code> desc on backend).</li>
+    </ul>
+
+    <hr>
+
+    <h4>Pagination</h4>
+    <ul>
+      <li>Cursor-based, <code>limit=20</code> per page.</li>
+      <li>Infinite-scroll trigger 200 px before end. Loading-more indicator at footer (spinner only, no skeleton).</li>
+      <li>Endpoint: <code>GET /coach/me/invites?limit=20&amp;cursor=...</code></li>
+    </ul>
+
+    <hr>
+
+    <h4>Empty</h4>
+    <p>If list is empty, the push screen isn&rsquo;t reachable — <code>See all invites</code> link is hidden on the main screen when count is 0. So empty-state handling lives on <code>s-invite-coach</code>, not here.</p>
+
+    <hr>
+
+    <h4>Phase 2 additions</h4>
+    <p>When pills come back (see main-screen annotation): add sticky filter row with 4 chips (All / Pending / Joined / Active), each showing counts. Server adds <code>?status=&lt;filter&gt;</code> param. Same row atom gains a trailing pill via <code>.ic-invite-pill--{status}</code>.</p>
+
+    <p class="note">Prototype shows 9 sample joined coaches so scroll is meaningful for testing. Production list pulls from <code>GET /coach/me/invites</code>.</p>
+  </div>
+
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+  function switchTheme(theme) {
+    document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
+    document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";
+    document.getElementById("theme-light").style.background = theme === "light" ? "var(--fit-gray-700)" : "transparent";
+    document.getElementById("theme-light").style.color = theme === "light" ? "var(--fit-white)" : "var(--fit-gray-400)";
+    document.querySelectorAll(".fit-phone").forEach(function(phone) {
+      if (theme === "light") { phone.classList.remove("fit-dark"); phone.classList.add("fit-light"); }
+      else { phone.classList.remove("fit-light"); phone.classList.add("fit-dark"); }
+    });
+  }
+
+  function go(id, btn) {
+    document.querySelectorAll('.fit-phone').forEach(function(s){ s.classList.remove('active'); });
+    var screen = document.getElementById(id);
+    if (screen) screen.classList.add('active');
+    document.querySelectorAll('.sidebar button').forEach(function(b){ b.classList.remove('active'); });
+    if (btn) btn.classList.add('active');
+    document.querySelectorAll('.ann').forEach(function(a){ a.classList.remove('active'); });
+    var ann = document.getElementById('ann-' + id);
+    if (ann) ann.classList.add('active');
+  }
+
+  function setIcListState(state, btn) {
+    var screen = document.getElementById('s-invite-coach');
+    if (!screen) return;
+    screen.classList.remove('ls-default', 'ls-empty', 'ls-loading', 'ls-error');
+    screen.classList.add('ls-' + state);
+    // Section meta count display logic
+    var meta = document.getElementById('ic-count');
+    if (meta) {
+      if (state === 'default') meta.textContent = '3 joined';
+      else meta.textContent = '';
+    }
+    if (btn && btn.closest && btn.closest('.sidebar')) {
+      document.querySelectorAll('.sidebar button').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+    }
+    // Sync annotation toggle
+    var toggle = document.querySelector('#ann-s-invite-coach .state-toggle');
+    if (toggle) {
+      toggle.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+      var match = Array.from(toggle.querySelectorAll('button')).find(function(b){
+        return b.getAttribute('onclick').indexOf("'"+state+"'") !== -1;
+      });
+      if (match) match.classList.add('active');
+    }
+  }
+
+  function icCopyLink() {
+    var url = document.getElementById('ic-link-url');
+    if (!url) return;
+    var text = url.textContent.trim();
+    // Try Clipboard API; in prototype fall back silently
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).catch(function(){});
+    }
+    var snack = document.getElementById('ic-copied-snack');
+    if (snack) {
+      snack.classList.add('show');
+      clearTimeout(snack._t);
+      snack._t = setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+  }
+
+  function icShareLink() {
+    var url = document.getElementById('ic-link-url');
+    var text = "Join me on 321Fit — the marketplace for coaches and athletes. " + (url ? url.textContent.trim() : '');
+    if (navigator.share) {
+      navigator.share({ title: '321Fit', text: text }).catch(function(){});
+    }
+    var snack = document.getElementById('ic-shared-snack');
+    if (snack) {
+      snack.classList.add('show');
+      clearTimeout(snack._t);
+      snack._t = setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+  }
+</script>
+</body>
+</html>
