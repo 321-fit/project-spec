@@ -206,6 +206,36 @@
   .event-note-text { font-size: 14px; line-height: 1.4; color: var(--fit-text-primary); }
 
   /* ==================== COACH PROFILE v2 — STATE VARIANTS ==================== */
+  /* Local CSS for fit-input-ta / fit-inline-error / fes-illus moved to fit-ui.css */
+
+  /* Heart toggle (saved/unsaved state) */
+  .coach-heart.saved { color: var(--fit-red-400); }
+  .coach-heart.saved svg { fill: currentColor; }
+
+  /* About bio inline expand (collapsed: 4-line clamp; expanded: full text) */
+  .about-bio-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .about-bio.expanded .about-bio-text {
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+  }
+
+  /* ===== Booking screen state visibility ===== */
+  #s-booking [data-booking-state] { display: none; }
+  #s-booking.bk-personal [data-booking-state="personal"] { display: block; }
+  #s-booking.bk-group [data-booking-state="group"] { display: block; }
+  #s-booking.bk-empty [data-booking-state="empty"] { display: block; }
+  #s-booking.bk-loading [data-booking-state="loading"] { display: block; }
+  #s-booking.bk-error [data-booking-state="error"] { display: block; }
+  #s-booking.bk-empty .fit-phone-footer,
+  #s-booking.bk-loading .fit-phone-footer,
+  #s-booking.bk-error .fit-phone-footer { display: none; }
+
   /* States: .cv-established (default) / .cv-new-video / .cv-new-image / .cv-new-default */
 
   /* Header media — 3 variants, 1 visible at a time */
@@ -290,12 +320,11 @@
 <nav class="sidebar">
   <div class="sidebar-scroll">
   <div class="label">Coach Profile</div>
-  <button class="active" onclick="go('s-coach',this)">Profile v1</button>
-  <button onclick="go('s-coach-v2',this)">Profile v2</button>
+  <button class="active" onclick="go('s-coach-v2',this)">Coach Profile</button>
   <button onclick="go('s-reviews',this)">All Reviews</button>
   <button onclick="go('s-book-sessions',this)">Book Trainings</button>
   <div class="label">Booking Flow</div>
-  <button onclick="go('s-booking',this)">Booking Calendar</button>
+  <button onclick="go('s-booking',this);setBookingState('personal')">Booking Calendar</button>
   <button onclick="go('s-group',this)">Group Detail</button>
   <button onclick="go('s-joined',this)">Group Joined</button>
   <button onclick="go('s-full',this)">Group Full</button>
@@ -308,131 +337,9 @@
 
 <!-- ==================== PHONE ==================== -->
 
-<!-- ===== ATHLETE: COACH PROFILE ===== -->
-<div class="fit-phone fit-light active" id="s-coach">
-  <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;">
-      <!-- Back -->
-      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <!-- Share + Favorite -->
-      <div style="display:flex;gap:8px;">
-        <button style="width:32px;height:32px;border-radius:50%;background:.ultraThinMaterial;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--fit-text-primary);background:var(--fit-surface-high);">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-        </button>
-        <button style="width:32px;height:32px;border-radius:50%;background:.ultraThinMaterial;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--fit-text-primary);background:var(--fit-surface-high);">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-        </button>
-      </div>
-    </div>
-  </div>
-  <div class="fit-phone-content">
-    <div class="fit-profile-header">
-      <div class="fit-avatar fit-avatar-lg fit-avatar-brand" style="margin:0 auto 12px;">JM</div>
-      <div class="fit-profile-name">John Miller</div>
-      <div class="fit-profile-location"><svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg> Warsaw, Poland</div>
-      <div class="fit-profile-sports">
-        <span class="fit-sport-chip"><svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>fitness</span>
-        <span class="fit-sport-chip" style="margin-left:6px;"><svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 8l8 8M16 8l-8 8"/></svg>yoga</span>
-      </div>
-    </div>
-
-    <!-- GROUP TRAININGS first -->
-    <div class="fit-section-title" style="margin-top:16px;">Group Trainings</div>
-
-    <!-- HIIT — recurring group, clickable → booking calendar -->
-    <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;" onclick="go('s-booking',document.querySelector('[onclick*=s-booking]'))">
-      <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
-        <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M4.5 12H2M22 12h-2.5M12 4.5V2M12 22v-2.5"/></svg>
-        </div>
-        <div style="flex:1;">
-          <div style="font-size:16px;font-weight:600;">HIIT Group Session</div>
-          <div style="font-size:12px;opacity:0.7;">Tue &amp; Thu, 18:00 &middot; 1h</div>
-        </div>
-        <div style="text-align:right;">
-          <div class="v6d-price" style="font-size:16px;font-weight:600;color:var(--fit-white);">&euro;25</div>
-          <div style="font-size:12px;opacity:0.7;">/person</div>
-        </div>
-      </div>
-      <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;cursor:pointer;border-bottom:1px solid var(--fit-gray-700);">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-        <span style="flex:1;font-size:14px;color:var(--fit-brand-primary);text-decoration:underline;text-underline-offset:2px;">TNT Studio, Riga</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5;"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
-      </div>
-      <div style="padding:12px 16px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            Next: Thu Apr 10
-          </div>
-          <span style="font-size:14px;color:var(--fit-teal-500);font-weight:500;">3/10 spots</span>
-        </div>
-        <button style="width:100%;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Book &middot; &euro;25</button>
-      </div>
-    </div>
-
-    <!-- Boxing Masterclass — one-off special -->
-    <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;border:1px solid var(--fit-brand-primary);cursor:pointer;">
-      <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
-        <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg width="18" height="22" viewBox="0 0 13.6034 19" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M10.926 4.15114C13.0275 4.15114 13.5918 7.01947 12.6882 8.90769C12.2841 9.7528 11.5848 10.4944 11.0259 11.2423C10.4886 11.9587 10.2204 12.3169 9.8676 12.568C9.081 13.1269 8.17019 13.0999 7.24137 13.0999H6.31256C4.02744 13.0999 2.88533 13.0999 2.13022 12.4609C1.37511 11.8219 1.19061 10.7239 0.820703 8.52519C0.617301 7.31647 0.4742 6.10866 0.5039 4.93775C0.557901 2.79392 2.20042 0.988504 4.41714 0.6339C5.47376 0.464698 6.77517 0.448498 7.83088 0.6276C9.7182 0.948004 11.0493 2.57342 10.9179 4.39864C10.8369 5.51015 10.3851 6.65587 10.1034 7.73048M2.30392 12.6499V14.9C2.30392 16.5974 2.30392 17.4452 2.83133 17.9726C3.35783 18.5 4.20654 18.5 5.90396 18.5H6.80397C8.50139 18.5 9.3492 18.5 9.8766 17.9726C10.404 17.4452 10.404 16.5974 10.404 14.9V12.1999M2.30392 15.8H5.00395"/></svg>
-        </div>
-        <div style="flex:1;">
-          <div style="font-size:16px;font-weight:600;">Boxing Masterclass</div>
-          <div style="font-size:12px;opacity:0.7;">Sat, Apr 19, 14:00 &middot; 2h</div>
-        </div>
-        <span class="v6d-special-badge" style="background:rgba(255,255,255,0.15);color:var(--fit-white);padding:3px 8px;border-radius:6px;font-size:12px;font-weight:500;">Special</span>
-      </div>
-      <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;cursor:pointer;border-bottom:1px solid var(--fit-gray-700);">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-        <span style="flex:1;font-size:14px;color:var(--fit-brand-primary);text-decoration:underline;text-underline-offset:2px;">GYM Bro, Riga</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5;"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
-      </div>
-      <div style="padding:12px 16px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <span style="font-size:14px;color:var(--fit-text-secondary);">One-off event</span>
-          <span style="font-size:14px;color:var(--fit-teal-500);font-weight:500;">5/20 spots</span>
-        </div>
-        <button style="width:100%;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Book &middot; &euro;35</button>
-      </div>
-    </div>
-
-    <!-- PERSONAL SESSIONS below -->
-    <div class="fit-section-title" style="margin-top:20px;">Personal Sessions</div>
-
-    <!-- Basketball — personal -->
-    <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;">
-      <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
-        <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>
-        </div>
-        <div style="flex:1;">
-          <div style="font-size:16px;font-weight:600;">Basketball Training</div>
-          <div style="font-size:12px;opacity:0.7;">1h &middot; cash/card</div>
-        </div>
-        <div style="text-align:right;">
-          <div class="v6d-price" style="font-size:16px;font-weight:600;color:var(--fit-white);">&euro;50</div>
-        </div>
-      </div>
-      <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;cursor:pointer;border-bottom:1px solid var(--fit-gray-700);">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-        <span style="flex:1;font-size:14px;color:var(--fit-brand-primary);text-decoration:underline;text-underline-offset:2px;">TNT Studio, Riga</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5;"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
-      </div>
-      <div style="padding:12px 16px;">
-        <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">Personal training</div>
-        <button style="width:100%;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Book &middot; &euro;50</button>
-      </div>
-    </div>
-
-    <div class="fit-section-title" style="margin-top:20px;">About</div>
-    <div class="fit-profile-bio">Certified fitness & yoga coach with 8 years of experience. Multi-sport coach working with tennis, padel, and basketball players. Focused on improving technique, coordination, and game understanding. <span class="fit-see-more">See more</span></div>
-  </div>
-</div>
 
 <!-- ===== ATHLETE: BOOKING CALENDAR (group template → dates) ===== -->
-<div class="fit-phone fit-light" id="s-booking">
+<div class="fit-phone fit-dark bk-personal" id="s-booking">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header" style="justify-content:space-between;">
@@ -459,50 +366,266 @@
     </div>
   </div>
   <div class="fit-phone-content">
-    <!-- Event for selected date (Thu Apr 10) -->
-    <div style="padding:0 16px 8px;" id="booking-date-header">
-      <div style="font-size:14px;font-weight:500;margin-bottom:12px;">Thursday, April 10</div>
+
+    <!-- ===== PERSONAL: expandable hour → minutes slot list ===== -->
+    <div data-booking-state="personal">
+      <div style="padding:0 16px;">
+        <div style="font-size:14px;color:var(--fit-text-tertiary);margin-bottom:12px;">Available slots for Basketball Training · 1h</div>
+
+        <div class="tp-slot-list" id="bk-slot-list">
+
+          <div class="tp-slot" data-hour="08" onclick="bkToggleSlot(this)">
+            <div class="tp-slot-row">
+              <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+              <span class="tp-slot-label">08:00</span>
+              <span class="tp-slot-status"></span>
+              <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="tp-slot-minutes">
+              <div class="min-chip" data-min="00" onclick="bkPickTime('08','00',event)">08:00</div>
+              <div class="min-chip" data-min="15" onclick="bkPickTime('08','15',event)">08:15</div>
+              <div class="min-chip" data-min="30" onclick="bkPickTime('08','30',event)">08:30</div>
+              <div class="min-chip" data-min="45" onclick="bkPickTime('08','45',event)">08:45</div>
+            </div>
+          </div>
+
+          <div class="tp-slot expanded" data-hour="10" onclick="bkToggleSlot(this)">
+            <div class="tp-slot-row selected">
+              <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+              <span class="tp-slot-label">10:00</span>
+              <span class="tp-slot-status"></span>
+              <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="tp-slot-minutes">
+              <div class="min-chip selected" data-min="00" onclick="bkPickTime('10','00',event)">10:00</div>
+              <div class="min-chip" data-min="15" onclick="bkPickTime('10','15',event)">10:15</div>
+              <div class="min-chip" data-min="30" onclick="bkPickTime('10','30',event)">10:30</div>
+              <div class="min-chip" data-min="45" onclick="bkPickTime('10','45',event)">10:45</div>
+            </div>
+          </div>
+
+          <div class="tp-slot tp-slot-busy" data-hour="12">
+            <div class="tp-slot-row">
+              <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+              <span class="tp-slot-label">12:00</span>
+              <span class="tp-slot-busy-label">Busy · HIIT Group</span>
+            </div>
+          </div>
+
+          <div class="tp-slot" data-hour="14" onclick="bkToggleSlot(this)">
+            <div class="tp-slot-row">
+              <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+              <span class="tp-slot-label">14:00</span>
+              <span class="tp-slot-status"></span>
+              <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="tp-slot-minutes">
+              <div class="min-chip" data-min="00" onclick="bkPickTime('14','00',event)">14:00</div>
+              <div class="min-chip" data-min="15" onclick="bkPickTime('14','15',event)">14:15</div>
+              <div class="min-chip disabled" data-min="30">14:30</div>
+              <div class="min-chip disabled" data-min="45">14:45</div>
+            </div>
+          </div>
+
+          <div class="tp-slot" data-hour="16" onclick="bkToggleSlot(this)">
+            <div class="tp-slot-row">
+              <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+              <span class="tp-slot-label">16:00</span>
+              <span class="tp-slot-status"></span>
+              <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="tp-slot-minutes">
+              <div class="min-chip" data-min="00" onclick="bkPickTime('16','00',event)">16:00</div>
+              <div class="min-chip" data-min="15" onclick="bkPickTime('16','15',event)">16:15</div>
+              <div class="min-chip" data-min="30" onclick="bkPickTime('16','30',event)">16:30</div>
+              <div class="min-chip" data-min="45" onclick="bkPickTime('16','45',event)">16:45</div>
+            </div>
+          </div>
+
+          <div class="tp-slot" data-hour="18" onclick="bkToggleSlot(this)">
+            <div class="tp-slot-row">
+              <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+              <span class="tp-slot-label">18:00</span>
+              <span class="tp-slot-status"></span>
+              <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="tp-slot-minutes">
+              <div class="min-chip" data-min="00" onclick="bkPickTime('18','00',event)">18:00</div>
+              <div class="min-chip" data-min="15" onclick="bkPickTime('18','15',event)">18:15</div>
+              <div class="min-chip" data-min="30" onclick="bkPickTime('18','30',event)">18:30</div>
+              <div class="min-chip" data-min="45" onclick="bkPickTime('18','45',event)">18:45</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
-    <!-- Empty state (hidden by default) -->
-    <div class="fit-empty-state" id="booking-empty">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-      <div class="fit-empty-state-title">No sessions on this date</div>
-      Select a highlighted date to see available sessions.
+
+    <!-- ===== GROUP: upcoming session blocks ===== -->
+    <div data-booking-state="group">
+      <div style="font-size:14px;color:var(--fit-text-tertiary);padding:0 16px 16px;">Upcoming sessions for HIIT Group Session</div>
+
+      <!-- Available group session (selected) -->
+      <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;border:1px solid var(--fit-teal-600);cursor:pointer;">
+        <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+          <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:600;">HIIT Group Session</div>
+            <div style="font-size:12px;opacity:0.7;">Tue, Apr 14 · 18:00 – 19:00</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:16px;font-weight:600;color:var(--fit-white);">€25</div>
+            <div style="font-size:12px;opacity:0.7;">/person</div>
+          </div>
+        </div>
+        <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">TNT Studio</span>
+          <span style="font-size:14px;color:var(--fit-teal-500);font-weight:500;">3/10 spots</span>
+        </div>
+      </div>
+
+      <!-- Next session (not selected) -->
+      <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;">
+        <div style="background:var(--fit-surface-high);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+          <div style="width:40px;height:40px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--fit-text-secondary);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">HIIT Group Session</div>
+            <div class="fit-meta-text">Thu, Apr 16 · 18:00 – 19:00</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">€25</div>
+            <div class="fit-meta-text">/person</div>
+          </div>
+        </div>
+        <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">TNT Studio</span>
+          <span style="font-size:14px;color:var(--fit-teal-500);font-weight:500;">7/10 spots</span>
+        </div>
+      </div>
+
+      <!-- Full session (not bookable) -->
+      <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;opacity:0.6;">
+        <div style="background:var(--fit-surface-high);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+          <div style="width:40px;height:40px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--fit-text-secondary);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">HIIT Group Session</div>
+            <div class="fit-meta-text">Tue, Apr 21 · 18:00 – 19:00</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">€25</div>
+            <div class="fit-meta-text">/person</div>
+          </div>
+        </div>
+        <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">TNT Studio</span>
+          <span style="font-size:14px;color:var(--fit-red-400);font-weight:500;">Full · 10/10</span>
+        </div>
+      </div>
     </div>
-    <div class="v6d-card" id="booking-event" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;" onclick="go('s-group',document.querySelector('[onclick*=s-group]'))">
-      <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
-        <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-        </div>
-        <div style="flex:1;">
-          <div style="font-size:16px;font-weight:600;">HIIT Group Session</div>
-          <div style="font-size:14px;opacity:0.8;">John Miller</div>
-          <div style="font-size:12px;opacity:0.7;">18:00 – 19:00</div>
-        </div>
-        <div style="text-align:right;">
-          <div class="v6d-price" style="font-size:16px;font-weight:600;color:var(--fit-white);">€25</div>
-          <div style="font-size:12px;opacity:0.7;">/person</div>
+
+    <!-- ===== EMPTY: no availability on selected day ===== -->
+    <div data-booking-state="empty" style="padding:48px 24px 32px;text-align:center;">
+      <svg style="width:56px;height:56px;color:var(--fit-gray-600);margin-bottom:16px;" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="32" cy="32" r="22"/>
+        <path d="M32 20v12l8 6"/>
+        <path d="M21 21l22 22"/>
+      </svg>
+      <div style="font-size:16px;font-weight:500;color:var(--fit-text-secondary);margin-bottom:6px;">No slots available</div>
+      <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:280px;margin:0 auto;">All slots on this day are taken or outside the coach&rsquo;s working hours. Pick another date on the strip above &mdash; days with availability are highlighted.</div>
+    </div>
+
+    <!-- ===== LOADING ===== -->
+    <div data-booking-state="loading">
+      <div style="padding:0 16px 12px;">
+        <div class="sk-line short sk-shimmer" style="width:50%;"></div>
+      </div>
+      <div class="sk-card slot"><div class="sk-row"><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:40%;"></div></div><div class="sk-line short sk-shimmer" style="width:60px;"></div></div></div>
+      <div class="sk-card slot"><div class="sk-row"><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:38%;"></div></div><div class="sk-line short sk-shimmer" style="width:60px;"></div></div></div>
+      <div class="sk-card slot"><div class="sk-row"><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:42%;"></div></div><div class="sk-line short sk-shimmer" style="width:60px;"></div></div></div>
+      <div class="sk-card slot"><div class="sk-row"><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:35%;"></div></div><div class="sk-line short sk-shimmer" style="width:60px;"></div></div></div>
+    </div>
+
+    <!-- ===== ERROR ===== -->
+    <div data-booking-state="error" style="padding-top:24px;">
+      <div class="fit-inline-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span class="fit-inline-error-body">Can&rsquo;t load available slots. Check your connection.</span>
+        <button class="fit-inline-error-retry">Retry</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
+    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" id="booking-confirm-cta" onclick="document.getElementById('booking-confirm-sheet').classList.add('visible');">Confirm · 10:00 – 11:00</button>
+  </div>
+
+  <!-- Booking confirm bottom sheet (personal) -->
+  <div class="fit-sheet-overlay" id="booking-confirm-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;color:var(--fit-text-primary);margin-bottom:20px;">Review &amp; Send</div>
+
+      <!-- Coach identity -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-brand-gradient);color:var(--fit-white);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0;">JM</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;margin-bottom:1px;">Booking with</div>
+          <div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">John Miller</div>
         </div>
       </div>
-      <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--fit-divider);">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-        <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">TNT Studio</span>
-      </div>
-      <div style="padding:14px 16px 18px;">
-        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
-          <span style="color:var(--fit-text-tertiary);">Participants</span>
-          <span style="color:var(--fit-teal-500);font-weight:500;">3 / 10</span>
+
+      <!-- Session summary -->
+      <div style="background:var(--fit-surface-high);border-radius:12px;padding:14px;margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Basketball Training</span>
+          <span class="fit-cal-event-pill fit-cal-event-pill--request">Request</span>
         </div>
-        <div class="progress-track" style="height:6px;border-radius:3px;background:var(--fit-gray-700);overflow:hidden;">
-          <div style="width:30%;height:100%;border-radius:3px;background:var(--fit-brand-gradient);"></div>
+        <div style="font-size:14px;color:var(--fit-text-tertiary);display:flex;flex-direction:column;gap:4px;">
+          <span>Tue, Apr 7 &middot; 10:00 &ndash; 11:00 (1h)</span>
+          <span>TNT Studio</span>
         </div>
       </div>
+
+      <!-- Note -->
+      <div class="fit-input-group" style="padding:0;margin-bottom:16px;">
+        <span class="fit-input-label">Note for the coach <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+        <textarea id="booking-comment-ta" class="fit-input-ta" maxlength="300" oninput="updateBookingCommentCounter()" placeholder="Anything the coach should know — injuries, goals, level…" style="min-height:72px;"></textarea>
+        <div class="fit-input-counter" id="booking-comment-counter">0 / 300</div>
+      </div>
+
+      <!-- Price row -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--fit-divider);">
+        <span style="font-size:15px;color:var(--fit-text-primary);">Price</span>
+        <span style="font-size:18px;font-weight:500;color:var(--fit-text-primary);">&euro;50.00</span>
+      </div>
+
+      <!-- Hold info -->
+      <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0 20px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        <span style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.5;">&euro;50 held from your balance &middot; refunded if coach declines. Coach has 24h to approve.</span>
+      </div>
+
+      <!-- CTA -->
+      <button class="fit-btn fit-btn-primary" onclick="sendBookingRequest()" style="border-radius:99px;">Send Request &middot; &euro;50</button>
     </div>
   </div>
+
+  <!-- Snackbar -->
+  <div class="fit-snackbar" id="booking-snackbar">Request sent &middot; coach has 24h to approve</div>
 </div>
 
 <!-- ===== ATHLETE: GROUP DETAIL ===== -->
-<div class="fit-phone fit-light" id="s-group">
+<div class="fit-phone fit-dark" id="s-group">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -607,7 +730,7 @@
       </div>
 
       <!-- CTA -->
-      <button class="fit-btn fit-btn-primary" onclick="document.getElementById('join-confirm-sheet').classList.remove('visible');" style="border-radius:99px;">Continue · &euro;25</button>
+      <button class="fit-btn fit-btn-primary" onclick="sendGroupJoin()" style="border-radius:99px;">Continue · &euro;25</button>
     </div>
   </div>
 
@@ -615,7 +738,7 @@
 </div>
 
 <!-- ===== ATHLETE: GROUP JOINED ===== -->
-<div class="fit-phone fit-light" id="s-joined">
+<div class="fit-phone fit-dark" id="s-joined">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -679,7 +802,7 @@
 </div>
 
 <!-- ===== ATHLETE: GROUP FULL ===== -->
-<div class="fit-phone fit-light" id="s-full">
+<div class="fit-phone fit-dark" id="s-full">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -739,7 +862,7 @@
 </div>
 
 <!-- ===== COACH PROFILE V2 (video layout) ===== -->
-<div class="fit-phone fit-light cv-established" id="s-coach-v2">
+<div class="fit-phone fit-dark active cv-established" id="s-coach-v2">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
   </div>
@@ -754,8 +877,8 @@
         <button style="width:32px;height:32px;border-radius:50%;background:var(--fit-surface-high);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--fit-text-primary);">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
         </button>
-        <button style="width:32px;height:32px;border-radius:50%;background:var(--fit-surface-high);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--fit-text-primary);">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        <button id="coach-heart-btn" class="coach-heart" aria-label="Save coach" onclick="toggleCoachHeart()" style="width:32px;height:32px;border-radius:50%;background:var(--fit-surface-high);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--fit-text-primary);transition:color 0.15s, background 0.15s;">
+          <svg id="coach-heart-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
         </button>
       </div>
     </div>
@@ -797,24 +920,24 @@
 
     <!-- Stats row -->
     <div class="cv-established-only" style="display:flex;justify-content:space-around;padding:12px 16px;margin:0 16px 28px;border-radius:12px;background:var(--fit-surface-high);">
-      <div style="text-align:center;">
+      <div onclick="go('s-reviews', document.querySelector('.sidebar button[onclick*=s-reviews]'))" style="text-align:center;cursor:pointer;flex:1;">
         <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">4.8</div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);">Rating</div>
+        <div class="fit-meta-text">Rating</div>
       </div>
-      <div style="width:1px;background:var(--fit-divider);"></div>
-      <div style="text-align:center;">
+      <div class="fit-vdivider"></div>
+      <div onclick="go('s-reviews', document.querySelector('.sidebar button[onclick*=s-reviews]'))" style="text-align:center;cursor:pointer;flex:1;">
         <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">42</div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);">Reviews</div>
+        <div class="fit-meta-text">Reviews</div>
       </div>
-      <div style="width:1px;background:var(--fit-divider);"></div>
-      <div style="text-align:center;">
+      <div class="fit-vdivider"></div>
+      <div style="text-align:center;flex:1;">
         <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">156</div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);">Sessions</div>
+        <div class="fit-meta-text">Sessions</div>
       </div>
-      <div style="width:1px;background:var(--fit-divider);"></div>
-      <div style="text-align:center;">
+      <div class="fit-vdivider"></div>
+      <div style="text-align:center;flex:1;">
         <div style="font-size:18px;font-weight:600;color:var(--fit-teal-500);">&euro;25</div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);">Price from</div>
+        <div class="fit-meta-text">Price from</div>
       </div>
     </div>
 
@@ -822,27 +945,27 @@
     <div class="cv-new-only-flex" style="justify-content:space-around;padding:12px 16px;margin:0 16px 28px;border-radius:12px;background:var(--fit-surface-high);">
       <div style="text-align:center;">
         <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">&mdash;</div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);">Rating</div>
+        <div class="fit-meta-text">Rating</div>
       </div>
-      <div style="width:1px;background:var(--fit-divider);"></div>
+      <div class="fit-vdivider"></div>
       <div style="text-align:center;">
         <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">0</div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);">Reviews</div>
+        <div class="fit-meta-text">Reviews</div>
       </div>
-      <div style="width:1px;background:var(--fit-divider);"></div>
+      <div class="fit-vdivider"></div>
       <div style="text-align:center;">
         <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">0</div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);">Sessions</div>
+        <div class="fit-meta-text">Sessions</div>
       </div>
-      <div style="width:1px;background:var(--fit-divider);"></div>
+      <div class="fit-vdivider"></div>
       <div style="text-align:center;">
         <div style="font-size:18px;font-weight:600;color:var(--fit-teal-500);">&euro;25</div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);">Price from</div>
+        <div class="fit-meta-text">Price from</div>
       </div>
     </div>
 
     <!-- My Sports -->
-    <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);padding:0 16px;margin-bottom:10px;">My Sports</div>
+    <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);padding:0 16px;margin-bottom:10px;">Sports</div>
     <div style="display:flex;gap:6px;padding:0 16px 28px;flex-wrap:wrap;">
       <span class="fit-sport-chip"><svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>fitness</span>
       <span class="fit-sport-chip" style="margin-left:0;"><svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 8l8 8M16 8l-8 8"/></svg>yoga</span>
@@ -850,15 +973,53 @@
     </div>
 
     <!-- About Me -->
-    <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);padding:0 16px;margin-bottom:10px;">About Me</div>
-    <div class="fit-profile-bio" style="padding:0 16px 28px;">Certified fitness & yoga coach with 8 years of experience. Multi-sport coach working with tennis, padel, and basketball players. Focused on improving technique, coordination, and game understanding. <span class="fit-see-more">See more</span></div>
+    <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);padding:0 16px;margin-bottom:10px;">About</div>
+    <div class="fit-profile-bio about-bio" id="about-bio" style="padding:0 16px 28px;">
+      <span class="about-bio-text" id="about-bio-text">Certified fitness &amp; yoga coach with 8 years of experience. Multi-sport coach working with tennis, padel, and basketball players. Focused on improving technique, coordination, and game understanding. Specialised in functional movement, mobility, and progressive strength building. Worked with junior national teams and adult amateurs alike. Sessions are structured but adaptive — we build your plan around your goals, schedule and body. Trial sessions available for new athletes.</span>
+      <span class="fit-see-more" id="about-bio-toggle" onclick="toggleAboutBio()">See more</span>
+    </div>
+
+    <!-- Languages -->
+    <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);padding:0 16px;margin-bottom:10px;">Languages</div>
+    <div style="display:flex;gap:6px;padding:0 16px 28px;flex-wrap:wrap;">
+      <span class="fit-sport-chip" style="margin-left:0;">🇬🇧 English</span>
+      <span class="fit-sport-chip" style="margin-left:0;">🇵🇱 Polski</span>
+    </div>
+
+    <!-- Locations (read-only summary) -->
+    <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);padding:0 16px;margin-bottom:10px;">Trains at</div>
+    <div style="padding:0 16px 28px;display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--fit-surface-high);border-radius:12px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">TNT Studio</div>
+          <div class="fit-meta-text">Riga · 2.4 km</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--fit-surface-high);border-radius:12px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Park Łazienki</div>
+          <div class="fit-meta-text">Warsaw · 3.8 km · outdoor</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--fit-surface-high);border-radius:12px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Online</div>
+          <div class="fit-meta-text">Zoom · Google Meet</div>
+        </div>
+      </div>
+    </div>
+
 
     <!-- Reviews -->
     <div style="display:flex;justify-content:space-between;align-items:center;padding:0 16px;margin-bottom:12px;">
       <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Reviews</div>
-      <div class="cv-established-only" style="display:flex;align-items:center;gap:4px;font-size:14px;color:var(--fit-text-tertiary);">
+      <div class="cv-established-only" onclick="go('s-reviews', document.querySelector('.sidebar button[onclick*=s-reviews]'))" style="display:flex;align-items:center;gap:4px;font-size:14px;color:var(--fit-text-tertiary);cursor:pointer;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--fit-teal-500)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         4.8 &middot; 42 reviews
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:2px;"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     </div>
     <!-- Reviews empty state (new coach) -->
@@ -876,7 +1037,7 @@
           <div style="width:32px;height:32px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--fit-white);flex-shrink:0;">AK</div>
           <div style="flex:1;min-width:0;">
             <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Anna K.</div>
-            <div style="font-size:12px;color:var(--fit-text-tertiary);">2 weeks ago</div>
+            <div class="fit-meta-text">2 weeks ago</div>
           </div>
         </div>
         <div style="display:flex;gap:2px;margin-bottom:8px;">
@@ -887,7 +1048,7 @@
           <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--fit-teal-500)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         </div>
         <div style="font-size:14px;line-height:1.5;color:var(--fit-text-secondary);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;">Amazing energy! John pushes you hard but keeps it fun. The HIIT sessions are exactly what I needed. Would definitely recommend to anyone looking for a great workout.</div>
-        <div style="font-size:14px;font-weight:500;color:var(--fit-brand-primary);margin-top:8px;cursor:pointer;">Show more</div>
+        <div onclick="go('s-reviews', document.querySelector('.sidebar button[onclick*=s-reviews]'))" style="font-size:14px;font-weight:500;color:var(--fit-brand-primary);margin-top:8px;cursor:pointer;">Show more</div>
       </div>
       <!-- Review 2 -->
       <div style="width:280px;padding:14px;border-radius:14px;background:var(--fit-surface-high);flex-shrink:0;scroll-snap-align:start;display:flex;flex-direction:column;">
@@ -895,7 +1056,7 @@
           <div style="width:32px;height:32px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--fit-white);flex-shrink:0;">MR</div>
           <div style="flex:1;min-width:0;">
             <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Mike R.</div>
-            <div style="font-size:12px;color:var(--fit-text-tertiary);">1 month ago</div>
+            <div class="fit-meta-text">1 month ago</div>
           </div>
         </div>
         <div style="display:flex;gap:2px;margin-bottom:8px;">
@@ -906,7 +1067,7 @@
           <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--fit-text-tertiary)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         </div>
         <div style="font-size:14px;line-height:1.5;color:var(--fit-text-secondary);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;">Great boxing technique coaching. Very patient and explains every movement clearly. Helped me improve my form significantly in just a few sessions.</div>
-        <div style="font-size:14px;font-weight:500;color:var(--fit-brand-primary);margin-top:8px;cursor:pointer;">Show more</div>
+        <div onclick="go('s-reviews', document.querySelector('.sidebar button[onclick*=s-reviews]'))" style="font-size:14px;font-weight:500;color:var(--fit-brand-primary);margin-top:8px;cursor:pointer;">Show more</div>
       </div>
       <!-- Review 3 -->
       <div style="width:280px;padding:14px;border-radius:14px;background:var(--fit-surface-high);flex-shrink:0;scroll-snap-align:start;display:flex;flex-direction:column;">
@@ -914,7 +1075,7 @@
           <div style="width:32px;height:32px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--fit-white);flex-shrink:0;">SL</div>
           <div style="flex:1;min-width:0;">
             <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Sarah L.</div>
-            <div style="font-size:12px;color:var(--fit-text-tertiary);">2 months ago</div>
+            <div class="fit-meta-text">2 months ago</div>
           </div>
         </div>
         <div style="display:flex;gap:2px;margin-bottom:8px;">
@@ -925,10 +1086,10 @@
           <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--fit-teal-500)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         </div>
         <div style="font-size:14px;line-height:1.5;color:var(--fit-text-secondary);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;">The yoga morning flow is perfect. Calm, structured, and really helps me start the day right. I've been going for 3 months and can already feel the difference.</div>
-        <div style="font-size:14px;font-weight:500;color:var(--fit-brand-primary);margin-top:8px;cursor:pointer;">Show more</div>
+        <div onclick="go('s-reviews', document.querySelector('.sidebar button[onclick*=s-reviews]'))" style="font-size:14px;font-weight:500;color:var(--fit-brand-primary);margin-top:8px;cursor:pointer;">Show more</div>
       </div>
       <!-- Show all reviews card -->
-      <div style="width:280px;padding:14px;border-radius:14px;background:var(--fit-surface-high);flex-shrink:0;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;">
+      <div onclick="go('s-reviews', document.querySelector('.sidebar button[onclick*=s-reviews]'))" style="width:280px;padding:14px;border-radius:14px;background:var(--fit-surface-high);flex-shrink:0;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
         <div style="font-size:16px;font-weight:500;color:var(--fit-brand-primary);">Show all 42 reviews</div>
       </div>
@@ -949,7 +1110,7 @@
 
 
 <!-- ===== ALL REVIEWS ===== -->
-<div class="fit-phone fit-light" id="s-reviews">
+<div class="fit-phone fit-dark" id="s-reviews">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -971,7 +1132,7 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--fit-teal-500)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--fit-teal-500)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         </div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);">42 reviews</div>
+        <div class="fit-meta-text">42 reviews</div>
       </div>
       <!-- Breakdown bars -->
       <div style="flex:1;display:flex;flex-direction:column;gap:5px;padding-top:4px;">
@@ -1015,7 +1176,7 @@
         <div style="width:36px;height:36px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);">AK</div>
         <div style="flex:1;">
           <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Anna K.</div>
-          <div style="font-size:12px;color:var(--fit-text-tertiary);">2 weeks ago</div>
+          <div class="fit-meta-text">2 weeks ago</div>
         </div>
       </div>
       <div style="display:flex;gap:2px;margin-bottom:8px;">
@@ -1034,7 +1195,7 @@
         <div style="width:36px;height:36px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);">MR</div>
         <div style="flex:1;">
           <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Mike R.</div>
-          <div style="font-size:12px;color:var(--fit-text-tertiary);">1 month ago</div>
+          <div class="fit-meta-text">1 month ago</div>
         </div>
       </div>
       <div style="display:flex;gap:2px;margin-bottom:8px;">
@@ -1053,7 +1214,7 @@
         <div style="width:36px;height:36px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);">SL</div>
         <div style="flex:1;">
           <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Sarah L.</div>
-          <div style="font-size:12px;color:var(--fit-text-tertiary);">2 months ago</div>
+          <div class="fit-meta-text">2 months ago</div>
         </div>
       </div>
       <div style="display:flex;gap:2px;margin-bottom:8px;">
@@ -1074,7 +1235,7 @@
 
 
 <!-- ===== BOOK SESSIONS (Personal / Group tabs) ===== -->
-<div class="fit-phone fit-light" id="s-book-sessions">
+<div class="fit-phone fit-dark" id="s-book-sessions">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -1214,9 +1375,29 @@
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
   <div class="ann active" id="ann-s-coach"><span class="ann-role athlete">Athlete</span><h3>Coach Profile</h3><p>Two-level layout: <strong>Group Trainings first</strong> (templates with schedule), Personal Sessions below, About last.</p><ul><li>Group templates show recurring schedule ("Tue & Thu, 18:00")</li><li>"Next: Thu Apr 10 · 3/10 spots" — quick preview</li><li>One-off events get <strong>"Special" badge</strong> + highlighted border</li><li>Chevron ">" on all cards — tappable</li><li>Tap group template → <strong>booking calendar</strong></li><li>Tap personal template → existing booking flow</li></ul><hr><p class="note">Group first = lower barrier to entry (no approval needed)</p></div>
-  <div class="ann" id="ann-s-booking"><span class="ann-role athlete">Athlete</span><h3>Booking Calendar</h3>
-    <div class="state-toggle"><button class="active" onclick="toggleBookingState('filled',this)">Has Events</button><button onclick="toggleBookingState('empty',this)">No Events</button></div>
-    <p>Reuses existing booking calendar UI. Filtered by template.</p><ul><li>Available dates — gradient circles</li><li>Tap date → scroll to event card</li><li><strong>Empty:</strong> "No sessions on this date"</li></ul></div>
+  <div class="ann" id="ann-s-booking"><span class="ann-role athlete">Athlete</span>
+    <div class="state-toggle">
+      <button class="active" onclick="setBookingState('personal');annHighlight(this)">Personal slots</button>
+      <button onclick="setBookingState('group');annHighlight(this)">Group sessions</button>
+      <button onclick="setBookingState('empty');annHighlight(this)">No slots</button>
+      <button onclick="setBookingState('loading');annHighlight(this)">Loading</button>
+      <button onclick="setBookingState('error');annHighlight(this)">Error</button>
+    </div>
+    <h3>Booking Calendar</h3>
+    <p>Date strip in header + state-aware content list. Sticky Confirm CTA at bottom opens <strong>Booking Confirm sheet</strong> for review &amp; send.</p>
+    <ul>
+      <li><strong>Personal</strong> — expandable hour rows (08:00 ▾) with :00/:15/:30/:45 minute chips. Busy hours dimmed with event name.</li>
+      <li><strong>Group</strong> — upcoming session blocks of the picked template, each with date+time+spots. Tap = open confirm sheet.</li>
+      <li><strong>No slots</strong> — empty state with hint to pick another date</li>
+      <li><strong>Loading</strong> — skeleton slot cards</li>
+      <li><strong>Error</strong> — inline banner with Retry</li>
+    </ul>
+    <hr>
+    <p><strong>Confirm sheet</strong> — bottom sheet opened by Confirm CTA. Contains coach identity + session card + optional Note textarea + price + payment hold info + Send Request CTA. Unified pattern with athlete Group join sheet and coach invite/schedule sheets. Memory: <code>feedback_booking_confirm_pattern</code>.</p>
+    <p>
+      <button class="dash-cta-secondary" style="height:32px;padding:0 14px;font-size:13px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-text-primary);border-radius:99px;cursor:pointer;font-family:var(--fit-font);" onclick="setBookingState('personal');setTimeout(function(){document.getElementById('booking-confirm-sheet').classList.add('visible');},80)">Open confirm sheet →</button>
+    </p>
+  </div>
   <div class="ann" id="ann-s-group"><span class="ann-role athlete">Athlete</span><h3>Group Training Detail</h3><p>Before joining. Ticket card with coach info, tappable participant list.</p><ul><li>Chevron ">" hints tappable rows</li><li>Tap → sheet (View Profile, Message)</li><li><strong>Join Training · €25</strong> — sticky CTA</li></ul><span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Full flow details</span><div class="ann-detail"><h4>Before Join — checks</h4><p>Athlete cannot join if: training is full, they have a conflicting event at this time, or balance insufficient (card).</p><h4>Confirmation Modal</h4><p>Tap "Join" → bottom sheet: training summary, price, payment method (Visa ••••), cancellation policy (24h free). Tap "Continue" → registered.</p><h4>Payment</h4><p>Card: amount held from balance immediately. Cash: just registration, no hold. Coach marks cash payment after training.</p><h4>After Join</h4><p>Navigates to "Joined" screen. User first in list with "You" label + gradient avatar. Event added to athlete schedule with "Group" badge.</p><h4>Cancellation</h4><p>24h+ before: free cancel, full refund. Less than 24h: penalty applies (same policy as personal).</p></div></div>
   <div class="ann" id="ann-s-joined"><span class="ann-role athlete">Athlete</span><h3>Group — Joined</h3><p>After joining. Current user first with "You" label and gradient avatar.</p><ul><li>Green "Joined" badge</li><li>You = first in list, branded avatar</li><li>Other participants tappable</li><li>Leave Training — red, refund within 24h</li></ul></div>
   <div class="ann" id="ann-s-full"><span class="ann-role athlete">Athlete</span><h3>Group — Full</h3><p>All spots taken. Cannot join — disabled button.</p><ul><li>Red progress bar at 100%</li><li>Collapsed participant list (+12 more)</li><li>No waitlist in V1</li></ul></div>
@@ -1273,6 +1454,111 @@ function go(id, btn) {
   if (ann) ann.classList.add('active');
   // Re-init FitUI for newly visible screen
   FitUI.initAll(document.getElementById(id));
+}
+
+var bkHour = '10', bkMin = '00';
+function bkToggleSlot(slot) {
+  if (slot.classList.contains('tp-slot-busy')) return;
+  var wasExpanded = slot.classList.contains('expanded');
+  document.querySelectorAll('#bk-slot-list .tp-slot').forEach(function(s) { s.classList.remove('expanded'); });
+  if (!wasExpanded) {
+    slot.classList.add('expanded');
+    var first = slot.querySelector('.min-chip:not(.disabled)');
+    if (first) {
+      var min = first.getAttribute('data-min');
+      document.querySelectorAll('#bk-slot-list .tp-slot-row').forEach(function(r) { r.classList.remove('selected'); });
+      document.querySelectorAll('#bk-slot-list .min-chip').forEach(function(c) { c.classList.remove('selected'); });
+      slot.querySelector('.tp-slot-row').classList.add('selected');
+      first.classList.add('selected');
+      bkHour = slot.getAttribute('data-hour');
+      bkMin = min;
+      bkUpdateConfirmCta();
+    }
+  }
+}
+function bkPickTime(h, m, ev) {
+  if (ev) ev.stopPropagation();
+  document.querySelectorAll('#bk-slot-list .min-chip').forEach(function(c) { c.classList.remove('selected'); });
+  document.querySelectorAll('#bk-slot-list .tp-slot-row').forEach(function(r) { r.classList.remove('selected'); });
+  if (ev && ev.target) ev.target.classList.add('selected');
+  var slot = document.querySelector('#bk-slot-list .tp-slot[data-hour="' + h + '"]');
+  if (slot) slot.querySelector('.tp-slot-row').classList.add('selected');
+  bkHour = h; bkMin = m;
+  bkUpdateConfirmCta();
+}
+function bkUpdateConfirmCta() {
+  var cta = document.getElementById('booking-confirm-cta');
+  if (!cta) return;
+  var startH = parseInt(bkHour, 10);
+  var startM = bkMin;
+  var endH = (startH + 1).toString().padStart(2, '0');
+  cta.textContent = 'Confirm · ' + bkHour + ':' + startM + ' – ' + endH + ':' + startM;
+}
+
+function sendGroupJoin() {
+  var sheet = document.getElementById('join-confirm-sheet');
+  if (sheet) sheet.classList.remove('visible');
+  setTimeout(function(){ location.href = '../athlete/calendar.html'; }, 400);
+}
+
+function sendBookingRequest() {
+  // Dismiss sheet
+  var sheet = document.getElementById('booking-confirm-sheet');
+  if (sheet) sheet.classList.remove('visible');
+  // Show snackbar
+  var snack = document.getElementById('booking-snackbar');
+  if (snack) {
+    snack.classList.add('show');
+    setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+  }
+  // Redirect to athlete Calendar (so athlete sees pending request in schedule)
+  setTimeout(function(){ location.href = '../athlete/calendar.html'; }, 600);
+}
+
+function updateBookingCommentCounter() {
+  var ta = document.getElementById('booking-comment-ta');
+  var counter = document.getElementById('booking-comment-counter');
+  if (!ta || !counter) return;
+  counter.textContent = (ta.value.length || 0) + ' / 300';
+}
+
+function setBookingState(state) {
+  var el = document.getElementById('s-booking');
+  if (!el) return;
+  el.classList.remove('bk-personal','bk-group','bk-empty','bk-loading','bk-error');
+  el.classList.add('bk-' + state);
+  var cta = document.getElementById('booking-confirm-cta');
+  if (cta) {
+    if (state === 'personal') bkUpdateConfirmCta();
+    else if (state === 'group') cta.textContent = 'Confirm · Tue Apr 14 · 18:00';
+  }
+}
+
+function setMaturity(level) {
+  var el = document.getElementById('s-coach-v2');
+  if (!el) return;
+  el.classList.remove('cv-established','cv-new-video','cv-new-image','cv-new-default');
+  el.classList.add(level === 'new' ? 'cv-new-default' : 'cv-established');
+}
+
+function toggleAboutBio() {
+  var wrap = document.getElementById('about-bio');
+  var toggle = document.getElementById('about-bio-toggle');
+  if (!wrap || !toggle) return;
+  wrap.classList.toggle('expanded');
+  toggle.textContent = wrap.classList.contains('expanded') ? 'See less' : 'See more';
+}
+
+function toggleCoachHeart() {
+  var btn = document.getElementById('coach-heart-btn');
+  if (!btn) return;
+  btn.classList.toggle('saved');
+}
+
+function annHighlight(btn) {
+  if (!btn) return;
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
 }
 
 function toggleBookingState(state, btn) {

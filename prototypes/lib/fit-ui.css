@@ -1079,6 +1079,104 @@
 .fit-toggle.on::after { transform: translateX(20px); }
 
 /* ============================================================
+   UTILITY CLASSES — spacing, typography, layout primitives
+
+   Use these to avoid duplicating common inline patterns
+   in prototypes. Token-aligned spacing scale.
+   ============================================================ */
+
+/* Content padding (16px sides) — replaces inline `padding: 0 16px;` */
+.fit-px { padding-left: var(--fit-sp-4); padding-right: var(--fit-sp-4); }
+.fit-py { padding-top: var(--fit-sp-4); padding-bottom: var(--fit-sp-4); }
+
+/* Flex column with vertical gap — replaces inline `display:flex;flex-direction:column;gap:N` */
+.fit-col-stack { display: flex; flex-direction: column; }
+.fit-col-stack.gap-1 { gap: var(--fit-sp-1); }
+.fit-col-stack.gap-2 { gap: var(--fit-sp-2); }
+.fit-col-stack.gap-3 { gap: var(--fit-sp-3); }
+.fit-col-stack.gap-4 { gap: var(--fit-sp-4); }
+
+/* Row with center alignment + gap — replaces inline `display:flex;align-items:center;gap:N` */
+.fit-row { display: flex; align-items: center; }
+.fit-row.gap-1 { gap: var(--fit-sp-1); }
+.fit-row.gap-2 { gap: var(--fit-sp-2); }
+.fit-row.gap-3 { gap: var(--fit-sp-3); }
+.fit-row.gap-4 { gap: var(--fit-sp-4); }
+
+/* Meta text — 12px, tertiary color (sub-info, captions) */
+.fit-meta-text {
+  font-size: 12px; color: var(--fit-text-tertiary);
+}
+
+/* Caption text — 14px, tertiary (paragraph sub-labels) */
+.fit-caption {
+  font-size: 14px; color: var(--fit-text-tertiary);
+  line-height: 1.5;
+}
+
+/* Vertical divider line — replaces inline `width:1px;background:var(--fit-divider)` */
+.fit-vdivider {
+  width: 1px;
+  background: var(--fit-divider);
+  align-self: stretch;
+}
+
+/* ============================================================
+   INPUT — TEXTAREA (note / comment field)
+   ============================================================ */
+.fit-input-ta {
+  width: 100%; min-height: 80px;
+  padding: 14px 16px;
+  background: var(--fit-surface-low);
+  border: none; border-radius: var(--fit-radius-md);
+  color: var(--fit-text-primary);
+  font-family: var(--fit-font); font-size: 16px; line-height: 1.35;
+  resize: none; outline: none; box-sizing: border-box;
+}
+.fit-dark .fit-input-ta { background: var(--fit-black); }
+.fit-input-ta::placeholder { color: var(--fit-text-placeholder); }
+.fit-input-ta:focus { outline: 1px solid var(--fit-divider); }
+
+.fit-input-counter {
+  display: flex; justify-content: flex-end;
+  margin-top: 6px;
+  font-size: 12px; color: var(--fit-text-tertiary);
+}
+.fit-input-counter.at-limit { color: var(--fit-red-400); }
+
+/* ============================================================
+   INLINE ERROR BANNER (network failure / form-level error)
+   ============================================================ */
+.fit-inline-error {
+  display: flex; align-items: center; gap: 10px;
+  margin: 0 16px 12px; padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(240,92,91,0.08);
+  border: 1px solid rgba(240,92,91,0.2);
+  font-size: 14px; color: var(--fit-red-400); line-height: 1.4;
+}
+.fit-inline-error svg { width: 18px; height: 18px; flex-shrink: 0; }
+.fit-inline-error .fit-inline-error-body { flex: 1; }
+.fit-inline-error .fit-inline-error-retry {
+  font-family: var(--fit-font); font-size: 13px; font-weight: 500;
+  color: var(--fit-red-400); background: transparent; border: none; cursor: pointer;
+  padding: 4px 8px; margin: -4px -8px;
+}
+
+/* ============================================================
+   EMPTY STATE — illustration variant (larger 56px svg)
+   ============================================================ */
+.fit-empty-state svg.fes-illus {
+  width: 56px; height: 56px; margin-bottom: 16px;
+  color: var(--fit-gray-600);
+}
+.fit-light .fit-empty-state svg.fes-illus { color: var(--fit-gray-400); }
+.fit-empty-state-sub {
+  font-size: 14px; color: var(--fit-text-tertiary);
+  margin-bottom: 20px; line-height: 1.5;
+}
+
+/* ============================================================
    SKELETON (list loading placeholder)
 
    Shimmer-animated placeholders. Use for initial list fetch.
