@@ -598,15 +598,6 @@
   <button onclick="go('s-txn-payout',this)">Payout Detail</button>
   <button onclick="go('s-methods',this)">Payout Methods</button>
   <button onclick="go('s-stripe',this)">Stripe Connect</button>
-  <div class="label">Actions</div>
-  <button onclick="go('s-earnings',this);forcePremiumState();openWithdrawSheet();">Withdraw Sheet (Premium)</button>
-  <button onclick="go('s-earnings',this);showPayoutError();">Payout Failed</button>
-  <button onclick="openPendingInfo();">Why Pending? Sheet</button>
-  <button onclick="showStripeActionOnEarnings(this);">Stripe: Action Required</button>
-  <button onclick="go('s-methods',this);setMethodsEmpty();">Methods &middot; Empty</button>
-  <button onclick="go('s-methods',this);forceMethodsMulti();">Methods &middot; Multi (future)</button>
-  <button onclick="go('s-methods',this);forceMethodsMulti();openDisconnectFromShortcut('multi-backup','revolut');">Disconnect Sheet (backup)</button>
-  <button onclick="go('s-methods',this);openDisconnectFromShortcut('single','stripe');">Disconnect Sheet (only)</button>
   </div>
   <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
     <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
@@ -1389,6 +1380,18 @@
           </div>
         </div>
       </div>
+
+      <!-- Legal consent (required before opening Stripe SDK) -->
+      <div style="padding:20px 16px 0;">
+        <div onclick="toggleStripeConsent(event)" style="display:flex;gap:12px;align-items:flex-start;padding:14px;border:1px solid var(--fit-divider);border-radius:var(--fit-radius-md);cursor:pointer;">
+          <div class="fit-checkbox" id="stripe-consent-cb" style="margin-left:0;width:22px;height:22px;border-width:1.5px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div style="font-size:13px;color:var(--fit-text-secondary);line-height:1.5;">
+            I agree to 321Fit&rsquo;s <a href="#" onclick="event.stopPropagation();return false;" style="color:var(--fit-teal-500);text-decoration:none;">Terms</a> and <a href="#" onclick="event.stopPropagation();return false;" style="color:var(--fit-teal-500);text-decoration:none;">Privacy Policy</a>, and authorize 321Fit to share my information with Stripe under the <a href="#" onclick="event.stopPropagation();return false;" style="color:var(--fit-teal-500);text-decoration:none;">Stripe Connected Account Agreement</a>.
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- STATE: PENDING (in progress) -->
@@ -1450,7 +1453,7 @@
     </div>
 
     <!-- Footer CTA (shared across states) -->
-    <div style="padding:16px;" data-stripe-state="none"><button class="fit-btn fit-btn-primary">Start setup</button></div>
+    <div style="padding:16px;" data-stripe-state="none"><button class="fit-btn fit-btn-primary fit-btn-disabled" id="stripe-start-setup-btn" disabled>Start setup</button></div>
     <div style="padding:16px;" data-stripe-state="pending"><button class="fit-btn fit-btn-secondary">Continue in Stripe</button></div>
     <div style="padding:16px;" data-stripe-state="action"><button class="fit-btn fit-btn-primary">Resolve now</button></div>
   </div>
@@ -1585,21 +1588,26 @@
     </div>
     <p>Per-provider detail screen. Four states reflect the Stripe Connect account lifecycle.</p>
     <ul>
-      <li><strong>Not set up</strong> &mdash; intro + checklist &rarr; "Start setup"</li>
+      <li><strong>Not set up</strong> &mdash; intro + checklist + <strong>legal consent checkbox</strong> &rarr; "Start setup" (disabled until checkbox checked)</li>
       <li><strong>Verifying</strong> &mdash; info banner &rarr; "Continue in Stripe"</li>
       <li><strong>Connected</strong> &mdash; account info + "Manage on Stripe"</li>
       <li><strong>Action required</strong> &mdash; warn banner + missing items &rarr; "Resolve now"</li>
     </ul>
     <hr>
-    <p class="note"><strong>iOS native SDK:</strong> uses <code>StripeConnect</code> module &mdash; not WebView. Nativecontroller rendered in-app. Backend needs to expose <code>account_session</code> client_secret.</p>
+    <p class="note"><strong>Legal consent (Not set up only):</strong> coach must check the consent box before "Start setup" enables. Three agreements bundled: 321Fit Terms, 321Fit Privacy, Stripe Connected Account Agreement. Stripe Services Agreement itself is accepted <em>inside</em> the SDK on the final onboarding step &mdash; not our concern. On tap of enabled "Start setup": client posts <code>POST /coach/stripe/consent</code> with <code>consentVersion</code>, then fetches <code>account_session</code> and opens <code>StripeConnect.AccountOnboardingController</code>.</p>
+    <p class="note"><strong>iOS native SDK:</strong> uses <code>StripeConnect</code> module &mdash; not WebView. Native controller rendered in-app. Backend creates account with <code>controller.stripe_dashboard.type = none</code> (required for full embedded UX; Express redirects to Safari mid-flow).</p>
     <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Integration plan</span>
     <div class="ann-detail">
       <h4>iOS</h4>
       <p><code>StripeAPI.shared.publishableKey = ...</code><br><code>let mgr = EmbeddedComponentManager(fetchClientSecret: ...)</code><br><code>let vc = mgr.createAccountOnboarding(...)</code></p>
       <h4>Backend</h4>
-      <p><code>POST /coach/stripe/account-session/</code> &mdash; returns &#123; client_secret &#125; for embedded components. Replaces current <code>/coach/stripe-onboarding</code> redirect URL.</p>
+      <p><code>POST /coach/stripe/consent</code> &mdash; records <code>{ acceptedAt, ip, consentVersion }</code>. Must succeed before next call.<br><code>POST /coach/stripe/account-session/</code> &mdash; returns &#123; client_secret, publishableKey &#125; for embedded components. Returns <code>409 consent_required</code> if consent missing. Replaces current <code>/coach/stripe-onboarding</code> redirect URL.</p>
+      <h4>Account creation</h4>
+      <p>Backend creates Connect account with <code>controller.stripe_dashboard.type=none</code>, <code>controller.requirement_collection=stripe</code>, capabilities <code>card_payments</code> + <code>transfers</code>. Express (<code>type=express</code>) is incompatible &mdash; some onboarding steps redirect to Stripe-hosted Safari pages.</p>
       <h4>State mapping</h4>
       <p>Stripe webhooks &rarr; update <code>PayoutAccount.status</code>: <code>none &rarr; pending &rarr; done</code>. Action-required triggered by <code>requirements.currently_due</code> becoming non-empty. Earnings screen's Stripe preview card mirrors this automatically.</p>
+      <h4>Existing Express accounts</h4>
+      <p>&lt;5 coaches on legacy Express &mdash; reset <code>stripeConnected=false</code> on next deploy; each coach re-runs onboarding under new <code>type=none</code> controller. No data migration; old Stripe accounts left dormant.</p>
       <h4>Disconnect entry points</h4>
       <p>Coach can reach Disconnect either via <strong>&#8943; menu on the method card in Payout methods</strong> list, OR via the <strong>destructive button on the Connected state of this Stripe detail</strong>. Both open the same warning sheet &mdash; backup-variant if other methods exist, only-variant if Stripe is the single connected method.</p>
     </div>
@@ -1665,6 +1673,26 @@
     el.classList.remove('ss-none','ss-pending','ss-done','ss-action');
     el.classList.add('ss-' + state);
     syncStripeStateGlobal(state);
+    // Reset consent state when leaving "none"
+    if (state !== 'none') resetStripeConsent();
+  }
+
+  // Legal consent gate for Stripe Connect onboarding
+  function toggleStripeConsent(e) {
+    if (e && e.target && e.target.tagName === 'A') return;
+    var cb = document.getElementById('stripe-consent-cb');
+    var btn = document.getElementById('stripe-start-setup-btn');
+    if (!cb || !btn) return;
+    cb.classList.toggle('checked');
+    var checked = cb.classList.contains('checked');
+    btn.classList.toggle('fit-btn-disabled', !checked);
+    btn.disabled = !checked;
+  }
+  function resetStripeConsent() {
+    var cb = document.getElementById('stripe-consent-cb');
+    var btn = document.getElementById('stripe-start-setup-btn');
+    if (cb) cb.classList.remove('checked');
+    if (btn) { btn.classList.add('fit-btn-disabled'); btn.disabled = true; }
   }
   // Mirror Stripe state on Earnings preview card (swap "Connected" vs "Action required" subtext)
   function syncStripeStateGlobal(state) {

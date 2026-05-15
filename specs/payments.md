@@ -3,7 +3,7 @@
 > Status: Approved (athlete balance — implemented) / Draft (coach earnings — rewrite)
 > Prototype: [flows/coach/balance.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/balance.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-04-24
+> Last updated: 2026-05-15
 > Implementation:
 > - iOS:     [321fit_ios/docs/payments-ios.md] (to be created)
 > - Backend: [poly-backend/docs/payments-backend.md] (to be created — includes earnings ledger migration)
@@ -17,7 +17,7 @@
 Two distinct money flows:
 
 - **Athlete side:** prepaid **balance** model. Top up via Stripe → funds held when a session is booked → released on completion or refunded on cancel per policy. Cash as alternative (no balance involvement).
-- **Coach side:** **earnings** accumulate from completed card sessions; paid out via **weekly batch** (free) or **Instant payout** (premium, fee-bearing). Stripe Connect Express is the initial payout provider; architecture supports additional providers (Revolut Merchant planned) behind a `PayoutAccount` abstraction.
+- **Coach side:** **earnings** accumulate from completed card sessions; paid out via **weekly batch** (free) or **Instant payout** (premium, fee-bearing). Stripe Connect is the payout provider. Architecture supports additional providers (Revolut Merchant planned) behind a `PayoutAccount` abstraction. Onboarding flow (consent + embedded SDK + 4-state lifecycle) is covered in a focused spec: see [stripe-connect-onboarding.md](./stripe-connect-onboarding.md).
 
 Currency: **EUR** only in v1.
 
@@ -40,8 +40,9 @@ This spec consolidates the previous "Payment User Flow" + "Revisited Payment Flo
 - As a coach, I want an **Instant payout** option for a small fee so that I can pull funds the same day when I need cash flow.
 - As a coach, I want to see **pending vs. available** balance so that I understand what's held in 24h clearance vs. ready to withdraw.
 - As a coach, I want to track **cash owed** separately so that I know whom to chase for outstanding cash.
-- As a coach, I want Stripe Connect onboarding inside the app (not a clunky WebView) so that setup feels native.
 - As a coach, I want to disconnect / switch to a different payout provider in the future so that I'm not locked in.
+
+> Onboarding-specific user stories live in [stripe-connect-onboarding.md § 2](./stripe-connect-onboarding.md#2-user-stories).
 
 ### Platform
 
@@ -59,6 +60,8 @@ This spec consolidates the previous "Payment User Flow" + "Revisited Payment Flo
 - As the client, the coach Earnings screen renders entirely from snapshot fields (`available`, `pending`, `payoutSchedule`, etc.) — no direct ledger queries in v1.
 - As the athlete client, balance top-up uses Stripe PaymentSheet (iOS native / Android Google Pay); never redirects to external web.
 - As the backend, Stripe webhooks update ledger state for async events (payment confirmations, Connect account updates, payout status).
+
+> Onboarding-specific system stories (consent gate, account_session, controller config) live in [stripe-connect-onboarding.md § 3](./stripe-connect-onboarding.md#3-system-stories).
 
 ---
 
@@ -97,18 +100,14 @@ This spec consolidates the previous "Payment User Flow" + "Revisited Payment Flo
 
 ### Flow D — Coach: Onboard Stripe Connect
 
-1. Settings → Stripe Connect.
-2. Native embedded component (`StripeConnect` iOS SDK / Android equivalent) opens — renders inside the app, not a WebView or external redirect.
-3. Coach enters KYC + banking info via Stripe's form.
-4. On completion: Stripe calls backend webhook → `coach.stripeConnected: true`.
-5. Coach returns to app; Settings shows Stripe Connect as Connected with subtle indicator. Weekly payouts eligible from this point.
+Covered in detail in [stripe-connect-onboarding.md § 4](./stripe-connect-onboarding.md#4-flow). Outcome relevant to this spec: on successful completion, `coach.stripeConnected = true` and `charges_enabled = true`, making the coach eligible for weekly payouts (Flow E).
 
 ### Flow E — Coach: Weekly batch payout
 
 1. Monday 00:00 UTC — Celery beat fires sweep task.
 2. For each coach with `available >= 20 EUR`:
    - Create `payout_initiated` transaction (amount, provider, providerRef)
-   - Call Stripe Connect Express `transfers.create`
+   - Call Stripe Connect `transfers.create`
    - On success: `payout_completed` transaction, `available -= amount`
    - On failure: `payout_failed` transaction, `available` unchanged, alert coach
 3. Push notification: "€480 is on its way to your bank. Typical arrival: 2 days."
@@ -181,11 +180,7 @@ Each row: icon + label + amount + date + status. Tap → Transaction Detail scre
 
 ### Stripe Connect state
 
-| Backend flag | Value | Meaning |
-|---|---|---|
-| `stripeConnected` | `false` | Onboarding not started or incomplete |
-| `stripeConnected` | `true`, `stripeActionRequired: false` | Ready to receive payouts |
-| `stripeConnected` | `true`, `stripeActionRequired: true` | Stripe flagged something (KYC update, bank issue). Payouts paused until resolved. Show prominent banner. |
+Covered in detail in [stripe-connect-onboarding.md § 5](./stripe-connect-onboarding.md#5-states). Summary: 4-state lifecycle (`not_set_up | verifying | connected | action_required`), surfaced via `CoachEarningsSnapshot.defaultProvider.status`. Earnings flow only when `status = connected` and `payouts_enabled = true`.
 
 ### Coach transaction types
 
@@ -230,7 +225,7 @@ Returns dashboard snapshot.
   "pending":             75.00,
   "currency":            "EUR",
   "payoutSchedule":      { "kind": "weekly", "nextRunAt": ISO8601, "threshold": 20.00 },
-  "defaultProvider":     { "kind": "stripe_connect", "status": "connected", "actionRequired": false },
+  "defaultProvider":     { "kind": "stripe_connect", "status": "connected", "currentlyDue": [], "deadline": null },
   "cashOwed":            { "count": 2, "total": 40.00 },
   "uiState":             "st-full" | "st-premium" | "st-zero" | "st-lock"
 }
@@ -252,9 +247,11 @@ Initiate Instant payout.
 **Response 200:** updated earnings snapshot + transaction id.
 **Response 400:** amount exceeds available, provider not available, etc.
 
-#### `POST /coach/stripe/connect/session`
+`status` is enum: `"not_set_up" | "verifying" | "connected" | "action_required"`. Derived from Stripe webhook `account.updated`. `currentlyDue` mirrors `account.requirements.currently_due` (empty unless `status = action_required`). `deadline` mirrors `account.requirements.current_deadline` (ISO8601 or `null`).
 
-Returns `{ accountSession: string, publishableKey: string }` — used by `StripeConnect` native SDK to render embedded onboarding. Replaces old WebView flow.
+#### Stripe Connect onboarding endpoints
+
+`POST /coach/stripe/consent` and `POST /coach/stripe/connect/session` — defined in [stripe-connect-onboarding.md § 6](./stripe-connect-onboarding.md#6-api).
 
 #### `DELETE /coach/payout-accounts/{id}`
 
@@ -306,6 +303,10 @@ Disconnect a provider (Stripe or future). Only allowed if not default or another
 - **Max balance cap:** €2000 to reduce fraud surface. Top-ups beyond → reject.
 - **Held (blocked) funds are non-withdrawable** — only released via session cancellation or completion.
 - **Withdrawal:** not supported in v1 (no pathway for athlete to withdraw from in-app balance). Balance is for booking only.
+
+### Legal consent
+
+Onboarding requires explicit consent capture before opening the Stripe SDK — see [stripe-connect-onboarding.md § 7](./stripe-connect-onboarding.md#7-business-rules).
 
 ### Provider abstraction
 
@@ -368,9 +369,8 @@ Disconnect a provider (Stripe or future). Only allowed if not default or another
 
 **Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.
 
-- **iOS (Stripe Connect embedded):** replaces old `WebView` approach. Use `StripeConnect` SDK (Connect iOS) — embedded UI component, native feel. Requires `account_session` from backend (new endpoint `/coach/stripe/connect/session`).
+- **iOS (Stripe Connect embedded onboarding):** SDK details, controller config, migration plan from the existing Express implementation — see [stripe-connect-onboarding.md § 9 + § 10](./stripe-connect-onboarding.md#9-platform-notes).
 - **iOS (Stripe PaymentSheet):** existing integration continues for athlete top-up.
-- **Android (future):** `StripeConnect` Android SDK equivalent (in beta). Same backend contract.
 - **Backend (ledger):** new table `coach_transactions` (append-only), new derived view `coach_balance`. Migration from existing `balance` + one-time reconciliation script.
 - **Voice:** `get_balance()` works for athlete. New `get_earnings()` for coach — returns `available`, `pending`, `nextPayoutDate`. No Instant payout via voice (security).
 
@@ -391,6 +391,7 @@ Disconnect a provider (Stripe or future). Only allowed if not default or another
 
 ## Related specs / references
 
+- [stripe-connect-onboarding.md](./stripe-connect-onboarding.md) — onboarding flow, consent capture, embedded SDK, 4-state lifecycle, migration plan
 - [event-statuses.md](./event-statuses.md) — transitions that trigger earnings (`finished`), refunds (`cancelled`, `missed` policy)
 - [review-queue.md](./review-queue.md) — `Mark complete` triggers earning; `Missed` triggers policy
 - [coach-calendar.md](./coach-calendar.md) — cancellation flow entry
