@@ -131,21 +131,71 @@ See § 7 Business rules — cancellation policy table.
 
 ### Flow H — Coach: View Earnings dashboard
 
-Maps to prototype `flows/coach/balance.html`.
+Maps to prototype `flows/coach/balance.html#s-earnings`.
 
-Main `#s-earnings` screen shows:
-- Hero: Available / Pending (€340.50 / €75.00)
-- Next payout indicator ("Mon, Apr 28 · €480 via Stripe")
-- Withdraw CTA (premium — Instant)
-- Transactions link → detailed ledger view
-- Stripe Connect status row (Connected / Action required / Not connected)
-- Cash owed summary (link to Clients outstanding)
+Coach lands on a **two-card swiper** that separates cash from card income — each is an independent income stream with distinct mental model. Cash is the default visible card (works for every coach day 1, no setup); swipe right reveals Card (Stripe-connected).
 
-State variants on this screen:
-- `st-full` — connected + has balance (default happy path)
-- `st-premium` — Instant tier visible + withdraw enabled
-- `st-zero` — no earnings yet, show welcome info
-- `st-lock` — Stripe not connected → CTA to connect
+**Swiper layout:**
+- **Cash card** (default, swipe position 1) — brand gradient. Shows "This month €X received" + tappable row "€Y owed by N athletes" (deep-links to Clients filtered to outstanding cash). Top area of card is tappable → opens Earnings history with Cash filter.
+- **Card card** (swipe position 2) — Stripe-indigo gradient. Shows Available / Pending split + "Next payout · {date}". Top area tappable → opens Earnings history with Card filter. Optional Withdraw pill (Premium, post-MVP).
+- **Peek + dots** — 12px of next card visible on right edge + 2-dot indicator below; affordance for swipe gesture.
+
+**Below the swiper:**
+- Premium notice banner (visible only when Instant Payout enabled; post-MVP).
+- **Recent activity** — unified across cash + card with method badges (Cash / Card) per row + filter chips (All / Cash / Card / Payouts). Tap row → Earning Detail (Card) or Cash Detail.
+- **Lifetime footer** — "This month €X · €Y lifetime with 321Fit" — tappable → Earnings history (All filter).
+
+**Card card has 6 substates** mirroring Stripe Connect lifecycle (`controller.stripe_dashboard.type=none`):
+
+| State | Visual | Content |
+|---|---|---|
+| Lock | Outline indigo border | "Accept card payments" empty title + "Connect Stripe" CTA → s-stripe |
+| Verifying | Outline indigo border | Info banner "Stripe is verifying" + tappable "View details" |
+| Action required | Outline yellow border | Warn banner "Missing: {requirement}" + "Resolve now" CTA → s-stripe |
+| Zero | Filled gradient (muted €0/€0) | "Finish your first card session to start earning" |
+| Active | Filled gradient | Available / Pending split + Next payout row |
+| Premium | Filled gradient | Same as Active + Withdraw pill enabled |
+
+**Cash card has 2 substates** (no provider lifecycle):
+
+| State | Content |
+|---|---|
+| Active | "This month €X received" + tappable "€Y owed by N athletes" row |
+| Zero | "No cash collected yet — mark sessions paid in Clients to track here" |
+
+**Visual rule:** filled gradient = "money lives here right now"; outline = "frame waiting / needs action" (Stripe Lock / Verifying / Action only).
+
+### Flow J — Coach: Cash earning detail + Mark as paid
+
+Maps to prototype `flows/coach/balance.html#s-txn-cash`.
+
+**State machine** for a cash earning event:
+
+1. Session marked `finished` → backend creates `coach_transactions` row with `method=cash`, `status=unpaid`. Default state on entry to Cash detail screen is **Unpaid** (yellow hero pill).
+2. Coach taps **Mark as paid** primary CTA (visible only in Unpaid state).
+3. In production: bottom-sheet confirm ("Confirm Anna paid €30 in cash?") → backend appends `cash_paid` ledger row → toast "Marked as paid" → screen re-renders.
+4. State transitions to **Received** (teal hero pill, "Marked paid {date}" in Payment section). **Terminal** — no Mark-as-unpaid reverse action in v1; corrections go through Support (keeps audit trail clean).
+
+Entry points: tap any `data-method="cash"` txn in Recent activity, or tap an athlete in Clients → Cash owed list (filter on Clients screen, future spec). Both routes land on `s-txn-cash`.
+
+### Flow K — Coach: Earnings history
+
+Maps to prototype `flows/coach/balance.html#s-earnings-history`.
+
+**Three entry points** (all open the same screen, different filter):
+- Tap Cash card top → filter = Cash
+- Tap Card card top → filter = Card
+- Tap lifetime footer → filter = All
+
+**Structure:**
+- Hero (`.earn-detail-hero`) with lifetime number per filter ("Lifetime · all sources" / "Lifetime · Card via Stripe" / "Lifetime · Cash").
+- Filter chips (All / Card / Cash) — re-filter without leaving.
+- Month list grouped by year. Each row shows: month name (current month highlighted in teal with "· current" suffix) + breakdown subline (content varies by filter) + total amount.
+- Subline content per filter: All → "€X Card · €Y Cash"; Card → "{N} sessions"; Cash → "{N} sessions". Row height stays constant across filters (consistent tap target).
+
+**Lifetime calculation:** shows **net** earnings (gross minus refunds, disputes, fees). What landed in pocket / bank.
+
+**Month drill-down deferred** — see Open questions. Currently rows are read-only.
 
 ### Flow I — Coach: Transaction ledger
 
@@ -169,14 +219,34 @@ Each row: icon + label + amount + date + status. Tap → Transaction Detail scre
 | `insufficient` | `amount < session_price` at book time | Red warning + "Top up" CTA |
 | `topup_pending` | PaymentIntent processing | Loading indicator, no action |
 
-### Coach earnings states
+### Coach earnings states (Earnings screen — swiper)
 
-| State class (prototype) | Condition | UI |
+State is **decomposed into two independent axes** (Cash card + Card card), each rendering its own UI inside the swiper. Old `st-full / st-premium / st-zero / st-lock` monolithic state class is deprecated.
+
+**Cash card state** (`data-cash` attribute):
+
+| Value | Condition | UI |
 |---|---|---|
-| `st-full` | Stripe connected + available > 0 | Default happy path (see Flow H) |
-| `st-premium` | Same + Instant tier enabled | Withdraw CTA shown as primary |
-| `st-zero` | No earnings yet | Welcome screen + "Finish your first session to get paid" |
-| `st-lock` | Stripe not connected | Earnings locked with connect-Stripe CTA prominent |
+| `active` | Has any cash income or owed amount | "This month €X" + tappable "€Y owed by N athletes" row |
+| `zero` | No cash income, no cash owed | Empty-state copy "No cash collected yet" |
+
+**Card card state** (`data-card` attribute) — mirrors Stripe Connect lifecycle:
+
+| Value | Condition | UI |
+|---|---|---|
+| `lock` | `coach.stripeConnected = false` | Outline indigo + "Connect Stripe" CTA |
+| `verifying` | Stripe account exists, `charges_enabled = false`, `requirements.currently_due = []` | Outline indigo + info banner + "View details" |
+| `action` | Stripe account exists, `requirements.currently_due` non-empty | Outline yellow + warn banner + "Resolve now" CTA |
+| `zero` | `charges_enabled = true`, available + pending = 0 | Filled gradient muted €0/€0 |
+| `active` | `charges_enabled = true`, has balance | Filled gradient with Available / Pending + Next payout (MVP) |
+| `premium` | Same as `active` + Instant Payout enabled (post-MVP) | Same as `active` + Withdraw pill |
+
+### Cash earning status (Cash detail screen)
+
+| Status | When | UI |
+|---|---|---|
+| `unpaid` | Cash session marked finished, no `cash_paid` ledger row yet | Yellow hero pill + "Mark as paid" CTA |
+| `received` | After coach taps "Mark as paid" (creates `cash_paid` row) | Teal hero pill + "Marked paid {date}" — terminal, no reverse action |
 
 ### Stripe Connect state
 
@@ -221,15 +291,42 @@ Returns dashboard snapshot.
 
 ```json
 {
-  "available":           340.50,
-  "pending":             75.00,
-  "currency":            "EUR",
-  "payoutSchedule":      { "kind": "weekly", "nextRunAt": ISO8601, "threshold": 20.00 },
-  "defaultProvider":     { "kind": "stripe_connect", "status": "connected", "currentlyDue": [], "deadline": null },
-  "cashOwed":            { "count": 2, "total": 40.00 },
-  "uiState":             "st-full" | "st-premium" | "st-zero" | "st-lock"
+  "available":               340.50,
+  "pending":                  75.00,
+  "currency":                "EUR",
+  "payoutSchedule":          { "kind": "weekly", "nextRunAt": ISO8601, "threshold": 20.00 },
+  "defaultProvider":         { "kind": "stripe_connect", "status": "connected", "currentlyDue": [], "deadline": null },
+  "cashOwed":                { "count": 2, "total": 40.00 },
+  "cashReceivedThisMonth":   120.00,
+  "totalIncomeThisMonth":    600.00,
+  "lifetimeTotal":          2840.00,
+  "lifetimeCard":           2100.00,
+  "lifetimeCash":            740.00,
+  "cashState":              "active" | "zero",
+  "cardState":              "lock" | "verifying" | "action" | "zero" | "active" | "premium"
 }
 ```
+
+`cashState` / `cardState` are derived enums for the Earnings screen swiper (see § 5). Client renders the two swipe cards directly from these — no monolithic `uiState` field.
+
+#### `GET /coach/earnings/history?from=YYYY-MM&to=YYYY-MM&method=all|cash|card`
+
+Monthly aggregated history for the Earnings History screen (`s-earnings-history`).
+
+**Response 200:**
+```json
+{
+  "lifetime":   { "total": 2840.00, "card": 2100.00, "cash": 740.00 },
+  "currency":   "EUR",
+  "months":     [
+    { "year": 2026, "month": 4, "total": 600.00, "card": 480.00, "cash": 120.00, "sessionsCard": 8, "sessionsCash": 4, "current": true },
+    { "year": 2026, "month": 3, "total": 580.00, "card": 450.00, "cash": 130.00, "sessionsCard": 9, "sessionsCash": 5, "current": false },
+    ...
+  ]
+}
+```
+
+Lifetime totals are **net** (gross minus refunds, disputes, fees). Computed from `coach_transactions` ledger.
 
 #### `GET /coach/transactions?type=&page=&size=`
 
@@ -386,6 +483,8 @@ Onboarding requires explicit consent capture before opening the Stripe SDK — s
 - [ ] **Multi-currency support:** EUR only v1. When to add USD / GBP etc.? Depends on international rollout. **Owner:** growth.
 - [ ] **Third-party payment** ("pay for a friend"): mentioned in legacy spec, not implemented. Scope? **Owner:** product.
 - [ ] **Revolut Merchant timing:** when second provider lands, do we let coaches switch mid-week (breaking the sweep)? **Owner:** backend architecture.
+- [ ] **Pending sessions view (no current screen):** there is no screen today that surfaces "booked but not yet completed" sessions — card sessions awaiting confirmation/completion + cash sessions in upcoming agenda. Coach loses visibility into "what's coming this week / tomorrow" from the money side. Decide: extend Earnings screen with a "Upcoming" section, or build a dedicated `s-upcoming` screen, or surface from Calendar with a money filter. **Owner:** product + design. Captured 2026-05-15.
+- [ ] **Month drill-down approach (Earnings History):** monthly rows on `s-earnings-history` are currently read-only. Two paths to enable drill-down: **(A)** add a month-filter chip to Transactions screen (small change, dual-purpose UI) or **(B)** new dedicated `s-month-detail` screen with summary card + month's transaction list (more focused UX, more work). Also possible third path: surface the breakdown inline on Earnings via a different filter mode on Recent activity. **Owner:** product + design. Captured 2026-05-15.
 
 ---
 
