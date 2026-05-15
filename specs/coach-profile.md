@@ -215,6 +215,75 @@ Open product/UX questions intentionally left out — these are explicit directiv
 
 ---
 
+## Appendix A — Athlete-side view (`shared/profile.html#s-coach-v2`)
+
+When an athlete opens a coach profile (from Search, My Coaches, Dashboard recommendations, deep-link, etc.), they see the **same visual layout** as the coach preview, but with athlete-specific affordances. Lives in `flows/shared/profile.html`, screen id `s-coach-v2`.
+
+### Differences from coach-side preview
+
+| Element | Coach side | Athlete side |
+|---|---|---|
+| Header right slot | `⚙` gear → Settings | `📤 Share` + `♡ Heart` (save) |
+| Hero camera edit pip | yes | hidden |
+| Section pencils (My Sports, About) | yes (tap → edit) | hidden (read-only) |
+| Management tiles (Languages / Sessions / Locations / Available Hours) | yes — link to coach settings | replaced by **inline read-only blocks** (see below) |
+| Maturity Progress block | yes (cv-new only) | hidden — athlete sees only the NEW badge |
+| Footer | `FitNavbar` (5 tabs) | sticky **`💬 + Book Training`** CTA pair (no navbar — pushed screen) |
+
+### Athlete-only blocks (read-only)
+
+1. **Languages** — section title + chips (e.g. `🇬🇧 English` `🇵🇱 Polski`). Replaces coach-side `Languages` management tile. Read-only display only.
+2. **Trains at** — list of location rows with map-pin icon + name + sub-line (city · distance · format). Replaces coach-side `Locations` tile. Read-only.
+
+### Heart toggle
+
+`#coach-heart-btn` — toggleable saved/unsaved state. Default = outline icon, primary color. Saved state = `.coach-heart.saved` → filled red heart (`var(--fit-red-400)`). Persists to athlete's favorites via `POST /athlete/favorites/{coach_id}` (optimistic UI). Syncs with the heart icon on Search coach-cards.
+
+### About → See more / See less
+
+Bio is rendered with 4-line CSS clamp (`-webkit-line-clamp: 4`). The `.fit-see-more` link toggles `.about-bio.expanded` which removes the clamp. Label flips between "See more" / "See less". **Inline expand on the same screen — no push to a separate "Full bio" screen.**
+
+### Reviews entry points (all → `s-reviews`)
+
+Multiple touchpoints route to the same All Reviews screen:
+- `s-reviews` terminal carousel card "Show all 42 reviews"
+- Reviews section header right side "4.8 · 42 reviews ›" (with chevron hint)
+- Stats strip — `Rating` and `Reviews` columns (cursor:pointer)
+- Each individual `Show more` link inside a review card
+
+`Sessions` and `Price from` columns in stats are NOT tappable (no destination).
+
+### Sessions are NOT previewed on profile
+
+An earlier iteration added a 3-card "Sessions offered" preview before Reviews. **Removed** because it duplicated the `s-book-sessions` catalog reached via `Book Training` sticky CTA. The athlete sees these sessions one tap deeper, in their proper full-card design. Profile stays focused on coach identity + social signals.
+
+### Booking entry: `Book Training` CTA
+
+Sticky footer button (next to messenger icon) → pushes `s-book-sessions` (sessions catalog) → tap session → `s-booking` (date+slot picker) → `booking-confirm-sheet` (review & send). Full flow specced in `booking-flow.md`.
+
+### NEW coach state visibility
+
+Same `cv-new-default` (or `cv-new-video` / `cv-new-image`) class hooks as coach side. When active:
+- NEW badge appears next to name (`.cp-new-badge.cv-new-only-inline`)
+- Stats strip shows zero-state (`—` / `0` / `0` / `from €25`)
+- Reviews carousel hidden, empty-state shown instead ("No reviews yet")
+- Languages / Locations / About sections — unchanged (those are coach data, not maturity-gated)
+
+State driven by `setCoachV2State(state, btn)` in the local script. Annotation state-toggle in the right panel lets reviewer flip between variants.
+
+### Annotations sidebar entries
+
+In `shared/profile.html`:
+- `Coach Profile` (canonical screen — single sidebar entry)
+- `All Reviews` (push)
+- `Book Trainings` (push, sessions catalog)
+- `Booking Calendar` (push, slot picker)
+- `Group Detail` / `Group Joined` / `Group Full` (group session flow)
+
+Maturity variants are NOT separate sidebar entries — they live as state toggles in the right annotation panel (memory: `feedback_sidebar_states_separation`).
+
+---
+
 ## Related specs
 
 - `personal-data.md` — most edit affordances push here

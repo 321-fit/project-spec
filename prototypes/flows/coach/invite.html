@@ -132,10 +132,7 @@
     background: var(--fit-gray-700); color: var(--fit-white);
   }
 
-  /* Empty state subtitle + illustration (sub not yet in fit-ui.css — drift) */
-  .fit-empty-state svg.fes-illus { width: 56px; height: 56px; margin-bottom: 16px; color: var(--fit-gray-600); }
-  .fit-empty-state-sub { font-size: 14px; color: var(--fit-text-tertiary); margin-bottom: 20px; line-height: 1.5; }
-  .fit-light .fit-empty-state svg.fes-illus { color: var(--fit-gray-400); }
+  /* fes-illus, fit-empty-state-sub moved to fit-ui.css */
 
   /* Generalized screen-state switcher (ls-* class on fit-phone + [data-list-state] on children) */
   .fit-phone [data-list-state] { display: none; }
@@ -158,22 +155,7 @@
   }
   @keyframes rs-spin { to { transform: rotate(360deg); } }
 
-  /* Skeleton classes migrated to fit-ui.css (Phase 2) */
-
-  /* Inline error banner (above CTA) */
-  .fit-inline-error {
-    display: flex; align-items: center; gap: 10px;
-    margin: 0 16px 12px; padding: 12px 14px;
-    border-radius: 12px; background: rgba(240,92,91,0.08); border: 1px solid rgba(240,92,91,0.2);
-    font-size: 14px; color: var(--fit-red-400); line-height: 1.4;
-  }
-  .fit-inline-error svg { width: 18px; height: 18px; flex-shrink: 0; }
-  .fit-inline-error .fit-inline-error-body { flex: 1; }
-  .fit-inline-error .fit-inline-error-retry {
-    font-family: var(--fit-font); font-size: 13px; font-weight: 500;
-    color: var(--fit-red-400); background: transparent; border: none; cursor: pointer;
-    padding: 4px 8px; margin: -4px -8px;
-  }
+  /* Skeleton + fit-inline-error migrated to fit-ui.css */
 
   /* Calendar header component */
   .fit-cal-header {
@@ -183,25 +165,7 @@
   .fit-cal-header-year { font-size: 16px; font-weight: 400; color: var(--fit-text-secondary); }
   .fit-cal-chevron { transition: transform 0.2s; flex-shrink: 0; }
 
-  /* Comment textarea (matches .fit-input visual in both themes) */
-  .fit-input-ta {
-    width: 100%; min-height: 80px;
-    padding: 14px 16px;
-    background: var(--fit-surface-low);
-    border: none; border-radius: var(--fit-radius-md);
-    color: var(--fit-text-primary);
-    font-family: var(--fit-font); font-size: 16px; line-height: 1.35;
-    resize: none; outline: none; box-sizing: border-box;
-  }
-  .fit-dark .fit-input-ta { background: var(--fit-black); }
-  .fit-input-ta::placeholder { color: var(--fit-text-placeholder); }
-  .fit-input-ta:focus { outline: 1px solid var(--fit-divider); }
-  .fit-input-counter {
-    display: flex; justify-content: flex-end;
-    margin-top: 6px;
-    font-size: 12px; color: var(--fit-text-tertiary);
-  }
-  .fit-input-counter.at-limit { color: var(--fit-red-400); }
+  /* fit-input-ta + fit-input-counter migrated to fit-ui.css */
 </style>
 </head>
 <body>
@@ -210,10 +174,8 @@
   <div class="sidebar-scroll">
   <div class="label">Flow</div>
   <button class="active" onclick="go('s-invite-select',this)">Select Training</button>
-  <button onclick="go('s-invite-time',this)">Date & Time (Personal)</button>
-  <button onclick="go('s-invite-time-group',this)">Date & Time (Group)</button>
-  <button onclick="go('s-invite-review',this)">Invite Review</button>
-  <button onclick="go('s-schedule-review',this)">Schedule Review</button>
+  <button onclick="go('s-invite-time',this)">Date &amp; Time (Personal)</button>
+  <button onclick="go('s-invite-time-group',this)">Date &amp; Time (Group)</button>
   </div>
   <!-- Dark/Light toggle at bottom -->
   <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
@@ -341,46 +303,91 @@
     <div style="padding:0 16px;">
       <div style="font-size:14px;color:var(--fit-text-tertiary);margin-bottom:12px;">Available slots for Basketball Training · 1h</div>
 
-      <div class="tp-slot" style="margin-bottom:8px;border-radius:12px;padding:16px;cursor:pointer;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">07:00 – 08:00</span>
-          <span style="font-size:12px;color:var(--fit-text-tertiary);">Available</span>
-        </div>
-      </div>
+      <div class="tp-slot-list" id="inv-slot-list">
 
-      <div class="tp-slot" style="background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);margin-bottom:8px;border-radius:12px;padding:16px;cursor:pointer;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">08:00 – 09:00</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        <div class="tp-slot" data-hour="08" onclick="invToggleSlot(this)">
+          <div class="tp-slot-row">
+            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <span class="tp-slot-label">08:00</span>
+            <span class="tp-slot-status"></span>
+            <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="tp-slot-minutes">
+            <div class="min-chip" data-min="00" onclick="invPickTime('08','00',event)">08:00</div>
+            <div class="min-chip" data-min="15" onclick="invPickTime('08','15',event)">08:15</div>
+            <div class="min-chip" data-min="30" onclick="invPickTime('08','30',event)">08:30</div>
+            <div class="min-chip" data-min="45" onclick="invPickTime('08','45',event)">08:45</div>
+          </div>
         </div>
-      </div>
 
-      <div class="tp-slot" style="margin-bottom:8px;border-radius:12px;padding:16px;cursor:pointer;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">09:00 – 10:00</span>
-          <span style="font-size:12px;color:var(--fit-text-tertiary);">Available</span>
+        <div class="tp-slot expanded" data-hour="09" onclick="invToggleSlot(this)">
+          <div class="tp-slot-row selected">
+            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <span class="tp-slot-label">09:00</span>
+            <span class="tp-slot-status"></span>
+            <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="tp-slot-minutes">
+            <div class="min-chip selected" data-min="00" onclick="invPickTime('09','00',event)">09:00</div>
+            <div class="min-chip" data-min="15" onclick="invPickTime('09','15',event)">09:15</div>
+            <div class="min-chip" data-min="30" onclick="invPickTime('09','30',event)">09:30</div>
+            <div class="min-chip" data-min="45" onclick="invPickTime('09','45',event)">09:45</div>
+          </div>
         </div>
-      </div>
 
-      <div class="tp-slot tp-slot-busy" style="margin-bottom:8px;border-radius:12px;padding:16px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">10:00 – 11:00</span>
-          <span style="font-size:12px;color:var(--fit-red-400);">Busy · HIIT Group</span>
+        <div class="tp-slot tp-slot-busy" data-hour="10">
+          <div class="tp-slot-row">
+            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <span class="tp-slot-label">10:00</span>
+            <span class="tp-slot-busy-label">Busy · HIIT Group</span>
+          </div>
         </div>
-      </div>
 
-      <div class="tp-slot" style="margin-bottom:8px;border-radius:12px;padding:16px;cursor:pointer;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">11:00 – 12:00</span>
-          <span style="font-size:12px;color:var(--fit-text-tertiary);">Available</span>
+        <div class="tp-slot" data-hour="11" onclick="invToggleSlot(this)">
+          <div class="tp-slot-row">
+            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <span class="tp-slot-label">11:00</span>
+            <span class="tp-slot-status"></span>
+            <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="tp-slot-minutes">
+            <div class="min-chip" data-min="00" onclick="invPickTime('11','00',event)">11:00</div>
+            <div class="min-chip" data-min="15" onclick="invPickTime('11','15',event)">11:15</div>
+            <div class="min-chip disabled" data-min="30">11:30</div>
+            <div class="min-chip disabled" data-min="45">11:45</div>
+          </div>
         </div>
-      </div>
 
-      <div class="tp-slot" style="margin-bottom:8px;border-radius:12px;padding:16px;cursor:pointer;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">14:00 – 15:00</span>
-          <span style="font-size:12px;color:var(--fit-text-tertiary);">Available</span>
+        <div class="tp-slot" data-hour="14" onclick="invToggleSlot(this)">
+          <div class="tp-slot-row">
+            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <span class="tp-slot-label">14:00</span>
+            <span class="tp-slot-status"></span>
+            <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="tp-slot-minutes">
+            <div class="min-chip" data-min="00" onclick="invPickTime('14','00',event)">14:00</div>
+            <div class="min-chip" data-min="15" onclick="invPickTime('14','15',event)">14:15</div>
+            <div class="min-chip" data-min="30" onclick="invPickTime('14','30',event)">14:30</div>
+            <div class="min-chip" data-min="45" onclick="invPickTime('14','45',event)">14:45</div>
+          </div>
         </div>
+
+        <div class="tp-slot" data-hour="16" onclick="invToggleSlot(this)">
+          <div class="tp-slot-row">
+            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <span class="tp-slot-label">16:00</span>
+            <span class="tp-slot-status"></span>
+            <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="tp-slot-minutes">
+            <div class="min-chip" data-min="00" onclick="invPickTime('16','00',event)">16:00</div>
+            <div class="min-chip" data-min="15" onclick="invPickTime('16','15',event)">16:15</div>
+            <div class="min-chip" data-min="30" onclick="invPickTime('16','30',event)">16:30</div>
+            <div class="min-chip disabled" data-min="45">16:45</div>
+          </div>
+        </div>
+
       </div>
     </div>
     </div><!-- /default -->
@@ -418,8 +425,110 @@
 
   </div>
   <div class="fit-phone-footer" style="padding:12px 16px 40px;">
-    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" onclick="goReview()">Confirm · 08:00 – 09:00</button>
+    <button id="inv-confirm-cta" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" onclick="openInviteConfirm()">Confirm · 09:00 – 10:00</button>
   </div>
+
+  <!-- Coach invite confirm bottom sheet -->
+  <div class="fit-sheet-overlay" id="invite-confirm-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;color:var(--fit-text-primary);margin-bottom:20px;">Review &amp; Send</div>
+
+      <!-- Session summary -->
+      <div style="background:var(--fit-surface-high);border-radius:12px;padding:14px;margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Basketball Training</span>
+          <span class="fit-badge fit-badge-info">Invitation</span>
+        </div>
+        <div style="font-size:14px;color:var(--fit-text-tertiary);display:flex;flex-direction:column;gap:4px;">
+          <span>Mon, Apr 21 &middot; 09:00 &ndash; 10:00 (1h)</span>
+          <span>TNT Studio</span>
+        </div>
+      </div>
+
+      <!-- Comment -->
+      <div class="fit-input-group" style="padding:0;margin-bottom:16px;">
+        <span class="fit-input-label">Comment <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+        <textarea id="invite-comment-ta" class="fit-input-ta" maxlength="300" oninput="updateCommentCounter('invite')" placeholder="Add a message for the athlete..." style="min-height:72px;"></textarea>
+        <div class="fit-input-counter" id="invite-comment-counter">0 / 300</div>
+      </div>
+
+      <!-- Price row -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--fit-divider);">
+        <span style="font-size:15px;color:var(--fit-text-primary);">Price</span>
+        <span style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:18px;font-weight:500;color:var(--fit-text-primary);">&euro;50.00</span>
+          <span class="fit-badge fit-badge-neutral">Cash</span>
+        </span>
+      </div>
+
+      <!-- Info -->
+      <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0 20px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.5;">Share the invite link with the athlete &middot; you&rsquo;ll be notified when they sign up and accept.</span>
+      </div>
+
+      <!-- CTA -->
+      <button class="fit-btn fit-btn-primary" onclick="handleSend('invite')" style="border-radius:99px;">Send Invite</button>
+    </div>
+  </div>
+
+  <!-- Coach SCHEDULE confirm sheet (in-app athlete request) -->
+  <div class="fit-sheet-overlay" id="schedule-confirm-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;color:var(--fit-text-primary);margin-bottom:20px;">Review request</div>
+
+      <!-- Recipient (in-app athlete) -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);color:var(--fit-white);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0;">AK</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;margin-bottom:1px;">Sending to</div>
+          <div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Anna Kowalski</div>
+        </div>
+      </div>
+
+      <!-- Session summary -->
+      <div style="background:var(--fit-surface-high);border-radius:12px;padding:14px;margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Basketball Training</span>
+          <span class="fit-cal-event-pill fit-cal-event-pill--request">Request</span>
+        </div>
+        <div style="font-size:14px;color:var(--fit-text-tertiary);display:flex;flex-direction:column;gap:4px;">
+          <span>Mon, Apr 21 &middot; 09:00 &ndash; 10:00 (1h)</span>
+          <span>TNT Studio</span>
+        </div>
+      </div>
+
+      <!-- Comment -->
+      <div class="fit-input-group" style="padding:0;margin-bottom:16px;">
+        <span class="fit-input-label">Comment <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+        <textarea id="schedule-comment-ta" class="fit-input-ta" maxlength="300" oninput="updateCommentCounter('schedule')" placeholder="Add a message for Anna..." style="min-height:72px;"></textarea>
+      </div>
+
+      <!-- Price row -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--fit-divider);">
+        <span style="font-size:15px;color:var(--fit-text-primary);">Price</span>
+        <span style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:18px;font-weight:500;color:var(--fit-text-primary);">&euro;50.00</span>
+          <span class="fit-badge fit-badge-neutral">Cash</span>
+        </span>
+      </div>
+
+      <!-- Info: post-send redirect to calendar -->
+      <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0 20px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.5;">Anna has 24h to accept &middot; you&rsquo;ll see this pending in your Calendar.</span>
+      </div>
+
+      <!-- CTA -->
+      <button class="fit-btn fit-btn-primary" onclick="handleSend('schedule')" style="border-radius:99px;">Send Request</button>
+    </div>
+  </div>
+
+  <!-- Snackbar for mock share-link flow -->
+  <div class="fit-snackbar" id="inv-snackbar">Invite link ready</div>
+  <div class="fit-snackbar" id="sch-snackbar">Request sent to Anna</div>
 </div>
 
 <!-- ===== INVITE: SELECT DATE & TIME (GROUP) ===== -->
@@ -455,7 +564,7 @@
     <div style="font-size:14px;color:var(--fit-text-tertiary);padding:0 16px 16px;">Upcoming sessions for HIIT Group Session</div>
 
     <!-- Available group event (selected) -->
-    <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;border:1px solid var(--fit-teal-600);cursor:pointer;" onclick="goReview()">
+    <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;border:1px solid var(--fit-teal-600);cursor:pointer;" onclick="document.getElementById('invite-confirm-sheet-group').classList.add('visible');">
       <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
         <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M4.5 12H2M22 12h-2.5M12 4.5V2M12 22v-2.5"/></svg>
@@ -504,6 +613,47 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- Coach group-invite confirm bottom sheet -->
+  <div class="fit-sheet-overlay" id="invite-confirm-sheet-group">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;color:var(--fit-text-primary);margin-bottom:20px;">Review &amp; Send</div>
+
+      <!-- Session summary -->
+      <div style="background:var(--fit-surface-high);border-radius:12px;padding:14px;margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">HIIT Group Session</span>
+          <span class="fit-badge fit-badge-info">Invitation</span>
+        </div>
+        <div style="font-size:14px;color:var(--fit-text-tertiary);display:flex;flex-direction:column;gap:4px;">
+          <span>Thu, Apr 24 &middot; 18:00 &ndash; 19:00 (1h)</span>
+          <span>TNT Studio &middot; 3/10 spots</span>
+        </div>
+      </div>
+
+      <!-- Comment -->
+      <div class="fit-input-group" style="padding:0;margin-bottom:16px;">
+        <span class="fit-input-label">Comment <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+        <textarea class="fit-input-ta" maxlength="300" placeholder="Add a message for the athlete..." style="min-height:72px;"></textarea>
+      </div>
+
+      <!-- Price row -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--fit-divider);">
+        <span style="font-size:15px;color:var(--fit-text-primary);">Price</span>
+        <span style="font-size:18px;font-weight:500;color:var(--fit-text-primary);">&euro;25.00 <span style="font-size:13px;color:var(--fit-text-tertiary);font-weight:400;">/person</span></span>
+      </div>
+
+      <!-- Info -->
+      <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0 20px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.5;">Share the invite link with the athlete &middot; you&rsquo;ll be notified when they sign up and accept.</span>
+      </div>
+
+      <!-- CTA -->
+      <button class="fit-btn fit-btn-primary" onclick="handleSend('invite')" style="border-radius:99px;">Send Invite</button>
+    </div>
   </div>
 </div>
 
@@ -655,14 +805,23 @@
       <button onclick="setScreenState('s-invite-time','empty',this)">No availability</button>
       <button onclick="setScreenState('s-invite-time','error',this)">Error</button>
     </div>
-    <p>Step 2 for personal training. Choose when.</p><ul><li>Day strip for date selection</li><li>Time slots based on coach availability</li><li>Busy slots dimmed with event name</li><li>Selected slot: gradient + checkmark</li><li>Confirm button routes to review based on flow mode</li></ul><hr><p class="note"><strong>No availability:</strong> all slots busy on this day — user picks another date. <strong>Error:</strong> inline banner with Retry (no outer banner — positioned after content, CTA remains in footer).</p></div>
+    <p>Step 2 for personal training. Choose when.</p><ul><li>Day strip for date selection</li><li>Expandable hour rows with :00/:15/:30/:45 chips — busy hours dimmed with event name</li><li>Selected slot: gradient + checkmark</li><li>Confirm → bottom sheet (link-invite vs in-app schedule depending on flow mode)</li></ul><hr><p class="note"><strong>No availability:</strong> all slots busy on this day — user picks another date. <strong>Error:</strong> inline banner with Retry (no outer banner — positioned after content, CTA remains in footer).</p>
+    <p style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;margin-top:12px;">
+      <button style="height:32px;padding:0 14px;font-size:13px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-text-primary);border-radius:99px;cursor:pointer;font-family:var(--fit-font);" onclick="go('s-invite-time',document.querySelector('.sidebar button[onclick*=s-invite-time]:not([onclick*=group])'));setTimeout(function(){document.getElementById('invite-confirm-sheet').classList.add('visible');},80)">Open invite confirm sheet (link)</button>
+      <button style="height:32px;padding:0 14px;font-size:13px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-text-primary);border-radius:99px;cursor:pointer;font-family:var(--fit-font);" onclick="go('s-invite-time',document.querySelector('.sidebar button[onclick*=s-invite-time]:not([onclick*=group])'));setTimeout(function(){document.getElementById('schedule-confirm-sheet').classList.add('visible');},80)">Open schedule confirm sheet (in-app)</button>
+    </p>
+  </div>
   <div class="ann" id="ann-s-invite-time-group"><span class="ann-role coach">Coach</span><h3>Date (Group)</h3>
     <div class="state-toggle">
       <button class="active" onclick="setScreenState('s-invite-time-group','default',this)">Filled</button>
       <button onclick="setScreenState('s-invite-time-group','empty',this)">Empty</button>
       <button onclick="setScreenState('s-invite-time-group','loading',this)">Loading</button>
     </div>
-    <p>Step 2 for group training. Day strip + event cards.</p><ul><li><strong>Day strip</strong> with dots on days that have group sessions</li><li><strong>v6d event card</strong> with spots count — tap = select + push to review</li><li>Teal border on selected card</li></ul><hr><p class="note"><strong>Empty:</strong> template has no scheduled sessions — CTA to go back and pick another template.</p></div>
+    <p>Step 2 for group training. Day strip + event cards.</p><ul><li><strong>Day strip</strong> with dots on days that have group sessions</li><li><strong>v6d event card</strong> with spots count — tap = open group invite confirm sheet</li><li>Teal border on selected card</li></ul><hr><p class="note"><strong>Empty:</strong> template has no scheduled sessions — CTA to go back and pick another template.</p>
+    <p style="margin-top:12px;">
+      <button style="height:32px;padding:0 14px;font-size:13px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-text-primary);border-radius:99px;cursor:pointer;font-family:var(--fit-font);" onclick="go('s-invite-time-group',document.querySelector('.sidebar button[onclick*=s-invite-time-group]'));setTimeout(function(){document.getElementById('invite-confirm-sheet-group').classList.add('visible');},80)">Open group invite confirm sheet</button>
+    </p>
+  </div>
   <div class="ann" id="ann-s-invite-review"><span class="ann-role coach">Coach</span><h3>Invite Review</h3>
     <div class="state-toggle">
       <button class="active" onclick="setReviewState('invite','default',this)">Default</button>
@@ -735,29 +894,75 @@ var inviteMode = _params.get('mode') || 'invite';
 var inviteOrigin = _params.get('origin') || 's-clients';
 
 // Routed from time-picker → review screen for current mode
+var invHour = '09', invMin = '00';
+function invToggleSlot(slot) {
+  if (slot.classList.contains('tp-slot-busy')) return;
+  var wasExpanded = slot.classList.contains('expanded');
+  document.querySelectorAll('#inv-slot-list .tp-slot').forEach(function(s) { s.classList.remove('expanded'); });
+  if (!wasExpanded) {
+    slot.classList.add('expanded');
+    var first = slot.querySelector('.min-chip:not(.disabled)');
+    if (first) {
+      var min = first.getAttribute('data-min');
+      document.querySelectorAll('#inv-slot-list .tp-slot-row').forEach(function(r) { r.classList.remove('selected'); });
+      document.querySelectorAll('#inv-slot-list .min-chip').forEach(function(c) { c.classList.remove('selected'); });
+      slot.querySelector('.tp-slot-row').classList.add('selected');
+      first.classList.add('selected');
+      invHour = slot.getAttribute('data-hour');
+      invMin = min;
+      invUpdateConfirmCta();
+    }
+  }
+}
+function invPickTime(h, m, ev) {
+  if (ev) ev.stopPropagation();
+  document.querySelectorAll('#inv-slot-list .min-chip').forEach(function(c) { c.classList.remove('selected'); });
+  document.querySelectorAll('#inv-slot-list .tp-slot-row').forEach(function(r) { r.classList.remove('selected'); });
+  if (ev && ev.target) ev.target.classList.add('selected');
+  var slot = document.querySelector('#inv-slot-list .tp-slot[data-hour="' + h + '"]');
+  if (slot) slot.querySelector('.tp-slot-row').classList.add('selected');
+  invHour = h; invMin = m;
+  invUpdateConfirmCta();
+}
+function invUpdateConfirmCta() {
+  var cta = document.getElementById('inv-confirm-cta');
+  if (!cta) return;
+  var startH = parseInt(invHour, 10);
+  var endH = (startH + 1).toString().padStart(2, '0');
+  cta.textContent = 'Confirm · ' + invHour + ':' + invMin + ' – ' + endH + ':' + invMin;
+}
+
+// Opens the right confirm sheet on the Confirm CTA based on inviteMode
+function openInviteConfirm() {
+  var sheetId = inviteMode === 'schedule' ? 'schedule-confirm-sheet' : 'invite-confirm-sheet';
+  var sheet = document.getElementById(sheetId);
+  if (sheet) sheet.classList.add('visible');
+}
+
+// Kept for back-compat with s-invite-review / s-schedule-review push screens
+// (sidebar links still reference these old screens for state demos)
 function goReview() {
   var targetId = inviteMode === 'schedule' ? 's-schedule-review' : 's-invite-review';
   var sidebarBtn = document.querySelector('.sidebar button[onclick*="' + targetId + '"]');
-  go(targetId, sidebarBtn);
+  if (document.getElementById(targetId)) go(targetId, sidebarBtn);
 }
 
-// On Send tap → transition default → sending (spinner) → snackbar → navigate back
+// On Send tap inside a confirm sheet → snackbar → for in-app schedule, redirect to Calendar
 function handleSend(flow) {
-  // Enter sending state (CTA → spinner)
-  setReviewState(flow, 'sending', null);
-  setTimeout(function(){
-    // Simulated success: show snackbar
-    var snackId = flow === 'schedule' ? 'sch-snackbar' : 'inv-snackbar';
-    var snack = document.getElementById(snackId);
-    if (snack) { snack.classList.add('show'); }
-    setTimeout(function(){
-      if (snack) snack.classList.remove('show');
-      // Reset review to default for next entry, then navigate
-      setReviewState(flow, 'default', null);
-      var dest = resolveOrigin(inviteOrigin);
-      if (dest) location.href = dest;
-    }, 1400);
-  }, 800); // simulated network delay
+  // Dismiss whichever sheet is visible
+  document.querySelectorAll('.fit-sheet-overlay.visible').forEach(function(o) { o.classList.remove('visible'); });
+  // Show snackbar
+  var snackId = flow === 'schedule' ? 'sch-snackbar' : 'inv-snackbar';
+  var snack = document.getElementById(snackId);
+  if (snack) {
+    snack.classList.add('show');
+    setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+  }
+  // For in-app schedule → mock redirect to coach Calendar on the day+slot
+  // For invite (external link) → stay (coach needs to share the link)
+  if (flow === 'schedule') {
+    setTimeout(function(){ location.href = './calendar.html'; }, 600);
+  }
 }
 
 // Screen state (ls-*) switcher — invite-select / invite-time / invite-time-group

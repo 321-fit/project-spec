@@ -1,0 +1,2317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>321Fit — Group Training</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    /* Dark Theme (Coach) */
+    --d-screen-bg: #121417;
+    --d-surface: #1E2126;
+    --d-surface-high: #282D34;
+    --d-surface-higher: #333841;
+    --d-surface-low: #0D0F12;
+    --d-text-primary: #FFFFFF;
+    --d-text-secondary: #8B9099;
+    --d-text-tertiary: #5C6370;
+    --d-divider: #2E333A;
+
+    /* Light Theme (Athlete) */
+    --l-screen-bg: #FFFFFF;
+    --l-surface: #FFFFFF;
+    --l-surface-high: #FFFFFF;
+    --l-surface-higher: #F5F5F7;
+    --l-surface-low: #E8E8ED;
+    --l-text-primary: #242424;
+    --l-text-secondary: #A7A7A7;
+    --l-text-tertiary: #6D6D6D;
+    --l-divider: #E5E5EA;
+
+    /* Brand */
+    --brand-primary: #00A7D0;
+    --brand-secondary: #00E29D;
+    --brand-gradient: linear-gradient(135deg, #00A7D0, #00E29D);
+
+    /* Semantic */
+    --error: #FF4D35;
+    --warning: #FFC635;
+    --success-dark: #00E29D;
+    --success-light: #36B03D;
+  }
+
+  body {
+    font-family: 'Rubik', -apple-system, sans-serif;
+    background: #0a0a0a;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 24px;
+    min-height: 100vh;
+  }
+
+  /* Sidebar Navigation */
+  .sidebar {
+    position: fixed;
+    left: max(16px, calc(50% - 195px - 180px - 32px));
+    top: 24px;
+    width: 180px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .sidebar .section-label {
+    color: #5C6370;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 16px 0 8px;
+    padding: 0 8px;
+  }
+  .sidebar .section-label:first-child { margin-top: 0; }
+  .sidebar button {
+    font-family: 'Rubik', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: #8B9099;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+    width: 100%;
+  }
+  .sidebar button:hover {
+    background: #1E2126;
+    color: #fff;
+  }
+  .sidebar button.active {
+    background: linear-gradient(135deg, rgba(0,167,208,0.15), rgba(0,226,157,0.15));
+    color: #fff;
+    font-weight: 500;
+  }
+
+  /* Phone centered, annotations fixed right */
+  .phone-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+  .phone-container {
+    flex-shrink: 0;
+  }
+  .annotations-container {
+    position: fixed;
+    left: calc(50% + 195px + 48px);
+    top: 24px;
+    width: 280px;
+  }
+  .screen-annotation {
+    display: none;
+  }
+  .screen-annotation.active { display: block; }
+  .screen-annotation .ann-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+  .screen-annotation .ann-role {
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+  .screen-annotation .ann-role.coach {
+    background: rgba(0,167,208,0.15);
+    color: var(--brand-primary);
+  }
+  .screen-annotation .ann-role.athlete {
+    background: rgba(0,226,157,0.15);
+    color: var(--brand-secondary);
+  }
+  .screen-annotation .ann-body {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #8B9099;
+  }
+  .screen-annotation .ann-body strong {
+    color: #ACB1B6;
+    font-weight: 500;
+  }
+  .screen-annotation .ann-bullets {
+    margin-top: 14px;
+    padding-left: 18px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #8B9099;
+  }
+  .screen-annotation .ann-bullets li { margin-bottom: 6px; }
+  .screen-annotation .ann-divider {
+    height: 1px;
+    background: #2E333A;
+    margin: 16px 0;
+  }
+  .screen-annotation .ann-note {
+    font-size: 14px;
+    color: #5C6370;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* Phone Frame */
+  .screen {
+    width: 390px;
+    height: 844px;
+    border-radius: 40px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+    display: none;
+    border: 2px solid #2E333A;
+  }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 24px 8px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .status-bar .icons { display: flex; gap: 6px; align-items: center; }
+  .status-bar .icons span { font-size: 12px; }
+
+  /* ===== DARK THEME (Coach) ===== */
+  .dark { background: var(--d-screen-bg); color: var(--d-text-primary); }
+  .dark .status-bar { color: var(--d-text-primary); }
+
+  .dark .header {
+    display: flex;
+    align-items: center;
+    padding: 8px 20px 16px;
+    gap: 12px;
+  }
+  .dark .header .back {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--d-text-primary);
+    font-size: 20px;
+    cursor: pointer;
+  }
+  .dark .header h1 {
+    font-size: 18px; font-weight: 500;
+    flex: 1;
+  }
+  .dark .header .badge {
+    font-size: 12px; font-weight: 500;
+    background: var(--d-surface-high);
+    padding: 4px 10px;
+    border-radius: 8px;
+    color: var(--d-text-secondary);
+  }
+
+  /* Form Elements - Dark */
+  .dark .form-group {
+    padding: 0 20px;
+    margin-bottom: 20px;
+  }
+  .dark .form-label {
+    font-size: 12px; font-weight: 600;
+    color: var(--d-text-secondary);
+    margin-bottom: 8px;
+    display: block;
+  }
+  .dark .form-input {
+    width: 100%;
+    height: 48px;
+    background: var(--d-surface);
+    border: none;
+    border-radius: 12px;
+    padding: 0 16px;
+    color: var(--d-text-primary);
+    font-family: 'Rubik', sans-serif;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+  }
+  .dark .form-input.placeholder { color: var(--d-text-tertiary); }
+  .dark .form-input .chevron {
+    margin-left: auto;
+    color: var(--d-text-tertiary);
+  }
+  .dark .form-input .icon {
+    margin-right: 8px;
+    color: var(--d-text-tertiary);
+  }
+
+  /* Toggle Switch */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    margin-bottom: 20px;
+  }
+  .toggle-row .label-side {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .toggle-row .label-main {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .toggle-row .label-sub {
+    font-size: 12px;
+    color: var(--d-text-secondary);
+  }
+  .toggle {
+    width: 48px; height: 28px;
+    background: var(--d-surface-higher);
+    border-radius: 14px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .toggle.on { background: var(--brand-secondary); }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 22px; height: 22px;
+    background: #fff;
+    border-radius: 11px;
+    top: 3px; left: 3px;
+    transition: transform 0.2s;
+  }
+  .toggle.on::after { transform: translateX(20px); }
+
+  /* Segment Control (selection pattern from Figma) */
+  .segment-control {
+    display: flex;
+    margin: 0 20px 20px;
+    gap: 8px;
+  }
+  .segment-control .seg {
+    flex: 1;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--d-text-primary);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--d-surface-high);
+  }
+  .segment-control .seg.active {
+    background: linear-gradient(to right, rgba(10,147,189,0.2), rgba(5,224,166,0.2));
+    border: 1px solid #08B48F;
+    color: var(--d-text-primary);
+  }
+  .segment-control .seg:not(.active) {
+    border: 1px solid transparent;
+  }
+
+  /* Max Participants Stepper */
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .stepper-btn {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: var(--d-surface-high);
+    border: none;
+    color: var(--d-text-primary);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Rubik', sans-serif;
+  }
+  .stepper-value {
+    font-size: 22px;
+    font-weight: 500;
+    min-width: 40px;
+    text-align: center;
+  }
+
+  /* Action Button (in sticky footer) */
+  .btn-primary {
+    margin: 0 20px;
+    height: 52px;
+    background: var(--brand-gradient);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-family: 'Rubik', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(100% - 40px);
+  }
+  .screen-footer--btn {
+    padding: 12px 0 32px;
+  }
+
+  /* Session Card - Dark */
+  .session-card {
+    margin: 0 20px 12px;
+    background: var(--d-surface);
+    border-radius: 16px;
+    padding: 16px;
+  }
+  .session-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .session-card .card-title {
+    font-size: 16px;
+    font-weight: 500;
+  }
+  .session-card .card-edit {
+    color: var(--d-text-tertiary);
+    cursor: pointer;
+  }
+  .session-card .card-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: var(--d-text-secondary);
+  }
+  .session-card .card-row .ico { width: 18px; text-align: center; display: inline-flex; align-items: center; justify-content: center; }
+  .session-card .card-row .ico svg { width: 16px; height: 16px; }
+  .session-card .card-edit svg { width: 18px; height: 18px; }
+
+  .group-badge svg, .personal-badge svg { width: 14px; height: 14px; vertical-align: middle; }
+  .group-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(0, 167, 208, 0.15);
+    color: var(--brand-primary);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 6px;
+  }
+
+  .personal-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--d-surface-high);
+    color: var(--d-text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 6px;
+  }
+
+  /* Calendar Block */
+  .calendar-view {
+    padding: 0 20px;
+  }
+  .cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .cal-header h2 { font-size: 18px; font-weight: 500; }
+  .cal-days {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+  }
+  .cal-day {
+    flex: 1;
+    text-align: center;
+    padding: 8px 0;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  .cal-day .day-name { font-size: 10px; color: var(--d-text-tertiary); margin-bottom: 4px; }
+  .cal-day .day-num { font-size: 14px; font-weight: 500; color: var(--d-text-secondary); }
+  .cal-day.active { background: var(--d-surface); }
+  .cal-day.active .day-num { color: var(--d-text-primary); }
+
+  .cal-timeline {
+    position: relative;
+  }
+  .cal-hour {
+    height: 60px;
+    display: flex;
+    align-items: flex-start;
+    border-top: 1px solid var(--d-divider);
+  }
+  .cal-hour-label {
+    font-size: 10px;
+    color: var(--d-text-tertiary);
+    width: 40px;
+    flex-shrink: 0;
+    padding-top: 4px;
+  }
+  .cal-event {
+    position: absolute;
+    left: 48px;
+    right: 8px;
+    border-radius: 12px;
+    padding: 8px 12px;
+    font-size: 12px;
+    overflow: hidden;
+  }
+  .cal-event.personal {
+    background: var(--d-surface);
+    border-left: 3px solid var(--brand-secondary);
+  }
+  .cal-event.group {
+    background: rgba(0, 167, 208, 0.12);
+    border-left: 3px solid var(--brand-primary);
+  }
+  .cal-event .ev-title { font-weight: 500; margin-bottom: 2px; }
+  .cal-event .ev-meta { color: var(--d-text-secondary); font-size: 11px; }
+  .cal-event .ev-badge {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(0, 167, 208, 0.2);
+    color: var(--brand-primary);
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+
+  /* Event Detail - Dark */
+  .event-detail {
+    padding: 0 20px;
+  }
+  .event-detail .event-type-badge {
+    margin-bottom: 16px;
+  }
+  .event-detail .detail-section {
+    margin-bottom: 20px;
+  }
+  .event-detail .detail-section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--d-text-secondary);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .event-detail .detail-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+  .event-detail .detail-row .ico {
+    width: 20px;
+    text-align: center;
+    color: var(--d-text-tertiary);
+    font-size: 14px;
+  }
+  .event-detail .detail-row .label { color: var(--d-text-secondary); }
+  .event-detail .detail-row .value { margin-left: auto; }
+
+  /* Participants List */
+  .participant {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--d-divider);
+  }
+  .participant:last-child { border-bottom: none; }
+  .participant.swipeable { overflow: hidden; position: relative; cursor: pointer; user-select: none; }
+  .participant.swipeable .swipe-left-bg { position:absolute;right:-100%;top:0;bottom:0;width:100%;background:var(--error);border-radius:8px;display:flex;align-items:center;gap:6px;padding-left:20px;font-size:13px;font-weight:500;color:#fff;z-index:1;opacity:0;transition:opacity 0.15s; }
+  .participant.swipeable.swiping-left .swipe-left-bg { opacity:1; }
+  .participant .avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--d-surface-high);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--d-text-secondary);
+  }
+  .participant .p-info { flex: 1; }
+  .participant .p-name { font-size: 14px; font-weight: 500; }
+  .participant .p-sport { font-size: 12px; color: var(--d-text-secondary); }
+  .participant .p-actions { display: flex; gap: 8px; align-items: center; }
+  .participant .cash-status {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .participant .cash-status.paid {
+    background: rgba(0, 226, 157, 0.15);
+    color: var(--success-dark);
+  }
+  .participant .cash-status.unpaid {
+    background: rgba(255, 198, 53, 0.15);
+    color: var(--warning);
+    cursor: pointer;
+  }
+  .participant .remove-btn {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: rgba(255, 77, 53, 0.1);
+    border: none;
+    color: var(--error);
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .spots-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--d-surface);
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+  .spots-fill {
+    flex: 1;
+    height: 6px;
+    background: var(--d-surface-higher);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .spots-fill-bar {
+    height: 100%;
+    background: var(--brand-gradient);
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+  .spots-text {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* ===== LIGHT THEME (Athlete) ===== */
+  .light { background: var(--l-screen-bg); color: var(--l-text-primary); }
+  .light .status-bar { color: var(--l-text-primary); }
+
+  .light .header {
+    display: flex;
+    align-items: center;
+    padding: 8px 20px 16px;
+    gap: 12px;
+    background: var(--l-surface);
+  }
+  .light .header .back {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--l-text-primary);
+    font-size: 20px;
+    cursor: pointer;
+  }
+  .light .header h1 {
+    font-size: 18px; font-weight: 500; flex: 1;
+  }
+
+  .light .status-bar { background: var(--l-surface); }
+
+  /* Coach Profile Card (Athlete view) */
+  .coach-profile-header {
+    background: var(--l-surface);
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .coach-profile-header .coach-avatar {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00A7D0, #00E29D);
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #fff;
+    font-weight: 500;
+  }
+  .coach-profile-header .coach-name {
+    font-size: 22px; font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .coach-profile-header .coach-loc {
+    font-size: 14px;
+    color: var(--l-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  .coach-profile-header .coach-bio { display: none; }
+  .coach-profile-header .sport-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(to right, rgba(10,147,189,0.2), rgba(5,224,166,0.2));
+    padding: 6px 14px 6px 8px;
+    border-radius: 99px;
+    font-size: 14px;
+    color: #06789D;
+    font-weight: 400;
+  }
+
+  /* Session Tabs */
+  .light .segment-control {
+    display: flex;
+    margin: 0 20px 16px;
+    gap: 8px;
+  }
+  .light .segment-control .seg {
+    flex: 1; height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 400;
+    color: var(--l-text-primary);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--l-surface-higher);
+    border: 1px solid transparent;
+  }
+  .light .segment-control .seg.active {
+    background: linear-gradient(to right, rgba(10,147,189,0.1), rgba(5,224,166,0.1));
+    border: 1px solid #08B48F;
+    color: var(--l-text-primary);
+  }
+
+  /* Light Session Card */
+  .light .session-card {
+    margin: 0 20px 12px;
+    background: var(--l-surface-higher);
+    border-radius: 16px;
+    padding: 16px;
+  }
+  .light .session-card .card-row {
+    color: var(--l-text-secondary);
+  }
+  .light .group-badge {
+    background: rgba(0, 167, 208, 0.1);
+  }
+  .light .personal-badge {
+    background: var(--l-surface-higher);
+    color: var(--l-text-secondary);
+  }
+
+  /* Group Training Detail - Light */
+  .light .event-detail { padding: 0 20px; }
+  .light .spots-bar {
+    background: var(--l-surface-higher);
+  }
+  .light .spots-fill { background: var(--l-surface-low); }
+
+  .light .detail-card {
+    background: var(--l-surface-higher);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .light .detail-card .detail-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+  .light .detail-card .detail-row:last-child { margin-bottom: 0; }
+  .light .detail-card .detail-row .ico {
+    width: 20px; text-align: center;
+    color: var(--l-text-tertiary);
+  }
+  .light .detail-card .detail-row .value {
+    margin-left: auto;
+    color: var(--l-text-primary);
+  }
+  .light .detail-card .detail-row .label {
+    color: var(--l-text-secondary);
+  }
+
+  .light .section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--l-text-secondary);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0 20px;
+  }
+
+  .light .participant {
+    border-bottom-color: var(--l-divider);
+    padding: 12px 20px;
+  }
+  .light .participant .avatar {
+    background: var(--l-surface-higher);
+    color: var(--l-text-secondary);
+  }
+  .light .participants-card {
+    background: var(--l-surface-higher);
+    border-radius: 16px;
+    padding: 4px 0;
+    margin: 0 20px 16px;
+  }
+  .light .participants-card .participant { padding: 12px 16px; }
+
+  .light .btn-primary {
+    margin: auto 20px 40px;
+    width: calc(100% - 40px);
+  }
+
+  /* Bottom Nav — Floating pill (glass) */
+  .bottom-nav {
+    margin: 0 20px 16px;
+    height: 64px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 4px;
+    box-shadow: 0px 0px 24px rgba(0,0,0,0.4);
+  }
+  .bottom-nav .nav-item {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    font-size: 22px;
+    color: #ACB1B6;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .bottom-nav .nav-item svg { width: 24px; height: 24px; }
+  .bottom-nav .nav-item .nav-icon { display: none; }
+  .bottom-nav .nav-item.active {
+    background: linear-gradient(to right, rgba(3,178,226,0.2), rgba(34,247,183,0.2));
+    color: #fff;
+  }
+
+  /* Light theme nav — same glass style */
+  .light .bottom-nav {
+    background: rgba(255,255,255,0.75);
+    box-shadow: 0px 0px 24px rgba(0,0,0,0.15);
+  }
+  .light .bottom-nav .nav-item { color: #A7A7A7; }
+  .light .bottom-nav .nav-item.active {
+    background: linear-gradient(to right, rgba(3,178,226,0.15), rgba(34,247,183,0.15));
+    color: var(--l-text-primary);
+  }
+
+  /* Full badge (spots full) */
+  .full-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255, 77, 53, 0.12);
+    color: var(--error);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 6px;
+  }
+
+  /* Duration picker area */
+  .picker-area {
+    margin: 0 20px 20px;
+    background: var(--d-surface);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+  .picker-area .picker-label {
+    font-size: 12px;
+    color: var(--d-text-tertiary);
+    margin-bottom: 8px;
+  }
+  .picker-area .picker-values {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+  }
+  .picker-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .picker-col .dim { color: var(--d-text-tertiary); font-size: 14px; }
+  .picker-col .sel {
+    font-size: 18px;
+    font-weight: 500;
+    background: var(--d-surface-high);
+    padding: 6px 20px;
+    border-radius: 8px;
+  }
+
+  /* Sticky header (status bar + nav header) */
+  .screen-header {
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .screen-header.dark { background: var(--d-screen-bg); }
+  .screen-header.light { background: var(--l-surface); }
+
+  /* Scrollable content */
+  .screen-content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .screen-content::-webkit-scrollbar { display: none; }
+
+  /* Sticky footer (confirm button or bottom nav) */
+  .screen-footer {
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .screen-footer.dark { background: var(--d-screen-bg); }
+  .screen-footer.light { background: #FFFFFF; }
+
+  /* Price input inline */
+  .price-row {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px;
+    margin-bottom: 20px;
+  }
+  .price-row .form-input {
+    flex: 1;
+  }
+  .price-row .currency {
+    width: 56px;
+    height: 48px;
+    background: var(--d-surface);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--d-text-secondary);
+  }
+
+  /* Athlete event in schedule */
+  .light .cal-event.group {
+    background: rgba(0, 167, 208, 0.08);
+    border-left: 3px solid var(--brand-primary);
+  }
+  .light .cal-event .ev-title { color: var(--l-text-primary); }
+  .light .cal-event .ev-meta { color: var(--l-text-secondary); }
+  .light .cal-event .ev-badge {
+    background: rgba(0, 167, 208, 0.12);
+    color: var(--brand-primary);
+  }
+  .light .cal-hour { border-top-color: var(--l-divider); }
+  .light .cal-hour-label { color: var(--l-text-tertiary); }
+  .light .cal-day .day-name { color: var(--l-text-tertiary); }
+  .light .cal-day .day-num { color: var(--l-text-secondary); }
+  .light .cal-day.active { background: var(--l-surface); }
+  .light .cal-day.active .day-num { color: var(--l-text-primary); }
+
+  .cal-draggable { cursor: grab; }
+  .cal-draggable:active { cursor: grabbing; }
+
+  .notification-toast {
+    margin: 0 20px 16px;
+    padding: 14px 16px;
+    background: var(--d-surface);
+    border-radius: 12px;
+    border-left: 3px solid var(--brand-primary);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .notification-toast .n-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .notification-toast .n-content { flex: 1; }
+  .notification-toast .n-title {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+  .notification-toast .n-body {
+    font-size: 12px;
+    color: var(--d-text-secondary);
+  }
+  .notification-toast .n-time {
+    font-size: 11px;
+    color: var(--d-text-tertiary);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="section-label">Coach</div>
+  <button class="active" onclick="show('create-session',this)">Create Session</button>
+  <button onclick="show('my-sessions',this)">My Sessions</button>
+  <button onclick="show('calendar',this)">Calendar</button>
+  <button onclick="show('event-detail-coach',this)">Event Detail</button>
+  <button onclick="show('notifications',this)">Cash Payment</button>
+  <div class="section-label">Athlete</div>
+  <button onclick="show('coach-profile',this)">Coach Profile</button>
+  <button onclick="show('group-detail-athlete',this)">Group Detail</button>
+  <button onclick="show('group-joined',this)">Group Joined</button>
+  <button onclick="show('group-full',this)">Group Full</button>
+  <button onclick="show('athlete-schedule',this)">My Schedule</button>
+</nav>
+
+<div class="phone-wrapper">
+<div class="phone-container">
+
+<!-- ==================== COACH: CREATE SESSION ==================== -->
+<div class="screen dark active" id="create-session">
+  <div class="screen-header dark">
+    <div class="status-bar"><span>9:30</span><div class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span> <span>&#128267;</span></div></div>
+    <div class="header"><div class="back">&larr;</div><h1>Training Session Setup</h1></div>
+  </div>
+  <div class="screen-content">
+    <div class="form-group"><span class="form-label">Training name</span><div class="form-input">HIIT Group Session</div></div>
+    <div class="form-group"><span class="form-label">Sport type</span><div class="form-input"><span class="icon">&#9917;</span> Fitness<span class="chevron">&#8964;</span></div></div>
+    <div class="form-group"><span class="form-label">Location</span><div class="form-input"><span class="icon">&#9737;</span> TNT Studio<span class="chevron">&#8964;</span></div></div>
+    <div class="form-group"><span class="form-label">Training type</span></div>
+    <div class="segment-control"><div class="seg">Personal</div><div class="seg active">Group</div></div>
+    <div class="form-group"><span class="form-label">Max participants</span>
+      <div style="display:flex;align-items:center;margin-top:8px;background:var(--d-surface);border-radius:12px;height:48px;overflow:hidden;">
+        <button class="stepper-btn" style="border-radius:12px 0 0 12px;height:48px;width:48px;background:var(--d-surface-high);">&minus;</button>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;">
+          <span class="stepper-value" style="font-size:18px;">10</span>
+          <span style="font-size:13px;color:var(--d-text-secondary);">athletes</span>
+        </div>
+        <button class="stepper-btn" style="border-radius:0 12px 12px 0;height:48px;width:48px;background:var(--d-surface-high);">+</button>
+      </div>
+    </div>
+    <div class="form-group"><span class="form-label">Duration</span></div>
+    <div class="picker-area"><div class="picker-values"><div class="picker-col"><span class="picker-label">Hour</span><span class="dim">0</span><span class="sel">1</span><span class="dim">2</span></div><div class="picker-col"><span class="picker-label">Minutes</span><span class="dim">0</span><span class="sel">00</span><span class="dim">30</span></div></div></div>
+    <div class="form-group"><span class="form-label">Price per participant</span></div>
+    <div class="price-row"><div class="form-input" style="flex:1">25</div><div class="currency">&euro;</div></div>
+    <div class="form-group"><span class="form-label">Payment method</span></div>
+    <div class="segment-control"><div class="seg" onclick="this.classList.toggle('active')">Cash</div><div class="seg active" onclick="this.classList.toggle('active')">Card</div></div>
+  </div>
+  <div class="screen-footer screen-footer--btn dark"><button class="btn-primary">Save</button></div>
+</div>
+
+<!-- ==================== COACH: MY SESSIONS LIST ==================== -->
+<div class="screen dark" id="my-sessions">
+  <div class="screen-header dark">
+    <div class="status-bar"><span>9:30</span><div class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span> <span>&#128267;</span></div></div>
+    <div class="header"><div class="back">&larr;</div><h1>My training sessions</h1><div style="width:32px;height:32px;border-radius:50%;background:var(--brand-gradient);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;">+</div></div>
+  </div>
+  <div class="screen-content">
+    <div class="session-card"><div class="card-header"><span class="card-title">Basketball Training</span><span class="card-edit">&#9998;</span></div><div style="margin-bottom:8px;"><span class="personal-badge">&#128100; Personal</span></div><div class="card-row"><span class="ico">&#9917;</span> basketball</div><div class="card-row"><span class="ico">&#9737;</span> TNT Studio</div><div class="card-row"><span class="ico">&#9201;</span> 1h</div><div class="card-row"><span class="ico">&#128176;</span> &euro;50, cash/card</div></div>
+    <div class="session-card"><div class="card-header"><span class="card-title">HIIT Group Session</span><span class="card-edit">&#9998;</span></div><div style="margin-bottom:8px;"><span class="group-badge">&#128101; Group &middot; max 10</span></div><div class="card-row"><span class="ico">&#9917;</span> fitness</div><div class="card-row"><span class="ico">&#9737;</span> TNT Studio</div><div class="card-row"><span class="ico">&#9201;</span> 1h</div><div class="card-row"><span class="ico">&#128176;</span> &euro;25/person, card</div></div>
+    <div class="session-card"><div class="card-header"><span class="card-title">Yoga Morning Flow</span><span class="card-edit">&#9998;</span></div><div style="margin-bottom:8px;"><span class="group-badge">&#128101; Group &middot; max 15</span></div><div class="card-row"><span class="ico">&#9917;</span> yoga</div><div class="card-row"><span class="ico">&#9737;</span> GYM Bro</div><div class="card-row"><span class="ico">&#9201;</span> 1h 30m</div><div class="card-row"><span class="ico">&#128176;</span> &euro;15/person, cash</div></div>
+  </div>
+  <div class="screen-footer dark">
+    <div class="bottom-nav">
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/><path d="M19.5 14.5a4 4 0 013 3.87V21"/></svg></div>
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== COACH: CALENDAR ==================== -->
+<div class="screen dark" id="calendar">
+  <div class="screen-header dark">
+    <div class="status-bar"><span>9:30</span><div class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span> <span>&#128267;</span></div></div>
+    <!-- Header with month, today btn, sync btn -->
+    <div class="header" style="justify-content:space-between;">
+      <h1 style="flex:1">April 2026</h1>
+      <div style="display:flex;gap:8px;">
+        <button id="cal-today-btn" style="background:var(--d-surface-high);border:none;color:var(--brand-primary);font-family:'Rubik',sans-serif;font-size:12px;font-weight:500;padding:6px 12px;border-radius:8px;cursor:pointer;">Today</button>
+        <button id="cal-sync-btn" style="background:var(--d-surface-high);border:none;color:var(--d-text-secondary);font-family:'Rubik',sans-serif;font-size:12px;padding:6px 10px;border-radius:8px;cursor:pointer;" title="Sync calendars">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15.36 6.36L3 16"/></svg>
+        </button>
+      </div>
+    </div>
+    <!-- Horizontal day wheel with selected day centered -->
+    <div id="cal-day-strip" style="overflow-x:auto;padding:0 0 12px;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+      <div id="cal-day-strip-inner" style="display:flex;gap:0;width:max-content;padding:0 20px;">
+        <!-- Days generated by JS -->
+      </div>
+    </div>
+    <style>
+      #cal-day-strip::-webkit-scrollbar { display:none; }
+      .cal-day-chip {
+        width:50px; height:62px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+        gap:4px; border-radius:16px; cursor:pointer; flex-shrink:0; transition:all 0.15s;
+      }
+      .cal-day-chip .dn { font-size:10px; color:var(--d-text-tertiary); text-transform:uppercase; }
+      .cal-day-chip .dd { font-size:16px; font-weight:500; color:var(--d-text-secondary); }
+      .cal-day-chip.today .dd { color:var(--brand-primary); }
+      .cal-day-chip.selected { background:var(--d-surface); }
+      .cal-day-chip.selected .dd { color:#fff; }
+    </style>
+  </div>
+  <div class="screen-content" id="cal-scroll-area">
+    <div class="calendar-view" style="padding-bottom:40px;">
+      <div class="cal-timeline" id="cal-timeline" style="height:auto;min-height:100%;">
+        <!-- 24h timeline -->
+        <div class="cal-hour"><span class="cal-hour-label">06:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">07:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">08:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">09:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">10:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">11:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">12:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">13:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">14:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">15:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">16:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">17:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">18:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">19:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">20:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">21:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">22:00</span></div>
+
+        <!-- Current time indicator -->
+        <div id="cal-now-line" style="position:absolute;left:40px;right:0;height:2px;background:var(--brand-primary);z-index:5;">
+          <div style="position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--brand-primary);"></div>
+        </div>
+
+        <!-- Events (positioned from 06:00 as base) -->
+        <!-- 08:00-09:00 personal -->
+        <div class="cal-event personal cal-draggable" style="top:120px;height:60px;" draggable="true" data-event-id="1">
+          <div class="ev-title">Basketball Training</div>
+          <div class="ev-meta">Anna K. &middot; 08:00 - 09:00</div>
+        </div>
+
+        <!-- 10:00-11:00 group -->
+        <div class="cal-event group cal-draggable" style="top:240px;height:60px;" draggable="true" data-event-id="2">
+          <div class="ev-title">HIIT Group Session</div>
+          <div class="ev-meta">10:00 - 11:00</div>
+          <div class="ev-badge">&#128101; 7/10</div>
+        </div>
+
+        <!-- 12:00-13:00 personal -->
+        <div class="cal-event personal cal-draggable" style="top:360px;height:60px;" draggable="true" data-event-id="3">
+          <div class="ev-title">Basketball Training</div>
+          <div class="ev-meta">Mark S. &middot; 12:00 - 13:00</div>
+        </div>
+
+        <!-- 13:00-14:30 group full -->
+        <div class="cal-event group cal-draggable" style="top:420px;height:90px;" draggable="true" data-event-id="4">
+          <div class="ev-title">Yoga Morning Flow</div>
+          <div class="ev-meta">13:00 - 14:30</div>
+          <div class="ev-badge">&#128101; 15/15</div>
+        </div>
+
+        <!-- 16:00-17:00 personal -->
+        <div class="cal-event personal cal-draggable" style="top:600px;height:60px;" draggable="true" data-event-id="5">
+          <div class="ev-title">Padel Training</div>
+          <div class="ev-meta">Julia D. &middot; 16:00 - 17:00</div>
+        </div>
+
+        <!-- Unavailable zone overlay (hidden, shown on drag) -->
+        <div class="cal-unavailable" id="cal-unav-1" style="display:none;position:absolute;left:40px;right:0;top:420px;height:90px;background:rgba(255,77,53,0.08);border:1px dashed rgba(255,77,53,0.3);border-radius:8px;z-index:3;pointer-events:none;">
+          <span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:11px;color:rgba(255,77,53,0.6);font-weight:500;">Unavailable</span>
+        </div>
+        <div class="cal-unavailable" id="cal-unav-2" style="display:none;position:absolute;left:40px;right:0;top:120px;height:60px;background:rgba(255,77,53,0.08);border:1px dashed rgba(255,77,53,0.3);border-radius:8px;z-index:3;pointer-events:none;">
+          <span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:11px;color:rgba(255,77,53,0.6);font-weight:500;">Unavailable</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="screen-footer dark"><div class="bottom-nav">
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/><path d="M19.5 14.5a4 4 0 013 3.87V21"/></svg></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+    <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+  </div></div>
+</div>
+
+<!-- ==================== COACH: EVENT DETAIL ==================== -->
+<div class="screen dark" id="event-detail-coach">
+  <div class="screen-header dark">
+    <div class="status-bar"><span>9:30</span><div class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span> <span>&#128267;</span></div></div>
+    <div class="header"><div class="back">&larr;</div><h1>HIIT Group Session</h1></div>
+  </div>
+  <div class="screen-content">
+    <!-- Ticket card summary -->
+    <div style="margin:0 20px 16px;background:var(--d-surface);border-radius:16px;padding:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span class="group-badge">&#128101; Group Training</span>
+        <span style="font-size:13px;color:var(--brand-primary);font-weight:500;">&euro;25 / person</span>
+      </div>
+      <div style="display:flex;gap:16px;margin-bottom:12px;font-size:13px;color:var(--d-text-secondary);">
+        <span>&#128197; Tue, Apr 7</span>
+        <span>&#9201; 10:00 - 11:00</span>
+      </div>
+      <div style="font-size:13px;color:var(--d-text-secondary);margin-bottom:12px;">&#9737; TNT Studio &middot; &#128179; Card</div>
+      <div class="spots-bar" style="margin:0;background:var(--d-surface-high);">
+        <div class="spots-fill"><div class="spots-fill-bar" style="width:70%"></div></div>
+        <span class="spots-text">7 / 10</span>
+      </div>
+    </div>
+
+    <!-- Participants list -->
+    <div style="padding:0 20px;">
+      <div class="detail-section-title" style="font-size:12px;font-weight:600;color:var(--d-text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Participants (7)</div>
+      <div class="participant swipeable" oncontextmenu="showDetailSheet(event, 'Anna Kowalski')"><div class="avatar">AK</div><div class="p-info"><div class="p-name">Anna Kowalski</div><div class="p-sport">fitness</div></div><button class="remove-btn" onclick="removeParticipant(this)">&times;</button><div class="swipe-left-bg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div></div>
+      <div class="participant swipeable" oncontextmenu="showDetailSheet(event, 'Mark Schmidt')"><div class="avatar">MS</div><div class="p-info"><div class="p-name">Mark Schmidt</div><div class="p-sport">fitness, crossfit</div></div><button class="remove-btn" onclick="removeParticipant(this)">&times;</button><div class="swipe-left-bg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div></div>
+      <div class="participant swipeable" oncontextmenu="showDetailSheet(event, 'Julia Dent')"><div class="avatar">JD</div><div class="p-info"><div class="p-name">Julia Dent</div><div class="p-sport">fitness</div></div><button class="remove-btn" onclick="removeParticipant(this)">&times;</button><div class="swipe-left-bg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div></div>
+      <div class="participant swipeable" oncontextmenu="showDetailSheet(event, 'Tom Novak')"><div class="avatar">TN</div><div class="p-info"><div class="p-name">Tom Novak</div><div class="p-sport">fitness</div></div><button class="remove-btn" onclick="removeParticipant(this)">&times;</button><div class="swipe-left-bg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div></div>
+      <div class="participant swipeable" oncontextmenu="showDetailSheet(event, 'Lena Roth')"><div class="avatar">LR</div><div class="p-info"><div class="p-name">Lena Roth</div><div class="p-sport">yoga, fitness</div></div><button class="remove-btn" onclick="removeParticipant(this)">&times;</button><div class="swipe-left-bg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div></div>
+      <div class="participant swipeable" oncontextmenu="showDetailSheet(event, 'Paul Weber')"><div class="avatar">PW</div><div class="p-info"><div class="p-name">Paul Weber</div><div class="p-sport">fitness</div></div><button class="remove-btn" onclick="removeParticipant(this)">&times;</button><div class="swipe-left-bg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div></div>
+      <div class="participant swipeable" oncontextmenu="showDetailSheet(event, 'Sara Kim')"><div class="avatar">SK</div><div class="p-info"><div class="p-name">Sara Kim</div><div class="p-sport">fitness</div></div><button class="remove-btn" onclick="removeParticipant(this)">&times;</button><div class="swipe-left-bg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div></div>
+    </div>
+  </div>
+  <!-- Bottom Sheet (long press) -->
+  <div class="bottom-sheet-overlay" id="detail-sheet" onclick="hideDetailSheet()">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="handle"></div>
+      <div style="font-size:16px;font-weight:500;margin-bottom:12px;" id="detail-sheet-name"></div>
+      <div class="sheet-item" onclick="hideDetailSheet()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
+        View Profile
+      </div>
+      <div class="sheet-item" onclick="hideDetailSheet()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Send Message
+      </div>
+      <div class="sheet-item destructive" onclick="hideDetailSheet()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+        Remove from Training
+      </div>
+    </div>
+  </div>
+  <div class="screen-footer screen-footer--btn dark"><button class="btn-primary" style="background: rgba(255,77,53,0.15); color: var(--error);">Cancel Training</button></div>
+</div>
+
+<!-- ==================== COACH: CASH PAYMENT ==================== -->
+<style>
+  /* Cash participant row */
+  .cash-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0; border-bottom: 1px solid var(--d-divider);
+    position: relative; overflow: hidden;
+    cursor: pointer; user-select: none;
+  }
+  .cash-row:last-child { border-bottom: none; }
+  .cash-row-inner {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+    position: relative; z-index: 2;
+    transition: transform 0.25s ease;
+  }
+  /* Swipe backgrounds */
+  .swipe-right-bg, .swipe-left-bg {
+    position: absolute; top: 0; bottom: 0; width: 100%;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 500; color: #fff;
+    z-index: 1; opacity: 0; transition: opacity 0.15s;
+  }
+  .swipe-right-bg {
+    left: -100%; background: var(--success-dark); border-radius: 8px;
+    justify-content: flex-end; padding-right: 20px;
+  }
+  .swipe-left-bg {
+    right: -100%; background: var(--error); border-radius: 8px;
+    justify-content: flex-start; padding-left: 20px;
+  }
+  .cash-row.swiping-right .swipe-right-bg { opacity: 1; }
+  .cash-row.swiping-left .swipe-left-bg { opacity: 1; }
+  /* Checkbox (right side) */
+  .cash-check {
+    width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+    border: 2px solid var(--d-text-tertiary);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; margin-left: auto;
+  }
+  .cash-check.checked {
+    background: #08B48F; border-color: #08B48F;
+  }
+  .cash-check svg { width: 14px; height: 14px; opacity: 0; transition: opacity 0.15s; }
+  .cash-check.checked svg { opacity: 1; }
+  .cash-row.paid .p-name { color: var(--d-text-secondary) !important; }
+  .cash-row.paid .avatar { opacity: 0.5; }
+  /* Counter badge */
+  .cash-counter {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--d-text-secondary);
+    margin-bottom: 16px;
+  }
+  .cash-counter .count { color: var(--success-dark); font-weight: 500; }
+  /* Bottom sheet */
+  .bottom-sheet-overlay {
+    display: none; position: absolute; inset: 0; z-index: 50;
+    background: rgba(0,0,0,0.5);
+  }
+  .bottom-sheet-overlay.visible { display: block; }
+  .bottom-sheet {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: var(--d-surface); border-radius: 16px 16px 0 0;
+    padding: 8px 20px 32px;
+  }
+  .bottom-sheet .handle {
+    width: 36px; height: 4px; background: var(--d-surface-higher);
+    border-radius: 2px; margin: 0 auto 16px;
+  }
+  .bottom-sheet .sheet-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 0; border-bottom: 1px solid var(--d-divider);
+    font-size: 15px; cursor: pointer;
+  }
+  .bottom-sheet .sheet-item:last-child { border-bottom: none; }
+  .bottom-sheet .sheet-item.destructive { color: var(--error); }
+  .bottom-sheet .sheet-item svg { width: 20px; height: 20px; }
+</style>
+
+<div class="screen dark" id="notifications">
+  <div class="screen-header dark">
+    <div class="status-bar"><span>9:30</span><div class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span> <span>&#128267;</span></div></div>
+    <div class="header"><div class="back">&larr;</div><h1>HIIT Group Session</h1></div>
+  </div>
+  <div class="screen-content">
+    <!-- Ticket card -->
+    <div style="margin:0 20px 16px;background:var(--d-surface);border-radius:16px;padding:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span class="group-badge">&#128101; Group Training</span>
+        <span style="font-size:13px;color:var(--warning);font-weight:500;">Cash</span>
+      </div>
+      <div style="display:flex;gap:16px;margin-bottom:12px;font-size:13px;color:var(--d-text-secondary);">
+        <span>&#128197; Tue, Apr 7</span>
+        <span>&#9201; 10:00 - 11:00</span>
+      </div>
+      <div style="font-size:13px;color:var(--d-text-secondary);margin-bottom:12px;">&#9737; TNT Studio &middot; &euro;25 / person</div>
+      <div class="spots-bar" style="margin:0;background:var(--d-surface-high);">
+        <div class="spots-fill"><div class="spots-fill-bar" style="width:50%"></div></div>
+        <span class="spots-text">5 / 10</span>
+      </div>
+    </div>
+
+    <div style="padding:0 20px;">
+      <div class="cash-counter">
+        <span>Paid:</span>
+        <span class="count" id="cash-paid-count">2 / 5</span>
+        <span style="margin-left:auto;font-size:11px;color:var(--d-text-tertiary);">tap or swipe right to confirm</span>
+      </div>
+
+      <div class="participant cash-row paid" data-paid="true" onclick="toggleRow(this)" oncontextmenu="showSheet(event, 'Anna Kowalski')">
+        <div class="avatar">AK</div>
+        <div class="p-info"><div class="p-name">Anna Kowalski</div><div class="p-sport">fitness</div></div>
+        <div class="cash-check checked"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="swipe-right-bg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="20 6 9 17 4 12"/></svg> Paid</div>
+        <div class="swipe-left-bg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div>
+      </div>
+
+      <div class="participant cash-row" data-paid="false" onclick="toggleRow(this)" oncontextmenu="showSheet(event, 'Mark Schmidt')">
+        <div class="avatar">MS</div>
+        <div class="p-info"><div class="p-name">Mark Schmidt</div><div class="p-sport">crossfit</div></div>
+        <div class="cash-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="swipe-right-bg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="20 6 9 17 4 12"/></svg> Paid</div>
+        <div class="swipe-left-bg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div>
+      </div>
+
+      <div class="participant cash-row" data-paid="false" onclick="toggleRow(this)" oncontextmenu="showSheet(event, 'Julia Dent')">
+        <div class="avatar">JD</div>
+        <div class="p-info"><div class="p-name">Julia Dent</div><div class="p-sport">fitness</div></div>
+        <div class="cash-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="swipe-right-bg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="20 6 9 17 4 12"/></svg> Paid</div>
+        <div class="swipe-left-bg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div>
+      </div>
+
+      <div class="participant cash-row paid" data-paid="true" onclick="toggleRow(this)" oncontextmenu="showSheet(event, 'Tom Novak')">
+        <div class="avatar">TN</div>
+        <div class="p-info"><div class="p-name">Tom Novak</div><div class="p-sport">fitness</div></div>
+        <div class="cash-check checked"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="swipe-right-bg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="20 6 9 17 4 12"/></svg> Paid</div>
+        <div class="swipe-left-bg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div>
+      </div>
+
+      <div class="participant cash-row" data-paid="false" onclick="toggleRow(this)" oncontextmenu="showSheet(event, 'Lena Roth')">
+        <div class="avatar">LR</div>
+        <div class="p-info"><div class="p-name">Lena Roth</div><div class="p-sport">yoga</div></div>
+        <div class="cash-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="swipe-right-bg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="20 6 9 17 4 12"/></svg> Paid</div>
+        <div class="swipe-left-bg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Remove</div>
+      </div>
+    </div>
+  </div>
+  <div class="screen-footer screen-footer--btn dark"><button class="btn-primary">Complete Training</button></div>
+
+  <!-- Bottom Sheet (long press) -->
+  <div class="bottom-sheet-overlay" id="cash-sheet" onclick="hideSheet()">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="handle"></div>
+      <div style="font-size:16px;font-weight:500;margin-bottom:12px;" id="sheet-name">Mark Schmidt</div>
+      <div class="sheet-item" onclick="hideSheet()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--success-dark)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Mark as Paid
+      </div>
+      <div class="sheet-item" onclick="hideSheet()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
+        View Profile
+      </div>
+      <div class="sheet-item destructive" onclick="hideSheet()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+        Remove from Training
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ATHLETE: COACH PROFILE ==================== -->
+<div class="screen light" id="coach-profile">
+  <div class="screen-header light">
+    <div class="status-bar"><span>9:30</span><div class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span> <span>&#128267;</span></div></div>
+  </div>
+  <div class="screen-content">
+
+    <div class="coach-profile-header">
+      <div class="coach-avatar">JM</div>
+      <div class="coach-name">John Miller</div>
+      <div class="coach-loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" style="vertical-align:middle;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg> Warsaw, Poland</div>
+      <span class="sport-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16" style="vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 009 9M12 3a9 9 0 00-9 9M3.6 8h16.8M3.6 16h16.8"/></svg>fitness</span>
+      <span class="sport-chip" style="margin-left:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16" style="vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="9"/><path d="M8 8l8 8M16 8l-8 8"/></svg>yoga</span>
+    </div>
+
+    <!-- Training Sessions FIRST -->
+    <div class="section-title" style="margin-top:16px;">Training Sessions</div>
+
+    <div class="session-card">
+      <div class="card-header"><span class="card-title">Basketball Training</span></div>
+      <div style="margin-bottom:8px;"><span class="personal-badge">&#128100; Personal</span></div>
+      <div class="card-row"><span class="ico">&#9201;</span> 1h</div>
+      <div class="card-row"><span class="ico">&#128176;</span> &euro;50</div>
+    </div>
+
+    <div class="session-card" style="border-color:rgba(0,167,208,0.2);">
+      <div class="card-header"><span class="card-title">HIIT Group Session</span></div>
+      <div style="margin-bottom:8px;display:flex;gap:8px;align-items:center;">
+        <span class="group-badge">&#128101; Group</span>
+        <span style="font-size:12px;color:var(--l-text-secondary);">7/10 spots left</span>
+      </div>
+      <div class="card-row"><span class="ico">&#9201;</span> 1h</div>
+      <div class="card-row"><span class="ico">&#128176;</span> &euro;25 / person</div>
+      <div class="card-row"><span class="ico">&#128197;</span> Tue, Apr 7 &middot; 10:00</div>
+    </div>
+
+    <div class="session-card" style="border-color:rgba(0,167,208,0.2);">
+      <div class="card-header"><span class="card-title">Yoga Morning Flow</span></div>
+      <div style="margin-bottom:8px;display:flex;gap:8px;align-items:center;">
+        <span class="group-badge">&#128101; Group</span>
+        <span class="full-badge">Full</span>
+      </div>
+      <div class="card-row"><span class="ico">&#9201;</span> 1h 30m</div>
+      <div class="card-row"><span class="ico">&#128176;</span> &euro;15 / person</div>
+      <div class="card-row"><span class="ico">&#128197;</span> Wed, Apr 8 &middot; 08:00</div>
+    </div>
+
+    <!-- About BELOW sessions -->
+    <div class="section-title" style="margin-top:20px;">About</div>
+    <div style="padding:0 20px 20px;font-size:14px;line-height:1.55;color:var(--l-text-secondary);">
+      Certified fitness & yoga coach with 8 years of experience. Multi-sport coach working with tennis, padel, and basketball players. Focused on improving technique, coordination, and game understanding.
+      <span style="color:var(--brand-primary);font-weight:500;cursor:pointer;"> See more</span>
+    </div>
+
+  </div>
+  <div class="screen-footer light"><div class="bottom-nav">
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>
+    <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/><path d="M19.5 14.5a4 4 0 013 3.87V21"/></svg></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+  </div></div>
+</div>
+
+<!-- ==================== ATHLETE: GROUP DETAIL ==================== -->
+<div class="screen light" id="group-detail-athlete">
+  <div class="screen-header light">
+    <div class="status-bar"><span>9:30</span><div class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span> <span>&#128267;</span></div></div>
+    <div class="header"><div class="back">&larr;</div><h1>HIIT Group Session</h1></div>
+  </div>
+  <div class="screen-content">
+    <!-- Ticket card -->
+    <div style="margin:0 20px 16px;background:var(--l-surface);border-radius:16px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span class="group-badge">&#128101; Group Training</span>
+        <span style="font-size:13px;color:var(--brand-primary);font-weight:500;">&euro;25</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#00A7D0,#00E29D);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:500;">JM</div>
+        <div>
+          <div style="font-size:14px;font-weight:500;color:var(--l-text-primary);">John Miller</div>
+          <div style="font-size:12px;color:var(--l-text-secondary);">Tue, Apr 7 &middot; 10:00 - 11:00</div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--l-text-secondary);margin-bottom:12px;">&#9737; TNT Studio</div>
+      <div class="spots-bar" style="margin:0;background:var(--l-surface-low);">
+        <div class="spots-fill"><div class="spots-fill-bar" style="width:70%"></div></div>
+        <span class="spots-text" style="color:var(--l-text-primary)">7 / 10</span>
+      </div>
+    </div>
+
+    <div class="section-title">Participants (7)</div>
+    <div class="participants-card">
+      <div class="participant" style="cursor:pointer;" onclick="showAthleteSheet('Anna Kowalski')"><div class="avatar">AK</div><div class="p-info"><div class="p-name">Anna Kowalski</div></div><svg viewBox="0 0 24 24" fill="none" stroke="var(--l-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="participant" style="cursor:pointer;" onclick="showAthleteSheet('Mark Schmidt')"><div class="avatar">MS</div><div class="p-info"><div class="p-name">Mark Schmidt</div></div><svg viewBox="0 0 24 24" fill="none" stroke="var(--l-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="participant" style="cursor:pointer;" onclick="showAthleteSheet('Julia Dent')"><div class="avatar">JD</div><div class="p-info"><div class="p-name">Julia Dent</div></div><svg viewBox="0 0 24 24" fill="none" stroke="var(--l-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="participant" style="cursor:pointer;" onclick="showAthleteSheet('Tom Novak')"><div class="avatar">TN</div><div class="p-info"><div class="p-name">Tom Novak</div></div><svg viewBox="0 0 24 24" fill="none" stroke="var(--l-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="participant" style="cursor:pointer;" onclick="showAthleteSheet('Lena Roth')"><div class="avatar">LR</div><div class="p-info"><div class="p-name">Lena Roth</div></div><svg viewBox="0 0 24 24" fill="none" stroke="var(--l-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="participant" style="cursor:pointer;" onclick="showAthleteSheet('Paul Weber')"><div class="avatar">PW</div><div class="p-info"><div class="p-name">Paul Weber</div></div><svg viewBox="0 0 24 24" fill="none" stroke="var(--l-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="participant" style="cursor:pointer;" onclick="showAthleteSheet('Sara Kim')"><div class="avatar">SK</div><div class="p-info"><div class="p-name">Sara Kim</div></div><svg viewBox="0 0 24 24" fill="none" stroke="var(--l-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg></div>
+    </div>
+  </div>
+  <div class="screen-footer screen-footer--btn light"><button class="btn-primary">Join Training &middot; &euro;25</button></div>
+  <!-- Athlete profile sheet -->
+  <div class="bottom-sheet-overlay" id="athlete-sheet" onclick="hideAthleteSheet()" style="z-index:50;">
+    <div class="bottom-sheet" onclick="event.stopPropagation()" style="background:var(--l-surface);">
+      <div class="handle" style="background:var(--l-divider);"></div>
+      <div style="font-size:16px;font-weight:500;margin-bottom:4px;color:var(--l-text-primary);" id="athlete-sheet-name"></div>
+      <div style="font-size:12px;color:var(--l-text-secondary);margin-bottom:16px;">Athlete</div>
+      <div class="sheet-item" onclick="hideAthleteSheet()" style="color:var(--l-text-primary);border-bottom-color:var(--l-divider);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
+        View Profile
+      </div>
+      <div class="sheet-item" onclick="hideAthleteSheet()" style="color:var(--l-text-primary);border-bottom-color:var(--l-divider);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Send Message
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ATHLETE: GROUP JOINED ==================== -->
+<div class="screen light" id="group-joined">
+  <div class="screen-header light">
+    <div class="status-bar"><span>9:30</span><div class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span> <span>&#128267;</span></div></div>
+    <div class="header"><div class="back">&larr;</div><h1>HIIT Group Session</h1></div>
+  </div>
+  <div class="screen-content">
+    <!-- Ticket card with "Joined" status -->
+    <div style="margin:0 20px 16px;background:var(--l-surface);border-radius:16px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span class="group-badge">&#128101; Group Training</span>
+        <span style="font-size:12px;font-weight:500;padding:3px 10px;border-radius:6px;background:rgba(0,226,157,0.12);color:#36B03D;">Joined</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#00A7D0,#00E29D);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:500;">JM</div>
+        <div>
+          <div style="font-size:14px;font-weight:500;color:var(--l-text-primary);">John Miller</div>
+          <div style="font-size:12px;color:var(--l-text-secondary);">Tue, Apr 7 &middot; 10:00 - 11:00</div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--l-text-secondary);margin-bottom:12px;">&#9737; TNT Studio &middot; &euro;25</div>
+      <div class="spots-bar" style="margin:0;background:var(--l-surface-low);">
+        <div class="spots-fill"><div class="spots-fill-bar" style="width:80%"></div></div>
+        <span class="spots-text" style="color:var(--l-text-primary)">8 / 10</span>
+      </div>
+    </div>
+
+    <div class="section-title">Participants (8)</div>
+    <div class="participants-card">
+      <!-- Current user first, highlighted -->
+      <div class="participant" style="background:linear-gradient(to right,rgba(10,147,189,0.06),rgba(5,224,166,0.06));border-radius:12px;">
+        <div class="avatar" style="background:linear-gradient(135deg,#00A7D0,#00E29D);color:#fff;">RH</div>
+        <div class="p-info"><div class="p-name">Raymond Holt</div><div class="p-sport" style="color:var(--brand-primary);font-weight:500;">You</div></div>
+      </div>
+      <div class="participant" style="cursor:pointer;" onclick="showAthleteSheet('Anna Kowalski')"><div class="avatar">AK</div><div class="p-info"><div class="p-name">Anna Kowalski</div></div><svg viewBox="0 0 24 24" fill="none" stroke="var(--l-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="participant" style="cursor:pointer;" onclick="showAthleteSheet('Mark Schmidt')"><div class="avatar">MS</div><div class="p-info"><div class="p-name">Mark Schmidt</div></div><svg viewBox="0 0 24 24" fill="none" stroke="var(--l-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="participant" style="cursor:pointer;" onclick="showAthleteSheet('Julia Dent')"><div class="avatar">JD</div><div class="p-info"><div class="p-name">Julia Dent</div></div><svg viewBox="0 0 24 24" fill="none" stroke="var(--l-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="participant" style="cursor:pointer;" onclick="showAthleteSheet('Tom Novak')"><div class="avatar">TN</div><div class="p-info"><div class="p-name">Tom Novak</div></div><svg viewBox="0 0 24 24" fill="none" stroke="var(--l-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="participant" style="cursor:pointer;" onclick="showAthleteSheet('Lena Roth')"><div class="avatar">LR</div><div class="p-info"><div class="p-name">Lena Roth</div></div><svg viewBox="0 0 24 24" fill="none" stroke="var(--l-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="participant" style="cursor:pointer;" onclick="showAthleteSheet('Paul Weber')"><div class="avatar">PW</div><div class="p-info"><div class="p-name">Paul Weber</div></div><svg viewBox="0 0 24 24" fill="none" stroke="var(--l-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="participant" style="cursor:pointer;" onclick="showAthleteSheet('Sara Kim')"><div class="avatar">SK</div><div class="p-info"><div class="p-name">Sara Kim</div></div><svg viewBox="0 0 24 24" fill="none" stroke="var(--l-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg></div>
+    </div>
+  </div>
+  <div class="screen-footer screen-footer--btn light"><button class="btn-primary" style="background:rgba(255,77,53,0.1);color:var(--error);">Leave Training</button></div>
+  <!-- Reuse athlete sheet -->
+  <div class="bottom-sheet-overlay" id="athlete-sheet-2" onclick="hideAthleteSheet2()" style="z-index:50;">
+    <div class="bottom-sheet" onclick="event.stopPropagation()" style="background:var(--l-surface);">
+      <div class="handle" style="background:var(--l-divider);"></div>
+      <div style="font-size:16px;font-weight:500;margin-bottom:4px;color:var(--l-text-primary);" id="athlete-sheet-name-2"></div>
+      <div style="font-size:12px;color:var(--l-text-secondary);margin-bottom:16px;">Athlete</div>
+      <div class="sheet-item" onclick="hideAthleteSheet2()" style="color:var(--l-text-primary);border-bottom-color:var(--l-divider);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
+        View Profile
+      </div>
+      <div class="sheet-item" onclick="hideAthleteSheet2()" style="color:var(--l-text-primary);border-bottom-color:var(--l-divider);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Send Message
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ATHLETE: GROUP FULL ==================== -->
+<div class="screen light" id="group-full">
+  <div class="screen-header light">
+    <div class="status-bar"><span>9:30</span><div class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span> <span>&#128267;</span></div></div>
+    <div class="header"><div class="back">&larr;</div><h1>Yoga Morning Flow</h1></div>
+    <div style="padding:0 20px 16px;background:var(--l-surface);"><div style="display:flex;gap:8px;align-items:center;"><span class="group-badge">&#128101; Group Training</span><span class="full-badge">Full</span></div></div>
+  </div>
+  <div class="screen-content">
+
+    <div style="padding: 16px 20px 0;">
+      <div class="spots-bar">
+        <div class="spots-fill"><div class="spots-fill-bar" style="width:100%; background: linear-gradient(135deg, var(--error), #ff7b6b);"></div></div>
+        <span class="spots-text" style="color:var(--error)">15 / 15 spots</span>
+      </div>
+    </div>
+
+    <div style="padding:0 20px;">
+      <div class="detail-card">
+        <div class="detail-row">
+          <span class="ico">&#128100;</span>
+          <span class="label">Coach</span>
+          <span class="value">John Miller</span>
+        </div>
+        <div class="detail-row">
+          <span class="ico">&#128197;</span>
+          <span class="label">Date</span>
+          <span class="value">Wed, April 8</span>
+        </div>
+        <div class="detail-row">
+          <span class="ico">&#9201;</span>
+          <span class="label">Time</span>
+          <span class="value">08:00 - 09:30</span>
+        </div>
+        <div class="detail-row">
+          <span class="ico">&#9737;</span>
+          <span class="label">Location</span>
+          <span class="value">GYM Bro</span>
+        </div>
+        <div class="detail-row">
+          <span class="ico">&#128176;</span>
+          <span class="label">Price</span>
+          <span class="value">&euro;15</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Participants (15)</div>
+    <div class="participants-card">
+      <div class="participant">
+        <div class="avatar">AK</div>
+        <div class="p-info"><div class="p-name">Anna Kowalski</div></div>
+      </div>
+      <div class="participant">
+        <div class="avatar">MS</div>
+        <div class="p-info"><div class="p-name">Mark Schmidt</div></div>
+      </div>
+      <div class="participant">
+        <div class="avatar">JD</div>
+        <div class="p-info"><div class="p-name">Julia Dent</div></div>
+      </div>
+      <div class="participant" style="border-bottom:none;">
+        <div class="avatar" style="font-size:12px;">+12</div>
+        <div class="p-info"><div class="p-name" style="color:var(--l-text-secondary);">and 12 more participants</div></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="screen-footer screen-footer--btn light"><button class="btn-primary" style="background: var(--l-surface-low); color: var(--l-text-tertiary); cursor: not-allowed;">Training is Full</button></div>
+</div>
+
+<!-- ==================== ATHLETE: SCHEDULE ==================== -->
+<div class="screen light" id="athlete-schedule">
+  <div class="screen-header light">
+    <div class="status-bar"><span>9:30</span><div class="icons"><span>&#9679;&#9679;&#9679;&#9679;</span> <span>&#128267;</span></div></div>
+    <div class="header" style="justify-content:space-between;">
+      <h1 style="flex:1">April 2026</h1>
+      <div style="display:flex;gap:8px;">
+        <button id="ath-cal-today-btn" style="background:var(--l-surface-higher);border:none;color:var(--brand-primary);font-family:'Rubik',sans-serif;font-size:12px;font-weight:500;padding:6px 12px;border-radius:8px;cursor:pointer;">Today</button>
+        <button id="ath-cal-sync-btn" style="background:var(--l-surface-higher);border:none;color:var(--l-text-secondary);font-family:'Rubik',sans-serif;font-size:12px;padding:6px 10px;border-radius:8px;cursor:pointer;" title="Sync calendars">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15.36 6.36L3 16"/></svg>
+        </button>
+      </div>
+    </div>
+    <!-- Day strip wheel -->
+    <div id="ath-cal-day-strip" style="overflow-x:auto;padding:0 0 12px;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+      <div id="ath-cal-day-strip-inner" style="display:flex;gap:0;width:max-content;padding:0 20px;"></div>
+    </div>
+    <style>
+      #ath-cal-day-strip::-webkit-scrollbar { display:none; }
+      .ath-cal-day-chip {
+        width:50px; height:62px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+        gap:4px; border-radius:16px; cursor:pointer; flex-shrink:0; transition:all 0.15s;
+      }
+      .ath-cal-day-chip .dn { font-size:10px; color:var(--l-text-tertiary); text-transform:uppercase; }
+      .ath-cal-day-chip .dd { font-size:16px; font-weight:500; color:var(--l-text-secondary); }
+      .ath-cal-day-chip.today .dd { color:var(--brand-primary); }
+      .ath-cal-day-chip.selected { background:var(--l-surface-higher); }
+      .ath-cal-day-chip.selected .dd { color:var(--l-text-primary); }
+    </style>
+  </div>
+  <div class="screen-content" id="ath-cal-scroll-area">
+    <div class="calendar-view" style="padding-bottom:40px;">
+      <div class="cal-timeline" id="ath-cal-timeline" style="height:auto;min-height:100%;">
+        <div class="cal-hour"><span class="cal-hour-label">06:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">07:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">08:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">09:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">10:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">11:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">12:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">13:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">14:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">15:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">16:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">17:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">18:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">19:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">20:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">21:00</span></div>
+        <div class="cal-hour"><span class="cal-hour-label">22:00</span></div>
+
+        <!-- Current time indicator -->
+        <div id="ath-cal-now-line" style="position:absolute;left:40px;right:0;height:2px;background:var(--brand-primary);z-index:5;">
+          <div style="position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--brand-primary);"></div>
+        </div>
+
+        <!-- 10:00-11:00 group -->
+        <div class="cal-event group" style="top:240px;height:60px;">
+          <div class="ev-title">HIIT Group Session</div>
+          <div class="ev-meta">John M. &middot; 10:00 - 11:00</div>
+          <div class="ev-badge">&#128101; Group</div>
+        </div>
+
+        <!-- 12:00-13:00 personal -->
+        <div class="cal-event personal" style="top:360px;height:60px;background:rgba(0,226,157,0.08);border-left-color:var(--brand-secondary);">
+          <div class="ev-title">Basketball Training</div>
+          <div class="ev-meta">John M. &middot; 12:00 - 13:00</div>
+        </div>
+
+        <!-- 17:00-18:00 personal -->
+        <div class="cal-event personal" style="top:660px;height:60px;background:rgba(0,226,157,0.08);border-left-color:var(--brand-secondary);">
+          <div class="ev-title">Yoga Private</div>
+          <div class="ev-meta">Sarah L. &middot; 17:00 - 18:00</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="screen-footer light"><div class="bottom-nav">
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/><path d="M19.5 14.5a4 4 0 013 3.87V21"/></svg></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+    <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+  </div></div>
+</div>
+
+</div><!-- /phone-container -->
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="annotations-container">
+
+<div class="screen-annotation active" id="ann-create-session">
+  <span class="ann-role coach">Coach</span>
+  <div class="ann-title">Create Group Session</div>
+  <div class="ann-body">
+    Coach creates a new training template. Key difference from personal — the <strong>Personal / Group</strong> toggle and <strong>Max participants</strong> field.
+  </div>
+  <ul class="ann-bullets">
+    <li>Training type selected via selection chips (standard pattern)</li>
+    <li>Stepper for participant limit — unified input with ± buttons</li>
+    <li>Price is set <strong>per participant</strong></li>
+    <li>Payment — two toggleable chips Cash / Card (both can be selected)</li>
+  </ul>
+  <div class="ann-divider"></div>
+  <div class="ann-note">Saved as training_session with is_group flag + max_participants</div>
+</div>
+
+<div class="screen-annotation" id="ann-my-sessions">
+  <span class="ann-role coach">Coach</span>
+  <div class="ann-title">My Training Sessions</div>
+  <div class="ann-body">
+    List of all coach's training templates. Group and personal sessions are visually distinguished by <strong>badges</strong>.
+  </div>
+  <ul class="ann-bullets">
+    <li>Personal badge — gray, neutral</li>
+    <li>Group badge — cyan/teal, shows max participants</li>
+    <li>Group pricing displayed as "€25/person"</li>
+    <li>"+" button to create a new template</li>
+  </ul>
+</div>
+
+<div class="screen-annotation" id="ann-calendar">
+  <span class="ann-role coach">Coach</span>
+  <div class="ann-title">Coach Calendar</div>
+  <div class="ann-body">
+    24-hour vertical calendar. Group and personal events are <strong>visually distinct</strong> by border color.
+  </div>
+  <ul class="ann-bullets">
+    <li>Day strip-wheel — horizontal scroll, current day centered</li>
+    <li>Group events — cyan border + "7/10" badge</li>
+    <li>Personal — green border + athlete name</li>
+    <li>Current time — teal line with dot</li>
+    <li><strong>Drag & drop</strong> — move events, red zones for occupied slots</li>
+    <li>Today / Sync buttons in header</li>
+  </ul>
+</div>
+
+<div class="screen-annotation" id="ann-event-detail-coach">
+  <span class="ann-role coach">Coach</span>
+  <div class="ann-title">Group Event Detail</div>
+  <div class="ann-body">
+    Details of a specific group event. "Ticket card" layout — all key info in one compact block, participants right below.
+  </div>
+  <ul class="ann-bullets">
+    <li>Ticket card: badge + price, date/time, location, spots bar</li>
+    <li>Participant list — avatar + name + sport</li>
+    <li><strong>Swipe left</strong> to remove a participant</li>
+    <li><strong>Long press</strong> — bottom sheet (View Profile, Send Message, Remove)</li>
+    <li>X button on the right — quick remove</li>
+    <li>Cancel Training — red button at the bottom</li>
+  </ul>
+</div>
+
+<div class="screen-annotation" id="ann-notifications">
+  <span class="ann-role coach">Coach</span>
+  <div class="ann-title">Cash Payment Tracking</div>
+  <div class="ann-body">
+    Screen for marking cash payments after a training session. Three interaction methods for maximum speed.
+  </div>
+  <ul class="ann-bullets">
+    <li><strong>Tap</strong> on row — toggle checkbox paid/unpaid</li>
+    <li><strong>Swipe right</strong> — green "Paid" reveal, marks as paid</li>
+    <li><strong>Swipe left</strong> — red "Remove", removes participant</li>
+    <li><strong>Long press</strong> — bottom sheet with full options</li>
+    <li>"Paid: 2/5" counter updates in real-time</li>
+    <li>Paid participants — dimmed style (gray name, semi-transparent avatar)</li>
+  </ul>
+  <div class="ann-divider"></div>
+  <div class="ann-note">Unpaid status does not block completing the training for others</div>
+</div>
+
+<div class="screen-annotation" id="ann-coach-profile">
+  <span class="ann-role athlete">Athlete</span>
+  <div class="ann-title">Coach Profile</div>
+  <div class="ann-body">
+    Coach profile from the athlete's perspective. <strong>Training sessions are immediately visible</strong> — no scrolling needed. About section at the bottom.
+  </div>
+  <ul class="ann-bullets">
+    <li>Avatar → name → location → sport chips</li>
+    <li>Group sessions with badges and spots counter</li>
+    <li>Full badge for fully booked trainings</li>
+    <li>About / bio at the bottom with "See more" — secondary info</li>
+  </ul>
+  <div class="ann-divider"></div>
+  <div class="ann-note">Athlete's primary goal = book a session, not read the bio</div>
+</div>
+
+<div class="screen-annotation" id="ann-group-detail-athlete">
+  <span class="ann-role athlete">Athlete</span>
+  <div class="ann-title">Group Training Detail</div>
+  <div class="ann-body">
+    Group training details before joining. Ticket card with coach avatar, clickable participant list.
+  </div>
+  <ul class="ann-bullets">
+    <li>Ticket card: coach (avatar + name), date/time, location, spots bar</li>
+    <li>Tap on participant → bottom sheet (View Profile, Send Message)</li>
+    <li>Chevron ">" as a hint that the row is tappable</li>
+    <li><strong>Join Training · €25</strong> — sticky CTA at the bottom</li>
+  </ul>
+  <div class="ann-divider"></div>
+  <div class="ann-note">Open registration — no approval needed, first come first served</div>
+</div>
+
+<div class="screen-annotation" id="ann-group-joined">
+  <span class="ann-role athlete">Athlete</span>
+  <div class="ann-title">Group Training — Joined</div>
+  <div class="ann-body">
+    What the athlete sees <strong>after joining</strong> a training. They appear first in the list with a "You" label.
+  </div>
+  <ul class="ann-bullets">
+    <li>Green <strong>"Joined"</strong> badge in the ticket card</li>
+    <li>Current user — first in list, gradient avatar + "You" label</li>
+    <li>Other participants are tappable (profile sheet)</li>
+    <li><strong>Leave Training</strong> — red button (refund within 24h)</li>
+  </ul>
+</div>
+
+<div class="screen-annotation" id="ann-group-full">
+  <span class="ann-role athlete">Athlete</span>
+  <div class="ann-title">Group Training — Full</div>
+  <div class="ann-body">
+    All spots are taken. The athlete can see the training but cannot join — button is disabled.
+  </div>
+  <ul class="ann-bullets">
+    <li>Red "Full" badge + red progress bar (100%)</li>
+    <li>Spots: "15/15" in red</li>
+    <li>Participant list collapsed ("+12 more")</li>
+    <li>"Training is Full" button — gray, disabled</li>
+  </ul>
+  <div class="ann-divider"></div>
+  <div class="ann-note">V1 has no waitlist — just "Full" and that's it</div>
+</div>
+
+<div class="screen-annotation" id="ann-athlete-schedule">
+  <span class="ann-role athlete">Athlete</span>
+  <div class="ann-title">Athlete Schedule</div>
+  <div class="ann-body">
+    Athlete's schedule — same calendar as the coach but in light theme and <strong>without drag & drop</strong>.
+  </div>
+  <ul class="ann-bullets">
+    <li>Group events — cyan border + "Group" badge</li>
+    <li>Personal — green border + coach name</li>
+    <li>Day strip wheel + Today / Sync</li>
+    <li>Athletes cannot create events directly — only through booking</li>
+  </ul>
+</div>
+
+</div><!-- /annotations-container -->
+</div><!-- /phone-wrapper -->
+
+<script>
+/* Replace all emoji icons with SVGs on load */
+document.addEventListener('DOMContentLoaded', () => {
+  const svgAttrs = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
+  const icons = {
+    // Sport ball
+    '⚽': `<svg ${svgAttrs}><circle cx="12" cy="12" r="9"/><path d="M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/><path d="M12 3c-2.5 3-2.5 7 0 10s2.5 7 0 10"/><path d="M3 12h18"/></svg>`,
+    '\u26BD': `<svg ${svgAttrs}><circle cx="12" cy="12" r="9"/><path d="M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/><path d="M12 3c-2.5 3-2.5 7 0 10s2.5 7 0 10"/><path d="M3 12h18"/></svg>`,
+    // Location pin
+    '⊙': `<svg ${svgAttrs}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>`,
+    '\u2299': `<svg ${svgAttrs}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>`,
+    // Clock
+    '⏱': `<svg ${svgAttrs}><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>`,
+    '\u23F1': `<svg ${svgAttrs}><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>`,
+    // Money/price
+    '💰': `<svg ${svgAttrs}><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M2 10h2M20 10h2M2 14h2M20 14h2"/></svg>`,
+    '\uD83D\uDCB0': `<svg ${svgAttrs}><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M2 10h2M20 10h2M2 14h2M20 14h2"/></svg>`,
+    // Card/payment
+    '💳': `<svg ${svgAttrs}><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>`,
+    '\uD83D\uDCB3': `<svg ${svgAttrs}><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>`,
+    // Person
+    '👤': `<svg ${svgAttrs}><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>`,
+    '\uD83D\uDC64': `<svg ${svgAttrs}><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>`,
+    // People/group
+    '👥': `<svg ${svgAttrs}><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/><path d="M19.5 14.5a4 4 0 013 3.87V21"/></svg>`,
+    '\uD83D\uDC65': `<svg ${svgAttrs}><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/><path d="M19.5 14.5a4 4 0 013 3.87V21"/></svg>`,
+    // Calendar
+    '📅': `<svg ${svgAttrs}><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>`,
+    '\uD83D\uDCC5': `<svg ${svgAttrs}><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>`,
+    // Edit pencil
+    '✎': `<svg ${svgAttrs}><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>`,
+    '\u270E': `<svg ${svgAttrs}><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>`,
+  };
+  // Replace in .ico spans and .card-edit spans
+  document.querySelectorAll('.ico, .card-edit').forEach(el => {
+    const text = el.textContent.trim();
+    for (const [emoji, svg] of Object.entries(icons)) {
+      if (text === emoji || text.charCodeAt(0) === emoji.charCodeAt(0)) {
+        el.innerHTML = svg;
+        return;
+      }
+    }
+  });
+  // Replace emoji in badges (group/personal)
+  document.querySelectorAll('.group-badge, .personal-badge').forEach(el => {
+    let html = el.innerHTML;
+    for (const [emoji, svg] of Object.entries(icons)) {
+      if (html.includes(emoji)) {
+        html = html.replace(emoji, svg);
+      }
+    }
+    el.innerHTML = html;
+  });
+});
+
+function show(id, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Toggle annotation
+  document.querySelectorAll('.screen-annotation').forEach(a => a.classList.remove('active'));
+  const ann = document.getElementById('ann-' + id);
+  if (ann) ann.classList.add('active');
+  if (id === 'calendar') initCalendar();
+  if (id === 'athlete-schedule') initAthCalendar();
+}
+
+/* ===== ATHLETE CALENDAR ===== */
+let athCalInitialized = false;
+function initAthCalendar() {
+  if (athCalInitialized) return;
+  athCalInitialized = true;
+  const strip = document.getElementById('ath-cal-day-strip-inner');
+  strip.innerHTML = '';
+  for (let d = 1; d <= 30; d++) {
+    const date = new Date(2026, 3, d);
+    const dayName = DAYS[date.getDay()];
+    const chip = document.createElement('div');
+    chip.className = 'ath-cal-day-chip' + (d === 7 ? ' today selected' : '');
+    chip.innerHTML = '<span class="dn">' + dayName + '</span><span class="dd">' + d + '</span>';
+    chip.onclick = () => {
+      document.querySelectorAll('.ath-cal-day-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      const stripEl = document.getElementById('ath-cal-day-strip');
+      const chipCenter = chip.offsetLeft + chip.offsetWidth / 2;
+      stripEl.scrollTo({ left: chipCenter - stripEl.offsetWidth / 2, behavior: 'smooth' });
+    };
+    chip.dataset.day = d;
+    strip.appendChild(chip);
+  }
+  // Center on day 7
+  setTimeout(() => {
+    const stripEl = document.getElementById('ath-cal-day-strip');
+    const chip = strip.querySelector('[data-day="7"]');
+    if (chip && stripEl) {
+      stripEl.scrollTo({ left: chip.offsetLeft + chip.offsetWidth / 2 - stripEl.offsetWidth / 2, behavior: 'auto' });
+    }
+  }, 50);
+  // Time line at 10:30
+  document.getElementById('ath-cal-now-line').style.top = (4.5 * 60) + 'px';
+  // Scroll to 07:00
+  document.getElementById('ath-cal-scroll-area').scrollTop = 40;
+}
+
+// Athlete today/sync buttons
+document.getElementById('ath-cal-today-btn')?.addEventListener('click', () => {
+  const strip = document.getElementById('ath-cal-day-strip');
+  const chip = strip.querySelector('[data-day="7"]');
+  document.querySelectorAll('.ath-cal-day-chip').forEach(c => c.classList.remove('selected'));
+  chip?.classList.add('selected');
+  if (chip && strip) strip.scrollTo({ left: chip.offsetLeft + chip.offsetWidth / 2 - strip.offsetWidth / 2, behavior: 'smooth' });
+  document.getElementById('ath-cal-scroll-area').scrollTo({ top: 40, behavior: 'smooth' });
+});
+document.getElementById('ath-cal-sync-btn')?.addEventListener('click', function() {
+  const svg = this.querySelector('svg');
+  svg.style.transition = 'transform 0.6s ease';
+  svg.style.transform = 'rotate(360deg)';
+  setTimeout(() => { svg.style.transition = 'none'; svg.style.transform = ''; }, 650);
+});
+
+/* ===== CASH PAYMENT LOGIC ===== */
+function toggleRow(row) {
+  const isPaid = row.dataset.paid === 'true';
+  row.dataset.paid = isPaid ? 'false' : 'true';
+  row.classList.toggle('paid');
+  row.querySelector('.cash-check').classList.toggle('checked');
+  updateCashCount();
+}
+
+function updateCashCount() {
+  const rows = document.querySelectorAll('#notifications .cash-row');
+  const paid = document.querySelectorAll('#notifications .cash-row.paid').length;
+  const el = document.getElementById('cash-paid-count');
+  if (el) el.textContent = paid + ' / ' + rows.length;
+}
+
+function showSheet(e, name) {
+  e.preventDefault();
+  document.getElementById('sheet-name').textContent = name;
+  document.getElementById('cash-sheet').classList.add('visible');
+}
+function hideSheet() {
+  document.getElementById('cash-sheet').classList.remove('visible');
+}
+
+// Athlete profile sheet (light theme)
+function showAthleteSheet(name) {
+  // Try both sheets (group-detail and group-joined)
+  const s1 = document.getElementById('athlete-sheet');
+  const s2 = document.getElementById('athlete-sheet-2');
+  if (s1 && s1.closest('.screen.active')) {
+    document.getElementById('athlete-sheet-name').textContent = name;
+    s1.classList.add('visible');
+  } else if (s2 && s2.closest('.screen.active')) {
+    document.getElementById('athlete-sheet-name-2').textContent = name;
+    s2.classList.add('visible');
+  }
+}
+function hideAthleteSheet() { document.getElementById('athlete-sheet').classList.remove('visible'); }
+function hideAthleteSheet2() { document.getElementById('athlete-sheet-2').classList.remove('visible'); }
+
+// Event detail helpers
+function showDetailSheet(e, name) {
+  e.preventDefault();
+  document.getElementById('detail-sheet-name').textContent = name;
+  document.getElementById('detail-sheet').classList.add('visible');
+}
+function hideDetailSheet() {
+  document.getElementById('detail-sheet').classList.remove('visible');
+}
+function removeParticipant(btn) {
+  event.stopPropagation();
+  const row = btn.closest('.participant');
+  row.style.transform='translateX(-100%)'; row.style.opacity='0';
+  row.style.transition='transform 0.3s, opacity 0.3s';
+  setTimeout(()=>{ row.style.maxHeight='0'; row.style.padding='0'; row.style.overflow='hidden'; row.style.borderBottom='none'; },300);
+}
+
+// Swipe-left + long press for .swipeable participants (event detail)
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.participant.swipeable:not(.cash-row)').forEach(row => {
+    let startX=0, dragging=false, moved=false, lpTimer;
+    function onStart(x){
+      startX=x; dragging=true; moved=false;
+      lpTimer=setTimeout(()=>{
+        if(!moved){
+          dragging=false;
+          showDetailSheet(new Event('contextmenu'), row.querySelector('.p-name').textContent);
+        }
+      },500);
+    }
+    function onMove(x){
+      if(!dragging) return;
+      const diff=x-startX;
+      if(Math.abs(diff)>8){ moved=true; clearTimeout(lpTimer); }
+      if(!moved) return;
+      const clamped=Math.max(-100, Math.min(0, diff));
+      row.style.transform='translateX('+clamped+'px)';
+      row.classList.toggle('swiping-left', diff<-20);
+    }
+    function onEnd(x){
+      clearTimeout(lpTimer);
+      if(!dragging) return; dragging=false;
+      const diff=x-startX;
+      if(diff<-60){
+        row.style.transform='translateX(-100%)'; row.style.opacity='0';
+        row.style.transition='transform 0.3s, opacity 0.3s';
+        setTimeout(()=>{ row.style.maxHeight='0'; row.style.padding='0'; row.style.overflow='hidden'; row.style.borderBottom='none'; },300);
+        return;
+      }
+      row.style.transition='transform 0.25s ease'; row.style.transform='';
+      row.classList.remove('swiping-left');
+      setTimeout(()=>row.style.transition='',250);
+    }
+    row.addEventListener('touchstart',e=>onStart(e.touches[0].clientX),{passive:true});
+    row.addEventListener('touchmove',e=>{onMove(e.touches[0].clientX);if(moved)e.preventDefault();},{passive:false});
+    row.addEventListener('touchend',e=>onEnd(e.changedTouches[0].clientX));
+    row.addEventListener('mousedown',e=>{e.preventDefault();onStart(e.clientX);});
+    document.addEventListener('mousemove',e=>{if(dragging)onMove(e.clientX);});
+    document.addEventListener('mouseup',e=>{if(dragging)onEnd(e.clientX);});
+  });
+});
+
+// Swipe support (touch + mouse for desktop demo) — cash rows
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.cash-row').forEach(row => {
+    let startX = 0, dragging = false, moved = false, lpTimer;
+
+    function onStart(x) {
+      startX = x; dragging = true; moved = false;
+      lpTimer = setTimeout(() => {
+        if (!moved) {
+          dragging = false;
+          showSheet(new Event('contextmenu'), row.querySelector('.p-name').textContent);
+        }
+      }, 500);
+    }
+    function onMove(x) {
+      if (!dragging) return;
+      const diff = x - startX;
+      if (Math.abs(diff) > 8) { moved = true; clearTimeout(lpTimer); }
+      if (!moved) return;
+      const clamped = Math.max(-100, Math.min(100, diff));
+      row.style.transform = 'translateX(' + clamped + 'px)';
+      row.classList.toggle('swiping-right', diff > 20);
+      row.classList.toggle('swiping-left', diff < -20);
+    }
+    function onEnd(x) {
+      clearTimeout(lpTimer);
+      if (!dragging) return;
+      dragging = false;
+      const diff = x - startX;
+      // Swipe right → mark paid
+      if (diff > 60 && row.dataset.paid === 'false') {
+        toggleRow(row);
+      }
+      // Swipe left → remove animation
+      if (diff < -60) {
+        row.style.transform = 'translateX(-100%)';
+        row.style.opacity = '0';
+        row.style.transition = 'transform 0.3s, opacity 0.3s';
+        setTimeout(() => {
+          row.style.maxHeight = '0';
+          row.style.padding = '0';
+          row.style.overflow = 'hidden';
+          row.style.borderBottom = 'none';
+          setTimeout(() => updateCashCount(), 300);
+        }, 300);
+        return;
+      }
+      row.style.transition = 'transform 0.25s ease';
+      row.style.transform = '';
+      row.classList.remove('swiping-right', 'swiping-left');
+      setTimeout(() => row.style.transition = '', 250);
+    }
+
+    // Touch events
+    row.addEventListener('touchstart', e => onStart(e.touches[0].clientX), {passive:true});
+    row.addEventListener('touchmove', e => { onMove(e.touches[0].clientX); if(moved) e.preventDefault(); }, {passive:false});
+    row.addEventListener('touchend', e => onEnd(e.changedTouches[0].clientX));
+
+    // Mouse events (desktop demo)
+    row.addEventListener('mousedown', e => { e.preventDefault(); onStart(e.clientX); });
+    document.addEventListener('mousemove', e => { if(dragging) onMove(e.clientX); });
+    document.addEventListener('mouseup', e => { if(dragging) onEnd(e.clientX); });
+
+    // Prevent tap from firing after swipe
+    row.addEventListener('click', e => { if(moved) e.stopImmediatePropagation(); }, true);
+  });
+});
+
+/* ===== CALENDAR LOGIC ===== */
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+let calSelectedDate = 7; // April 7 (today for prototype)
+let calInitialized = false;
+
+function initCalendar() {
+  if (calInitialized) return;
+  calInitialized = true;
+
+  // Build day strip (April 1-30)
+  const strip = document.getElementById('cal-day-strip-inner');
+  strip.innerHTML = '';
+  for (let d = 1; d <= 30; d++) {
+    const date = new Date(2026, 3, d); // April 2026
+    const dayName = DAYS[date.getDay()];
+    const chip = document.createElement('div');
+    chip.className = 'cal-day-chip' + (d === 7 ? ' today selected' : '');
+    chip.innerHTML = '<span class="dn">' + dayName + '</span><span class="dd">' + d + '</span>';
+    chip.onclick = () => selectDay(d);
+    chip.dataset.day = d;
+    strip.appendChild(chip);
+  }
+
+  // Center selected day
+  centerDay(7, false);
+
+  // Position current time line (simulate 10:30)
+  const nowLine = document.getElementById('cal-now-line');
+  nowLine.style.top = (4.5 * 60) + 'px'; // 10:30 = 4.5h from 06:00
+
+  // Scroll timeline to show 07:00 area
+  const scrollArea = document.getElementById('cal-scroll-area');
+  scrollArea.scrollTop = 40;
+
+  // Init drag & drop
+  initDragDrop();
+}
+
+function selectDay(d) {
+  document.querySelectorAll('.cal-day-chip').forEach(c => c.classList.remove('selected'));
+  const chip = document.querySelector('[data-day="' + d + '"]');
+  if (chip) { chip.classList.add('selected'); }
+  calSelectedDate = d;
+  centerDay(d, true);
+}
+
+function centerDay(d, smooth) {
+  const strip = document.getElementById('cal-day-strip');
+  const chip = document.querySelector('[data-day="' + d + '"]');
+  if (!chip || !strip) return;
+  const chipCenter = chip.offsetLeft + chip.offsetWidth / 2;
+  const scrollTo = chipCenter - strip.offsetWidth / 2;
+  strip.scrollTo({ left: scrollTo, behavior: smooth ? 'smooth' : 'auto' });
+}
+
+// Today button
+document.getElementById('cal-today-btn')?.addEventListener('click', () => {
+  selectDay(7);
+  document.getElementById('cal-scroll-area').scrollTo({ top: 40, behavior: 'smooth' });
+});
+
+// Sync button animation
+document.getElementById('cal-sync-btn')?.addEventListener('click', function() {
+  const svg = this.querySelector('svg');
+  svg.style.transition = 'transform 0.6s ease';
+  svg.style.transform = 'rotate(360deg)';
+  setTimeout(() => { svg.style.transition = 'none'; svg.style.transform = ''; }, 650);
+});
+
+/* ===== DRAG & DROP ===== */
+function initDragDrop() {
+  const draggables = document.querySelectorAll('.cal-draggable');
+  const timeline = document.getElementById('cal-timeline');
+  const unavailZones = document.querySelectorAll('.cal-unavailable');
+
+  draggables.forEach(ev => {
+    ev.addEventListener('dragstart', (e) => {
+      ev.style.opacity = '0.5';
+      ev.style.zIndex = '20';
+      e.dataTransfer.setData('text/plain', ev.dataset.eventId);
+      // Show unavailable zones
+      unavailZones.forEach(z => z.style.display = 'block');
+    });
+
+    ev.addEventListener('dragend', () => {
+      ev.style.opacity = '1';
+      ev.style.zIndex = '';
+      unavailZones.forEach(z => z.style.display = 'none');
+    });
+  });
+
+  // Allow drop on timeline
+  timeline.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  });
+
+  timeline.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const id = e.dataTransfer.getData('text/plain');
+    const ev = document.querySelector('[data-event-id="' + id + '"]');
+    if (!ev) return;
+    // Snap to nearest hour (60px per hour)
+    const rect = timeline.getBoundingClientRect();
+    const scrollArea = document.getElementById('cal-scroll-area');
+    const y = e.clientY - rect.top + scrollArea.scrollTop;
+    const snapped = Math.round(y / 60) * 60;
+    ev.style.top = snapped + 'px';
+    unavailZones.forEach(z => z.style.display = 'none');
+  });
+}
+</script>
+
+</body>
+</html>
