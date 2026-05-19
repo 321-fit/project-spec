@@ -167,6 +167,94 @@
     padding: 16px;
   }
 
+  /* Inline button spinner (page-local; mirrors pd-save-spinner pattern in personal-data) */
+  .au-btn-spinner {
+    display: none;
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.35);
+    border-top-color: var(--fit-white);
+    border-radius: 50%;
+    animation: au-spin 0.8s linear infinite;
+    margin-right: 8px;
+  }
+  @keyframes au-spin { to { transform: rotate(360deg); } }
+  .fit-phone[data-au-state="loading"] .au-btn-primary-target .au-btn-spinner { display: inline-block; }
+  .fit-phone[data-au-state="loading"] .au-btn-primary-target { pointer-events: none; opacity: 0.85; }
+
+  /* Form-level error banner (page-local — no kit canon yet; promote if recurring) */
+  .au-form-error {
+    display: none;
+    margin: 0 16px 12px;
+    padding: 12px 14px; border-radius: 12px;
+    background: rgba(239,68,68,0.10);
+    border: 1px solid rgba(239,68,68,0.28);
+    color: var(--fit-red-400);
+    font-size: 13px; line-height: 1.45;
+  }
+  .au-form-error.show { display: flex; align-items: flex-start; gap: 8px; }
+  .au-form-error svg {
+    width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px;
+    color: var(--fit-red-400);
+  }
+  .au-form-error-text { flex: 1; }
+
+  /* Field-level errors use canonical .fit-input-group.error + .fit-input-error-text
+     (defined in lib/fit-ui.css). JS sets/removes .error on the specific group +
+     .show on the matching error-text element. No page-local rules needed. */
+  .fit-input-error-text {
+    display: none;
+    padding: 6px 16px 0;
+  }
+  .fit-input-error-text.show { display: block; }
+
+  /* OTP error state (red boxes + caption) */
+  .au-otp-boxes.error .au-otp-box {
+    border: 1px solid var(--fit-red-400);
+    color: var(--fit-red-400);
+  }
+  .au-otp-error-msg {
+    display: none;
+    text-align: center; padding: 4px 20px 0;
+    font-size: 13px; color: var(--fit-red-400);
+  }
+
+  /* Country picker — empty search result */
+  .au-cp-empty {
+    display: none;
+    text-align: center; padding: 40px 20px;
+    color: var(--fit-text-tertiary);
+  }
+  .au-cp-empty-illus {
+    width: 48px; height: 48px;
+    margin: 0 auto 12px;
+    color: var(--fit-text-tertiary); opacity: 0.6;
+  }
+  .au-cp-empty-illus svg { width: 100%; height: 100%; }
+  .au-cp-empty-title {
+    font-size: 15px; font-weight: 500; color: var(--fit-text-secondary);
+    margin-bottom: 4px;
+  }
+  .au-cp-empty-sub {
+    font-size: 13px; color: var(--fit-text-tertiary); line-height: 1.4;
+  }
+  .fit-phone[data-au-state="search-no-match"] .au-cp-empty { display: block; }
+  .fit-phone[data-au-state="search-no-match"] .au-cp-group,
+  .fit-phone[data-au-state="search-no-match"] .au-cp-section-label { display: none; }
+
+  /* State-toggle in annotation panel (matches dashboard.html convention) */
+  .state-toggle {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px;
+  }
+  .state-toggle button {
+    font-family: var(--fit-font); font-size: 12px; font-weight: 500;
+    padding: 6px 10px; border-radius: 8px; border: none; cursor: pointer;
+    background: var(--fit-gray-800); color: var(--fit-gray-300);
+  }
+  .state-toggle button:hover { background: var(--fit-gray-700); color: var(--fit-white); }
+  .state-toggle button.active {
+    background: var(--fit-selection-gradient); color: var(--fit-white);
+  }
+
   /* "Last used" indicator under provider button (sign-in) */
   .au-last-used {
     display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -421,7 +509,7 @@
      SCREEN: SIGN-UP EMAIL FORM
      iOS ref: Authentication/SignUpWithCredentials/SignUpWithCredentialsView.swift
      ============================================================ -->
-<div class="fit-phone fit-dark" id="s-signup-email">
+<div class="fit-phone fit-dark" id="s-signup-email" data-au-state="default">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -441,7 +529,12 @@
       <div class="au-page-sub">We'll send a verification code to confirm your identity.</div>
     </div>
 
-    <div class="fit-input-group">
+    <div class="au-form-error" data-au-error="server">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span class="au-form-error-text">Something went wrong. Check your connection and try again.</span>
+    </div>
+
+    <div class="fit-input-group" data-field="email">
       <span class="fit-input-label">Email</span>
       <div class="fit-input">
         <input type="email" inputmode="email" autocomplete="email"
@@ -450,9 +543,10 @@
                data-a11y-id="auth.signup.email.field"
                style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
       </div>
+      <div class="fit-input-error-text" data-error-for="email">Enter a valid email address.</div>
     </div>
 
-    <div class="fit-input-group">
+    <div class="fit-input-group" data-field="password">
       <span class="fit-input-label">Password</span>
       <div class="fit-input fit-input-password">
         <input type="password" autocomplete="new-password"
@@ -468,23 +562,24 @@
     </div>
 
     <div class="au-pw-rules">
-      <div class="au-pw-rule">
+      <div class="au-pw-rule" data-rule="length">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
         At least 8 characters
       </div>
-      <div class="au-pw-rule">
+      <div class="au-pw-rule" data-rule="mix">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
         Mix letters and digits
       </div>
-      <div class="au-pw-rule">
+      <div class="au-pw-rule" data-rule="common">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
         Not a common password
       </div>
     </div>
 
     <div class="au-cta-wrap">
-      <button class="fit-btn fit-btn-primary"
+      <button class="fit-btn fit-btn-primary au-btn-primary-target"
               data-a11y-id="auth.signup.email.submit">
+        <span class="au-btn-spinner"></span>
         Sign up
       </button>
     </div>
@@ -557,7 +652,7 @@
      SCREEN: SIGN-IN EMAIL FORM
      iOS ref: Authentication/SignInWithCredentials/SignInWithCredentialsView.swift
      ============================================================ -->
-<div class="fit-phone fit-dark" id="s-signin-email">
+<div class="fit-phone fit-dark" id="s-signin-email" data-au-state="default">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -577,7 +672,12 @@
       <div class="au-page-sub">Use the email and password you signed up with.</div>
     </div>
 
-    <div class="fit-input-group">
+    <div class="au-form-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span class="au-form-error-text">Email or password isn't right.</span>
+    </div>
+
+    <div class="fit-input-group" data-field="email">
       <span class="fit-input-label">Email</span>
       <div class="fit-input">
         <input type="email" inputmode="email" autocomplete="email"
@@ -588,7 +688,7 @@
       </div>
     </div>
 
-    <div class="fit-input-group">
+    <div class="fit-input-group" data-field="password">
       <span class="fit-input-label">Password</span>
       <div class="fit-input fit-input-password">
         <input type="password" autocomplete="current-password"
@@ -604,8 +704,9 @@
     </div>
 
     <div class="au-cta-wrap">
-      <button class="fit-btn fit-btn-primary"
+      <button class="fit-btn fit-btn-primary au-btn-primary-target"
               data-a11y-id="auth.signin.email.submit">
+        <span class="au-btn-spinner"></span>
         Sign in
       </button>
     </div>
@@ -632,7 +733,7 @@
      SCREEN: FORGOT PASSWORD — STEP 1 (email entry)
      iOS ref: Authentication/ForgotPassword/ForgotPasswordView.swift
      ============================================================ -->
-<div class="fit-phone fit-dark" id="s-forgot-email">
+<div class="fit-phone fit-dark" id="s-forgot-email" data-au-state="default">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -652,7 +753,12 @@
       <div class="au-page-sub">Enter the email on your account. We'll send a 6-digit code to reset your password.</div>
     </div>
 
-    <div class="fit-input-group">
+    <div class="au-form-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span class="au-form-error-text">Slow down — too many requests. Try again in 45 seconds.</span>
+    </div>
+
+    <div class="fit-input-group" data-field="email">
       <span class="fit-input-label">Email</span>
       <div class="fit-input">
         <input type="email" inputmode="email" autocomplete="email"
@@ -661,12 +767,14 @@
                data-a11y-id="auth.forgot.email.field"
                style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
       </div>
+      <div class="fit-input-error-text" data-error-for="email">Enter a valid email address.</div>
     </div>
 
     <div class="au-cta-wrap">
-      <button class="fit-btn fit-btn-primary"
+      <button class="fit-btn fit-btn-primary au-btn-primary-target"
               data-a11y-id="auth.forgot.email.submit"
               onclick="go('s-forgot-otp', document.querySelector('.sidebar button[onclick*=s-forgot-otp]'))">
+        <span class="au-btn-spinner"></span>
         Send code
       </button>
     </div>
@@ -678,7 +786,7 @@
      SCREEN: FORGOT PASSWORD — STEP 2 (OTP code)
      iOS ref: Authentication/ForgotPassword/ForgotPasswordView.swift (codeEntry state)
      ============================================================ -->
-<div class="fit-phone fit-dark" id="s-forgot-otp">
+<div class="fit-phone fit-dark" id="s-forgot-otp" data-au-state="default">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -698,6 +806,11 @@
       <div class="au-page-sub">We sent a 6-digit code to <strong style="color:var(--fit-text-secondary);">you@example.com</strong>. Enter it below.</div>
     </div>
 
+    <div class="au-form-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      <span class="au-form-error-text">Code expired. Request a new one.</span>
+    </div>
+
     <div class="au-otp-boxes" data-a11y-id="auth.forgot.otp.field">
       <div class="au-otp-box filled">3</div>
       <div class="au-otp-box filled">9</div>
@@ -706,15 +819,17 @@
       <div class="au-otp-box"></div>
       <div class="au-otp-box"></div>
     </div>
+    <div class="au-otp-error-msg">Code doesn't match — try again.</div>
 
     <div class="au-otp-resend">
       Didn't get it? <button data-a11y-id="auth.forgot.otp.resend" disabled>Resend in 0:42</button>
     </div>
 
     <div class="au-cta-wrap">
-      <button class="fit-btn fit-btn-primary"
+      <button class="fit-btn fit-btn-primary au-btn-primary-target"
               data-a11y-id="auth.forgot.otp.submit"
               onclick="go('s-forgot-new', document.querySelector('.sidebar button[onclick*=s-forgot-new]'))">
+        <span class="au-btn-spinner"></span>
         Verify
       </button>
     </div>
@@ -726,7 +841,7 @@
      SCREEN: FORGOT PASSWORD — STEP 3 (new password)
      iOS ref: Authentication/ForgotPassword/ForgotPasswordView.swift (newPassword state)
      ============================================================ -->
-<div class="fit-phone fit-dark" id="s-forgot-new">
+<div class="fit-phone fit-dark" id="s-forgot-new" data-au-state="default">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -746,7 +861,12 @@
       <div class="au-page-sub">You'll use this password to sign in next time.</div>
     </div>
 
-    <div class="fit-input-group">
+    <div class="au-form-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      <span class="au-form-error-text">Reset link expired. Start over from Forgot password.</span>
+    </div>
+
+    <div class="fit-input-group" data-field="password">
       <span class="fit-input-label">New password</span>
       <div class="fit-input fit-input-password">
         <input type="password" autocomplete="new-password"
@@ -762,23 +882,24 @@
     </div>
 
     <div class="au-pw-rules">
-      <div class="au-pw-rule">
+      <div class="au-pw-rule" data-rule="length">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
         At least 8 characters
       </div>
-      <div class="au-pw-rule">
+      <div class="au-pw-rule" data-rule="mix">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
         Mix letters and digits
       </div>
-      <div class="au-pw-rule">
+      <div class="au-pw-rule" data-rule="common">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
         Not a common password
       </div>
     </div>
 
     <div class="au-cta-wrap">
-      <button class="fit-btn fit-btn-primary"
+      <button class="fit-btn fit-btn-primary au-btn-primary-target"
               data-a11y-id="auth.forgot.new.submit">
+        <span class="au-btn-spinner"></span>
         Save and sign in
       </button>
     </div>
@@ -792,7 +913,7 @@
      Per authentication.md § 2026-05-11 — phone is captured at signup
      as ownership-verified contact, NOT as a login credential.
      ============================================================ -->
-<div class="fit-phone fit-dark" id="s-phone-enter">
+<div class="fit-phone fit-dark" id="s-phone-enter" data-au-state="default">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -812,7 +933,12 @@
       <div class="au-page-sub">We use it for booking reminders and account recovery. It's never shown to other users.</div>
     </div>
 
-    <div class="fit-input-group">
+    <div class="au-form-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span class="au-form-error-text">Couldn't send SMS. Check the number and try again.</span>
+    </div>
+
+    <div class="fit-input-group" data-field="phone">
       <span class="fit-input-label">Phone number</span>
       <div class="fit-input">
         <div class="au-phone-country"
@@ -827,12 +953,14 @@
                data-a11y-id="auth.phone.enter.field"
                style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
       </div>
+      <div class="fit-input-error-text" data-error-for="phone">Enter a valid phone number.</div>
     </div>
 
     <div class="au-cta-wrap">
-      <button class="fit-btn fit-btn-primary"
+      <button class="fit-btn fit-btn-primary au-btn-primary-target"
               data-a11y-id="auth.phone.enter.submit"
               onclick="go('s-phone-otp', document.querySelector('.sidebar button[onclick*=s-phone-otp]'))">
+        <span class="au-btn-spinner"></span>
         Send code
       </button>
     </div>
@@ -845,7 +973,7 @@
      iOS ref: Authentication/SignUpWithCredentials/SignUpWithCredentialsView.swift
      (codeEntry state)
      ============================================================ -->
-<div class="fit-phone fit-dark" id="s-phone-otp">
+<div class="fit-phone fit-dark" id="s-phone-otp" data-au-state="default">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -865,6 +993,11 @@
       <div class="au-page-sub">Enter the 6-digit code we sent to <strong style="color:var(--fit-text-secondary);">+995 555 123 456</strong>.</div>
     </div>
 
+    <div class="au-form-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      <span class="au-form-error-text">Code expired. Request a new one.</span>
+    </div>
+
     <div class="au-otp-boxes" data-a11y-id="auth.phone.otp.field">
       <div class="au-otp-box filled">1</div>
       <div class="au-otp-box filled">8</div>
@@ -873,14 +1006,16 @@
       <div class="au-otp-box"></div>
       <div class="au-otp-box"></div>
     </div>
+    <div class="au-otp-error-msg">Code doesn't match — try again.</div>
 
     <div class="au-otp-resend">
       Didn't get it? <button data-a11y-id="auth.phone.otp.resend" disabled>Resend in 0:42</button>
     </div>
 
     <div class="au-cta-wrap">
-      <button class="fit-btn fit-btn-primary"
+      <button class="fit-btn fit-btn-primary au-btn-primary-target"
               data-a11y-id="auth.phone.otp.submit">
+        <span class="au-btn-spinner"></span>
         Verify
       </button>
     </div>
@@ -898,7 +1033,7 @@
      SCREEN: COUNTRY PICKER (re-used: phone signup, edit phone, etc.)
      iOS ref: Authentication/PhoneNumber/CountryCode/CountryCodeView.swift
      ============================================================ -->
-<div class="fit-phone fit-dark" id="s-country-picker">
+<div class="fit-phone fit-dark" id="s-country-picker" data-au-state="default">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -1000,6 +1135,14 @@
       </div>
     </div>
 
+    <div class="au-cp-empty">
+      <div class="au-cp-empty-illus">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      </div>
+      <div class="au-cp-empty-title">No countries found</div>
+      <div class="au-cp-empty-sub">Try a different name or dial code.</div>
+    </div>
+
   </div>
 </div>
 
@@ -1038,6 +1181,15 @@
   <div class="ann" id="ann-s-signup-email">
     <span class="ann-role">Shared</span>
     <h3>Sign-up · email form</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setAuState('s-signup-email','default',this)">Default</button>
+      <button onclick="setAuState('s-signup-email','email-invalid',this)">Invalid email</button>
+      <button onclick="setAuState('s-signup-email','email-taken',this)">Email taken</button>
+      <button onclick="setAuState('s-signup-email','weak-password',this)">Weak password</button>
+      <button onclick="setAuState('s-signup-email','all-valid',this)">All rules ok</button>
+      <button onclick="setAuState('s-signup-email','loading',this)">Loading</button>
+      <button onclick="setAuState('s-signup-email','server-error',this)">Server error</button>
+    </div>
     <p>Email + password with inline password-rules list. Posts to backend → advances to phone OTP step (next batch).</p>
     <hr>
     <p><strong>iOS ref:</strong> <code>Authentication/SignUpWithCredentials/SignUpWithCredentialsView.swift</code> (states: emailEntry → phoneEntry → codeEntry).</p>
@@ -1077,6 +1229,14 @@
   <div class="ann" id="ann-s-signin-email">
     <span class="ann-role">Shared</span>
     <h3>Sign-in · email form</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setAuState('s-signin-email','default',this)">Default</button>
+      <button onclick="setAuState('s-signin-email','wrong-credentials',this)">Wrong credentials</button>
+      <button onclick="setAuState('s-signin-email','account-locked',this)">Account locked</button>
+      <button onclick="setAuState('s-signin-email','method-not-set',this)">No password set</button>
+      <button onclick="setAuState('s-signin-email','loading',this)">Loading</button>
+      <button onclick="setAuState('s-signin-email','network-error',this)">Network error</button>
+    </div>
     <p>Email + password. Posts to backend → on success, lands on main app. On 401 → inline error banner above CTA. <strong>"Forgot password?"</strong> link below Sign in button leads into the 3-step recovery flow.</p>
     <hr>
     <p><strong>iOS ref:</strong> <code>Authentication/SignInWithCredentials/SignInWithCredentialsView.swift</code>.</p>
@@ -1098,6 +1258,12 @@
   <div class="ann" id="ann-s-forgot-email">
     <span class="ann-role">Shared</span>
     <h3>Forgot password · step 1 — enter email</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setAuState('s-forgot-email','default',this)">Default</button>
+      <button onclick="setAuState('s-forgot-email','email-invalid',this)">Invalid email</button>
+      <button onclick="setAuState('s-forgot-email','rate-limit',this)">Rate limit (429)</button>
+      <button onclick="setAuState('s-forgot-email','loading',this)">Loading</button>
+    </div>
     <p>First step of password recovery. Single email field + <strong>Send code</strong> CTA.</p>
     <hr>
     <p><strong>iOS ref:</strong> <code>Authentication/ForgotPassword/ForgotPasswordView.swift</code> (type=email, contactField=emailTextfield).</p>
@@ -1111,6 +1277,14 @@
   <div class="ann" id="ann-s-forgot-otp">
     <span class="ann-role">Shared</span>
     <h3>Forgot password · step 2 — OTP code</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setAuState('s-forgot-otp','default',this)">Default (4 typed)</button>
+      <button onclick="setAuState('s-forgot-otp','all-filled',this)">All 6 filled</button>
+      <button onclick="setAuState('s-forgot-otp','wrong-code',this)">Wrong code</button>
+      <button onclick="setAuState('s-forgot-otp','expired',this)">Expired</button>
+      <button onclick="setAuState('s-forgot-otp','loading',this)">Verifying</button>
+      <button onclick="setAuState('s-forgot-otp','resend-available',this)">Resend available</button>
+    </div>
     <p>6-digit code entry. Page-local <code>au-otp-boxes</code> + <code>au-otp-box</code> (same pattern as account-access.html's <code>otp-box</code> — promoted to fit-ui.css if it recurs in 3rd prototype).</p>
     <hr>
     <p><strong>iOS ref:</strong> shared <code>OTPCodeInputView</code> component (also used in phone signup).</p>
@@ -1126,6 +1300,13 @@
   <div class="ann" id="ann-s-forgot-new">
     <span class="ann-role">Shared</span>
     <h3>Forgot password · step 3 — new password</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setAuState('s-forgot-new','default',this)">Default</button>
+      <button onclick="setAuState('s-forgot-new','weak-password',this)">Weak (rules fail)</button>
+      <button onclick="setAuState('s-forgot-new','all-valid',this)">All rules ok</button>
+      <button onclick="setAuState('s-forgot-new','loading',this)">Saving</button>
+      <button onclick="setAuState('s-forgot-new','token-expired',this)">Token expired</button>
+    </div>
     <p>Final step: set a new password. Same password-rules list as sign-up. On Save → backend updates credentials, signs user in automatically, lands on main app.</p>
     <hr>
     <p><strong>iOS ref:</strong> <code>Authentication/ForgotPassword/ForgotPasswordView.swift</code> (newPassword state).</p>
@@ -1141,6 +1322,12 @@
   <div class="ann" id="ann-s-phone-enter">
     <span class="ann-role">Shared</span>
     <h3>Phone · enter number</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setAuState('s-phone-enter','default',this)">Default</button>
+      <button onclick="setAuState('s-phone-enter','phone-invalid',this)">Invalid format</button>
+      <button onclick="setAuState('s-phone-enter','sms-failed',this)">SMS failed</button>
+      <button onclick="setAuState('s-phone-enter','loading',this)">Sending</button>
+    </div>
     <p>After email/password sign-up succeeds, user must add and verify a phone number to continue. Phone is <strong>not a login credential</strong> per <code>authentication.md § 2026-05-11 update</code> — it's an outreach attribute used for booking reminders, SMS notifications, and account recovery. It's never shown to other users.</p>
     <hr>
     <p><strong>iOS ref:</strong> <code>Authentication/PhoneNumber/Set/SetPhoneView.swift</code>.</p>
@@ -1158,6 +1345,14 @@
   <div class="ann" id="ann-s-phone-otp">
     <span class="ann-role">Shared</span>
     <h3>Phone · OTP code</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setAuState('s-phone-otp','default',this)">Default (3 typed)</button>
+      <button onclick="setAuState('s-phone-otp','all-filled',this)">All 6 filled</button>
+      <button onclick="setAuState('s-phone-otp','wrong-code',this)">Wrong code</button>
+      <button onclick="setAuState('s-phone-otp','expired',this)">Expired</button>
+      <button onclick="setAuState('s-phone-otp','loading',this)">Verifying</button>
+      <button onclick="setAuState('s-phone-otp','resend-available',this)">Resend available</button>
+    </div>
     <p>Verify phone ownership. Same OTP component pattern as forgot password (<code>au-otp-boxes</code> / <code>au-otp-box</code>) — promoted to fit-ui.css when a 3rd consumer appears.</p>
     <hr>
     <p><strong>iOS ref:</strong> shared <code>OTPCodeInputView</code> + <code>SignUpWithCredentialsView.codeEntry</code> state.</p>
@@ -1174,6 +1369,10 @@
   <div class="ann" id="ann-s-country-picker">
     <span class="ann-role">Shared</span>
     <h3>Country picker</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setAuState('s-country-picker','default',this)">Default</button>
+      <button onclick="setAuState('s-country-picker','search-no-match',this)">No matches</button>
+    </div>
     <p>Re-used screen for any flow that needs to pick a country / dial code. Currently the only consumer in this prototype is the phone signup chip. <strong>Same screen is also re-used</strong> in account-access (change phone) and in Personal Data (home country) on prod, but those use different file copies — see promotion note below.</p>
     <hr>
     <p><strong>iOS ref:</strong> <code>Authentication/PhoneNumber/CountryCode/CountryCodeView.swift</code>.</p>
@@ -1202,6 +1401,154 @@ function go(screenId, sidebarBtn) {
   if (sidebarBtn) {
     document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
     sidebarBtn.classList.add('active');
+  }
+}
+
+// ============================================================
+// State switching — per-screen variants triggered from annotation
+// state-toggle buttons. State is held on the .fit-phone via
+// data-au-state; per-state side-effects (banner copy, rule classes,
+// OTP error toggling) are applied here.
+// ============================================================
+const AU_STATE_CONFIG = {
+  's-signup-email': {
+    'default':         { rules: 'pending' },
+    'email-invalid':   { fieldError: 'email', errorText: 'Enter a valid email address.', rules: 'pending' },
+    'email-taken':     { fieldError: 'email', banner: 'This email is already in use. Try signing in instead.', rules: 'pending' },
+    'weak-password':   { rules: 'fail' },
+    'all-valid':       { rules: 'ok' },
+    'loading':         { rules: 'ok' },
+    'server-error':    { banner: "Couldn't create your account. Check your connection and try again.", rules: 'pending' },
+  },
+  's-signin-email': {
+    'default':            {},
+    'wrong-credentials':  { banner: "Email or password isn't right." },
+    'account-locked':     { banner: 'Too many attempts. Try again in 5 minutes or use Forgot password.' },
+    'method-not-set':     { banner: 'This account uses Apple/Google sign-in. Continue with that method instead.' },
+    'loading':            {},
+    'network-error':      { banner: "Can't reach the server. Check your connection and try again." },
+  },
+  's-forgot-email': {
+    'default':         {},
+    'email-invalid':   { fieldError: 'email', errorText: 'Enter a valid email address.' },
+    'rate-limit':      { banner: 'Slow down — too many requests. Try again in 45 seconds.' },
+    'loading':         {},
+  },
+  's-forgot-otp': {
+    'default':           { otpFill: [3,9,2,4], otpFocus: 4 },
+    'all-filled':        { otpFill: [3,9,2,4,5,6] },
+    'wrong-code':        { otpFill: [3,9,2,4,5,6], otpError: 'wrong' },
+    'expired':           { otpFill: [3,9,2,4], otpFocus: 4, otpError: 'expired', banner: 'Code expired. Request a new one.', resendEnabled: true },
+    'loading':           { otpFill: [3,9,2,4,5,6] },
+    'resend-available':  { otpFill: [3,9,2,4], otpFocus: 4, resendEnabled: true },
+  },
+  's-forgot-new': {
+    'default':       { rules: 'pending' },
+    'weak-password': { rules: 'fail' },
+    'all-valid':     { rules: 'ok' },
+    'loading':       { rules: 'ok' },
+    'token-expired': { banner: 'Reset link expired. Start over from Forgot password.', rules: 'pending' },
+  },
+  's-phone-enter': {
+    'default':        {},
+    'phone-invalid':  { fieldError: 'phone', errorText: 'Enter a valid phone number.' },
+    'sms-failed':     { banner: "Couldn't send SMS. Check the number and try again." },
+    'loading':        {},
+  },
+  's-phone-otp': {
+    'default':           { otpFill: [1,8,3], otpFocus: 3 },
+    'all-filled':        { otpFill: [1,8,3,5,7,9] },
+    'wrong-code':        { otpFill: [1,8,3,5,7,9], otpError: 'wrong' },
+    'expired':           { otpFill: [1,8,3], otpFocus: 3, otpError: 'expired', banner: 'Code expired. Request a new one.', resendEnabled: true },
+    'loading':           { otpFill: [1,8,3,5,7,9] },
+    'resend-available':  { otpFill: [1,8,3], otpFocus: 3, resendEnabled: true },
+  },
+  's-country-picker': {
+    'default':           {},
+    'search-no-match':   {},
+  },
+};
+
+function setAuState(screenId, state, btn) {
+  const phone = document.getElementById(screenId);
+  if (!phone) return;
+  phone.dataset.auState = state;
+
+  const cfg = (AU_STATE_CONFIG[screenId] || {})[state] || {};
+
+  // Banner
+  const banner = phone.querySelector('.au-form-error');
+  if (banner) {
+    if (cfg.banner) {
+      banner.querySelector('.au-form-error-text').textContent = cfg.banner;
+      banner.classList.add('show');
+    } else {
+      banner.classList.remove('show');
+    }
+  }
+
+  // Field-level error: set .error class on matching .fit-input-group + show .fit-input-error-text
+  phone.querySelectorAll('.fit-input-group[data-field]').forEach(g => g.classList.remove('error'));
+  phone.querySelectorAll('.fit-input-error-text[data-error-for]').forEach(t => t.classList.remove('show'));
+  if (cfg.fieldError) {
+    const grp = phone.querySelector(`.fit-input-group[data-field="${cfg.fieldError}"]`);
+    if (grp) grp.classList.add('error');
+    const txt = phone.querySelector(`.fit-input-error-text[data-error-for="${cfg.fieldError}"]`);
+    if (txt) {
+      if (cfg.errorText) txt.textContent = cfg.errorText;
+      txt.classList.add('show');
+    }
+  }
+
+  // Password rules — toggle .ok / .fail / .pending on .au-pw-rule
+  if (cfg.rules) {
+    phone.querySelectorAll('.au-pw-rule').forEach(r => {
+      r.classList.remove('ok', 'fail');
+      if (cfg.rules === 'ok') r.classList.add('ok');
+      else if (cfg.rules === 'fail') r.classList.add('fail');
+    });
+  }
+
+  // OTP boxes — fill digits + focused + error
+  const otpBoxes = phone.querySelectorAll('.au-otp-box');
+  const otpContainer = phone.querySelector('.au-otp-boxes');
+  const otpErrMsg = phone.querySelector('.au-otp-error-msg');
+  if (otpBoxes.length) {
+    otpBoxes.forEach((b, i) => {
+      b.textContent = '';
+      b.classList.remove('filled', 'focused');
+      if (cfg.otpFill && i < cfg.otpFill.length) {
+        b.textContent = cfg.otpFill[i];
+        b.classList.add('filled');
+      }
+      if (cfg.otpFocus === i) b.classList.add('focused');
+    });
+    if (otpContainer) {
+      otpContainer.classList.remove('error');
+      if (cfg.otpError) otpContainer.classList.add('error');
+    }
+    if (otpErrMsg) {
+      otpErrMsg.style.display = (cfg.otpError === 'wrong') ? 'block' : 'none';
+      if (cfg.otpError === 'wrong') otpErrMsg.textContent = "Code doesn't match — try again.";
+    }
+  }
+
+  // Resend button
+  const resend = phone.querySelector('.au-otp-resend button');
+  if (resend) {
+    if (cfg.resendEnabled) {
+      resend.disabled = false;
+      resend.textContent = 'Resend code';
+    } else {
+      resend.disabled = true;
+      resend.textContent = 'Resend in 0:42';
+    }
+  }
+
+  // Sync state-toggle buttons in the annotation panel
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
   }
 }
 
