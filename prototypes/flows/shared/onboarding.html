@@ -243,42 +243,39 @@
      + fit-input-chevron from lib/fit-ui.css (same pattern as personal-data.html
      home country / home city / time zone / languages rows). */
 
-  /* === STEP 5: GYM LOCATIONS — uses canonical search-first pattern from
-     coach/locations.html#s-loc-map. Map preview + form lives on the next
-     screen in production (s-loc-form); for onboarding the picker IS the step. */
-  .onb-gym-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 0; cursor: pointer;
-    border-bottom: 1px solid var(--fit-divider);
+  /* === STEPS 5 + 6: GYM + SESSION are INTRO landings, not inline forms.
+     Each shows a hero icon + title + sub + primary CTA that links out to
+     the canonical create flow (coach/locations.html#s-loc-map and
+     coach/sessions.html#s-create respectively). On return, the wizard
+     would normally show "Added GYM Bro" confirmation + Continue enabled.
+     For the prototype both states share one layout — the Continue button
+     in the footer simulates the post-return state. */
+  .onb-intro {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 16px; padding: 32px 24px;
+    text-align: center;
   }
-  .onb-gym-row:last-child { border-bottom: none; }
-  .onb-gym-icon {
-    width: 36px; height: 36px; border-radius: 10px;
-    background: var(--fit-surface-high);
+  .onb-intro-icon {
+    width: 72px; height: 72px; border-radius: 18px;
+    background: var(--fit-selection-gradient);
     display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
+    color: var(--fit-teal-500);
   }
-  .onb-gym-icon svg { width: 16px; height: 16px; color: var(--fit-brand-primary); }
-  .onb-gym-body { flex: 1; min-width: 0; }
-  .onb-gym-name { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
-  .onb-gym-addr { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 1px; }
-  .onb-gym-dist { font-size: 12px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .onb-intro-icon svg { width: 36px; height: 36px; }
+  .onb-intro-title {
+    font-size: 22px; font-weight: 600; color: var(--fit-text-primary);
+    line-height: 1.3;
+  }
+  .onb-intro-sub {
+    font-size: 14px; color: var(--fit-text-secondary);
+    line-height: 1.5; max-width: 280px;
+  }
+  .onb-intro-cta {
+    width: 100%; max-width: 280px; margin-top: 8px;
+  }
 
-  /* === STEP 6: TRAINING SESSIONS — uses canonical fit-input-group + fit-input
-     pattern from coach/sessions.html#s-create. Price row with € currency suffix. */
-  .onb-price-row {
-    display: flex; align-items: stretch;
-    padding: 0 16px;
-    margin-bottom: 20px;
-  }
-  .onb-price-currency {
-    display: flex; align-items: center; padding: 0 16px;
-    font-size: 18px; color: var(--fit-text-secondary);
-    background: var(--fit-surface-high);
-    border-radius: 0 12px 12px 0;
-    margin-left: -1px;
-  }
-  .fit-light .onb-price-currency { background: var(--fit-white); border: 1px solid var(--fit-gray-100); border-left: none; }
+  /* (Step 6 Sessions uses the .onb-intro CTA-landing pattern — no extra CSS) */
 
   /* === STEP 7: CALENDAR SYNC — uses canonical .set-card from fit-ui.css
      (same pattern as coach/calendar-sync.html account list rows). */
@@ -630,62 +627,18 @@
     </div>
   </div>
   <div class="fit-phone-content" style="padding:0;display:flex;flex-direction:column;">
-    <div class="onb-head">
-      <div class="onb-title">Where do you train?</div>
-      <div class="onb-sub">Pick a gym from nearby suggestions or search by name. You can add more later.</div>
+    <div class="onb-intro">
+      <div class="onb-intro-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+      </div>
+      <div class="onb-intro-title">Add your first training location</div>
+      <div class="onb-intro-sub">Athletes book sessions at the gyms or courts you set here. You can add more locations later.</div>
+      <button class="fit-btn fit-btn-primary onb-intro-cta"
+              data-a11y-id="onboarding.flow.gym.add"
+              onclick="window.location.href='../coach/locations.html'">
+        Add a location
+      </button>
     </div>
-
-    <div class="fit-input-group" style="padding:0 16px;">
-      <div class="fit-input" style="display:flex;align-items:center;gap:8px;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        <input type="text" placeholder="Search address or gym name" data-a11y-id="onboarding.flow.gym.search"
-               style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
-      </div>
-    </div>
-
-    <div style="font-size:14px;font-weight:500;color:var(--fit-text-secondary);padding:16px 16px 10px;">Gyms Near You</div>
-
-    <div style="padding:0 16px;">
-      <div class="onb-gym-row" data-a11y-id="onboarding.flow.gym.suggestion">
-        <div class="onb-gym-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
-        <div class="onb-gym-body">
-          <div class="onb-gym-name">GYM Bro</div>
-          <div class="onb-gym-addr">Shota Rustaveli Ave, Tbilisi</div>
-        </div>
-        <span class="onb-gym-dist">0.3 km</span>
-      </div>
-      <div class="onb-gym-row" data-a11y-id="onboarding.flow.gym.suggestion">
-        <div class="onb-gym-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
-        <div class="onb-gym-body">
-          <div class="onb-gym-name">CrossFit Tbilisi</div>
-          <div class="onb-gym-addr">Kostava Str 42, Tbilisi</div>
-        </div>
-        <span class="onb-gym-dist">1.2 km</span>
-      </div>
-      <div class="onb-gym-row" data-a11y-id="onboarding.flow.gym.suggestion">
-        <div class="onb-gym-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
-        <div class="onb-gym-body">
-          <div class="onb-gym-name">FitLife Studio</div>
-          <div class="onb-gym-addr">Chavchavadze Ave 12, Tbilisi</div>
-        </div>
-        <span class="onb-gym-dist">2.1 km</span>
-      </div>
-    </div>
-
-    <div style="height:1px;background:var(--fit-divider);margin:16px 16px 0;"></div>
-
-    <div style="padding:16px;">
-      <div class="onb-gym-row" style="border-bottom:none;" data-a11y-id="onboarding.flow.gym.use-current">
-        <div class="onb-gym-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></div>
-        <span style="font-size:16px;color:var(--fit-text-primary);">Use current location</span>
-      </div>
-      <div class="onb-gym-row" style="border-bottom:none;" data-a11y-id="onboarding.flow.gym.pick-on-map">
-        <div class="onb-gym-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 3v18"/></svg></div>
-        <span style="font-size:16px;color:var(--fit-text-primary);">Pick on map</span>
-      </div>
-    </div>
-
-    <div style="flex:1;"></div>
   </div>
   <div class="onb-footer">
     <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.gym.next"
@@ -710,47 +663,18 @@
     </div>
   </div>
   <div class="fit-phone-content" style="padding:0;display:flex;flex-direction:column;">
-    <div class="onb-head">
-      <div class="onb-title">Create your first session</div>
-      <div class="onb-sub">A session is a template athletes can book — name, length, price. You can add more after onboarding.</div>
-    </div>
-
-    <!-- Same fit-input-group pattern as coach/sessions.html#s-create. -->
-    <div class="fit-input-group" style="padding:0 16px;">
-      <span class="fit-input-label">Session name</span>
-      <div class="fit-input" contenteditable="true" data-placeholder="e.g. 1-on-1 tennis lesson"
-           data-a11y-id="onboarding.flow.session.name" style="outline:none;cursor:text;"></div>
-    </div>
-
-    <div class="fit-input-group" style="padding:0 16px;">
-      <span class="fit-input-label">Sport type</span>
-      <div class="fit-input">
-        <span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M5 8h14M5 16h14"/></svg></span>
-        <span style="flex:1;">Tennis</span>
-        <span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+    <div class="onb-intro">
+      <div class="onb-intro-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4"/></svg>
       </div>
+      <div class="onb-intro-title">Create your first session</div>
+      <div class="onb-intro-sub">A session is a template athletes can book. Set name, duration, price — you can add more or edit later.</div>
+      <button class="fit-btn fit-btn-primary onb-intro-cta"
+              data-a11y-id="onboarding.flow.session.add"
+              onclick="window.location.href='../coach/sessions.html'">
+        Create a session
+      </button>
     </div>
-
-    <div class="fit-input-group" style="padding:0 16px;">
-      <span class="fit-input-label">Duration</span>
-      <div class="fit-input" style="cursor:pointer;" data-a11y-id="onboarding.flow.session.duration">
-        <span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span>
-        <span style="flex:1;">1 hr 0 min</span>
-        <span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-      </div>
-    </div>
-
-    <div class="fit-input-group" style="padding:0 16px;">
-      <span class="fit-input-label">Price per participant</span>
-    </div>
-    <div class="onb-price-row">
-      <div class="fit-input" contenteditable="true" data-placeholder="0"
-           data-a11y-id="onboarding.flow.session.price"
-           style="flex:1;outline:none;cursor:text;border-radius:12px 0 0 12px;"></div>
-      <div class="onb-price-currency">&euro;</div>
-    </div>
-
-    <div style="flex:1;"></div>
   </div>
   <div class="onb-footer">
     <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.session.next"
@@ -895,24 +819,27 @@
   <div class="ann" id="ann-s-onb-gym">
     <span class="ann-role">Coach</span>
     <h3>Step 5 — Gym locations (coach only)</h3>
-    <p>Coach picks at least one training location. Map placeholder shows where the location is + form fields for name and address. Address autocompletes via native maps service (MapKit / Google Places).</p>
+    <p>Intro screen with a primary CTA <strong>Add a location</strong> that hands off to the canonical add-location flow (<code>coach/locations.html#s-loc-map</code>) — the SAME picker coach uses elsewhere in the app. On return to onboarding, the wizard would normally render a confirmation card showing the added gym + Continue enabled.</p>
     <hr>
     <ul>
-      <li>Athletes don't see this step — onboarding flow branches at step 5: athlete jumps from <strong>Location</strong> directly to <strong>Calendar sync</strong> (step 5 of 5).</li>
-      <li>Coaches add ≥1 location to continue. More locations can be added later in <code>coach/locations.html</code>.</li>
-      <li>Location type (in-person gym / online / home visit) is set per location — defaults to in-person for the first one (per <code>project_locations_decisions</code>).</li>
+      <li>Athletes don't see this step — onboarding branches at step 5: athlete jumps from <strong>Location</strong> directly to <strong>Calendar sync</strong> (step 5 of 5).</li>
+      <li>Coaches add ≥1 location to continue. More locations can be added later in Settings → Locations.</li>
+      <li>Location type (in-person gym / online / home visit) is set inside the canonical flow — defaults to in-person per <code>project_locations_decisions</code>.</li>
+      <li><strong>Why intro + CTA, not inline picker</strong>: re-using the canonical locations screen keeps a single source of truth for the form. The wizard isn't a separate "create gym" UI; it just routes into the existing one.</li>
     </ul>
+    <p class="note">Prototype: the Continue footer button always navigates forward — in production it'd be disabled until ≥1 location is added.</p>
   </div>
 
   <div class="ann" id="ann-s-onb-sessions">
     <span class="ann-role">Coach</span>
     <h3>Step 6 — First training session (coach only)</h3>
-    <p>Coach creates one template session. Three fields: name, duration, price. Duration is a select with common presets (30 / 60 / 90 / 120 min).</p>
+    <p>Intro screen with a primary CTA <strong>Create a session</strong> that hands off to the canonical session-create flow (<code>coach/sessions.html#s-create</code>) — the SAME multi-field form (name, sport, location, training type, max participants, duration wheel-picker, price, schedule) coach uses elsewhere. On return to onboarding, the wizard would normally show the created session + Continue enabled.</p>
     <hr>
     <ul>
       <li>One session minimum to continue — coaches need at least one bookable thing for the marketplace to surface them.</li>
-      <li>Sport is implicit (defaults to the first sport selected in step 2). Coach can edit + add more sessions later in <code>coach/sessions.html</code>.</li>
+      <li>Sport pre-fills from step 2 selection (passed via deep-link param in production).</li>
       <li>Currency is the user's country's default (€ for Georgia / EU; production reads from country lookup table).</li>
+      <li><strong>Why intro + CTA, not inline form</strong>: same reasoning as gym step — canonical session-create form has 10+ fields with wheel-picker for duration and recurring/one-off schedule logic. Inlining would diverge from the source of truth.</li>
     </ul>
   </div>
 

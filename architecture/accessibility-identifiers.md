@@ -119,13 +119,10 @@ Phone is captured at signup (mandatory per 2026-05-19) and is no longer a wizard
 | `onboarding.flow.location.city` | push row | step 4 | opens city picker scoped to country |
 | `onboarding.flow.location.languages` | push row | step 4 | opens multi-select language picker |
 | `onboarding.flow.location.next` | primary CTA | step 4 | Continue — athlete jumps to calendar; coach to gym |
-| `onboarding.flow.gym.name` | text input | step 5 (coach) | gym name |
-| `onboarding.flow.gym.address` | text input | step 5 (coach) | autocomplete via maps service |
-| `onboarding.flow.gym.next` | primary CTA | step 5 (coach) | Continue |
-| `onboarding.flow.session.name` | text input | step 6 (coach) | session template name |
-| `onboarding.flow.session.duration` | select | step 6 (coach) | 30/60/90/120 min |
-| `onboarding.flow.session.price` | number input | step 6 (coach) | currency from country lookup |
-| `onboarding.flow.session.next` | primary CTA | step 6 (coach) | Continue |
+| `onboarding.flow.gym.add` | primary CTA | step 5 (coach) | "Add a location" — opens `coach/locations.html#s-loc-map` (canonical picker) |
+| `onboarding.flow.gym.next` | primary CTA | step 5 (coach) | Continue (footer) — enabled after ≥1 location added |
+| `onboarding.flow.session.add` | primary CTA | step 6 (coach) | "Create a session" — opens `coach/sessions.html#s-create` (canonical form) |
+| `onboarding.flow.session.next` | primary CTA | step 6 (coach) | Continue (footer) — enabled after ≥1 session created |
 | `onboarding.flow.calendar.google` | provider card | calendar step | opens Google OAuth |
 | `onboarding.flow.calendar.apple` | provider card | calendar step | opens CalDAV connect |
 | `onboarding.flow.calendar.next` | primary CTA | calendar step | Continue — only step with optional Skip |
