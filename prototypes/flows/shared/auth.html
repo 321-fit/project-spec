@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Authentication</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--fit-font);
+    background: #0a0a0a;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 24px; min-height: 100vh;
+    min-width: 900px;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    left: max(16px, calc(50% - 195px - 200px - 48px));
+    top: 24px; bottom: 24px; width: 200px;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-scroll {
+    flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+  }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--fit-gray-600);
+    padding: 0 8px; margin: 16px 0 8px;
+  }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button {
+    font-family: var(--fit-font); font-size: 14px; font-weight: 400;
+    padding: 10px 12px; border-radius: 10px; border: none;
+    background: transparent; color: var(--fit-gray-400);
+    cursor: pointer; text-align: left; width: 100%; transition: all 0.15s;
+  }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active {
+    background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500;
+  }
+
+  /* Annotations */
+  .ann-container {
+    position: fixed;
+    left: calc(50% + 195px + 48px);
+    top: 24px; bottom: 24px; width: 280px;
+    overflow-y: auto;
+  }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; }
+  .ann.active { display: block; }
+  .ann-role {
+    display: inline-block; font-size: 14px; font-weight: 500;
+    padding: 4px 12px; border-radius: 8px; margin-bottom: 16px;
+    background: rgba(255,255,255,0.08); color: var(--fit-gray-300);
+  }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 14px; padding-left: 18px; font-size: 16px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 6px; }
+  .ann code { font-size: 13px; background: rgba(255,255,255,0.06); padding: 1px 5px; border-radius: 3px; color: var(--fit-gray-300); }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+
+  /* Phone visibility */
+  .fit-phone { display: none; }
+  .fit-phone.active { display: flex; }
+
+  /* Auth-specific layout */
+  .auth-screen {
+    display: flex; flex-direction: column;
+    padding: 24px 24px 32px;
+    flex: 1; gap: 0;
+  }
+  .auth-hero {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 12px;
+    padding: 24px 0;
+  }
+  .auth-logo {
+    width: 72px; height: 72px; border-radius: 18px;
+    background: var(--fit-brand-gradient);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-white); font-weight: 600; font-size: 28px;
+    letter-spacing: -0.5px;
+    box-shadow: 0 8px 24px rgba(3,178,226,0.35);
+  }
+  .auth-welcome-sub {
+    font-size: 16px; color: var(--fit-text-secondary);
+    text-align: center; max-width: 280px; line-height: 1.4;
+  }
+  .auth-title {
+    font-size: 24px; font-weight: 600; color: var(--fit-text-primary);
+    line-height: 1.3; margin-bottom: 8px;
+  }
+  .auth-sub {
+    font-size: 14px; color: var(--fit-text-tertiary);
+    line-height: 1.5; margin-bottom: 24px;
+  }
+  .auth-stack {
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  /* Provider button: email / apple / google */
+  .auth-provider-btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; height: 50px; border-radius: 99px;
+    border: 1px solid var(--fit-divider);
+    background: var(--fit-surface-high);
+    color: var(--fit-text-primary);
+    font-family: var(--fit-font); font-size: 16px; font-weight: 500;
+    cursor: pointer;
+  }
+  .auth-provider-btn:hover { background: var(--fit-surface-higher); }
+  .auth-provider-btn svg { width: 20px; height: 20px; }
+  .auth-provider-btn.primary {
+    background: var(--fit-brand-gradient);
+    color: var(--fit-white);
+    border-color: transparent;
+  }
+  .auth-provider-btn.dark-pill {
+    background: var(--fit-black);
+    color: var(--fit-white);
+    border-color: var(--fit-black);
+  }
+  .auth-provider-btn.dark-pill svg { fill: var(--fit-white); }
+  .auth-provider-btn.last-used-tag {
+    position: relative;
+  }
+  .auth-last-used-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 12px; color: var(--fit-text-tertiary);
+    text-align: center; margin-top: -4px;
+  }
+  .auth-last-used-pill::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--fit-teal-500);
+  }
+
+  .auth-divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 8px 0; color: var(--fit-text-tertiary); font-size: 12px;
+  }
+  .auth-divider::before, .auth-divider::after {
+    content: ""; flex: 1; height: 1px; background: var(--fit-divider);
+  }
+
+  .auth-bottom-link {
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    padding: 16px 0; font-size: 14px; color: var(--fit-text-secondary);
+  }
+  .auth-bottom-link button {
+    background: transparent; border: none; cursor: pointer;
+    font-family: var(--fit-font); font-size: 14px; font-weight: 500;
+    color: var(--fit-text-primary); padding: 0;
+  }
+
+  /* Forms */
+  .auth-form {
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .auth-helper-row {
+    display: flex; justify-content: flex-end; padding: 4px 4px 0;
+  }
+  .auth-helper-link {
+    background: transparent; border: none; cursor: pointer;
+    font-family: var(--fit-font); font-size: 13px; font-weight: 500;
+    color: var(--fit-teal-500);
+  }
+  .auth-form-submit {
+    margin-top: 8px;
+    width: 100%; height: 50px; border-radius: 99px; border: none;
+    background: var(--fit-brand-gradient); color: var(--fit-white);
+    font-family: var(--fit-font); font-size: 16px; font-weight: 500;
+    cursor: pointer;
+  }
+  .auth-form-submit.is-disabled {
+    opacity: 0.5; cursor: not-allowed;
+  }
+
+  .auth-field-error {
+    font-size: 12px; color: var(--fit-red-400); padding: 0 6px;
+    line-height: 1.4;
+  }
+  .auth-form-error {
+    padding: 10px 14px; border-radius: 12px;
+    background: rgba(239,68,68,0.12); color: var(--fit-red-400);
+    border: 1px solid rgba(239,68,68,0.3);
+    font-size: 13px; line-height: 1.5;
+    display: none;
+  }
+  .auth-form-error.show { display: block; }
+
+  /* Back button on header (used on push screens like sign-up form) */
+  .auth-header {
+    padding: 12px 16px; display: flex; align-items: center;
+    min-height: 48px;
+  }
+  .auth-header-back {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: transparent; border: none; cursor: pointer;
+    color: var(--fit-text-primary);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .auth-header-back svg { width: 20px; height: 20px; }
+
+  /* Light theme tweaks */
+  .fit-light .auth-provider-btn.dark-pill {
+    background: var(--fit-black); color: var(--fit-white);
+    border-color: var(--fit-black);
+  }
+
+  /* Theme switch (footer of sidebar) */
+  .theme-switch {
+    margin-top: auto; padding-top: 12px; display: flex; gap: 0;
+    border-radius: 8px; overflow: hidden;
+    border: 1px solid var(--fit-gray-700); flex-shrink: 0;
+  }
+  .theme-switch button {
+    flex: 1; font-family: var(--fit-font); font-size: 12px; font-weight: 500;
+    padding: 8px 0; border: none; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+    <div class="label">Welcome</div>
+    <button class="active" onclick="go('s-role-pick',this)">Role pick</button>
+
+    <div class="label">Sign up</div>
+    <button onclick="go('s-signup-entry',this)">Sign-up · methods</button>
+    <button onclick="go('s-signup-email',this)">Sign-up · email</button>
+  </div>
+  <div class="theme-switch">
+    <button id="theme-dark" style="background:var(--fit-gray-700);color:var(--fit-white);" onclick="switchTheme('dark')">Dark</button>
+    <button id="theme-light" style="background:transparent;color:var(--fit-gray-400);" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ============================================================
+     SCREEN: ROLE PICK (welcome / continue as Coach | Athlete)
+     iOS ref: Authentication/Role/ChooseRoleView.swift
+     ============================================================ -->
+<div class="fit-phone fit-dark active" id="s-role-pick">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+  </div>
+  <div class="fit-phone-content" style="display:flex;flex-direction:column;padding:0;">
+    <div class="auth-screen">
+      <div class="auth-hero">
+        <div class="auth-logo">321</div>
+        <div style="font-size:22px;font-weight:600;color:var(--fit-text-primary);margin-top:8px;">Welcome to 321Fit</div>
+        <div class="auth-welcome-sub">Personal training, on your schedule. Pick how you'll join us.</div>
+      </div>
+      <div class="auth-stack">
+        <button class="auth-provider-btn primary" data-a11y-id="auth.role-pick.continue.coach" onclick="go('s-signup-entry', document.querySelector('.sidebar button[onclick*=s-signup-entry]'))">
+          I'm a Coach
+        </button>
+        <button class="auth-provider-btn" data-a11y-id="auth.role-pick.continue.athlete" onclick="go('s-signup-entry', document.querySelector('.sidebar button[onclick*=s-signup-entry]'))">
+          I'm an Athlete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN: SIGN-UP ENTRY (method picker — Email / Apple / Google)
+     iOS ref: Authentication/SignUp/SignUpView.swift
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-signup-entry">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="auth-header">
+      <button class="auth-header-back" data-a11y-id="auth.signup.back" onclick="go('s-role-pick', document.querySelector('.sidebar button[onclick*=s-role-pick]'))" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="display:flex;flex-direction:column;padding:0;">
+    <div class="auth-screen">
+      <div class="auth-hero" style="flex:0 1 auto;">
+        <div class="auth-logo" style="width:56px;height:56px;border-radius:14px;font-size:22px;">321</div>
+        <div class="auth-title" style="margin-top:8px;">Create your account</div>
+        <div class="auth-sub" style="margin-bottom:0;">Sign up with one of the methods below. You can add more later.</div>
+      </div>
+      <div class="auth-stack" style="margin-top:32px;">
+        <button class="auth-provider-btn primary" data-a11y-id="auth.signup.method.email" onclick="go('s-signup-email', document.querySelector('.sidebar button[onclick*=s-signup-email]'))">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+          Continue with email
+        </button>
+        <button class="auth-provider-btn dark-pill" data-a11y-id="auth.signup.method.apple">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.493-.12-1.06.396-2.2 1.075-2.99.762-.88 2.012-1.5 3.089-1.583zm3.86 17.52c-.764 1.13-1.595 2.235-2.948 2.253-1.327.026-1.753-.79-3.27-.79-1.517 0-1.99.764-3.247.815-1.305.05-2.295-1.21-3.07-2.33C5.97 16.73 4.762 12.45 6.367 9.6c.776-1.42 2.18-2.32 3.71-2.34 1.275-.025 2.482.86 3.27.86.79 0 2.27-1.06 3.83-.9.66.026 2.5.26 3.69 1.97-.094.06-2.20 1.30-2.18 3.87.02 3.05 2.67 4.07 2.70 4.08-.024.073-.43 1.46-1.42 2.84z"/></svg>
+          Continue with Apple
+        </button>
+        <button class="auth-provider-btn" data-a11y-id="auth.signup.method.google">
+          <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23 12.27c0-.85-.08-1.66-.22-2.45H12v4.63h6.16c-.27 1.43-1.08 2.65-2.31 3.46v2.88h3.74C21.78 18.81 23 15.83 23 12.27z"/><path fill="#34A853" d="M12 23c3.13 0 5.77-1.04 7.69-2.81l-3.74-2.88c-1.04.7-2.36 1.11-3.95 1.11-3.04 0-5.61-2.05-6.53-4.81H1.62v3.02C3.53 20.39 7.45 23 12 23z"/><path fill="#FBBC05" d="M5.47 13.62a6.6 6.6 0 010-3.23V7.37H1.62a11 11 0 000 9.27l3.85-3.02z"/><path fill="#EA4335" d="M12 5.38c1.71 0 3.25.59 4.47 1.74l3.32-3.32C17.76 1.86 15.12 1 12 1 7.45 1 3.53 3.61 1.62 7.37l3.85 3.02C6.39 7.43 8.96 5.38 12 5.38z"/></svg>
+          Continue with Google
+        </button>
+      </div>
+    </div>
+    <div class="auth-bottom-link">
+      <span>Have an account?</span>
+      <button data-a11y-id="auth.signup.toggle-signin">Sign in</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN: SIGN-UP EMAIL FORM
+     iOS ref: Authentication/SignUpWithCredentials/SignUpWithCredentialsView.swift
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-signup-email">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="auth-header">
+      <button class="auth-header-back" data-a11y-id="auth.signup.email.back" onclick="go('s-signup-entry', document.querySelector('.sidebar button[onclick*=s-signup-entry]'))" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="display:flex;flex-direction:column;padding:0;">
+    <div class="auth-screen">
+      <div style="padding:8px 0 24px;">
+        <div class="auth-title">Sign up with email</div>
+        <div class="auth-sub">We'll send a verification code to confirm your identity.</div>
+      </div>
+
+      <div class="auth-form">
+        <div class="fit-input-group">
+          <span class="fit-input-label">Email</span>
+          <div class="fit-input">
+            <input
+              type="email"
+              inputmode="email"
+              autocomplete="email"
+              autocapitalize="off"
+              spellcheck="false"
+              placeholder="you@example.com"
+              data-a11y-id="auth.signup.email.field"
+              style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"
+            />
+          </div>
+        </div>
+
+        <div class="fit-input-group">
+          <span class="fit-input-label">Password</span>
+          <div class="fit-input fit-input-password">
+            <input
+              type="password"
+              autocomplete="new-password"
+              placeholder="At least 8 characters"
+              data-a11y-id="auth.signup.email.password.field"
+              style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"
+            />
+            <button class="fit-eye-toggle" data-a11y-id="auth.signup.email.password.show" aria-label="Show password" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="auth-form-error" id="signup-form-error">
+          Couldn't create your account. Check the email format and try again.
+        </div>
+
+        <button class="auth-form-submit" data-a11y-id="auth.signup.email.submit">
+          Sign up
+        </button>
+      </div>
+    </div>
+
+    <div class="auth-bottom-link">
+      <span>Have an account?</span>
+      <button data-a11y-id="auth.signup.email.toggle-signin">Sign in</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+  <div class="ann active" id="ann-s-role-pick">
+    <span class="ann-role">Shared</span>
+    <h3>Welcome / Role pick</h3>
+    <p>Entry screen for first-time install. Two ways forward: <strong>I'm a Coach</strong> (primary gradient) or <strong>I'm an Athlete</strong> (outlined). Role is captured client-side and threaded through to sign-up / sign-in so server knows which onboarding to assign.</p>
+    <hr>
+    <p><strong>iOS ref:</strong> <code>Authentication/Role/ChooseRoleView.swift</code> (background image + welcome icon + 2 stacked buttons).</p>
+    <ul>
+      <li>No back/close — this is the root of the unauthenticated stack.</li>
+      <li>Sign-in path: tap "Have an account? Sign in" — to be added on sign-up entry screen (next).</li>
+      <li>Returning users skip this entirely — auth state restores from keychain → goes straight to last role.</li>
+    </ul>
+    <p class="note">Background image (welcome-background asset on iOS) intentionally simplified here — prototype focuses on layout + interaction. Real asset lives in <code>Resources/Images.xcassets/Authentification/welcomeBackground</code>.</p>
+  </div>
+
+  <div class="ann" id="ann-s-signup-entry">
+    <span class="ann-role">Shared</span>
+    <h3>Sign-up · method picker</h3>
+    <p>3 sign-up methods stacked: <strong>Email</strong> (primary), <strong>Apple</strong> (black pill), <strong>Google</strong> (white-ish outlined). Order: Email first because it's the explicit / least friction-y path; Apple second for iOS, Google third. Apple stays on iOS only (hidden on Android in production).</p>
+    <hr>
+    <p><strong>iOS ref:</strong> <code>Authentication/SignUp/SignUpView.swift</code> + <code>AuthenticationAvailableTypes</code> enum (`apple`, `google`, `emailOrProne` legacy typo).</p>
+    <ul>
+      <li><strong>Last-used method indicator</strong> (not shown yet) — under whichever provider was last successful on this device, render a teal-dot "Last used" caption. See sign-in screen (next batch).</li>
+      <li><strong>Apple / Google buttons</strong> trigger native OS bottom sheets — no in-app screen for those flows.</li>
+      <li><strong>"Have an account? Sign in"</strong> at footer — toggles into sign-in entry (next batch).</li>
+    </ul>
+    <hr>
+    <p><strong>Phone is NOT a sign-up method</strong> as of 2026-05-11 per <code>authentication.md</code>. Phone is an outreach attribute, captured separately during signup for ownership verification (next batch).</p>
+  </div>
+
+  <div class="ann" id="ann-s-signup-email">
+    <span class="ann-role">Shared</span>
+    <h3>Sign-up · email form</h3>
+    <p>Email + password form. Validates client-side, posts to backend, advances to phone OTP step (next batch).</p>
+    <hr>
+    <p><strong>iOS ref:</strong> <code>Authentication/SignUpWithCredentials/SignUpWithCredentialsView.swift</code> (states: emailEntry → phoneEntry → codeEntry).</p>
+    <hr>
+    <p><strong>Field validation</strong></p>
+    <ul>
+      <li><strong>Email</strong> — <code>keyboardType: emailAddress</code>, lowercase, RFC-5322 lite regex. Submit-on-Next moves to password.</li>
+      <li><strong>Password</strong> — <code>isSecured</code> with eye toggle. Validator: ≥8 chars + at least one digit + at least one letter (server is source of truth per <code>account-access.md</code>).</li>
+      <li><strong>Sign up button</strong> — disabled until both fields valid. Disabled state = 0.5 opacity + no tap.</li>
+    </ul>
+    <p><strong>Server errors</strong> — generic inline banner above Submit (<code>auth-form-error</code>). 409 email-taken → "This email is already in use. Sign in instead?"; 400 bad password → "Password too weak — 8+ chars, mix letters and digits."</p>
+    <hr>
+    <p><strong>Keyboard flow</strong> per <code>feedback_keyboard_behavior</code>: Email field <code>Next</code> → Password field <code>Go</code> → fires Sign up.</p>
+  </div>
+</div>
+
+<script>
+function go(screenId, sidebarBtn) {
+  document.querySelectorAll('.fit-phone').forEach(p => p.classList.remove('active'));
+  const screen = document.getElementById(screenId);
+  if (screen) screen.classList.add('active');
+
+  document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+  const ann = document.getElementById('ann-' + screenId);
+  if (ann) ann.classList.add('active');
+
+  if (sidebarBtn) {
+    document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+    sidebarBtn.classList.add('active');
+  }
+}
+
+function switchTheme(theme) {
+  document.getElementById('theme-dark').style.background = theme === 'dark' ? 'var(--fit-gray-700)' : 'transparent';
+  document.getElementById('theme-dark').style.color = theme === 'dark' ? 'var(--fit-white)' : 'var(--fit-gray-400)';
+  document.getElementById('theme-light').style.background = theme === 'light' ? 'var(--fit-gray-700)' : 'transparent';
+  document.getElementById('theme-light').style.color = theme === 'light' ? 'var(--fit-white)' : 'var(--fit-gray-400)';
+  document.querySelectorAll('.fit-phone').forEach(p => {
+    if (theme === 'light') { p.classList.remove('fit-dark'); p.classList.add('fit-light'); }
+    else { p.classList.remove('fit-light'); p.classList.add('fit-dark'); }
+  });
+}
+</script>
+
+</body>
+</html>
