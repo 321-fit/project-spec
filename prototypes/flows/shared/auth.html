@@ -167,6 +167,58 @@
     padding: 16px;
   }
 
+  /* "Last used" indicator under provider button (sign-in) */
+  .au-last-used {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-size: 12px; color: var(--fit-text-tertiary);
+    margin-top: -6px; margin-bottom: 2px;
+  }
+  .au-last-used::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--fit-teal-500); flex-shrink: 0;
+  }
+
+  /* Forgot password inline link (under Sign in CTA) */
+  .au-forgot-link-wrap {
+    display: flex; align-items: center; justify-content: center;
+    padding: 12px 16px 0;
+  }
+  .au-forgot-link {
+    background: transparent; border: none; cursor: pointer;
+    font-family: var(--fit-font); font-size: 14px; font-weight: 400;
+    color: var(--fit-text-secondary);
+  }
+  .au-forgot-link:hover { color: var(--fit-text-primary); }
+
+  /* OTP boxes (page-local — otp-* in account-access.html is local to that file) */
+  .au-otp-boxes {
+    display: flex; gap: 8px; justify-content: center;
+    padding: 12px 20px 4px;
+  }
+  .au-otp-box {
+    width: 44px; height: 54px;
+    border-radius: 12px;
+    background: var(--fit-surface-high);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 500; color: var(--fit-text-primary);
+  }
+  .fit-light .au-otp-box { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .au-otp-box.focused { border: 2px solid var(--fit-brand-primary); }
+  .au-otp-box.filled { background: var(--fit-surface-higher); }
+  .fit-light .au-otp-box.filled { background: var(--fit-gray-100); border-color: var(--fit-gray-200); }
+  .au-otp-resend {
+    text-align: center; padding: 16px 20px;
+    font-size: 13px; color: var(--fit-text-tertiary);
+  }
+  .au-otp-resend button {
+    background: transparent; border: none; cursor: pointer;
+    color: var(--fit-brand-primary); font-weight: 500;
+    font-family: var(--fit-font); font-size: 13px;
+  }
+  .au-otp-resend button:disabled {
+    color: var(--fit-text-tertiary); cursor: not-allowed;
+  }
+
   /* Theme switch (footer of sidebar) */
   .theme-switch {
     margin-top: auto; padding-top: 12px; display: flex; gap: 0;
@@ -190,6 +242,15 @@
     <div class="label">Sign up</div>
     <button onclick="go('s-signup-entry',this)">Sign-up · methods</button>
     <button onclick="go('s-signup-email',this)">Sign-up · email</button>
+
+    <div class="label">Sign in</div>
+    <button onclick="go('s-signin-entry',this)">Sign-in · methods</button>
+    <button onclick="go('s-signin-email',this)">Sign-in · email</button>
+
+    <div class="label">Forgot password</div>
+    <button onclick="go('s-forgot-email',this)">Step 1 · enter email</button>
+    <button onclick="go('s-forgot-otp',this)">Step 2 · OTP code</button>
+    <button onclick="go('s-forgot-new',this)">Step 3 · new password</button>
   </div>
   <div class="theme-switch">
     <button id="theme-dark" style="background:var(--fit-gray-700);color:var(--fit-white);" onclick="switchTheme('dark')">Dark</button>
@@ -362,6 +423,294 @@
   </div>
 </div>
 
+<!-- ============================================================
+     SCREEN: SIGN-IN ENTRY (method picker with "Last used" indicator)
+     iOS ref: Authentication/SignIn/SignInView.swift
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-signin-entry">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"
+              data-a11y-id="auth.signin.back"
+              onclick="go('s-role-pick', document.querySelector('.sidebar button[onclick*=s-role-pick]'))"
+              aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="display:flex;flex-direction:column;padding:0;">
+
+    <div class="au-page-head">
+      <div class="au-page-title">Welcome back</div>
+      <div class="au-page-sub">Sign in with one of the methods you connected to your account.</div>
+    </div>
+
+    <div class="au-btn-stack">
+      <button class="fit-btn fit-btn-primary fit-btn--auth-provider"
+              data-a11y-id="auth.signin.method.email"
+              onclick="go('s-signin-email', document.querySelector('.sidebar button[onclick*=s-signin-email]'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+        Continue with email
+      </button>
+      <div class="au-last-used">Last used on this device</div>
+
+      <button class="fit-btn fit-btn--auth-provider fit-btn--dark-pill"
+              data-a11y-id="auth.signin.method.apple">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:20px;height:20px;"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.493-.12-1.06.396-2.2 1.075-2.99.762-.88 2.012-1.5 3.089-1.583zm3.86 17.52c-.764 1.13-1.595 2.235-2.948 2.253-1.327.026-1.753-.79-3.27-.79-1.517 0-1.99.764-3.247.815-1.305.05-2.295-1.21-3.07-2.33C5.97 16.73 4.762 12.45 6.367 9.6c.776-1.42 2.18-2.32 3.71-2.34 1.275-.025 2.482.86 3.27.86.79 0 2.27-1.06 3.83-.9.66.026 2.5.26 3.69 1.97-.094.06-2.20 1.30-2.18 3.87.02 3.05 2.67 4.07 2.70 4.08-.024.073-.43 1.46-1.42 2.84z"/></svg>
+        Continue with Apple
+      </button>
+      <button class="fit-btn fit-btn-secondary fit-btn--auth-provider"
+              data-a11y-id="auth.signin.method.google">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path fill="#4285F4" d="M23 12.27c0-.85-.08-1.66-.22-2.45H12v4.63h6.16c-.27 1.43-1.08 2.65-2.31 3.46v2.88h3.74C21.78 18.81 23 15.83 23 12.27z"/><path fill="#34A853" d="M12 23c3.13 0 5.77-1.04 7.69-2.81l-3.74-2.88c-1.04.7-2.36 1.11-3.95 1.11-3.04 0-5.61-2.05-6.53-4.81H1.62v3.02C3.53 20.39 7.45 23 12 23z"/><path fill="#FBBC05" d="M5.47 13.62a6.6 6.6 0 010-3.23V7.37H1.62a11 11 0 000 9.27l3.85-3.02z"/><path fill="#EA4335" d="M12 5.38c1.71 0 3.25.59 4.47 1.74l3.32-3.32C17.76 1.86 15.12 1 12 1 7.45 1 3.53 3.61 1.62 7.37l3.85 3.02C6.39 7.43 8.96 5.38 12 5.38z"/></svg>
+        Continue with Google
+      </button>
+    </div>
+
+  </div>
+  <div class="fit-phone-footer">
+    <div class="au-toggle-row">
+      <span>Don't have an account?</span>
+      <button data-a11y-id="auth.signin.toggle-signup"
+              onclick="go('s-signup-entry', document.querySelector('.sidebar button[onclick*=s-signup-entry]'))">Sign up</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN: SIGN-IN EMAIL FORM
+     iOS ref: Authentication/SignInWithCredentials/SignInWithCredentialsView.swift
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-signin-email">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"
+              data-a11y-id="auth.signin.email.back"
+              onclick="go('s-signin-entry', document.querySelector('.sidebar button[onclick*=s-signin-entry]'))"
+              aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding:0;">
+
+    <div class="au-page-head">
+      <div class="au-page-title">Sign in with email</div>
+      <div class="au-page-sub">Use the email and password you signed up with.</div>
+    </div>
+
+    <div class="fit-input-group">
+      <span class="fit-input-label">Email</span>
+      <div class="fit-input">
+        <input type="email" inputmode="email" autocomplete="email"
+               autocapitalize="off" spellcheck="false"
+               placeholder="you@example.com"
+               data-a11y-id="auth.signin.email.field"
+               style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
+      </div>
+    </div>
+
+    <div class="fit-input-group">
+      <span class="fit-input-label">Password</span>
+      <div class="fit-input fit-input-password">
+        <input type="password" autocomplete="current-password"
+               placeholder="Your password"
+               data-a11y-id="auth.signin.email.password.field"
+               style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
+        <button class="fit-eye-toggle"
+                data-a11y-id="auth.signin.email.password.show"
+                aria-label="Show password" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="au-cta-wrap">
+      <button class="fit-btn fit-btn-primary"
+              data-a11y-id="auth.signin.email.submit">
+        Sign in
+      </button>
+    </div>
+
+    <div class="au-forgot-link-wrap">
+      <button class="au-forgot-link"
+              data-a11y-id="auth.signin.email.forgot-password"
+              onclick="go('s-forgot-email', document.querySelector('.sidebar button[onclick*=s-forgot-email]'))">
+        Forgot password?
+      </button>
+    </div>
+
+  </div>
+  <div class="fit-phone-footer">
+    <div class="au-toggle-row">
+      <span>Don't have an account?</span>
+      <button data-a11y-id="auth.signin.email.toggle-signup"
+              onclick="go('s-signup-entry', document.querySelector('.sidebar button[onclick*=s-signup-entry]'))">Sign up</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN: FORGOT PASSWORD — STEP 1 (email entry)
+     iOS ref: Authentication/ForgotPassword/ForgotPasswordView.swift
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-forgot-email">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"
+              data-a11y-id="auth.forgot.email.back"
+              onclick="go('s-signin-email', document.querySelector('.sidebar button[onclick*=s-signin-email]'))"
+              aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding:0;">
+
+    <div class="au-page-head">
+      <div class="au-page-title">Forgot your password?</div>
+      <div class="au-page-sub">Enter the email on your account. We'll send a 6-digit code to reset your password.</div>
+    </div>
+
+    <div class="fit-input-group">
+      <span class="fit-input-label">Email</span>
+      <div class="fit-input">
+        <input type="email" inputmode="email" autocomplete="email"
+               autocapitalize="off" spellcheck="false"
+               placeholder="you@example.com"
+               data-a11y-id="auth.forgot.email.field"
+               style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
+      </div>
+    </div>
+
+    <div class="au-cta-wrap">
+      <button class="fit-btn fit-btn-primary"
+              data-a11y-id="auth.forgot.email.submit"
+              onclick="go('s-forgot-otp', document.querySelector('.sidebar button[onclick*=s-forgot-otp]'))">
+        Send code
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN: FORGOT PASSWORD — STEP 2 (OTP code)
+     iOS ref: Authentication/ForgotPassword/ForgotPasswordView.swift (codeEntry state)
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-forgot-otp">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"
+              data-a11y-id="auth.forgot.otp.back"
+              onclick="go('s-forgot-email', document.querySelector('.sidebar button[onclick*=s-forgot-email]'))"
+              aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding:0;">
+
+    <div class="au-page-head">
+      <div class="au-page-title">Enter the code</div>
+      <div class="au-page-sub">We sent a 6-digit code to <strong style="color:var(--fit-text-secondary);">you@example.com</strong>. Enter it below.</div>
+    </div>
+
+    <div class="au-otp-boxes" data-a11y-id="auth.forgot.otp.field">
+      <div class="au-otp-box filled">3</div>
+      <div class="au-otp-box filled">9</div>
+      <div class="au-otp-box filled">2</div>
+      <div class="au-otp-box focused">4</div>
+      <div class="au-otp-box"></div>
+      <div class="au-otp-box"></div>
+    </div>
+
+    <div class="au-otp-resend">
+      Didn't get it? <button data-a11y-id="auth.forgot.otp.resend" disabled>Resend in 0:42</button>
+    </div>
+
+    <div class="au-cta-wrap">
+      <button class="fit-btn fit-btn-primary"
+              data-a11y-id="auth.forgot.otp.submit"
+              onclick="go('s-forgot-new', document.querySelector('.sidebar button[onclick*=s-forgot-new]'))">
+        Verify
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN: FORGOT PASSWORD — STEP 3 (new password)
+     iOS ref: Authentication/ForgotPassword/ForgotPasswordView.swift (newPassword state)
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-forgot-new">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"
+              data-a11y-id="auth.forgot.new.back"
+              onclick="go('s-forgot-otp', document.querySelector('.sidebar button[onclick*=s-forgot-otp]'))"
+              aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding:0;">
+
+    <div class="au-page-head">
+      <div class="au-page-title">Set a new password</div>
+      <div class="au-page-sub">You'll use this password to sign in next time.</div>
+    </div>
+
+    <div class="fit-input-group">
+      <span class="fit-input-label">New password</span>
+      <div class="fit-input fit-input-password">
+        <input type="password" autocomplete="new-password"
+               placeholder="At least 8 characters"
+               data-a11y-id="auth.forgot.new.password.field"
+               style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
+        <button class="fit-eye-toggle"
+                data-a11y-id="auth.forgot.new.password.show"
+                aria-label="Show password" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="au-pw-rules">
+      <div class="au-pw-rule">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+        At least 8 characters
+      </div>
+      <div class="au-pw-rule">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+        Mix letters and digits
+      </div>
+      <div class="au-pw-rule">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+        Not a common password
+      </div>
+    </div>
+
+    <div class="au-cta-wrap">
+      <button class="fit-btn fit-btn-primary"
+              data-a11y-id="auth.forgot.new.submit">
+        Save and sign in
+      </button>
+    </div>
+
+  </div>
+</div>
+
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
   <div class="ann active" id="ann-s-role-pick">
@@ -416,6 +765,85 @@
     </ul>
     <p><strong>Server errors</strong> — 409 email-taken → <code>fit-input-group.error</code> on email + <code>fit-input-error-text</code> "This email is already in use."; 400 bad password → similar pattern on password field.</p>
     <p><strong>Keyboard flow</strong> per <code>feedback_keyboard_behavior</code>: Email <code>Next</code> → Password <code>Go</code> → Sign up.</p>
+  </div>
+
+  <div class="ann" id="ann-s-signin-entry">
+    <span class="ann-role">Shared</span>
+    <h3>Sign-in · method picker</h3>
+    <p>Mirror of sign-up entry — same 3 providers stacked. Difference: a <strong>"Last used on this device"</strong> indicator (teal dot caption) lives under whichever method the user last signed in with on this device. Bumps tap-target predictability for returning users.</p>
+    <hr>
+    <p><strong>iOS ref:</strong> <code>Authentication/SignIn/SignInView.swift</code>. Last-used surfacing uses <code>viewModel.userLastAuthenticationType</code>; in prototype the caption is shown under Email as a representative case.</p>
+    <ul>
+      <li>Order of methods: Email → Apple → Google (same as sign-up).</li>
+      <li>Apple / Google buttons fire native OS sheets — no in-app screen.</li>
+      <li>Footer toggle "Don't have an account? <strong>Sign up</strong>" — switches into sign-up entry.</li>
+      <li>Last-used dot is page-local <code>au-last-used</code> (teal 6×6 + 12px tertiary text). Only one method shows it at a time.</li>
+    </ul>
+    <p class="note">Returning users who tapped a provider in the last 30 days skip directly to that provider's native sheet — no method-picker shown. This shortcut is iOS-level and not represented in the prototype.</p>
+  </div>
+
+  <div class="ann" id="ann-s-signin-email">
+    <span class="ann-role">Shared</span>
+    <h3>Sign-in · email form</h3>
+    <p>Email + password. Posts to backend → on success, lands on main app. On 401 → inline error banner above CTA. <strong>"Forgot password?"</strong> link below Sign in button leads into the 3-step recovery flow.</p>
+    <hr>
+    <p><strong>iOS ref:</strong> <code>Authentication/SignInWithCredentials/SignInWithCredentialsView.swift</code>.</p>
+    <ul>
+      <li>Inputs: canonical <code>fit-input-group</code> + <code>fit-input</code> + <code>fit-input-password</code> + <code>fit-eye-toggle</code>.</li>
+      <li><strong>No password-rules list</strong> here (unlike sign-up) — just sign in with whatever was set.</li>
+      <li><strong>Forgot password</strong> link uses page-local <code>au-forgot-link</code> styled as secondary text under CTA (NOT inline next to label, per HIG — keeps the field clean).</li>
+      <li>Server errors:
+        <ul>
+          <li><strong>401 wrong credentials</strong> → generic banner "Email or password isn't right" (avoid disclosing which is wrong — security best practice).</li>
+          <li><strong>423 locked</strong> (too many failures) → banner with retry-after time + suggestion to use Forgot password.</li>
+          <li><strong>409 method-not-set</strong> (user signed up via Apple/Google, no email password) → banner "This email is signed in with Apple/Google. Tap to continue with that method instead."</li>
+        </ul>
+      </li>
+    </ul>
+    <p><strong>Keyboard flow</strong>: Email <code>Next</code> → Password <code>Go</code> → fires Sign in. Same as sign-up.</p>
+  </div>
+
+  <div class="ann" id="ann-s-forgot-email">
+    <span class="ann-role">Shared</span>
+    <h3>Forgot password · step 1 — enter email</h3>
+    <p>First step of password recovery. Single email field + <strong>Send code</strong> CTA.</p>
+    <hr>
+    <p><strong>iOS ref:</strong> <code>Authentication/ForgotPassword/ForgotPasswordView.swift</code> (type=email, contactField=emailTextfield).</p>
+    <ul>
+      <li>Backend always responds 200 regardless of whether the email exists — prevents email enumeration. If email isn't on file, no code is actually sent; user lands on OTP step with no way to advance. Acceptable UX trade for security.</li>
+      <li>Validation: client-side email regex (same as sign-up); server doesn't validate format, just enqueues OTP if account found.</li>
+      <li>Rate limit: 1 request per email per 60 sec, 5 per hour. Server returns 429 on excess → banner "Slow down — try again in N seconds."</li>
+    </ul>
+  </div>
+
+  <div class="ann" id="ann-s-forgot-otp">
+    <span class="ann-role">Shared</span>
+    <h3>Forgot password · step 2 — OTP code</h3>
+    <p>6-digit code entry. Page-local <code>au-otp-boxes</code> + <code>au-otp-box</code> (same pattern as account-access.html's <code>otp-box</code> — promoted to fit-ui.css if it recurs in 3rd prototype).</p>
+    <hr>
+    <p><strong>iOS ref:</strong> shared <code>OTPCodeInputView</code> component (also used in phone signup).</p>
+    <ul>
+      <li><strong>States:</strong> empty / filled / focused / error — visible via class modifiers on <code>au-otp-box</code>.</li>
+      <li><strong>Auto-submit:</strong> when all 6 digits filled and pass server check, auto-advances to step 3 — no need to tap Verify.</li>
+      <li><strong>Resend timer:</strong> button is disabled with "Resend in 0:42" countdown for 60 sec after each send. After timer elapses, button enables: "Resend code".</li>
+      <li><strong>Server errors:</strong> 401 wrong code → red border on all 6 boxes + small error text "Code doesn't match — try again"; 410 expired → "Code expired — request a new one" + auto-enable Resend.</li>
+      <li><strong>Paste support:</strong> pasting 6-digit string into any box auto-fills all 6.</li>
+    </ul>
+  </div>
+
+  <div class="ann" id="ann-s-forgot-new">
+    <span class="ann-role">Shared</span>
+    <h3>Forgot password · step 3 — new password</h3>
+    <p>Final step: set a new password. Same password-rules list as sign-up. On Save → backend updates credentials, signs user in automatically, lands on main app.</p>
+    <hr>
+    <p><strong>iOS ref:</strong> <code>Authentication/ForgotPassword/ForgotPasswordView.swift</code> (newPassword state).</p>
+    <ul>
+      <li><strong>Single new-password field</strong> (no "Confirm new password") — eye-toggle covers the typo-prevention use case + reduces friction. Server hashes whatever's submitted; if user typo'd, they'll Forgot Password again. Same approach as account-access.md change-password.</li>
+      <li><strong>Rules list</strong> reuses page-local <code>au-pw-rules</code> / <code>au-pw-rule</code> from sign-up email form.</li>
+      <li><strong>CTA copy:</strong> "Save and sign in" — single action that does both. No separate sign-in step after.</li>
+      <li><strong>OTP token</strong> from step 2 is short-lived JWT in client memory, sent in the Save request body. Backend verifies before applying password change.</li>
+    </ul>
+    <p class="note">In production, this also revokes all existing sessions on the account (per account-access.md security model). Old phones / tabs signed in get logged out within 60 sec.</p>
   </div>
 </div>
 

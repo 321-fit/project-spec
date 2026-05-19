@@ -56,6 +56,29 @@ Prototype: `prototypes/flows/shared/auth.html`
 | `auth.signup.email.password.show` | eye toggle | sign-up email | inline at end of password field |
 | `auth.signup.email.submit` | primary CTA | sign-up email | "Sign up" — gated on field validators |
 | `auth.signup.email.toggle-signin` | text button | sign-up email footer | "Sign in" — switches to sign-in form |
+| `auth.signin.back` | back chevron | sign-in entry | returns to role-pick |
+| `auth.signin.method.email` | primary CTA | sign-in entry | "Continue with email" → email form |
+| `auth.signin.method.apple` | provider btn | sign-in entry | opens native Apple sign-in sheet |
+| `auth.signin.method.google` | provider btn | sign-in entry | opens native Google sign-in sheet |
+| `auth.signin.toggle-signup` | text button | sign-in entry footer | "Sign up" — switches to sign-up entry |
+| `auth.signin.email.back` | back chevron | sign-in email | returns to method picker |
+| `auth.signin.email.field` | email input | sign-in email | keyboardType=email, autocomplete=email |
+| `auth.signin.email.password.field` | password input | sign-in email | isSecure, autocomplete=current-password |
+| `auth.signin.email.password.show` | eye toggle | sign-in email | inline at end of password field |
+| `auth.signin.email.submit` | primary CTA | sign-in email | "Sign in" — gated on field validators |
+| `auth.signin.email.forgot-password` | text link | sign-in email | "Forgot password?" → starts recovery flow |
+| `auth.signin.email.toggle-signup` | text button | sign-in email footer | "Sign up" — switches to sign-up entry |
+| `auth.forgot.email.back` | back chevron | forgot · step 1 | returns to sign-in email |
+| `auth.forgot.email.field` | email input | forgot · step 1 | email to receive recovery code |
+| `auth.forgot.email.submit` | primary CTA | forgot · step 1 | "Send code" → step 2 |
+| `auth.forgot.otp.back` | back chevron | forgot · step 2 | returns to step 1 |
+| `auth.forgot.otp.field` | OTP boxes | forgot · step 2 | 6-digit code entry container |
+| `auth.forgot.otp.resend` | text button | forgot · step 2 | "Resend" — disabled during 60s timer |
+| `auth.forgot.otp.submit` | primary CTA | forgot · step 2 | "Verify" — auto-fires when 6 digits filled |
+| `auth.forgot.new.back` | back chevron | forgot · step 3 | returns to step 2 |
+| `auth.forgot.new.password.field` | password input | forgot · step 3 | new password (no confirm field per account-access pattern) |
+| `auth.forgot.new.password.show` | eye toggle | forgot · step 3 | inline at end of password field |
+| `auth.forgot.new.submit` | primary CTA | forgot · step 3 | "Save and sign in" — sets pw + auto sign-in |
 
 ### `onboarding` — wizard (coach 6 steps + athlete 4 steps)
 
