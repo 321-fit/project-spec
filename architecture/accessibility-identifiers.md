@@ -89,9 +89,50 @@ Prototype: `prototypes/flows/shared/auth.html`
 | `auth.phone.otp.submit` | primary CTA | phone · OTP | "Verify" — auto-fires when 6 digits filled |
 | `auth.phone.otp.change-number` | text button | phone · OTP footer | "Use a different number" — returns to phone entry |
 
-### `onboarding` — wizard (coach 5 steps + athlete 4 steps)
+### `onboarding` — post-signup wizard flow + dashboard setup widget
 
-Prototypes: inline on `coach/dashboard.html` state `dst-new` + `dst-under-review`, and on `athlete/dashboard.html` state `dst-welcome`. Phone is captured at signup (mandatory per 2026-05-19) and is no longer a wizard step.
+Two separate artifacts share the `onboarding` scope:
+
+1. **Onboarding flow** — `prototypes/flows/shared/onboarding.html`. Post-signup fullscreen wizard (athlete 5 steps; coach 7 steps). Required before reaching the dashboard. `onboarding.flow.*` IDs.
+2. **Dashboard setup widget** — inline on `coach/dashboard.html` state `dst-new` + `dst-under-review`, and on `athlete/dashboard.html` state `dst-welcome`. Checklist for finishing setup after the user is already in the app. `onboarding.coach.*` / `onboarding.athlete.*` IDs.
+
+Phone is captured at signup (mandatory per 2026-05-19) and is no longer a wizard step in either artifact.
+
+#### Flow IDs (`onboarding.flow.*`)
+
+| ID | Element | Screen | Notes |
+|---|---|---|---|
+| `onboarding.flow.back` | back chevron | every step | disabled on step 1 (account already provisioned) |
+| `onboarding.flow.personal.gender.woman` | selection chip | step 1 | |
+| `onboarding.flow.personal.gender.man` | selection chip | step 1 | |
+| `onboarding.flow.personal.dob` | tappable input | step 1 | opens DOB wheel sheet |
+| `onboarding.flow.personal.weight` | number input | step 1 | athlete only — `kg` suffix |
+| `onboarding.flow.personal.height` | number input | step 1 | athlete only — `cm` suffix |
+| `onboarding.flow.personal.next` | primary CTA | step 1 | Continue |
+| `onboarding.flow.sports.tile` | sport tile | step 2 | generic id for all tiles (Maestro picks by text) |
+| `onboarding.flow.sports.next` | primary CTA | step 2 | Continue |
+| `onboarding.flow.avatar.upload` | circular dropzone | step 3 | opens native photo picker |
+| `onboarding.flow.avatar.bio` | textarea | step 3 | 500-char max with live counter |
+| `onboarding.flow.avatar.next` | primary CTA | step 3 | Continue |
+| `onboarding.flow.location.timezone` | push row | step 4 | opens TZ picker |
+| `onboarding.flow.location.country` | push row | step 4 | opens country picker |
+| `onboarding.flow.location.city` | push row | step 4 | opens city picker scoped to country |
+| `onboarding.flow.location.languages` | push row | step 4 | opens multi-select language picker |
+| `onboarding.flow.location.next` | primary CTA | step 4 | Continue — athlete jumps to calendar; coach to gym |
+| `onboarding.flow.gym.name` | text input | step 5 (coach) | gym name |
+| `onboarding.flow.gym.address` | text input | step 5 (coach) | autocomplete via maps service |
+| `onboarding.flow.gym.next` | primary CTA | step 5 (coach) | Continue |
+| `onboarding.flow.session.name` | text input | step 6 (coach) | session template name |
+| `onboarding.flow.session.duration` | select | step 6 (coach) | 30/60/90/120 min |
+| `onboarding.flow.session.price` | number input | step 6 (coach) | currency from country lookup |
+| `onboarding.flow.session.next` | primary CTA | step 6 (coach) | Continue |
+| `onboarding.flow.calendar.google` | provider card | calendar step | opens Google OAuth |
+| `onboarding.flow.calendar.apple` | provider card | calendar step | opens CalDAV connect |
+| `onboarding.flow.calendar.next` | primary CTA | calendar step | Continue — only step with optional Skip |
+| `onboarding.flow.calendar.skip` | text button | calendar step | "Skip for now" — the only Skip in the whole flow |
+| `onboarding.flow.complete.cta` | primary CTA | complete | "Find a coach" (athlete) / "Got it" (coach) → dashboard |
+
+#### Dashboard setup widget IDs (`onboarding.coach.*` / `onboarding.athlete.*`)
 
 | ID | Element | Screen | Notes |
 |---|---|---|---|
