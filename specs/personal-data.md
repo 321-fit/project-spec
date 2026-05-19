@@ -62,7 +62,7 @@ The screen is the canonical owner of:
 ### Field list (top to bottom)
 
 1. **Avatar** — round 80pt, brand-gradient fallback. Tap → `pd-avatar-sheet` (Take photo / Choose from library / Remove)
-2. **Intro video** — 16:9 upload card with state-aware content (states in § 5). Tap → native video picker (`PHPickerViewController` iOS / `PickVisualMedia.VideoOnly` Android). Direct-uploads to Mux. Shows thumbnail + Replace/Remove menu once ready.
+2. **Intro video** — canonical [`FitVideoUploadCard`](https://github.com/321-fit/design-tokens/blob/main/docs/components.md#fitvideouploadcard) (16:9, 6 visual states — see § 5). Tap → native video picker (`PHPickerViewController` iOS / `PickVisualMedia.VideoOnly` Android). Direct-uploads to Mux. Shows thumbnail + ⋯ menu (Preview / Replace / Remove) once ready.
 3. **Cover image** — single 16:9 image card with 80pt thumb + "Tap to upload" / "Cover image set" + chevron. Tap → `pd-cover-sheet` (same actions as avatar)
 4. **First name** — text, required, max 50, trimmed
 5. **Last name** — text, required, max 50, trimmed
@@ -115,7 +115,7 @@ Save tap when gated:
 
 ### Intro video field states
 
-The intro video is a Mux direct-upload. The field is a 16:9 card that adapts to one of 6 visible states. State is driven by `coach.intro_video.mux_status` (see [architecture/mux-integration.md § 5.5](../architecture/mux-integration.md) for the state machine).
+The intro video field is rendered by the canonical [`FitVideoUploadCard`](https://github.com/321-fit/design-tokens/blob/main/docs/components.md#fitvideouploadcard) kit component. State is driven by `coach.intro_video.mux_status` (see [architecture/mux-integration.md § 5.5](../architecture/mux-integration.md) for the full state machine). The table below summarizes the user-visible behavior; the visual + interaction details live in the kit doc.
 
 | State | Card body | Footer help text | Tap target |
 |---|---|---|---|

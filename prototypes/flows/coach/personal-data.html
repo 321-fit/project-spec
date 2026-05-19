@@ -485,150 +485,29 @@
   /* Multi-select footer count */
   .pd-save-count { opacity: 0.7; margin-left: 6px; font-weight: 400; }
 
-  /* ===== PD INTRO VIDEO (Mux direct-upload, 6 states) ===== */
-  /* Card is 16:9, state-aware via data-mux-state="idle|uploading|processing|ready|errored|pending" */
-  .pd-video-card {
-    position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden;
-    border-radius: 12px; background: var(--fit-surface-higher);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: border-color 0.15s ease;
+  /* ===== PD INTRO VIDEO (Mux direct-upload, 6 states) =====
+     Card visuals + state machine live in fit-ui.css as canonical FitVideoUploadCard
+     (.fit-vuc + slot classes). Only the gradient placeholder for the ready state's
+     thumbnail demo + help-text state mapping stay local (page-specific). */
+  .pd-vuc-thumb-demo {
+    background-image: linear-gradient(135deg, #4F46E5 0%, #0891B2 100%);
   }
-  .pd-video-card[data-mux-state="idle"],
-  .pd-video-card[data-mux-state="pending"] {
-    border: 1.5px dashed var(--fit-divider);
-    background: transparent;
-  }
-  .pd-video-card[data-mux-state="uploading"],
-  .pd-video-card[data-mux-state="processing"] {
-    border: 1px solid var(--fit-yellow-400);
-    background: rgba(250,204,21,0.06);
-    cursor: default;
-  }
-  .pd-video-card[data-mux-state="ready"] {
-    border: 1px solid var(--fit-divider);
-    background: var(--fit-surface-higher);
-  }
-  .pd-video-card[data-mux-state="errored"] {
-    border: 1px solid var(--fit-red-400);
-    background: rgba(239,68,68,0.06);
-  }
-  /* Show only the slot matching current state */
-  .pd-video-card [data-mux-slot] { display: none; }
-  .pd-video-card[data-mux-state="idle"] [data-mux-slot="idle"],
-  .pd-video-card[data-mux-state="uploading"] [data-mux-slot="uploading"],
-  .pd-video-card[data-mux-state="processing"] [data-mux-slot="processing"],
-  .pd-video-card[data-mux-state="ready"] [data-mux-slot="ready"],
-  .pd-video-card[data-mux-state="errored"] [data-mux-slot="errored"],
-  .pd-video-card[data-mux-state="pending"] [data-mux-slot="idle"] { display: flex; }
-  /* Help text varies by state */
   .pd-video-help {
     font-size: 13px; line-height: 1.4; margin-top: 6px;
     color: var(--fit-text-tertiary);
   }
-  .pd-video-card[data-mux-state="idle"] ~ .pd-video-help .pd-video-help-idle,
-  .pd-video-card[data-mux-state="uploading"] ~ .pd-video-help .pd-video-help-uploading,
-  .pd-video-card[data-mux-state="processing"] ~ .pd-video-help .pd-video-help-processing,
-  .pd-video-card[data-mux-state="ready"] ~ .pd-video-help .pd-video-help-ready,
-  .pd-video-card[data-mux-state="errored"] ~ .pd-video-help .pd-video-help-errored,
-  .pd-video-card[data-mux-state="pending"] ~ .pd-video-help .pd-video-help-pending { display: inline; }
+  .fit-vuc[data-fvuc-state="idle"]       ~ .pd-video-help .pd-video-help-idle,
+  .fit-vuc[data-fvuc-state="uploading"]  ~ .pd-video-help .pd-video-help-uploading,
+  .fit-vuc[data-fvuc-state="processing"] ~ .pd-video-help .pd-video-help-processing,
+  .fit-vuc[data-fvuc-state="ready"]      ~ .pd-video-help .pd-video-help-ready,
+  .fit-vuc[data-fvuc-state="errored"]    ~ .pd-video-help .pd-video-help-errored,
+  .fit-vuc[data-fvuc-state="pending"]    ~ .pd-video-help .pd-video-help-pending { display: inline; }
   .pd-video-help span { display: none; }
   .pd-video-help-ready { color: var(--fit-teal-500); }
   .pd-video-help-errored { color: var(--fit-red-400); }
   .pd-video-help-uploading,
   .pd-video-help-processing,
   .pd-video-help-pending { color: var(--fit-yellow-400); }
-  /* IDLE slot — dashed card with camera icon */
-  .pd-video-slot-idle {
-    flex-direction: column; gap: 8px; padding: 12px; text-align: center;
-    align-items: center; justify-content: center;
-    color: var(--fit-text-secondary);
-  }
-  .pd-video-slot-idle svg.pd-video-icon { width: 32px; height: 32px; opacity: 0.6; }
-  .pd-video-slot-idle .pd-video-cta {
-    font-size: 15px; font-weight: 500; color: var(--fit-text-primary);
-  }
-  .pd-video-slot-idle .pd-video-meta {
-    font-size: 12px; color: var(--fit-text-tertiary);
-  }
-  /* UPLOADING slot — filename + progress bar + cancel × */
-  .pd-video-slot-uploading {
-    flex-direction: column; gap: 10px; padding: 14px 16px;
-    align-self: stretch; align-items: stretch; justify-content: center; width: 100%;
-  }
-  .pd-video-slot-uploading .pd-video-filename {
-    font-size: 13px; color: var(--fit-text-primary);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    display: flex; gap: 6px; align-items: center;
-  }
-  .pd-video-progress {
-    width: 100%; height: 6px; border-radius: 3px;
-    background: var(--fit-surface-high); overflow: hidden;
-  }
-  .pd-video-progress-fill {
-    height: 100%; background: var(--fit-yellow-400);
-    width: 0%; transition: width 0.2s ease;
-  }
-  .pd-video-progress-label {
-    font-size: 12px; color: var(--fit-text-tertiary); text-align: right;
-  }
-  .pd-video-cancel-btn {
-    position: absolute; top: 8px; right: 8px;
-    width: 28px; height: 28px; border-radius: 50%;
-    background: rgba(0,0,0,0.6); color: var(--fit-white);
-    border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .pd-video-cancel-btn svg { width: 14px; height: 14px; }
-  /* PROCESSING slot — spinner + text */
-  .pd-video-slot-processing {
-    flex-direction: column; gap: 10px; padding: 12px; text-align: center;
-    align-items: center; justify-content: center;
-    color: var(--fit-yellow-400);
-  }
-  .pd-video-spinner {
-    width: 28px; height: 28px; border: 2.5px solid rgba(250,204,21,0.25);
-    border-top-color: var(--fit-yellow-400); border-radius: 50%;
-    animation: pd-spin 0.8s linear infinite;
-  }
-  @keyframes pd-spin { to { transform: rotate(360deg); } }
-  /* READY slot — thumbnail + play overlay + ⋯ menu. Fills card via absolute inset:0.
-     Visibility still gated by [data-mux-state="ready"] rule above (no !important — was a bug). */
-  .pd-video-slot-ready {
-    position: absolute; inset: 0;
-    background-size: cover; background-position: center;
-    background-image: linear-gradient(135deg, #4F46E5 0%, #0891B2 100%);
-  }
-  .pd-video-card[data-mux-state="ready"] [data-mux-slot="ready"].pd-video-slot-ready { display: flex; }
-  .pd-video-play-overlay {
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    background: rgba(0,0,0,0.25);
-  }
-  .pd-video-play-overlay svg {
-    width: 48px; height: 48px; color: var(--fit-white);
-    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
-  }
-  .pd-video-more-btn {
-    position: absolute; top: 8px; right: 8px;
-    width: 32px; height: 32px; border-radius: 50%;
-    background: rgba(0,0,0,0.5); color: var(--fit-white);
-    border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .pd-video-more-btn svg { width: 18px; height: 18px; }
-  /* ERRORED slot — alert + code */
-  .pd-video-slot-errored {
-    flex-direction: column; gap: 6px; padding: 12px; text-align: center;
-    align-items: center; justify-content: center;
-    color: var(--fit-red-400);
-  }
-  .pd-video-slot-errored svg.pd-video-icon { width: 32px; height: 32px; }
-  .pd-video-slot-errored .pd-video-retry-cta {
-    font-size: 14px; font-weight: 500; color: var(--fit-red-400);
-    text-decoration: underline;
-  }
-  .pd-video-slot-errored .pd-video-error-code {
-    font-size: 11px; color: var(--fit-text-tertiary); margin-top: 2px;
-  }
 
   /* ===== PD VIDEO ACTION MENU (floating UIMenu — Preview/Replace/Remove) ===== */
   /* Anchored to the ⋯ button on Ready state. Production: native UIMenu (iOS) / PopupMenu (Android). */
@@ -665,17 +544,7 @@
   }
   .pd-video-menu-backdrop.show { display: block; }
 
-  /* ===== PD VIDEO TOAST — extends canonical .fit-toast =====
-     Uses fit-toast surface (var(--fit-surface-high)) + colored border-left variant,
-     matching the established pattern in calendar-sync.html. Adds inline action button
-     for foreground push → toast routing (mirrors .fit-snackbar's .snack-action). */
-  .pd-video-toast-action {
-    flex-shrink: 0; padding: 4px 0 4px 12px;
-    background: transparent; border: none; cursor: pointer;
-    font-family: var(--fit-font); font-size: 14px; font-weight: 500;
-    color: var(--fit-teal-400);
-  }
-  .pd-video-toast-action:hover { color: var(--fit-teal-300); }
+  /* (canonical .fit-toast-action lives in fit-ui.css — see FitToast extension) */
 
   /* ===== PD COVER IMAGE (16:9 upload, fallback to default) ===== */
   .pd-cover-wrap {
@@ -907,49 +776,48 @@
     <!-- ============ INTRO VIDEO (Mux direct-upload, 6 states) ============ -->
     <div class="fit-input-group" id="pd-video-group" style="padding:0 16px;">
       <span class="fit-input-label">Intro video</span>
-      <div class="pd-video-card" id="pd-video-card" data-mux-state="idle" onclick="pdVideoTap(event)">
+      <div class="fit-vuc" id="pd-video-card" data-fvuc-state="idle" onclick="pdVideoTap(event)">
 
         <!-- IDLE (no video uploaded yet) -->
-        <div class="pd-video-slot-idle" data-mux-slot="idle">
-          <svg class="pd-video-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-          <div class="pd-video-cta">Upload intro video</div>
-          <div class="pd-video-meta">Up to 200 MB · 2 min · mp4/mov</div>
+        <div class="fit-vuc-slot-idle" data-fvuc-slot="idle">
+          <svg class="fit-vuc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          <div class="fit-vuc-cta">Upload intro video</div>
+          <div class="fit-vuc-meta">Up to 200 MB · 2 min · mp4/mov</div>
         </div>
 
         <!-- UPLOADING (PUT in progress) -->
-        <div class="pd-video-slot-uploading" data-mux-slot="uploading">
-          <div class="pd-video-filename">
+        <div class="fit-vuc-slot-uploading" data-fvuc-slot="uploading">
+          <div class="fit-vuc-filename">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
             <span>intro-2026-05-19.mp4</span>
           </div>
-          <div class="pd-video-progress"><div class="pd-video-progress-fill" id="pd-video-progress-fill" style="width:64%;"></div></div>
-          <div class="pd-video-progress-label" id="pd-video-progress-label">Uploading… 64%</div>
+          <div class="fit-vuc-progress"><div class="fit-vuc-progress-fill" id="pd-video-progress-fill" style="width:64%;"></div></div>
+          <div class="fit-vuc-progress-label" id="pd-video-progress-label">Uploading… 64%</div>
         </div>
-        <button class="pd-video-cancel-btn" aria-label="Cancel upload" data-mux-slot="uploading" onclick="event.stopPropagation();pdVideoSetState('idle');" style="display:none;">
+        <button class="fit-vuc-cancel-btn" aria-label="Cancel upload" data-fvuc-slot="uploading" onclick="event.stopPropagation();pdVideoSetState('idle');" style="display:none;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
 
         <!-- PROCESSING (Mux transcoding) -->
-        <div class="pd-video-slot-processing" data-mux-slot="processing">
-          <div class="pd-video-spinner"></div>
+        <div class="fit-vuc-slot-processing" data-fvuc-slot="processing">
+          <div class="fit-vuc-spinner"></div>
           <div style="font-size:14px;font-weight:500;">Processing your video…</div>
           <div style="font-size:12px;color:var(--fit-text-tertiary);">Usually 30-60 seconds</div>
         </div>
 
-        <!-- READY (asset.ready webhook fired) -->
-        <div class="pd-video-slot-ready" data-mux-slot="ready">
-          <!-- background: Mux thumbnail https://image.mux.com/{playback_id}/thumbnail.jpg?time=2 -->
-          <div class="pd-video-play-overlay">
+        <!-- READY (asset.ready webhook fired) — gradient stands in for Mux auto-thumbnail in prototype -->
+        <div class="fit-vuc-slot-ready pd-vuc-thumb-demo" data-fvuc-slot="ready">
+          <div class="fit-vuc-play-overlay">
             <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
           </div>
         </div>
-        <button class="pd-video-more-btn" data-mux-slot="ready" aria-label="More" onclick="event.stopPropagation();pdVideoOpenMore();">
+        <button class="fit-vuc-more-btn" data-fvuc-slot="ready" aria-label="More" onclick="event.stopPropagation();pdVideoOpenMore();">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
         </button>
 
         <!-- Floating action menu (Preview / Replace / Remove) — Ready state only -->
         <div class="pd-video-menu-backdrop" id="pd-video-menu-backdrop" onclick="event.stopPropagation();pdVideoCloseMore();"></div>
-        <div class="pd-video-menu" id="pd-video-menu" data-mux-slot="ready" onclick="event.stopPropagation();">
+        <div class="pd-video-menu" id="pd-video-menu" data-fvuc-slot="ready" onclick="event.stopPropagation();">
           <button class="pd-video-menu-item" onclick="pdVideoCloseMore();pdVideoSetState('ready');">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             Preview
@@ -966,11 +834,11 @@
         </div>
 
         <!-- ERRORED (asset.errored webhook fired) -->
-        <div class="pd-video-slot-errored" data-mux-slot="errored">
-          <svg class="pd-video-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg>
+        <div class="fit-vuc-slot-errored" data-fvuc-slot="errored">
+          <svg class="fit-vuc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg>
           <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Couldn&rsquo;t process this video</div>
-          <div class="pd-video-retry-cta">Try a different file</div>
-          <div class="pd-video-error-code">code: invalid_input</div>
+          <div class="fit-vuc-retry-cta">Try a different file</div>
+          <div class="fit-vuc-error-code">code: invalid_input</div>
         </div>
 
       </div>
@@ -1059,7 +927,7 @@
   <div class="fit-toast" id="pd-video-toast" style="border-left:3px solid var(--fit-teal-500);">
     <svg id="pd-video-toast-icon" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>
     <span id="pd-video-toast-text" style="font-size:14px;flex:1;">Your intro video is live</span>
-    <button class="pd-video-toast-action" id="pd-video-toast-action" onclick="pdHideVideoToast()">View</button>
+    <button class="fit-toast-action" id="pd-video-toast-action" onclick="pdHideVideoToast()">View</button>
   </div>
   <div class="fit-snackbar" id="pd-validation-snack" style="background:#3B1F1F;border-color:rgba(240,92,91,0.35);">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12" y2="16.5"/></svg>
@@ -2331,7 +2199,7 @@ function pdInvalidFields() {
     invalid.push('pd-dob-group');
   }
   const videoCard = document.getElementById('pd-video-card');
-  if (videoCard && videoCard.getAttribute('data-mux-state') === 'errored') {
+  if (videoCard && videoCard.getAttribute('data-fvuc-state') === 'errored') {
     invalid.push('pd-video-group');
   }
   return invalid;
@@ -2426,16 +2294,16 @@ function pdAvatarAction(kind) {
 // State machine: idle → uploading → processing → ready  (happy path)
 //                                ↘ errored (any time from asset.errored webhook)
 //                pending = transient state when coach re-opened screen but PUT never finished
-// In production: state comes from coach.intro_video.mux_status. Prototype uses data-mux-state attr.
+// In production: state comes from coach.intro_video.mux_status. Prototype uses data-fvuc-state attr.
 
 function pdVideoSetState(state) {
   const card = document.getElementById('pd-video-card');
   if (!card) return;
   const valid = ['idle','uploading','processing','ready','errored','pending'];
   if (valid.indexOf(state) < 0) return;
-  card.setAttribute('data-mux-state', state);
+  card.setAttribute('data-fvuc-state', state);
   // Cancel button only visible during uploading
-  const cancel = card.querySelector('.pd-video-cancel-btn');
+  const cancel = card.querySelector('.fit-vuc-cancel-btn');
   if (cancel) cancel.style.display = (state === 'uploading') ? 'flex' : 'none';
   // Sync state-toggle buttons in the annotation panel
   const stateGroup = document.querySelector('#ann-s-personal-data .pd-video-states');
@@ -2450,7 +2318,7 @@ function pdVideoSetState(state) {
 function pdVideoTap(ev) {
   const card = document.getElementById('pd-video-card');
   if (!card) return;
-  const state = card.getAttribute('data-mux-state');
+  const state = card.getAttribute('data-fvuc-state');
   // Idle/pending → opens native picker (simulated: jump to uploading state)
   // Errored → opens picker again (Retry)
   // Ready → opens preview (simulated: log)
