@@ -133,7 +133,7 @@ Endpoints used by this screen:
 | `GET /coach/me/reviews/summary` | Per-category averages + 5-bar histogram counts |
 
 Existing fields used on this screen (no new endpoints created here):
-- `avatar_url`, `intro_video_provider` + `intro_video_id`, `cover_image_url`
+- `avatar_url`, `intro_video` (Mux upload — see [architecture/mux-integration.md](../architecture/mux-integration.md) for shape), `cover_image_url`
 - `first_name`, `last_name`, `location` (city, country)
 - `sports` (array of sport IDs — resolved client-side via canonical taxonomy)
 - `about_me` (bio, max 500 chars server-side)
@@ -146,13 +146,14 @@ For schema details and request/response samples, see `coach-profile-api.md`.
 
 ## 7. Business rules
 
-- **Hero media fallback** — render in order: intro_video → cover_image → brand_gradient + initials. Never empty (consistency requirement: inconsistent profiles rank lower subconsciously per `project_coach_profile_v2`).
+- **Hero media fallback** — render in order: Mux video (only when `intro_video.mux_status === "ready"`) → cover_image → Mux auto-thumbnail at `time=2s` (when video is `processing` or `errored` and no cover) → brand_gradient + initials. Never empty (consistency requirement: inconsistent profiles rank lower subconsciously per `project_coach_profile_v2`).
+- **Video playback** — native HLS via `AVPlayer` (iOS) / `ExoPlayer` (Android). Source URL: `https://stream.mux.com/{intro_video.mux_playback_id}.m3u8`. No Mux Player SDK at launch — both platforms support HLS natively. See [architecture/mux-integration.md § 6](../architecture/mux-integration.md).
 - **Stats are read-only** — coach can't manually edit Rating/Reviews/Sessions. Price-from is derived from minimum across session templates.
 - **Maturity threshold** — `reviews_count >= 1 AND sessions_count >= 3` (see `coach-maturity-model.md`). Block auto-hides on graduation.
 - **Section titles use warm style** — 16px medium normal-case, not the 12px UPPERCASE `.fit-section-title`. Kit candidate `FitSectionTitle--md` (see § 9).
 - **Edit affordances must be obvious** — pencil icons on visual sections (My Sports, About Me) plus full-row clickability. Chevron at end of tile-style rows (`fit-stat-tile-chevron`).
 - **Reviews carousel** capped at 3 cards + terminal "Show all" — full list lives on push screen.
-- **Reviews are read-only on coach side** — coach can't delete reviews. Future: reply-to-review affordance (post-MVP).
+- **Reviews are read-only on coach side** — coach can't delete reviews. Future: reply-to-review affordance (Phase 2).
 - **Pencil icons appear only for editable sections** — Stats, Reviews, Maturity have no pencil.
 
 ---
@@ -163,7 +164,8 @@ For schema details and request/response samples, see `coach-profile-api.md`.
 - **Coach has 0 sport templates** — "Training Sessions" tile subtitle reads "Not set yet · tap to add". Same fallback copy for Locations and Available Hours when empty.
 - **Coach has 0 sports selected** — My Sports section shows zero-state chip "No sports yet" with edit pencil still active.
 - **About me is empty** — preview area shows placeholder "Add a short intro about yourself" with pencil affordance.
-- **Intro video URL stored but server-side verification failed** — `intro_video_status: rejected`. Hero falls back to cover_image → gradient. A notification was sent to coach (`TargetRoute=PROFILE_VIDEO`) when verification failed.
+- **Intro video failed to process on Mux** — `intro_video.mux_status === "errored"`. Hero falls back to cover_image → Mux auto-thumbnail (if asset exists) → gradient + initials. Coach received a `videoFailed` push notification with deep-link back to Personal Data.
+- **Intro video still processing** — `intro_video.mux_status === "processing"`. Hero shows cover_image (if present) or brand gradient with a subtle "Processing…" pill in the corner so the coach (who sees their own profile) knows what's going on. No pill on athlete-side view — athletes just see cover/gradient until ready.
 - **Long names / locations** — truncate with ellipsis (single line); full value shown on tap into personal-data.
 - **Review count = 1** — singular "review" in stats label (handled via locale plural rules, see `feedback_copy_standards`).
 - **All-reviews list pagination** — cursor-based, `limit=20`. Infinite scroll on the All Reviews push screen.
@@ -293,4 +295,5 @@ Maturity variants are NOT separate sidebar entries — they live as state toggle
 - `available-hours.md` — Available Hours tile (spec TBD if not present)
 - `coach-maturity-model.md` — visualised by Maturity progress block
 - `review-queue.md` — coach-side handling of incoming session reviews (different surface)
-- `notifications.md` — `TargetRoute=PROFILE_VIDEO` (post-save video verification failure)
+- `notifications.md` — `videoReady` + `videoFailed` kit types (Mux asset.ready / asset.errored webhooks)
+- `architecture/mux-integration.md` — full integration (upload, webhooks, playback)

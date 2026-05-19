@@ -485,34 +485,145 @@
   /* Multi-select footer count */
   .pd-save-count { opacity: 0.7; margin-left: 6px; font-weight: 400; }
 
-  /* ===== PD INTRO VIDEO (URL paste, embed-only) ===== */
-  .pd-video-input {
-    flex: 1; border: none; outline: none; background: transparent;
-    font-family: var(--fit-font); font-size: 16px; color: var(--fit-text-primary);
-    padding: 0; min-width: 0;
-  }
-  .pd-video-input::placeholder { color: var(--fit-text-placeholder); }
-  .pd-video-wrap.error { border: 1px solid var(--fit-red-400); }
-  .pd-video-wrap.ok { border: 1px solid var(--fit-teal-500); }
-  .pd-video-wrap.pending { border: 1px solid var(--fit-yellow-400); }
-  .pd-video-clear {
-    flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
-    border: none; background: var(--fit-surface-higher);
-    color: var(--fit-text-secondary); cursor: pointer;
+  /* ===== PD INTRO VIDEO (Mux direct-upload, 6 states) ===== */
+  /* Card is 16:9, state-aware via data-mux-state="idle|uploading|processing|ready|errored|pending" */
+  .pd-video-card {
+    position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden;
+    border-radius: 12px; background: var(--fit-surface-higher);
     display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: border-color 0.15s ease;
   }
-  .pd-video-clear svg { width: 12px; height: 12px; }
+  .pd-video-card[data-mux-state="idle"],
+  .pd-video-card[data-mux-state="pending"] {
+    border: 1.5px dashed var(--fit-border);
+    background: transparent;
+  }
+  .pd-video-card[data-mux-state="uploading"],
+  .pd-video-card[data-mux-state="processing"] {
+    border: 1px solid var(--fit-yellow-400);
+    background: rgba(250,204,21,0.06);
+    cursor: default;
+  }
+  .pd-video-card[data-mux-state="ready"] {
+    border: 1px solid var(--fit-divider);
+    background: var(--fit-surface-higher);
+  }
+  .pd-video-card[data-mux-state="errored"] {
+    border: 1px solid var(--fit-red-400);
+    background: rgba(239,68,68,0.06);
+  }
+  /* Show only the slot matching current state */
+  .pd-video-card [data-mux-slot] { display: none; }
+  .pd-video-card[data-mux-state="idle"] [data-mux-slot="idle"],
+  .pd-video-card[data-mux-state="uploading"] [data-mux-slot="uploading"],
+  .pd-video-card[data-mux-state="processing"] [data-mux-slot="processing"],
+  .pd-video-card[data-mux-state="ready"] [data-mux-slot="ready"],
+  .pd-video-card[data-mux-state="errored"] [data-mux-slot="errored"],
+  .pd-video-card[data-mux-state="pending"] [data-mux-slot="idle"] { display: flex; }
+  /* Help text varies by state */
   .pd-video-help {
     font-size: 13px; line-height: 1.4; margin-top: 6px;
     color: var(--fit-text-tertiary);
   }
-  .pd-video-help code {
-    font-size: 12px; padding: 1px 4px; border-radius: 3px;
-    background: var(--fit-surface-high); color: var(--fit-text-secondary);
-  }
-  .pd-video-help-error { color: var(--fit-red-400); }
-  .pd-video-help-ok { color: var(--fit-teal-500); }
+  .pd-video-card[data-mux-state="idle"] ~ .pd-video-help .pd-video-help-idle,
+  .pd-video-card[data-mux-state="uploading"] ~ .pd-video-help .pd-video-help-uploading,
+  .pd-video-card[data-mux-state="processing"] ~ .pd-video-help .pd-video-help-processing,
+  .pd-video-card[data-mux-state="ready"] ~ .pd-video-help .pd-video-help-ready,
+  .pd-video-card[data-mux-state="errored"] ~ .pd-video-help .pd-video-help-errored,
+  .pd-video-card[data-mux-state="pending"] ~ .pd-video-help .pd-video-help-pending { display: inline; }
+  .pd-video-help span { display: none; }
+  .pd-video-help-ready { color: var(--fit-teal-500); }
+  .pd-video-help-errored { color: var(--fit-red-400); }
+  .pd-video-help-uploading,
+  .pd-video-help-processing,
   .pd-video-help-pending { color: var(--fit-yellow-400); }
+  /* IDLE slot — dashed card with camera icon */
+  .pd-video-slot-idle {
+    flex-direction: column; gap: 8px; padding: 12px; text-align: center;
+    color: var(--fit-text-secondary);
+  }
+  .pd-video-slot-idle svg.pd-video-icon { width: 32px; height: 32px; opacity: 0.6; }
+  .pd-video-slot-idle .pd-video-cta {
+    font-size: 15px; font-weight: 500; color: var(--fit-text-primary);
+  }
+  .pd-video-slot-idle .pd-video-meta {
+    font-size: 12px; color: var(--fit-text-tertiary);
+  }
+  /* UPLOADING slot — filename + progress bar + cancel × */
+  .pd-video-slot-uploading {
+    flex-direction: column; gap: 10px; padding: 14px 16px;
+    align-self: stretch; justify-content: center; width: 100%;
+  }
+  .pd-video-slot-uploading .pd-video-filename {
+    font-size: 13px; color: var(--fit-text-primary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    display: flex; gap: 6px; align-items: center;
+  }
+  .pd-video-progress {
+    width: 100%; height: 6px; border-radius: 3px;
+    background: var(--fit-surface-high); overflow: hidden;
+  }
+  .pd-video-progress-fill {
+    height: 100%; background: var(--fit-yellow-400);
+    width: 0%; transition: width 0.2s ease;
+  }
+  .pd-video-progress-label {
+    font-size: 12px; color: var(--fit-text-tertiary); text-align: right;
+  }
+  .pd-video-cancel-btn {
+    position: absolute; top: 8px; right: 8px;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(0,0,0,0.6); color: var(--fit-white);
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pd-video-cancel-btn svg { width: 14px; height: 14px; }
+  /* PROCESSING slot — spinner + text */
+  .pd-video-slot-processing {
+    flex-direction: column; gap: 10px; padding: 12px; text-align: center;
+    color: var(--fit-yellow-400);
+  }
+  .pd-video-spinner {
+    width: 28px; height: 28px; border: 2.5px solid rgba(250,204,21,0.25);
+    border-top-color: var(--fit-yellow-400); border-radius: 50%;
+    animation: pd-spin 0.8s linear infinite;
+  }
+  @keyframes pd-spin { to { transform: rotate(360deg); } }
+  /* READY slot — thumbnail + play overlay + ⋯ menu */
+  .pd-video-slot-ready {
+    position: absolute; inset: 0; display: flex !important;
+    background-size: cover; background-position: center;
+    background-image: linear-gradient(135deg, #4F46E5 0%, #0891B2 100%);
+  }
+  .pd-video-play-overlay {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.25);
+  }
+  .pd-video-play-overlay svg {
+    width: 48px; height: 48px; color: var(--fit-white);
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+  }
+  .pd-video-more-btn {
+    position: absolute; top: 8px; right: 8px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(0,0,0,0.5); color: var(--fit-white);
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pd-video-more-btn svg { width: 18px; height: 18px; }
+  /* ERRORED slot — alert + code */
+  .pd-video-slot-errored {
+    flex-direction: column; gap: 6px; padding: 12px; text-align: center;
+    color: var(--fit-red-400);
+  }
+  .pd-video-slot-errored svg.pd-video-icon { width: 32px; height: 32px; }
+  .pd-video-slot-errored .pd-video-retry-cta {
+    font-size: 14px; font-weight: 500; color: var(--fit-red-400);
+    text-decoration: underline;
+  }
+  .pd-video-slot-errored .pd-video-error-code {
+    font-size: 11px; color: var(--fit-text-tertiary); margin-top: 2px;
+  }
 
   /* ===== PD COVER IMAGE (16:9 upload, fallback to default) ===== */
   .pd-cover-wrap {
@@ -741,25 +852,65 @@
       </div>
     </div>
 
-    <!-- ============ INTRO VIDEO (YouTube URL paste, embed-only) ============ -->
+    <!-- ============ INTRO VIDEO (Mux direct-upload, 6 states) ============ -->
     <div class="fit-input-group" id="pd-video-group" style="padding:0 16px;">
       <span class="fit-input-label">Intro video</span>
-      <div class="fit-input pd-video-wrap" id="pd-video-wrap" style="gap:8px;">
-        <span class="fit-input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></span>
-        <input type="url" inputmode="url" autocapitalize="off" autocomplete="off" spellcheck="false"
-               class="pd-video-input" id="pd-video-input"
-               placeholder="Paste YouTube URL"
-               value="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-               onblur="pdVideoValidate()" oninput="pdVideoValidate()"/>
-        <button type="button" class="pd-video-clear" id="pd-video-clear" aria-label="Clear" onclick="pdVideoClear()" style="display:none;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <div class="pd-video-card" id="pd-video-card" data-mux-state="ready" onclick="pdVideoTap(event)">
+
+        <!-- IDLE (no video uploaded yet) -->
+        <div class="pd-video-slot-idle" data-mux-slot="idle">
+          <svg class="pd-video-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          <div class="pd-video-cta">Upload intro video</div>
+          <div class="pd-video-meta">Up to 200 MB · 2 min · mp4/mov</div>
+        </div>
+
+        <!-- UPLOADING (PUT in progress) -->
+        <div class="pd-video-slot-uploading" data-mux-slot="uploading">
+          <div class="pd-video-filename">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+            <span>intro-2026-05-19.mp4</span>
+          </div>
+          <div class="pd-video-progress"><div class="pd-video-progress-fill" id="pd-video-progress-fill" style="width:64%;"></div></div>
+          <div class="pd-video-progress-label" id="pd-video-progress-label">Uploading… 64%</div>
+        </div>
+        <button class="pd-video-cancel-btn" aria-label="Cancel upload" data-mux-slot="uploading" onclick="event.stopPropagation();pdVideoSetState('idle');" style="display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
+
+        <!-- PROCESSING (Mux transcoding) -->
+        <div class="pd-video-slot-processing" data-mux-slot="processing">
+          <div class="pd-video-spinner"></div>
+          <div style="font-size:14px;font-weight:500;">Processing your video…</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">Usually 30-60 seconds</div>
+        </div>
+
+        <!-- READY (asset.ready webhook fired) -->
+        <div class="pd-video-slot-ready" data-mux-slot="ready">
+          <!-- background: Mux thumbnail https://image.mux.com/{playback_id}/thumbnail.jpg?time=2 -->
+          <div class="pd-video-play-overlay">
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+          </div>
+        </div>
+        <button class="pd-video-more-btn" data-mux-slot="ready" aria-label="More" onclick="event.stopPropagation();pdVideoOpenMore();">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+        </button>
+
+        <!-- ERRORED (asset.errored webhook fired) -->
+        <div class="pd-video-slot-errored" data-mux-slot="errored">
+          <svg class="pd-video-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg>
+          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Couldn&rsquo;t process this video</div>
+          <div class="pd-video-retry-cta">Try a different file</div>
+          <div class="pd-video-error-code">code: invalid_input</div>
+        </div>
+
       </div>
       <div class="pd-video-help" id="pd-video-help">
-        <span class="pd-video-help-default">Accepts <code>youtube.com</code>, <code>youtu.be</code> and <code>youtube.com/shorts</code>. Embedded as 16:9 hero on your public profile.</span>
-        <span class="pd-video-help-error" style="display:none;">Doesn&rsquo;t look like a YouTube URL.</span>
-        <span class="pd-video-help-ok" style="display:none;">&#10003; Video will appear on your public profile.</span>
-        <span class="pd-video-help-pending" style="display:none;">URL accepted &mdash; we&rsquo;ll verify the video is public and embeddable after you save. If not, you&rsquo;ll get a notification.</span>
+        <span class="pd-video-help-idle">Show what makes your coaching unique. Plays as a 16:9 hero on your public profile.</span>
+        <span class="pd-video-help-uploading">Uploading… don&rsquo;t close the app.</span>
+        <span class="pd-video-help-processing">You can keep editing other fields — we&rsquo;ll notify you when it&rsquo;s ready.</span>
+        <span class="pd-video-help-ready">&#10003; Live on your public profile.</span>
+        <span class="pd-video-help-errored">We couldn&rsquo;t process the file you uploaded. Try mp4 or mov, under 2 minutes.</span>
+        <span class="pd-video-help-pending">Last upload didn&rsquo;t finish. Pick a video to start over.</span>
       </div>
     </div>
 
@@ -1171,18 +1322,25 @@
       <button onclick="setPdFlow('error',this)">Save error</button>
       <button onclick="setPdFlow('saved',this)">Saved</button>
       <button onclick="pdSimulateInvalid('dob')">DOB invalid (&lt;13)</button>
-      <button onclick="pdSimulateInvalid('video')">Video URL invalid</button>
       <button onclick="pdSimulateUploadError('avatar')">Avatar upload error</button>
       <button onclick="pdSimulateUploadError('cover')">Cover upload error</button>
-      <button onclick="pdSimulateVideoPending()">Video pending verify</button>
+    </div>
+    <p style="margin-top:12px;font-size:12px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;">Intro video states (Mux)</p>
+    <div class="state-toggle pd-video-states">
+      <button data-pd-video-state="idle" onclick="pdVideoSetState('idle')">Idle</button>
+      <button data-pd-video-state="uploading" onclick="pdVideoSetState('uploading')">Uploading</button>
+      <button data-pd-video-state="processing" onclick="pdVideoSetState('processing')">Processing</button>
+      <button data-pd-video-state="ready" class="active" onclick="pdVideoSetState('ready')">Ready</button>
+      <button data-pd-video-state="errored" onclick="pdVideoSetState('errored')">Errored</button>
+      <button data-pd-video-state="pending" onclick="pdVideoSetState('pending')">Pending refresh</button>
     </div>
     <p>Edit profile from Settings. <strong>Coach-side</strong> — intentionally omits Weight/Height (not needed for marketplace function).</p>
 
     <p><strong>Fields</strong></p>
     <ul>
       <li><strong>Avatar</strong> (initials fallback) — tap circle or pencil → <code>pd-avatar-sheet</code> with 3 actions: Take photo / Choose from library / <em>Remove photo</em> (Medium destructive, tinted red 15%). Remove hidden when no photo.</li>
-      <li><strong>Intro video</strong> — YouTube URL paste (embed-only; native upload deferred to Phase 2). <code>youtube-nocookie.com</code> embed for GDPR. Validation accepts <code>youtube.com/watch?v=</code> / <code>youtu.be/</code> / <code>youtube.com/shorts/</code>. Backend stores <code>video_provider: youtube</code> + <code>video_id: String</code> (not raw URL).</li>
-      <li><strong>Cover image</strong> — single 16:9, up to 10 MB. S3 single-size (no transcode). Hero fallback chain: video → cover → brand gradient + initials.</li>
+      <li><strong>Intro video</strong> — Mux direct-upload. 16:9 card with 6 visual states (idle / uploading / processing / ready / errored / pending). Tap idle → native picker (<code>PHPickerViewController</code> iOS / <code>PickVisualMedia.VideoOnly</code> Android). Client PUTs file directly to Mux (resumable 256KB chunks). Webhook drives processing → ready. See <a href="https://github.com/321-fit/project-spec/blob/main/architecture/mux-integration.md">mux-integration.md</a>. Backend stores <code>{ provider: "mux", mux_upload_id, mux_asset_id, mux_playback_id, mux_status, mux_error_code }</code>.</li>
+      <li><strong>Cover image</strong> — single 16:9, up to 10 MB. S3 single-size (no transcode). Hero fallback chain: Mux video (status=ready) → cover → Mux auto-thumbnail (status=processing/errored) → brand gradient + initials.</li>
       <li><strong>First/Last name</strong> — required, <code>maxlength=50</code>, trimmed. Empty on Save → inline error pattern matching DOB. Server normalizes whitespace.</li>
       <li><strong>About me</strong> — 3-line clamp, tap → full-screen editor. Server max 500 chars; client warns at 450 (matches <code>feedback_character_counter</code>).</li>
       <li><strong>Dropdowns:</strong> Time Zone / Home Country / Languages — all full-screen push, device-detected pre-fill at onboarding.</li>
@@ -1203,9 +1361,9 @@
 
     <p><strong>Save gate (client-side validation)</strong></p>
     <ul>
-      <li>Save button takes <code>.is-disabled</code> style (opacity 0.5, cursor not-allowed) when DOB inline-error visible OR video URL <code>.error</code>.</li>
+      <li>Save button takes <code>.is-disabled</code> style (opacity 0.5, cursor not-allowed) when DOB inline-error visible OR intro video <code>mux_status === "errored"</code>.</li>
       <li>Tap on disabled Save → smooth-scroll to first invalid field + 600ms red flash twice + snackbar "Fix the highlighted fields". No network call fired.</li>
-      <li>Pending-verify on video URL (yellow border) is <strong>not</strong> a blocker — client accepts it, server confirms post-save.</li>
+      <li>Intro video <code>uploading</code> / <code>processing</code> states are <strong>not</strong> blockers — Save commits other fields independently; video lifecycle is async via webhooks.</li>
     </ul>
 
     <p><strong>Upload errors</strong> (avatar / cover)</p>
@@ -1218,7 +1376,7 @@
     <ul>
       <li><strong>401 on Save</strong> — token expired → push to <code>account-access</code> re-auth flow with context "return-to: personal-data, restore-form-state". After re-auth, restore unsaved form + auto-retry Save once.</li>
       <li><strong>Server-side field validation echo</strong> — backend returns <code>{field, message}</code> per error. Map into inline error pattern matching DOB (<code>.fit-input-error-text</code> below the field). If field can&rsquo;t be mapped (unknown key), fall back to generic <code>.pd-save-error</code> banner with server message.</li>
-      <li><strong>Video URL post-save verification</strong> — server attempts oEmbed call to YouTube. If private/age-restricted/unavailable, server sets <code>video_status: rejected</code> and sends a notification (<code>TargetRoute=PROFILE_VIDEO</code> per notifications spec) — coach taps it to land back here and replace the URL. Profile renders gradient+initials fallback meanwhile.</li>
+      <li><strong>Intro video lifecycle</strong> — fully webhook-driven. Client posts to <code>/me/intro-video/upload-url</code> → PUTs to Mux directly → posts to <code>/me/intro-video/uploaded</code>. Mux webhooks fire <code>asset.ready</code> (backend stores <code>mux_playback_id</code> + sends <code>videoReady</code> push) or <code>asset.errored</code> (backend stores error code + sends <code>videoFailed</code> push). Coach taps either push → lands here at <code>#pd-video-group</code> anchor. See <a href="https://github.com/321-fit/project-spec/blob/main/architecture/mux-integration.md">mux-integration.md</a>.</li>
       <li><strong>Rate limit 429</strong> — falls into <code>.pd-save-error</code> with server-provided message; no per-state dedicated UI.</li>
     </ul></div>
   <div class="ann" id="ann-s-notes-editor"><span class="ann-role coach">Coach</span><h3>About Me Editor</h3><p>Full-screen text editor. Cancel/Save header. Reusable for About Me and Notes fields.</p></div>
@@ -2043,8 +2201,7 @@ function pdSimulateInvalid(kind) {
     const val = document.getElementById('pd-dob-value');
     if (val) { val.textContent = '5 Jun 2018'; val.style.color = 'var(--fit-text-primary)'; }
   } else if (kind === 'video') {
-    const inp = document.getElementById('pd-video-input');
-    if (inp) { inp.value = 'https://example.com/video.mp4'; pdVideoValidate(); }
+    pdVideoSetState('errored');
   }
   pdUpdateSaveGate();
 }
@@ -2064,19 +2221,7 @@ function pdSimulateUploadError(kind) {
   snack._t = setTimeout(function(){ snack.classList.remove('show'); }, 3000);
 }
 
-// Video pending-verify — URL is well-formed but we haven't confirmed embeddability yet.
-function pdSimulateVideoPending() {
-  const wrap = document.getElementById('pd-video-wrap');
-  const help = document.getElementById('pd-video-help');
-  if (!wrap || !help) return;
-  wrap.classList.remove('error', 'ok'); wrap.classList.add('pending');
-  help.querySelector('.pd-video-help-default').style.display = 'none';
-  help.querySelector('.pd-video-help-error').style.display = 'none';
-  help.querySelector('.pd-video-help-ok').style.display = 'none';
-  help.querySelector('.pd-video-help-pending').style.display = '';
-  // Pending = client-side parsed OK, NOT a save-blocker. Gate stays open.
-  pdUpdateSaveGate();
-}
+// (legacy YouTube pending-verify helper removed — Mux lifecycle is webhook-driven)
 
 // Client-side validation gate. Returns array of invalid field anchor IDs (empty = valid).
 function pdInvalidFields() {
@@ -2087,8 +2232,8 @@ function pdInvalidFields() {
   } else if (dobErr && dobErr.style.display === 'block') {
     invalid.push('pd-dob-group');
   }
-  const videoWrap = document.getElementById('pd-video-wrap');
-  if (videoWrap && videoWrap.classList.contains('error')) {
+  const videoCard = document.getElementById('pd-video-card');
+  if (videoCard && videoCard.getAttribute('data-mux-state') === 'errored') {
     invalid.push('pd-video-group');
   }
   return invalid;
@@ -2179,52 +2324,74 @@ function pdAvatarAction(kind) {
   closeSheet('pd-avatar-sheet');
 }
 
-// ===== INTRO VIDEO URL (YouTube embed-only) =====
-// Extracts canonical video ID from common YouTube URL shapes. Returns null if not a YouTube URL.
-function pdExtractYouTubeId(url) {
-  if (!url) return null;
-  const s = String(url).trim();
-  // Patterns: youtube.com/watch?v=ID, youtu.be/ID, youtube.com/shorts/ID, youtube.com/embed/ID
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtube\.com\/shorts\/|youtu\.be\/)([A-Za-z0-9_-]{6,15})/,
-  ];
-  for (const re of patterns) {
-    const m = s.match(re);
-    if (m && m[1]) return m[1];
-  }
-  return null;
-}
+// ===== INTRO VIDEO (Mux direct-upload, 6 visual states) =====
+// State machine: idle → uploading → processing → ready  (happy path)
+//                                ↘ errored (any time from asset.errored webhook)
+//                pending = transient state when coach re-opened screen but PUT never finished
+// In production: state comes from coach.intro_video.mux_status. Prototype uses data-mux-state attr.
 
-function pdVideoValidate() {
-  const inp = document.getElementById('pd-video-input');
-  const wrap = document.getElementById('pd-video-wrap');
-  const help = document.getElementById('pd-video-help');
-  const clearBtn = document.getElementById('pd-video-clear');
-  if (!inp || !wrap || !help) return;
-  const val = inp.value.trim();
-  if (clearBtn) clearBtn.style.display = val ? 'flex' : 'none';
-  // Reset state
-  wrap.classList.remove('error', 'ok');
-  help.querySelector('.pd-video-help-default').style.display = '';
-  help.querySelector('.pd-video-help-error').style.display = 'none';
-  help.querySelector('.pd-video-help-ok').style.display = 'none';
-  if (!val) return; // empty = neutral
-  const id = pdExtractYouTubeId(val);
-  if (id) {
-    wrap.classList.add('ok');
-    help.querySelector('.pd-video-help-default').style.display = 'none';
-    help.querySelector('.pd-video-help-ok').style.display = '';
-  } else {
-    wrap.classList.add('error');
-    help.querySelector('.pd-video-help-default').style.display = 'none';
-    help.querySelector('.pd-video-help-error').style.display = '';
+function pdVideoSetState(state) {
+  const card = document.getElementById('pd-video-card');
+  if (!card) return;
+  const valid = ['idle','uploading','processing','ready','errored','pending'];
+  if (valid.indexOf(state) < 0) return;
+  card.setAttribute('data-mux-state', state);
+  // Cancel button only visible during uploading
+  const cancel = card.querySelector('.pd-video-cancel-btn');
+  if (cancel) cancel.style.display = (state === 'uploading') ? 'flex' : 'none';
+  // Sync state-toggle buttons in the annotation panel
+  const stateGroup = document.querySelector('#ann-s-personal-data .pd-video-states');
+  if (stateGroup) {
+    stateGroup.querySelectorAll('button').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-pd-video-state') === state);
+    });
   }
   pdUpdateSaveGate();
 }
 
-function pdVideoClear() {
-  const inp = document.getElementById('pd-video-input');
-  if (inp) { inp.value = ''; pdVideoValidate(); inp.focus(); }
+function pdVideoTap(ev) {
+  const card = document.getElementById('pd-video-card');
+  if (!card) return;
+  const state = card.getAttribute('data-mux-state');
+  // Idle/pending → opens native picker (simulated: jump to uploading state)
+  // Errored → opens picker again (Retry)
+  // Ready → opens preview (simulated: log)
+  // Uploading/processing → no-op (card disabled)
+  if (state === 'idle' || state === 'pending') {
+    pdVideoSimulateUpload();
+  } else if (state === 'errored') {
+    pdVideoSimulateUpload();
+  } else if (state === 'ready') {
+    // Production: open inline preview sheet with HLS player
+    console.log('Open preview sheet for playback_id');
+  }
+}
+
+// Simulates the full upload → processing → ready cycle for prototype demo.
+function pdVideoSimulateUpload() {
+  pdVideoSetState('uploading');
+  const fill = document.getElementById('pd-video-progress-fill');
+  const label = document.getElementById('pd-video-progress-label');
+  let pct = 0;
+  const tick = setInterval(function(){
+    pct = Math.min(100, pct + 8);
+    if (fill) fill.style.width = pct + '%';
+    if (label) label.textContent = 'Uploading… ' + pct + '%';
+    if (pct >= 100) {
+      clearInterval(tick);
+      // PUT done → POST /uploaded → webhook asset.created → processing
+      setTimeout(function(){ pdVideoSetState('processing'); }, 250);
+      // ...then asset.ready webhook → ready (in prototype: 1.5s wait)
+      setTimeout(function(){ pdVideoSetState('ready'); }, 2000);
+    }
+  }, 180);
+}
+
+// Opens the action menu on a ready video (Replace / Remove / View on profile).
+// Production: native UIMenu on iOS, BottomSheet on Android. Prototype: cycles state for demo.
+function pdVideoOpenMore() {
+  // For demo simplicity, jump straight to idle (= Remove). Production would show floating menu.
+  pdVideoSetState('idle');
 }
 
 // ===== COVER IMAGE ACTION SHEET =====
@@ -2251,8 +2418,8 @@ function pdCoverAction(kind) {
   closeSheet('pd-cover-sheet');
 }
 
-// Initial validation on load (existing demo value)
-document.addEventListener('DOMContentLoaded', function(){ pdVideoValidate(); pdUpdateSaveGate(); });
+// Initial gate calc on load
+document.addEventListener('DOMContentLoaded', function(){ pdUpdateSaveGate(); });
 
 // ===== DOB PICKER (3-wheel) =====
 var DOB_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];

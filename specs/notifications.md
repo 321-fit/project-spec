@@ -211,7 +211,7 @@ See [design-tokens/docs/components.md § FitNotificationRow](https://github.com/
 
 ### Type → icon / color mapping (kit `type` enum, decoupled from backend `TargetRoute`)
 
-Backend has 10 `TargetRoute` values; kit collapses to 8 visual variants:
+Backend has 12 `TargetRoute` values; kit collapses to 10 visual variants:
 
 | Kit `type` | Backend `TargetRoute`(s) | Icon plate |
 |---|---|---|
@@ -223,6 +223,8 @@ Backend has 10 `TargetRoute` values; kit collapses to 8 visual variants:
 | `expired` | `pendingRequestAutoDeclined` | clock-x · `FitIconPlate(.neutral)` |
 | `onboardingDone` | `athleteOnboardingCompleted` | user-check · `FitIconPlate(.success)` |
 | `calendarSync` | `calendarSyncIssue` | alert-triangle · `FitIconPlate(.warning)` |
+| `videoReady` | `introVideoReady` | video-check · `FitIconPlate(.success)` |
+| `videoFailed` | `introVideoFailed` | video-x · `FitIconPlate(.error)` |
 
 Translation `TargetRoute → kit type` lives at the call site (one helper enum per platform). Kit doesn't know notification taxonomy — it owns its own visual semantics only.
 
@@ -236,6 +238,8 @@ Tap on a notification row triggers **(1)** optimistic mark-read + **(2)** naviga
 | `request` | **Push** → Clients tab → `s-requests` (Requests segment) | Aggregate list view; sheet doesn't fit. Routing identical to dashboard's "Pending requests" action card. |
 | `declined`, `expired`, `onboardingDone` | **Push** → Clients tab → `s-client-detail` (athlete profile) | Athlete = persona/hub, lives in their own tab. Matches existing event-sheet `→` participant-row → athlete-detail pattern. |
 | `calendarSync` | **Push** → Profile tab → Settings → `s-calendar-sync` (account list) | Multi-account list view, not a single entity. User identifies the broken account via per-card "Reconnect required" / "Sync error" badge (see [calendar-sync.md § Sync error state](calendar-sync.md#1-calendar-sync-account-list)). Single route keeps kit logic simple — no provider-specific deep-link in v1.0. |
+| `videoReady` | **Push** → Profile tab → Settings → Edit personal info → `#pd-video-group` anchor | Coach is informed their freshly-uploaded intro video is live on their public profile. Land on Personal Data with the intro video card scrolled into view so coach can preview it / replace / share. |
+| `videoFailed` | **Push** → Profile tab → Settings → Edit personal info → `#pd-video-group` anchor | Coach lands on Personal Data with the video card in `errored` state showing the failure reason + Retry CTA. Same destination as `videoReady` so coach has one mental anchor for "video stuff". |
 
 **Background push tap** (FCM payload, app outside / locked) — same routing function. App opens to **Home tab** → relevant sheet/clients-detail layered on top. Dismiss → user lands on Home (familiar anchor), not in some random screen they didn't navigate to.
 
@@ -344,6 +348,54 @@ Push payload: `aps.alert.title = title`, `aps.alert.body = subtitle`, `aps.badge
 - **Inbox row tap** → optimistic mark-read → push to **Profile tab → Settings → Calendar Sync** (`s-calendar-sync`).
 - **Background push tap** → app opens on Home tab → routing fires → same destination as above. Same routing function as inbox.
 - **No sheet variant** — Calendar Sync is a full screen with multi-account list, not a single-entity view.
+
+## Intro video notifications (`videoReady` / `videoFailed` kit types)
+
+Two notifications fired from the Mux integration lifecycle (see [architecture/mux-integration.md](../architecture/mux-integration.md) for upload + webhook details). Coach-side only — athletes never see these.
+
+### Triggers
+
+| Notification | Mux webhook | Backend action |
+|---|---|---|
+| `videoReady` | `video.asset.ready` | Look up coach by `passthrough` ("coach:&lt;id&gt;"), persist `mux_playback_id`, fire push + inbox row |
+| `videoFailed` | `video.asset.errored` | Persist `mux_status: "errored"` + `mux_error_code`, fire push + inbox row |
+
+### Copy
+
+| Kit type | Title (fixed) | Subtitle / push body |
+|---|---|---|
+| `videoReady` | "Your intro video is live" | "Tap to preview or replace it on your profile" |
+| `videoFailed` | "Couldn't process your video" | Generic: "Try uploading a different file"<br>If `mux_error_code` is known-mapped (e.g. `invalid_input`, `duration_exceeded`): a friendlier line — "File format isn't supported — try mp4 or mov", "Video is too long — keep it under 2 minutes" |
+
+### Payload
+
+Standard push payload (`aps.alert.title`, `aps.alert.body`, `aps.badge`, `aps.sound`) plus:
+
+```json
+{
+  "target": "introVideoReady" | "introVideoFailed"
+}
+```
+
+No need for `coach_id` in payload — the recipient is always the current user (intro video belongs to the coach receiving the push).
+
+### Throttle
+
+- `videoReady` — no throttle. Fires once per successful upload (Mux only emits `asset.ready` once per asset).
+- `videoFailed` — no throttle. Fires once per failed upload (Mux only emits `asset.errored` once). Coach can rapid-fire retry → each errored attempt = 1 notification. Acceptable noise; failure is rare and the coach is actively troubleshooting.
+
+### Tap routing — special case
+
+Both notifications route to the same destination: **Profile tab → Settings → Edit personal info → `#pd-video-group` anchor**. This is an anchor-scroll within the Personal Data screen, not a separate screen. iOS/Android navigation:
+
+```
+Tap notification (background or inbox)
+  → push Settings root onto Profile tab nav stack (if not already)
+  → push Personal Data onto Settings nav stack
+  → after screen mounts, scrollIntoView('#pd-video-group')
+```
+
+The intro video card is the first scroll target; coach sees its current state (Ready with thumbnail / Errored with retry) immediately.
 
 ## Known backend bugs (flagged 2026-05-12 — fixed in PR #56)
 
