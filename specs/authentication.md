@@ -11,7 +11,7 @@ Phone is **no longer a login credential**. It is now an outreach attribute only 
 
 - **Login methods** = Email+password + Apple + Google. **Phone is removed** from the supported methods table (rows below mark it as Deprecated as a login method, retained as a contact attribute).
 - **Phone uniqueness constraint dropped.** Same phone may be set on multiple accounts (family/roommates sharing a number). Backend must not enforce a UNIQUE index on phone for users. The "phone already taken" 409 path is gone.
-- **Phone OTP at signup** still fires — but only as **proof of ownership** (anti-spam, prevent attaching someone else's number). Verifying does not establish a login credential.
+- **Phone OTP at signup** still fires — but only as **proof of ownership** (anti-spam, prevent attaching someone else's number). Verifying does not establish a login credential. **Mandatory step (2026-05-19): no "Skip for now"** — account stays in `phone_verified: false` state and is unusable (main app entry is blocked) until verification completes. If user kills the app mid-flow, next signin resumes at `s-phone-enter` automatically.
 - **Phone changes/removal** no longer trigger re-auth (per `project_account_access_decisions` updated 2026-05-11). OTP is still required when saving a new phone (ownership re-verification), but no re-auth picker upstream.
 - **Account Safety "last method" rule** applies only to email/Apple/Google. Phone removal is always safe.
 - **Phone visibility** remains hidden between users (athletes don't see coach phone, coaches don't see athlete phone — even more important now that phones may overlap).
@@ -90,13 +90,14 @@ A user can authenticate using ANY of the methods linked to their account.
 
 ### Phone OTP — current role (after 2026-05-11)
 
-Phone OTP is **no longer a login or registration entry point.** It runs only during **signup ownership verification** (one onboarding step after the user has already created an account via email or social):
+Phone OTP is **no longer a login or registration entry point.** It runs only during **signup ownership verification** (one mandatory onboarding step after the user has already created an account via email or social):
 
-1. User enters phone number + country code
+1. User enters phone number + country code (mandatory — no skip)
 2. System sends OTP via Twilio SMS
 3. User enters verification code
-4. Phone is **attached** to the already-created account as a contact attribute
+4. Phone is **attached** to the already-created account as a contact attribute; `phone_verified` flips to `true`
 5. **Phone is non-unique** — if another account already has this phone, both accounts coexist; no 409 conflict
+6. Until step 4 completes the account remains `phone_verified: false` and is **blocked from entering the main app** (signin resumes here on app restart)
 
 > Historical (deprecated 2026-05-11): phone OTP previously acted as a unified login + registration flow ("if phone exists → login, if new → create account"). Backend endpoints still support this branch, but the product no longer surfaces it. New users always enter via email or social signup.
 

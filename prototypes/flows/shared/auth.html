@@ -838,11 +838,6 @@
     </div>
 
   </div>
-  <div class="fit-phone-footer">
-    <div class="au-toggle-row">
-      <button data-a11y-id="auth.phone.enter.skip">Skip for now</button>
-    </div>
-  </div>
 </div>
 
 <!-- ============================================================
@@ -1146,17 +1141,18 @@
   <div class="ann" id="ann-s-phone-enter">
     <span class="ann-role">Shared</span>
     <h3>Phone · enter number</h3>
-    <p>After email/password sign-up succeeds, user is asked to add a phone number. Phone is <strong>not a login credential</strong> per <code>authentication.md § 2026-05-11 update</code> — it's an outreach attribute used for booking reminders, SMS notifications, and account recovery. It's never shown to other users.</p>
+    <p>After email/password sign-up succeeds, user must add and verify a phone number to continue. Phone is <strong>not a login credential</strong> per <code>authentication.md § 2026-05-11 update</code> — it's an outreach attribute used for booking reminders, SMS notifications, and account recovery. It's never shown to other users.</p>
     <hr>
     <p><strong>iOS ref:</strong> <code>Authentication/PhoneNumber/Set/SetPhoneView.swift</code>.</p>
     <ul>
       <li>Single composite input: canonical <code>fit-input-group</code> + <code>fit-input</code> with a tappable country chip (page-local <code>au-phone-country</code>, mirrors <code>pf-country</code> in account-access) + phone number input.</li>
       <li>Country chip tap → push to <code>s-country-picker</code> (re-used screen).</li>
       <li>Default country: device locale (Georgia +995 in the prototype as it's the most common dev locale; production picks from <code>NSLocale.regionCode</code>).</li>
-      <li><strong>"Skip for now"</strong> footer link — phone is optional at signup. User can add it later in Settings → Account Access. Tap → onboarding wizard.</li>
+      <li><strong>No "Skip"</strong> — phone capture + OTP verification is <strong>mandatory at signup</strong> (decision 2026-05-19). Account remains unusable until phone is verified; if user kills the app mid-flow, signin resumes here.</li>
       <li>Backend: <code>POST /signup/phone</code> sends a 6-digit OTP via Twilio.</li>
     </ul>
     <p><strong>Phone uniqueness:</strong> NOT enforced — per <code>authentication.md § 2026-05-11 update</code>, same phone can be on multiple accounts (family / shared device). No "phone already in use" error.</p>
+    <p class="note">Back chevron in the prototype is for navigation convenience. In production, after email signup the account is provisioned server-side as <code>phone_verified: false</code> — going back doesn't unwind the account creation. Back chevron may be hidden or repurposed as "sign out" in iOS.</p>
   </div>
 
   <div class="ann" id="ann-s-phone-otp">

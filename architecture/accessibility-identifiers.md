@@ -82,8 +82,7 @@ Prototype: `prototypes/flows/shared/auth.html`
 | `auth.phone.enter.back` | back chevron | phone · enter | returns to sign-up email |
 | `auth.phone.enter.country` | country chip | phone · enter | tap → opens country picker |
 | `auth.phone.enter.field` | tel input | phone · enter | inputmode=tel, autocomplete=tel-national |
-| `auth.phone.enter.submit` | primary CTA | phone · enter | "Send code" — POST /signup/phone |
-| `auth.phone.enter.skip` | text button | phone · enter footer | "Skip for now" — phone is optional at signup |
+| `auth.phone.enter.submit` | primary CTA | phone · enter | "Send code" — POST /signup/phone. Phone verification is mandatory at signup; no skip. |
 | `auth.phone.otp.back` | back chevron | phone · OTP | returns to phone entry |
 | `auth.phone.otp.field` | OTP boxes | phone · OTP | 6-digit code entry container |
 | `auth.phone.otp.resend` | text button | phone · OTP | "Resend" — disabled during 60s timer |
