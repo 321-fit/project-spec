@@ -589,12 +589,14 @@
     animation: pd-spin 0.8s linear infinite;
   }
   @keyframes pd-spin { to { transform: rotate(360deg); } }
-  /* READY slot — thumbnail + play overlay + ⋯ menu */
+  /* READY slot — thumbnail + play overlay + ⋯ menu. Fills card via absolute inset:0.
+     Visibility still gated by [data-mux-state="ready"] rule above (no !important — was a bug). */
   .pd-video-slot-ready {
-    position: absolute; inset: 0; display: flex !important;
+    position: absolute; inset: 0;
     background-size: cover; background-position: center;
     background-image: linear-gradient(135deg, #4F46E5 0%, #0891B2 100%);
   }
+  .pd-video-card[data-mux-state="ready"] [data-mux-slot="ready"].pd-video-slot-ready { display: flex; }
   .pd-video-play-overlay {
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
     background: rgba(0,0,0,0.25);
@@ -660,35 +662,17 @@
   }
   .pd-video-menu-backdrop.show { display: block; }
 
-  /* ===== PD VIDEO TOAST (foreground push → toast) ===== */
-  /* KIT CANDIDATE: variants + action button extend canonical .fit-toast */
-  .pd-video-toast {
-    position: absolute; top: 56px; left: 16px; right: 16px; z-index: 50;
-    padding: 12px 14px; border-radius: 12px;
-    display: flex; align-items: center; gap: 10px;
-    font-size: 14px; line-height: 1.35;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-    opacity: 0; transform: translateY(-12px);
-    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
-    pointer-events: none;
-  }
-  .pd-video-toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
-  .pd-video-toast--success {
-    background: rgba(16,185,129,0.95); color: var(--fit-white);
-  }
-  .pd-video-toast--error {
-    background: rgba(239,68,68,0.95); color: var(--fit-white);
-  }
-  .pd-video-toast-icon { flex-shrink: 0; }
-  .pd-video-toast-icon svg { width: 20px; height: 20px; }
-  .pd-video-toast-text { flex: 1; }
+  /* ===== PD VIDEO TOAST — extends canonical .fit-toast =====
+     Uses fit-toast surface (var(--fit-surface-high)) + colored border-left variant,
+     matching the established pattern in calendar-sync.html. Adds inline action button
+     for foreground push → toast routing (mirrors .fit-snackbar's .snack-action). */
   .pd-video-toast-action {
-    flex-shrink: 0; padding: 6px 10px; border-radius: 8px;
-    background: rgba(255,255,255,0.18); color: var(--fit-white);
-    border: none; cursor: pointer;
-    font-family: var(--fit-font); font-size: 13px; font-weight: 500;
+    flex-shrink: 0; padding: 4px 0 4px 12px;
+    background: transparent; border: none; cursor: pointer;
+    font-family: var(--fit-font); font-size: 14px; font-weight: 500;
+    color: var(--fit-teal-400);
   }
-  .pd-video-toast-action:hover { background: rgba(255,255,255,0.28); }
+  .pd-video-toast-action:hover { color: var(--fit-teal-300); }
 
   /* ===== PD COVER IMAGE (16:9 upload, fallback to default) ===== */
   .pd-cover-wrap {
@@ -1067,12 +1051,11 @@
   <!-- Saved snackbar -->
   <div class="fit-snackbar" id="pd-saved-snack">Personal data updated</div>
 
-  <!-- Intro video toast (foreground push surface) — single element, content swapped per event -->
-  <div class="pd-video-toast pd-video-toast--success" id="pd-video-toast">
-    <span class="pd-video-toast-icon" id="pd-video-toast-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-    </span>
-    <div class="pd-video-toast-text" id="pd-video-toast-text">Your intro video is live</div>
+  <!-- Intro video toast (foreground push surface) — canonical .fit-toast with border-left variant + action button.
+       Single element, content/variant swapped per event by pdShowVideoToast(). -->
+  <div class="fit-toast" id="pd-video-toast" style="border-left:3px solid var(--fit-teal-500);">
+    <svg id="pd-video-toast-icon" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>
+    <span id="pd-video-toast-text" style="font-size:14px;flex:1;">Your intro video is live</span>
     <button class="pd-video-toast-action" id="pd-video-toast-action" onclick="pdHideVideoToast()">View</button>
   </div>
   <div class="fit-snackbar" id="pd-validation-snack" style="background:#3B1F1F;border-color:rgba(240,92,91,0.35);">
@@ -2537,13 +2520,16 @@ function pdShowVideoToast(kind) {
   const text = document.getElementById('pd-video-toast-text');
   const action = document.getElementById('pd-video-toast-action');
   if (!toast || !text || !action || !icon) return;
-  // Variant tint
-  toast.classList.remove('pd-video-toast--success', 'pd-video-toast--error');
-  toast.classList.add('pd-video-toast--' + preset.variant);
-  // Icon
-  icon.innerHTML = preset.variant === 'success'
-    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
-    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg>';
+  // Variant: swap border-left color + icon stroke (matches calendar-sync canonical pattern)
+  const accentVar = preset.variant === 'success' ? 'var(--fit-teal-500)' : 'var(--fit-red-400)';
+  toast.style.borderLeft = '3px solid ' + accentVar;
+  icon.setAttribute('stroke', accentVar);
+  // Icon path: check for success, alert-triangle for error
+  if (preset.variant === 'success') {
+    icon.innerHTML = '<polyline points="20 6 9 17 4 12"/>';
+  } else {
+    icon.innerHTML = '<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="0.5" fill="' + accentVar + '"/>';
+  }
   // Text + action
   text.textContent = preset.text;
   if (preset.action) {
