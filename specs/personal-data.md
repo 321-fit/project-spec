@@ -9,7 +9,7 @@
 > - Backend: [poly-backend/docs/profile-api.md] (to be created)
 > - Android: [321fit_android/docs/personal-data-android.md] (to be created)
 
-**Scope note:** this spec covers the **coach-side** Personal Data screen reached from Settings root → Edit personal info. Same screen is used for the data points surfaced on the public coach profile (`coach-profile.md`) plus private operational fields (TZ, country, languages, DOB, gender).
+**Scope note:** this spec covers the **coach-side** Personal Data screen reached from Settings root → Edit personal info. Same screen is used for the data points surfaced on the public coach profile (`coach-profile.md`) plus private operational fields (TZ, country, city, languages, DOB, gender).
 
 Athlete-side personal data uses the same component patterns but **adds** body metrics (weight + height) — covered in athlete-side spec when built. Coach side intentionally omits body metrics (not needed for marketplace function — see § 10).
 
@@ -19,7 +19,7 @@ Athlete-side personal data uses the same component patterns but **adds** body me
 
 Single-screen form (`s-personal-data`) containing all profile fields a coach can edit. Reached from Settings → Edit personal info. Saves back to Settings on success.
 
-Fields are organized top-down: **public profile media** first (avatar, intro video, cover image), **public profile text** next (name, bio), **private operational** at the bottom (TZ, country, languages, gender, DOB).
+Fields are organized top-down: **public profile media** first (avatar, intro video, cover image), **public profile text** next (name, bio), **private operational** at the bottom (TZ, country, city, languages, gender, DOB).
 
 The screen is the canonical owner of:
 - Intro video URL (YouTube embed only on MVP)
@@ -39,7 +39,7 @@ The screen is the canonical owner of:
 - As a coach, I want the Save button to tell me when my form has errors instead of letting me hit save and only finding out from a server reject.
 - As a coach, if my network drops while loading, I want a retry button instead of a permanent skeleton.
 - As a coach, when an upload fails (file too large, wrong format), I want a clear toast — not a silent failure.
-- As a new coach onboarding, I want my time zone, country, and languages pre-filled from my device — I shouldn't have to set them manually.
+- As a new coach onboarding, I want my time zone, country, city, and languages pre-filled from my device — I shouldn't have to set them manually.
 
 ---
 
@@ -65,10 +65,11 @@ The screen is the canonical owner of:
 5. **Last name** — text, required, max 50, trimmed
 6. **About me** — 3-line clamped preview. Tap → full-screen editor `s-notes-editor`. Server cap 500 chars.
 7. **Time zone** — push to `s-tz-select` (single-select with search). Device-detected at onboarding pre-fill.
-8. **Home location** (country) — push to `s-country-select`. Device-detected pre-fill.
-9. **Languages** — push to `s-lang-select` (multi-select). Device locale pre-fill.
-10. **Gender** — Woman / Man chips, single-select
-11. **Date of birth** — 3-wheel sheet (Day/Month/Year). 13+ enforced.
+8. **Home country** — push to `s-country-select`. Device-detected pre-fill.
+9. **Home city** — push to `s-city-select` (single-select with search, list scoped to selected country). Reverse-geocoded from device location at onboarding pre-fill; if geocode unavailable, field stays empty and user picks manually. Changing **Country** resets City to empty (since previous city is no longer valid in the new country).
+10. **Languages** — push to `s-lang-select` (multi-select). Device locale pre-fill.
+11. **Gender** — Woman / Man chips, single-select
+12. **Date of birth** — 3-wheel sheet (Day/Month/Year). 13+ enforced.
 
 Footer: brand-gradient **Save** pill button with inline spinner when saving.
 
@@ -206,7 +207,8 @@ Server may echo per-field validation errors as `{field: "bio", message: "..."}`.
 
 - Avatar / cover picker — native `PHPickerViewController` (iOS) / `ActivityResultContracts.PickVisualMedia` (Android). Type filter applied at OS level.
 - DOB picker — `UIDatePicker .compact` (iOS) / `MaterialDatePicker` (Android). Year capped to `currentYear − 13`.
-- TZ / Country / Language pushes — full-screen modals with search + filter.
+- TZ / Country / City / Language pushes — full-screen modals with search + filter.
+- City list scoped to selected country: backend returns paginated cities for `country_code`; list re-fetches when country changes.
 - 401 handler — system-wide interceptor in HTTP client, not per-screen.
 - Snackbars — same `FitSnackbar` component.
 
@@ -226,7 +228,7 @@ Server may echo per-field validation errors as `{field: "bio", message: "..."}`.
 
 - **No Weight + Height on coach side.** Removed from prototype 2026-05-12. Backend may keep the fields nullable for legacy / cross-role users, but coach UI doesn't surface them.
 - **Intro video MVP = YouTube only.** Vimeo intentionally not supported — fitness coaches predominantly on YouTube, narrower validation = cleaner UX. Add Vimeo / native upload in Phase 2 if analytics shows demand.
-- **Public profile media goes at TOP of form** — Avatar / Intro video / Cover image grouped near top. Public-facing data deserves prominence; private operational fields (TZ, country) sit below.
+- **Public profile media goes at TOP of form** — Avatar / Intro video / Cover image grouped near top. Public-facing data deserves prominence; private operational fields (TZ, country, city) sit below.
 - **Camera-overlay on Profile hero → personal-data#pd-video-group anchor scroll** — instead of a dedicated intro-video.html screen. Decision: simpler, no extra file, anchor scroll is well-supported on iOS Safari + Android Chrome WebView.
 - **Server-side video verification via oEmbed.** If video is private / age-restricted / deleted, server flips `intro_video_status: rejected` and notifies coach via push. Coach replaces URL, retries.
 - **401 auto-retry once after re-auth.** Don't make user re-enter the form. Restore from local state, re-attempt Save once. If that also fails, show generic error banner without further auto-retry (avoid infinite loops).
@@ -240,5 +242,6 @@ Server may echo per-field validation errors as `{field: "bio", message: "..."}`.
 - `authentication.md` / `account-access.md` — 401 re-auth flow
 - `sport-picker.md` — separate push screen (My Sports)
 - `notifications.md` — `TargetRoute=PROFILE_VIDEO` (post-save verification rejected)
-- `onboarding-wizard.md` — TZ / country / languages first-time pre-fill source
+- `onboarding-wizard.md` — TZ / country / city / languages first-time pre-fill source
+- `athlete-search.md` — consumes City + Country as Location filter (Search → Filters → Location section)
 - `profile-settings.md` — historical combined doc; superseded for personal-data by this spec

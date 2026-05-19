@@ -31,7 +31,9 @@ Coach cards use a **single unified card pattern** everywhere — landing feed, f
 
 - As an athlete, I want to open the Search tab and immediately see coaches relevant to my sports and area, so I don't have to set anything up to start browsing.
 - As an athlete, I want to switch sports without leaving Search, so I can quickly explore different training options.
-- As an athlete, I want to narrow results by distance, price, time-of-day, format and language, so I can find coaches that fit my constraints.
+- As an athlete, I want to narrow results by location (city / country), price, time-of-day, format and language, so I can find coaches that fit my constraints.
+- As an athlete, I want my home city to be pre-filled the first time I open Search, so I don't have to set it manually.
+- As an athlete, I want to switch the search city (e.g. before travelling to another city in the same country, or across borders) without changing my home address.
 - As an athlete, I want to sort results by rating, distance, price or "newest", so I can scan the list in the order that matters to me.
 - As an athlete, I want to find a specific coach by typing their name, so I can return to someone I heard about or visited before.
 - As an athlete, I want to save coaches I like to a favorites list, so I can return to them without re-searching.
@@ -46,11 +48,11 @@ Coach cards use a **single unified card pattern** everywhere — landing feed, f
 
 ## 3. System Stories
 
-- As the system, when athlete opens Search for the first time after onboarding, I auto-apply **Sport** (from Settings → Sport Types) and **Languages** (from Personal Data); all other filters default to "any" so the result pool is wide.
+- As the system, when athlete opens Search for the first time after onboarding, I auto-apply **Sport** (from Settings → Sport Types), **Country + City** (from Personal Data → Home country / Home city), and **Languages** (from Personal Data); all other filters default to "any" so the result pool is wide.
 - As the system, I render results sorted by `Recommended` (hybrid: sport × location × activity) unless the athlete overrides via Sort sheet.
 - As the system, when filters are active, I display the chips on the chips row as deep-links to the Filters screen (not inline-removable) — tap reopens Filters with that section focused.
 - As the system, when the athlete types in the text search, I match against (a) the 33-item closed sport list and (b) coach names — never against free-form NLP. Mixed-output is rendered as a single list of coach cards.
-- As the system, when no coaches match a query or filter combination, I render the empty state with a recovery CTA (expand distance / browse all coaches).
+- As the system, when no coaches match a query or filter combination, I render the empty state with a recovery CTA (switch city / browse all coaches).
 - As the system, when the network is offline on a first fetch, I render the offline error state; on subsequent fetches I keep showing the last known list with a non-blocking banner.
 - As the system, when athlete favorites a coach (heart), I persist that to `POST /athlete/favorites/{coach_id}` and reflect across My Coaches → Favorites tab.
 - As the system, when athlete taps a coach card, I navigate to `shared/profile.html` (coach profile preview + booking entry).
@@ -68,8 +70,8 @@ Coach cards use a **single unified card pattern** everywhere — landing feed, f
 
 2. **Filter chips row** (horizontal scroll)
    - Lead chip: **Filters** (with optional count badge, e.g. "Filters · 3" when active filters present).
-   - Followed by quick chips that deep-link to specific Filter sections — defaults: Near me / Price / Time of day / Format.
-   - When filters are applied, **active value chips** replace the quick chips (e.g. "5 km" / "≤ €50" / "Afternoon"). Active chips have brand-gradient background. Tap on any active chip → opens Filters screen with corresponding section focused. **No × inline removal.**
+   - Followed by quick chips that deep-link to specific Filter sections — defaults: Location / Price / Time of day / Format.
+   - When filters are applied, **active value chips** replace the quick chips (e.g. "Vilnius" / "≤ €50" / "Afternoon"). Active chips have brand-gradient background. Tap on any active chip → opens Filters screen with corresponding section focused. **No × inline removal.**
 
 3. **Count + Sort link row**
    - Left: count (`52 Tennis coaches near you`).
@@ -101,7 +103,10 @@ Reached by tapping Filters chip. Full-height push (not a bottom sheet — too ma
 
 - Header: back chevron + "Filters" title + Reset text-button (top right).
 - Body sections (scrollable):
-  1. **Distance** — single-select chips: 1 km / 5 km / 10 km / 25 km / Any. Default = Any.
+  1. **Location** — two push rows (`filter-expand-row` pattern, same as Languages / Coach gender below):
+     - **Country** — push to `s-search-country` (single-select with search, reused from `personal-data.html#s-country-select`). Default auto-applied from Personal Data → Home country.
+     - **City** — push to `s-search-city` (single-select with search, reused from `personal-data.html#s-city-select`; list scoped to selected country). Default auto-applied from Personal Data → Home city.
+     - Changing **Country** resets City to empty (previous city is no longer valid in the new country) — same behavior as Personal Data.
   2. **Price** — dual-thumb slider €X – €Y. Default = no constraint.
   3. **Time of day** — symmetric 3×2 tile grid with hour ranges (6–9, 9–12, 12–15, 15–18, 18–21, 21–23). Each tile has a daypart icon. Multi-select. **Selected state** uses canonical `--fit-selection-gradient` (soft teal-tint) + `--fit-teal-600` border — same pattern as `coach/sport-types.html` `.sp-card.selected`. Empty selection = no constraint.
   4. **Format** — multi-select chips: In-person / Online / Home visit. Default = all 3 selected.
@@ -109,6 +114,14 @@ Reached by tapping Filters chip. Full-height push (not a bottom sheet — too ma
   6. **Coach gender** — push row → opens `gender-sheet` **bottom-sheet overlay on the Filters screen** (single-select: Any / Female / Male). Default = Any. Selected value rendered same as Languages (text-primary, not teal).
   7. **Group lessons only** — inline `FitToggle`. Default = OFF.
 - Footer (sticky, flex pinned): single full-width `Show N coaches` CTA. Count updates live as filters change. No "Clear all" — Reset in header is the canonical reset.
+
+### Push: Country (`s-search-country`)
+
+Same UX as `coach/personal-data.html#s-country-select` — single-select with search, auto-dismiss on tap. Replicated inside Search so back navigation returns to Filters, not Personal Data. Picking a new country here changes only the Search filter (not Personal Data → Home country).
+
+### Push: City (`s-search-city`)
+
+Same UX as `coach/personal-data.html#s-city-select` — single-select with search, auto-dismiss on tap. List scoped to currently-selected country in this filter (NOT Personal Data country; user may have switched). Header subtitle: "Cities in &lt;Country&gt;". Picking a new city here changes only the Search filter.
 
 ### Push: Languages (`s-search-lang`)
 
@@ -142,8 +155,9 @@ Single-tap = select + auto-apply + dismiss. No Apply button. From Landing, tappi
 | Filter | Default | Source |
 |---|---|---|
 | Sport | from Settings → Sport Types | "Tennis, Padel" header anchor |
+| Country | from Personal Data → Home country | auto-applied |
+| City | from Personal Data → Home city | auto-applied |
 | Languages | from Personal Data → Languages | auto-applied |
-| Distance | Any | — (sort handles proximity) |
 | Price | none | — |
 | Time of day | none | — |
 | Format | all 3 (in-person + online + home) | — |
@@ -151,7 +165,7 @@ Single-tap = select + auto-apply + dismiss. No Apply button. From Landing, tappi
 | Group lessons only | OFF | — |
 | Sort | Recommended | — |
 
-**Reset** (header top-right of Filters) returns to this state, not to "everything cleared". Sport and Languages are user-provided data and should not be silently wiped.
+**Reset** (header top-right of Filters) returns to this state, not to "everything cleared". Sport / Country / City / Languages are user-provided data and should not be silently wiped.
 
 ---
 
@@ -159,7 +173,10 @@ Single-tap = select + auto-apply + dismiss. No Apply button. From Landing, tappi
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| GET | `/api/v1.0.0/athlete/search/coaches` | Primary search — accepts sport, lang, distance, price min/max, time-of-day, format, gender, group-only, sort, page params; returns paginated coach list with rating, price-from, distance, availability snippet, bio preview |
+| GET | `/api/v1.0.0/athlete/search/coaches` | Primary search — accepts sport, lang, **country (ISO-3166-1 alpha-2)**, **city (string)**, price min/max, time-of-day, format, gender, group-only, sort, page params; returns paginated coach list with rating, price-from, distance, availability snippet, bio preview. `distance` query param **deprecated** post-2026-05-19; backend still accepts it for older clients but new clients use `country` + `city`. |
+| GET | `/api/v1.0.0/geo/countries` | Country list — ISO-3166-1 alpha-2 codes + display names + flag emoji. Static, cacheable client-side. |
+| GET | `/api/v1.0.0/geo/cities?country=<code>&q=<search>` | City list scoped to country, paginated, with optional search query. Powers both Personal Data city picker and Search → City filter. |
+| GET | `/api/v1.0.0/geo/reverse-city` | Reverse-geocode device coordinates to `{country_code, city}` for first-time onboarding pre-fill. Client sends `?lat=&lng=`. |
 | GET | `/api/v1.0.0/athlete/search/suggest` | Text autocomplete — query string in, returns matching sports (from 33-list) + matching coach names with avatars |
 | POST | `/api/v1.0.0/athlete/favorites/{coach_id}` | Heart toggle (idempotent) |
 | DELETE | `/api/v1.0.0/athlete/favorites/{coach_id}` | Heart un-toggle |
@@ -169,7 +186,7 @@ Single-tap = select + auto-apply + dismiss. No Apply button. From Landing, tappi
 
 Detailed request/response shapes live in `poly-backend/docs/athlete-search-api.md` (to be created). All endpoints follow backward-compatibility rule — additive only, no field removals, see `feedback_backward_compat_endpoints` memory.
 
-**Backend note:** Recommended sort algorithm = hybrid weighted score: sport-match (0/1) × language-match (0/1) × distance-decay × recent-activity-boost × rating. Tuning lives in `poly-backend` config, not exposed to clients.
+**Backend note:** Recommended sort algorithm = hybrid weighted score: sport-match (0/1) × language-match (0/1) × city-match (0/1) × distance-decay × recent-activity-boost × rating. Distance decay still uses PostGIS `ST_Distance` for "Closest to me" sort + recommendation tie-breaking; the user-facing filter is City/Country instead of a radius. Tuning lives in `poly-backend` config, not exposed to clients.
 
 ---
 
@@ -177,7 +194,8 @@ Detailed request/response shapes live in `poly-backend/docs/athlete-search-api.m
 
 - **Sport anchor is mandatory presence**, but value can be "All sports" (no filter applied) when athlete hasn't picked any in Settings.
 - **Languages auto-apply** is removable by athlete inside Filters → Languages. Once removed in this session, do not auto-restore on next visit (athlete chose breadth).
-- **Distance default = Any** to avoid empty first-impression for athletes in low-density areas. Sort handles "closer first" implicitly.
+- **Country / City auto-apply** is editable inside Filters → Location. Same once-removed rule as Languages: if athlete clears city to browse all coaches in country, do not auto-restore on next visit. Country is mandatory — if cleared, falls back to Personal Data → Home country on next visit.
+- **City can differ from Personal Data** (travel mode). Picking a different city in Search filter doesn't write back to Personal Data; it only affects the current search session.
 - **NEW coach badge** appears when `reviews_count < 1 OR sessions_count < 3` (`coach-maturity-model.md`). New coaches render `New coach` blue pill instead of star rating row.
 - **Heart (favorite)** state syncs across Search, My Coaches → Favorites, and Coach profile. Optimistic UI — instant visual toggle, retry on failure.
 - **Free-text search** does NOT support NLP parsing (`boxing near me` etc.). Such intents go through the AI Assistant FAB (separate spec, future).
@@ -189,8 +207,9 @@ Detailed request/response shapes live in `poly-backend/docs/athlete-search-api.m
 
 - **First open with 0 sport types in Settings** — sport anchor shows "All sports"; results driven by location only. Fallback sort: Top rated.
 - **First open with 0 languages in Personal Data** — Languages filter empty; no auto-apply.
-- **0 coaches in athlete's city** — empty state with "Expand to N km" CTA that auto-bumps distance to the smallest radius that yields ≥ 5 results.
-- **Filter combination yields 0** — empty state mentions which filter is most restrictive (e.g. "No tennis coaches within 5 km in evenings — try expanding distance or removing time").
+- **First open with 0 home city in Personal Data** (device geocode failed at onboarding) — Search opens with Country pre-applied from Personal Data but City = empty. Quick chip surfaces "Set city" hint that opens `s-search-city`.
+- **0 coaches in athlete's city** — empty state with "Browse all of &lt;Country&gt;" CTA that clears the City filter (keeping Country) and re-runs search. If still 0 — second CTA "Switch country" opens `s-search-country`.
+- **Filter combination yields 0** — empty state mentions which filter is most restrictive (e.g. "No tennis coaches in Vilnius in evenings — try clearing city or removing time").
 - **Athlete types a language as a coach name** (e.g. "english") — sport list doesn't match, coach names may or may not match. Standard results state applies.
 - **Network offline first fetch** — error state with Retry CTA.
 - **Network offline mid-scroll** — non-blocking banner "Couldn't load more — retry?" inline, list keeps current items.
@@ -205,7 +224,7 @@ Detailed request/response shapes live in `poly-backend/docs/athlete-search-api.m
 
 - **iOS**: SwiftUI views — `SearchView` hosting `CoachListView`, `FilterSheetView` (push via `NavigationStack`), `SortSheetView` (`.sheet` modifier). Sort & gender = sheet (`.presentationDetents`). Filters = full screen push. Recommend `Combine` for debounced text input. Map = `MapKit` later.
 - **Android**: Jetpack Compose — `SearchScreen` with `LazyColumn` for coaches, `ModalBottomSheet` for sort/gender, full-screen `Scaffold` for Filters push. Map = Mapbox or Google Maps later.
-- **Backend**: Litestar endpoints in `apps/athlete/search/`. Search query uses Postgres GIN indexes on sport_ids + ts_vector for coach names. Distance via PostGIS `ST_DWithin`. Recommendation scoring lives in service layer, not in SQL — easier to tune.
+- **Backend**: Litestar endpoints in `apps/athlete/search/`. Search query uses Postgres GIN indexes on sport_ids + ts_vector for coach names. **City filter** = direct equality on `coach.city` column (canonical-cased string from `cities` table); **Country filter** = ISO-3166-1 alpha-2 code. PostGIS `ST_Distance` retained for "Closest to me" sort + recommendation distance-decay component (city-match wins the coarse filter, distance breaks ties). Recommendation scoring lives in service layer, not in SQL — easier to tune.
 - **Voice**: out of scope — natural-language search routes through AI Assistant FAB (separate spec).
 
 ---
@@ -231,7 +250,8 @@ Detailed request/response shapes live in `poly-backend/docs/athlete-search-api.m
 - **2026-05-12** — Time of day uses symmetric 3×2 tile grid (Preply-style) with daypart icons, replacing Today/Tomorrow date-based pattern. Habit-friendly.
 - **2026-05-12** — Recently-viewed coaches removed from text search initial state. Lives on Dashboard. Search overlays in Spotify/Booking/Airbnb show queries only.
 - **2026-05-12** — No NLP parsing of free-text ("boxing near me"). Structured pickers handle sport/location/time. NLP belongs in AI Assistant FAB (future).
-- **2026-05-12** — Default filter state: auto-apply only Sport + Languages from athlete data; Distance/Price/Time/Format/Gender = no default. Memory: `project_search_default_filters`.
+- **2026-05-12** — Default filter state: auto-apply only Sport + Languages from athlete data; Distance/Price/Time/Format/Gender = no default. Memory: `project_search_default_filters`. **(superseded by 2026-05-19 entry below)**
+- **2026-05-19** — **Distance radius filter removed; replaced by Country + City** push rows. Country/City auto-apply from Personal Data (new City field added there). Rationale: discrete location filter matches mental model better than radius, supports travel use-case ("show me coaches in Riga even though I live in Vilnius"), and lets sort handle proximity without a radius gate. Distance API param deprecated, additive country+city params added. Memory: `project_search_default_filters` to be updated; `project_personal_data_selectors` extended with City.
 - **2026-05-12** — Sort & Gender sheets implemented as `.fit-sheet-overlay` inside their host screens (Results / Filters), not as separate phone divs. Memory: `feedback_bottom_sheets` — overlay must be direct child of `.fit-phone`.
 - **2026-05-12** — Time-of-day tile selected state uses `--fit-selection-gradient` + teal-600 border (matches `coach/sport-types.html .sp-card.selected`), NOT full brand-gradient. Soft teal-tint, content stays primary color.
 - **2026-05-12** — Filter-row selected value (Languages / Gender) renders in `--fit-text-primary` (regular weight), not teal accent. Mirrors `personal-data.html` value display pattern.
@@ -247,6 +267,8 @@ Detailed request/response shapes live in `poly-backend/docs/athlete-search-api.m
 - Prototype: [flows/athlete/search.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/search.html)
 - Coach profile (downstream): [coach-profile.md](coach-profile.md) — what opens when athlete taps a card
 - Sport picker (reused): [flows/coach/sport-types.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/sport-types.html)
+- Country / City pickers (reused from Personal Data): [flows/coach/personal-data.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/personal-data.html) — `s-country-select` + `s-city-select`
+- Personal Data: [personal-data.md](personal-data.md) — source of Country/City pre-fill defaults
 - Coach maturity model: [coach-maturity-model.md](coach-maturity-model.md) — drives NEW badge
 - Navigation: [navigation.md](navigation.md) — 5-tab bottom nav contract
 - Memory:

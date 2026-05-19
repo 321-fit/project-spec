@@ -686,6 +686,7 @@
   <button onclick="go('s-notes-editor',this)">About Me Editor</button>
   <button onclick="go('s-tz-select',this)">Time Zone</button>
   <button onclick="go('s-country-select',this)">Home Country</button>
+  <button onclick="go('s-city-select',this)">Home City</button>
   <button onclick="go('s-lang-select',this)">Languages</button>
   <button onclick="go('s-personal-data',this);setTimeout(openDobPicker,100);">DOB Picker</button>
   <div class="label">Other modules</div>
@@ -794,8 +795,12 @@
       <div class="fit-input" style="cursor:pointer;" onclick="go('s-tz-select',document.querySelector('[onclick*=s-tz-select]'))"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span> <span id="pd-tz-value">Warsaw, Europe (GMT+1)</span><span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
     </div>
     <div class="fit-input-group" style="padding:0 16px;">
-      <span class="fit-input-label">Home location</span>
+      <span class="fit-input-label">Home country</span>
       <div class="fit-input" style="cursor:pointer;" onclick="go('s-country-select',document.querySelector('[onclick*=s-country-select]'))"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:14px;"><rect x="1" y="5" width="22" height="14" rx="2"/></svg></span> <span id="pd-country-value">Poland</span><span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Home city</span>
+      <div class="fit-input" style="cursor:pointer;" onclick="go('s-city-select',document.querySelector('[onclick*=s-city-select]'))"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span> <span id="pd-city-value">Warsaw</span><span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
     </div>
     <div class="fit-input-group" style="padding:0 16px;">
       <span class="fit-input-label">Languages</span>
@@ -1043,6 +1048,44 @@
   </div>
 </div>
 
+<!-- ===== HOME CITY SELECT — push screen, single, scoped to selected country ===== -->
+<div class="fit-phone fit-dark" id="s-city-select">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-personal-data',document.querySelector('[onclick*=s-personal-data]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Home city</span>
+    </div>
+    <div class="pd-search-wrap">
+      <div class="pd-search" id="city-search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="search" id="city-search-input" placeholder="Search" autocomplete="off" oninput="filterPdList(this,'city')"/>
+        <button class="pd-search-clear" onclick="clearPdSearch('city')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div style="padding:8px 16px 0;color:var(--fit-text-tertiary);font-size:13px;">Cities in <strong style="color:var(--fit-text-primary);">Poland</strong></div>
+    <div class="pd-list" data-pd-list="city" data-pd-mode="single">
+      <div class="cal-select-row" data-label="Bydgoszcz" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Bydgoszcz</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Gdańsk" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Gdańsk</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Katowice" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Katowice</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Kraków" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Kraków</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Lublin" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Lublin</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Łódź" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Łódź</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Poznań" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Poznań</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Szczecin" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Szczecin</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row selected" data-label="Warsaw" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Warsaw</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Wrocław" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Wrocław</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+    </div>
+    <div class="pd-empty" id="city-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      <div class="pd-empty-title">No matches</div>
+      <div class="pd-empty-sub">Try a different city name</div>
+    </div>
+  </div>
+</div>
+
 <!-- ===== LANGUAGES SELECT — push screen, multi ===== -->
 <div class="fit-phone fit-dark" id="s-lang-select">
   <div class="fit-phone-header">
@@ -1180,7 +1223,8 @@
     </ul></div>
   <div class="ann" id="ann-s-notes-editor"><span class="ann-role coach">Coach</span><h3>About Me Editor</h3><p>Full-screen text editor. Cancel/Save header. Reusable for About Me and Notes fields.</p></div>
   <div class="ann" id="ann-s-lang-select"><span class="ann-role coach">Coach</span><h3>Languages</h3><p>Full-screen push from Personal Data. <strong>Multi-select</strong> — tap toggles row, Save commits all changes.</p><ul><li><strong>Row:</strong> <code>native · English</code> (e.g. "Polski · Polish") — users search in either</li><li><strong>Sticky footer Save</strong> — enabled only when selection differs from initial AND at least 1 is selected; shows "(N selected)" count</li><li><strong>Back button:</strong> if dirty → <code>Discard changes?</code> sheet (Discard = Medium destructive tinted red, Keep editing = text)</li><li><strong>On Save:</strong> Personal Data input shows first 2 languages or "Polski +N more"</li><li><strong>Seed</strong> captured on screen load + re-captured after each Save to reset dirty state</li></ul><p class="note">Prototype = 30 common languages. Production pulls full BCP-47 list.</p></div>
-  <div class="ann" id="ann-s-country-select"><span class="ann-role coach">Coach</span><h3>Home Country</h3><p>Full-screen push from Personal Data. Same pattern as Time Zone — single-select, auto-dismiss.</p><ul><li><strong>Leading slot:</strong> flag emoji 24×18 (prod: SVG flag set from country code)</li><li>Row = flag + country name; alphabetical</li><li>Current country detected from device at account creation — pre-selected</li><li>Used for tax/currency derivation on backend, not shown elsewhere in UI</li></ul><p class="note">Prototype uses ~35 countries covering major markets. Production pulls full ISO 3166-1 list.</p></div>
+  <div class="ann" id="ann-s-country-select"><span class="ann-role coach">Coach</span><h3>Home Country</h3><p>Full-screen push from Personal Data. Same pattern as Time Zone — single-select, auto-dismiss.</p><ul><li><strong>Leading slot:</strong> flag emoji 24×18 (prod: SVG flag set from country code)</li><li>Row = flag + country name; alphabetical</li><li>Current country detected from device at account creation — pre-selected</li><li>Used for tax/currency derivation on backend + Search → Location filter (athlete-search.md)</li><li><strong>Changing country resets the City field</strong> on Personal Data — previous city is no longer valid in the new country</li></ul><p class="note">Prototype uses ~35 countries covering major markets. Production pulls full ISO 3166-1 list.</p></div>
+  <div class="ann" id="ann-s-city-select"><span class="ann-role coach">Coach</span><h3>Home City</h3><p>Full-screen push from Personal Data. Same pattern as Country — single-select, auto-dismiss, sticky search.</p><ul><li><strong>Scoped by selected country</strong> — header subtitle "Cities in &lt;Country&gt;"; list re-fetches when country changes</li><li><strong>No flag</strong> in row — city names are unambiguous within country scope; row = city name + checkmark only</li><li><strong>Pre-fill source:</strong> reverse-geocoded from device GPS at onboarding. If location permission denied or geocode fails — field stays empty, user picks manually</li><li><strong>Empty state:</strong> "No matches" when filter returns zero</li><li>Consumed by: Search → Filters → Location (<code>athlete-search.md</code>)</li></ul><p class="note">Prototype shows 10 Polish cities (matches Country=Poland). Production pulls paginated list from backend keyed by <code>country_code</code>.</p></div>
   <div class="ann" id="ann-s-tz-select"><span class="ann-role coach">Coach</span><h3>Time Zone</h3><p>Full-screen push from Personal Data. <strong>Single-select</strong> — tap row auto-dismisses back to Personal Data with the new value.</p><ul><li><strong>Sticky search</strong> under header — live filters list by city/region/GMT</li><li><strong>Row pattern:</strong> <code>cal-select-row</code> — 56px, teal accent on <code>.selected</code>, trailing checkmark toggled by class (no hardcoded SVG state)</li><li><strong>Default:</strong> current TZ detected from device at account creation — shown scrolled into view + checkmarked</li><li><strong>Empty state:</strong> "No matches" when filter returns zero</li><li>Reusable pattern for Country and Languages selectors</li></ul><p class="note">Prototype uses ~20 representative TZs. Production pulls full IANA zone list from device.</p></div>
 </div>
 

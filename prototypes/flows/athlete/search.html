@@ -929,6 +929,8 @@
   <button onclick="go('s-search-error',this)">Results · error</button>
   <button onclick="go('s-search-text',this);setTextState('initial',null)">Text search</button>
   <button onclick="go('s-search-filters',this)">Filters</button>
+  <button onclick="go('s-search-country',this)">Filters &middot; country</button>
+  <button onclick="go('s-search-city',this)">Filters &middot; city</button>
   <button onclick="go('s-search-lang',this)">Filters &middot; languages</button>
   <button onclick="go('s-search-filters',this);setTimeout(function(){document.getElementById('gender-sheet').classList.add('visible');},80)">Filters &middot; gender (sheet)</button>
   <button onclick="go('s-search-results',this);setTimeout(function(){document.getElementById('sort-sheet').classList.add('visible');},80)">Sort (sheet)</button>
@@ -1268,7 +1270,7 @@
         Filters
         <span class="chip-filter-count">3</span>
       </button>
-      <button class="chip-flat active" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))">5 km</button>
+      <button class="chip-flat active" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))">Vilnius</button>
       <button class="chip-flat active" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))">≤ €50</button>
       <button class="chip-flat active" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))">Afternoon</button>
     </div>
@@ -1514,7 +1516,7 @@
         Filters
         <span class="chip-filter-count">2</span>
       </button>
-      <button class="chip-flat active" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))">5 km</button>
+      <button class="chip-flat active" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))">Vilnius</button>
       <button class="chip-flat active" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))">Evening</button>
     </div>
 
@@ -1858,13 +1860,20 @@
     <div class="filter-body">
 
       <div class="filter-section">
-        <div class="filter-section-title">Distance from you</div>
-        <div class="filter-chips">
-          <div class="filter-chip">1 km</div>
-          <div class="filter-chip selected">5 km</div>
-          <div class="filter-chip">10 km</div>
-          <div class="filter-chip">25 km</div>
-          <div class="filter-chip">Any</div>
+        <div class="filter-section-title">Location</div>
+        <div class="filter-expand-row" onclick="go('s-search-country', document.querySelector('.sidebar button[onclick*=s-search-country]'))">
+          <div class="filter-expand-label">Country</div>
+          <div class="filter-expand-value selected">
+            <span class="filter-expand-value-text">Lithuania</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+        <div class="filter-expand-row" onclick="go('s-search-city', document.querySelector('.sidebar button[onclick*=s-search-city]'))">
+          <div class="filter-expand-label">City</div>
+          <div class="filter-expand-value selected">
+            <span class="filter-expand-value-text">Vilnius</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
         </div>
       </div>
 
@@ -2014,6 +2023,71 @@
 
 <!-- Gender sheet is overlay inside s-search-filters; Sort sheet is overlay inside s-search-results. See those screens. -->
 
+<!-- ==================== SCREEN: COUNTRY (push, single) ==================== -->
+<div class="fit-phone fit-dark" id="s-search-country">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="fit-header-title" style="flex:1;">Country</span>
+    </div>
+    <div style="padding: 0 16px 16px;">
+      <div class="srch-input">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search" />
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="display:flex; flex-direction:column; padding:0;">
+    <div style="flex:1; overflow-y:auto; padding: 0 16px 16px; display:flex; flex-direction:column; gap:8px;">
+      <div class="cal-select-row" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))"><div class="cal-flag">🇪🇪</div><span style="flex:1;">Estonia</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))"><div class="cal-flag">🇱🇻</div><span style="flex:1;">Latvia</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row selected" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))"><div class="cal-flag">🇱🇹</div><span style="flex:1;">Lithuania</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))"><div class="cal-flag">🇵🇱</div><span style="flex:1;">Poland</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))"><div class="cal-flag">🇩🇪</div><span style="flex:1;">Germany</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))"><div class="cal-flag">🇫🇮</div><span style="flex:1;">Finland</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))"><div class="cal-flag">🇸🇪</div><span style="flex:1;">Sweden</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))"><div class="cal-flag">🇬🇧</div><span style="flex:1;">United Kingdom</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))"><div class="cal-flag">🇪🇸</div><span style="flex:1;">Spain</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))"><div class="cal-flag">🇮🇹</div><span style="flex:1;">Italy</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))"><div class="cal-flag">🇫🇷</div><span style="flex:1;">France</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SCREEN: CITY (push, single, scoped by country) ==================== -->
+<div class="fit-phone fit-dark" id="s-search-city">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="fit-header-title" style="flex:1;">City</span>
+    </div>
+    <div style="padding: 0 16px 16px;">
+      <div class="srch-input">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search" />
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="display:flex; flex-direction:column; padding:0;">
+    <div style="padding:8px 16px 0;color:var(--fit-text-tertiary);font-size:13px;">Cities in <strong style="color:var(--fit-text-primary);">Lithuania</strong></div>
+    <div style="flex:1; overflow-y:auto; padding: 8px 16px 16px; display:flex; flex-direction:column; gap:8px;">
+      <div class="cal-select-row" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))"><span style="flex:1;">Alytus</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))"><span style="flex:1;">Kaunas</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))"><span style="flex:1;">Klaipėda</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))"><span style="flex:1;">Marijampolė</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))"><span style="flex:1;">Panevėžys</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))"><span style="flex:1;">Šiauliai</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row selected" onclick="go('s-search-filters', document.querySelector('.sidebar button[onclick*=s-search-filters]'))"><span style="flex:1;">Vilnius</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+    </div>
+  </div>
+</div>
+
 <!-- ==================== SCREEN: MAP (placeholder) ==================== -->
 <div class="fit-phone fit-dark" id="s-search-map">
   <div class="fit-phone-header">
@@ -2085,9 +2159,9 @@
   <div class="ann" data-screen="s-search-results-empty">
     <div class="ann-role">ATHLETE</div>
     <h3>Search · Empty results</h3>
-    <p>0 matches for current sport + filters. Empty illustration + actionable CTA (most common recovery: expand distance).</p>
+    <p>0 matches for current sport + filters. Empty illustration + actionable CTA — primary recovery: <strong>Browse all of &lt;Country&gt;</strong> (clears city filter, keeps country). Secondary: <strong>Switch country</strong> → opens <code>s-search-country</code>.</p>
     <hr>
-    <p>Filter chips stay visible so athlete sees <em>why</em> empty and can tap × to relax constraints.</p>
+    <p>Filter chips stay visible so athlete sees <em>why</em> empty. Per <code>feedback_filter_chips_no_inline_remove</code> they're not inline-removable — tap chip to open Filters and relax constraints.</p>
   </div>
 
   <div class="ann" data-screen="s-search-loading">
@@ -2135,7 +2209,7 @@
     <hr>
     <p><strong>Sections</strong>:</p>
     <ul>
-      <li><strong>Distance</strong> — single-select chips (1 / 5 / 10 / 25 km / Any). Compact 1-row, consistent with Time of day &amp; Format chip patterns.</li>
+      <li><strong>Location</strong> — two push rows (<code>filter-expand-row</code> pattern, same as Languages / Coach gender below). <strong>Country</strong> → <code>s-search-country</code>, <strong>City</strong> → <code>s-search-city</code> (list scoped to selected country). Both auto-applied from Personal Data (Home country / Home city). Changing country resets city. Picking values here does NOT write back to Personal Data — Search filter is session-local.</li>
       <li><strong>Price</strong> — dual-thumb slider</li>
       <li><strong>Time of day</strong> — symmetric 3&times;2 tile grid with hour ranges. Each tile has a daypart icon. Multi-select. Empty = no constraint.</li>
       <li><strong>Format</strong> — multi-select chips (In-person / Online / Home visit)</li>
@@ -2149,12 +2223,37 @@
     <hr>
     <p><strong>Sticky bottom</strong>: single full-width <em>Show N coaches</em> CTA. Reset lives in header (top right) — no duplication.</p>
     <hr>
-    <p><strong>Default state after onboarding</strong> (memory: <code>project_search_default_filters</code>):</p>
+    <p><strong>Default state after onboarding</strong> (memory: <code>project_search_default_filters</code>, updated 2026-05-19):</p>
     <ul>
-      <li>Auto-apply: <strong>Sport</strong> (header anchor) + <strong>Languages</strong> from Personal Data</li>
-      <li>Default: Distance=Any, Price=none, Time=none, Format=all 3, Gender=Any, Group=OFF</li>
+      <li>Auto-apply: <strong>Sport</strong> (header anchor) + <strong>Country</strong> + <strong>City</strong> + <strong>Languages</strong> from Personal Data</li>
+      <li>Default: Price=none, Time=none, Format=all 3, Gender=Any, Group=OFF</li>
       <li>Reset = back to this state, not "everything cleared"</li>
     </ul>
+  </div>
+
+  <div class="ann" data-screen="s-search-country">
+    <div class="ann-role">ATHLETE</div>
+    <h3>Filters · Country</h3>
+    <p>Push from Filters → Location → Country row. <strong>Single-select</strong> with search; auto-dismiss back to Filters on tap. Same UX as <code>coach/personal-data.html#s-country-select</code> — replicated inline so back navigation returns to Search Filters, not Personal Data.</p>
+    <ul>
+      <li><strong>Pre-selected:</strong> from Personal Data → Home country (athlete's stored country)</li>
+      <li><strong>Picking new country here</strong> does NOT write back to Personal Data — Search filter is session-local (travel use-case)</li>
+      <li><strong>Side effect:</strong> changing country resets City to empty (previous city no longer valid)</li>
+    </ul>
+    <p class="note">Prototype shows ~11 EU countries. Production = full ISO 3166-1 alpha-2 list via <code>GET /api/v1.0.0/geo/countries</code>.</p>
+  </div>
+
+  <div class="ann" data-screen="s-search-city">
+    <div class="ann-role">ATHLETE</div>
+    <h3>Filters · City</h3>
+    <p>Push from Filters → Location → City row. <strong>Single-select</strong> with search; auto-dismiss back to Filters on tap. Same UX as <code>coach/personal-data.html#s-city-select</code> — replicated inline.</p>
+    <ul>
+      <li><strong>List scoped</strong> to the currently-selected country in Search filter (NOT Personal Data country, since user may have switched). Header subtitle "Cities in &lt;Country&gt;" makes scope explicit.</li>
+      <li><strong>Pre-selected:</strong> from Personal Data → Home city (if it belongs to current filter country); empty otherwise</li>
+      <li><strong>No flag</strong> on row — city names are unambiguous within country scope</li>
+      <li>Picking a new city here does NOT write back to Personal Data — session-local</li>
+    </ul>
+    <p class="note">Prototype shows 7 Lithuanian cities. Production = paginated list via <code>GET /api/v1.0.0/geo/cities?country=&lt;code&gt;&amp;q=&lt;search&gt;</code>.</p>
   </div>
 
   <div class="ann" data-screen="s-search-lang">
