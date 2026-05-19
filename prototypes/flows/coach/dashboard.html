@@ -2058,6 +2058,18 @@
     document.querySelectorAll('.dash-tip').forEach(function(t){ t.style.display = ''; });
   }
 
+  // Honor #hash deep-link from hub (e.g. coach/dashboard.html#new opens the
+  // onboarding wizard state directly). Supported hashes match the state-toggle
+  // buttons in the annotation panel.
+  (function applyHashState() {
+    var hash = (window.location.hash || '').replace('#', '');
+    if (!hash) return;
+    var validStates = ['default','new','under-review','ready','idle','quiet','zero','loading','error'];
+    if (validStates.indexOf(hash) < 0) return;
+    var stateBtn = document.querySelector('#ann-s-dashboard .state-toggle button[onclick*="\'' + hash + '\'"]');
+    setDashState(hash, stateBtn);
+  })();
+
   function wizToggle(id) {
     var el = document.getElementById(id);
     if (el) el.classList.toggle('expanded');

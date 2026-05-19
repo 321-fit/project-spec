@@ -1834,6 +1834,17 @@ function setDashState(state, btn) {
   }
 }
 
+// Honor #hash deep-link from hub (e.g. athlete/dashboard.html#welcome opens
+// the onboarding wizard state directly).
+(function applyHashState() {
+  var hash = (window.location.hash || '').replace('#', '');
+  if (!hash) return;
+  var validStates = ['default','welcome','low-balance','idle','zero','loading','error'];
+  if (validStates.indexOf(hash) < 0) return;
+  var stateBtn = document.querySelector('.ann[data-screen="s-dashboard"] .state-toggle button[onclick*="\'' + hash + '\'"]');
+  setDashState(hash, stateBtn);
+})();
+
 function setRateState(state, btn) {
   var el = document.getElementById('s-rate-queue');
   el.classList.remove('rate-default','rate-single','rate-empty','rate-loading');
