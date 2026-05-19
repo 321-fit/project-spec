@@ -89,13 +89,28 @@ Prototype: `prototypes/flows/shared/auth.html`
 | `auth.phone.otp.submit` | primary CTA | phone · OTP | "Verify" — auto-fires when 6 digits filled |
 | `auth.phone.otp.change-number` | text button | phone · OTP footer | "Use a different number" — returns to phone entry |
 
-### `onboarding` — wizard (coach 6 steps + athlete 4 steps)
+### `onboarding` — wizard (coach 5 steps + athlete 4 steps)
 
-Prototype: `prototypes/flows/coach/dashboard.html` state `dst-new` (current) + dedicated wizard file (TBD).
+Prototypes: inline on `coach/dashboard.html` state `dst-new` + `dst-under-review`, and on `athlete/dashboard.html` state `dst-welcome`. Phone is captured at signup (mandatory per 2026-05-19) and is no longer a wizard step.
 
 | ID | Element | Screen | Notes |
 |---|---|---|---|
-| _(populated when onboarding wizard is built)_ | | | |
+| `onboarding.coach.wizard` | wizard card | coach dashboard `dst-new` | container for the 5-step setup wizard |
+| `onboarding.coach.wizard.toggle` | chevron button | coach dashboard `dst-new` | expand/collapse wizard card |
+| `onboarding.coach.step.sports` | row | coach wizard | → `sport-types.html` |
+| `onboarding.coach.step.avatar` | row | coach wizard | → `personal-data.html` (avatar pencil) |
+| `onboarding.coach.step.bio` | row | coach wizard | → `personal-data.html` (About me) |
+| `onboarding.coach.step.location` | row | coach wizard | → `locations.html` |
+| `onboarding.coach.step.session` | row | coach wizard | → `sessions.html`. Marked `.done` when ≥1 session exists. |
+| `onboarding.coach.under-review.banner` | banner | coach dashboard `dst-under-review` | "Your profile is under review" + 24h timer copy |
+| `onboarding.coach.boost.stripe` | card | coach dashboard `dst-under-review` | → `balance.html#s-stripe` |
+| `onboarding.coach.boost.hours` | card | coach dashboard `dst-under-review` | → `settings.html#s-availability` |
+| `onboarding.coach.boost.video` | card | coach dashboard `dst-under-review` | → `personal-data.html#pd-video-group` |
+| `onboarding.athlete.wizard` | wizard card | athlete dashboard `dst-welcome` | container for the 4-step setup |
+| `onboarding.athlete.step.sports` | row | athlete wizard | → sport-types picker |
+| `onboarding.athlete.step.personal` | row | athlete wizard | → Personal Data (athlete variant) |
+| `onboarding.athlete.step.balance` | row | athlete wizard | → balance top-up (placeholder — athlete balance prototype pending) |
+| `onboarding.athlete.step.search` | row | athlete wizard | → `search.html` |
 
 ### `tabbar` — global 5-tab bottom nav (coach + athlete root screens)
 
