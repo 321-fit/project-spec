@@ -128,6 +128,43 @@ The intro video is a Mux direct-upload. The field is a 16:9 card that adapts to 
 
 State transitions are server-driven: client polls `GET /me` every 10s while in `processing` state OR receives the `videoReady` / `videoFailed` push notification — whichever fires first.
 
+### Intro video — client-side upload limits
+
+Enforced on the client **before** requesting `/me/intro-video/upload-url`. Backend trusts the client + relies on Mux as the final authority (Mux rejects invalid codec / > 12h duration).
+
+| Constraint | Limit | Enforcement | Violation UX |
+|---|---|---|---|
+| **File size** | 200 MB hard cap | Client reads `URL.fileSize` (iOS) / `ContentResolver.openAssetFileDescriptor.length` (Android) before PUT | Top toast (red): "Video is too large — keep it under 200 MB". Picker stays open. |
+| **Duration min** | 5 seconds | Client reads `AVAsset.duration` / `MediaMetadataRetriever.METADATA_KEY_DURATION` | Top toast (red): "Video is too short — at least 5 seconds". |
+| **Duration max** | 120 seconds | Same | Top toast (red): "Video is too long — keep it under 2 minutes". |
+| **Container** | `.mp4`, `.mov`, `.m4v` only | Native picker filter (system-level MIME) + extension fallback check | OS rarely lets through; fallback toast (red): "Unsupported format — try mp4 or mov". |
+| **Resolution** | Min 480p | Client reads `AVAsset.tracks(withMediaType: .video).first?.naturalSize` | Top toast (red): "Video resolution is too low — at least 480p". |
+| **Codec** | H.264 / HEVC (not validated client-side) | Trust Mux | If Mux can't decode → `asset.errored` → standard error flow. |
+| **Min interval between uploads** | 30 seconds | Backend rate limit on `POST /me/intro-video/upload-url` (5/hour); 429 + `Retry-After` header | Inline banner on the card: "Slow down — try again in N seconds." |
+| **Concurrent uploads per coach** | 1 | Backend returns `409 Conflict` if existing `mux_status` ∈ {`pending_upload`, `uploading_done`, `processing`} | Inline banner on the card: "Finish or cancel the current upload first." |
+
+The Idle state's sub-line ("Up to 200 MB · 2 min · mp4/mov") communicates the most-likely-to-trip limits up-front so coaches set expectations before picking a file.
+
+### Intro video — toasts (foreground, async events)
+
+The upload lifecycle straddles client and server. Coach may navigate to another tab, lock the phone, or kill the app entirely between PUT-start and Mux-ready. Toasts surface success/failure regardless of where the coach is in the app — and the OS push handles the case where the app is in background / killed.
+
+| Event | When | UI (foreground) | UI (background/killed) |
+|---|---|---|---|
+| **PUT 200** (Mux accepted bytes) | Client (upload task completion) | Top toast `.success` (3s): "Video uploaded — we're processing it now" + haptic `.success` | Background upload completes silently; UI catches up via `GET /me` on next foreground. No toast on relaunch — state is just visible on Personal Data. |
+| **PUT failed** (network drop, 4xx, 5xx) | Client (upload task error) | Top toast `.error` (5s) + action button: "Couldn't upload — Retry" + haptic `.error` | Same — on relaunch, card shows Errored state. No retroactive toast. |
+| **`asset.ready`** | Backend webhook → push notification | OS push **suppressed** (foreground delegate). Top toast `.success` (5s) + action button: "Your intro video is live — View" + haptic `.success` | OS push notification fires. Tap → routes to `#pd-video-group` anchor. |
+| **`asset.errored`** | Backend webhook → push notification | OS push suppressed. Top toast `.error` (5s) + action button: "Couldn't process your video — Fix it" + haptic `.error` | OS push notification fires. Tap → `#pd-video-group` anchor. |
+
+**Foreground push → toast conversion** is a universal rule (not video-specific) — see [notifications.md § Foreground push handling](notifications.md#foreground-push-handling). Same rule applies to `calendarSync` and any future async event-driven kit type.
+
+**Toast tap behavior:**
+- Tap body (anywhere except the action button) → dismiss immediately.
+- Tap action button → route to `#pd-video-group` anchor on Personal Data + dismiss.
+- No action → auto-dismiss after 3s (success without action) or 5s (with action).
+
+**Edge case — coach returns after processing finished, missed the push:** no auto-toast on launch. Card state on Personal Data is self-explanatory (Ready with thumbnail). Push notifications are best-effort; we don't replay them as toasts retroactively.
+
 ### DOB field state
 
 - Default: `#pd-dob-error` display: none

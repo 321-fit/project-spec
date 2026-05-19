@@ -625,6 +625,71 @@
     font-size: 11px; color: var(--fit-text-tertiary); margin-top: 2px;
   }
 
+  /* ===== PD VIDEO ACTION MENU (floating UIMenu — Preview/Replace/Remove) ===== */
+  /* Anchored to the ⋯ button on Ready state. Production: native UIMenu (iOS) / PopupMenu (Android). */
+  .pd-video-menu {
+    position: absolute; top: 44px; right: 8px; z-index: 20;
+    min-width: 200px; padding: 6px;
+    background: var(--fit-surface-high); border: 1px solid var(--fit-divider);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    opacity: 0; transform: translateY(-4px) scale(0.96);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    pointer-events: none;
+  }
+  .pd-video-menu.show {
+    opacity: 1; transform: translateY(0) scale(1); pointer-events: auto;
+  }
+  .pd-video-menu-item {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 10px 12px; border: none; background: transparent;
+    font-family: var(--fit-font); font-size: 15px; color: var(--fit-text-primary);
+    border-radius: 8px; cursor: pointer; text-align: left;
+  }
+  .pd-video-menu-item:hover { background: var(--fit-surface-higher); }
+  .pd-video-menu-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .pd-video-menu-item.destructive { color: var(--fit-red-400); }
+  .pd-video-menu-divider {
+    height: 1px; background: var(--fit-divider); margin: 4px 0;
+  }
+  /* Backdrop swallows outside-taps for the menu */
+  .pd-video-menu-backdrop {
+    position: absolute; inset: 0; z-index: 19;
+    background: transparent;
+    display: none;
+  }
+  .pd-video-menu-backdrop.show { display: block; }
+
+  /* ===== PD VIDEO TOAST (foreground push → toast) ===== */
+  /* KIT CANDIDATE: variants + action button extend canonical .fit-toast */
+  .pd-video-toast {
+    position: absolute; top: 56px; left: 16px; right: 16px; z-index: 50;
+    padding: 12px 14px; border-radius: 12px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px; line-height: 1.35;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    opacity: 0; transform: translateY(-12px);
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+    pointer-events: none;
+  }
+  .pd-video-toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .pd-video-toast--success {
+    background: rgba(16,185,129,0.95); color: var(--fit-white);
+  }
+  .pd-video-toast--error {
+    background: rgba(239,68,68,0.95); color: var(--fit-white);
+  }
+  .pd-video-toast-icon { flex-shrink: 0; }
+  .pd-video-toast-icon svg { width: 20px; height: 20px; }
+  .pd-video-toast-text { flex: 1; }
+  .pd-video-toast-action {
+    flex-shrink: 0; padding: 6px 10px; border-radius: 8px;
+    background: rgba(255,255,255,0.18); color: var(--fit-white);
+    border: none; cursor: pointer;
+    font-family: var(--fit-font); font-size: 13px; font-weight: 500;
+  }
+  .pd-video-toast-action:hover { background: rgba(255,255,255,0.28); }
+
   /* ===== PD COVER IMAGE (16:9 upload, fallback to default) ===== */
   .pd-cover-wrap {
     display: flex; align-items: center; gap: 12px;
@@ -855,7 +920,7 @@
     <!-- ============ INTRO VIDEO (Mux direct-upload, 6 states) ============ -->
     <div class="fit-input-group" id="pd-video-group" style="padding:0 16px;">
       <span class="fit-input-label">Intro video</span>
-      <div class="pd-video-card" id="pd-video-card" data-mux-state="ready" onclick="pdVideoTap(event)">
+      <div class="pd-video-card" id="pd-video-card" data-mux-state="idle" onclick="pdVideoTap(event)">
 
         <!-- IDLE (no video uploaded yet) -->
         <div class="pd-video-slot-idle" data-mux-slot="idle">
@@ -894,6 +959,24 @@
         <button class="pd-video-more-btn" data-mux-slot="ready" aria-label="More" onclick="event.stopPropagation();pdVideoOpenMore();">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
         </button>
+
+        <!-- Floating action menu (Preview / Replace / Remove) — Ready state only -->
+        <div class="pd-video-menu-backdrop" id="pd-video-menu-backdrop" onclick="event.stopPropagation();pdVideoCloseMore();"></div>
+        <div class="pd-video-menu" id="pd-video-menu" data-mux-slot="ready" onclick="event.stopPropagation();">
+          <button class="pd-video-menu-item" onclick="pdVideoCloseMore();pdVideoSetState('ready');">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Preview
+          </button>
+          <button class="pd-video-menu-item" onclick="pdVideoCloseMore();pdVideoSimulateUpload();">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10"/><path d="M20.49 15A9 9 0 015.64 18.36L1 14"/></svg>
+            Replace
+          </button>
+          <div class="pd-video-menu-divider"></div>
+          <button class="pd-video-menu-item destructive" onclick="pdVideoCloseMore();openSheet('pd-video-remove-sheet');">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+            Remove
+          </button>
+        </div>
 
         <!-- ERRORED (asset.errored webhook fired) -->
         <div class="pd-video-slot-errored" data-mux-slot="errored">
@@ -983,6 +1066,15 @@
 
   <!-- Saved snackbar -->
   <div class="fit-snackbar" id="pd-saved-snack">Personal data updated</div>
+
+  <!-- Intro video toast (foreground push surface) — single element, content swapped per event -->
+  <div class="pd-video-toast pd-video-toast--success" id="pd-video-toast">
+    <span class="pd-video-toast-icon" id="pd-video-toast-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </span>
+    <div class="pd-video-toast-text" id="pd-video-toast-text">Your intro video is live</div>
+    <button class="pd-video-toast-action" id="pd-video-toast-action" onclick="pdHideVideoToast()">View</button>
+  </div>
   <div class="fit-snackbar" id="pd-validation-snack" style="background:#3B1F1F;border-color:rgba(240,92,91,0.35);">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12" y2="16.5"/></svg>
     Fix the highlighted fields
@@ -1049,6 +1141,19 @@
         </button>
       </div>
       <button style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;margin-top:16px;" onclick="closeSheet('pd-cover-sheet')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Intro video — Remove confirmation sheet (Medium destructive per feedback_destructive_actions) -->
+  <div class="fit-sheet-overlay" id="pd-video-remove-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Remove your intro video?</div>
+      <div class="fit-sheet-subtitle">Athletes will see your cover image instead. You can upload a new video any time.</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
+        <button class="fit-btn fit-btn-destructive" style="height:50px;font-size:16px;" onclick="pdVideoConfirmRemove()">Remove</button>
+        <button style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="closeSheet('pd-video-remove-sheet')">Cancel</button>
+      </div>
     </div>
   </div>
 
@@ -1327,12 +1432,19 @@
     </div>
     <p style="margin-top:12px;font-size:12px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;">Intro video states (Mux)</p>
     <div class="state-toggle pd-video-states">
-      <button data-pd-video-state="idle" onclick="pdVideoSetState('idle')">Idle</button>
+      <button data-pd-video-state="idle" class="active" onclick="pdVideoSetState('idle')">Idle (zero)</button>
       <button data-pd-video-state="uploading" onclick="pdVideoSetState('uploading')">Uploading</button>
       <button data-pd-video-state="processing" onclick="pdVideoSetState('processing')">Processing</button>
-      <button data-pd-video-state="ready" class="active" onclick="pdVideoSetState('ready')">Ready</button>
+      <button data-pd-video-state="ready" onclick="pdVideoSetState('ready')">Ready</button>
       <button data-pd-video-state="errored" onclick="pdVideoSetState('errored')">Errored</button>
       <button data-pd-video-state="pending" onclick="pdVideoSetState('pending')">Pending refresh</button>
+    </div>
+    <p style="margin-top:12px;font-size:12px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;">Toast preview (foreground push)</p>
+    <div class="state-toggle">
+      <button onclick="pdShowVideoToast('uploaded')">Uploaded · processing</button>
+      <button onclick="pdShowVideoToast('put-failed')">Upload failed</button>
+      <button onclick="pdShowVideoToast('ready')">Live on profile</button>
+      <button onclick="pdShowVideoToast('errored')">Processing failed</button>
     </div>
     <p>Edit profile from Settings. <strong>Coach-side</strong> — intentionally omits Weight/Height (not needed for marketplace function).</p>
 
@@ -2387,11 +2499,66 @@ function pdVideoSimulateUpload() {
   }, 180);
 }
 
-// Opens the action menu on a ready video (Replace / Remove / View on profile).
-// Production: native UIMenu on iOS, BottomSheet on Android. Prototype: cycles state for demo.
+// Opens the action menu on a ready video (Preview / Replace / Remove).
+// Production: native UIMenu on iOS, PopupMenu on Android. Prototype: floating positioned menu.
 function pdVideoOpenMore() {
-  // For demo simplicity, jump straight to idle (= Remove). Production would show floating menu.
+  const menu = document.getElementById('pd-video-menu');
+  const backdrop = document.getElementById('pd-video-menu-backdrop');
+  if (menu) menu.classList.add('show');
+  if (backdrop) backdrop.classList.add('show');
+}
+function pdVideoCloseMore() {
+  const menu = document.getElementById('pd-video-menu');
+  const backdrop = document.getElementById('pd-video-menu-backdrop');
+  if (menu) menu.classList.remove('show');
+  if (backdrop) backdrop.classList.remove('show');
+}
+
+// Remove → confirmation sheet → confirm = delete asset on Mux + clear DB + back to idle
+function pdVideoConfirmRemove() {
+  closeSheet('pd-video-remove-sheet');
   pdVideoSetState('idle');
+  // Production: DELETE /me/intro-video → clears coach.intro_video
+}
+
+// ===== Foreground push → toast (universal pattern per notifications.md § Foreground push handling) =====
+// 4 toast variants demonstrating the upload/processing lifecycle events.
+const PD_VIDEO_TOAST_PRESETS = {
+  'uploaded':   { variant:'success', text:"Video uploaded — we're processing it now", action:null,    auto:3000 },
+  'put-failed': { variant:'error',   text:"Couldn't upload — check your connection",  action:"Retry", auto:5000 },
+  'ready':      { variant:'success', text:"Your intro video is live",                  action:"View",  auto:5000 },
+  'errored':    { variant:'error',   text:"Couldn't process your video",               action:"Fix it",auto:5000 },
+};
+function pdShowVideoToast(kind) {
+  const preset = PD_VIDEO_TOAST_PRESETS[kind];
+  if (!preset) return;
+  const toast = document.getElementById('pd-video-toast');
+  const icon = document.getElementById('pd-video-toast-icon');
+  const text = document.getElementById('pd-video-toast-text');
+  const action = document.getElementById('pd-video-toast-action');
+  if (!toast || !text || !action || !icon) return;
+  // Variant tint
+  toast.classList.remove('pd-video-toast--success', 'pd-video-toast--error');
+  toast.classList.add('pd-video-toast--' + preset.variant);
+  // Icon
+  icon.innerHTML = preset.variant === 'success'
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg>';
+  // Text + action
+  text.textContent = preset.text;
+  if (preset.action) {
+    action.textContent = preset.action;
+    action.style.display = '';
+  } else {
+    action.style.display = 'none';
+  }
+  toast.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function(){ toast.classList.remove('show'); }, preset.auto);
+}
+function pdHideVideoToast() {
+  const toast = document.getElementById('pd-video-toast');
+  if (toast) toast.classList.remove('show');
 }
 
 // ===== COVER IMAGE ACTION SHEET =====

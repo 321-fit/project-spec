@@ -349,6 +349,58 @@ Push payload: `aps.alert.title = title`, `aps.alert.body = subtitle`, `aps.badge
 - **Background push tap** → app opens on Home tab → routing fires → same destination as above. Same routing function as inbox.
 - **No sheet variant** — Calendar Sync is a full screen with multi-account list, not a single-entity view.
 
+## Foreground push handling
+
+Universal rule for **all** push-triggered kit types (`videoReady`, `videoFailed`, `calendarSync`, `request`, `reschedule`, etc.). Applies independently of which kit type fired the push.
+
+### Rule
+
+When a Mux/FCM push arrives and the app is in **foreground**, do NOT show the OS notification banner. Render an in-app toast at the top of the current screen instead, with the same copy and tap routing as the OS notification would have.
+
+### Why
+
+- Avoids double-notification (system banner + in-app surface for the same event).
+- In-app toast is contextual: short and dismissable inline.
+- Matches native iOS / Android conventions — most production apps suppress foreground pushes.
+
+### Implementation
+
+**iOS** — `UNUserNotificationCenter.userNotificationCenter(_:willPresent:withCompletionHandler:)` delegate:
+```swift
+func userNotificationCenter(_ center: UNUserNotificationCenter,
+                            willPresent notification: UNNotification,
+                            withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+    // App is foreground — suppress system banner, render toast ourselves
+    completionHandler([])  // empty options = no banner, no sound
+    FitToast.showFromPush(notification.request.content, payload: notification.request.content.userInfo)
+}
+```
+
+**Android** — `FirebaseMessagingService.onMessageReceived()` only fires when app is foreground (or for data-only messages). For notification-payload messages, check `ProcessLifecycleOwner.get().lifecycle.currentState == RESUMED`; if true, intercept + show in-app `Snackbar` / `FitToast`.
+
+### Toast → routing parity
+
+The action button on the toast (e.g. "View", "Fix it", "Reconnect") fires the **same routing function** as a tap on the OS push or an inbox row. One routing function, three entry points (inbox tap, background push tap, foreground toast action). See § Tap routing (sheet vs push).
+
+### Toast styling
+
+Use the canonical `FitToast` component. Variants:
+- `.success` (teal-tinted + check icon) for `videoReady`, `approved`, `onboardingDone`
+- `.warning` (yellow-tinted + clock/alert icon) for `reschedule`, `calendarSync`
+- `.error` (red-tinted + alert-triangle / x icon) for `videoFailed`, `cancelled`, `declined`, `expired`
+- `.brand` (gradient + calendar+ icon) for `request`
+
+Position: top-center, slide-down 200ms ease-out. Auto-dismiss 3s (no action button) / 5s (with action). Tap body → dismiss. Tap action → route + dismiss.
+
+### What does NOT get a toast
+
+- **Mark-read confirmation** ("All marked as read") — already shown via the existing `notif-snackbar` inside the inbox screen, not as a push-derived toast. Local UI feedback, not a push event.
+- **Push arriving while user is ON the inbox screen** — refresh feed via existing real-time hook (level A from § Real-time freshness); no toast (the new row appearing IS the feedback).
+
+### Backend impact
+
+**None.** Push payload + routing already exist; foreground/background detection is purely client-side. This section is a contract for iOS/Android impl, not a backend change.
+
 ## Intro video notifications (`videoReady` / `videoFailed` kit types)
 
 Two notifications fired from the Mux integration lifecycle (see [architecture/mux-integration.md](../architecture/mux-integration.md) for upload + webhook details). Coach-side only — athletes never see these.
