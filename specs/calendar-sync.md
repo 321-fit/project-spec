@@ -30,6 +30,7 @@ External calendar integration for syncing events bidirectionally. Supports Googl
 - Card shows red "⚠ Sync error" instead of "X of Y synced"
 - Tap → detail screen with error banner + "Retry Sync" button
 - Events may be outdated but app continues working
+- **Inbox + push notification** — for action-required failures only (auth expired, password revoked, 2FA off), backend fires a `calendarSync` notification routing here. See [notifications.md § Calendar sync issue notification](notifications.md#calendar-sync-issue-notification-calendarsync-kit-type) for triggers, throttle, and payload.
 
 **Success flow (after connecting):**
 - Redirect to Calendar Sync screen

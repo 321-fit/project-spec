@@ -1638,6 +1638,21 @@
 
       <div class="notif-date-header">Today</div>
 
+      <!-- Calendar sync needs attention — system notification, action-required failure -->
+      <div class="notif-row notif-row--unread" data-notif-id="n0" data-notif-type="calendarSync" onclick="openNotif(this)">
+        <span class="notif-row__dot"></span>
+        <div class="fit-icon-plate fit-icon-plate--md fit-icon-plate--warning notif-row__plate">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg>
+        </div>
+        <div class="notif-row__body">
+          <div class="notif-row__head">
+            <div class="notif-row__title">Calendar sync needs attention</div>
+            <div class="notif-row__time">1h ago</div>
+          </div>
+          <div class="notif-row__sub">Reconnect Google Calendar to keep events synced</div>
+        </div>
+      </div>
+
       <!-- Athlete created training request — coach-side -->
       <div class="notif-row notif-row--unread" data-notif-id="n1" onclick="openNotif(this)">
         <span class="notif-row__dot"></span>
@@ -1967,7 +1982,7 @@
       <li><strong>Pull-to-refresh</strong> + <strong>infinite scroll</strong> on <code>GET /notifications</code> paginated</li>
     </ul>
     <hr>
-    <p><strong>Type &rarr; icon &amp; color mapping</strong> (9 backend <code>TargetRoute</code> values):</p>
+    <p><strong>Type &rarr; icon &amp; color mapping</strong> (10 backend <code>TargetRoute</code> values, 8 kit visual variants):</p>
     <ul>
       <li><code>athleteCreatedTrainingRequest</code>, <code>coachCreatedTrainingRequest</code> &mdash; calendar+ &middot; <em>brand</em></li>
       <li><code>athleteRescheduledTraining</code>, <code>coachRescheduledTraining</code> &mdash; clock &middot; <em>warning</em></li>
@@ -1975,7 +1990,9 @@
       <li><code>trainingRequestApproved</code> &mdash; check-circle &middot; <em>success</em></li>
       <li><code>trainingEventCancelled</code> &mdash; x-circle &middot; <em>error</em></li>
       <li><code>trainingRequestDeclined</code>, <code>pendingRequestAutoDeclined</code> &mdash; x-circle / clock-x &middot; <em>neutral</em></li>
+      <li><code>calendarSyncIssue</code> &mdash; alert-triangle &middot; <em>warning</em> &mdash; system notification for external calendar break (Google/Apple); tap routes to Profile &rarr; Settings &rarr; Calendar Sync; granular failure shown there as per-account badge</li>
     </ul>
+    <p class="note"><strong><code>calendarSync</code> triggers + throttle:</strong> fired only on action-required failures (auth expired / app-specific password revoked / 2FA disabled). Not fired on transient errors (5xx, 429, network) &mdash; those retry automatically. Throttle: 1 per <code>(user, provider, account)</code> per 24h. Two providers broken &rarr; 2 separate rows. See <a href="https://github.com/321-fit/project-spec/blob/main/specs/notifications.md#calendar-sync-issue-notification-calendarsync-kit-type">notifications.md &sect; Calendar sync issue notification</a>.</p>
     <hr>
     <p><strong>Real-time freshness</strong> &mdash; two levels for v1.0:</p>
     <ul>

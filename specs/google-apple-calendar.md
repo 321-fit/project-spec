@@ -144,12 +144,18 @@ When user connects calendar after already having events:
 | user_id | User who connected |
 | credentials | Encrypted CalDAV credentials |
 
+## User-Facing Failure Notification
+
+When sync hits an action-required failure (auth expired, app-specific password revoked, 2FA disabled) — i.e., backend cannot recover by retry — backend fires a `calendarSync` inbox + push notification routing the user to the Calendar Sync screen. Transient failures (5xx, rate-limit, network) stay silent and retry automatically.
+
+See [notifications.md § Calendar sync issue notification](notifications.md#calendar-sync-issue-notification-calendarsync-kit-type) for full triggers, copy, throttle rules (1 per account per 24h), and payload shape.
+
 ## Edge Cases
 - OAuth token expires → backend auto-refreshes using refresh_token
-- User revokes access in Google settings → sync fails gracefully, user notified
-- Multiple Google accounts → each connected separately
+- User revokes access in Google settings → sync fails gracefully, `calendarSync` notification fired (see above)
+- Multiple Google accounts → each connected separately; throttle is per-account, so two broken Google accounts = two notifications
 - Calendar event deleted in Google → removed from app on next sync
-- No push notifications for external calendar events
+- No push notifications for external calendar **events** (only for sync break)
 
 ## iOS Implementation Details
 

@@ -211,7 +211,7 @@ See [design-tokens/docs/components.md § FitNotificationRow](https://github.com/
 
 ### Type → icon / color mapping (kit `type` enum, decoupled from backend `TargetRoute`)
 
-Backend has 9 `TargetRoute` values; kit collapses to 7 visual variants:
+Backend has 10 `TargetRoute` values; kit collapses to 8 visual variants:
 
 | Kit `type` | Backend `TargetRoute`(s) | Icon plate |
 |---|---|---|
@@ -222,6 +222,7 @@ Backend has 9 `TargetRoute` values; kit collapses to 7 visual variants:
 | `declined` | `trainingRequestDeclined` | x-circle · `FitIconPlate(.neutral)` |
 | `expired` | `pendingRequestAutoDeclined` | clock-x · `FitIconPlate(.neutral)` |
 | `onboardingDone` | `athleteOnboardingCompleted` | user-check · `FitIconPlate(.success)` |
+| `calendarSync` | `calendarSyncIssue` | alert-triangle · `FitIconPlate(.warning)` |
 
 Translation `TargetRoute → kit type` lives at the call site (one helper enum per platform). Kit doesn't know notification taxonomy — it owns its own visual semantics only.
 
@@ -234,6 +235,7 @@ Tap on a notification row triggers **(1)** optimistic mark-read + **(2)** naviga
 | `reschedule`, `approved`, `cancelled` | **Sheet over inbox** — `FitUI.openEventSheet(event:)` | Single event = ephemeral view; user stays anchored on Home tab; dismiss → inbox. Matches dashboard's "Next session" tap pattern. |
 | `request` | **Push** → Clients tab → `s-requests` (Requests segment) | Aggregate list view; sheet doesn't fit. Routing identical to dashboard's "Pending requests" action card. |
 | `declined`, `expired`, `onboardingDone` | **Push** → Clients tab → `s-client-detail` (athlete profile) | Athlete = persona/hub, lives in their own tab. Matches existing event-sheet `→` participant-row → athlete-detail pattern. |
+| `calendarSync` | **Push** → Profile tab → Settings → `s-calendar-sync` (account list) | Multi-account list view, not a single entity. User identifies the broken account via per-card "Reconnect required" / "Sync error" badge (see [calendar-sync.md § Sync error state](calendar-sync.md#1-calendar-sync-account-list)). Single route keeps kit logic simple — no provider-specific deep-link in v1.0. |
 
 **Background push tap** (FCM payload, app outside / locked) — same routing function. App opens to **Home tab** → relevant sheet/clients-detail layered on top. Dismiss → user lands on Home (familiar anchor), not in some random screen they didn't navigate to.
 
@@ -288,6 +290,60 @@ Three levels — only A0 + A in v1.0; B deferred:
    - `trainingEventId: int | null` — for `request` / `reschedule` / `approved` / `cancelled` kit types (already on `Notification.training_event_id`, just unhidden)
    - `athleteId: int | null` — for `onboardingDone` / `declined` / `expired` (resolved from event's `athlete_id`, or set directly for onboarding-completed notifications)
 4. **Retention TTL — none in v1.0.** No backend cleanup task; `notification` table grows unbounded. Manual cleanup acceptable; revisit if DB volume becomes a concern. Document explicitly in `notifications-api.md`.
+
+## Calendar sync issue notification (`calendarSync` kit type)
+
+A single, generic notification surface for "external calendar needs user action". Granular failure states (auth expired vs password revoked vs 2FA off) stay on the **Calendar Sync** detail screen as per-account badges — see [calendar-sync.md § Error States](calendar-sync.md#2-google-calendar-detail). The inbox notification just says "go look at the Calendar Sync screen".
+
+### Why one global type, not granular
+
+- Inbox is a routing surface, not a diagnostic one. Diagnosis (which failure, what to do) lives on the destination screen.
+- Per-failure notification types would mean 4+ kit variants for a low-frequency event (sync break is rare). Bad signal-to-noise.
+- One route, one icon, one routing function — fewer moving parts, simpler test matrix.
+
+### Triggers (when backend creates a `calendarSync` notification)
+
+Fire **only on action-required failures** — situations where automatic retry can never succeed without user intervention:
+
+| Failure | API code | Provider | Why notification |
+|---|---|---|---|
+| OAuth refresh failed (token revoked, scope changed) | Google 401 | google | User must reconnect — backend cannot recover |
+| App-specific password revoked | Apple 401 | apple | User must generate new password — backend cannot recover |
+| 2FA disabled on Apple ID | Apple 401/403 | apple | User must enable 2FA + regenerate password — backend cannot recover |
+
+**Do NOT fire** for transient errors (5xx, 429 rate limit, network timeout, Google sync token 410). These retry automatically via Celery + 15-min periodic sync. Notification only on user-actionable break.
+
+### Throttle / deduplication
+
+- **1 notification per `(user_id, provider, account_id)` per 24h.** Backend stores `last_calendar_sync_notification_at` per `google_calendar` / `apple_calendar` row; new failure within 24h of the previous notification is suppressed (logged, not pushed).
+- **Reset on success** — when the next sync succeeds for that account, clear the 24h timer. If the same account breaks again later, fire fresh notification.
+- **Reset on reconnect** — when user successfully reconnects via the Calendar Sync screen, clear the timer.
+- **Two providers broken at once** = 2 separate notifications (one per provider). Same kit type, different subtitle text + payload `accountId`.
+
+### Push + inbox copy
+
+| Surface | Title (fixed) | Subtitle / push body (provider-aware) |
+|---|---|---|
+| Inbox row · push notification | "Calendar sync needs attention" | Google: "Reconnect Google Calendar to keep events synced"<br>Apple (password revoked): "Reconnect Apple Calendar — your app-specific password was revoked"<br>Apple (2FA off): "Enable two-factor authentication on your Apple ID to keep syncing" |
+
+Push payload: `aps.alert.title = title`, `aps.alert.body = subtitle`, `aps.badge = current unread count + 1`, `aps.sound = default`. Routing payload (`TargetData`):
+
+```json
+{
+  "target": "calendarSyncIssue",
+  "provider": "google" | "apple",
+  "googleAccountId": <int|null>,
+  "appleAccountId": <int|null>
+}
+```
+
+`provider` + `accountId` are **additive, BC-safe** fields on `NotificationResponse` — clients that don't read them just navigate to `s-calendar-sync` (which is enough for v1.0). Future deep-link to provider detail screen can use them without backend change.
+
+### Tap behavior
+
+- **Inbox row tap** → optimistic mark-read → push to **Profile tab → Settings → Calendar Sync** (`s-calendar-sync`).
+- **Background push tap** → app opens on Home tab → routing fires → same destination as above. Same routing function as inbox.
+- **No sheet variant** — Calendar Sync is a full screen with multi-account list, not a single-entity view.
 
 ## Known backend bugs (flagged 2026-05-12 — fixed in PR #56)
 

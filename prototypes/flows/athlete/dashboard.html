@@ -763,6 +763,7 @@
   .nfn-icon.review  { background: rgba(250,204,21,0.15); color: var(--fit-yellow-400, #facc15); }
   .nfn-icon.balance { background: rgba(239,68,68,0.15); color: var(--fit-red-400); }
   .nfn-icon.match   { background: rgba(168,85,247,0.15); color: #c084fc; }
+  .nfn-icon.calsync { background: rgba(250,204,21,0.15); color: var(--fit-yellow-400, #facc15); }
   .nfn-body { flex: 1; min-width: 0; }
   .nfn-title {
     font-size: 14px; color: var(--fit-text-primary);
@@ -1589,6 +1590,15 @@
     <div data-nfn-state="default">
       <div class="nfn-date-header">Today</div>
 
+      <div class="nfn-item unread" data-notif-type="calendarSync">
+        <div class="nfn-icon calsync"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg></div>
+        <div class="nfn-body">
+          <div class="nfn-title">Calendar sync needs attention</div>
+          <div class="nfn-meta">Reconnect Google Calendar to keep events synced &middot; 1h ago</div>
+        </div>
+        <div class="nfn-dot-unread"></div>
+      </div>
+
       <div class="nfn-item unread">
         <div class="nfn-icon confirm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
         <div class="nfn-body">
@@ -1789,9 +1799,11 @@
       <li><strong>Review</strong> — rate your completed session (yellow star)</li>
       <li><strong>Balance</strong> — top-up needed (red card icon)</li>
       <li><strong>Match</strong> — new coaches match your filters (purple search)</li>
+      <li><strong>Calendar sync</strong> — external Google/Apple calendar needs reconnect (yellow alert-triangle). Single global type — granular failure shown on Calendar Sync screen as per-account badge</li>
     </ul>
     <hr>
-    <p>Tap routes to relevant screen: confirm/decline → event detail · soon → event detail · review → rate sheet · balance → top-up · match → Search filtered.</p>
+    <p>Tap routes to relevant screen: confirm/decline → event detail · soon → event detail · review → rate sheet · balance → top-up · match → Search filtered · <strong>calendar sync → Profile → Settings → Calendar Sync</strong>.</p>
+    <p class="note"><strong><code>calendarSync</code> triggers + throttle:</strong> fired only on action-required failures (auth expired / app-specific password revoked / 2FA disabled). Not fired on transient errors. Throttle: 1 per <code>(user, provider, account)</code> per 24h. See <a href="https://github.com/321-fit/project-spec/blob/main/specs/notifications.md#calendar-sync-issue-notification-calendarsync-kit-type">notifications.md &sect; Calendar sync issue notification</a>.</p>
   </div>
 
 </div>
