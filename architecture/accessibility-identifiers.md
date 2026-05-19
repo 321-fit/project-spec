@@ -79,6 +79,16 @@ Prototype: `prototypes/flows/shared/auth.html`
 | `auth.forgot.new.password.field` | password input | forgot · step 3 | new password (no confirm field per account-access pattern) |
 | `auth.forgot.new.password.show` | eye toggle | forgot · step 3 | inline at end of password field |
 | `auth.forgot.new.submit` | primary CTA | forgot · step 3 | "Save and sign in" — sets pw + auto sign-in |
+| `auth.phone.enter.back` | back chevron | phone · enter | returns to sign-up email |
+| `auth.phone.enter.country` | country chip | phone · enter | tap → opens country picker |
+| `auth.phone.enter.field` | tel input | phone · enter | inputmode=tel, autocomplete=tel-national |
+| `auth.phone.enter.submit` | primary CTA | phone · enter | "Send code" — POST /signup/phone |
+| `auth.phone.enter.skip` | text button | phone · enter footer | "Skip for now" — phone is optional at signup |
+| `auth.phone.otp.back` | back chevron | phone · OTP | returns to phone entry |
+| `auth.phone.otp.field` | OTP boxes | phone · OTP | 6-digit code entry container |
+| `auth.phone.otp.resend` | text button | phone · OTP | "Resend" — disabled during 60s timer |
+| `auth.phone.otp.submit` | primary CTA | phone · OTP | "Verify" — auto-fires when 6 digits filled |
+| `auth.phone.otp.change-number` | text button | phone · OTP footer | "Use a different number" — returns to phone entry |
 
 ### `onboarding` — wizard (coach 6 steps + athlete 4 steps)
 
@@ -165,6 +175,9 @@ Prototypes: `shared/auth.html` (phone OTP), `coach/personal-data.html`, `athlete
 
 | ID | Element | Screen | Notes |
 |---|---|---|---|
+| `country.picker.close` | × close button | country picker | header — picker is modal, uses × not chevron per `feedback_back_vs_close` |
+| `country.search.field` | text input | country picker | sticky search box, top of list |
+| `country.row` | list row (generic) | country picker | ONE id for all rows; Maestro disambiguates via `text:` or `data-*` per `feedback_a11y_naming` |
 
 ### `envpicker` — DEV-only environment switcher
 

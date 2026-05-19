@@ -190,6 +190,76 @@
   }
   .au-forgot-link:hover { color: var(--fit-text-primary); }
 
+  /* Phone country chip (page-local — pf-country in account-access.html is local to that file).
+     Sits inside .fit-input as the first child, with a divider on the right + chevron. */
+  .au-phone-country {
+    display: flex; align-items: center; gap: 6px;
+    margin: -16px 12px -16px -16px;
+    padding: 14px 12px 14px 16px;
+    border-right: 1px solid var(--fit-divider);
+    font-size: 15px; color: var(--fit-text-primary);
+    cursor: pointer; flex-shrink: 0;
+  }
+  .au-phone-country svg { width: 14px; height: 14px; color: var(--fit-text-tertiary); }
+  .au-phone-flag { font-size: 20px; line-height: 1; }
+
+  /* Country picker (page-local — cp-* in account-access.html is local to that file) */
+  .au-cp-search {
+    padding: 8px 16px 12px;
+    position: sticky; top: 0; z-index: 2;
+    background: var(--fit-screen-bg);
+  }
+  .au-cp-search-field {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: var(--fit-surface-high);
+    border-radius: 12px;
+    font-size: 15px;
+  }
+  .fit-light .au-cp-search-field { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .au-cp-search-field svg { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .au-cp-search-field input {
+    flex: 1; border: none; background: transparent; outline: none;
+    font-family: var(--fit-font); font-size: 15px;
+    color: var(--fit-text-primary);
+  }
+  .au-cp-search-field input::placeholder { color: var(--fit-text-tertiary); }
+  .au-cp-section-label {
+    padding: 12px 20px 6px;
+    font-size: 12px; font-weight: 500;
+    color: var(--fit-text-tertiary);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .au-cp-group {
+    margin: 0 16px 12px; border-radius: 14px; overflow: hidden;
+  }
+  .fit-light .au-cp-group { border: 1px solid var(--fit-gray-100); }
+  .au-cp-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px;
+    background: var(--fit-surface-high);
+    cursor: pointer;
+  }
+  .fit-light .au-cp-row { background: var(--fit-white); }
+  .au-cp-row + .au-cp-row { border-top: 1px solid var(--fit-divider); }
+  .au-cp-flag { font-size: 22px; line-height: 1; flex-shrink: 0; width: 28px; text-align: center; }
+  .au-cp-name {
+    flex: 1; font-size: 15px; color: var(--fit-text-primary);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .au-cp-code {
+    font-size: 14px; color: var(--fit-text-tertiary);
+    font-variant-numeric: tabular-nums;
+  }
+  .au-cp-row.selected .au-cp-code { color: var(--fit-brand-primary); font-weight: 500; }
+  .au-cp-check {
+    color: var(--fit-brand-primary);
+    display: none; flex-shrink: 0;
+  }
+  .au-cp-row.selected .au-cp-check { display: block; }
+  .au-cp-check svg { width: 18px; height: 18px; }
+
   /* OTP boxes (page-local — otp-* in account-access.html is local to that file) */
   .au-otp-boxes {
     display: flex; gap: 8px; justify-content: center;
@@ -251,6 +321,11 @@
     <button onclick="go('s-forgot-email',this)">Step 1 · enter email</button>
     <button onclick="go('s-forgot-otp',this)">Step 2 · OTP code</button>
     <button onclick="go('s-forgot-new',this)">Step 3 · new password</button>
+
+    <div class="label">Phone (ownership)</div>
+    <button onclick="go('s-phone-enter',this)">Phone &middot; enter number</button>
+    <button onclick="go('s-phone-otp',this)">Phone &middot; OTP code</button>
+    <button onclick="go('s-country-picker',this)">Country picker</button>
   </div>
   <div class="theme-switch">
     <button id="theme-dark" style="background:var(--fit-gray-700);color:var(--fit-white);" onclick="switchTheme('dark')">Dark</button>
@@ -711,6 +786,228 @@
   </div>
 </div>
 
+<!-- ============================================================
+     SCREEN: PHONE OWNERSHIP — STEP 1 (enter number)
+     iOS ref: Authentication/PhoneNumber/Set/SetPhoneView.swift
+     Per authentication.md § 2026-05-11 — phone is captured at signup
+     as ownership-verified contact, NOT as a login credential.
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-phone-enter">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"
+              data-a11y-id="auth.phone.enter.back"
+              onclick="go('s-signup-email', document.querySelector('.sidebar button[onclick*=s-signup-email]'))"
+              aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding:0;">
+
+    <div class="au-page-head">
+      <div class="au-page-title">Add your phone number</div>
+      <div class="au-page-sub">We use it for booking reminders and account recovery. It's never shown to other users.</div>
+    </div>
+
+    <div class="fit-input-group">
+      <span class="fit-input-label">Phone number</span>
+      <div class="fit-input">
+        <div class="au-phone-country"
+             data-a11y-id="auth.phone.enter.country"
+             onclick="go('s-country-picker', document.querySelector('.sidebar button[onclick*=s-country-picker]'))">
+          <span class="au-phone-flag">&#127468;&#127466;</span>
+          <span>+995</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <input type="tel" inputmode="tel" autocomplete="tel-national"
+               placeholder="555 123 456"
+               data-a11y-id="auth.phone.enter.field"
+               style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
+      </div>
+    </div>
+
+    <div class="au-cta-wrap">
+      <button class="fit-btn fit-btn-primary"
+              data-a11y-id="auth.phone.enter.submit"
+              onclick="go('s-phone-otp', document.querySelector('.sidebar button[onclick*=s-phone-otp]'))">
+        Send code
+      </button>
+    </div>
+
+  </div>
+  <div class="fit-phone-footer">
+    <div class="au-toggle-row">
+      <button data-a11y-id="auth.phone.enter.skip">Skip for now</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN: PHONE OWNERSHIP — STEP 2 (OTP code verification)
+     iOS ref: Authentication/SignUpWithCredentials/SignUpWithCredentialsView.swift
+     (codeEntry state)
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-phone-otp">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"
+              data-a11y-id="auth.phone.otp.back"
+              onclick="go('s-phone-enter', document.querySelector('.sidebar button[onclick*=s-phone-enter]'))"
+              aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding:0;">
+
+    <div class="au-page-head">
+      <div class="au-page-title">Verify your phone</div>
+      <div class="au-page-sub">Enter the 6-digit code we sent to <strong style="color:var(--fit-text-secondary);">+995 555 123 456</strong>.</div>
+    </div>
+
+    <div class="au-otp-boxes" data-a11y-id="auth.phone.otp.field">
+      <div class="au-otp-box filled">1</div>
+      <div class="au-otp-box filled">8</div>
+      <div class="au-otp-box filled">3</div>
+      <div class="au-otp-box focused"></div>
+      <div class="au-otp-box"></div>
+      <div class="au-otp-box"></div>
+    </div>
+
+    <div class="au-otp-resend">
+      Didn't get it? <button data-a11y-id="auth.phone.otp.resend" disabled>Resend in 0:42</button>
+    </div>
+
+    <div class="au-cta-wrap">
+      <button class="fit-btn fit-btn-primary"
+              data-a11y-id="auth.phone.otp.submit">
+        Verify
+      </button>
+    </div>
+
+  </div>
+  <div class="fit-phone-footer">
+    <div class="au-toggle-row">
+      <button data-a11y-id="auth.phone.otp.change-number"
+              onclick="go('s-phone-enter', document.querySelector('.sidebar button[onclick*=s-phone-enter]'))">Use a different number</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN: COUNTRY PICKER (re-used: phone signup, edit phone, etc.)
+     iOS ref: Authentication/PhoneNumber/CountryCode/CountryCodeView.swift
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-country-picker">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"
+              data-a11y-id="country.picker.close"
+              onclick="go('s-phone-enter', document.querySelector('.sidebar button[onclick*=s-phone-enter]'))"
+              aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+      <span class="fit-header-title">Country or region</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div class="au-cp-search">
+      <div class="au-cp-search-field">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search country or code" data-a11y-id="country.search.field">
+      </div>
+    </div>
+
+    <div class="au-cp-section-label">Popular</div>
+    <div class="au-cp-group">
+      <div class="au-cp-row selected" data-a11y-id="country.row">
+        <span class="au-cp-flag">&#127468;&#127466;</span>
+        <span class="au-cp-name">Georgia</span>
+        <span class="au-cp-code">+995</span>
+        <span class="au-cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="au-cp-row" data-a11y-id="country.row">
+        <span class="au-cp-flag">&#127482;&#127480;</span>
+        <span class="au-cp-name">United States</span>
+        <span class="au-cp-code">+1</span>
+        <span class="au-cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="au-cp-row" data-a11y-id="country.row">
+        <span class="au-cp-flag">&#127468;&#127463;</span>
+        <span class="au-cp-name">United Kingdom</span>
+        <span class="au-cp-code">+44</span>
+        <span class="au-cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="au-cp-row" data-a11y-id="country.row">
+        <span class="au-cp-flag">&#127465;&#127466;</span>
+        <span class="au-cp-name">Germany</span>
+        <span class="au-cp-code">+49</span>
+        <span class="au-cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+    </div>
+
+    <div class="au-cp-section-label">All countries</div>
+    <div class="au-cp-group">
+      <div class="au-cp-row" data-a11y-id="country.row">
+        <span class="au-cp-flag">&#127462;&#127458;</span>
+        <span class="au-cp-name">Armenia</span>
+        <span class="au-cp-code">+374</span>
+        <span class="au-cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="au-cp-row" data-a11y-id="country.row">
+        <span class="au-cp-flag">&#127462;&#127487;</span>
+        <span class="au-cp-name">Azerbaijan</span>
+        <span class="au-cp-code">+994</span>
+        <span class="au-cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="au-cp-row" data-a11y-id="country.row">
+        <span class="au-cp-flag">&#127467;&#127479;</span>
+        <span class="au-cp-name">France</span>
+        <span class="au-cp-code">+33</span>
+        <span class="au-cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="au-cp-row" data-a11y-id="country.row">
+        <span class="au-cp-flag">&#127470;&#127481;</span>
+        <span class="au-cp-name">Italy</span>
+        <span class="au-cp-code">+39</span>
+        <span class="au-cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="au-cp-row" data-a11y-id="country.row">
+        <span class="au-cp-flag">&#127472;&#127487;</span>
+        <span class="au-cp-name">Kazakhstan</span>
+        <span class="au-cp-code">+7</span>
+        <span class="au-cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="au-cp-row" data-a11y-id="country.row">
+        <span class="au-cp-flag">&#127473;&#127481;</span>
+        <span class="au-cp-name">Lithuania</span>
+        <span class="au-cp-code">+370</span>
+        <span class="au-cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="au-cp-row" data-a11y-id="country.row">
+        <span class="au-cp-flag">&#127477;&#127473;</span>
+        <span class="au-cp-name">Poland</span>
+        <span class="au-cp-code">+48</span>
+        <span class="au-cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="au-cp-row" data-a11y-id="country.row">
+        <span class="au-cp-flag">&#127482;&#127462;</span>
+        <span class="au-cp-name">Ukraine</span>
+        <span class="au-cp-code">+380</span>
+        <span class="au-cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
   <div class="ann active" id="ann-s-role-pick">
@@ -844,6 +1141,55 @@
       <li><strong>OTP token</strong> from step 2 is short-lived JWT in client memory, sent in the Save request body. Backend verifies before applying password change.</li>
     </ul>
     <p class="note">In production, this also revokes all existing sessions on the account (per account-access.md security model). Old phones / tabs signed in get logged out within 60 sec.</p>
+  </div>
+
+  <div class="ann" id="ann-s-phone-enter">
+    <span class="ann-role">Shared</span>
+    <h3>Phone · enter number</h3>
+    <p>After email/password sign-up succeeds, user is asked to add a phone number. Phone is <strong>not a login credential</strong> per <code>authentication.md § 2026-05-11 update</code> — it's an outreach attribute used for booking reminders, SMS notifications, and account recovery. It's never shown to other users.</p>
+    <hr>
+    <p><strong>iOS ref:</strong> <code>Authentication/PhoneNumber/Set/SetPhoneView.swift</code>.</p>
+    <ul>
+      <li>Single composite input: canonical <code>fit-input-group</code> + <code>fit-input</code> with a tappable country chip (page-local <code>au-phone-country</code>, mirrors <code>pf-country</code> in account-access) + phone number input.</li>
+      <li>Country chip tap → push to <code>s-country-picker</code> (re-used screen).</li>
+      <li>Default country: device locale (Georgia +995 in the prototype as it's the most common dev locale; production picks from <code>NSLocale.regionCode</code>).</li>
+      <li><strong>"Skip for now"</strong> footer link — phone is optional at signup. User can add it later in Settings → Account Access. Tap → onboarding wizard.</li>
+      <li>Backend: <code>POST /signup/phone</code> sends a 6-digit OTP via Twilio.</li>
+    </ul>
+    <p><strong>Phone uniqueness:</strong> NOT enforced — per <code>authentication.md § 2026-05-11 update</code>, same phone can be on multiple accounts (family / shared device). No "phone already in use" error.</p>
+  </div>
+
+  <div class="ann" id="ann-s-phone-otp">
+    <span class="ann-role">Shared</span>
+    <h3>Phone · OTP code</h3>
+    <p>Verify phone ownership. Same OTP component pattern as forgot password (<code>au-otp-boxes</code> / <code>au-otp-box</code>) — promoted to fit-ui.css when a 3rd consumer appears.</p>
+    <hr>
+    <p><strong>iOS ref:</strong> shared <code>OTPCodeInputView</code> + <code>SignUpWithCredentialsView.codeEntry</code> state.</p>
+    <ul>
+      <li><strong>States:</strong> empty / filled / focused / error (same as forgot-otp).</li>
+      <li><strong>Auto-submit:</strong> when 6 digits filled — fires Verify automatically.</li>
+      <li><strong>Resend timer:</strong> 60s disabled then "Resend code". Twilio costs / SMS-pumping protection.</li>
+      <li><strong>"Use a different number"</strong> footer link — returns to phone entry. Useful when typo / wrong country / etc.</li>
+      <li><strong>Server errors:</strong> 401 wrong code → red border + small error; 410 expired → reset code; 429 rate-limit → banner with retry-after.</li>
+    </ul>
+    <p class="note">On successful verify → user account becomes "phone-verified" (cosmetic flag for now; later used for in-person bookings where coach wants to call the athlete). Lands on onboarding wizard (next batch of prototypes).</p>
+  </div>
+
+  <div class="ann" id="ann-s-country-picker">
+    <span class="ann-role">Shared</span>
+    <h3>Country picker</h3>
+    <p>Re-used screen for any flow that needs to pick a country / dial code. Currently the only consumer in this prototype is the phone signup chip. <strong>Same screen is also re-used</strong> in account-access (change phone) and in Personal Data (home country) on prod, but those use different file copies — see promotion note below.</p>
+    <hr>
+    <p><strong>iOS ref:</strong> <code>Authentication/PhoneNumber/CountryCode/CountryCodeView.swift</code>.</p>
+    <ul>
+      <li><strong>Header:</strong> × close (not back chevron, per <code>feedback_back_vs_close</code> — this is a modal picker, not a push-nav step).</li>
+      <li><strong>Sticky search</strong> at top (<code>au-cp-search</code>) — searches by country name or dial code (e.g. "+995", "geo").</li>
+      <li><strong>Popular section</strong> first — top 4 markets by user base (Georgia for our launch market). All other countries A-Z below.</li>
+      <li><strong>Selected row:</strong> teal check icon on the right + brand-color dial code.</li>
+      <li>Generic <code>country.row</code> data-a11y-id for ALL rows (per <code>feedback_a11y_naming</code> — dynamic lists use generic ID, Maestro discriminates via <code>text:</code>).</li>
+    </ul>
+    <hr>
+    <p class="note"><strong>Promotion candidate:</strong> the <code>au-cp-*</code> classes here are page-local mirrors of <code>cp-*</code> in account-access.html. When the 3rd consumer (Personal Data home country) lands, promote to <code>lib/fit-ui.css</code> as <code>fit-country-row</code> / <code>fit-country-group</code> + add spec to <code>design-tokens/docs/components.md</code> as FitCountryPicker.</p>
   </div>
 </div>
 
