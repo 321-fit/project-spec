@@ -44,7 +44,8 @@ Replaces the earlier YouTube URL paste design (which only existed in the prototy
 |---|---|---|
 | Playback policy | **`public`** | Coach intro videos are marketing content, surfaced on athlete-side without auth. No paywall, no DRM. Saves a JWT-mint round-trip per playback. |
 | Upload pattern | **Direct upload** (client → Mux) | Backend never touches video bytes — saves bandwidth costs + faster perceived upload speed. Standard Mux pattern. |
-| Client player | **Native HLS** (AVPlayer iOS / ExoPlayer Android) | Zero extra dependency, both natively support HLS since iOS 12 / Android API 17. Mux Player SDK can be added later if we want Mux Data analytics. |
+| Client player | **Mux Player SDK** (iOS `MuxPlayerSwift` / Android `mux-player-android`) | Native AVPlayer/ExoPlayer would also play HLS but Mux Player adds: built-in **Mux Data** analytics (views, watch-time, drop-off, QoE), auto poster from `https://image.mux.com/{id}/thumbnail.jpg`, ABR hints tuned for Mux origin, resume position, captions UI. Trade: +3–5 MB bundle per platform — acceptable for the analytics + polish we get. |
+| Player surface | **Inline in 16:9 card** (Preply-style) | Tap play on the Ready-state hero/card → playback starts in the same 16:9 frame. Fullscreen escalation via Mux Player's own native controls (corner icon → fullscreen handoff to system). No separate sheet / push screen — keeps athlete anchored on the profile / coach anchored on Personal Data. |
 | Video quality preset | **`basic`** | Smaller files + faster transcode + lower costs. Intro videos are 30-90s — `basic` (up to 720p) is enough for hero playback. Upgrade to `plus` later if quality complaints. |
 | Webhook auth | **HMAC SHA-256** on `Mux-Signature` header | Mux signs every webhook with a shared secret. Backend rejects unsigned/invalid requests. |
 | Asset deletion | Hard delete on Mux + DB clear | When coach removes their video — call `DELETE /video/assets/{id}` and clear `coach.intro_video`. No soft-delete; storage costs accrue per minute stored. |
@@ -171,34 +172,37 @@ Same flow with `ActivityResultContracts.PickVisualMedia(PickVisualMedia.VideoOnl
 
 ### 6.3 Playback (iOS — SwiftUI)
 
+Use **Mux Player Swift SDK** — Swift Package: `https://github.com/muxinc/mux-player-swift`. Player ships with built-in Mux Data analytics, auto poster from thumbnail API, ABR hints tuned for Mux origin, and a native fullscreen toggle in player controls.
+
 ```swift
-import AVKit
+import MuxPlayerSwift  // SPM: muxinc/mux-player-swift
 
 struct CoachIntroVideoView: View {
     let playbackId: String
     var body: some View {
-        let url = URL(string: "https://stream.mux.com/\(playbackId).m3u8")!
-        VideoPlayer(player: AVPlayer(url: url))
+        MuxPlayerView(playbackID: playbackId)
             .aspectRatio(16/9, contentMode: .fit)
     }
 }
 ```
 
+Integration with `FitVideoUploadCard.Ready` state: tap `onTap` callback → owner replaces the kit's Ready slot with `MuxPlayerView` inside the same 16:9 container. Fullscreen escalation is built into Mux Player — user taps the corner fullscreen icon, player hands off to system fullscreen, returns inline on exit. No sheet, no push screen.
+
 ### 6.4 Playback (Android — Jetpack Compose)
+
+Use **mux-player-android** — Gradle: `implementation("com.mux.player:android:<version>")`. Same Mux Data + auto poster + ABR + fullscreen toggle as iOS.
 
 ```kotlin
 @Composable
 fun CoachIntroVideoView(playbackId: String) {
-    val context = LocalContext.current
-    val exoPlayer = remember {
-        ExoPlayer.Builder(context).build().apply {
-            setMediaItem(MediaItem.fromUri("https://stream.mux.com/$playbackId.m3u8"))
-            prepare()
-        }
-    }
-    AndroidView(factory = { PlayerView(it).apply { player = exoPlayer } })
+    MuxPlayerView(
+        playbackId = playbackId,
+        modifier = Modifier.aspectRatio(16f / 9f)
+    )
 }
 ```
+
+Same integration pattern as iOS — replace the `FitVideoUploadCard` Ready slot with `MuxPlayerView` in-place on tap. Mux Player owns the fullscreen behavior.
 
 ### 6.5 Poster / thumbnail
 

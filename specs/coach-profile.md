@@ -147,7 +147,7 @@ For schema details and request/response samples, see `coach-profile-api.md`.
 ## 7. Business rules
 
 - **Hero media fallback** — render in order: Mux video (only when `intro_video.mux_status === "ready"`) → cover_image → Mux auto-thumbnail at `time=2s` (when video is `processing` or `errored` and no cover) → brand_gradient + initials. Never empty (consistency requirement: inconsistent profiles rank lower subconsciously per `project_coach_profile_v2`).
-- **Video playback** — native HLS via `AVPlayer` (iOS) / `ExoPlayer` (Android). Source URL: `https://stream.mux.com/{intro_video.mux_playback_id}.m3u8`. No Mux Player SDK at launch — both platforms support HLS natively. See [architecture/mux-integration.md § 6](../architecture/mux-integration.md).
+- **Video playback** — Mux Player SDK (`MuxPlayerSwift` on iOS, `mux-player-android` on Android), inline in the 16:9 hero frame. Tap thumbnail's play overlay → playback starts in-place. Fullscreen escalation via Mux Player's built-in fullscreen control (corner icon → system fullscreen handoff). Built-in Mux Data analytics + auto poster + ABR hints. See [architecture/mux-integration.md § 6](../architecture/mux-integration.md).
 - **Stats are read-only** — coach can't manually edit Rating/Reviews/Sessions. Price-from is derived from minimum across session templates.
 - **Maturity threshold** — `reviews_count >= 1 AND sessions_count >= 3` (see `coach-maturity-model.md`). Block auto-hides on graduation.
 - **Section titles use warm style** — 16px medium normal-case, not the 12px UPPERCASE `.fit-section-title`. Kit candidate `FitSectionTitle--md` (see § 9).
@@ -179,7 +179,7 @@ For schema details and request/response samples, see `coach-profile-api.md`.
 
 - 5-tab bottom nav: Dashboard / Clients / Messenger / Calendar / Profile. Profile slot index = 4 (zero-based).
 - Header: title-only + `FitIconBtn` (gear). iOS: matches `UINavigationBar` standard; Android: `TopAppBar` from Material 3.
-- Hero media: `AVPlayer` (iOS) / `ExoPlayer` (Android) for video; `Image` for cover; `Text` for initials fallback. Layout layer enforces 16:9 aspect.
+- Hero media: `MuxPlayerView` (iOS via `MuxPlayerSwift` SPM / Android via `mux-player-android` Gradle) for video; `Image` for cover; `Text` for initials fallback. Layout layer enforces 16:9 aspect.
 - Sticky/scrolling: header sticky, content scrolls; navbar sticky.
 
 ### Kit components used

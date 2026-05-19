@@ -122,7 +122,7 @@ The intro video field is rendered by the canonical [`FitVideoUploadCard`](https:
 | **Idle** (no video uploaded) | Dashed border + camera icon + "Upload intro video" + sub "Up to 200 MB · 2 min · mp4/mov" | "Show what makes your coaching unique. Plays as a 16:9 hero on your public profile." | Opens native video picker |
 | **Uploading** (PUT in progress) | Filename + linear progress bar (0–100%) + Cancel × top-right | "Uploading… don't close the app." | Cancel ×: abort upload, return to Idle |
 | **Processing** (PUT done, Mux transcoding) | Yellow-tinted card + spinner + "Processing your video…" | "This usually takes 30–60 seconds. You can keep editing other fields — we'll notify you when it's ready." | Card disabled (no tap) |
-| **Ready** (`mux_status: "ready"`) | Mux auto-thumbnail (16:9) + play-overlay button + ⋯ menu top-right | "✓ Live on your public profile." | Play → inline preview sheet · ⋯ → Replace / Remove |
+| **Ready** (`mux_status: "ready"`) | Mux auto-thumbnail (16:9) + play-overlay button + ⋯ menu top-right | "✓ Live on your public profile." | Play → inline playback in the same 16:9 frame via Mux Player SDK (Preply-style; fullscreen via player's own controls — no sheet, no push) · ⋯ → Replace / Remove |
 | **Errored** (`mux_status: "errored"`) | Red-tinted card + alert-triangle + "Couldn't process this video" + small `mux_error_code` muted line | "We couldn't process the file you uploaded. Try a different file." | Tap → Retry (clears + reopens picker) |
 | **Pending refresh** (`mux_status: "pending_upload"` — coach reopened screen but never finished PUT) | Same as Idle + small "Last upload didn't finish" muted line | "Pick a video to start over." | Tap → cancel stale upload + reopen picker |
 
