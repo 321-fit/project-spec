@@ -77,10 +77,11 @@
   .fit-dark .fit-phone-header { background: var(--fit-screen-bg); }
   .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
 
-  /* Auth-page-local: only what isn't in fit-ui.css.
-     Canonical pieces (.pf-head / .pf-icon / .pf-title / .pf-sub / .pf-field /
-     .pf-input / .fit-btn / .fit-btn-primary / .fit-btn-secondary / .fit-header /
-     .fit-header-back) come from the kit + account-access.html canon. */
+  /* ==========================================================
+     PAGE-LOCAL (auth) — only for visuals with no kit canon yet.
+     Everything else uses canonical fit-input-group / fit-input /
+     fit-btn / fit-header / fit-phone-* from lib/fit-ui.css.
+     ========================================================== */
 
   /* Welcome hero (role-pick centered logo + tagline) */
   .au-welcome {
@@ -105,8 +106,20 @@
     text-align: center; max-width: 260px; line-height: 1.45;
   }
 
-  /* Provider button — extends .fit-btn-secondary for outlined methods,
-     dark-pill modifier for Apple. Order on screen: Email primary, Apple, Google */
+  /* Page title block (under header on form screens) */
+  .au-page-head {
+    padding: 24px 16px 20px;
+  }
+  .au-page-title {
+    font-size: 24px; font-weight: 600; color: var(--fit-text-primary);
+    line-height: 1.25; margin-bottom: 6px;
+  }
+  .au-page-sub {
+    font-size: 14px; color: var(--fit-text-tertiary);
+    line-height: 1.5;
+  }
+
+  /* Provider button modifier — composed with .fit-btn + .fit-btn-primary / -secondary */
   .fit-btn--auth-provider {
     gap: 10px; font-size: 16px;
   }
@@ -116,18 +129,28 @@
     border: 1px solid var(--fit-black);
   }
   .fit-btn--dark-pill:hover { background: #1a1a1a; }
-  .fit-light .fit-btn--dark-pill {
-    background: var(--fit-black); color: var(--fit-white);
-    border-color: var(--fit-black);
-  }
 
-  /* Stack of buttons (replaces ad-hoc gap'd flex columns) */
+  /* Stack of buttons in a screen body — wraps with horizontal screen padding */
   .au-btn-stack {
     display: flex; flex-direction: column; gap: 12px;
     padding: 0 16px;
   }
 
-  /* Bottom toggle (Sign in / Sign up link) — lives in fit-phone-footer */
+  /* Password rules list (inline below password input — local because
+     'pw-rules' is only used inside account-access.html locally too) */
+  .au-pw-rules {
+    display: flex; flex-direction: column; gap: 6px;
+    padding: 8px 16px 0;
+  }
+  .au-pw-rule {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--fit-text-tertiary);
+  }
+  .au-pw-rule svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .au-pw-rule.ok { color: var(--fit-teal-500); }
+  .au-pw-rule.fail { color: var(--fit-red-400); }
+
+  /* Bottom toggle (Sign in / Sign up link) inside fit-phone-footer */
   .au-toggle-row {
     display: flex; align-items: center; justify-content: center; gap: 4px;
     padding: 12px 16px 20px;
@@ -137,6 +160,11 @@
     background: transparent; border: none; cursor: pointer;
     font-family: var(--fit-font); font-size: 14px; font-weight: 500;
     color: var(--fit-text-primary); padding: 0;
+  }
+
+  /* CTA wrapper for screens that don't use fit-phone-footer */
+  .au-cta-wrap {
+    padding: 16px;
   }
 
   /* Theme switch (footer of sidebar) */
@@ -220,12 +248,9 @@
   </div>
   <div class="fit-phone-content" style="display:flex;flex-direction:column;padding:0;">
 
-    <div class="pf-head">
-      <div class="pf-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
-      </div>
-      <div class="pf-title">Create your account</div>
-      <div class="pf-sub">Sign up with one of the methods below.<br>You can add more later.</div>
+    <div class="au-page-head">
+      <div class="au-page-title">Create your account</div>
+      <div class="au-page-sub">Sign up with one of the methods below. You can add more later.</div>
     </div>
 
     <div class="au-btn-stack">
@@ -237,12 +262,12 @@
       </button>
       <button class="fit-btn fit-btn--auth-provider fit-btn--dark-pill"
               data-a11y-id="auth.signup.method.apple">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.493-.12-1.06.396-2.2 1.075-2.99.762-.88 2.012-1.5 3.089-1.583zm3.86 17.52c-.764 1.13-1.595 2.235-2.948 2.253-1.327.026-1.753-.79-3.27-.79-1.517 0-1.99.764-3.247.815-1.305.05-2.295-1.21-3.07-2.33C5.97 16.73 4.762 12.45 6.367 9.6c.776-1.42 2.18-2.32 3.71-2.34 1.275-.025 2.482.86 3.27.86.79 0 2.27-1.06 3.83-.9.66.026 2.5.26 3.69 1.97-.094.06-2.20 1.30-2.18 3.87.02 3.05 2.67 4.07 2.70 4.08-.024.073-.43 1.46-1.42 2.84z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:20px;height:20px;"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.493-.12-1.06.396-2.2 1.075-2.99.762-.88 2.012-1.5 3.089-1.583zm3.86 17.52c-.764 1.13-1.595 2.235-2.948 2.253-1.327.026-1.753-.79-3.27-.79-1.517 0-1.99.764-3.247.815-1.305.05-2.295-1.21-3.07-2.33C5.97 16.73 4.762 12.45 6.367 9.6c.776-1.42 2.18-2.32 3.71-2.34 1.275-.025 2.482.86 3.27.86.79 0 2.27-1.06 3.83-.9.66.026 2.5.26 3.69 1.97-.094.06-2.20 1.30-2.18 3.87.02 3.05 2.67 4.07 2.70 4.08-.024.073-.43 1.46-1.42 2.84z"/></svg>
         Continue with Apple
       </button>
       <button class="fit-btn fit-btn-secondary fit-btn--auth-provider"
               data-a11y-id="auth.signup.method.google">
-        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23 12.27c0-.85-.08-1.66-.22-2.45H12v4.63h6.16c-.27 1.43-1.08 2.65-2.31 3.46v2.88h3.74C21.78 18.81 23 15.83 23 12.27z"/><path fill="#34A853" d="M12 23c3.13 0 5.77-1.04 7.69-2.81l-3.74-2.88c-1.04.7-2.36 1.11-3.95 1.11-3.04 0-5.61-2.05-6.53-4.81H1.62v3.02C3.53 20.39 7.45 23 12 23z"/><path fill="#FBBC05" d="M5.47 13.62a6.6 6.6 0 010-3.23V7.37H1.62a11 11 0 000 9.27l3.85-3.02z"/><path fill="#EA4335" d="M12 5.38c1.71 0 3.25.59 4.47 1.74l3.32-3.32C17.76 1.86 15.12 1 12 1 7.45 1 3.53 3.61 1.62 7.37l3.85 3.02C6.39 7.43 8.96 5.38 12 5.38z"/></svg>
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path fill="#4285F4" d="M23 12.27c0-.85-.08-1.66-.22-2.45H12v4.63h6.16c-.27 1.43-1.08 2.65-2.31 3.46v2.88h3.74C21.78 18.81 23 15.83 23 12.27z"/><path fill="#34A853" d="M12 23c3.13 0 5.77-1.04 7.69-2.81l-3.74-2.88c-1.04.7-2.36 1.11-3.95 1.11-3.04 0-5.61-2.05-6.53-4.81H1.62v3.02C3.53 20.39 7.45 23 12 23z"/><path fill="#FBBC05" d="M5.47 13.62a6.6 6.6 0 010-3.23V7.37H1.62a11 11 0 000 9.27l3.85-3.02z"/><path fill="#EA4335" d="M12 5.38c1.71 0 3.25.59 4.47 1.74l3.32-3.32C17.76 1.86 15.12 1 12 1 7.45 1 3.53 3.61 1.62 7.37l3.85 3.02C6.39 7.43 8.96 5.38 12 5.38z"/></svg>
         Continue with Google
       </button>
     </div>
@@ -275,45 +300,53 @@
   </div>
   <div class="fit-phone-content" style="padding:0;">
 
-    <div class="pf-head">
-      <div class="pf-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+    <div class="au-page-head">
+      <div class="au-page-title">Sign up with email</div>
+      <div class="au-page-sub">We'll send a verification code to confirm your identity.</div>
+    </div>
+
+    <div class="fit-input-group">
+      <span class="fit-input-label">Email</span>
+      <div class="fit-input">
+        <input type="email" inputmode="email" autocomplete="email"
+               autocapitalize="off" spellcheck="false"
+               placeholder="you@example.com"
+               data-a11y-id="auth.signup.email.field"
+               style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
       </div>
-      <div class="pf-title">Sign up with email</div>
-      <div class="pf-sub">We'll send a verification code to confirm your identity.</div>
     </div>
 
-    <div class="pf-field">
-      <input class="pf-input" type="email" inputmode="email" autocomplete="email"
-             autocapitalize="off" spellcheck="false"
-             placeholder="you@example.com"
-             data-a11y-id="auth.signup.email.field"
-             style="padding:16px;">
+    <div class="fit-input-group">
+      <span class="fit-input-label">Password</span>
+      <div class="fit-input fit-input-password">
+        <input type="password" autocomplete="new-password"
+               placeholder="At least 8 characters"
+               data-a11y-id="auth.signup.email.password.field"
+               style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
+        <button class="fit-eye-toggle"
+                data-a11y-id="auth.signup.email.password.show"
+                aria-label="Show password" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
     </div>
 
-    <div class="pf-field">
-      <input class="pf-input" type="password" autocomplete="new-password"
-             placeholder="Password"
-             data-a11y-id="auth.signup.email.password.field"
-             style="padding:16px;">
-    </div>
-
-    <div class="pw-rules">
-      <div class="pw-rule pending">
+    <div class="au-pw-rules">
+      <div class="au-pw-rule">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
         At least 8 characters
       </div>
-      <div class="pw-rule pending">
+      <div class="au-pw-rule">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
         Mix letters and digits
       </div>
-      <div class="pw-rule pending">
+      <div class="au-pw-rule">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
         Not a common password
       </div>
     </div>
 
-    <div style="padding:16px 16px 0;">
+    <div class="au-cta-wrap">
       <button class="fit-btn fit-btn-primary"
               data-a11y-id="auth.signup.email.submit">
         Sign up
@@ -334,49 +367,55 @@
   <div class="ann active" id="ann-s-role-pick">
     <span class="ann-role">Shared</span>
     <h3>Welcome / Role pick</h3>
-    <p>Entry screen for first-time install. Two ways forward: <strong>I'm a Coach</strong> (primary gradient) or <strong>I'm an Athlete</strong> (secondary outlined). Role is captured client-side and threaded through to sign-up / sign-in so server knows which onboarding to assign.</p>
+    <p>Entry screen for first-time install. Two ways forward: <strong>I'm a Coach</strong> (primary gradient) or <strong>I'm an Athlete</strong> (secondary outlined). Role is captured client-side and threaded through to sign-up / sign-in.</p>
     <hr>
-    <p><strong>iOS ref:</strong> <code>Authentication/Role/ChooseRoleView.swift</code> (background image + welcome icon + 2 stacked buttons).</p>
+    <p><strong>iOS ref:</strong> <code>Authentication/Role/ChooseRoleView.swift</code>.</p>
     <ul>
-      <li>No back/close — this is the root of the unauthenticated stack.</li>
-      <li>Buttons use canonical <code>.fit-btn-primary</code> / <code>.fit-btn-secondary</code> with 50pt height + 99pt radius.</li>
-      <li>Returning users skip this entirely — auth state restores from keychain → goes straight to last role.</li>
+      <li>No back/close — root of the unauthenticated stack.</li>
+      <li>Buttons: canonical <code>.fit-btn-primary</code> / <code>.fit-btn-secondary</code> (50pt height, 99pt radius — from kit).</li>
+      <li>Welcome hero (logo + title + sub) is page-local <code>.au-welcome</code> + <code>.au-logo</code> — no kit canon for this exact composition yet.</li>
+      <li>Returning users skip this entirely — auth state restores from keychain.</li>
     </ul>
-    <p class="note">Background image (welcome-background asset on iOS) intentionally simplified here — prototype focuses on layout + interaction. Real asset lives in <code>Resources/Images.xcassets/Authentification/welcomeBackground</code>.</p>
   </div>
 
   <div class="ann" id="ann-s-signup-entry">
     <span class="ann-role">Shared</span>
     <h3>Sign-up · method picker</h3>
-    <p>3 sign-up methods stacked: <strong>Email</strong> (primary), <strong>Apple</strong> (black pill), <strong>Google</strong> (secondary). Email first as the explicit / least-friction path; Apple second for iOS-first audience, Google third. Apple stays on iOS only (hidden on Android in production).</p>
+    <p>3 sign-up methods stacked: <strong>Email</strong> (primary), <strong>Apple</strong> (black pill), <strong>Google</strong> (secondary). Email first as the explicit / least-friction path; Apple iOS-only.</p>
     <hr>
     <p><strong>iOS ref:</strong> <code>Authentication/SignUp/SignUpView.swift</code> + <code>AuthenticationAvailableTypes</code> enum.</p>
     <ul>
-      <li>Canonical <code>.fit-btn-primary</code> / <code>.fit-btn-secondary</code> + page-local <code>.fit-btn--dark-pill</code> for Apple. Provider modifier <code>.fit-btn--auth-provider</code> only adds icon spacing.</li>
-      <li><strong>Apple / Google</strong> open native OS sign-in sheets — no in-app screen for those flows.</li>
-      <li><strong>"Sign in"</strong> at footer toggles into sign-in entry (next batch).</li>
-      <li>Layout matches <code>account-access.html</code> canon: <code>pf-head</code> (icon + title + sub) → <code>au-btn-stack</code> with 16px horizontal padding → footer toggle.</li>
+      <li>Buttons: canonical <code>fit-btn-primary</code> / <code>fit-btn-secondary</code> + page-local <code>fit-btn--dark-pill</code> (Apple) + <code>fit-btn--auth-provider</code> (icon spacing modifier).</li>
+      <li><strong>Apple / Google</strong> open native OS sign-in sheets — no in-app screen.</li>
+      <li>Title block: page-local <code>au-page-head</code> (24px title + 14px sub) — same pattern reused on sign-up email screen.</li>
+      <li>Footer toggle "Sign in" lives in <code>fit-phone-footer</code> via page-local <code>au-toggle-row</code>.</li>
     </ul>
     <hr>
-    <p><strong>Phone is NOT a sign-up method</strong> as of 2026-05-11 per <code>authentication.md</code>. Phone is an outreach attribute, captured separately during signup for ownership verification (next batch).</p>
+    <p><strong>Phone is NOT a sign-up method</strong> as of 2026-05-11 per <code>authentication.md</code>. Phone is captured separately for ownership verification (next batch).</p>
   </div>
 
   <div class="ann" id="ann-s-signup-email">
     <span class="ann-role">Shared</span>
     <h3>Sign-up · email form</h3>
-    <p>Email + password form. Validates client-side via inline password-rules list (mirrors <code>account-access.html</code> add-email-password pattern), posts to backend, advances to phone OTP step (next batch).</p>
+    <p>Email + password with inline password-rules list. Posts to backend → advances to phone OTP step (next batch).</p>
     <hr>
     <p><strong>iOS ref:</strong> <code>Authentication/SignUpWithCredentials/SignUpWithCredentialsView.swift</code> (states: emailEntry → phoneEntry → codeEntry).</p>
+    <hr>
+    <p><strong>Components</strong></p>
+    <ul>
+      <li>Inputs: canonical <code>fit-input-group</code> + <code>fit-input</code> + <code>fit-input-label</code>. Password uses <code>fit-input-password</code> modifier + <code>fit-eye-toggle</code> child (all kit).</li>
+      <li>Rule list: page-local <code>au-pw-rules</code> + <code>au-pw-rule</code> (with <code>.ok</code> / <code>.fail</code> states). Flips <code>circle</code> → <code>check</code> SVG as conditions met.</li>
+      <li>CTA: canonical <code>fit-btn fit-btn-primary</code> in <code>au-cta-wrap</code> (16px screen padding).</li>
+    </ul>
     <hr>
     <p><strong>Field validation</strong></p>
     <ul>
       <li><strong>Email</strong> — <code>keyboardType: emailAddress</code>, lowercase, RFC-5322 lite regex. Submit-on-Next moves to password.</li>
-      <li><strong>Password</strong> — secure entry. Rule list below the field flips <code>.pending</code> → <code>.ok</code> as the user types (matches account-access add-email-password rule pattern). ≥8 chars + mix letters/digits + not a common dictionary password (server is source of truth per <code>account-access.md</code>).</li>
+      <li><strong>Password</strong> — secure entry. ≥8 chars + mix letters/digits + not a common dictionary password (server source of truth per <code>account-access.md</code>).</li>
       <li><strong>Sign up</strong> button — disabled (0.5 opacity, no tap) until all 3 rules ok.</li>
     </ul>
-    <p><strong>Server errors</strong> — 409 email-taken → <code>pf-err-msg</code> below email field "This email is already in use by another account."; 400 bad password → "Password too weak — 8+ chars, mix letters and digits."</p>
-    <hr>
-    <p><strong>Keyboard flow</strong> per <code>feedback_keyboard_behavior</code>: Email field <code>Next</code> → Password field <code>Go</code> → fires Sign up.</p>
+    <p><strong>Server errors</strong> — 409 email-taken → <code>fit-input-group.error</code> on email + <code>fit-input-error-text</code> "This email is already in use."; 400 bad password → similar pattern on password field.</p>
+    <p><strong>Keyboard flow</strong> per <code>feedback_keyboard_behavior</code>: Email <code>Next</code> → Password <code>Go</code> → Sign up.</p>
   </div>
 </div>
 
