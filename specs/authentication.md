@@ -1,9 +1,47 @@
 # Authentication & Login Security
 
-> Last updated: 2026-05-11
+> Status: Implemented (iOS + backend)
+> Prototype: [flows/shared/auth.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/auth.html)
+> Related: [account-access.md](./account-access.md) (post-login account changes), [onboarding.md](./onboarding.md) (post-signup wizard)
+> Last updated: 2026-05-20
 
 ## Overview
 The authentication system allows users to create and access accounts using multiple login methods. Methods can be used independently or combined within a single account.
+
+---
+
+## User Stories
+
+### Signup
+
+- As a new user, I want to sign up with email + password, Apple, or Google so I can pick whichever account I already trust.
+- As a new user, I want to verify my phone number once at signup so the platform can SMS me reminders — but I should NEVER be asked to log in with a phone number afterwards (phone is for outreach only, not a login credential).
+- As a new user, after phone verification, I want to land in onboarding (not the main app), so the platform collects the profile data it needs.
+
+### Login
+
+- As a returning user, I want one screen with all three login methods (email+password, Apple, Google) so I don't have to remember which method I used last time — the screen just shows everything available.
+- As a returning user, I want my session to persist across app restarts (JWT refresh) so I don't have to re-login every time I open the app.
+- As a returning user, if I forget my password, I want to reset it via email — without losing any data on my account.
+
+### Account safety
+
+- As a user, I want to be warned if I'm about to remove my LAST login method (the one credential that gets me back in), so I don't accidentally lock myself out.
+- As a user, I want to add additional login methods (link Apple to my existing email account, etc.) to my existing account so I have backup ways in.
+- As a user, when I change a sensitive setting (email, password, social link), I want to re-authenticate first so a forgotten unlocked phone can't be hijacked into changing my account.
+
+---
+
+## System Stories
+
+- As the backend, signup creates the account and returns JWT immediately. Phone verification happens as a follow-up step but does NOT block JWT issuance — the account exists in `phone_verified: false` state and the main app entry is gated by that flag.
+- As the backend, email+password signup validates a strict password policy (see § Security Rules). Apple / Google signup verifies the OAuth/identity token against the provider's public keys and creates the account without a password.
+- As the backend, the `user_social_auth` table allows multiple providers per account — the same user record can be linked to Apple, Google, and email+password simultaneously.
+- As the backend, login endpoints return access + refresh tokens. Refresh token lives in keychain; access token rotated on every API call near expiry.
+- As the backend, phone OTP endpoints (`POST /auth/phone/request`, `POST /auth/phone/verify`) are exposed ONLY for ownership verification at signup or phone-change — NOT for login. The legacy phone-OTP-as-login flow is removed from the UI (endpoints retained for backwards compatibility, behind a feature flag).
+- As the backend, the "last method" rule enforces that the auth-provider count is ≥ 1 after any removal — attempting to remove the only remaining method returns 409. See § Security Rules + [account-access.md § Last-method safety](./account-access.md).
+- As the client, re-authentication picker shows all of the user's currently-linked methods (not the original signup method) — so a user who signed up with email but later linked Apple can re-auth with either.
+- As the voice assistant, all calls run under child JWT sessions issued by the iOS app — voice never holds primary credentials.
 
 ## 2026-05-11 update — phone removed as login method
 

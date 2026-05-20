@@ -3,7 +3,7 @@
 > Status: Approved (contract) / In Progress (event sheet + custom event migration)
 > Prototype: [flows/coach/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-04-24
+> Last updated: 2026-05-20
 > Implementation:
 > - iOS:     [321fit_ios/docs/coach-calendar-ios.md] (to be created)
 > - Backend: [poly-backend/docs/coach-calendar-backend.md] (to be created)
@@ -32,15 +32,19 @@ Root tab screen, has the nav bar footer. Acts as both agenda view (for the coach
 - As a coach, I want to drag an event to a new slot on the same day so that rescheduling is physical and intuitive.
 - As a coach, I want to see when I have conflicts or unavailable windows so that I can't overbook myself.
 - As a coach, I want to log a past session (cash payment already collected) so that my records stay accurate.
+- As a coach who is also an athlete, I want to see the slots where I'm a booked-as-athlete client on another coach's roster so that I don't accept coaching jobs that would conflict — and I want to switch into my athlete profile from there in one tap to act on those bookings (per [[event-statuses.md § Cross-role]]).
+- As a coach, I want each event card to show enough at-a-glance (title, who, when, where) without opening the drawer, so I can scan my day in seconds.
 
 ---
 
 ## 3. System Stories
 
 - As the backend, the calendar data API must return a day's worth of events in ≤ 500 ms.
+- As the backend, the day events endpoint must include the user's events from BOTH roles (when the user has both) so the client can render cross-role tiles without a second roundtrip — each event carries a `role_context` field (`own_role` / `other_role`).
 - As the backend, event status transitions (planned → review, request → cancelled auto) are handled via scheduled tasks; the calendar always reflects the latest state.
-- As the client, the event sheet is a **single shared component** (`FitUI.openEventSheet`) — one markup, one state machine, six visual variants via `data-event-state`.
-- As the client, conflict detection on drag must be computed from the visible day's events + external calendar + athlete availability (if applicable).
+- As the client, the event sheet is a **single shared component** (`FitUI.openEventSheet`) — one markup, one state machine, six visual variants via `data-event-state`, plus a separate cross-role variant (read-only + role-switch CTA).
+- As the client, every event tile uses the unified `FitCalEvent` from design-tokens: 3-tier adaptive layout (Tiny ≤30pt · Compact ≤45pt · Standard ≥46pt) — caller passes `height` and the component derives the tier. See § 4a "Event tile layout".
+- As the client, conflict detection on drag must be computed from the visible day's events + external calendar + cross-role events + athlete availability (if applicable). Cross-role tiles cannot be dragged.
 - As any service, the calendar must not display `cancelled` events (filtered server-side or client-side).
 
 ---
@@ -131,6 +135,64 @@ Root tab screen, has the nav bar footer. Acts as both agenda view (for the coach
 ### Flow 8: Event sheet state variants — summary
 
 All 6 variants share the same DOM structure (avatar row + info + footer). Only the descriptor text + optional pill + footer buttons differ per `data-event-state`. See [event-statuses.md](./event-statuses.md) for the state enum. The unified sheet rules out the old parallel `cal-event-sheet` / `cal-invite-sheet` / `cal-group-sheet` divergence.
+
+### Flow 9: Tap a cross-role event → switch role
+
+1. Coach taps a tile rendered with the cross-role visual (muted, dashed left stripe, "Athlete" tag in the bottom-right corner — this is a session the user booked **as athlete** with another coach).
+2. `cal-cross-role-sheet` opens — read-only drawer: descriptor "Booked as athlete" + Athlete badge, counterparty avatar+name ("Mark S. — Your coach"), event info (date / time / location / price), info banner explaining the current role can't act here.
+3. Footer = `[Close]` + `[Switch to athlete →]` (primary).
+4. Tap **Switch to athlete** → app flips active role, navigates to the same event in the **athlete** schedule with the full athlete event sheet open (cancel / message / pay actions available).
+5. Cancelling on the cross-role sheet just dismisses it (returns to coach calendar untouched).
+
+---
+
+## 4a. Event tile layout (unified)
+
+All event tiles on the timeline use the same `FitCalEvent` component from design-tokens. Layout is adaptive — the same input shape renders three different densities driven by tile height. Caller passes only `height` (in pt); the component picks the tier:
+
+| Tier | Height | Rendered content |
+|---|---|---|
+| **Tiny** | ≤ 30 pt (15-min event) | 1 row: `{title} · {start-time}` inline |
+| **Compact** | 31–45 pt (30-min event) | 2 rows: `{title}` / `{recipient} · {time}` |
+| **Standard** | ≥ 46 pt (45-min+ event) | 3 rows: `{title}` / `{recipient} · {time}` / `📍 {location}` |
+
+`{recipient}` is the meta line's "who" slot, deliberately unified across all variants so the meta-row position is identical:
+
+| Variant | `recipient` |
+|---|---|
+| Personal (own role) | Athlete name, e.g. `"Anna K."` |
+| Group (own role) | Participant ratio, e.g. `"7/10 athletes"` |
+| External (Google/Apple) | (no recipient, anonymized — meta = title + time only) |
+| Cross-role | Counterparty in the OTHER role, e.g. `"with Coach Mark S."` or `"7/10 athletes"` for a coach session shown on the user's athlete calendar |
+
+**Status pill** (Request / Awaiting / Review / Missed) appears inline next to title on the FIRST row when the status applies. Cross-role tiles do **NOT** show the status pill — actions belong to the other role.
+
+**Bottom-right corner**: only the **Cross-role role-tag** uses this slot (Athlete / Coach badge). Group ratio that used to live there has moved into the recipient slot for layout consistency.
+
+**3pt hairline gap.** Every tile reserves a 3pt transparent strip at the bottom so back-to-back events don't visually merge (Apple Calendar style). Implemented in `FitCalEvent` via the outer-inner pattern (outer keeps inline height, visible card sits inside with `.padding(.bottom, 3)`) — no layout reflow, full rounded corners, full perimeter border on status tiles.
+
+---
+
+## 4b. Cross-role presentation
+
+When the active user has BOTH roles (coach + athlete), events from the OTHER role appear on the current role's calendar in a muted **cross-role** presentation. This is orthogonal to the 6-state status system — a cross-role tile renders the same regardless of its underlying status, because the current role cannot act on it from here anyway.
+
+**Tile visual** (`FitCalEventType.crossRole(role)`):
+- Background: surface-high (same as Personal Planned), opacity 0.75
+- Left stripe: **3pt dashed**, text-tertiary color (distinguishes from solid stripes of own-role events and from External)
+- Title row: only the session/sport title — no status pill
+- Meta row: `{recipient} · {time}` (recipient = counterparty)
+- Bottom-right corner: `FitRoleTag` badge (icon + "Athlete" or "Coach")
+- Not draggable
+
+**Drawer (`cal-cross-role-sheet`)** — see Flow 9 above.
+
+**Conflict / overlap rules:**
+- Cross-role events count as conflicts for the current role's drag-drop (you can't drop a coach session onto a slot you've booked as an athlete).
+- They do NOT count toward the current role's session badges, earnings, or stats (those live in the other role's profile).
+- The cross-role event's actual status (Planned / Request / Awaiting / etc.) still drives the badge in the **other** role's calendar — only the presentation differs based on which role is currently active.
+
+**a11y prefix:** `coach.calendar.cross-role.*` (this spec) and `athlete.calendar.cross-role.*` (per [athlete-schedule.md](./athlete-schedule.md)).
 
 ---
 

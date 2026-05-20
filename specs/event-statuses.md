@@ -1,9 +1,9 @@
 # Event Status System & Push Notifications
 
 > Status: Approved (contract) / In Progress (implementation migration)
-> Prototype: [flows/coach/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html) — all 6 states demo
-> Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md) — FitCalEvent, FitCalEventPill
-> Last updated: 2026-04-24
+> Prototype: [flows/coach/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html) — all 6 states demo · [flows/athlete/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/calendar.html) — cross-role mirror
+> Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md) — FitCalEvent, FitCalEventPill, FitRoleTag
+> Last updated: 2026-05-20
 > Implementation:
 > - iOS:     [321fit_ios/docs/event-statuses-ios.md] (to be created)
 > - Backend: [poly-backend/docs/event-statuses-backend.md] (to be created — includes migration)
@@ -25,6 +25,7 @@ Every client render (calendar card, event sheet, dashboard card) + every backend
 
 - As a coach looking at the calendar, I want each event's status to be visually distinct so that I can parse the day at a glance.
 - As a coach, I want state transitions to be unambiguous so that I always know whether a session is confirmed, pending, or past.
+- As a user with BOTH roles active, I want events from my OTHER role to be visually muted (cross-role) but still clickable, so I can avoid double-booking without losing the ability to switch roles and act on them.
 
 ### Athlete
 
@@ -44,6 +45,36 @@ Every client render (calendar card, event sheet, dashboard card) + every backend
 - As the backend, automatic transitions (e.g., `Planned → Review` after end time) are idempotent scheduled tasks.
 - As the client, pill colors and descriptor text map 1:1 from the enum. Clients must not invent state names.
 - As any service, `cancelled` is a terminal state but is **NOT displayed** on calendar — events transition to cancelled and are filtered from the normal calendar view. Retained in DB for 2 months for audit, then hard-deleted.
+- As the client, **cross-role presentation** (see § 3a) is a separate render mode orthogonal to the 6 statuses. The same event keeps a single canonical status server-side; only the client picks which presentation to use depending on which role is currently active.
+
+---
+
+## 3a. Cross-role presentation mode (new 2026-05-20)
+
+When the active user has BOTH roles (coach + athlete), every event from the OTHER role profile shows up on the current role's calendar in a muted **cross-role** presentation. This is **orthogonal** to the 6-state status system — a cross-role tile renders the same regardless of underlying status (Planned / Request / Review / etc.), because the current role can't act on it from here anyway.
+
+### Visual
+
+- Container: muted (opacity 0.75), dashed left stripe (3pt text-tertiary), no perimeter border
+- Title row: only the title — no status pill (it would be ambiguous which role's pill it represents)
+- Meta row: `{counterparty} · {time}` (e.g. "with Coach Mark · 11:00 – 12:00")
+- Location row (Standard tier): `📍 {location}`
+- Bottom-right corner: `FitRoleTag` badge — icon + "Athlete" or "Coach" indicating which role profile owns this event
+
+### Behavior
+
+- Not draggable in the current role.
+- Counts as a conflict for current-role drag-drop (you can't overlap another session on top of it).
+- Does NOT count toward current role's badges / stats / earnings (those belong to the other role).
+- Tap → role-switch drawer (see [coach-calendar.md § Flow 9](./coach-calendar.md) / [athlete-schedule.md § Cross-role presentation](./athlete-schedule.md)).
+
+### Why a presentation mode, not a 7th status
+
+The underlying event still has its own real status (Planned, Request, etc.) on the role profile that owns it. Cross-role doesn't replace that — it's just *how the OTHER role sees the event*. Adding it as a 7th status would (a) double the state matrix, (b) make a single event need two statuses simultaneously, (c) confuse backend transitions. As a separate render mode, the backend stays single-status, the client just picks the muted-vs-full presentation based on `role_context` (`own_role` / `other_role`) returned by `GET /{role}/training-events/`.
+
+### API hook
+
+`GET /coach/training-events/?date=...` and `GET /athlete/training-events/?date=...` must include events from the user's OTHER role (when present) with `role_context: "other_role"`. The client uses this flag to switch between full FitCalEvent rendering and the muted `FitCalEventType.crossRole(role)` variant. Server-side filtering should NOT strip these events (they're needed for conflict detection on the active role's calendar).
 
 ---
 

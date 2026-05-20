@@ -1,9 +1,38 @@
 # Athlete Schedule & Booking
 
-> Last updated: 2026-04-02
+> Status: Implemented (iOS) · Cross-role + unified tile layout added 2026-05-20
+> Prototype: [flows/athlete/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/calendar.html)
+> Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md) — FitCalEvent, FitCalEventPill, FitRoleTag
+> Related: [coach-calendar.md](./coach-calendar.md), [event-statuses.md](./event-statuses.md)
+> Last updated: 2026-05-20
 
 ## Overview
 Athletes use the same Schedule tab as coaches but with a different feature set. Athletes browse coach availability and send booking requests. They cannot create events directly — only request sessions that coaches must approve.
+
+---
+
+## User Stories
+
+### Athlete
+
+- As an athlete, I want to see my upcoming training sessions on a daily timeline so that I can plan my day around them.
+- As an athlete, I want to scan a single tile and know **who** my coach is, **when** the session is, and **where** it takes place — without opening a drawer.
+- As an athlete, I want to distinguish a confirmed session from one I've requested (Awaiting) or that a coach invited me to (Request), so I know if I owe anyone an answer.
+- As an athlete, I want my external Google/Apple Calendar events to block me out so I don't double-book myself with a training.
+- As an athlete, I want to tap a planned session and see the full detail (coach, time, location, price, payment method) + actions (cancel, message coach) without leaving the calendar context.
+- As an athlete, I want to leave a star rating after a session via a post-training sheet (triggered by push or tap on a finished event).
+- As an athlete who is also a coach, I want to see the coaching sessions on my OWN coach roster appear here too — muted, but tappable — so I don't double-book training time when I have an upcoming class to run. Switching to coach view from that tile should be one tap.
+
+---
+
+## System Stories
+
+- As the backend, `GET /athlete/training-events?date=YYYY-MM-DD` returns all events for the day — own bookings + external calendar events. When the user also has a coach profile, the day events endpoint must include their cross-role coach sessions (carrying `role_context: "other_role"`) so the client can render the muted cross-role tile.
+- As the client, every event tile on the timeline is rendered by the same `FitCalEvent` component from design-tokens. 3-tier adaptive layout (Tiny / Compact / Standard) driven by tile height. Recipient slot for athlete events = `"with Coach {name}"`; for cross-role coach sessions = `"{N}/{max} athletes"` (or coach-specific recipient).
+- As the client, athlete events use the SAME 6-status enum as coach events but a subset of pills appear (Request when coach invited, Awaiting when athlete requested, Missed; never Review — Review is coach-only post-event action).
+- As the client, cross-role tiles cannot be dragged and have no inline status pill — tapping them opens `ath-cross-role-sheet` with a primary `Switch to coach →` CTA.
+- As the backend, cross-role event presentation does NOT affect the underlying status lifecycle; the coach session keeps its own status on the coach side regardless of how it's shown on the athlete calendar.
+- As any service, cancelled events do not appear on the timeline.
 
 ## Current State
 Fully implemented in iOS and backend. Voice assistant supports athlete booking via tools.
@@ -31,6 +60,27 @@ Fully implemented in iOS and backend. Voice assistant supports athlete booking v
 ### Android (Planned)
 - Same schedule view and booking flow as iOS
 - Same slot selection UI
+
+## Event tile layout (unified)
+
+Same `FitCalEvent` component as Coach Calendar with adaptive 3-tier layout. See [coach-calendar.md § 4a](./coach-calendar.md#4a-event-tile-layout-unified) for the canonical tier table — athlete uses identical rules, only the **recipient** content differs (`"with Coach {name}"` vs coach's `"{athlete name}"`).
+
+3pt hairline gap is reserved between back-to-back events the same way (outer-inner padding pattern in `FitCalEvent`).
+
+## Cross-role presentation (when user has both roles)
+
+When the athlete is ALSO a coach, their coaching sessions appear on the athlete calendar as muted cross-role tiles — dashed left stripe, opacity 0.75, `[🏃 Coach]` badge in the bottom-right.
+
+Tap → `ath-cross-role-sheet` opens:
+- Status header: "Coaching session" + Coach badge
+- Group icon + session name ("You're the coach · 7 athletes joined")
+- Time + location + price/person
+- Info banner: "This session is on your coach profile. To manage participants, reschedule, or complete training — switch to coach view."
+- Footer: `[Close]` + `[Switch to coach →]` (primary).
+
+Switching to coach role navigates to the same event in coach-calendar with the full coach event drawer ready for action. Cancel just dismisses.
+
+See [coach-calendar.md § 4b](./coach-calendar.md#4b-cross-role-presentation) for the mirror behavior + conflict rules. The `cross-role` presentation is orthogonal to the 6 status states — see [event-statuses.md](./event-statuses.md).
 
 ## Calendar View
 

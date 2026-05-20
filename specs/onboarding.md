@@ -7,6 +7,47 @@
 ## Overview
 Post-registration wizard that collects user profile data. The flow differs based on user role — coaches have additional steps for gym locations and training sessions.
 
+---
+
+## User Stories
+
+### Athlete
+
+- As a new athlete, I want a short, focused onboarding (4 steps) so that I can start using the app within a minute of signing up.
+- As a new athlete, I want to add a profile photo + a short bio so coaches can see who they'll be training.
+- As an athlete, I want to pick the sports I'm interested in so the marketplace shows me relevant coaches.
+- As an athlete, I want my time zone and country pre-filled from device settings so I'm not entering data the app already knows.
+- As an athlete, I want to optionally connect Google / Apple Calendar at the end so my personal events block out my booking availability — but I want to skip it if I'm in a hurry (just tap Finish).
+
+### Coach
+
+- As a new coach, I want my onboarding to ask for everything a marketplace profile needs (photo + bio + sports + location + ≥1 gym + ≥1 bookable session + calendar sync) in one go (6 steps) so I don't have to come back later.
+- As a coach, I want to add my training gym(s) by searching for them or picking on a map — same flow I'll use later in Settings — so I learn the location system once.
+- As a coach, I want to create my first bookable session inline (without leaving the wizard) so my profile is immediately useful when admin approves it.
+- As a coach, when I finish the wizard, I want a clear signal that my profile is now under review (no broken expectation that I can start coaching instantly).
+
+### Both
+
+- As a user, I want a clear progress indicator (`1 of 6` pill counter) so I know how much is left.
+- As a user, I want to step BACK to fix any field on an earlier step — but never to step 1 (the account is already created at that point — there's nothing to unwind).
+- As a user, I want validation feedback to be visible the moment I tap Confirm, not buried after a network roundtrip.
+
+---
+
+## System Stories
+
+- As the backend, `POST /onboarding` marks the user as onboarded only after all required fields are present. Coaches additionally transition to `pending_admin_approval` for review queue.
+- As the client, the onboarding flow is a **self-contained iOS module** (`Onboarding/`) — gym + session sub-flows are duplicated inside it (not handed off to Settings/Sessions screens), so the module has its own a11y identifier namespace (`onboarding.flow.*`) and ships with full error/loading/snackbar coverage.
+- As the client, athlete branches at the end of step 3 (Location): athlete → step 4 Calendar Sync (final); coach → step 4 Gym Location → step 5 Training Session → step 6 Calendar Sync.
+- As the client, the Calendar Sync step has NO explicit Skip button — tapping `Finish` completes the wizard without connecting any calendar, server-side onboarding is marked complete either way.
+- As the client, on Finish:
+    - Athlete → dashboard in `dst-welcome` state (the inline dashboard setup widget appears for any follow-up tasks).
+    - Coach → dashboard in `dst-under-review` state (banner + optional boosts shown while admin reviews).
+- As the backend, server emits `user.onboarded` event on completion. If the athlete was invited by a coach via deep link, that coach receives a push notification.
+- As any service, phone OTP ownership verification happens at **signup**, NOT in onboarding (per [authentication.md § 2026-05-11 update](./authentication.md)). Onboarding does NOT re-verify phone.
+
+---
+
 ## Current State
 Fully implemented in iOS and backend. Prototype matches the live iOS structure (6 coach / 4 athlete steps) with two open deltas for iOS to follow up on: sport-section taxonomy and the `Home City` field on the Location step (both already in the prototype; iOS to catch up).
 
