@@ -887,16 +887,28 @@
   );
 }
 
-/* External calendar event (side-by-side) */
+/* External calendar event (side-by-side).
+   Visual card moved to ::before so the 3px gap at the bottom is just
+   empty outer area (doesn't clip the card's border/radius). */
 .fit-cal-event-external {
   position: absolute; left: 48px; right: 8px;
-  background: var(--fit-gray-700); border-left: 3px solid var(--fit-text-tertiary);
-  border-radius: var(--fit-radius-sm); padding: 6px 8px;
+  padding: 6px 8px;
   font-size: 12px; color: var(--fit-text-tertiary); overflow: hidden;
   opacity: 0.7;
-  /* hairline gap — see .fit-cal-event */
-  clip-path: inset(0 0 3px 0 round var(--fit-radius-sm));
+  cursor: pointer;
+  isolation: isolate;
 }
+.fit-cal-event-external::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 3px 0;
+  background: var(--fit-gray-700);
+  border-left: 3px solid var(--fit-text-tertiary);
+  border-radius: var(--fit-radius-sm);
+  z-index: -1;
+  pointer-events: none;
+}
+.fit-light .fit-cal-event-external::before { background: var(--fit-gray-200); }
 /* Tiny event (15min = 15px) — only colored bar with truncated title */
 .fit-cal-event.fit-cal-event-tiny {
   padding: 1px 8px; font-size: 10px; overflow: hidden; white-space: nowrap;
@@ -904,7 +916,6 @@
 .fit-cal-event-tiny .fit-cal-event-title { font-size: 10px; }
 .fit-cal-event-tiny .fit-cal-event-meta { display: none; }
 .fit-cal-event-tiny .fit-cal-event-badge { display: none; }
-.fit-light .fit-cal-event-external { background: var(--fit-gray-200); }
 
 /* Cross-role event — user's own event from the OTHER role profile.
    Visually muted (opacity 0.75, dashed left stripe) + role-tag badge
@@ -912,17 +923,24 @@
    long names). Tap → opens role-switch sheet. */
 .fit-cal-event-cross-role {
   position: absolute; left: 48px; right: 8px;
-  background: var(--fit-surface-high);
-  border-left: 3px dashed var(--fit-text-tertiary);
-  border-radius: var(--fit-radius-sm); padding: 6px 8px;
+  padding: 6px 8px;
   padding-right: 80px;   /* reserve room for the bottom-right role badge */
   font-size: 12px; color: var(--fit-text-secondary);
   overflow: hidden; cursor: pointer; opacity: 0.75;
-  /* hairline gap — see .fit-cal-event */
-  clip-path: inset(0 0 3px 0 round var(--fit-radius-sm));
+  isolation: isolate;
+}
+.fit-cal-event-cross-role::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 3px 0;
+  background: var(--fit-surface-high);
+  border-left: 3px dashed var(--fit-text-tertiary);
+  border-radius: var(--fit-radius-sm);
+  z-index: -1;
+  pointer-events: none;
 }
 .fit-cal-event-cross-role:hover { opacity: 0.95; }
-.fit-light .fit-cal-event-cross-role { background: var(--fit-gray-100); }
+.fit-light .fit-cal-event-cross-role::before { background: var(--fit-gray-100); }
 
 /* Role-tag badge — fixed in the bottom-right corner of any cross-role tile.
    Matches the slot where group ratio lives on group events (visual rhyme). */
@@ -975,32 +993,39 @@
   width: 40px; flex-shrink: 0; padding-top: 4px;
 }
 
-/* Calendar events */
+/* Calendar events.
+   3px gap between back-to-back tiles (Apple Calendar style) implemented via
+   a ::before pseudo-card. Outer .fit-cal-event keeps the inline height so
+   neighbours don't reflow; the visible card (bg/border/border-radius) lives
+   on ::before with inset:0 0 3px 0 — last 3px of outer stay transparent,
+   creating a clean gap that doesn't cut into the card's border-radius. */
 .fit-cal-event {
   position: absolute; left: 48px; right: 8px;
-  border-radius: var(--fit-radius-md); padding: var(--fit-sp-2) var(--fit-sp-3);
+  padding: var(--fit-sp-2) var(--fit-sp-3);
   font-size: 12px; overflow: hidden; cursor: grab;
-  /* 3px gap between back-to-back tiles (Apple Calendar style).
-     clip-path with round preserves all 4 rounded corners AND cuts off the
-     bottom 3px transparently. The box still occupies its inline height so
-     neighbours don't reflow. Beats screen-bg border (which cut off the
-     bottom corners visually) and background-clip (too subtle when adjacent
-     tile bgs were similar). */
-  clip-path: inset(0 0 3px 0 round var(--fit-radius-md));
+  isolation: isolate;
+}
+.fit-cal-event::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 3px 0;
+  border-radius: var(--fit-radius-md);
+  z-index: -1;
+  pointer-events: none;
 }
 .fit-cal-event:active { cursor: grabbing; }
-.fit-cal-event-personal {
+.fit-cal-event-personal::before {
   background: var(--fit-surface-high);
   border-left: 3px solid var(--fit-teal-500);
 }
-.fit-light .fit-cal-event-personal {
+.fit-light .fit-cal-event-personal::before {
   background: rgba(5,224,166,0.08);
 }
-.fit-cal-event-group {
+.fit-cal-event-group::before {
   background: rgba(3,178,226,0.12);
   border-left: 3px solid var(--fit-blue-500);
 }
-.fit-light .fit-cal-event-group {
+.fit-light .fit-cal-event-group::before {
   background: rgba(3,178,226,0.08);
 }
 .fit-cal-event-title-row {
@@ -1015,36 +1040,36 @@
 /* Calendar event status system (6 states for personal, 4 for group) */
 /* Shared: colored 1px perimeter + 3px left stripe. Planned = surface-only, no perimeter. */
 /* Request (incoming) — athlete asked, coach needs action */
-.fit-cal-event.request {
+.fit-cal-event.request::before {
   background: rgba(222,145,29,0.10);
   border: 1px solid var(--fit-yellow-600);
   border-left: 3px solid var(--fit-yellow-600);
 }
-.fit-light .fit-cal-event.request { background: rgba(222,145,29,0.14); }
+.fit-light .fit-cal-event.request::before { background: rgba(222,145,29,0.14); }
 /* Awaiting (outgoing) — coach sent, waiting for athlete */
-.fit-cal-event.awaiting {
+.fit-cal-event.awaiting::before {
   border: 1px solid var(--fit-gray-400);
   border-left: 3px solid var(--fit-gray-400);
 }
-.fit-light .fit-cal-event.awaiting {
+.fit-light .fit-cal-event.awaiting::before {
   background: rgba(117,126,135,0.06);
   border: 1px solid var(--fit-gray-500);
   border-left: 3px solid var(--fit-gray-500);
 }
 /* Review (post-event, awaiting coach completion) — same visual lane as Request */
-.fit-cal-event.review {
+.fit-cal-event.review::before {
   background: rgba(222,145,29,0.10);
   border: 1px solid var(--fit-yellow-600);
   border-left: 3px solid var(--fit-yellow-600);
 }
-.fit-light .fit-cal-event.review { background: rgba(222,145,29,0.14); }
+.fit-light .fit-cal-event.review::before { background: rgba(222,145,29,0.14); }
 /* Missed (no-show or auto after N days) */
-.fit-cal-event.missed {
+.fit-cal-event.missed::before {
   background: rgba(240,92,91,0.10);
   border: 1px solid var(--fit-red-400);
   border-left: 3px solid var(--fit-red-400);
 }
-.fit-light .fit-cal-event.missed { background: rgba(240,92,91,0.12); }
+.fit-light .fit-cal-event.missed::before { background: rgba(240,92,91,0.12); }
 /* Finished (coach completed Review) — faded base, no perimeter, stripe persists */
 .fit-cal-event.finished { opacity: 0.5; }
 /* Calendar event pill — inline status badge next to title */
