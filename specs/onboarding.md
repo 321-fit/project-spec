@@ -1,12 +1,14 @@
 # Onboarding
 
-> Last updated: 2026-04-02
+> Status: Implemented (iOS) · Prototype refreshed 2026-05-20
+> Prototype: [shared/onboarding.html](../prototypes/flows/shared/onboarding.html)
+> Last updated: 2026-05-20
 
 ## Overview
 Post-registration wizard that collects user profile data. The flow differs based on user role — coaches have additional steps for gym locations and training sessions.
 
 ## Current State
-Fully implemented in iOS and backend.
+Fully implemented in iOS and backend. Prototype matches the live iOS structure (6 coach / 4 athlete steps) with two open deltas for iOS to follow up on: sport-section taxonomy and the `Home City` field on the Location step (both already in the prototype; iOS to catch up).
 
 ## Components
 
@@ -28,25 +30,30 @@ Fully implemented in iOS and backend.
 
 ### Flow Enum (`OnboardingFlow`)
 ```
-personalInfo → sports → avatarAndBio → location → gymLocations* → trainingSessions* → calendarSync
+personalData → sports → location → gymLocations* → trainingSessions* → calendarSync
 ```
 *Coach-only steps
 
 ### Step Details
 
-| Step | Screen | Description | Both Roles |
-|---|---|---|---|
-| `personalInfo` | Personal Info | Gender, birthdate, weight, height | Yes |
-| `sports` | Sport Selection | Choose sport specialties | Yes |
-| `avatarAndBio` | Avatar & Bio | Profile photo upload, bio text | Yes |
-| `location` | Location | Timezone, country, languages | Yes |
-| `gymLocations` | Gym Locations | Add workout locations on map | Coach only |
-| `trainingSessions` | Training Sessions | Create session templates (name, price, duration) | Coach only |
-| `calendarSync` | Calendar Sync | Connect Google Calendar | Yes |
+| # | Step | Screen title (iOS) | Fields | Both Roles |
+|---|---|---|---|---|
+| 1 | `personalData` | Personal data | Avatar + First Name + Last Name + Bio (About Me) | Yes |
+| 2 | `sports` | What sports do you coach? / train? | Multi-select tile grid, sectioned by category | Yes |
+| 3 | `location` | Location | Time Zone, Home Location (country), **Home City**, Languages | Yes |
+| 4 | `gymLocations` | Gym Location | List of gym locations + Add Gym Location CTA → canonical locations flow | Coach only |
+| 5 | `trainingSessions` | Training Session | List of session cards + Add Training Session → inline Training Session Setup sub-screen (Name, Sport Type, Location, Duration wheel, Price, Cash/Card toggle) | Coach only |
+| 6 | `calendarSync` | Google Calendar Sync | Google + Apple Connect rows; multi-account supported via "Add Google Account" once one is connected | Yes |
 
 ### Role Differences
-- **Athlete:** 5 steps (personalInfo → sports → avatarAndBio → location → calendarSync)
-- **Coach:** 7 steps (all above + gymLocations + trainingSessions)
+- **Athlete:** 4 steps (personalData → sports → location → calendarSync)
+- **Coach:** 6 steps (personalData → sports → location → gymLocations → trainingSessions → calendarSync)
+
+### Header chrome
+Every step: circular back button (left, disabled on step 1) · centered title · teal-outlined pill step counter (right, e.g. `1 of 6`). No progress bar — the pill counter is the single progress affordance. Footer CTA is `Confirm` on every step except the last (`Finish`).
+
+### What is intentionally NOT collected here (2026-05-20)
+Earlier drafts of this spec included `gender`, `date of birth`, `weight`, `height` on the personal step. These were dropped to keep the funnel lean — live iOS already ships without them, and the marketplace can function without these signals at signup. Collect later in Settings (gender / DOB) or via athlete-specific nudge (weight / height for training-load features).
 
 ## API Calls
 

@@ -76,6 +76,16 @@
   .ann code { font-size: 13px; background: rgba(255,255,255,0.06); padding: 1px 5px; border-radius: 3px; color: var(--fit-gray-300); }
   .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
   .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  .state-toggle {
+    margin-top: 14px; display: flex; gap: 0;
+    border-radius: 8px; overflow: hidden; border: 1px solid var(--fit-gray-700);
+  }
+  .state-toggle button {
+    flex: 1; font-family: var(--fit-font); font-size: 12px; font-weight: 500;
+    padding: 8px 0; border: none; cursor: pointer;
+    background: transparent; color: var(--fit-gray-400);
+  }
+  .state-toggle button.active { background: var(--fit-gray-700); color: var(--fit-white); }
 
   /* Phone visibility */
   .fit-phone { display: none; }
@@ -84,102 +94,107 @@
   .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
 
   /* ============================================================
-     PAGE-LOCAL — wizard shell (onb-*).
-     Canonical fit-input-group / fit-input / fit-btn / fit-header
-     do the heavy lifting; onb-* is just the wizard chrome.
+     PAGE-LOCAL — wizard shell (onb-*). iOS reference: see screenshots.
+     Centered title + teal-outline pill counter on the right.
+     No progress bar — pill counter is the single progress indicator.
      ============================================================ */
-
-  /* Wizard top bar: small back chevron + step counter + thin progress */
   .onb-topbar {
-    padding: 8px 16px 0;
-  }
-  .onb-topbar-row {
+    padding: 16px 16px 8px;
     display: flex; align-items: center; gap: 12px;
-    min-height: 36px;
+    min-height: 56px;
   }
   .onb-back {
-    width: 36px; height: 36px; border-radius: 50%;
-    background: transparent; border: none; cursor: pointer;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--fit-surface-high); border: none; cursor: pointer;
     color: var(--fit-text-primary);
     display: flex; align-items: center; justify-content: center;
-    margin-left: -8px;
-  }
-  .onb-back svg { width: 20px; height: 20px; }
-  .onb-step-counter {
-    font-size: 13px; color: var(--fit-text-tertiary);
-    margin-left: auto;
-  }
-  .onb-step-counter strong { color: var(--fit-text-primary); font-weight: 500; }
-  .onb-progress {
-    width: 100%; height: 4px; border-radius: 2px;
-    background: var(--fit-surface-high); overflow: hidden;
-    margin-top: 12px;
-  }
-  .onb-progress-fill {
-    height: 100%; background: var(--fit-brand-gradient);
-    transition: width 0.25s ease;
-  }
-
-  /* Title block under the progress */
-  .onb-head {
-    padding: 24px 16px 20px;
-  }
-  .onb-title {
-    font-size: 24px; font-weight: 600; color: var(--fit-text-primary);
-    line-height: 1.25; margin-bottom: 6px;
-  }
-  .onb-sub {
-    font-size: 14px; color: var(--fit-text-tertiary);
-    line-height: 1.5;
-  }
-
-  /* Sticky footer: Next CTA + optional Skip text */
-  .onb-footer {
-    padding: 12px 16px 24px;
-    border-top: 1px solid var(--fit-divider);
-    display: flex; flex-direction: column; gap: 8px;
-  }
-  .onb-skip {
-    background: transparent; border: none; cursor: pointer;
-    font-family: var(--fit-font); font-size: 14px; font-weight: 500;
-    color: var(--fit-text-secondary);
-    padding: 10px 0;
-    align-self: center;
-  }
-  .onb-skip:hover { color: var(--fit-text-primary); }
-
-  /* === STEP 1: PERSONAL INFO === */
-  .onb-section-label {
-    padding: 0 16px 8px;
-    font-size: 12px; font-weight: 600; text-transform: uppercase;
-    color: var(--fit-text-tertiary); letter-spacing: 0.4px;
-  }
-  .onb-num-input-row {
-    display: flex; gap: 12px; padding: 0 16px 16px;
-  }
-  .onb-num-input {
-    flex: 1; display: flex; align-items: center; gap: 4px;
-    padding: 0 16px;
-    height: 56px;
-    border-radius: 14px;
-    background: var(--fit-surface-high);
-  }
-  .fit-light .onb-num-input { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
-  .onb-num-input input {
-    flex: 1; border: none; outline: none; background: transparent;
-    font-family: var(--fit-font); font-size: 18px; font-weight: 500;
-    color: var(--fit-text-primary); width: 100%;
-  }
-  .onb-num-input-suffix {
-    font-size: 14px; color: var(--fit-text-tertiary);
     flex-shrink: 0;
   }
-  .onb-num-input-label {
-    padding: 0 16px 6px;
-    font-size: 13px; color: var(--fit-text-secondary);
+  .onb-back svg { width: 18px; height: 18px; }
+  .onb-back[disabled] { opacity: 0; pointer-events: none; }
+
+  .onb-title-center {
+    flex: 1; text-align: center;
+    font-size: 20px; font-weight: 600;
+    color: var(--fit-text-primary);
+    padding: 0 8px;
   }
 
-  /* === STEP 2: SPORTS — sectioned grid (mirrors coach/sport-types.html sp-* pattern) === */
+  /* Teal-outline pill counter — "1 of 6" */
+  .onb-step-pill {
+    flex-shrink: 0;
+    min-width: 56px; height: 32px;
+    padding: 0 14px;
+    border-radius: 99px;
+    border: 1px solid var(--fit-teal-500);
+    background: rgba(5, 224, 166, 0.10);
+    color: var(--fit-text-primary);
+    font-size: 13px; font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+    white-space: nowrap;
+  }
+  .fit-light .onb-step-pill { background: rgba(5, 224, 166, 0.12); }
+
+  /* Body subtitle (steps 4-6 — Gym / Session / Calendar) */
+  .onb-sub-block {
+    padding: 12px 24px 20px;
+    text-align: center;
+    font-size: 14px; line-height: 1.5;
+    color: var(--fit-text-secondary);
+  }
+
+  /* Sticky footer: primary CTA */
+  .onb-footer {
+    padding: 12px 16px 24px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+
+  /* === STEP 1: PERSONAL DATA — avatar + name + bio === */
+  .onb-avatar-wrap {
+    display: flex; justify-content: center; padding: 16px 0 28px;
+  }
+  .onb-avatar {
+    position: relative; cursor: pointer;
+  }
+  .onb-avatar-img {
+    width: 110px; height: 110px; border-radius: 50%;
+    background: #3aaef0;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    overflow: hidden; background-size: cover; background-position: center;
+  }
+  .onb-avatar-img svg { width: 56px; height: 56px; }
+  .onb-avatar-add {
+    position: absolute; bottom: 0; right: 0;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--fit-surface-high);
+    display: flex; align-items: center; justify-content: center;
+    border: 3px solid var(--fit-screen-bg);
+    color: var(--fit-text-primary);
+  }
+  .onb-avatar-add svg { width: 14px; height: 14px; }
+
+  /* Plain input pill — used for Name fields (no separate label, placeholder inside) */
+  .onb-input-pill {
+    width: 100%; height: 54px;
+    padding: 0 18px;
+    border-radius: 14px;
+    background: var(--fit-surface-high);
+    border: none; outline: none;
+    font-family: var(--fit-font); font-size: 16px;
+    color: var(--fit-text-primary);
+  }
+  .onb-input-pill::placeholder { color: var(--fit-text-placeholder); }
+  .fit-light .onb-input-pill { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+
+  /* Plain section header (e.g. "About Me") — sentence-case, left-aligned, 16/regular */
+  .onb-body-label {
+    padding: 8px 16px 12px;
+    font-size: 16px; font-weight: 400;
+    color: var(--fit-text-primary);
+  }
+
+  /* === STEP 2: SPORTS — sectioned grid (matches coach/sport-types.html sp-*) === */
   .sp-section { padding: 0 16px; margin-bottom: 20px; }
   .sp-section-title {
     font-size: 14px; font-weight: 500;
@@ -208,79 +223,214 @@
   .sp-card.selected svg { color: var(--fit-text-primary); }
   .sp-card-label { font-size: 14px; line-height: 1.2; }
 
-  /* === STEP 3: AVATAR + BIO — mirrors pd-avatar (personal-data) canonical =====
-     80px on personal-data; bumped to 120px here because avatar is the page's
-     hero. Same gradient + initials + pencil overlay pattern. */
-  .onb-avatar-wrap {
-    display: flex; justify-content: center; padding: 0 0 24px;
+  /* === STEP 4/5: GYM / SESSION — intro layout + outlined "Add" CTA === */
+  .onb-add-btn {
+    width: 100%; height: 54px;
+    border-radius: 99px;
+    background: transparent;
+    border: 1px solid var(--fit-divider);
+    color: var(--fit-text-primary);
+    font-family: var(--fit-font); font-size: 16px; font-weight: 500;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    cursor: pointer; transition: background 0.15s;
   }
-  .onb-avatar {
-    position: relative; cursor: pointer;
-  }
-  .onb-avatar-img {
-    width: 120px; height: 120px; border-radius: 50%;
-    background: var(--fit-brand-gradient);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 40px; font-weight: 600; color: var(--fit-white);
-    overflow: hidden; background-size: cover; background-position: center;
-    letter-spacing: -1px;
-  }
-  .onb-avatar-edit {
-    position: absolute; bottom: 4px; right: 4px;
-    width: 36px; height: 36px; border-radius: 50%;
+  .onb-add-btn:hover { background: var(--fit-surface-high); }
+  .onb-add-btn svg { width: 18px; height: 18px; stroke-width: 2; }
+  .onb-add-wrap { padding: 0 16px; }
+
+  /* Session card (after creating ≥1 session — step 5) */
+  .onb-session-list { padding: 0 16px; display: flex; flex-direction: column; gap: 12px; }
+  .onb-session-card {
+    position: relative;
     background: var(--fit-surface-high);
-    display: flex; align-items: center; justify-content: center;
-    border: 3px solid var(--fit-screen-bg);
+    border-radius: 16px;
+    padding: 16px;
   }
-  .onb-avatar-edit svg { width: 16px; height: 16px; color: var(--fit-text-primary); }
-
-  /* Bio — uses canonical fit-input-ta from fit-ui.css */
-  .onb-bio-wrap {
-    padding: 0 16px;
+  .fit-light .onb-session-card { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .onb-session-card-name {
+    font-size: 18px; font-weight: 500;
+    color: var(--fit-text-primary);
+    margin-bottom: 10px;
   }
-
-  /* === STEP 4: LOCATION — uses canonical fit-input-group + fit-input + fit-input-icon
-     + fit-input-chevron from lib/fit-ui.css (same pattern as personal-data.html
-     home country / home city / time zone / languages rows). */
-
-  /* === STEPS 5 + 6: GYM + SESSION are INTRO landings, not inline forms.
-     Each shows a hero icon + title + sub + primary CTA that links out to
-     the canonical create flow (coach/locations.html#s-loc-map and
-     coach/sessions.html#s-create respectively). On return, the wizard
-     would normally show "Added GYM Bro" confirmation + Continue enabled.
-     For the prototype both states share one layout — the Continue button
-     in the footer simulates the post-return state. */
-  .onb-intro {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 16px; padding: 32px 24px;
-    text-align: center;
-  }
-  .onb-intro-icon {
-    width: 72px; height: 72px; border-radius: 18px;
+  .onb-session-card-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 28px; padding: 0 12px;
     background: var(--fit-selection-gradient);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--fit-teal-500);
+    border: 1px solid var(--fit-teal-600);
+    border-radius: 99px;
+    font-size: 13px; color: var(--fit-text-primary);
+    margin-bottom: 10px;
   }
-  .onb-intro-icon svg { width: 36px; height: 36px; }
-  .onb-intro-title {
-    font-size: 22px; font-weight: 600; color: var(--fit-text-primary);
-    line-height: 1.3;
-  }
-  .onb-intro-sub {
+  .onb-session-card-pill svg { width: 14px; height: 14px; stroke-width: 1.8; }
+  .onb-session-card-meta {
+    display: flex; flex-direction: column; gap: 6px;
     font-size: 14px; color: var(--fit-text-secondary);
-    line-height: 1.5; max-width: 280px;
   }
-  .onb-intro-cta {
-    width: 100%; max-width: 280px; margin-top: 8px;
+  .onb-session-card-meta-row {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .onb-session-card-meta-row svg { width: 16px; height: 16px; stroke-width: 1.8; color: var(--fit-text-tertiary); }
+  .onb-session-card-edit {
+    position: absolute; top: 16px; right: 16px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--fit-surface-higher);
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-text-secondary);
+  }
+  .onb-session-card-edit svg { width: 14px; height: 14px; }
+
+  /* === STEP 5 SUB-SCREEN: Training Session Setup (inline create) === */
+  .ts-group { padding: 0 16px; margin-bottom: 18px; }
+  .ts-group-label {
+    font-size: 16px; font-weight: 400;
+    color: var(--fit-text-primary);
+    margin-bottom: 10px;
+  }
+  .ts-input {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%; height: 54px;
+    padding: 0 18px;
+    border-radius: 14px;
+    background: var(--fit-surface-high);
+    color: var(--fit-text-primary);
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .fit-light .ts-input { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .ts-input input {
+    flex: 1; background: transparent; border: none; outline: none;
+    font-family: var(--fit-font); font-size: 16px; color: var(--fit-text-primary);
+  }
+  .ts-input input::placeholder { color: var(--fit-text-placeholder); }
+  .ts-input-placeholder { flex: 1; color: var(--fit-text-placeholder); }
+  .ts-input-prefix { color: var(--fit-text-secondary); }
+  .ts-input-icon svg { width: 18px; height: 18px; stroke-width: 1.8; color: var(--fit-text-secondary); }
+  .ts-input-chevron svg { width: 16px; height: 16px; stroke-width: 2; color: var(--fit-text-tertiary); }
+
+  /* Duration wheel container (visual approximation of UIDatePicker .wheels) */
+  .ts-wheel-box {
+    background: var(--fit-surface-high);
+    border-radius: 16px;
+    padding: 14px 0;
+  }
+  .fit-light .ts-wheel-box { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .ts-wheel-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+  }
+  .ts-wheel-col-label {
+    grid-row: 1;
+    text-align: center;
+    font-size: 13px; color: var(--fit-text-tertiary);
+    padding-bottom: 6px;
+  }
+  .ts-wheel-col {
+    grid-row: 2;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px; padding: 4px 0;
+  }
+  .ts-wheel-val {
+    font-size: 14px; color: var(--fit-text-tertiary); line-height: 1.4;
+  }
+  .ts-wheel-val.cur {
+    font-size: 22px; font-weight: 600;
+    background: var(--fit-surface-higher);
+    color: var(--fit-text-primary);
+    padding: 2px 28px; border-radius: 8px;
+    margin: 2px 0;
   }
 
-  /* (Step 6 Sessions uses the .onb-intro CTA-landing pattern — no extra CSS) */
+  /* Payment method 2-button toggle (Cash / Card) */
+  .ts-pay-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; padding: 0 16px; margin-top: 4px;
+  }
+  .ts-pay-btn {
+    position: relative;
+    display: flex; align-items: center; gap: 10px;
+    height: 54px; padding: 0 16px;
+    border-radius: 99px;
+    background: var(--fit-surface-high);
+    color: var(--fit-text-primary);
+    border: 1px solid transparent;
+    font-size: 15px; font-weight: 500;
+    cursor: pointer;
+  }
+  .fit-light .ts-pay-btn { background: var(--fit-white); border-color: var(--fit-gray-100); }
+  .ts-pay-btn svg { width: 18px; height: 18px; stroke-width: 1.8; color: var(--fit-text-secondary); }
+  .ts-pay-btn.selected {
+    background: var(--fit-selection-gradient);
+    border-color: var(--fit-teal-500);
+  }
+  .ts-pay-btn.selected svg { color: var(--fit-text-primary); }
+  .ts-pay-btn-check {
+    margin-left: auto; color: var(--fit-teal-500);
+    display: none;
+  }
+  .ts-pay-btn.selected .ts-pay-btn-check { display: inline-flex; }
+  .ts-pay-btn-check svg { width: 16px; height: 16px; color: var(--fit-teal-500); }
 
-  /* === STEP 7: CALENDAR SYNC — uses canonical .set-card from fit-ui.css
-     (same pattern as coach/calendar-sync.html account list rows). */
+  /* === STEP 6: CALENDAR SYNC === */
+  .onb-cal-list { padding: 0 16px; display: flex; flex-direction: column; gap: 12px; }
+  .onb-cal-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    background: var(--fit-surface-high);
+    border-radius: 16px;
+  }
+  .fit-light .onb-cal-row { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .onb-cal-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--fit-surface-higher);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; overflow: hidden;
+  }
+  .onb-cal-icon img { width: 28px; height: 28px; }
+  .onb-cal-info { flex: 1; min-width: 0; }
+  .onb-cal-title { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
+  .onb-cal-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .onb-cal-sub.email { color: var(--fit-teal-400); }
+  .onb-cal-sub.fetch {
+    display: flex; align-items: center; gap: 6px;
+    color: var(--fit-text-tertiary);
+  }
+  .onb-cal-sub.fetch::before {
+    content: "";
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 1.5px solid var(--fit-text-tertiary);
+    border-top-color: transparent;
+    animation: onb-spin 0.9s linear infinite;
+  }
+  @keyframes onb-spin { to { transform: rotate(360deg); } }
+  .onb-cal-cta {
+    flex-shrink: 0;
+    height: 36px; padding: 0 22px;
+    border-radius: 99px;
+    background: var(--fit-brand-gradient-h);
+    color: var(--fit-text-on-brand);
+    border: none; cursor: pointer;
+    font-family: var(--fit-font); font-size: 14px; font-weight: 500;
+  }
 
-  /* === STEP 8: COMPLETE === */
+  /* Dashed "Add Google Account" button (between Google + Apple when connected) */
+  .onb-dashed-btn {
+    width: 100%; height: 50px;
+    border-radius: 14px;
+    background: transparent;
+    border: 1.5px dashed var(--fit-divider);
+    color: var(--fit-teal-400);
+    font-family: var(--fit-font); font-size: 15px; font-weight: 500;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    cursor: pointer;
+  }
+  .onb-dashed-btn svg { width: 18px; height: 18px; }
+  .onb-cal-divider {
+    height: 1px; background: var(--fit-divider);
+    margin: 6px 0 4px;
+  }
+
+  /* === COMPLETE === */
   .onb-complete {
     flex: 1; display: flex; flex-direction: column;
     align-items: center; justify-content: center;
@@ -302,7 +452,7 @@
     line-height: 1.45; max-width: 280px;
   }
 
-  /* Theme switch (footer of sidebar) */
+  /* Theme switch */
   .theme-switch {
     margin-top: auto; padding-top: 12px; display: flex; gap: 0;
     border-radius: 8px; overflow: hidden;
@@ -319,22 +469,21 @@
 <!-- ==================== SIDEBAR ==================== -->
 <nav class="sidebar">
   <div class="sidebar-scroll">
-    <div class="label">Athlete · 5 steps</div>
-    <button class="active" onclick="go('s-onb-personal',this,{role:'athlete',step:1,total:5,pct:20})">Personal info<span class="badge">1/5</span></button>
-    <button onclick="go('s-onb-sports',this,{role:'athlete',step:2,total:5,pct:40})">Sports<span class="badge">2/5</span></button>
-    <button onclick="go('s-onb-avatar',this,{role:'athlete',step:3,total:5,pct:60})">Avatar &amp; bio<span class="badge">3/5</span></button>
-    <button onclick="go('s-onb-location',this,{role:'athlete',step:4,total:5,pct:80})">Location<span class="badge">4/5</span></button>
-    <button onclick="go('s-onb-calendar',this,{role:'athlete',step:5,total:5,pct:100})">Calendar sync<span class="badge">5/5</span></button>
+    <div class="label">Athlete · 4 steps</div>
+    <button class="active" onclick="go('s-onb-personal',this,{role:'athlete',step:1,total:4})">Personal data<span class="badge">1/4</span></button>
+    <button onclick="go('s-onb-sports',this,{role:'athlete',step:2,total:4})">Sports<span class="badge">2/4</span></button>
+    <button onclick="go('s-onb-location',this,{role:'athlete',step:3,total:4})">Location<span class="badge">3/4</span></button>
+    <button onclick="go('s-onb-calendar',this,{role:'athlete',step:4,total:4})">Calendar sync<span class="badge">4/4</span></button>
     <button onclick="go('s-onb-complete',this,{role:'athlete'})">Complete</button>
 
-    <div class="label">Coach · 7 steps</div>
-    <button onclick="go('s-onb-personal',this,{role:'coach',step:1,total:7,pct:14})">Personal info<span class="badge">1/7</span></button>
-    <button onclick="go('s-onb-sports',this,{role:'coach',step:2,total:7,pct:28})">Sports<span class="badge">2/7</span></button>
-    <button onclick="go('s-onb-avatar',this,{role:'coach',step:3,total:7,pct:42})">Avatar &amp; bio<span class="badge">3/7</span></button>
-    <button onclick="go('s-onb-location',this,{role:'coach',step:4,total:7,pct:56})">Location<span class="badge">4/7</span></button>
-    <button onclick="go('s-onb-gym',this,{role:'coach',step:5,total:7,pct:71})">Gym locations<span class="badge">5/7</span></button>
-    <button onclick="go('s-onb-sessions',this,{role:'coach',step:6,total:7,pct:85})">First session<span class="badge">6/7</span></button>
-    <button onclick="go('s-onb-calendar',this,{role:'coach',step:7,total:7,pct:100})">Calendar sync<span class="badge">7/7</span></button>
+    <div class="label">Coach · 6 steps</div>
+    <button onclick="go('s-onb-personal',this,{role:'coach',step:1,total:6})">Personal data<span class="badge">1/6</span></button>
+    <button onclick="go('s-onb-sports',this,{role:'coach',step:2,total:6})">Sports<span class="badge">2/6</span></button>
+    <button onclick="go('s-onb-location',this,{role:'coach',step:3,total:6})">Location<span class="badge">3/6</span></button>
+    <button onclick="go('s-onb-gym',this,{role:'coach',step:4,total:6})">Gym Location<span class="badge">4/6</span></button>
+    <button onclick="go('s-onb-sessions',this,{role:'coach',step:5,total:6})">Training Session<span class="badge">5/6</span></button>
+    <button onclick="go('s-onb-session-create',this,{role:'coach',step:5,total:6})">↳ Session setup<span class="badge">sub</span></button>
+    <button onclick="go('s-onb-calendar',this,{role:'coach',step:6,total:6})">Calendar sync<span class="badge">6/6</span></button>
     <button onclick="go('s-onb-complete',this,{role:'coach'})">Complete</button>
   </div>
   <div class="theme-switch">
@@ -344,106 +493,80 @@
 </nav>
 
 <!-- ============================================================
-     SCREEN: STEP 1 — PERSONAL INFO
-     iOS ref: Onboarding/OnboardingView.swift (personalInfo step)
+     SCREEN: STEP 1 — PERSONAL DATA
+     iOS: avatar + first name + last name + bio. No gender / DOB / weight / height.
      ============================================================ -->
 <div class="fit-phone fit-dark active" id="s-onb-personal">
   <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-status-bar"><span>11:53</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="onb-topbar">
-      <div class="onb-topbar-row">
-        <button class="onb-back" data-a11y-id="onboarding.flow.back" aria-label="Back" disabled style="opacity:0.35;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <span class="onb-step-counter"><strong data-onb-step>1</strong> of <span data-onb-total>5</span></span>
-      </div>
-      <div class="onb-progress"><div class="onb-progress-fill" data-onb-fill style="width:20%;"></div></div>
+      <button class="onb-back" data-a11y-id="onboarding.flow.back" aria-label="Back" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="onb-title-center">Personal data</div>
+      <div class="onb-step-pill"><strong data-onb-step>1</strong>&nbsp;of&nbsp;<span data-onb-total>6</span></div>
     </div>
   </div>
   <div class="fit-phone-content" style="padding:0;display:flex;flex-direction:column;">
-    <div class="onb-head">
-      <div class="onb-title">Tell us about yourself</div>
-      <div class="onb-sub">We use these to personalize recommendations and your profile.</div>
-    </div>
-
-    <div class="onb-section-label">Gender</div>
-    <div style="padding:0 16px 16px;">
-      <div class="fit-selection-group">
-        <div class="fit-selection-chip selected" data-a11y-id="onboarding.flow.personal.gender.woman">Woman</div>
-        <div class="fit-selection-chip" data-a11y-id="onboarding.flow.personal.gender.man">Man</div>
-      </div>
-    </div>
-
-    <div class="onb-section-label">Date of birth</div>
-    <div style="padding:0 16px 16px;">
-      <div class="fit-input" style="cursor:pointer;" data-a11y-id="onboarding.flow.personal.dob">
-        <span style="flex:1;color:var(--fit-text-placeholder);">Select your date of birth</span>
-        <span class="fit-input-chevron">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-        </span>
-      </div>
-    </div>
-
-    <!-- Athlete-only fields (weight/height). Coach onboarding hides these — see annotation. -->
-    <div data-role-only="athlete">
-      <div class="onb-section-label">Body metrics</div>
-      <div class="onb-num-input-row">
-        <div style="flex:1;">
-          <div class="onb-num-input-label">Weight</div>
-          <div class="onb-num-input">
-            <input type="number" inputmode="decimal" placeholder="65" data-a11y-id="onboarding.flow.personal.weight"/>
-            <span class="onb-num-input-suffix">kg</span>
-          </div>
+    <div class="onb-avatar-wrap">
+      <div class="onb-avatar" data-a11y-id="onboarding.flow.personal.avatar">
+        <div class="onb-avatar-img">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>
+          </svg>
         </div>
-        <div style="flex:1;">
-          <div class="onb-num-input-label">Height</div>
-          <div class="onb-num-input">
-            <input type="number" inputmode="decimal" placeholder="170" data-a11y-id="onboarding.flow.personal.height"/>
-            <span class="onb-num-input-suffix">cm</span>
-          </div>
+        <div class="onb-avatar-add" aria-label="Add photo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
         </div>
       </div>
+    </div>
+
+    <div style="padding:0 16px;display:flex;flex-direction:column;gap:10px;">
+      <input class="onb-input-pill" type="text" placeholder="First Name"
+             data-a11y-id="onboarding.flow.personal.first-name"/>
+      <input class="onb-input-pill" type="text" placeholder="Last Name"
+             data-a11y-id="onboarding.flow.personal.last-name"/>
+    </div>
+
+    <div class="onb-body-label" style="margin-top:18px;">About Me</div>
+    <div style="padding:0 16px;">
+      <textarea class="fit-input-ta" placeholder="Bio"
+                data-a11y-id="onboarding.flow.personal.bio" maxlength="500"
+                style="min-height:160px;"></textarea>
     </div>
 
     <div style="flex:1;"></div>
   </div>
   <div class="onb-footer">
     <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.personal.next"
-            onclick="go('s-onb-sports', null, currentNext())">Continue</button>
+            onclick="goNext()">Confirm</button>
   </div>
 </div>
 
 <!-- ============================================================
-     SCREEN: STEP 2 — SPORTS
-     iOS ref: Onboarding (sports step)
+     SCREEN: STEP 2 — SPORTS (with our section taxonomy)
      ============================================================ -->
 <div class="fit-phone fit-dark" id="s-onb-sports">
   <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-status-bar"><span>11:55</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="onb-topbar">
-      <div class="onb-topbar-row">
-        <button class="onb-back" data-a11y-id="onboarding.flow.back" aria-label="Back" onclick="go('s-onb-personal',null,currentPrev())">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <span class="onb-step-counter"><strong data-onb-step>2</strong> of <span data-onb-total>5</span></span>
-      </div>
-      <div class="onb-progress"><div class="onb-progress-fill" data-onb-fill style="width:40%;"></div></div>
+      <button class="onb-back" data-a11y-id="onboarding.flow.back" aria-label="Back" onclick="goPrev()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="onb-title-center" data-role-copy="sports-title">What sports do you coach?</div>
+      <div class="onb-step-pill"><strong data-onb-step>2</strong>&nbsp;of&nbsp;<span data-onb-total>6</span></div>
     </div>
   </div>
   <div class="fit-phone-content" style="padding:0;display:flex;flex-direction:column;">
-    <div class="onb-head">
-      <div class="onb-title" data-role-copy="sports-title">Pick your sports</div>
-      <div class="onb-sub" data-role-copy="sports-sub">Choose what you want to train. You can change this later.</div>
-    </div>
+    <div style="height:8px;"></div>
 
-    <!-- Sections copied verbatim from coach/sport-types.html (the canonical picker).
-         A11y-id stays generic at the row level per feedback_a11y_naming rule for dynamic lists. -->
     <div class="sp-section">
       <div class="sp-section-title">Fitness &amp; Strength</div>
       <div class="sp-grid">
         <div class="sp-card selected" data-label="Fitness" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h12M4 8v8M8 6v12M16 6v12M20 8v8"/></svg><span class="sp-card-label">Fitness</span></div>
         <div class="sp-card" data-label="CrossFit" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M5 9v6M19 9v6"/><circle cx="12" cy="12" r="2.2"/></svg><span class="sp-card-label">CrossFit</span></div>
-        <div class="sp-card" data-label="Functional training" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6M9 4c-.8.6-1.5 1.4-2 2.5"/><path d="M15 4c.8.6 1.5 1.4 2 2.5"/><circle cx="12" cy="14" r="6"/></svg><span class="sp-card-label">Functional</span></div>
+        <div class="sp-card" data-label="Functional" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6M9 4c-.8.6-1.5 1.4-2 2.5"/><path d="M15 4c.8.6 1.5 1.4 2 2.5"/><circle cx="12" cy="14" r="6"/></svg><span class="sp-card-label">Functional</span></div>
         <div class="sp-card" data-label="HIIT" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="7"/><path d="M10 3h4M12 10v4h3"/></svg><span class="sp-card-label">HIIT</span></div>
         <div class="sp-card" data-label="Weightlifting" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M6 9v6M18 9v6M3 10v4M21 10v4"/></svg><span class="sp-card-label">Weightlifting</span></div>
         <div class="sp-card" data-label="Powerlifting" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20M5 9v6M19 9v6"/></svg><span class="sp-card-label">Powerlifting</span></div>
@@ -492,103 +615,50 @@
   </div>
   <div class="onb-footer">
     <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.sports.next"
-            onclick="go('s-onb-avatar',null,currentNext())">Continue</button>
+            onclick="goNext()">Confirm</button>
   </div>
 </div>
 
 <!-- ============================================================
-     SCREEN: STEP 3 — AVATAR + BIO
-     ============================================================ -->
-<div class="fit-phone fit-dark" id="s-onb-avatar">
-  <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="onb-topbar">
-      <div class="onb-topbar-row">
-        <button class="onb-back" data-a11y-id="onboarding.flow.back" aria-label="Back" onclick="go('s-onb-sports',null,currentPrev())">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <span class="onb-step-counter"><strong data-onb-step>3</strong> of <span data-onb-total>5</span></span>
-      </div>
-      <div class="onb-progress"><div class="onb-progress-fill" data-onb-fill style="width:60%;"></div></div>
-    </div>
-  </div>
-  <div class="fit-phone-content" style="padding:0;display:flex;flex-direction:column;">
-    <div class="onb-head">
-      <div class="onb-title">Add a photo and a few words</div>
-      <div class="onb-sub" data-role-copy="avatar-sub">Helps coaches recognize you and trust your profile.</div>
-    </div>
-
-    <div class="onb-avatar-wrap">
-      <div class="onb-avatar" data-a11y-id="onboarding.flow.avatar.upload">
-        <div class="onb-avatar-img">JM</div>
-        <div class="onb-avatar-edit">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-        </div>
-      </div>
-    </div>
-
-    <div class="onb-section-label">About you</div>
-    <div class="onb-bio-wrap">
-      <textarea class="fit-input-ta" placeholder="A few lines about yourself — what you train for, what motivates you."
-                data-a11y-id="onboarding.flow.avatar.bio" maxlength="500" style="min-height:140px;"></textarea>
-      <div class="fit-input-counter">0 / 500</div>
-    </div>
-
-    <div style="flex:1;"></div>
-  </div>
-  <div class="onb-footer">
-    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.avatar.next"
-            onclick="go('s-onb-location',null,currentNext())">Continue</button>
-  </div>
-</div>
-
-<!-- ============================================================
-     SCREEN: STEP 4 — LOCATION (TZ + country + city + languages)
+     SCREEN: STEP 3 — LOCATION (TZ + Country + City + Languages)
+     City retained against live iOS (still being added).
      ============================================================ -->
 <div class="fit-phone fit-dark" id="s-onb-location">
   <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-status-bar"><span>11:55</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="onb-topbar">
-      <div class="onb-topbar-row">
-        <button class="onb-back" data-a11y-id="onboarding.flow.back" aria-label="Back" onclick="go('s-onb-avatar',null,currentPrev())">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <span class="onb-step-counter"><strong data-onb-step>4</strong> of <span data-onb-total>5</span></span>
-      </div>
-      <div class="onb-progress"><div class="onb-progress-fill" data-onb-fill style="width:80%;"></div></div>
+      <button class="onb-back" data-a11y-id="onboarding.flow.back" aria-label="Back" onclick="goPrev()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="onb-title-center">Location</div>
+      <div class="onb-step-pill"><strong data-onb-step>3</strong>&nbsp;of&nbsp;<span data-onb-total>6</span></div>
     </div>
   </div>
   <div class="fit-phone-content" style="padding:0;display:flex;flex-direction:column;">
-    <div class="onb-head">
-      <div class="onb-title">Where are you based?</div>
-      <div class="onb-sub">We use this to find coaches near you and set the right time zone.</div>
-    </div>
+    <div style="height:8px;"></div>
 
-    <!-- Same fit-input-group + fit-input pattern as coach/personal-data.html
-         home country / home city / time zone / languages rows. -->
     <div class="fit-input-group" style="padding:0 16px;">
       <span class="fit-input-label">Time Zone</span>
       <div class="fit-input" style="cursor:pointer;" data-a11y-id="onboarding.flow.location.timezone">
         <span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span>
-        <span style="flex:1;">Tbilisi, Asia (GMT+4)</span>
+        <span style="flex:1;">Warsaw, Europe</span>
         <span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
       </div>
     </div>
 
     <div class="fit-input-group" style="padding:0 16px;">
-      <span class="fit-input-label">Home country</span>
+      <span class="fit-input-label">Home Location</span>
       <div class="fit-input" style="cursor:pointer;" data-a11y-id="onboarding.flow.location.country">
-        <span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:14px;"><rect x="1" y="5" width="22" height="14" rx="2"/></svg></span>
-        <span style="flex:1;">🇬🇪 Georgia</span>
+        <span style="flex:1;">🇵🇱 Poland</span>
         <span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
       </div>
     </div>
 
     <div class="fit-input-group" style="padding:0 16px;">
-      <span class="fit-input-label">Home city</span>
+      <span class="fit-input-label">Home City</span>
       <div class="fit-input" style="cursor:pointer;" data-a11y-id="onboarding.flow.location.city">
         <span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
-        <span style="flex:1;">Tbilisi</span>
+        <span style="flex:1;">Warsaw</span>
         <span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
       </div>
     </div>
@@ -596,8 +666,8 @@
     <div class="fit-input-group" style="padding:0 16px;">
       <span class="fit-input-label">Languages</span>
       <div class="fit-input" style="cursor:pointer;" data-a11y-id="onboarding.flow.location.languages">
-        <span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg></span>
-        <span style="flex:1;">English, ქართული</span>
+        <span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg></span>
+        <span style="flex:1;">English</span>
         <span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
       </div>
     </div>
@@ -606,144 +676,301 @@
   </div>
   <div class="onb-footer">
     <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.location.next"
-            onclick="onbNextFromLocation()">Continue</button>
+            onclick="goNext()">Confirm</button>
   </div>
 </div>
 
 <!-- ============================================================
-     SCREEN: STEP 5 (Coach only) — GYM LOCATIONS
+     SCREEN: STEP 4 (Coach only) — GYM LOCATION
      ============================================================ -->
 <div class="fit-phone fit-dark" id="s-onb-gym">
   <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-status-bar"><span>11:56</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="onb-topbar">
-      <div class="onb-topbar-row">
-        <button class="onb-back" data-a11y-id="onboarding.flow.back" aria-label="Back" onclick="go('s-onb-location',null,currentPrev())">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <span class="onb-step-counter"><strong data-onb-step>5</strong> of <span data-onb-total>7</span></span>
-      </div>
-      <div class="onb-progress"><div class="onb-progress-fill" data-onb-fill style="width:71%;"></div></div>
+      <button class="onb-back" data-a11y-id="onboarding.flow.back" aria-label="Back" onclick="goPrev()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="onb-title-center">Gym Location</div>
+      <div class="onb-step-pill"><strong data-onb-step>4</strong>&nbsp;of&nbsp;<span data-onb-total>6</span></div>
     </div>
   </div>
   <div class="fit-phone-content" style="padding:0;display:flex;flex-direction:column;">
-    <div class="onb-intro">
-      <div class="onb-intro-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-      </div>
-      <div class="onb-intro-title">Add your first training location</div>
-      <div class="onb-intro-sub">Athletes book sessions at the gyms or courts you set here. You can add more locations later.</div>
-      <button class="fit-btn fit-btn-primary onb-intro-cta"
-              data-a11y-id="onboarding.flow.gym.add"
+    <div class="onb-sub-block">
+      Specify the location of the gym where your workouts will take place.
+      These locations will be used to create your workout sessions.
+    </div>
+
+    <div class="onb-add-wrap">
+      <button class="onb-add-btn" data-a11y-id="onboarding.flow.gym.add"
               onclick="window.location.href='../coach/locations.html'">
-        Add a location
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Add Gym Location
       </button>
     </div>
+
+    <div style="flex:1;"></div>
   </div>
   <div class="onb-footer">
     <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.gym.next"
-            onclick="go('s-onb-sessions',null,currentNext())">Continue</button>
+            onclick="goNext()">Confirm</button>
   </div>
 </div>
 
 <!-- ============================================================
-     SCREEN: STEP 6 (Coach only) — TRAINING SESSIONS
+     SCREEN: STEP 5 (Coach only) — TRAINING SESSION
+     State A: empty (default).  State B: with one session card (state toggle in annotation).
      ============================================================ -->
 <div class="fit-phone fit-dark" id="s-onb-sessions">
   <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-status-bar"><span>11:57</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="onb-topbar">
-      <div class="onb-topbar-row">
-        <button class="onb-back" data-a11y-id="onboarding.flow.back" aria-label="Back" onclick="go('s-onb-gym',null,currentPrev())">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <span class="onb-step-counter"><strong data-onb-step>6</strong> of <span data-onb-total>7</span></span>
-      </div>
-      <div class="onb-progress"><div class="onb-progress-fill" data-onb-fill style="width:85%;"></div></div>
+      <button class="onb-back" data-a11y-id="onboarding.flow.back" aria-label="Back" onclick="goPrev()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="onb-title-center">Training Session</div>
+      <div class="onb-step-pill"><strong data-onb-step>5</strong>&nbsp;of&nbsp;<span data-onb-total>6</span></div>
     </div>
   </div>
   <div class="fit-phone-content" style="padding:0;display:flex;flex-direction:column;">
-    <div class="onb-intro">
-      <div class="onb-intro-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4"/></svg>
+    <div class="onb-sub-block">
+      Create your first training session. You'll be able to create multiple sessions,
+      and athletes will be able to see them and book them.
+    </div>
+
+    <!-- State B: one session created (shown when data-session-state="filled") -->
+    <div class="onb-session-list" data-show-when="session-state=filled" style="display:none;margin-bottom:14px;">
+      <div class="onb-session-card" data-a11y-id="onboarding.flow.session.card">
+        <button class="onb-session-card-edit" aria-label="Edit session"
+                onclick="go('s-onb-session-create',null,currentCtx())">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+        </button>
+        <div class="onb-session-card-name">Morning Run</div>
+        <div class="onb-session-card-pill">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="M10 9l4-2 3 4-3 3v6"/><path d="M14 14l-3 3-3-2"/></svg>
+          Running
+        </div>
+        <div class="onb-session-card-meta">
+          <div class="onb-session-card-meta-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>Vistula Park, Warsaw</span>
+          </div>
+          <div class="onb-session-card-meta-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <span>45min</span>
+          </div>
+          <div class="onb-session-card-meta-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg>
+            <span>25 EUR</span>
+          </div>
+        </div>
       </div>
-      <div class="onb-intro-title">Create your first session</div>
-      <div class="onb-intro-sub">A session is a template athletes can book. Set name, duration, price — you can add more or edit later.</div>
-      <button class="fit-btn fit-btn-primary onb-intro-cta"
-              data-a11y-id="onboarding.flow.session.add"
-              onclick="window.location.href='../coach/sessions.html'">
-        Create a session
+    </div>
+
+    <div class="onb-add-wrap">
+      <button class="onb-add-btn" data-a11y-id="onboarding.flow.session.add"
+              onclick="go('s-onb-session-create',null,currentCtx())">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Add Training Session
       </button>
     </div>
+
+    <div style="flex:1;"></div>
   </div>
   <div class="onb-footer">
     <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.session.next"
-            onclick="go('s-onb-calendar',null,currentNext())">Continue</button>
+            onclick="goNext()">Confirm</button>
   </div>
 </div>
 
 <!-- ============================================================
-     SCREEN: CALENDAR SYNC (last step before complete, BOTH roles)
+     SUB-SCREEN: Training Session Setup (opened from Add / pencil edit)
+     Not numbered in the wizard counter — separate screen pushed from step 5.
      ============================================================ -->
-<div class="fit-phone fit-dark" id="s-onb-calendar">
+<div class="fit-phone fit-dark" id="s-onb-session-create">
   <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-status-bar"><span>11:57</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="onb-topbar">
-      <div class="onb-topbar-row">
-        <button class="onb-back" data-a11y-id="onboarding.flow.back" aria-label="Back" onclick="onbBackFromCalendar()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <span class="onb-step-counter"><strong data-onb-step>5</strong> of <span data-onb-total>5</span></span>
-      </div>
-      <div class="onb-progress"><div class="onb-progress-fill" data-onb-fill style="width:100%;"></div></div>
+      <button class="onb-back" data-a11y-id="onboarding.flow.session.create.back" aria-label="Back"
+              onclick="go('s-onb-sessions',null,currentCtx())">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="onb-title-center" style="text-align:left;font-size:22px;font-weight:600;padding-left:8px;">Training Session Setup</div>
     </div>
   </div>
   <div class="fit-phone-content" style="padding:0;display:flex;flex-direction:column;">
-    <div class="onb-head">
-      <div class="onb-title">Connect your calendar</div>
-      <div class="onb-sub">We sync sessions with your calendar so you don't double-book. You can skip this and connect later in Settings.</div>
+    <div style="height:12px;"></div>
+
+    <div class="ts-group">
+      <div class="ts-group-label">Training Name</div>
+      <div class="ts-input">
+        <input type="text" placeholder="Basketball training"
+               data-a11y-id="onboarding.flow.session.create.name"/>
+      </div>
     </div>
 
-    <!-- Same set-card pattern as coach/calendar-sync.html. set-card is canonical in lib/fit-ui.css. -->
-    <div style="padding:0 16px;display:flex;flex-direction:column;gap:10px;">
-      <div class="set-card" style="cursor:pointer;" data-a11y-id="onboarding.flow.calendar.google">
-        <div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;" onerror="this.style.display='none';">
-        </div>
-        <div class="set-info" style="flex:1;">
-          <div class="set-title">Google Calendar</div>
-          <div class="set-sub">Sign in with your Google account</div>
-        </div>
-        <button class="fit-btn fit-btn-primary fit-btn-sm" style="width:auto;padding:0 16px;height:32px;font-size:12px;border-radius:99px;">Connect</button>
+    <div class="ts-group">
+      <div class="ts-group-label">Sport Type</div>
+      <div class="ts-input" data-a11y-id="onboarding.flow.session.create.sport">
+        <span class="ts-input-placeholder">Select sport type</span>
+        <span class="ts-input-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
       </div>
-      <div class="set-card" style="cursor:pointer;" data-a11y-id="onboarding.flow.calendar.apple">
-        <div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <img src="../../../design-tokens/assets/icons/apple-calendar.svg" style="width:20px;height:20px;" onerror="this.style.display='none';">
+    </div>
+
+    <div class="ts-group">
+      <div class="ts-group-label">Location</div>
+      <div class="ts-input" data-a11y-id="onboarding.flow.session.create.location">
+        <span class="ts-input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <span class="ts-input-placeholder">Select a training location</span>
+        <span class="ts-input-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+      </div>
+    </div>
+
+    <div class="ts-group">
+      <div class="ts-group-label">Duration</div>
+      <div class="ts-wheel-box" data-a11y-id="onboarding.flow.session.create.duration">
+        <div class="ts-wheel-row">
+          <div class="ts-wheel-col-label" style="grid-column:1;">Hour</div>
+          <div class="ts-wheel-col-label" style="grid-column:2;">Minutes</div>
+          <div class="ts-wheel-col" style="grid-column:1;">
+            <span class="ts-wheel-val cur">0</span>
+            <span class="ts-wheel-val">1</span>
+          </div>
+          <div class="ts-wheel-col" style="grid-column:2;">
+            <span class="ts-wheel-val">0</span>
+            <span class="ts-wheel-val cur">15</span>
+            <span class="ts-wheel-val">30</span>
+          </div>
         </div>
-        <div class="set-info" style="flex:1;">
-          <div class="set-title">Apple Calendar</div>
-          <div class="set-sub">iCloud sync via app-specific password</div>
+      </div>
+    </div>
+
+    <div class="ts-group">
+      <div class="ts-group-label">Price</div>
+      <div class="ts-input" data-a11y-id="onboarding.flow.session.create.price">
+        <span class="ts-input-prefix">€</span>
+        <input type="number" inputmode="decimal" placeholder="0"/>
+      </div>
+    </div>
+
+    <div class="ts-pay-row">
+      <button class="ts-pay-btn selected" data-a11y-id="onboarding.flow.session.create.payment.cash"
+              onclick="this.classList.add('selected');this.nextElementSibling.classList.remove('selected');">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg>
+        Cash
+        <span class="ts-pay-btn-check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </span>
+      </button>
+      <button class="ts-pay-btn" data-a11y-id="onboarding.flow.session.create.payment.card"
+              onclick="this.classList.add('selected');this.previousElementSibling.classList.remove('selected');">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+        Card
+        <span class="ts-pay-btn-check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </span>
+      </button>
+    </div>
+
+    <div style="flex:1;"></div>
+  </div>
+  <div class="onb-footer">
+    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.session.create.save"
+            onclick="go('s-onb-sessions',null,currentCtx())">Save</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN: STEP 6 (coach) / STEP 4 (athlete) — CALENDAR SYNC
+     State A: both not connected.  State B: Google connected, fetching.
+     CTA: Finish (no separate Skip — user can simply tap Finish without connecting).
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-onb-calendar">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>11:58</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="onb-topbar">
+      <button class="onb-back" data-a11y-id="onboarding.flow.back" aria-label="Back" onclick="goPrev()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="onb-title-center">Google Calendar Sync</div>
+      <div class="onb-step-pill"><strong data-onb-step>6</strong>&nbsp;of&nbsp;<span data-onb-total>6</span></div>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding:0;display:flex;flex-direction:column;">
+    <div class="onb-sub-block">
+      Connect your Google and Apple calendars in order to sync and take into account
+      your personal events with your training sessions.
+    </div>
+
+    <!-- STATE A — initial, neither connected -->
+    <div class="onb-cal-list" data-show-when="cal-state=initial">
+      <div class="onb-cal-row" data-a11y-id="onboarding.flow.calendar.google.row">
+        <div class="onb-cal-icon">
+          <img src="../../../design-tokens/assets/icons/google-calendar.svg" alt="" onerror="this.style.display='none';">
         </div>
-        <button class="fit-btn fit-btn-primary fit-btn-sm" style="width:auto;padding:0 16px;height:32px;font-size:12px;border-radius:99px;">Connect</button>
+        <div class="onb-cal-info">
+          <div class="onb-cal-title">Google Calendar</div>
+          <div class="onb-cal-sub">Not connected</div>
+        </div>
+        <button class="onb-cal-cta" data-a11y-id="onboarding.flow.calendar.google.connect">Connect</button>
+      </div>
+      <div class="onb-cal-row" data-a11y-id="onboarding.flow.calendar.apple.row">
+        <div class="onb-cal-icon">
+          <img src="../../../design-tokens/assets/icons/apple-calendar.svg" alt="" onerror="this.style.display='none';">
+        </div>
+        <div class="onb-cal-info">
+          <div class="onb-cal-title">Apple Calendar</div>
+          <div class="onb-cal-sub">Not connected</div>
+        </div>
+        <button class="onb-cal-cta" data-a11y-id="onboarding.flow.calendar.apple.connect">Connect</button>
+      </div>
+    </div>
+
+    <!-- STATE B — Google connected, fetching calendars + add another -->
+    <div class="onb-cal-list" data-show-when="cal-state=fetching" style="display:none;">
+      <div class="onb-cal-row" data-a11y-id="onboarding.flow.calendar.google.row.connected">
+        <div class="onb-cal-icon">
+          <img src="../../../design-tokens/assets/icons/google-calendar.svg" alt="" onerror="this.style.display='none';">
+        </div>
+        <div class="onb-cal-info">
+          <div class="onb-cal-title">Google Calendar</div>
+          <div class="onb-cal-sub email">youri.kavalenok@gmail.com</div>
+          <div class="onb-cal-sub fetch">Fetching calendars…</div>
+        </div>
+      </div>
+      <button class="onb-dashed-btn" data-a11y-id="onboarding.flow.calendar.google.add-another">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+        Add Google Account
+      </button>
+      <div class="onb-cal-divider"></div>
+      <div class="onb-cal-row" data-a11y-id="onboarding.flow.calendar.apple.row">
+        <div class="onb-cal-icon">
+          <img src="../../../design-tokens/assets/icons/apple-calendar.svg" alt="" onerror="this.style.display='none';">
+        </div>
+        <div class="onb-cal-info">
+          <div class="onb-cal-title">Apple Calendar</div>
+          <div class="onb-cal-sub">Not connected</div>
+        </div>
+        <button class="onb-cal-cta" data-a11y-id="onboarding.flow.calendar.apple.connect">Connect</button>
       </div>
     </div>
 
     <div style="flex:1;"></div>
   </div>
   <div class="onb-footer">
-    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.calendar.next"
-            onclick="go('s-onb-complete',null,currentNext())">Continue</button>
-    <button class="onb-skip" data-a11y-id="onboarding.flow.calendar.skip"
-            onclick="go('s-onb-complete',null,currentNext())">Skip for now</button>
+    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.calendar.finish"
+            onclick="onbFinish()">Finish</button>
   </div>
 </div>
 
 <!-- ============================================================
      SCREEN: COMPLETE — celebratory final
+     Conceptual screen. In production, Finish on calendar step navigates
+     straight to the dashboard; this is a sanity-check preview of the
+     transition shown in the prototype sidebar.
      ============================================================ -->
 <div class="fit-phone fit-dark" id="s-onb-complete">
   <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-status-bar"><span>11:58</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
   </div>
   <div class="fit-phone-content" style="padding:0;display:flex;flex-direction:column;">
     <div class="onb-complete">
@@ -765,143 +992,155 @@
 <div class="ann-container">
   <div class="ann active" id="ann-s-onb-personal">
     <span class="ann-role">Shared</span>
-    <h3>Step 1 — Personal info</h3>
-    <p>First fullscreen step of post-signup onboarding. Collects gender + DOB for both roles. <strong>Athlete</strong> additionally collects weight + height (used for personalization + future training-load features). <strong>Coach</strong> hides weight/height entirely — those fields aren't needed for marketplace function (per <code>specs/personal-data.md</code> § coach vs athlete fields).</p>
+    <h3>Step 1 — Personal data</h3>
+    <p>First fullscreen step. Avatar + first name + last name + short bio. <strong>Matches live iOS</strong> — gender / DOB / weight / height are intentionally NOT collected here. They are deferred to post-onboarding settings to keep the funnel lean.</p>
     <hr>
-    <p><strong>iOS ref:</strong> <code>Onboarding/OnboardingFlow.swift</code> case <code>.personalInfo</code>.</p>
     <ul>
-      <li>Gender: 2-option chip group (Woman / Man) per <code>project_personal_data_selectors</code>.</li>
-      <li>DOB: tappable input → opens wheel picker sheet (same pattern as <code>coach/personal-data.html</code>; not rendered inline in this prototype).</li>
-      <li>Weight / Height: metric only (kg / cm) per <code>project_personal_data_selectors</code>. Suffix inline in the input field.</li>
-      <li>Back disabled on step 1 (account already created — can't unwind here).</li>
+      <li>Avatar: 110px circular dropzone (teal-blue fallback + white user icon). Tap → native PHPickerViewController.</li>
+      <li>Name fields use placeholder pattern (no separate label) — matches live iOS form chrome.</li>
+      <li>Bio: 500-char textarea, label "About Me" above. Counter hidden until typing starts.</li>
+      <li>Back disabled on step 1 — account already exists, can't unwind here.</li>
     </ul>
-    <p class="note">Switch role in the left sidebar (Athlete vs Coach) — the weight/height block hides for coach via <code>data-role-only="athlete"</code>.</p>
+    <p class="note">Gender + DOB historically appeared in this step per <code>project_personal_data_selectors</code>. Dropped 2026-05-20 because iOS already shipped without them and they aren't needed for marketplace function. Can be added to Settings later if/when search needs them.</p>
   </div>
 
   <div class="ann" id="ann-s-onb-sports">
     <span class="ann-role">Shared</span>
     <h3>Step 2 — Sports</h3>
-    <p>Multi-select sport tile grid. 33 sports total in the canonical taxonomy (per <code>project_sport_taxonomy</code>), prototype shows 6 representative ones.</p>
+    <p>Multi-select sport tile grid. <strong>Sectioned by category</strong> (Fitness/Racket/Endurance/Mind&amp;Body/Combat) per <code>project_sport_taxonomy</code> — live iOS shows a flat grid, this is an explicit ask to bring section headers across when iOS catches up.</p>
     <hr>
     <ul>
-      <li>Athlete title: "Pick your sports" — what you want to train.</li>
-      <li>Coach title: "What do you teach?" — what you'll offer to athletes (overlay via <code>data-role-copy</code>).</li>
-      <li>Tiles use canonical <code>fit-selection-gradient</code> + teal-600 border on <code>.selected</code> per <code>feedback_selection_chips</code>.</li>
-      <li>Continue button stays disabled until at least 1 sport is selected (visualized via <code>.is-disabled</code> in production; prototype shows pre-selected Tennis for demo).</li>
+      <li>Title centered in header: <strong>"What sports do you coach?"</strong> (coach) / "What sports do you train?" (athlete).</li>
+      <li>Tiles: <code>fit-selection-gradient</code> + teal-600 border on <code>.selected</code> per <code>feedback_selection_chips</code>.</li>
+      <li>Continue stays disabled until ≥1 sport selected (visualized via <code>.is-disabled</code> in production; prototype pre-selects Tennis + Fitness for demo).</li>
     </ul>
-  </div>
-
-  <div class="ann" id="ann-s-onb-avatar">
-    <span class="ann-role">Shared</span>
-    <h3>Step 3 — Avatar &amp; bio</h3>
-    <p>Profile photo + short bio. <strong>Avatar is optional</strong> at this step but strongly nudged with the dashed dropzone visual; bio is encouraged but not required to continue.</p>
-    <hr>
-    <ul>
-      <li>Avatar zone: 120px circular dashed dropzone → tap opens native picker (same pattern as <code>coach/personal-data.html</code> avatar pencil; in production fires PHPickerViewController / Android equivalent).</li>
-      <li>Bio: 500-char textarea with live counter. Coach copy nudges toward credentials ("years coaching, certifications, what makes your sessions different"); athlete copy nudges toward goals ("what you train for, what motivates you").</li>
-    </ul>
+    <p class="note">Section taxonomy isn't shipped on iOS yet — flag for sport-types module follow-up.</p>
   </div>
 
   <div class="ann" id="ann-s-onb-location">
     <span class="ann-role">Shared</span>
-    <h3>Step 4 — Location</h3>
-    <p>Four push-rows: time zone, country, city, languages. Each opens a dedicated picker (sticky search + scrollable list; not rendered inline in this prototype).</p>
+    <h3>Step 3 — Location</h3>
+    <p>Four push-rows: time zone, home country, home city, languages. <strong>City retained against live iOS</strong> (still being added on the native side) — useful default for search radius.</p>
     <hr>
     <ul>
-      <li><strong>Time zone, country</strong> — device-detected at account creation, shown pre-filled per <code>project_personal_data_selectors</code>.</li>
-      <li><strong>City</strong> — reverse-geocoded from device GPS at onboarding (<code>GET /geo/reverse-city</code>). If geocode unavailable, field is empty and user picks manually per <code>project_personal_data_selectors</code> 2026-05-19 update.</li>
-      <li><strong>Languages</strong> — device locale pre-fill, multi-select, used downstream as search filter default per <code>project_search_default_filters</code>.</li>
-      <li>Changing country resets city (no cross-country city values).</li>
+      <li>TZ + Country — device-detected at account creation, shown pre-filled per <code>project_personal_data_selectors</code>.</li>
+      <li>City — reverse-geocoded via <code>GET /geo/reverse-city</code>. If geocode unavailable, field is empty and user picks manually.</li>
+      <li>Languages — device locale pre-fill, multi-select. Default search filter per <code>project_search_default_filters</code>.</li>
+      <li>Changing country resets city.</li>
     </ul>
-    <p class="note">In production these pickers are full-screen pushes (same components as <code>coach/personal-data.html</code> <code>s-country-select</code> / <code>s-city-select</code>). For Continue to enable, all 4 rows must have a value.</p>
   </div>
 
   <div class="ann" id="ann-s-onb-gym">
     <span class="ann-role">Coach</span>
-    <h3>Step 5 — Gym locations (coach only)</h3>
-    <p>Intro screen with a primary CTA <strong>Add a location</strong> that hands off to the canonical add-location flow (<code>coach/locations.html#s-loc-map</code>) — the SAME picker coach uses elsewhere in the app. On return to onboarding, the wizard would normally render a confirmation card showing the added gym + Continue enabled.</p>
+    <h3>Step 4 — Gym Location (coach only)</h3>
+    <p>Subtitle + outlined "Add Gym Location" CTA → hands off to canonical <code>coach/locations.html</code>. On return, the wizard would render a card list above the Add CTA (same pattern as Training Session step) + Confirm enabled.</p>
     <hr>
     <ul>
-      <li>Athletes don't see this step — onboarding branches at step 5: athlete jumps from <strong>Location</strong> directly to <strong>Calendar sync</strong> (step 5 of 5).</li>
-      <li>Coaches add ≥1 location to continue. More locations can be added later in Settings → Locations.</li>
-      <li>Location type (in-person gym / online / home visit) is set inside the canonical flow — defaults to in-person per <code>project_locations_decisions</code>.</li>
-      <li><strong>Why intro + CTA, not inline picker</strong>: re-using the canonical locations screen keeps a single source of truth for the form. The wizard isn't a separate "create gym" UI; it just routes into the existing one.</li>
+      <li>Athletes don't see this step — onboarding branches: athlete jumps from Location → Calendar (step 4 of 4).</li>
+      <li>≥1 location required to Confirm.</li>
+      <li>Location type (in-person / online / home) is set inside the canonical flow — defaults to in-person per <code>project_locations_decisions</code>.</li>
     </ul>
-    <p class="note">Prototype: the Continue footer button always navigates forward — in production it'd be disabled until ≥1 location is added.</p>
   </div>
 
   <div class="ann" id="ann-s-onb-sessions">
     <span class="ann-role">Coach</span>
-    <h3>Step 6 — First training session (coach only)</h3>
-    <p>Intro screen with a primary CTA <strong>Create a session</strong> that hands off to the canonical session-create flow (<code>coach/sessions.html#s-create</code>) — the SAME multi-field form (name, sport, location, training type, max participants, duration wheel-picker, price, schedule) coach uses elsewhere. On return to onboarding, the wizard would normally show the created session + Continue enabled.</p>
+    <h3>Step 5 — Training Session (coach only)</h3>
+    <p>Coach creates ≥1 bookable session here. Two states — empty (Add only) and filled (list of session cards above the Add CTA).</p>
     <hr>
     <ul>
-      <li>One session minimum to continue — coaches need at least one bookable thing for the marketplace to surface them.</li>
-      <li>Sport pre-fills from step 2 selection (passed via deep-link param in production).</li>
-      <li>Currency is the user's country's default (€ for Georgia / EU; production reads from country lookup table).</li>
-      <li><strong>Why intro + CTA, not inline form</strong>: same reasoning as gym step — canonical session-create form has 10+ fields with wheel-picker for duration and recurring/one-off schedule logic. Inlining would diverge from the source of truth.</li>
+      <li><strong>Tap Add Training Session</strong> → opens the inline <em>Training Session Setup</em> sub-screen (Name / Sport / Location / Duration wheel / Price / Cash-Card toggle).</li>
+      <li><strong>Tap pencil on card</strong> → opens the same sub-screen in edit mode.</li>
+      <li>Inline form vs handoff: live iOS uses an inline sub-screen (NOT a hand-off to the full <code>coach/sessions.html</code>) — we follow that. Differs from <code>feedback_wizard_handoff</code> which prefers canonical create-flow handoff; the inline session form is intentional to keep new-coach friction low.</li>
     </ul>
+    <div class="state-toggle" id="session-toggle">
+      <button class="active" onclick="setSessionState('empty', this)">Empty</button>
+      <button onclick="setSessionState('filled', this)">With 1 session</button>
+    </div>
+  </div>
+
+  <div class="ann" id="ann-s-onb-session-create">
+    <span class="ann-role">Coach</span>
+    <h3>Sub-screen — Training Session Setup</h3>
+    <p>Inline create / edit form pushed from step 5. Not numbered in the step counter (no pill — title is left-aligned to signal sub-screen vs main wizard step).</p>
+    <hr>
+    <ul>
+      <li><strong>Training Name</strong> — free text, placeholder "Basketball training".</li>
+      <li><strong>Sport Type</strong> — push picker, pre-filled from step 2 selection if only one sport chosen.</li>
+      <li><strong>Location</strong> — push picker, sourced from step 4 gym locations.</li>
+      <li><strong>Duration</strong> — UIDatePicker wheel (Hour 0–12, Minutes 0/15/30/45). iOS-native pattern per <code>feedback_native_pickers</code>.</li>
+      <li><strong>Price</strong> — numeric input with € prefix. Currency from user's country.</li>
+      <li><strong>Cash / Card</strong> — payment acceptance toggle. Cash default. Coach can accept one or both (in production both buttons can be selected simultaneously — prototype shows mutually-exclusive for clarity).</li>
+      <li><strong>Save</strong> → returns to step 5 with the new session in the list.</li>
+    </ul>
+    <p class="note">Note: <code>coach/sessions.html</code> (canonical sessions screen used outside onboarding) has more fields — recurring schedule, training type, max participants. Onboarding sub-screen is a deliberate subset.</p>
   </div>
 
   <div class="ann" id="ann-s-onb-calendar">
     <span class="ann-role">Shared</span>
-    <h3>Step 5/7 — Calendar sync (optional)</h3>
-    <p>Last step before complete. <strong>Only step in the onboarding flow that has a <em>Skip for now</em> link</strong> — everything else is mandatory.</p>
+    <h3>Step 6 (coach) / Step 4 (athlete) — Calendar sync</h3>
+    <p>Last step. <strong>No explicit Skip link</strong> — user can simply tap Finish without connecting (live iOS pattern). Two visual states:</p>
     <hr>
     <ul>
-      <li>Google Calendar tap → native OAuth bottom sheet. On success, return here with Continue auto-fire.</li>
-      <li>Apple Calendar tap → push to CalDAV connect form (Apple ID + app-specific password) — full flow lives in <code>coach/calendar-sync.html</code>.</li>
-      <li>Skip → goes straight to Complete; coach/athlete lands on dashboard with no calendar connected. User can connect later in Settings → Calendar Sync.</li>
+      <li><strong>Initial</strong>: Google + Apple rows, each with a Connect pill.</li>
+      <li><strong>After Google connects</strong>: Google row shows the connected email + "Fetching calendars…" spinner. A dashed "Add Google Account" appears below — multi-account is supported. Apple still listed beneath.</li>
+      <li>Google → OAuth (system sheet). Apple → CalDAV push (Apple ID + app-specific password), full flow lives in <code>coach/calendar-sync.html</code>.</li>
+      <li>Header title in live iOS reads literally <em>"Google Calendar Sync"</em> even though Apple is also offered. Flagged — should rename to "Calendar Sync" when iOS catches up.</li>
     </ul>
+    <div class="state-toggle" id="cal-toggle">
+      <button class="active" onclick="setCalState('initial', this)">Initial</button>
+      <button onclick="setCalState('fetching', this)">Google connected</button>
+    </div>
   </div>
 
   <div class="ann" id="ann-s-onb-complete">
     <span class="ann-role">Shared</span>
     <h3>Complete — done</h3>
-    <p>Celebration screen. Single Continue / Get started CTA → lands on the appropriate dashboard.</p>
+    <p>Conceptual celebration screen. Live iOS goes directly from Finish → dashboard with no celebratory screen — this is a sanity-check preview only.</p>
     <hr>
     <ul>
-      <li><strong>Athlete</strong> → "Let's find you the first coach" → athlete dashboard (with welcome wizard for follow-up tasks like first top-up).</li>
-      <li><strong>Coach</strong> → "Your profile is now under review" → coach dashboard <code>dst-under-review</code> state (banner + optional boosts like Stripe / Available hours / Intro video).</li>
-      <li>Backend on Continue: <code>setOnboardingCompleted()</code> + transition account state. Server emits <code>user.onboarded</code> event (athlete's inviter coach gets push notification per <code>specs/onboarding.md</code>).</li>
+      <li><strong>Athlete</strong> → "Let's find you the first coach" → athlete dashboard <code>dst-welcome</code>.</li>
+      <li><strong>Coach</strong> → "Your profile is now under review" → coach dashboard <code>dst-under-review</code>.</li>
+      <li>Backend on Finish: <code>setOnboardingCompleted()</code> + transition account state + emit <code>user.onboarded</code> event.</li>
     </ul>
-    <p class="note">Onboarding flow ≠ dashboard wizard widget. After complete, dashboard widget is a <em>separate</em> checklist for remaining setup tasks (per <code>project_onboarding_wizard</code>).</p>
+    <p class="note">Onboarding flow ≠ dashboard wizard widget. The dashboard wizard is a separate checklist for remaining setup tasks (per <code>project_onboarding_wizard</code>).</p>
   </div>
 </div>
 
 <script>
-let __onbCtx = { role: 'athlete', step: 1, total: 5, pct: 20 };
+// ----- Wizard ordered routing -----
+const ATHLETE_ORDER = ['s-onb-personal', 's-onb-sports', 's-onb-location', 's-onb-calendar'];
+const COACH_ORDER   = ['s-onb-personal', 's-onb-sports', 's-onb-location', 's-onb-gym', 's-onb-sessions', 's-onb-calendar'];
 
-function currentNext() {
-  return { role: __onbCtx.role, step: __onbCtx.step + 1, total: __onbCtx.total, pct: Math.round((__onbCtx.step + 1) / __onbCtx.total * 100) };
-}
-function currentPrev() {
-  return { role: __onbCtx.role, step: __onbCtx.step - 1, total: __onbCtx.total, pct: Math.round((__onbCtx.step - 1) / __onbCtx.total * 100) };
-}
+let __onbCtx = { role: 'athlete', step: 1, total: 4 };
+let __sessionState = 'empty';   // empty | filled
+let __calState = 'initial';     // initial | fetching
 
-// Calendar sync is step 5 (athlete) OR step 7 (coach). Back from calendar:
-// - athlete → location (step 4)
-// - coach → sessions (step 6)
-function onbBackFromCalendar() {
-  if (__onbCtx.role === 'coach') {
-    go('s-onb-sessions', null, { role: 'coach', step: 6, total: 7, pct: 85 });
-  } else {
-    go('s-onb-location', null, { role: 'athlete', step: 4, total: 5, pct: 80 });
-  }
-}
+function order() { return __onbCtx.role === 'coach' ? COACH_ORDER : ATHLETE_ORDER; }
+function currentCtx() { return Object.assign({}, __onbCtx); }
 
-// Continue from location: athlete jumps to calendar; coach goes to gym.
-function onbNextFromLocation() {
-  if (__onbCtx.role === 'coach') {
-    go('s-onb-gym', null, { role: 'coach', step: 5, total: 7, pct: 71 });
-  } else {
-    go('s-onb-calendar', null, { role: 'athlete', step: 5, total: 5, pct: 100 });
-  }
+function goNext() {
+  const ord = order();
+  const idx = ord.indexOf(currentScreen());
+  if (idx < 0) return;
+  const next = ord[Math.min(idx + 1, ord.length - 1)];
+  const nextStep = ord.indexOf(next) + 1;
+  go(next, null, { role: __onbCtx.role, step: nextStep, total: ord.length });
+}
+function goPrev() {
+  const ord = order();
+  const idx = ord.indexOf(currentScreen());
+  if (idx <= 0) return;
+  const prev = ord[idx - 1];
+  const prevStep = ord.indexOf(prev) + 1;
+  go(prev, null, { role: __onbCtx.role, step: prevStep, total: ord.length });
+}
+function currentScreen() {
+  const el = document.querySelector('.fit-phone.active');
+  return el ? el.id : 's-onb-personal';
 }
 
 function onbFinish() {
   // Production: setOnboardingCompleted() + redirect.
-  // Prototype: link to the appropriate dashboard.
   if (__onbCtx.role === 'coach') {
     window.location.href = '../coach/dashboard.html#under-review';
   } else {
@@ -914,7 +1153,6 @@ function go(screenId, sidebarBtn, ctx) {
     __onbCtx = Object.assign({}, __onbCtx, ctx);
     document.querySelectorAll('[data-onb-step]').forEach(el => { el.textContent = __onbCtx.step; });
     document.querySelectorAll('[data-onb-total]').forEach(el => { el.textContent = __onbCtx.total; });
-    document.querySelectorAll('[data-onb-fill]').forEach(el => { el.style.width = __onbCtx.pct + '%'; });
     applyRoleVisibility();
   }
 
@@ -932,21 +1170,21 @@ function go(screenId, sidebarBtn, ctx) {
   }
 }
 
-// Show/hide role-conditional content (athlete-only weight/height block etc.)
+// Show/hide role-conditional content
 function applyRoleVisibility() {
   document.querySelectorAll('[data-role-only]').forEach(el => {
     el.style.display = (el.dataset.roleOnly === __onbCtx.role) ? '' : 'none';
   });
-  // Role-specific copy swaps
   const copy = {
-    'sports-title':    { athlete: 'Pick your sports', coach: 'What do you teach?' },
-    'sports-sub':      { athlete: 'Choose what you want to train. You can change this later.',
-                          coach: 'Choose what you offer to athletes. You can change this later.' },
-    'avatar-sub':      { athlete: 'Helps coaches recognize you and trust your profile.',
-                          coach: 'Athletes are 2× more likely to book a coach with a photo and a clear bio.' },
-    'complete-sub':    { athlete: "Your profile is ready. Let's find you the first coach.",
-                          coach: "Your profile is now under review. We'll notify you within 24 hours." },
-    'complete-cta':    { athlete: 'Find a coach', coach: 'Got it' },
+    'sports-title': {
+      athlete: 'What sports do you train?',
+      coach:   'What sports do you coach?'
+    },
+    'complete-sub': {
+      athlete: "Your profile is ready. Let's find you the first coach.",
+      coach:   "Your profile is now under review. We'll notify you within 24 hours."
+    },
+    'complete-cta': { athlete: 'Find a coach', coach: 'Got it' },
   };
   document.querySelectorAll('[data-role-copy]').forEach(el => {
     const key = el.dataset.roleCopy;
@@ -956,6 +1194,31 @@ function applyRoleVisibility() {
     const key = el.dataset.roleCopyAttr;
     if (copy[key] && copy[key][__onbCtx.role]) el.textContent = copy[key][__onbCtx.role];
   });
+}
+
+// State toggles (right panel)
+function setSessionState(state, btn) {
+  __sessionState = state;
+  document.querySelectorAll('[data-show-when="session-state=filled"]').forEach(el => {
+    el.style.display = state === 'filled' ? '' : 'none';
+  });
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+function setCalState(state, btn) {
+  __calState = state;
+  document.querySelectorAll('[data-show-when="cal-state=initial"]').forEach(el => {
+    el.style.display = state === 'initial' ? '' : 'none';
+  });
+  document.querySelectorAll('[data-show-when="cal-state=fetching"]').forEach(el => {
+    el.style.display = state === 'fetching' ? '' : 'none';
+  });
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
 }
 
 function switchTheme(theme) {
@@ -969,7 +1232,7 @@ function switchTheme(theme) {
   });
 }
 
-// Initial role-visibility apply (default = athlete)
+// Initial paint
 applyRoleVisibility();
 </script>
 
