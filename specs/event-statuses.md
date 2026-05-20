@@ -46,6 +46,7 @@ Every client render (calendar card, event sheet, dashboard card) + every backend
 - As the client, pill colors and descriptor text map 1:1 from the enum. Clients must not invent state names.
 - As any service, `cancelled` is a terminal state but is **NOT displayed** on calendar — events transition to cancelled and are filtered from the normal calendar view. Retained in DB for 2 months for audit, then hard-deleted.
 - As the client, **cross-role presentation** (see § 3a) is a separate render mode orthogonal to the 6 statuses. The same event keeps a single canonical status server-side; only the client picks which presentation to use depending on which role is currently active.
+- As any service, **custom events** (`type: "custom"` — coach's own calendar blocks per [coach-calendar.md § Flow 5](./coach-calendar.md)) are **stateless** — they do NOT participate in the 6-state lifecycle. They have no Request/Awaiting/Review/Missed/Finished transitions; they exist (visible) or are deleted (gone). Rendering on the timeline uses `FitCalEvent` with `type: .custom` variant — no status pill, no perimeter border, no opacity dimming.
 
 ---
 

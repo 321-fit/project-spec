@@ -107,16 +107,18 @@ Root tab screen, has the nav bar footer. Acts as both agenda view (for the coach
 
 1. From FAB action sheet → **"Block time off"** option.
 2. Screen `s-block-time-off`:
-   - Title input (required, 1–60 chars, placeholder "Dentist", "Family", "Vacation")
+   - Title input (**optional**, 1–60 chars, placeholder "Dentist", "Family", "Vacation"). Inline hint: "Leave empty and we'll call it **My time**."
    - **All-day toggle** — when on, hides start/end time row and the event blocks the whole day
-   - Date — single date picker sheet (multi-day deferred)
-   - Start time + end time — two side-by-side time picker sheets
+   - Date — single date picker sheet (full month calendar grid, multi-day deferred)
+   - Start time + end time — two canonical `.fit-wheel-picker` sheets (Hour + Minutes columns, 15-min snap matching the broader 15-min grid used across calendar / sessions / availability)
    - Notes (optional, 0–300 chars) — only visible to coach
-3. Save → POST `/coach/events` with `type: "custom"`, no `athlete_profile_id`, no `training_session_id`. **Backend dependency:** endpoint to be added; `TrainingEvent` schema already supports nullable fields.
-4. Rendering on timeline: muted block (no athlete info, no status pill, no left-stripe color — distinguishable from personal/group).
-5. Blocks availability: athlete booking calendars show this slot as **"Coach unavailable"** — title + notes are NEVER exposed to athletes.
-6. Drag & drop within same day supported.
-7. Delete: tap event → sheet → Delete button (destructive high, confirmation required).
+3. **Default title rule:** if title field is empty at save, server (and client preview) substitute `"My time"`. This keeps the timeline tile readable and avoids "Untitled" / blank-name awkwardness. Renders as a regular title on the tile + drawer header.
+4. Save → POST `/coach/events` with `type: "custom"`, no `athlete_profile_id`, no `training_session_id`, defaulted title if empty. **Backend dependency:** endpoint + default-title rule to be added; `TrainingEvent` schema already supports nullable fields.
+5. Rendering on timeline: `FitCalEvent` with `type: .custom` variant — solid `text-tertiary` left stripe, `surface-high` background, **no opacity dimming**, **no status pill** (custom events are stateless — don't go through the 6-state lifecycle, see [event-statuses.md](./event-statuses.md)), **no role tag**.
+6. Drawer (`cal-custom-sheet`) on tap: descriptor (title) + time row + info banner explaining athlete-side visibility + **Edit** (secondary) + **Delete** (destructive) actions.
+7. Blocks availability: athlete booking calendars show this slot as **"Coach unavailable"** — title + notes are NEVER exposed to athletes.
+8. Drag & drop within same day supported (custom events behave like regular own-role events for layout purposes).
+9. Delete: from drawer → Delete confirmation sheet (destructive high).
 
 ### Flow 6: Create a past event (log cash session) — Tier 1 Q9
 
