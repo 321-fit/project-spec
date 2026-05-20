@@ -227,47 +227,13 @@
   .onb-add-btn svg { width: 18px; height: 18px; stroke-width: 2; }
   .onb-add-wrap { padding: 0 16px; }
 
-  /* === Session card (after creating ≥1 session — step 5 list state) === */
-  .onb-session-list { padding: 0 16px; display: flex; flex-direction: column; gap: 12px; }
-  .onb-session-card {
-    position: relative;
-    background: var(--fit-surface-high);
-    border-radius: 16px;
-    padding: 16px;
-  }
-  .fit-light .onb-session-card { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
-  .onb-session-card-name {
-    font-size: 18px; font-weight: 500;
-    color: var(--fit-text-primary);
-    margin-bottom: 10px;
-  }
-  .onb-session-card-pill {
-    display: inline-flex; align-items: center; gap: 6px;
-    height: 28px; padding: 0 12px;
-    background: var(--fit-selection-gradient);
-    border: 1px solid var(--fit-teal-600);
-    border-radius: 99px;
-    font-size: 13px; color: var(--fit-text-primary);
-    margin-bottom: 10px;
-  }
-  .onb-session-card-pill svg { width: 14px; height: 14px; stroke-width: 1.8; }
-  .onb-session-card-meta {
-    display: flex; flex-direction: column; gap: 6px;
-    font-size: 14px; color: var(--fit-text-secondary);
-  }
-  .onb-session-card-meta-row {
-    display: flex; align-items: center; gap: 8px;
-  }
-  .onb-session-card-meta-row svg { width: 16px; height: 16px; stroke-width: 1.8; color: var(--fit-text-tertiary); }
-  .onb-session-card-edit {
-    position: absolute; top: 16px; right: 16px;
-    width: 32px; height: 32px; border-radius: 50%;
-    background: var(--fit-surface-higher);
-    border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--fit-text-secondary);
-  }
-  .onb-session-card-edit svg { width: 14px; height: 14px; }
+  /* === Session card — canonical v6d-card pattern (same as coach/sessions.html#s-list) === */
+  .v6d-card { background: var(--fit-surface-high); }
+  .fit-light .v6d-card { background: var(--fit-white) !important; box-shadow: 0 1px 12px rgba(0,0,0,0.12); border: 1px solid var(--fit-gray-200); }
+  .fit-light .v6d-icon-box { background: rgba(0,0,0,0.06) !important; }
+  .fit-light .v6d-icon-box svg { stroke: var(--fit-gray-900) !important; }
+  .fit-light .v6d-price { color: var(--fit-text-primary) !important; }
+  .fit-light .v6d-loc-strip { border-bottom-color: var(--fit-gray-200) !important; }
 
   /* === CALENDAR SYNC === */
   .onb-cal-list { padding: 0 16px; display: flex; flex-direction: column; gap: 12px; }
@@ -324,9 +290,6 @@
   .onb-dashed-btn svg { width: 18px; height: 18px; }
   .onb-cal-divider { height: 1px; background: var(--fit-divider); margin: 6px 0 4px; }
 
-  /* === Map (Gym sub-screen) — simple grid placeholder === */
-  .map-grid { position: absolute; inset: 0; opacity: 0.06; pointer-events: none; }
-  .map-grid::before, .map-grid::after { content: ""; position: absolute; background: var(--fit-text-tertiary); }
   /* Theme switch */
   .theme-switch {
     margin-top: auto; padding-top: 12px; display: flex; gap: 0;
@@ -579,7 +542,7 @@
     <div data-show-when="gym-state=filled" style="display:none;padding:0 16px;margin-bottom:14px;display:flex;flex-direction:column;gap:10px;">
       <div class="set-card" data-a11y-id="onboarding.flow.gym.card" onclick="go('s-onb-gym-form',null,currentCtx())">
         <div style="display:flex;align-items:center;gap:12px;width:100%;">
-          <div style="width:40px;height:40px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <div style="width:40px;height:40px;border-radius:10px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
           </div>
           <div style="flex:1;min-width:0;">
@@ -955,29 +918,26 @@
       and athletes will be able to see them and book them.
     </div>
 
-    <div class="onb-session-list" data-show-when="session-state=filled" style="display:none;margin-bottom:14px;">
-      <div class="onb-session-card" data-a11y-id="onboarding.flow.session.card">
-        <button class="onb-session-card-edit" aria-label="Edit session" data-a11y-id="onboarding.flow.session.card.edit" onclick="go('s-onb-session-create',null,currentCtx())">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-        </button>
-        <div class="onb-session-card-name">Morning Run</div>
-        <div class="onb-session-card-pill">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="M10 9l4-2 3 4-3 3v6"/><path d="M14 14l-3 3-3-2"/></svg>
-          Running
+    <div data-show-when="session-state=filled" style="display:none;margin-bottom:14px;">
+      <!-- Canonical v6d-card pattern (matches coach/sessions.html#s-list). Whole card is tappable to edit. -->
+      <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;" data-a11y-id="onboarding.flow.session.card" onclick="go('s-onb-session-create',null,currentCtx())">
+        <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+          <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--fit-white);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="M10 9l4-2 3 4-3 3v6"/><path d="M14 14l-3 3-3-2"/></svg>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Morning Run</div>
+            <div style="font-size:12px;color:var(--fit-text-secondary);opacity:0.7;">45min &middot; cash</div>
+          </div>
+          <div style="text-align:right;display:flex;align-items:center;gap:8px;">
+            <div class="v6d-price" style="font-size:16px;font-weight:600;color:var(--fit-white);">&euro;25</div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
         </div>
-        <div class="onb-session-card-meta">
-          <div class="onb-session-card-meta-row">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <span>Vistula Park, Warsaw</span>
-          </div>
-          <div class="onb-session-card-meta-row">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-            <span>45min</span>
-          </div>
-          <div class="onb-session-card-meta-row">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg>
-            <span>25 EUR</span>
-          </div>
+        <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">Vistula Park, Warsaw</span>
+          <span style="font-size:12px;color:var(--fit-text-tertiary);">Personal</span>
         </div>
       </div>
     </div>
