@@ -905,37 +905,60 @@
 .fit-light .fit-cal-event-external { background: var(--fit-gray-200); }
 
 /* Cross-role event — user's own event from the OTHER role profile.
-   Visually muted like external (not actionable from current role) but
-   distinguishable: dashed left stripe + small role tag corner instead of
-   solid stripe + opacity 0.75 vs 0.7. Tap → opens role-switch sheet. */
+   Visually muted (opacity 0.75, dashed left stripe) + role-tag badge
+   anchored bottom-right (NOT in title row — keeps title clean for
+   long names). Tap → opens role-switch sheet. */
 .fit-cal-event-cross-role {
   position: absolute; left: 48px; right: 8px;
   background: var(--fit-surface-high);
   border-left: 3px dashed var(--fit-text-tertiary);
   border-radius: var(--fit-radius-sm); padding: 6px 8px;
+  padding-right: 80px;   /* reserve room for the bottom-right role badge */
   font-size: 12px; color: var(--fit-text-secondary);
   overflow: hidden; cursor: pointer; opacity: 0.75;
 }
 .fit-cal-event-cross-role:hover { opacity: 0.95; }
 .fit-light .fit-cal-event-cross-role { background: var(--fit-gray-100); }
-.fit-cal-event-cross-role-title {
-  font-size: 12px; font-weight: 500; color: var(--fit-text-primary);
-  margin-bottom: 2px; display: flex; align-items: center; gap: 6px;
-}
+
+/* Role-tag badge — fixed in the bottom-right corner of any cross-role tile.
+   Matches the slot where group ratio lives on group events (visual rhyme). */
 .fit-cal-event-cross-role-tag {
-  margin-left: auto; flex-shrink: 0;
+  position: absolute; bottom: 6px; right: 8px;
   display: inline-flex; align-items: center; gap: 4px;
   height: 18px; padding: 0 8px;
   border-radius: 99px;
   background: rgba(255,255,255,0.08);
   font-size: 10px; font-weight: 500;
   color: var(--fit-text-tertiary);
+  z-index: 1;
 }
 .fit-light .fit-cal-event-cross-role-tag { background: rgba(0,0,0,0.05); }
 .fit-cal-event-cross-role-tag svg { width: 10px; height: 10px; }
-.fit-cal-event-cross-role-meta {
-  font-size: 11px; color: var(--fit-text-tertiary);
+
+/* Tiny cross-role tile (≤30px / 15 min) — bottom-right badge doesn't fit;
+   role icon falls back as a prefix on the title line. Add .tiny modifier on the tile. */
+.fit-cal-event-cross-role.tiny { padding-right: 8px; }
+.fit-cal-event-cross-role.tiny .fit-cal-event-cross-role-tag {
+  position: static;
+  height: auto; padding: 0; background: transparent;
+  font-size: 0; gap: 0;        /* hide text label, keep icon only */
 }
+.fit-cal-event-cross-role.tiny .fit-cal-event-cross-role-tag svg { width: 11px; height: 11px; }
+
+/* Cross-role tile uses canonical .fit-cal-event-title / -meta — but the
+   container's muted color cascades to text. Override title to primary text. */
+.fit-cal-event-cross-role .fit-cal-event-title {
+  color: var(--fit-text-primary);
+}
+/* Location row — shared visual on Personal / Group / Cross-role for Standard tiles.
+   Same hue as event-meta but with leading pin icon. */
+.fit-cal-event-loc {
+  font-size: 11px; color: var(--fit-text-tertiary);
+  margin-top: 2px;
+  display: flex; align-items: center; gap: 4px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.fit-cal-event-loc svg { width: 10px; height: 10px; flex-shrink: 0; }
 
 /* Timeline */
 .fit-timeline { position: relative; }
