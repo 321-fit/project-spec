@@ -39,6 +39,7 @@ This spec consolidates the previous "Payment User Flow" + "Revisited Payment Flo
 - As a coach, I want a **predictable weekly payout** (free) so that I know when money lands.
 - As a coach, I want an **Instant payout** option for a small fee so that I can pull funds the same day when I need cash flow.
 - As a coach, I want to see **pending vs. available** balance so that I understand what's held in 24h clearance vs. ready to withdraw.
+- As a coach, I want to tap on the Pending amount to **see which specific sessions** are inside that sum and when each one clears — not just a popup explaining the 24h rule. Pending is rarely "just a number" — it's "Anna's session yesterday + Maya's session today" and I want to verify that mental model matches reality.
 - As a coach, I want to track **cash owed** separately so that I know whom to chase for outstanding cash.
 - As a coach, I want to disconnect / switch to a different payout provider in the future so that I'm not locked in.
 
@@ -58,6 +59,7 @@ This spec consolidates the previous "Payment User Flow" + "Revisited Payment Flo
 - As the backend, a weekly sweep job runs Mondays 00:00 UTC: takes all `available` funds per coach ≥ threshold (€20 default), creates `payout_initiated` transaction, calls Stripe Connect, updates to `payout_completed` on success or `payout_failed` on error.
 - As the backend, Instant payout is a user-initiated call: same ledger flow, higher fee, same-day settlement (Stripe Instant Payouts).
 - As the client, the coach Earnings screen renders entirely from snapshot fields (`available`, `pending`, `payoutSchedule`, etc.) — no direct ledger queries in v1.
+- As the backend, the aggregated `pending` snapshot field is paired with a list endpoint `GET /coach/earnings/pending` returning the individual sessions contributing to that sum (event_id, title, athlete_name, completed_at, amount, clears_at). The list endpoint is required by the s-pending breakdown screen — the snapshot total alone is not enough.
 - As the athlete client, balance top-up uses Stripe PaymentSheet (iOS native / Android Google Pay); never redirects to external web.
 - As the backend, Stripe webhooks update ledger state for async events (payment confirmations, Connect account updates, payout status).
 
