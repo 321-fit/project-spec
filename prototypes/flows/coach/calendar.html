@@ -273,6 +273,8 @@
   <button class="active" onclick="go('s-calendar',this)">Calendar</button>
   <button onclick="go('s-event',this)">Event Detail</button>
   <button onclick="go('s-cash',this)">Event Completion</button>
+  <div class="label">Sheets / drawers</div>
+  <button onclick="go('s-calendar',this);document.getElementById('cal-cross-role-sheet').classList.add('visible')">Cross-role drawer</button>
   </div>
   <!-- Dark/Light toggle at bottom -->
   <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
@@ -373,6 +375,19 @@
 
         <!-- Long-tap zone on empty slots (demo: tap to open FAB sheet) -->
         <div data-fit-swipe data-fit-longpress data-fit-sheet="fab-sheet" onclick="document.getElementById('fab-sheet').classList.add('visible')" style="position:absolute;left:48px;right:8px;top:272px;height:96px;z-index:1;cursor:pointer;border-radius:8px;" title="Tap to create event"></div>
+
+        <!-- 11:00-12:00 CROSS-ROLE event — user's own booking as athlete with another coach.
+             Muted so the coach calendar doesn't try to "claim" it, but tappable to switch role. -->
+        <div class="fit-cal-event-cross-role" data-a11y-id="coach.calendar.cross-role.tile" onclick="document.getElementById('cal-cross-role-sheet').classList.add('visible')" style="top:480px;height:96px;z-index:2;">
+          <div class="fit-cal-event-cross-role-title">
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Tennis Training</span>
+            <span class="fit-cal-event-cross-role-tag">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
+              Athlete
+            </span>
+          </div>
+          <div class="fit-cal-event-cross-role-meta">11:00 – 12:00 · with Coach Mark S.</div>
+        </div>
 
         <!-- Current time line (10:30) -->
         <div class="fit-now-line" style="top:432px;"><div class="fit-now-dot"></div></div>
@@ -643,6 +658,64 @@
         <span id="canc-warning-text" style="font-size:12px;color:var(--fit-text-secondary);line-height:1.4;">This session will be cancelled. 7 participants will be notified and refunded.</span>
       </div>
       <button class="fit-btn fit-btn-destructive" style="border-radius:99px;" onclick="document.getElementById('cal-cancel-sheet').classList.remove('visible');">Cancel Training</button>
+    </div>
+  </div>
+
+  <!-- Cross-role event sheet — user's own event from the OTHER role profile.
+       Pattern: same as external (info-only, can't act here), but with primary CTA
+       to switch role so the user gets the proper event drawer in athlete view. -->
+  <div class="fit-sheet-overlay" id="cal-cross-role-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+
+      <!-- Status header: descriptor + role tag -->
+      <div class="fit-sheet-status-header">
+        <div class="fit-sheet-descriptor">Booked as athlete</div>
+        <span class="fit-badge fit-badge-neutral" style="display:inline-flex;align-items:center;gap:4px;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
+          Athlete
+        </span>
+      </div>
+
+      <!-- Coach avatar + name (read-only — tapping does not open profile, must switch role first) -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">MS</div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Mark S.</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">Your coach</div>
+        </div>
+      </div>
+
+      <!-- Event info -->
+      <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);margin-bottom:12px;">Tennis Training</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        Thu, Apr 10 · 11:00 – 12:00
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          TNT Studio
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;50</span>
+        </div>
+      </div>
+
+      <!-- Info banner — explains why the user can't act here -->
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:24px;padding:12px;background:rgba(3,178,226,0.06);border:1px solid rgba(3,178,226,0.18);border-radius:10px;">
+        <svg style="width:18px;height:18px;flex-shrink:0;margin-top:1px;color:var(--fit-blue-500);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span style="font-size:13px;color:var(--fit-text-secondary);line-height:1.45;">This session is on your <strong style="color:var(--fit-text-primary);">athlete profile</strong>. To message your coach, manage payment, or cancel — switch to athlete view.</span>
+      </div>
+
+      <!-- Footer: secondary close + primary switch-role CTA -->
+      <div style="display:flex;gap:10px;">
+        <button data-a11y-id="coach.calendar.cross-role.close" style="flex:0 0 auto;padding:0 22px;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-cross-role-sheet').classList.remove('visible');">Close</button>
+        <button class="fit-btn fit-btn-primary" data-a11y-id="coach.calendar.cross-role.switch-role" style="flex:1;height:50px;font-size:16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;" onclick="document.getElementById('cal-cross-role-sheet').classList.remove('visible');">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15.36 6.36L3 16"/></svg>
+          Switch to athlete
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1024,6 +1097,7 @@
       <button onclick="setCalState('drag-group',this)">Group drop</button>
       <button onclick="setCalState('threshold',this)">Min threshold</button>
       <button onclick="setCalState('external',this)">External tap</button>
+      <button onclick="setCalState('cross-role',this)">Cross-role tap</button>
     </div>
     <div class="state-toggle" style="margin-top:8px;">
       <button onclick="openEventSheet('planned')">Planned</button>
@@ -1039,8 +1113,8 @@
       <button onclick="openGroupSheet('missed')">Group · Missed</button>
       <button onclick="openGroupSheet('finished')">Group · Finished</button>
     </div>
-    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Behavior details</span><div class="ann-detail"><h4>Day Navigation</h4><p><strong>Tap day</strong> on strip = instant switch. <strong>Swipe day strip</strong> = scroll. <strong>Swipe content</strong> left/right = page transition (Apple Calendar). Day strip auto-scrolls to selected day.</p><h4>Month View Toggle</h4><p><strong>"April 2026 ▼"</strong> — tap title + chevron expands month grid. Day strip replaced by full month calendar. Tap a day = collapse back to day strip with selected day. Same component across all calendar screens (Coach, Athlete, Booking, Invite).</p><h4>Drag & Drop</h4><p><strong>Long press event</strong> → event lifts, enters drag mode. Drag within same day only. Coach's own slot occupied → <strong>blocked</strong>. Unavailable zone → <strong>blocked</strong>. Participant conflicts → warning dialog "2 of 7 have conflicts. Move anyway?" Coach decides. Drop releases event at new time.</p><h4>Day Strip Dots</h4><p>p=personal (green), g=group (cyan), e=external (gray). At-a-glance overview.</p><h4>Unavailable Zones</h4><p>Hatched diagonal pattern = outside coach's available hours OR blocked by external calendar.</p><h4>External Events</h4><p>Imported from Google/Apple Calendar. Full-width, opacity 0.7, anonymized (title only).</p><h4>Event Status System (6 states)</h4><p>All non-Planned states share the same visual grammar: colored 10% bg tint + 1px perimeter + 3px left stripe + inline pill next to title. Pill appears inline (not absolute-positioned) — reads as part of the title. Colors map to semantic roles, not to coach/athlete roles.</p><ul><li><strong>Planned</strong> — teal (dark: teal-400 / light: teal-600) for personal, blue-400/600 for group. Base surface, no perimeter. No pill.</li><li><strong>Request</strong> (incoming, pre-event) — yellow-600 perimeter + 10% yellow bg + yellow pill "Request". Athlete asked, coach needs to Accept/Decline.</li><li><strong>Awaiting</strong> (outgoing, pre-event) — gray perimeter + subtle bg + gray pill "Awaiting". Coach sent request, waiting for athlete response. Muted because passive.</li><li><strong>Review</strong> (post-event, unfinalized) — same yellow visual as Request. Event ended, coach hasn't opened Completion screen yet. Yellow because coach action needed — consistent lane with Request.</li><li><strong>Missed</strong> — red-400 perimeter + 10% red bg + red pill "Missed". Explicit no-show or auto after N days without coach review.</li><li><strong>Finished</strong> — base card at opacity 0.5, no pill, no perimeter. Past events that coach confirmed via Completion flow. Time + fade are sufficient signal; pill would be redundant.</li></ul><p><strong>Group events</strong> use only 4 of these states: Planned, Review, Missed, Finished. Request and Awaiting don't apply — group is a template, athletes join without approval.</p><p><strong>Cancelled events</strong> disappear from calendar entirely (not a visible state). All visible statuses retained for 2 months, then archived.</p><h4>API</h4><p><code>GET {role}/training-events/?startDate&endDate</code><br><code>GET coach/training-events/allowed-hours/</code><br><code>PATCH {role}/training-events/{id}/change-status/</code></p></div>
-    <p style="margin-top:12px;">24-hour vertical timeline, 15-min grid snap.</p><ul><li><strong>Day strip</strong> — colored dots under days: 🟢 personal, 🔵 group, ⚫ external</li><li><strong>Group events</strong> — cyan border + badge "7/10"</li><li><strong>Personal events</strong> — green border + athlete name</li><li><strong>Status pills</strong> — inline with title (not absolute-positioned). Yellow = Request or Review (coach action needed), gray = Awaiting (passive wait), red = Missed, no pill = Planned or Finished. See Behavior details for full system.</li><li><strong>External events</strong> — gray, opacity, side-by-side with hatched unavailable zone</li><li><strong>Unavailable hours</strong> — diagonal hatching overlay</li><li><strong>FAB "+"</strong> → sheet: Personal, Group, Custom event</li><li><strong>Long tap empty slot</strong> → same sheet, time prefilled</li><li><strong>Tap event</strong> → event action sheet (personal/group/invitation)</li><li><strong>Long press event</strong> → activates drag & drop (same day only)</li></ul></div>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Behavior details</span><div class="ann-detail"><h4>Day Navigation</h4><p><strong>Tap day</strong> on strip = instant switch. <strong>Swipe day strip</strong> = scroll. <strong>Swipe content</strong> left/right = page transition (Apple Calendar). Day strip auto-scrolls to selected day.</p><h4>Month View Toggle</h4><p><strong>"April 2026 ▼"</strong> — tap title + chevron expands month grid. Day strip replaced by full month calendar. Tap a day = collapse back to day strip with selected day. Same component across all calendar screens (Coach, Athlete, Booking, Invite).</p><h4>Drag & Drop</h4><p><strong>Long press event</strong> → event lifts, enters drag mode. Drag within same day only. Coach's own slot occupied → <strong>blocked</strong>. Unavailable zone → <strong>blocked</strong>. Participant conflicts → warning dialog "2 of 7 have conflicts. Move anyway?" Coach decides. Drop releases event at new time.</p><h4>Day Strip Dots</h4><p>p=personal (green), g=group (cyan), e=external (gray). At-a-glance overview.</p><h4>Unavailable Zones</h4><p>Hatched diagonal pattern = outside coach's available hours OR blocked by external calendar.</p><h4>External Events</h4><p>Imported from Google/Apple Calendar. Full-width, opacity 0.7, anonymized (title only).</p><h4>Cross-role Events</h4><p>A 321Fit event belonging to the user's OTHER role profile (e.g. Coach calendar showing a slot the user booked as an Athlete with another coach). Visually muted (opacity 0.75) with a dashed left stripe + small role tag in the corner to distinguish from external (which is solid stripe, no tag). Title shows sport name; meta line includes time and the OTHER party's name (e.g. "with Coach Mark S."). Tap → cross-role drawer with read-only event info + a primary CTA <strong>"Switch to athlete"</strong> (or "Switch to coach") that flips the active role and reopens the event in its proper full drawer. No drag, no actions on the tile itself — current role doesn't own this event.</p><h4>Event Status System (6 states)</h4><p>All non-Planned states share the same visual grammar: colored 10% bg tint + 1px perimeter + 3px left stripe + inline pill next to title. Pill appears inline (not absolute-positioned) — reads as part of the title. Colors map to semantic roles, not to coach/athlete roles.</p><ul><li><strong>Planned</strong> — teal (dark: teal-400 / light: teal-600) for personal, blue-400/600 for group. Base surface, no perimeter. No pill.</li><li><strong>Request</strong> (incoming, pre-event) — yellow-600 perimeter + 10% yellow bg + yellow pill "Request". Athlete asked, coach needs to Accept/Decline.</li><li><strong>Awaiting</strong> (outgoing, pre-event) — gray perimeter + subtle bg + gray pill "Awaiting". Coach sent request, waiting for athlete response. Muted because passive.</li><li><strong>Review</strong> (post-event, unfinalized) — same yellow visual as Request. Event ended, coach hasn't opened Completion screen yet. Yellow because coach action needed — consistent lane with Request.</li><li><strong>Missed</strong> — red-400 perimeter + 10% red bg + red pill "Missed". Explicit no-show or auto after N days without coach review.</li><li><strong>Finished</strong> — base card at opacity 0.5, no pill, no perimeter. Past events that coach confirmed via Completion flow. Time + fade are sufficient signal; pill would be redundant.</li></ul><p><strong>Group events</strong> use only 4 of these states: Planned, Review, Missed, Finished. Request and Awaiting don't apply — group is a template, athletes join without approval.</p><p><strong>Cancelled events</strong> disappear from calendar entirely (not a visible state). All visible statuses retained for 2 months, then archived.</p><h4>API</h4><p><code>GET {role}/training-events/?startDate&endDate</code><br><code>GET coach/training-events/allowed-hours/</code><br><code>PATCH {role}/training-events/{id}/change-status/</code></p></div>
+    <p style="margin-top:12px;">24-hour vertical timeline, 15-min grid snap.</p><ul><li><strong>Day strip</strong> — colored dots under days: 🟢 personal, 🔵 group, ⚫ external</li><li><strong>Group events</strong> — cyan border + badge "7/10"</li><li><strong>Personal events</strong> — green border + athlete name</li><li><strong>Status pills</strong> — inline with title (not absolute-positioned). Yellow = Request or Review (coach action needed), gray = Awaiting (passive wait), red = Missed, no pill = Planned or Finished. See Behavior details for full system.</li><li><strong>External events</strong> — gray, opacity, side-by-side with hatched unavailable zone</li><li><strong>Cross-role events</strong> — dashed-stripe muted tile + role tag (e.g. "Athlete"). Tap → drawer with read-only info + <strong>"Switch to athlete"</strong> CTA. See Behavior details.</li><li><strong>Unavailable hours</strong> — diagonal hatching overlay</li><li><strong>FAB "+"</strong> → sheet: Personal, Group, Custom event</li><li><strong>Long tap empty slot</strong> → same sheet, time prefilled</li><li><strong>Tap event</strong> → event action sheet (personal/group/invitation)</li><li><strong>Long press event</strong> → activates drag & drop (same day only)</li></ul></div>
   <div class="ann" id="ann-s-event"><span class="ann-role coach">Coach</span><h3>Group Event Detail</h3>
     <div class="state-toggle"><button class="active" onclick="toggleEventState('filled',this)">Filled</button><button onclick="toggleEventState('empty',this)">Empty</button></div>
     <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Invite &amp; deep-link</span>
@@ -1169,7 +1243,7 @@ function setCalState(state, btn) {
   if (timeline) timeline.classList.remove('loading');
   document.getElementById('cal-loading').classList.remove('show');
   document.getElementById('cal-snackbar').classList.remove('show');
-  ['cal-external-sheet','cal-drag-group-sheet','cal-threshold-sheet'].forEach(function(id){
+  ['cal-external-sheet','cal-cross-role-sheet','cal-drag-group-sheet','cal-threshold-sheet'].forEach(function(id){
     var el = document.getElementById(id); if (el) el.classList.remove('visible');
   });
   // Apply selected state
@@ -1184,6 +1258,8 @@ function setCalState(state, btn) {
     document.getElementById('cal-threshold-sheet').classList.add('visible');
   } else if (state === 'external') {
     document.getElementById('cal-external-sheet').classList.add('visible');
+  } else if (state === 'cross-role') {
+    document.getElementById('cal-cross-role-sheet').classList.add('visible');
   }
 }
 

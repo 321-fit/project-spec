@@ -202,6 +202,8 @@
   <div class="sidebar-scroll">
   <div class="label">Athlete Calendar</div>
   <button class="active" onclick="go('s-schedule',this)">My Schedule</button>
+  <div class="label">Sheets / drawers</div>
+  <button onclick="go('s-schedule',this);document.getElementById('ath-cross-role-sheet').classList.add('visible')">Cross-role drawer</button>
   </div>
   <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
     <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
@@ -287,6 +289,70 @@
           <div class="fit-cal-event-title">Yoga Private</div>
           <div class="fit-cal-event-meta">Sarah L. · 17:00 - 18:00</div>
         </div>
+
+        <!-- 14:00-15:00 CROSS-ROLE — user is also a coach; this slot is a coaching session with their athlete. -->
+        <div class="fit-cal-event-cross-role" data-a11y-id="athlete.calendar.cross-role.tile" onclick="document.getElementById('ath-cross-role-sheet').classList.add('visible')" style="top:480px;height:60px;z-index:2;">
+          <div class="fit-cal-event-cross-role-title">
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">HIIT Group Session</span>
+            <span class="fit-cal-event-cross-role-tag">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/></svg>
+              Coach
+            </span>
+          </div>
+          <div class="fit-cal-event-cross-role-meta">14:00 – 15:00 · 7/10 athletes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cross-role event sheet — symmetric mirror of coach's version: user-as-coach event shown on athlete calendar. -->
+  <div class="fit-sheet-overlay" id="ath-cross-role-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-status-header">
+        <div class="fit-sheet-descriptor">Coaching session</div>
+        <span class="fit-badge fit-badge-neutral" style="display:inline-flex;align-items:center;gap:4px;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/></svg>
+          Coach
+        </span>
+      </div>
+
+      <!-- Group icon + session name -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:rgba(3,178,226,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">HIIT Group Session</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">You're the coach · 7 athletes joined</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        Thu, Apr 10 · 14:00 – 15:00
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          TNT Studio
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;25/person</span>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:24px;padding:12px;background:rgba(3,178,226,0.06);border:1px solid rgba(3,178,226,0.18);border-radius:10px;">
+        <svg style="width:18px;height:18px;flex-shrink:0;margin-top:1px;color:var(--fit-blue-500);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span style="font-size:13px;color:var(--fit-text-secondary);line-height:1.45;">This session is on your <strong style="color:var(--fit-text-primary);">coach profile</strong>. To manage participants, reschedule, or complete training — switch to coach view.</span>
+      </div>
+
+      <div style="display:flex;gap:10px;">
+        <button data-a11y-id="athlete.calendar.cross-role.close" style="flex:0 0 auto;padding:0 22px;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('ath-cross-role-sheet').classList.remove('visible');">Close</button>
+        <button class="fit-btn fit-btn-primary" data-a11y-id="athlete.calendar.cross-role.switch-role" style="flex:1;height:50px;font-size:16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;" onclick="document.getElementById('ath-cross-role-sheet').classList.remove('visible');">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15.36 6.36L3 16"/></svg>
+          Switch to coach
+        </button>
       </div>
     </div>
   </div>
@@ -350,7 +416,7 @@
 
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
-  <div class="ann active" id="ann-s-schedule"><span class="ann-role athlete">Athlete</span><h3>Athlete Schedule</h3><p>Same calendar as coach, light theme. <strong>No drag & drop, no FAB.</strong> Post-training feedback as bottom sheet.</p><ul><li>Long press → View Details / Cancel Registration</li><li><strong>Post-training sheet</strong> — opens on push or tap completed event</li><li>Coach avatar + training name + "Done" badge</li><li>Star rating (1-5)</li><li>"Didn't happen? Report issue" link</li><li>Submit closes sheet</li></ul></div>
+  <div class="ann active" id="ann-s-schedule"><span class="ann-role athlete">Athlete</span><h3>Athlete Schedule</h3><p>Same calendar as coach, light theme. <strong>No drag & drop, no FAB.</strong> Post-training feedback as bottom sheet.</p><ul><li>Long press → View Details / Cancel Registration</li><li><strong>Post-training sheet</strong> — opens on push or tap completed event</li><li>Coach avatar + training name + "Done" badge</li><li>Star rating (1-5)</li><li>"Didn't happen? Report issue" link</li><li>Submit closes sheet</li><li><strong>Cross-role events</strong> — when the user is also a coach, their coaching sessions appear here as muted dashed-stripe tiles with a "Coach" tag. Tap → read-only drawer + CTA <strong>"Switch to coach"</strong> that flips the active role and reopens the event in its proper coach drawer (with reschedule/cancel/complete).</li></ul></div>
 </div>
 
 <!-- ==================== SCRIPTS ==================== -->
