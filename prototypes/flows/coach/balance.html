@@ -959,6 +959,7 @@
   <div class="label">Flows</div>
   <button onclick="go('s-transactions',this)">Transactions</button>
   <button onclick="go('s-earnings-history',this)">Earnings History</button>
+  <button onclick="go('s-pending',this)">Pending breakdown</button>
   <button onclick="go('s-txn-earning',this)">Earning Detail</button>
   <button onclick="go('s-txn-cash',this)">Cash Detail</button>
   <button onclick="go('s-txn-payout',this)">Payout Detail</button>
@@ -1096,10 +1097,13 @@
                   <div class="earn-card-value">&euro;340.50</div>
                 </div>
                 <div class="earn-card-divider"></div>
-                <div class="earn-card-col">
-                  <div class="earn-card-label" onclick="event.stopPropagation();openPendingInfo();" style="cursor:pointer;">
+                <!-- Pending col — entire col is tappable (mobile-friendly hit area).
+                     Visual cue: chevron after label + value, replaces tiny ⓘ icon
+                     that was unreachable on touch. Tap → s-pending breakdown. -->
+                <div class="earn-card-col earn-card-col-tap" onclick="event.stopPropagation();go('s-pending',document.querySelector('[onclick*=s-pending]'));" style="cursor:pointer;">
+                  <div class="earn-card-label">
                     Pending
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                    <svg class="earn-card-label-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
                   </div>
                   <div class="earn-card-value pending">&euro;75.00</div>
                 </div>
@@ -1260,38 +1264,9 @@
     </div>
   </div>
 
-  <!-- ===== WHY PENDING? INFO SHEET ===== -->
-  <div class="fit-sheet-overlay" id="pending-info-sheet">
-    <div class="fit-sheet compact">
-      <div class="fit-sheet-handle"></div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin:12px 0 20px;text-align:center;">
-        <div style="width:48px;height:48px;border-radius:50%;background:rgba(3,178,226,0.12);display:flex;align-items:center;justify-content:center;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-        </div>
-        <div style="font-size:18px;font-weight:500;">Why is this pending?</div>
-        <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.55;max-width:300px;">
-          Funds from completed sessions wait <strong style="color:var(--fit-text-primary);">24 hours</strong> before becoming available. This window covers cancellations and no-shows &mdash; so what moves into your balance is final.
-        </div>
-      </div>
-
-      <div style="background:var(--fit-surface-low);border-radius:14px;padding:0 16px;margin-bottom:20px;">
-        <div class="wd-amount-row">
-          <span class="wd-amount-label">Session marked complete</span>
-          <span class="wd-amount-value" style="font-size:14px;">Now</span>
-        </div>
-        <div class="wd-amount-row">
-          <span class="wd-amount-label">Moves to Available</span>
-          <span class="wd-amount-value" style="font-size:14px;color:var(--fit-teal-500);">+24h</span>
-        </div>
-        <div class="wd-amount-row">
-          <span class="wd-amount-label">Paid out</span>
-          <span class="wd-amount-value" style="font-size:14px;">Next Monday</span>
-        </div>
-      </div>
-
-      <button class="fit-btn fit-btn-primary" onclick="closePendingInfo()">Got it</button>
-    </div>
-  </div>
+  <!-- Pending info-sheet was here — removed 2026-05-20. Replaced by full
+       screen `s-pending` with list breakdown. The "Why pending?" copy + 24h
+       timeline live inside that screen as an inline info banner. -->
 
   <!-- ===== SUCCESS TOAST (bottom right corner) ===== -->
   <div class="fit-toast" id="payout-success-toast" style="border-left:3px solid var(--fit-teal-500);">
@@ -1307,6 +1282,98 @@
   </div>
 </div>
 
+
+<!-- ============================================================
+     SCREEN: PENDING (breakdown of Card "Pending" total)
+     Reached by tapping the Pending col on Card hero. Simple list of
+     individual sessions whose payouts are still in Stripe's 24h hold,
+     plus inline "Why pending?" info banner (replaces the old info-sheet).
+     Reuses canonical .earn-detail-hero / .earn-banner.info / .earn-txn
+     patterns — no new page-local CSS.
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-pending">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.earnings.pending.back" onclick="go('s-earnings',document.querySelector('[onclick*=s-earnings]'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="fit-header-title">Pending</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- Hero — total + count + clearance window -->
+    <div class="earn-detail-hero" style="margin:0 16px 16px;">
+      <div class="earn-detail-hero-amt plus">&euro;75.00</div>
+      <div class="earn-detail-hero-sub">3 sessions · clears Apr 11–13</div>
+    </div>
+
+    <!-- Inline "Why pending?" — replaces the old info-sheet -->
+    <div class="earn-banner info" style="margin:0 16px 16px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      <div class="earn-banner-body">
+        <div style="font-weight:500;color:var(--fit-text-primary);margin-bottom:2px;">Funds wait 24h before becoming available</div>
+        <div style="font-size:13px;color:var(--fit-text-secondary);line-height:1.4;">This window covers cancellations and no-shows — so what moves into your balance is final.</div>
+      </div>
+    </div>
+
+    <!-- Sessions list -->
+    <div style="font-size:13px;font-weight:500;color:var(--fit-text-secondary);padding:0 16px 8px;text-transform:uppercase;letter-spacing:0.4px;">Sessions in hold</div>
+    <div class="earn-txn-group" style="margin:0 16px;">
+
+      <div class="earn-txn" data-a11y-id="coach.earnings.pending.row" onclick="go('s-txn-earning',document.querySelector('[onclick*=s-txn-earning]'))">
+        <div class="earn-txn-icon earning">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>
+        </div>
+        <div class="earn-txn-body">
+          <div class="earn-txn-title">Basketball Training</div>
+          <div class="earn-txn-meta">Anna K. · Today, 12:00</div>
+        </div>
+        <div class="earn-txn-amt">
+          <div class="earn-txn-amt-value plus">+&euro;50.00</div>
+          <div class="earn-txn-amt-sub">Clears tomorrow 12:00</div>
+        </div>
+      </div>
+
+      <div class="earn-txn" onclick="go('s-txn-earning',document.querySelector('[onclick*=s-txn-earning]'))">
+        <div class="earn-txn-icon earning">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.2"/><path d="M12 8v6M6 11l6 3 6-3M9 20l3-6 3 6"/></svg>
+        </div>
+        <div class="earn-txn-body">
+          <div class="earn-txn-title">Yoga Private</div>
+          <div class="earn-txn-meta">Maya P. · Today, 14:00</div>
+        </div>
+        <div class="earn-txn-amt">
+          <div class="earn-txn-amt-value plus">+&euro;25.00</div>
+          <div class="earn-txn-amt-sub">Clears tomorrow 14:00</div>
+        </div>
+      </div>
+
+      <div class="earn-txn" onclick="go('s-txn-earning',document.querySelector('[onclick*=s-txn-earning]'))">
+        <div class="earn-txn-icon earning">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="M10 9l4-2 3 4-3 3v6"/><path d="M14 14l-3 3-3-2"/></svg>
+        </div>
+        <div class="earn-txn-body">
+          <div class="earn-txn-title">Morning Run</div>
+          <div class="earn-txn-meta">Tom N. · Yesterday, 08:00</div>
+        </div>
+        <div class="earn-txn-amt">
+          <div class="earn-txn-amt-value plus">+&euro;0.00</div>
+          <div class="earn-txn-amt-sub">Clears today 08:00</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer info — next payout summary -->
+    <div style="margin:16px;padding:14px;border-radius:12px;background:var(--fit-surface-low);font-size:13px;color:var(--fit-text-secondary);line-height:1.5;text-align:center;">
+      Once cleared, funds move to <strong style="color:var(--fit-text-primary);">Available</strong>.<br>
+      Next payout: <strong style="color:var(--fit-text-primary);">Mon, Apr 27</strong>
+    </div>
+
+  </div>
+</div>
 
 <!-- ===== TRANSACTIONS (full list) ===== -->
 <div class="fit-phone fit-dark ts-filled" id="s-transactions">
@@ -2149,6 +2216,18 @@
       <h4>Backend gap</h4>
       <p>Currently coach balance is computed on-the-fly from completed events. Needs real <code>coach_balance</code> table + append-only <code>coach_transactions</code> ledger with explicit <code>method</code> column. See <em>project_coach_balance_decisions.md</em>.</p>
     </div>
+  </div>
+
+  <div class="ann" id="ann-s-pending"><span class="ann-role coach">Coach</span><h3>Pending breakdown</h3>
+    <p>Tap-target replacement for the old <code>pending-info-sheet</code> (the 10×10 ⓘ icon was effectively unreachable on touch).</p>
+    <ul>
+      <li><strong>Entry:</strong> tap anywhere in the Pending col on Card hero (full col is now the hit area; chevron after the label signals tappability — same pattern as Available col)</li>
+      <li><strong>Hero:</strong> total amount + session count + clearance window using canonical <code>.earn-detail-hero</code></li>
+      <li><strong>Inline info banner</strong> replaces the popup sheet — explains the 24h hold rationale</li>
+      <li><strong>Session rows</strong> use canonical <code>.earn-txn</code> + <code>.earn-txn-group</code> — same as Recent activity. Each row → drills into <code>s-txn-earning</code> for that session's full detail.</li>
+      <li><strong>Footer</strong> reminds when funds move to Available + next payout date</li>
+    </ul>
+    <p class="note"><strong>Scope:</strong> Stripe 24h-hold breakdown only. "Upcoming sessions forecast" (cash + card future bookings) is a separate, deferred screen — see <code>project_earnings_open_questions</code> memory.</p>
   </div>
 
   <div class="ann" id="ann-s-transactions"><span class="ann-role coach">Coach</span><h3>Transactions</h3>

@@ -137,7 +137,7 @@ Coach lands on a **two-card swiper** that separates cash from card income — ea
 
 **Swiper layout:**
 - **Cash card** (default, swipe position 1) — brand gradient. Shows "This month €X received" + tappable row "€Y owed by N athletes" (deep-links to Clients filtered to outstanding cash). Top area of card is tappable → opens Earnings history with Cash filter.
-- **Card card** (swipe position 2) — Stripe-indigo gradient. Shows Available / Pending split + "Next payout · {date}". Top area tappable → opens Earnings history with Card filter. Optional Withdraw pill (Premium, post-MVP).
+- **Card card** (swipe position 2) — Stripe-indigo gradient. Shows Available / Pending split + "Next payout · {date}". Top area tappable → opens Earnings history with Card filter. **Pending col is independently tappable** (full col is the hit area; chevron after label signals tappability) → opens `s-pending` breakdown screen (per Flow J below). Optional Withdraw pill (Premium, post-MVP).
 - **Peek + dots** — 12px of next card visible on right edge + 2-dot indicator below; affordance for swipe gesture.
 
 **Below the swiper:**
@@ -177,6 +177,22 @@ Maps to prototype `flows/coach/balance.html#s-txn-cash`.
 4. State transitions to **Received** (teal hero pill, "Marked paid {date}" in Payment section). **Terminal** — no Mark-as-unpaid reverse action in v1; corrections go through Support (keeps audit trail clean).
 
 Entry points: tap any `data-method="cash"` txn in Recent activity, or tap an athlete in Clients → Cash owed list (filter on Clients screen, future spec). Both routes land on `s-txn-cash`.
+
+### Flow J2 — Coach: Pending breakdown (2026-05-20 — new)
+
+Maps to prototype `flows/coach/balance.html#s-pending`. Replaces the old `pending-info-sheet` popup (its ⓘ tap target was sub-10pt, effectively unreachable on touch).
+
+**Entry:** tap anywhere on the Pending col in Card hero (the full col is the hit area now; a chevron after the label signals tappability — same affordance as the Available col).
+
+**Screen content:**
+1. Hero — total amount + session count + clearance window (e.g. "€75.00 · 3 sessions · clears Apr 11–13"). Canonical `.earn-detail-hero`.
+2. Inline info banner — "Funds wait 24h before becoming available. This window covers cancellations and no-shows — so what moves into your balance is final." Canonical `.earn-banner.info`.
+3. Sessions list — each row is a Card session completed but still in Stripe's 24h hold. Row shape mirrors Recent activity (`.earn-txn` + `.earn-txn-group`): icon + title + athlete · datetime + amount + "Clears {datetime}" subline. Tap row → `s-txn-earning` for the session's full detail.
+4. Footer — reminds when funds move to Available + next payout date.
+
+**API:** the existing `pending` field on `GET /coach/earnings` snapshot is just an aggregated total — this screen needs an additional list endpoint. Proposed: `GET /coach/earnings/pending` returning array of pending earning rows with `{event_id, title, athlete_name, completed_at, amount, clears_at}`. Same shape can be filtered out of an extended `/coach/transactions?status=pending` if a unified ledger endpoint is preferred — backend choice.
+
+**Scope:** Stripe 24h-hold breakdown only. "Upcoming sessions forecast" (cash + card future bookings — see § 10 Open questions Q1) is a separate, deferred screen — would live alongside or extend this one.
 
 ### Flow K — Coach: Earnings history
 
