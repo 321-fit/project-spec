@@ -94,9 +94,9 @@
   .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
 
   /* ============================================================
-     PAGE-LOCAL — wizard shell (onb-*). iOS reference: see screenshots.
-     Centered title + teal-outline pill counter on the right.
-     No progress bar — pill counter is the single progress indicator.
+     PAGE-LOCAL — wizard chrome (onb-*).
+     Top-level wizard step screens use onb-topbar (centered title + pill).
+     Sub-screens (push from a step) use canonical .fit-header.
      ============================================================ */
   .onb-topbar {
     padding: 16px 16px 8px;
@@ -112,15 +112,12 @@
   }
   .onb-back svg { width: 18px; height: 18px; }
   .onb-back[disabled] { opacity: 0; pointer-events: none; }
-
   .onb-title-center {
     flex: 1; text-align: center;
     font-size: 20px; font-weight: 600;
     color: var(--fit-text-primary);
     padding: 0 8px;
   }
-
-  /* Teal-outline pill counter — "1 of 6" */
   .onb-step-pill {
     flex-shrink: 0;
     min-width: 56px; height: 32px;
@@ -135,7 +132,7 @@
   }
   .fit-light .onb-step-pill { background: rgba(5, 224, 166, 0.12); }
 
-  /* Body subtitle (steps 4-6 — Gym / Session / Calendar) */
+  /* Body subtitle (steps that need an intro paragraph) */
   .onb-sub-block {
     padding: 12px 24px 20px;
     text-align: center;
@@ -143,19 +140,14 @@
     color: var(--fit-text-secondary);
   }
 
-  /* Sticky footer: primary CTA */
   .onb-footer {
     padding: 12px 16px 24px;
     display: flex; flex-direction: column; gap: 8px;
   }
 
-  /* === STEP 1: PERSONAL DATA — avatar + name + bio === */
-  .onb-avatar-wrap {
-    display: flex; justify-content: center; padding: 16px 0 28px;
-  }
-  .onb-avatar {
-    position: relative; cursor: pointer;
-  }
+  /* === STEP 1: PERSONAL DATA === */
+  .onb-avatar-wrap { display: flex; justify-content: center; padding: 16px 0 28px; }
+  .onb-avatar { position: relative; cursor: pointer; }
   .onb-avatar-img {
     width: 110px; height: 110px; border-radius: 50%;
     background: #3aaef0;
@@ -174,10 +166,8 @@
   }
   .onb-avatar-add svg { width: 14px; height: 14px; }
 
-  /* Plain input pill — used for Name fields (no separate label, placeholder inside) */
   .onb-input-pill {
-    width: 100%; height: 54px;
-    padding: 0 18px;
+    width: 100%; height: 54px; padding: 0 18px;
     border-radius: 14px;
     background: var(--fit-surface-high);
     border: none; outline: none;
@@ -187,14 +177,13 @@
   .onb-input-pill::placeholder { color: var(--fit-text-placeholder); }
   .fit-light .onb-input-pill { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
 
-  /* Plain section header (e.g. "About Me") — sentence-case, left-aligned, 16/regular */
   .onb-body-label {
     padding: 8px 16px 12px;
     font-size: 16px; font-weight: 400;
     color: var(--fit-text-primary);
   }
 
-  /* === STEP 2: SPORTS — sectioned grid (matches coach/sport-types.html sp-*) === */
+  /* === STEP 2: SPORTS — sectioned grid === */
   .sp-section { padding: 0 16px; margin-bottom: 20px; }
   .sp-section-title {
     font-size: 14px; font-weight: 500;
@@ -223,7 +212,7 @@
   .sp-card.selected svg { color: var(--fit-text-primary); }
   .sp-card-label { font-size: 14px; line-height: 1.2; }
 
-  /* === STEP 4/5: GYM / SESSION — intro layout + outlined "Add" CTA === */
+  /* === GENERIC outlined "Add" button (for steps 4 + 5 empty states) === */
   .onb-add-btn {
     width: 100%; height: 54px;
     border-radius: 99px;
@@ -238,7 +227,7 @@
   .onb-add-btn svg { width: 18px; height: 18px; stroke-width: 2; }
   .onb-add-wrap { padding: 0 16px; }
 
-  /* Session card (after creating ≥1 session — step 5) */
+  /* === Session card (after creating ≥1 session — step 5 list state) === */
   .onb-session-list { padding: 0 16px; display: flex; flex-direction: column; gap: 12px; }
   .onb-session-card {
     position: relative;
@@ -280,97 +269,7 @@
   }
   .onb-session-card-edit svg { width: 14px; height: 14px; }
 
-  /* === STEP 5 SUB-SCREEN: Training Session Setup (inline create) === */
-  .ts-group { padding: 0 16px; margin-bottom: 18px; }
-  .ts-group-label {
-    font-size: 16px; font-weight: 400;
-    color: var(--fit-text-primary);
-    margin-bottom: 10px;
-  }
-  .ts-input {
-    display: flex; align-items: center; gap: 12px;
-    width: 100%; height: 54px;
-    padding: 0 18px;
-    border-radius: 14px;
-    background: var(--fit-surface-high);
-    color: var(--fit-text-primary);
-    font-size: 16px;
-    cursor: pointer;
-  }
-  .fit-light .ts-input { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
-  .ts-input input {
-    flex: 1; background: transparent; border: none; outline: none;
-    font-family: var(--fit-font); font-size: 16px; color: var(--fit-text-primary);
-  }
-  .ts-input input::placeholder { color: var(--fit-text-placeholder); }
-  .ts-input-placeholder { flex: 1; color: var(--fit-text-placeholder); }
-  .ts-input-prefix { color: var(--fit-text-secondary); }
-  .ts-input-icon svg { width: 18px; height: 18px; stroke-width: 1.8; color: var(--fit-text-secondary); }
-  .ts-input-chevron svg { width: 16px; height: 16px; stroke-width: 2; color: var(--fit-text-tertiary); }
-
-  /* Duration wheel container (visual approximation of UIDatePicker .wheels) */
-  .ts-wheel-box {
-    background: var(--fit-surface-high);
-    border-radius: 16px;
-    padding: 14px 0;
-  }
-  .fit-light .ts-wheel-box { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
-  .ts-wheel-row {
-    display: grid; grid-template-columns: 1fr 1fr;
-  }
-  .ts-wheel-col-label {
-    grid-row: 1;
-    text-align: center;
-    font-size: 13px; color: var(--fit-text-tertiary);
-    padding-bottom: 6px;
-  }
-  .ts-wheel-col {
-    grid-row: 2;
-    display: flex; flex-direction: column; align-items: center;
-    gap: 4px; padding: 4px 0;
-  }
-  .ts-wheel-val {
-    font-size: 14px; color: var(--fit-text-tertiary); line-height: 1.4;
-  }
-  .ts-wheel-val.cur {
-    font-size: 22px; font-weight: 600;
-    background: var(--fit-surface-higher);
-    color: var(--fit-text-primary);
-    padding: 2px 28px; border-radius: 8px;
-    margin: 2px 0;
-  }
-
-  /* Payment method 2-button toggle (Cash / Card) */
-  .ts-pay-row {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 12px; padding: 0 16px; margin-top: 4px;
-  }
-  .ts-pay-btn {
-    position: relative;
-    display: flex; align-items: center; gap: 10px;
-    height: 54px; padding: 0 16px;
-    border-radius: 99px;
-    background: var(--fit-surface-high);
-    color: var(--fit-text-primary);
-    border: 1px solid transparent;
-    font-size: 15px; font-weight: 500;
-    cursor: pointer;
-  }
-  .fit-light .ts-pay-btn { background: var(--fit-white); border-color: var(--fit-gray-100); }
-  .ts-pay-btn svg { width: 18px; height: 18px; stroke-width: 1.8; color: var(--fit-text-secondary); }
-  .ts-pay-btn.selected {
-    background: var(--fit-selection-gradient);
-    border-color: var(--fit-teal-500);
-  }
-  .ts-pay-btn.selected svg { color: var(--fit-text-primary); }
-  .ts-pay-btn-check {
-    margin-left: auto; color: var(--fit-teal-500);
-    display: none;
-  }
-  .ts-pay-btn.selected .ts-pay-btn-check { display: inline-flex; }
-  .ts-pay-btn-check svg { width: 16px; height: 16px; color: var(--fit-teal-500); }
-
-  /* === STEP 6: CALENDAR SYNC === */
+  /* === CALENDAR SYNC === */
   .onb-cal-list { padding: 0 16px; display: flex; flex-direction: column; gap: 12px; }
   .onb-cal-row {
     display: flex; align-items: center; gap: 12px;
@@ -412,8 +311,6 @@
     border: none; cursor: pointer;
     font-family: var(--fit-font); font-size: 14px; font-weight: 500;
   }
-
-  /* Dashed "Add Google Account" button (between Google + Apple when connected) */
   .onb-dashed-btn {
     width: 100%; height: 50px;
     border-radius: 14px;
@@ -425,33 +322,11 @@
     cursor: pointer;
   }
   .onb-dashed-btn svg { width: 18px; height: 18px; }
-  .onb-cal-divider {
-    height: 1px; background: var(--fit-divider);
-    margin: 6px 0 4px;
-  }
+  .onb-cal-divider { height: 1px; background: var(--fit-divider); margin: 6px 0 4px; }
 
-  /* === COMPLETE === */
-  .onb-complete {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 16px; padding: 32px 24px;
-    text-align: center;
-  }
-  .onb-complete-icon {
-    width: 88px; height: 88px; border-radius: 50%;
-    background: var(--fit-selection-gradient);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--fit-teal-500);
-  }
-  .onb-complete-icon svg { width: 44px; height: 44px; }
-  .onb-complete-title {
-    font-size: 26px; font-weight: 600; color: var(--fit-text-primary);
-  }
-  .onb-complete-sub {
-    font-size: 15px; color: var(--fit-text-secondary);
-    line-height: 1.45; max-width: 280px;
-  }
-
+  /* === Map (Gym sub-screen) — simple grid placeholder === */
+  .map-grid { position: absolute; inset: 0; opacity: 0.06; pointer-events: none; }
+  .map-grid::before, .map-grid::after { content: ""; position: absolute; background: var(--fit-text-tertiary); }
   /* Theme switch */
   .theme-switch {
     margin-top: auto; padding-top: 12px; display: flex; gap: 0;
@@ -474,7 +349,6 @@
     <button onclick="go('s-onb-sports',this,{role:'athlete',step:2,total:4})">Sports<span class="badge">2/4</span></button>
     <button onclick="go('s-onb-location',this,{role:'athlete',step:3,total:4})">Location<span class="badge">3/4</span></button>
     <button onclick="go('s-onb-calendar',this,{role:'athlete',step:4,total:4})">Calendar sync<span class="badge">4/4</span></button>
-    <button onclick="go('s-onb-complete',this,{role:'athlete'})">Complete</button>
 
     <div class="label">Coach · 6 steps</div>
     <button onclick="go('s-onb-personal',this,{role:'coach',step:1,total:6})">Personal data<span class="badge">1/6</span></button>
@@ -482,9 +356,17 @@
     <button onclick="go('s-onb-location',this,{role:'coach',step:3,total:6})">Location<span class="badge">3/6</span></button>
     <button onclick="go('s-onb-gym',this,{role:'coach',step:4,total:6})">Gym Location<span class="badge">4/6</span></button>
     <button onclick="go('s-onb-sessions',this,{role:'coach',step:5,total:6})">Training Session<span class="badge">5/6</span></button>
-    <button onclick="go('s-onb-session-create',this,{role:'coach',step:5,total:6})">↳ Session setup<span class="badge">sub</span></button>
     <button onclick="go('s-onb-calendar',this,{role:'coach',step:6,total:6})">Calendar sync<span class="badge">6/6</span></button>
-    <button onclick="go('s-onb-complete',this,{role:'coach'})">Complete</button>
+
+    <div class="label">Gym sub-flow</div>
+    <button onclick="go('s-onb-gym-map',this,{role:'coach',step:4,total:6})">↳ Add In-person<span class="badge">sub</span></button>
+    <button onclick="go('s-onb-gym-pick',this,{role:'coach',step:4,total:6})">↳ Pick on Map<span class="badge">sub</span></button>
+    <button onclick="go('s-onb-gym-form',this,{role:'coach',step:4,total:6})">↳ Location Details<span class="badge">sub</span></button>
+    <button onclick="go('s-onb-gym-online',this,{role:'coach',step:4,total:6})">↳ Add Online<span class="badge">sub</span></button>
+    <button onclick="go('s-onb-gym-homevisit',this,{role:'coach',step:4,total:6})">↳ Home Visit<span class="badge">sub</span></button>
+
+    <div class="label">Session sub-flow</div>
+    <button onclick="go('s-onb-session-create',this,{role:'coach',step:5,total:6})">↳ Session setup<span class="badge">sub</span></button>
   </div>
   <div class="theme-switch">
     <button id="theme-dark" style="background:var(--fit-gray-700);color:var(--fit-white);" onclick="switchTheme('dark')">Dark</button>
@@ -493,8 +375,7 @@
 </nav>
 
 <!-- ============================================================
-     SCREEN: STEP 1 — PERSONAL DATA
-     iOS: avatar + first name + last name + bio. No gender / DOB / weight / height.
+     STEP 1 — PERSONAL DATA
      ============================================================ -->
 <div class="fit-phone fit-dark active" id="s-onb-personal">
   <div class="fit-phone-header">
@@ -523,29 +404,24 @@
     </div>
 
     <div style="padding:0 16px;display:flex;flex-direction:column;gap:10px;">
-      <input class="onb-input-pill" type="text" placeholder="First Name"
-             data-a11y-id="onboarding.flow.personal.first-name"/>
-      <input class="onb-input-pill" type="text" placeholder="Last Name"
-             data-a11y-id="onboarding.flow.personal.last-name"/>
+      <input class="onb-input-pill" type="text" placeholder="First Name" data-a11y-id="onboarding.flow.personal.first-name"/>
+      <input class="onb-input-pill" type="text" placeholder="Last Name" data-a11y-id="onboarding.flow.personal.last-name"/>
     </div>
 
     <div class="onb-body-label" style="margin-top:18px;">About Me</div>
     <div style="padding:0 16px;">
-      <textarea class="fit-input-ta" placeholder="Bio"
-                data-a11y-id="onboarding.flow.personal.bio" maxlength="500"
-                style="min-height:160px;"></textarea>
+      <textarea class="fit-input-ta" placeholder="Bio" data-a11y-id="onboarding.flow.personal.bio" maxlength="500" style="min-height:160px;"></textarea>
     </div>
 
     <div style="flex:1;"></div>
   </div>
   <div class="onb-footer">
-    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.personal.next"
-            onclick="goNext()">Confirm</button>
+    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.personal.next" onclick="goNext()">Confirm</button>
   </div>
 </div>
 
 <!-- ============================================================
-     SCREEN: STEP 2 — SPORTS (with our section taxonomy)
+     STEP 2 — SPORTS
      ============================================================ -->
 <div class="fit-phone fit-dark" id="s-onb-sports">
   <div class="fit-phone-header">
@@ -564,64 +440,62 @@
     <div class="sp-section">
       <div class="sp-section-title">Fitness &amp; Strength</div>
       <div class="sp-grid">
-        <div class="sp-card selected" data-label="Fitness" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h12M4 8v8M8 6v12M16 6v12M20 8v8"/></svg><span class="sp-card-label">Fitness</span></div>
-        <div class="sp-card" data-label="CrossFit" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M5 9v6M19 9v6"/><circle cx="12" cy="12" r="2.2"/></svg><span class="sp-card-label">CrossFit</span></div>
-        <div class="sp-card" data-label="Functional" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6M9 4c-.8.6-1.5 1.4-2 2.5"/><path d="M15 4c.8.6 1.5 1.4 2 2.5"/><circle cx="12" cy="14" r="6"/></svg><span class="sp-card-label">Functional</span></div>
-        <div class="sp-card" data-label="HIIT" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="7"/><path d="M10 3h4M12 10v4h3"/></svg><span class="sp-card-label">HIIT</span></div>
-        <div class="sp-card" data-label="Weightlifting" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M6 9v6M18 9v6M3 10v4M21 10v4"/></svg><span class="sp-card-label">Weightlifting</span></div>
-        <div class="sp-card" data-label="Powerlifting" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20M5 9v6M19 9v6"/></svg><span class="sp-card-label">Powerlifting</span></div>
+        <div class="sp-card selected" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h12M4 8v8M8 6v12M16 6v12M20 8v8"/></svg><span class="sp-card-label">Fitness</span></div>
+        <div class="sp-card" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M5 9v6M19 9v6"/><circle cx="12" cy="12" r="2.2"/></svg><span class="sp-card-label">CrossFit</span></div>
+        <div class="sp-card" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6M9 4c-.8.6-1.5 1.4-2 2.5"/><path d="M15 4c.8.6 1.5 1.4 2 2.5"/><circle cx="12" cy="14" r="6"/></svg><span class="sp-card-label">Functional</span></div>
+        <div class="sp-card" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="7"/><path d="M10 3h4M12 10v4h3"/></svg><span class="sp-card-label">HIIT</span></div>
+        <div class="sp-card" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M6 9v6M18 9v6M3 10v4M21 10v4"/></svg><span class="sp-card-label">Weightlifting</span></div>
+        <div class="sp-card" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20M5 9v6M19 9v6"/></svg><span class="sp-card-label">Powerlifting</span></div>
       </div>
     </div>
 
     <div class="sp-section">
       <div class="sp-section-title">Racket sports</div>
       <div class="sp-grid">
-        <div class="sp-card selected" data-label="Tennis" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5 8h14M5 16h14"/></svg><span class="sp-card-label">Tennis</span></div>
-        <div class="sp-card" data-label="Padel" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 3v18"/></svg><span class="sp-card-label">Padel</span></div>
-        <div class="sp-card" data-label="Badminton" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="3"/><path d="M8 16l10-10M17 3h4v4"/></svg><span class="sp-card-label">Badminton</span></div>
-        <div class="sp-card" data-label="Squash" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="9" cy="15" r="1.5"/></svg><span class="sp-card-label">Squash</span></div>
+        <div class="sp-card selected" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5 8h14M5 16h14"/></svg><span class="sp-card-label">Tennis</span></div>
+        <div class="sp-card" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 3v18"/></svg><span class="sp-card-label">Padel</span></div>
+        <div class="sp-card" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="3"/><path d="M8 16l10-10M17 3h4v4"/></svg><span class="sp-card-label">Badminton</span></div>
+        <div class="sp-card" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="9" cy="15" r="1.5"/></svg><span class="sp-card-label">Squash</span></div>
       </div>
     </div>
 
     <div class="sp-section">
       <div class="sp-section-title">Endurance</div>
       <div class="sp-grid">
-        <div class="sp-card" data-label="Running" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="M10 9l4-2 3 4-3 3v6"/><path d="M14 14l-3 3-3-2"/></svg><span class="sp-card-label">Running</span></div>
-        <div class="sp-card" data-label="Cycling" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l5-9h5l2 5"/></svg><span class="sp-card-label">Cycling</span></div>
-        <div class="sp-card" data-label="Swimming" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="17" cy="6" r="2"/><path d="M3 19c2-2 4-1 6 0s4 2 6 0 4-1 6 0"/><path d="M5 14l5-3 4 2"/></svg><span class="sp-card-label">Swimming</span></div>
-        <div class="sp-card" data-label="Triathlon" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="1.5"/><circle cx="5" cy="18" r="1.5"/><circle cx="5" cy="12" r="1.5"/><path d="M9 6h11M9 12h11M9 18h11"/></svg><span class="sp-card-label">Triathlon</span></div>
+        <div class="sp-card" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="M10 9l4-2 3 4-3 3v6"/><path d="M14 14l-3 3-3-2"/></svg><span class="sp-card-label">Running</span></div>
+        <div class="sp-card" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l5-9h5l2 5"/></svg><span class="sp-card-label">Cycling</span></div>
+        <div class="sp-card" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="17" cy="6" r="2"/><path d="M3 19c2-2 4-1 6 0s4 2 6 0 4-1 6 0"/><path d="M5 14l5-3 4 2"/></svg><span class="sp-card-label">Swimming</span></div>
+        <div class="sp-card" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="1.5"/><circle cx="5" cy="18" r="1.5"/><circle cx="5" cy="12" r="1.5"/><path d="M9 6h11M9 12h11M9 18h11"/></svg><span class="sp-card-label">Triathlon</span></div>
       </div>
     </div>
 
     <div class="sp-section">
       <div class="sp-section-title">Mind &amp; Body</div>
       <div class="sp-grid">
-        <div class="sp-card" data-label="Yoga" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.2"/><path d="M12 8v6M6 11l6 3 6-3M9 20l3-6 3 6"/></svg><span class="sp-card-label">Yoga</span></div>
-        <div class="sp-card" data-label="Pilates" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="6" r="2"/><path d="M9 9l3 4 3-4M12 13l-4 9M12 13l4 9"/></svg><span class="sp-card-label">Pilates</span></div>
-        <div class="sp-card" data-label="Stretching" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M8 9l4 4 4-4M10 14v8M14 14v8"/></svg><span class="sp-card-label">Stretching</span></div>
-        <div class="sp-card" data-label="Meditation" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3"/><path d="M5 20c0-3 3-5 7-5s7 2 7 5"/></svg><span class="sp-card-label">Meditation</span></div>
+        <div class="sp-card" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.2"/><path d="M12 8v6M6 11l6 3 6-3M9 20l3-6 3 6"/></svg><span class="sp-card-label">Yoga</span></div>
+        <div class="sp-card" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="6" r="2"/><path d="M9 9l3 4 3-4M12 13l-4 9M12 13l4 9"/></svg><span class="sp-card-label">Pilates</span></div>
+        <div class="sp-card" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M8 9l4 4 4-4M10 14v8M14 14v8"/></svg><span class="sp-card-label">Stretching</span></div>
+        <div class="sp-card" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3"/><path d="M5 20c0-3 3-5 7-5s7 2 7 5"/></svg><span class="sp-card-label">Meditation</span></div>
       </div>
     </div>
 
     <div class="sp-section">
       <div class="sp-section-title">Combat</div>
       <div class="sp-grid">
-        <div class="sp-card" data-label="Boxing" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h4l2 4-2 3v6h-4z"/><path d="M14 7l6 3v8h-4"/></svg><span class="sp-card-label">Boxing</span></div>
-        <div class="sp-card" data-label="Muay Thai" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 7l-3 7 3 1 3-1zM7 17l5 5M17 17l-5 5"/></svg><span class="sp-card-label">Muay Thai</span></div>
+        <div class="sp-card" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h4l2 4-2 3v6h-4z"/><path d="M14 7l6 3v8h-4"/></svg><span class="sp-card-label">Boxing</span></div>
+        <div class="sp-card" data-a11y-id="onboarding.flow.sports.tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 7l-3 7 3 1 3-1zM7 17l5 5M17 17l-5 5"/></svg><span class="sp-card-label">Muay Thai</span></div>
       </div>
     </div>
 
     <div style="flex:1;"></div>
   </div>
   <div class="onb-footer">
-    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.sports.next"
-            onclick="goNext()">Confirm</button>
+    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.sports.next" onclick="goNext()">Confirm</button>
   </div>
 </div>
 
 <!-- ============================================================
-     SCREEN: STEP 3 — LOCATION (TZ + Country + City + Languages)
-     City retained against live iOS (still being added).
+     STEP 3 — LOCATION
      ============================================================ -->
 <div class="fit-phone fit-dark" id="s-onb-location">
   <div class="fit-phone-header">
@@ -675,13 +549,14 @@
     <div style="flex:1;"></div>
   </div>
   <div class="onb-footer">
-    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.location.next"
-            onclick="goNext()">Confirm</button>
+    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.location.next" onclick="goNext()">Confirm</button>
   </div>
 </div>
 
 <!-- ============================================================
-     SCREEN: STEP 4 (Coach only) — GYM LOCATION
+     STEP 4 (Coach only) — GYM LOCATION
+     iOS pattern: subtitle + outlined CTA in empty state; list of cards
+     above the CTA when at least one location is added.
      ============================================================ -->
 <div class="fit-phone fit-dark" id="s-onb-gym">
   <div class="fit-phone-header">
@@ -700,9 +575,27 @@
       These locations will be used to create your workout sessions.
     </div>
 
+    <!-- Filled state: list of added locations (shown via state toggle) -->
+    <div data-show-when="gym-state=filled" style="display:none;padding:0 16px;margin-bottom:14px;display:flex;flex-direction:column;gap:10px;">
+      <div class="set-card" data-a11y-id="onboarding.flow.gym.card" onclick="go('s-onb-gym-form',null,currentCtx())">
+        <div style="display:flex;align-items:center;gap:12px;width:100%;">
+          <div style="width:40px;height:40px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">GYM Bro</span>
+              <span class="fit-badge fit-badge-accent">Default</span>
+            </div>
+            <div style="font-size:14px;color:var(--fit-text-secondary);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Marszałkowska 12, Warsaw, Poland</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+    </div>
+
     <div class="onb-add-wrap">
-      <button class="onb-add-btn" data-a11y-id="onboarding.flow.gym.add"
-              onclick="window.location.href='../coach/locations.html'">
+      <button class="onb-add-btn" data-a11y-id="onboarding.flow.gym.add" onclick="go('s-onb-gym-map',null,currentCtx())">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
         Add Gym Location
       </button>
@@ -711,14 +604,339 @@
     <div style="flex:1;"></div>
   </div>
   <div class="onb-footer">
-    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.gym.next"
-            onclick="goNext()">Confirm</button>
+    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.gym.next" onclick="goNext()">Confirm</button>
   </div>
 </div>
 
 <!-- ============================================================
-     SCREEN: STEP 5 (Coach only) — TRAINING SESSION
-     State A: empty (default).  State B: with one session card (state toggle in annotation).
+     SUB-SCREEN: GYM MAP (search + nearby gyms + use current + pick)
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-onb-gym-map">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>11:56</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="onboarding.flow.gym.map.back" onclick="go('s-onb-gym',null,currentCtx())">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="fit-header-title">Add location</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="fit-input-group" style="padding:0 16px;">
+      <div class="fit-input" style="display:flex;align-items:center;gap:8px;" data-a11y-id="onboarding.flow.gym.map.search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <span style="color:var(--fit-text-placeholder);">Search address or gym name</span>
+      </div>
+    </div>
+
+    <div style="font-size:14px;font-weight:500;color:var(--fit-text-secondary);padding:16px 16px 10px;">Gyms Near You</div>
+    <div style="padding:0 16px;">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--fit-divider);cursor:pointer;" data-a11y-id="onboarding.flow.gym.map.nearby" onclick="go('s-onb-gym-form',null,currentCtx())">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">GYM Bro</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:1px;">Marszałkowska 12, Warsaw</div>
+        </div>
+        <span style="font-size:12px;color:var(--fit-text-tertiary);flex-shrink:0;">0.3 km</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--fit-divider);cursor:pointer;" data-a11y-id="onboarding.flow.gym.map.nearby" onclick="go('s-onb-gym-form',null,currentCtx())">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">CrossFit Warsaw</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:1px;">Krakowskie Przedmieście 41</div>
+        </div>
+        <span style="font-size:12px;color:var(--fit-text-tertiary);flex-shrink:0;">1.2 km</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--fit-divider);cursor:pointer;" data-a11y-id="onboarding.flow.gym.map.nearby" onclick="go('s-onb-gym-form',null,currentCtx())">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">FitLife Studio</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:1px;">Aleje Jerozolimskie 65</div>
+        </div>
+        <span style="font-size:12px;color:var(--fit-text-tertiary);flex-shrink:0;">2.1 km</span>
+      </div>
+    </div>
+
+    <div style="height:1px;background:var(--fit-divider);margin:16px 16px 0;"></div>
+
+    <div style="padding:16px;">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer;" data-a11y-id="onboarding.flow.gym.map.use-current">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+        </div>
+        <span style="font-size:16px;color:var(--fit-text-primary);">Use current location</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer;" data-a11y-id="onboarding.flow.gym.map.pick-on-map" onclick="go('s-onb-gym-pick',null,currentCtx())">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 3v18"/></svg>
+        </div>
+        <span style="font-size:16px;color:var(--fit-text-primary);">Pick on map</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SUB-SCREEN: GYM PICK ON MAP (fullscreen draggable pin)
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-onb-gym-pick">
+  <div class="fit-phone-header" style="z-index:20;position:absolute;left:0;right:0;top:0;">
+    <div class="fit-status-bar"><span>11:56</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div style="padding:4px 16px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="fit-header-back" style="flex-shrink:0;" data-a11y-id="onboarding.flow.gym.pick.back" onclick="go('s-onb-gym-map',null,currentCtx())">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <div class="fit-input" style="flex:1;height:44px;display:flex;align-items:center;gap:8px;cursor:pointer;" data-a11y-id="onboarding.flow.gym.pick.search" onclick="go('s-onb-gym-map',null,currentCtx())">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <span style="color:var(--fit-text-placeholder);">Search address</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding:0;position:relative;overflow:hidden;">
+    <div style="width:100%;height:100%;background:var(--fit-surface-high);position:relative;display:flex;align-items:center;justify-content:center;">
+      <div style="position:absolute;inset:0;opacity:0.06;">
+        <div style="position:absolute;top:20%;left:0;right:0;height:1px;background:var(--fit-text-tertiary);"></div>
+        <div style="position:absolute;top:40%;left:0;right:0;height:1px;background:var(--fit-text-tertiary);"></div>
+        <div style="position:absolute;top:60%;left:0;right:0;height:1px;background:var(--fit-text-tertiary);"></div>
+        <div style="position:absolute;top:80%;left:0;right:0;height:1px;background:var(--fit-text-tertiary);"></div>
+        <div style="position:absolute;left:20%;top:0;bottom:0;width:1px;background:var(--fit-text-tertiary);"></div>
+        <div style="position:absolute;left:40%;top:0;bottom:0;width:1px;background:var(--fit-text-tertiary);"></div>
+        <div style="position:absolute;left:60%;top:0;bottom:0;width:1px;background:var(--fit-text-tertiary);"></div>
+        <div style="position:absolute;left:80%;top:0;bottom:0;width:1px;background:var(--fit-text-tertiary);"></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;align-items:center;margin-top:-40px;">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="var(--fit-brand-primary)" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="white"/></svg>
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--fit-brand-primary);margin-top:-2px;opacity:0.3;"></div>
+      </div>
+
+      <div style="position:absolute;top:120px;left:0;right:0;text-align:center;" data-a11y-id="onboarding.flow.gym.pick.mode-toggle">
+        <div style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:99px;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);cursor:pointer;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          <span style="font-size:14px;color:var(--fit-white);">Pin is locked</span>
+          <span style="font-size:12px;color:var(--fit-teal-500);font-weight:500;">Tap to adjust</span>
+        </div>
+      </div>
+
+      <div style="position:absolute;bottom:200px;right:16px;width:44px;height:44px;border-radius:12px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);" data-a11y-id="onboarding.flow.gym.pick.my-location">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+      </div>
+    </div>
+
+    <div style="position:absolute;bottom:0;left:0;right:0;background:var(--fit-screen-bg);border-radius:20px 20px 0 0;padding:16px 16px 40px;border-top:1px solid var(--fit-divider);">
+      <div style="width:36px;height:4px;border-radius:2px;background:var(--fit-text-tertiary);margin:0 auto 16px;"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Marszałkowska 12</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">Warsaw, Poland</div>
+        </div>
+      </div>
+      <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" data-a11y-id="onboarding.flow.gym.pick.confirm" onclick="go('s-onb-gym-form',null,currentCtx())">Confirm Location</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SUB-SCREEN: GYM LOCATION DETAILS FORM
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-onb-gym-form">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>11:56</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="onboarding.flow.gym.form.back" onclick="go('s-onb-gym-pick',null,currentCtx())">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="fit-header-title">Location details</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <!-- Map preview -->
+    <div style="height:160px;margin:0 16px 16px;border-radius:12px;overflow:hidden;background:var(--fit-surface-high);position:relative;cursor:pointer;" data-a11y-id="onboarding.flow.gym.form.map-preview" onclick="go('s-onb-gym-pick',null,currentCtx())">
+      <div style="position:absolute;inset:0;opacity:0.08;">
+        <div style="position:absolute;top:33%;left:0;right:0;height:1px;background:var(--fit-text-tertiary);"></div>
+        <div style="position:absolute;top:66%;left:0;right:0;height:1px;background:var(--fit-text-tertiary);"></div>
+        <div style="position:absolute;left:33%;top:0;bottom:0;width:1px;background:var(--fit-text-tertiary);"></div>
+        <div style="position:absolute;left:66%;top:0;bottom:0;width:1px;background:var(--fit-text-tertiary);"></div>
+      </div>
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="var(--fit-brand-primary)" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="white"/></svg>
+      </div>
+    </div>
+
+    <!-- Selected address -->
+    <div style="margin:0 16px 16px;padding:14px;border-radius:12px;background:var(--fit-surface-high);display:flex;align-items:center;gap:10px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">GYM Bro</div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);">Marszałkowska 12, Warsaw, Poland</div>
+      </div>
+      <div style="font-size:12px;color:var(--fit-brand-primary);cursor:pointer;" data-a11y-id="onboarding.flow.gym.form.change-address" onclick="go('s-onb-gym-map',null,currentCtx())">Change</div>
+    </div>
+
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Location name</span>
+      <div class="fit-input" contenteditable="true" style="outline:none;cursor:text;color:var(--fit-text-primary);" data-a11y-id="onboarding.flow.gym.form.name">GYM Bro</div>
+    </div>
+
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Description <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <div class="fit-input" contenteditable="true" style="min-height:80px;align-items:flex-start;padding-top:14px;color:var(--fit-text-placeholder);outline:none;cursor:text;" data-a11y-id="onboarding.flow.gym.form.description" data-placeholder="e.g., 2nd floor, ring the bell"></div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;">
+      <span style="font-size:16px;color:var(--fit-text-primary);">Set as default location</span>
+      <div style="width:44px;height:26px;border-radius:13px;background:var(--fit-teal-500);position:relative;cursor:pointer;" data-a11y-id="onboarding.flow.gym.form.default">
+        <div style="width:22px;height:22px;border-radius:50%;background:white;position:absolute;top:2px;right:2px;"></div>
+      </div>
+    </div>
+
+    <!-- Type variants helper: shortcuts to online / home visit -->
+    <div style="margin:8px 16px 0;padding:14px;border-radius:12px;background:rgba(3,178,226,0.06);border:1px solid rgba(3,178,226,0.18);">
+      <div style="font-size:13px;color:var(--fit-text-secondary);line-height:1.5;margin-bottom:10px;">
+        Different format? You can also add online or home-visit locations.
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="fit-btn fit-btn-secondary fit-btn-sm" style="flex:1;" data-a11y-id="onboarding.flow.gym.form.shortcut.online" onclick="go('s-onb-gym-online',null,currentCtx())">Online</button>
+        <button class="fit-btn fit-btn-secondary fit-btn-sm" style="flex:1;" data-a11y-id="onboarding.flow.gym.form.shortcut.homevisit" onclick="go('s-onb-gym-homevisit',null,currentCtx())">Home visit</button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 24px;">
+    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.gym.form.save" onclick="setGymState('filled');go('s-onb-gym',null,currentCtx())">Save location</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     SUB-SCREEN: GYM ONLINE LOCATION
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-onb-gym-online">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>11:56</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="onboarding.flow.gym.online.back" onclick="go('s-onb-gym',null,currentCtx())">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="fit-header-title">Add online location</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Platform</span>
+      <div class="fit-input" style="display:flex;align-items:center;justify-content:space-between;color:var(--fit-text-primary);cursor:pointer;" data-a11y-id="onboarding.flow.gym.online.platform">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2D8CFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="13" height="12" rx="2"/><path d="M15 10l5-3v10l-5-3"/></svg>
+          Zoom
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+    </div>
+
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Meeting link</span>
+      <div class="fit-input" contenteditable="true" style="outline:none;cursor:text;color:var(--fit-text-primary);" data-a11y-id="onboarding.flow.gym.online.link">https://zoom.us/j/1234567890</div>
+    </div>
+
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Display name <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <div class="fit-input" contenteditable="true" style="outline:none;cursor:text;color:var(--fit-text-placeholder);" data-a11y-id="onboarding.flow.gym.online.display-name" data-placeholder='e.g., "My Zoom room"'></div>
+    </div>
+
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Description <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <div class="fit-input" contenteditable="true" style="min-height:80px;align-items:flex-start;padding-top:14px;color:var(--fit-text-placeholder);outline:none;cursor:text;" data-a11y-id="onboarding.flow.gym.online.description" data-placeholder='e.g., "Link updates 1h before training"'></div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;">
+      <span style="font-size:16px;color:var(--fit-text-primary);">Set as default location</span>
+      <div style="width:44px;height:26px;border-radius:13px;background:var(--fit-gray-600);position:relative;cursor:pointer;" data-a11y-id="onboarding.flow.gym.online.default">
+        <div style="width:22px;height:22px;border-radius:50%;background:white;position:absolute;top:2px;left:2px;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 24px;">
+    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.gym.online.save" onclick="setGymState('filled');go('s-onb-gym',null,currentCtx())">Save location</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     SUB-SCREEN: GYM HOME VISIT
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-onb-gym-homevisit">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>11:56</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="onboarding.flow.gym.homevisit.back" onclick="go('s-onb-gym',null,currentCtx())">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="fit-header-title">Home visit</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div style="padding:0 16px 20px;">
+      <div style="padding:14px;border-radius:12px;background:var(--fit-surface-high);display:flex;align-items:flex-start;gap:10px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <div style="font-size:14px;line-height:1.5;color:var(--fit-text-secondary);">You travel to the athlete's location. Their address is provided when they book. Travel buffer blocks extra time in your calendar for commuting.</div>
+      </div>
+    </div>
+
+    <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);padding:0 16px;margin-bottom:8px;">Travel buffer</div>
+    <div style="padding:0 16px 20px;">
+      <div style="display:flex;gap:8px;">
+        <div style="flex:1;height:48px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:var(--fit-surface-high);font-size:16px;color:var(--fit-text-secondary);cursor:pointer;" data-a11y-id="onboarding.flow.gym.homevisit.buffer.15">15 min</div>
+        <div style="flex:1;height:48px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);font-size:16px;font-weight:500;color:var(--fit-text-primary);cursor:pointer;" data-a11y-id="onboarding.flow.gym.homevisit.buffer.30">30 min</div>
+        <div style="flex:1;height:48px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:var(--fit-surface-high);font-size:16px;color:var(--fit-text-secondary);cursor:pointer;" data-a11y-id="onboarding.flow.gym.homevisit.buffer.45">45 min</div>
+        <div style="flex:1;height:48px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:var(--fit-surface-high);font-size:16px;color:var(--fit-text-secondary);cursor:pointer;" data-a11y-id="onboarding.flow.gym.homevisit.buffer.60">60 min</div>
+      </div>
+      <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:8px;">Added before and after each home visit session</div>
+    </div>
+
+    <div style="padding:0 16px 20px;">
+      <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);margin-bottom:8px;">How it works</div>
+      <div style="padding:14px;border-radius:12px;background:var(--fit-surface-high);">
+        <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:10px;">Example: 1h training + 30 min buffer</div>
+        <div style="display:flex;align-items:center;gap:2px;height:12px;border-radius:6px;overflow:hidden;">
+          <div style="flex:30;background:var(--fit-gray-500);border-radius:6px 0 0 6px;height:100%;"></div>
+          <div style="flex:60;background:var(--fit-brand-gradient);height:100%;"></div>
+          <div style="flex:30;background:var(--fit-gray-500);border-radius:0 6px 6px 0;height:100%;"></div>
+        </div>
+        <div style="display:flex;margin-top:6px;">
+          <div style="flex:30;text-align:center;font-size:12px;color:var(--fit-text-tertiary);">Travel 30m</div>
+          <div style="flex:60;text-align:center;font-size:12px;font-weight:500;color:var(--fit-text-primary);">Training 1h</div>
+          <div style="flex:30;text-align:center;font-size:12px;color:var(--fit-text-tertiary);">Travel 30m</div>
+        </div>
+        <div style="text-align:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--fit-divider);font-size:14px;font-weight:500;color:var(--fit-text-primary);">Total blocked: 2h</div>
+      </div>
+    </div>
+
+    <div style="padding:0 16px 20px;">
+      <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);margin-bottom:8px;">Service area <span style="font-weight:400;font-size:14px;color:var(--fit-text-tertiary);">(optional)</span></div>
+      <div class="fit-stepper" data-a11y-id="onboarding.flow.gym.homevisit.service-area"><button class="fit-stepper-btn">&minus;</button><div class="fit-stepper-value">15 <span class="fit-stepper-unit">km</span></div><button class="fit-stepper-btn">+</button></div>
+      <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:8px;">Athletes outside this radius won't see home visit option</div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 16px;">
+      <span style="font-size:16px;color:var(--fit-text-primary);">Set as default location</span>
+      <div style="width:44px;height:26px;border-radius:13px;background:var(--fit-gray-600);position:relative;cursor:pointer;" data-a11y-id="onboarding.flow.gym.homevisit.default">
+        <div style="width:22px;height:22px;border-radius:50%;background:white;position:absolute;top:2px;left:2px;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 24px;">
+    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.gym.homevisit.save" onclick="setGymState('filled');go('s-onb-gym',null,currentCtx())">Save</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     STEP 5 (Coach only) — TRAINING SESSION
      ============================================================ -->
 <div class="fit-phone fit-dark" id="s-onb-sessions">
   <div class="fit-phone-header">
@@ -737,11 +955,9 @@
       and athletes will be able to see them and book them.
     </div>
 
-    <!-- State B: one session created (shown when data-session-state="filled") -->
     <div class="onb-session-list" data-show-when="session-state=filled" style="display:none;margin-bottom:14px;">
       <div class="onb-session-card" data-a11y-id="onboarding.flow.session.card">
-        <button class="onb-session-card-edit" aria-label="Edit session"
-                onclick="go('s-onb-session-create',null,currentCtx())">
+        <button class="onb-session-card-edit" aria-label="Edit session" data-a11y-id="onboarding.flow.session.card.edit" onclick="go('s-onb-session-create',null,currentCtx())">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
         </button>
         <div class="onb-session-card-name">Morning Run</div>
@@ -767,8 +983,7 @@
     </div>
 
     <div class="onb-add-wrap">
-      <button class="onb-add-btn" data-a11y-id="onboarding.flow.session.add"
-              onclick="go('s-onb-session-create',null,currentCtx())">
+      <button class="onb-add-btn" data-a11y-id="onboarding.flow.session.add" onclick="go('s-onb-session-create',null,currentCtx())">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
         Add Training Session
       </button>
@@ -777,112 +992,202 @@
     <div style="flex:1;"></div>
   </div>
   <div class="onb-footer">
-    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.session.next"
-            onclick="goNext()">Confirm</button>
+    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.session.next" onclick="goNext()">Confirm</button>
   </div>
 </div>
 
 <!-- ============================================================
-     SUB-SCREEN: Training Session Setup (opened from Add / pencil edit)
-     Not numbered in the wizard counter — separate screen pushed from step 5.
+     SUB-SCREEN: TRAINING SESSION SETUP — full create form copied from
+     coach/sessions.html#s-create, re-namespaced under
+     onboarding.flow.session.*.
      ============================================================ -->
 <div class="fit-phone fit-dark" id="s-onb-session-create">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>11:57</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="onb-topbar">
-      <button class="onb-back" data-a11y-id="onboarding.flow.session.create.back" aria-label="Back"
-              onclick="go('s-onb-sessions',null,currentCtx())">
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="onboarding.flow.session.create.back" onclick="go('s-onb-sessions',null,currentCtx())">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
       </button>
-      <div class="onb-title-center" style="text-align:left;font-size:22px;font-weight:600;padding-left:8px;">Training Session Setup</div>
+      <span class="fit-header-title">Training session setup</span>
     </div>
   </div>
-  <div class="fit-phone-content" style="padding:0;display:flex;flex-direction:column;">
-    <div style="height:12px;"></div>
+  <div class="fit-phone-content">
+    <div class="fit-input-group" data-required="name">
+      <span class="fit-input-label">Training name</span>
+      <div class="fit-input" contenteditable="true" data-placeholder="Enter training name" style="outline:none;cursor:text;" data-a11y-id="onboarding.flow.session.create.name"></div>
+    </div>
 
-    <div class="ts-group">
-      <div class="ts-group-label">Training Name</div>
-      <div class="ts-input">
-        <input type="text" placeholder="Basketball training"
-               data-a11y-id="onboarding.flow.session.create.name"/>
+    <div class="fit-input-group">
+      <span class="fit-input-label">Sport type</span>
+      <div class="fit-input" data-a11y-id="onboarding.flow.session.create.sport">
+        <span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg></span>
+        Fitness
+        <span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
       </div>
     </div>
 
-    <div class="ts-group">
-      <div class="ts-group-label">Sport Type</div>
-      <div class="ts-input" data-a11y-id="onboarding.flow.session.create.sport">
-        <span class="ts-input-placeholder">Select sport type</span>
-        <span class="ts-input-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+    <div class="fit-input-group">
+      <span class="fit-input-label">Location</span>
+      <div class="fit-input" style="cursor:pointer;" data-a11y-id="onboarding.flow.session.create.location" onclick="go('s-onb-gym',null,currentCtx())">
+        <span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></span>
+        GYM Bro
+        <span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
       </div>
     </div>
 
-    <div class="ts-group">
-      <div class="ts-group-label">Location</div>
-      <div class="ts-input" data-a11y-id="onboarding.flow.session.create.location">
-        <span class="ts-input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
-        <span class="ts-input-placeholder">Select a training location</span>
-        <span class="ts-input-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+    <div class="fit-input-group"><span class="fit-input-label">Training type</span></div>
+    <div class="fit-selection-group" data-fit-selection="single" data-a11y-id="onboarding.flow.session.create.type">
+      <div class="fit-selection-chip selected" data-value="personal">Personal</div>
+      <div class="fit-selection-chip" data-value="group">Group</div>
+    </div>
+
+    <!-- Group-only fields (hidden by default when Personal selected) -->
+    <div id="onb-group-fields" style="display:none;">
+      <div class="fit-input-group">
+        <span class="fit-input-label">Max participants</span>
+        <div class="fit-stepper" data-fit-stepper data-value="10" data-min="2" data-max="50" data-a11y-id="onboarding.flow.session.create.max-participants" style="margin-top:8px;">
+          <button class="fit-stepper-btn" data-dir="-1">&minus;</button>
+          <div class="fit-stepper-value"><span data-stepper-display>10</span> <span class="fit-stepper-unit">athletes</span></div>
+          <button class="fit-stepper-btn" data-dir="1">+</button>
+        </div>
+      </div>
+      <div class="fit-input-group">
+        <span class="fit-input-label">Min participants <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+        <div class="fit-stepper" data-fit-stepper data-value="3" data-min="0" data-max="10" data-a11y-id="onboarding.flow.session.create.min-participants" style="margin-top:8px;">
+          <button class="fit-stepper-btn" data-dir="-1">&minus;</button>
+          <div class="fit-stepper-value"><span data-stepper-display>3</span> <span class="fit-stepper-unit">athletes</span></div>
+          <button class="fit-stepper-btn" data-dir="1">+</button>
+        </div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;line-height:1.4;">If not met, you'll be notified 24h before to cancel or proceed.</div>
       </div>
     </div>
 
-    <div class="ts-group">
-      <div class="ts-group-label">Duration</div>
-      <div class="ts-wheel-box" data-a11y-id="onboarding.flow.session.create.duration">
-        <div class="ts-wheel-row">
-          <div class="ts-wheel-col-label" style="grid-column:1;">Hour</div>
-          <div class="ts-wheel-col-label" style="grid-column:2;">Minutes</div>
-          <div class="ts-wheel-col" style="grid-column:1;">
-            <span class="ts-wheel-val cur">0</span>
-            <span class="ts-wheel-val">1</span>
-          </div>
-          <div class="ts-wheel-col" style="grid-column:2;">
-            <span class="ts-wheel-val">0</span>
-            <span class="ts-wheel-val cur">15</span>
-            <span class="ts-wheel-val">30</span>
-          </div>
+    <div class="fit-input-group" data-required="duration"><span class="fit-input-label">Duration</span></div>
+    <div class="fit-wheel-picker" data-a11y-id="onboarding.flow.session.create.duration">
+      <div class="fit-wheel-col">
+        <span class="fit-wheel-label">Hour</span>
+        <div class="fit-wheel-scroll">
+          <div class="fit-wheel-item dim">0</div>
+          <div class="fit-wheel-item active">1</div>
+          <div class="fit-wheel-item dim">2</div>
+        </div>
+        <div class="fit-wheel-fade-top"></div>
+        <div class="fit-wheel-fade-bottom"></div>
+      </div>
+      <div class="fit-wheel-col">
+        <span class="fit-wheel-label">Minutes</span>
+        <div class="fit-wheel-scroll">
+          <div class="fit-wheel-item dim">0</div>
+          <div class="fit-wheel-item active">15</div>
+          <div class="fit-wheel-item dim">30</div>
+        </div>
+        <div class="fit-wheel-fade-top"></div>
+        <div class="fit-wheel-fade-bottom"></div>
+      </div>
+    </div>
+
+    <div class="fit-input-group" data-required="price"><span class="fit-input-label">Price per participant</span></div>
+    <div class="price-row">
+      <div class="fit-input" contenteditable="true" data-placeholder="0" style="flex:1;outline:none;cursor:text;" data-a11y-id="onboarding.flow.session.create.price"></div>
+      <div class="price-currency">&euro;</div>
+    </div>
+
+    <!-- Schedule (group only) -->
+    <div id="onb-schedule-fields" style="display:none;">
+      <div class="fit-input-group"><span class="fit-input-label">Schedule</span></div>
+      <div class="fit-selection-group" data-fit-selection="single" style="margin-bottom:12px;" data-a11y-id="onboarding.flow.session.create.schedule.toggle">
+        <div class="fit-selection-chip selected" data-value="recurring" style="font-size:14px;">Recurring</div>
+        <div class="fit-selection-chip" data-value="one-off" style="font-size:14px;">One-off</div>
+      </div>
+
+      <div id="onb-recurring-fields">
+        <div class="fit-input-group"><span class="fit-input-label">Days</span></div>
+        <div style="display:flex;gap:6px;padding:0 16px;margin-bottom:16px;" data-a11y-id="onboarding.flow.session.create.schedule.days">
+          <div style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;cursor:pointer;background:var(--fit-surface-high);color:var(--fit-text-tertiary);">M</div>
+          <div style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;cursor:pointer;background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);color:var(--fit-white);">T</div>
+          <div style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;cursor:pointer;background:var(--fit-surface-high);color:var(--fit-text-tertiary);">W</div>
+          <div style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;cursor:pointer;background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);color:var(--fit-white);">T</div>
+          <div style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;cursor:pointer;background:var(--fit-surface-high);color:var(--fit-text-tertiary);">F</div>
+          <div style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;cursor:pointer;background:var(--fit-surface-high);color:var(--fit-text-tertiary);">S</div>
+          <div style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;cursor:pointer;background:var(--fit-surface-high);color:var(--fit-text-tertiary);">S</div>
+        </div>
+      </div>
+
+      <div class="fit-input-group" data-required="time">
+        <span class="fit-input-label">Start time</span>
+        <div class="fit-input" data-a11y-id="onboarding.flow.session.create.schedule.start-time" style="cursor:pointer;" onclick="document.getElementById('onb-time-picker-sheet').classList.add('visible')">
+          <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          <span>18:00</span>
+          <span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
         </div>
       </div>
     </div>
 
-    <div class="ts-group">
-      <div class="ts-group-label">Price</div>
-      <div class="ts-input" data-a11y-id="onboarding.flow.session.create.price">
-        <span class="ts-input-prefix">€</span>
-        <input type="number" inputmode="decimal" placeholder="0"/>
-      </div>
+    <div class="fit-input-group"><span class="fit-input-label">Payment method</span></div>
+    <div class="fit-selection-group" data-fit-selection="multi" data-a11y-id="onboarding.flow.session.create.payment">
+      <div class="fit-selection-chip selected" data-value="cash"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h2M20 10h2M2 14h2M20 14h2"/><circle cx="12" cy="12" r="3"/></svg> Cash</div>
+      <div class="fit-selection-chip" data-value="card"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card</div>
     </div>
-
-    <div class="ts-pay-row">
-      <button class="ts-pay-btn selected" data-a11y-id="onboarding.flow.session.create.payment.cash"
-              onclick="this.classList.add('selected');this.nextElementSibling.classList.remove('selected');">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg>
-        Cash
-        <span class="ts-pay-btn-check">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        </span>
-      </button>
-      <button class="ts-pay-btn" data-a11y-id="onboarding.flow.session.create.payment.card"
-              onclick="this.classList.add('selected');this.previousElementSibling.classList.remove('selected');">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-        Card
-        <span class="ts-pay-btn-check">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        </span>
-      </button>
-    </div>
-
-    <div style="flex:1;"></div>
   </div>
-  <div class="onb-footer">
-    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.session.create.save"
-            onclick="go('s-onb-sessions',null,currentCtx())">Save</button>
+
+  <!-- Time picker bottom sheet -->
+  <div class="fit-sheet-overlay" id="onb-time-picker-sheet">
+    <div class="fit-sheet tp-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:16px;font-weight:500;margin-bottom:4px;">Select time</div>
+      <div style="font-size:14px;color:var(--fit-text-tertiary);margin-bottom:16px;">1h session &middot; available slots</div>
+
+      <div class="tp-slot-list" style="height:280px;overflow-y:auto;margin-bottom:20px;border-radius:12px;padding:4px;">
+        <div class="tp-slot" data-hour="08" onclick="this.classList.toggle('expanded')">
+          <div class="tp-slot-row">
+            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <span class="tp-slot-label">08:00</span>
+            <span class="tp-slot-partial">2/4</span>
+            <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="tp-slot-minutes">
+            <div class="min-chip">08:00</div>
+            <div class="min-chip">08:15</div>
+            <div class="min-chip disabled">08:30</div>
+            <div class="min-chip disabled">08:45</div>
+          </div>
+        </div>
+        <div class="tp-slot tp-slot-busy">
+          <div class="tp-slot-row">
+            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <span class="tp-slot-label">12:00</span>
+            <span class="tp-slot-busy-label">Busy &middot; Basketball Training</span>
+          </div>
+        </div>
+        <div class="tp-slot" data-hour="18" onclick="this.classList.toggle('expanded')">
+          <div class="tp-slot-row selected">
+            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <span class="tp-slot-label">18:00</span>
+            <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="tp-slot-minutes">
+            <div class="min-chip selected">18:00</div>
+            <div class="min-chip">18:15</div>
+            <div class="min-chip">18:30</div>
+            <div class="min-chip">18:45</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="document.getElementById('onb-time-picker-sheet').classList.remove('visible')">Confirm &middot; 18:00</button>
+    </div>
+  </div>
+
+  <!-- Validation snackbar -->
+  <div class="fit-snackbar" id="onb-validation-snack"><span class="snack-dot" style="background:var(--fit-red-400);"></span>Please fill in required fields</div>
+
+  <div class="fit-phone-footer fit-footer-btn">
+    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.session.create.save" onclick="setSessionState('filled');go('s-onb-sessions',null,currentCtx())">Save</button>
   </div>
 </div>
 
 <!-- ============================================================
-     SCREEN: STEP 6 (coach) / STEP 4 (athlete) — CALENDAR SYNC
-     State A: both not connected.  State B: Google connected, fetching.
-     CTA: Finish (no separate Skip — user can simply tap Finish without connecting).
+     STEP 6 (coach) / STEP 4 (athlete) — CALENDAR SYNC
      ============================================================ -->
 <div class="fit-phone fit-dark" id="s-onb-calendar">
   <div class="fit-phone-header">
@@ -901,7 +1206,6 @@
       your personal events with your training sessions.
     </div>
 
-    <!-- STATE A — initial, neither connected -->
     <div class="onb-cal-list" data-show-when="cal-state=initial">
       <div class="onb-cal-row" data-a11y-id="onboarding.flow.calendar.google.row">
         <div class="onb-cal-icon">
@@ -925,7 +1229,6 @@
       </div>
     </div>
 
-    <!-- STATE B — Google connected, fetching calendars + add another -->
     <div class="onb-cal-list" data-show-when="cal-state=fetching" style="display:none;">
       <div class="onb-cal-row" data-a11y-id="onboarding.flow.calendar.google.row.connected">
         <div class="onb-cal-icon">
@@ -957,34 +1260,7 @@
     <div style="flex:1;"></div>
   </div>
   <div class="onb-footer">
-    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.calendar.finish"
-            onclick="onbFinish()">Finish</button>
-  </div>
-</div>
-
-<!-- ============================================================
-     SCREEN: COMPLETE — celebratory final
-     Conceptual screen. In production, Finish on calendar step navigates
-     straight to the dashboard; this is a sanity-check preview of the
-     transition shown in the prototype sidebar.
-     ============================================================ -->
-<div class="fit-phone fit-dark" id="s-onb-complete">
-  <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>11:58</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-  </div>
-  <div class="fit-phone-content" style="padding:0;display:flex;flex-direction:column;">
-    <div class="onb-complete">
-      <div class="onb-complete-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      </div>
-      <div class="onb-complete-title">You're all set</div>
-      <div class="onb-complete-sub" data-role-copy="complete-sub">Your profile is ready. Let's find you the first coach.</div>
-    </div>
-  </div>
-  <div class="onb-footer">
-    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.complete.cta"
-            data-role-copy-attr="complete-cta"
-            onclick="onbFinish()">Get started</button>
+    <button class="fit-btn fit-btn-primary" data-a11y-id="onboarding.flow.calendar.finish" onclick="onbFinish()">Finish</button>
   </div>
 </div>
 
@@ -993,39 +1269,37 @@
   <div class="ann active" id="ann-s-onb-personal">
     <span class="ann-role">Shared</span>
     <h3>Step 1 — Personal data</h3>
-    <p>First fullscreen step. Avatar + first name + last name + short bio. <strong>Matches live iOS</strong> — gender / DOB / weight / height are intentionally NOT collected here. They are deferred to post-onboarding settings to keep the funnel lean.</p>
+    <p>Avatar + first name + last name + bio. <strong>Matches live iOS</strong> — gender / DOB / weight / height intentionally dropped (deferred to Settings).</p>
     <hr>
     <ul>
-      <li>Avatar: 110px circular dropzone (teal-blue fallback + white user icon). Tap → native PHPickerViewController.</li>
-      <li>Name fields use placeholder pattern (no separate label) — matches live iOS form chrome.</li>
-      <li>Bio: 500-char textarea, label "About Me" above. Counter hidden until typing starts.</li>
-      <li>Back disabled on step 1 — account already exists, can't unwind here.</li>
+      <li>Avatar: 110px circle, teal-blue fallback + white user icon. Tap → native picker.</li>
+      <li>Name fields: placeholder pattern (no separate label).</li>
+      <li>Bio: 500-char textarea, label "About Me" above.</li>
+      <li>Back disabled on step 1 — account already exists.</li>
     </ul>
-    <p class="note">Gender + DOB historically appeared in this step per <code>project_personal_data_selectors</code>. Dropped 2026-05-20 because iOS already shipped without them and they aren't needed for marketplace function. Can be added to Settings later if/when search needs them.</p>
   </div>
 
   <div class="ann" id="ann-s-onb-sports">
     <span class="ann-role">Shared</span>
     <h3>Step 2 — Sports</h3>
-    <p>Multi-select sport tile grid. <strong>Sectioned by category</strong> (Fitness/Racket/Endurance/Mind&amp;Body/Combat) per <code>project_sport_taxonomy</code> — live iOS shows a flat grid, this is an explicit ask to bring section headers across when iOS catches up.</p>
+    <p>Multi-select sectioned grid (delta vs live iOS — flat grid there, our spec calls for taxonomy).</p>
     <hr>
     <ul>
-      <li>Title centered in header: <strong>"What sports do you coach?"</strong> (coach) / "What sports do you train?" (athlete).</li>
-      <li>Tiles: <code>fit-selection-gradient</code> + teal-600 border on <code>.selected</code> per <code>feedback_selection_chips</code>.</li>
-      <li>Continue stays disabled until ≥1 sport selected (visualized via <code>.is-disabled</code> in production; prototype pre-selects Tennis + Fitness for demo).</li>
+      <li>Title centered: <strong>"What sports do you coach?"</strong> (coach) / "What sports do you train?" (athlete).</li>
+      <li>Tiles per <code>feedback_selection_chips</code> — gradient + teal-600 border on <code>.selected</code>.</li>
+      <li>Confirm disabled until ≥1 selected (prototype pre-selects 2 for demo).</li>
     </ul>
-    <p class="note">Section taxonomy isn't shipped on iOS yet — flag for sport-types module follow-up.</p>
   </div>
 
   <div class="ann" id="ann-s-onb-location">
     <span class="ann-role">Shared</span>
     <h3>Step 3 — Location</h3>
-    <p>Four push-rows: time zone, home country, home city, languages. <strong>City retained against live iOS</strong> (still being added on the native side) — useful default for search radius.</p>
+    <p>4 push-rows: TZ + country + city + languages. <strong>Home City retained vs live iOS</strong> — useful for search-radius defaults.</p>
     <hr>
     <ul>
-      <li>TZ + Country — device-detected at account creation, shown pre-filled per <code>project_personal_data_selectors</code>.</li>
-      <li>City — reverse-geocoded via <code>GET /geo/reverse-city</code>. If geocode unavailable, field is empty and user picks manually.</li>
-      <li>Languages — device locale pre-fill, multi-select. Default search filter per <code>project_search_default_filters</code>.</li>
+      <li>TZ + Country — device-detected at signup, pre-filled.</li>
+      <li>City — reverse-geocoded; empty + manual fallback if geocode fails.</li>
+      <li>Languages — locale pre-fill, multi-select.</li>
       <li>Changing country resets city.</li>
     </ul>
   </div>
@@ -1033,26 +1307,93 @@
   <div class="ann" id="ann-s-onb-gym">
     <span class="ann-role">Coach</span>
     <h3>Step 4 — Gym Location (coach only)</h3>
-    <p>Subtitle + outlined "Add Gym Location" CTA → hands off to canonical <code>coach/locations.html</code>. On return, the wizard would render a card list above the Add CTA (same pattern as Training Session step) + Confirm enabled.</p>
+    <p>Hub for managing locations. Empty state = subtitle + outlined Add CTA. Filled state = list of cards above the Add CTA. Tap a card → opens location form for editing.</p>
     <hr>
     <ul>
-      <li>Athletes don't see this step — onboarding branches: athlete jumps from Location → Calendar (step 4 of 4).</li>
+      <li>Athletes skip this step. Onboarding branches: athlete → Calendar at step 4 of 4.</li>
       <li>≥1 location required to Confirm.</li>
-      <li>Location type (in-person / online / home) is set inside the canonical flow — defaults to in-person per <code>project_locations_decisions</code>.</li>
+      <li><strong>Add Gym Location</strong> → opens search/map sub-flow (5 sub-screens follow).</li>
+    </ul>
+    <div class="state-toggle">
+      <button class="active" onclick="setGymState('empty', this)">Empty</button>
+      <button onclick="setGymState('filled', this)">With 1 location</button>
+    </div>
+  </div>
+
+  <div class="ann" id="ann-s-onb-gym-map">
+    <span class="ann-role">Coach</span>
+    <h3>Sub-screen — Add In-person (search)</h3>
+    <p>Search-first approach copied verbatim from <code>coach/locations.html#s-loc-map</code>, re-namespaced under <code>onboarding.flow.gym.map.*</code>.</p>
+    <hr>
+    <ul>
+      <li><strong>Search bar</strong> — Google Places autocomplete.</li>
+      <li><strong>Gyms Near You</strong> — pre-fetched from Google Places API (type=gym), sorted by distance.</li>
+      <li><strong>Use current location</strong> — reverse-geocode from GPS.</li>
+      <li><strong>Pick on map</strong> — opens fullscreen draggable-pin sub-screen.</li>
+      <li>Any nearby-gym tap → Location Details form.</li>
+    </ul>
+  </div>
+
+  <div class="ann" id="ann-s-onb-gym-pick">
+    <span class="ann-role">Coach</span>
+    <h3>Sub-screen — Pick on Map</h3>
+    <p>Fullscreen map with locked / unlocked pin modes. Pill at top toggles. Bottom card shows reverse-geocoded address + Confirm.</p>
+    <hr>
+    <ul>
+      <li><strong>Locked</strong> (default) — map scrolls under pin, pin stays.</li>
+      <li><strong>Unlocked</strong> — pin follows map center, address updates live.</li>
+      <li>Search bar at top — tap → back to search sub-screen.</li>
+      <li>Confirm → Location Details form.</li>
+    </ul>
+  </div>
+
+  <div class="ann" id="ann-s-onb-gym-form">
+    <span class="ann-role">Coach</span>
+    <h3>Sub-screen — Location Details</h3>
+    <p>Final step before save. Map preview + selected address + name + description + default toggle.</p>
+    <hr>
+    <ul>
+      <li><strong>Map preview tap</strong> → back to Pick on Map (adjust pin).</li>
+      <li><strong>Change link</strong> → back to search.</li>
+      <li><strong>Shortcuts</strong> at bottom: Online / Home visit — let coach jump to alternate location types from inside the in-person flow.</li>
+      <li><strong>Save</strong> → flips gym list state to "filled" and returns to step 4.</li>
+    </ul>
+  </div>
+
+  <div class="ann" id="ann-s-onb-gym-online">
+    <span class="ann-role">Coach</span>
+    <h3>Sub-screen — Add Online Location</h3>
+    <p>Platform picker (Zoom / Meet / Teams / Custom) + meeting link + optional display name + optional description + default toggle.</p>
+    <hr>
+    <ul>
+      <li>Backend: <code>location_type='online'</code> + <code>meeting_link</code> + <code>platform</code> enum.</li>
+      <li>Make lat/lon optional in DB schema.</li>
+    </ul>
+  </div>
+
+  <div class="ann" id="ann-s-onb-gym-homevisit">
+    <span class="ann-role">Coach</span>
+    <h3>Sub-screen — Home Visit</h3>
+    <p>Coach travels to athlete. Athlete's address provided at booking time. Travel buffer blocks time on either side of the session in coach's calendar.</p>
+    <hr>
+    <ul>
+      <li><strong>Travel buffer:</strong> 15/30/45/60 min chips. Applied before AND after session.</li>
+      <li><strong>Visual timeline:</strong> buffer + training + buffer = total blocked.</li>
+      <li><strong>Service area</strong> (optional): max distance in km. Athletes outside don't see home-visit option.</li>
     </ul>
   </div>
 
   <div class="ann" id="ann-s-onb-sessions">
     <span class="ann-role">Coach</span>
     <h3>Step 5 — Training Session (coach only)</h3>
-    <p>Coach creates ≥1 bookable session here. Two states — empty (Add only) and filled (list of session cards above the Add CTA).</p>
+    <p>Coach creates ≥1 bookable session. Empty state = Add only; filled state = list of session cards + pencil edit.</p>
     <hr>
     <ul>
-      <li><strong>Tap Add Training Session</strong> → opens the inline <em>Training Session Setup</em> sub-screen (Name / Sport / Location / Duration wheel / Price / Cash-Card toggle).</li>
-      <li><strong>Tap pencil on card</strong> → opens the same sub-screen in edit mode.</li>
-      <li>Inline form vs handoff: live iOS uses an inline sub-screen (NOT a hand-off to the full <code>coach/sessions.html</code>) — we follow that. Differs from <code>feedback_wizard_handoff</code> which prefers canonical create-flow handoff; the inline session form is intentional to keep new-coach friction low.</li>
+      <li><strong>Tap Add Training Session</strong> → opens session-create sub-screen (full form copied from <code>coach/sessions.html#s-create</code>).</li>
+      <li><strong>Tap pencil on card</strong> → opens same sub-screen in edit mode.</li>
+      <li>Save returns to step 5 with the new session in the list.</li>
     </ul>
-    <div class="state-toggle" id="session-toggle">
+    <div class="state-toggle">
       <button class="active" onclick="setSessionState('empty', this)">Empty</button>
       <button onclick="setSessionState('filled', this)">With 1 session</button>
     </div>
@@ -1061,62 +1402,57 @@
   <div class="ann" id="ann-s-onb-session-create">
     <span class="ann-role">Coach</span>
     <h3>Sub-screen — Training Session Setup</h3>
-    <p>Inline create / edit form pushed from step 5. Not numbered in the step counter (no pill — title is left-aligned to signal sub-screen vs main wizard step).</p>
+    <p>Full create form copied from <code>coach/sessions.html#s-create</code>. Re-namespaced under <code>onboarding.flow.session.create.*</code>.</p>
     <hr>
     <ul>
-      <li><strong>Training Name</strong> — free text, placeholder "Basketball training".</li>
-      <li><strong>Sport Type</strong> — push picker, pre-filled from step 2 selection if only one sport chosen.</li>
-      <li><strong>Location</strong> — push picker, sourced from step 4 gym locations.</li>
-      <li><strong>Duration</strong> — UIDatePicker wheel (Hour 0–12, Minutes 0/15/30/45). iOS-native pattern per <code>feedback_native_pickers</code>.</li>
-      <li><strong>Price</strong> — numeric input with € prefix. Currency from user's country.</li>
-      <li><strong>Cash / Card</strong> — payment acceptance toggle. Cash default. Coach can accept one or both (in production both buttons can be selected simultaneously — prototype shows mutually-exclusive for clarity).</li>
-      <li><strong>Save</strong> → returns to step 5 with the new session in the list.</li>
+      <li><strong>Training name</strong> — contenteditable.</li>
+      <li><strong>Sport type</strong> — picker (defaults to one selected at step 2).</li>
+      <li><strong>Location</strong> — opens Gym Location step (step 4) for selection.</li>
+      <li><strong>Training type</strong> — Personal / Group toggle. Group reveals participants + schedule fields.</li>
+      <li><strong>Duration</strong> — canonical <code>fit-wheel-picker</code> (Hour + Minutes).</li>
+      <li><strong>Price</strong> — numeric input + currency suffix.</li>
+      <li><strong>Schedule</strong> (group only) — Recurring (day picker) or One-off (date sheet) + Start time (slot picker sheet).</li>
+      <li><strong>Payment method</strong> — Cash / Card multi-select.</li>
+      <li><strong>Validation snackbar</strong> for missing required fields.</li>
+      <li><strong>Save</strong> → flips session list state to "filled" and returns to step 5.</li>
     </ul>
-    <p class="note">Note: <code>coach/sessions.html</code> (canonical sessions screen used outside onboarding) has more fields — recurring schedule, training type, max participants. Onboarding sub-screen is a deliberate subset.</p>
   </div>
 
   <div class="ann" id="ann-s-onb-calendar">
     <span class="ann-role">Shared</span>
     <h3>Step 6 (coach) / Step 4 (athlete) — Calendar sync</h3>
-    <p>Last step. <strong>No explicit Skip link</strong> — user can simply tap Finish without connecting (live iOS pattern). Two visual states:</p>
+    <p>Last step. No explicit Skip — Finish completes without connecting.</p>
     <hr>
     <ul>
-      <li><strong>Initial</strong>: Google + Apple rows, each with a Connect pill.</li>
-      <li><strong>After Google connects</strong>: Google row shows the connected email + "Fetching calendars…" spinner. A dashed "Add Google Account" appears below — multi-account is supported. Apple still listed beneath.</li>
-      <li>Google → OAuth (system sheet). Apple → CalDAV push (Apple ID + app-specific password), full flow lives in <code>coach/calendar-sync.html</code>.</li>
-      <li>Header title in live iOS reads literally <em>"Google Calendar Sync"</em> even though Apple is also offered. Flagged — should rename to "Calendar Sync" when iOS catches up.</li>
+      <li><strong>Initial</strong>: Google + Apple Connect pills.</li>
+      <li><strong>After Google connects</strong>: row shows email + "Fetching calendars…" + dashed "Add Google Account". Multi-account supported. Apple still listed beneath.</li>
+      <li>Google → OAuth. Apple → CalDAV push (Apple ID + app-specific password) — flow lives in <code>coach/calendar-sync.html</code>.</li>
+      <li>Title in live iOS reads "Google Calendar Sync" — flagged to rename to "Calendar Sync".</li>
     </ul>
-    <div class="state-toggle" id="cal-toggle">
+    <div class="state-toggle">
       <button class="active" onclick="setCalState('initial', this)">Initial</button>
       <button onclick="setCalState('fetching', this)">Google connected</button>
     </div>
   </div>
-
-  <div class="ann" id="ann-s-onb-complete">
-    <span class="ann-role">Shared</span>
-    <h3>Complete — done</h3>
-    <p>Conceptual celebration screen. Live iOS goes directly from Finish → dashboard with no celebratory screen — this is a sanity-check preview only.</p>
-    <hr>
-    <ul>
-      <li><strong>Athlete</strong> → "Let's find you the first coach" → athlete dashboard <code>dst-welcome</code>.</li>
-      <li><strong>Coach</strong> → "Your profile is now under review" → coach dashboard <code>dst-under-review</code>.</li>
-      <li>Backend on Finish: <code>setOnboardingCompleted()</code> + transition account state + emit <code>user.onboarded</code> event.</li>
-    </ul>
-    <p class="note">Onboarding flow ≠ dashboard wizard widget. The dashboard wizard is a separate checklist for remaining setup tasks (per <code>project_onboarding_wizard</code>).</p>
-  </div>
 </div>
 
+<script src="../../lib/fit-ui.js"></script>
 <script>
-// ----- Wizard ordered routing -----
+// Wizard order — only top-level steps in the order. Sub-screens routed individually.
 const ATHLETE_ORDER = ['s-onb-personal', 's-onb-sports', 's-onb-location', 's-onb-calendar'];
 const COACH_ORDER   = ['s-onb-personal', 's-onb-sports', 's-onb-location', 's-onb-gym', 's-onb-sessions', 's-onb-calendar'];
 
 let __onbCtx = { role: 'athlete', step: 1, total: 4 };
-let __sessionState = 'empty';   // empty | filled
-let __calState = 'initial';     // initial | fetching
+let __sessionState = 'empty';
+let __calState = 'initial';
+let __gymState = 'empty';
 
 function order() { return __onbCtx.role === 'coach' ? COACH_ORDER : ATHLETE_ORDER; }
 function currentCtx() { return Object.assign({}, __onbCtx); }
+function currentScreen() {
+  const el = document.querySelector('.fit-phone.active');
+  return el ? el.id : 's-onb-personal';
+}
 
 function goNext() {
   const ord = order();
@@ -1134,13 +1470,8 @@ function goPrev() {
   const prevStep = ord.indexOf(prev) + 1;
   go(prev, null, { role: __onbCtx.role, step: prevStep, total: ord.length });
 }
-function currentScreen() {
-  const el = document.querySelector('.fit-phone.active');
-  return el ? el.id : 's-onb-personal';
-}
 
 function onbFinish() {
-  // Production: setOnboardingCompleted() + redirect.
   if (__onbCtx.role === 'coach') {
     window.location.href = '../coach/dashboard.html#under-review';
   } else {
@@ -1168,9 +1499,10 @@ function go(screenId, sidebarBtn, ctx) {
     document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
     sidebarBtn.classList.add('active');
   }
+  // Re-init FitUI on the freshly-visible screen (steppers, selection groups, wheels)
+  if (window.FitUI && FitUI.initAll && screen) FitUI.initAll(screen);
 }
 
-// Show/hide role-conditional content
 function applyRoleVisibility() {
   document.querySelectorAll('[data-role-only]').forEach(el => {
     el.style.display = (el.dataset.roleOnly === __onbCtx.role) ? '' : 'none';
@@ -1180,23 +1512,14 @@ function applyRoleVisibility() {
       athlete: 'What sports do you train?',
       coach:   'What sports do you coach?'
     },
-    'complete-sub': {
-      athlete: "Your profile is ready. Let's find you the first coach.",
-      coach:   "Your profile is now under review. We'll notify you within 24 hours."
-    },
-    'complete-cta': { athlete: 'Find a coach', coach: 'Got it' },
   };
   document.querySelectorAll('[data-role-copy]').forEach(el => {
     const key = el.dataset.roleCopy;
     if (copy[key] && copy[key][__onbCtx.role]) el.textContent = copy[key][__onbCtx.role];
   });
-  document.querySelectorAll('[data-role-copy-attr]').forEach(el => {
-    const key = el.dataset.roleCopyAttr;
-    if (copy[key] && copy[key][__onbCtx.role]) el.textContent = copy[key][__onbCtx.role];
-  });
 }
 
-// State toggles (right panel)
+// State toggles
 function setSessionState(state, btn) {
   __sessionState = state;
   document.querySelectorAll('[data-show-when="session-state=filled"]').forEach(el => {
@@ -1220,6 +1543,33 @@ function setCalState(state, btn) {
     btn.classList.add('active');
   }
 }
+function setGymState(state, btn) {
+  __gymState = state;
+  document.querySelectorAll('[data-show-when="gym-state=filled"]').forEach(el => {
+    el.style.display = state === 'filled' ? 'flex' : 'none';
+  });
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+
+// Training type toggle (Personal/Group) — show/hide group-only fields
+document.addEventListener('click', function(e) {
+  const chip = e.target.closest('#s-onb-session-create .fit-selection-group[data-fit-selection="single"] .fit-selection-chip');
+  if (!chip) return;
+  const group = chip.closest('.fit-selection-group');
+  if (!group || group.querySelectorAll('[data-value="personal"]').length === 0) return;
+  // wait a tick for fit-ui to apply selection
+  setTimeout(() => {
+    const selected = group.querySelector('.fit-selection-chip.selected');
+    const isGroup = selected && selected.dataset.value === 'group';
+    const groupFields = document.getElementById('onb-group-fields');
+    const scheduleFields = document.getElementById('onb-schedule-fields');
+    if (groupFields) groupFields.style.display = isGroup ? '' : 'none';
+    if (scheduleFields) scheduleFields.style.display = isGroup ? '' : 'none';
+  }, 10);
+});
 
 function switchTheme(theme) {
   document.getElementById('theme-dark').style.background = theme === 'dark' ? 'var(--fit-gray-700)' : 'transparent';
@@ -1232,7 +1582,6 @@ function switchTheme(theme) {
   });
 }
 
-// Initial paint
 applyRoleVisibility();
 </script>
 

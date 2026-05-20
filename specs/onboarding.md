@@ -50,7 +50,21 @@ personalData → sports → location → gymLocations* → trainingSessions* →
 - **Coach:** 6 steps (personalData → sports → location → gymLocations → trainingSessions → calendarSync)
 
 ### Header chrome
-Every step: circular back button (left, disabled on step 1) · centered title · teal-outlined pill step counter (right, e.g. `1 of 6`). No progress bar — the pill counter is the single progress affordance. Footer CTA is `Confirm` on every step except the last (`Finish`).
+Every top-level wizard step: circular back button (left, disabled on step 1) · centered title · teal-outlined pill step counter (right, e.g. `1 of 6`). No progress bar — the pill counter is the single progress affordance. Footer CTA is `Confirm` on every step except the last (`Finish`).
+
+Sub-screens pushed from a step (gym add-flow, session create-form) use canonical `.fit-header` (back chevron + left-aligned title) — no pill counter — to signal the user is inside a nested flow.
+
+### Self-contained module — no hand-offs (2026-05-20)
+The onboarding module ships as its own self-contained iOS module. Sub-flows that exist canonically elsewhere (gym location creation in `coach/locations.html`, session creation in `coach/sessions.html`) are **duplicated** into the onboarding module rather than handed off, so:
+- Onboarding has its own a11y identifier namespace (`onboarding.flow.*`) that doesn't collide with the corresponding Settings/Sessions namespaces.
+- All error states, snackbars and validation are wired inside the onboarding module — readers don't need to context-switch to other screens to understand the full flow.
+- The module owns its own routing and back-stack inside the wizard scope.
+
+Sub-screens covered:
+- **Gym Location (step 4)** sub-flow — 5 sub-screens: search (`s-onb-gym-map`), pick-on-map (`s-onb-gym-pick`), in-person details (`s-onb-gym-form`), online (`s-onb-gym-online`), home visit (`s-onb-gym-homevisit`). All re-namespaced under `onboarding.flow.gym.*`.
+- **Training Session (step 5)** sub-flow — 1 sub-screen with bottom-sheets and snackbar: create form (`s-onb-session-create`) with full Personal/Group toggle, recurring/one-off schedule, time-slot picker, payment method. Re-namespaced under `onboarding.flow.session.create.*`.
+
+Edit flows for both (after the first item is created) reuse the same sub-screens with prefilled values.
 
 ### What is intentionally NOT collected here (2026-05-20)
 Earlier drafts of this spec included `gender`, `date of birth`, `weight`, `height` on the personal step. These were dropped to keep the funnel lean — live iOS already ships without them, and the marketplace can function without these signals at signup. Collect later in Settings (gender / DOB) or via athlete-specific nudge (weight / height for training-load features).
