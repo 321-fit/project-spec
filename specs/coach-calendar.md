@@ -80,15 +80,18 @@ Root tab screen, has the nav bar footer. Acts as both agenda view (for the coach
 6. Tapping Reschedule → sheet closes, Reschedule flow starts.
 7. Tapping Cancel → confirmation sheet (destructive).
 
-### Flow 3: Create new event
+### Flow 3: Create new event (2026-05-20 rework — intent-based FAB)
 
-1. Long-press on empty timeline slot OR tap FAB (`+`) → action sheet with 3 options:
-   - Personal session
-   - Group session
-   - Custom event
-2. **Personal session:** routes to Select Athlete flow → Select Training Session template → Create/Edit event screen (pre-filled from long-press slot if applicable).
-3. **Group session:** routes to Group Session creation flow (see [group-training.md](./group-training.md)).
-4. **Custom event:** routes to Custom Event creation screen (see Flow 5).
+1. Long-press on empty timeline slot OR tap FAB (`+`) → action sheet with **2 intent-based options**:
+   - **Schedule training** — primary action: 1-on-1 session with an athlete.
+   - **Block time off** — secondary action: custom calendar event (doctor, vacation, personal time).
+2. **Schedule training** → `s-schedule-event` form: athlete picker → training session template picker → datetime → payment method → optional note. On save: POST `/coach/events` with status `awaiting`; athlete gets push to accept.
+3. **Block time off** → `s-block-time-off` form (see Flow 5).
+4. **Group events are NOT created from FAB anymore.** Group session events auto-generate from recurring session templates per [session-creation.md](./session-creation.md). One-off group events are created from Sessions module, not from Calendar. Rationale: group session creation is template-bound (max participants, recurring schedule, registration flow) — it belongs next to template management, not behind a calendar action.
+
+**Schedule training sub-flows:**
+- **Pick athlete** (`s-schedule-pick-athlete`) — search-first list of recent clients + "Invite by phone" CTA (Appsflyer OneLink SMS for non-321Fit recipients per [deep-linking-referrals.md](./deep-linking-referrals.md)).
+- **Pick template** (`s-schedule-pick-template`) — list of coach's **personal** session templates (group templates excluded) using canonical `v6d-card` visual from sessions module + "+ Create new template" CTA routes to `sessions.html#s-create`.
 
 ### Flow 4: Reschedule via drag & drop (same day)
 
@@ -100,17 +103,18 @@ Root tab screen, has the nav bar footer. Acts as both agenda view (for the coach
 4. Drop on invalid (conflict) → snackbar "Slot conflicts with another event"; event snaps back.
 5. Cross-day drag not supported in v1.
 
-### Flow 5: Create custom event (new in this spec)
+### Flow 5: Block time off (custom event — 2026-05-20 prototype landed)
 
-1. From FAB action sheet → "Custom event" option.
-2. Screen `s-custom-event-create` (to be prototyped):
-   - Title input (required, 1–60 chars, placeholder "Gym class", "Family")
-   - Date + start time + end time
-   - Location (optional freeform text, 0–80 chars)
-   - Notes (optional, 0–300 chars)
-3. Create → event of `type: "custom"` added to calendar. No athlete, no price, no training template.
-4. Rendering on timeline: gray muted block (different from personal/group) — no athlete info, no status pill.
-5. Blocks availability: athlete booking calendars show this slot as busy (anonymized as "Coach unavailable" in athlete view).
+1. From FAB action sheet → **"Block time off"** option.
+2. Screen `s-block-time-off`:
+   - Title input (required, 1–60 chars, placeholder "Dentist", "Family", "Vacation")
+   - **All-day toggle** — when on, hides start/end time row and the event blocks the whole day
+   - Date — single date picker sheet (multi-day deferred)
+   - Start time + end time — two side-by-side time picker sheets
+   - Notes (optional, 0–300 chars) — only visible to coach
+3. Save → POST `/coach/events` with `type: "custom"`, no `athlete_profile_id`, no `training_session_id`. **Backend dependency:** endpoint to be added; `TrainingEvent` schema already supports nullable fields.
+4. Rendering on timeline: muted block (no athlete info, no status pill, no left-stripe color — distinguishable from personal/group).
+5. Blocks availability: athlete booking calendars show this slot as **"Coach unavailable"** — title + notes are NEVER exposed to athletes.
 6. Drag & drop within same day supported.
 7. Delete: tap event → sheet → Delete button (destructive high, confirmation required).
 
