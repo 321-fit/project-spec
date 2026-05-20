@@ -895,8 +895,7 @@
   font-size: 12px; color: var(--fit-text-tertiary); overflow: hidden;
   opacity: 0.7;
   /* hairline gap — see .fit-cal-event */
-  border-bottom: 2px solid transparent;
-  background-clip: padding-box;
+  border-bottom: 3px solid var(--fit-screen-bg);
 }
 /* Tiny event (15min = 15px) — only colored bar with truncated title */
 .fit-cal-event.fit-cal-event-tiny {
@@ -920,8 +919,7 @@
   font-size: 12px; color: var(--fit-text-secondary);
   overflow: hidden; cursor: pointer; opacity: 0.75;
   /* hairline gap — see .fit-cal-event */
-  border-bottom: 2px solid transparent;
-  background-clip: padding-box;
+  border-bottom: 3px solid var(--fit-screen-bg);
 }
 .fit-cal-event-cross-role:hover { opacity: 0.95; }
 .fit-light .fit-cal-event-cross-role { background: var(--fit-gray-100); }
@@ -982,12 +980,13 @@
   position: absolute; left: 48px; right: 8px;
   border-radius: var(--fit-radius-md); padding: var(--fit-sp-2) var(--fit-sp-3);
   font-size: 12px; overflow: hidden; cursor: grab;
-  /* 2px hairline gap between back-to-back tiles (Apple Calendar style).
-     Border-bottom is transparent + background-clip: padding-box → the bg
-     stops 2px short of the bottom edge, but the box still occupies its
-     inline height so neighbouring tiles don't shift. */
-  border-bottom: 2px solid transparent;
-  background-clip: padding-box;
+  /* 3px gap between back-to-back tiles (Apple Calendar style).
+     Border-bottom in screen-bg color visually carves the gap without
+     shifting layout — the box still occupies its inline height so
+     neighbours don't reflow. Solid screen-bg works on every tile bg
+     (vs. transparent + background-clip which was too subtle when tile
+     bgs were similar — e.g. cross-role grey next to personal teal). */
+  border-bottom: 3px solid var(--fit-screen-bg);
 }
 .fit-cal-event:active { cursor: grabbing; }
 .fit-cal-event-personal {
@@ -1019,27 +1018,27 @@
 .fit-cal-event.request {
   background: rgba(222,145,29,0.10);
   border: 1px solid var(--fit-yellow-600);
-  border-bottom: 2px solid transparent;     /* hairline gap */
+  border-bottom: 3px solid var(--fit-screen-bg);     /* gap */
   border-left: 3px solid var(--fit-yellow-600);
 }
 .fit-light .fit-cal-event.request { background: rgba(222,145,29,0.14); }
 /* Awaiting (outgoing) — coach sent, waiting for athlete */
 .fit-cal-event.awaiting {
   border: 1px solid var(--fit-gray-400);
-  border-bottom: 2px solid transparent;
+  border-bottom: 3px solid var(--fit-screen-bg);
   border-left: 3px solid var(--fit-gray-400);
 }
 .fit-light .fit-cal-event.awaiting {
   background: rgba(117,126,135,0.06);
   border: 1px solid var(--fit-gray-500);
-  border-bottom: 2px solid transparent;
+  border-bottom: 3px solid var(--fit-screen-bg);
   border-left: 3px solid var(--fit-gray-500);
 }
 /* Review (post-event, awaiting coach completion) — same visual lane as Request */
 .fit-cal-event.review {
   background: rgba(222,145,29,0.10);
   border: 1px solid var(--fit-yellow-600);
-  border-bottom: 2px solid transparent;
+  border-bottom: 3px solid var(--fit-screen-bg);
   border-left: 3px solid var(--fit-yellow-600);
 }
 .fit-light .fit-cal-event.review { background: rgba(222,145,29,0.14); }
@@ -1047,7 +1046,7 @@
 .fit-cal-event.missed {
   background: rgba(240,92,91,0.10);
   border: 1px solid var(--fit-red-400);
-  border-bottom: 2px solid transparent;
+  border-bottom: 3px solid var(--fit-screen-bg);
   border-left: 3px solid var(--fit-red-400);
 }
 .fit-light .fit-cal-event.missed { background: rgba(240,92,91,0.12); }
