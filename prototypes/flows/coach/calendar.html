@@ -1797,7 +1797,8 @@
       <li><strong>Drawer supports N events</strong> in the conflict group — list is scrollable (max-height 280pt). Hero copy is dynamic ("3 events overlap · 18:00 – 19:45"). Each row carries an inline "Yours" / "Google" / "Apple" badge so the coach immediately knows which events are editable here vs. need external action.</li>
       <li><strong>Primary action</strong>: 1 own event in conflict → direct "Reschedule {name}". 2+ → "Reschedule one of your events" → picker.</li>
       <li><strong>Secondary action</strong>: 1 external → "Open in Google/Apple Calendar". 2+ external → "Open external calendars" → picker. 0 external (rare race) → hidden.</li>
-      <li><strong>Trigger:</strong> tap on a tile in overlapped state. Toggle "Overlap demo" in s-calendar state row above to preview the 3-event case (1 ours + 2 Google).</li>
+      <li><strong>Trigger in production:</strong> coach scrolls timeline → sees the red-tinted overlay + corner dot on conflicting tiles → taps any one of them (own or external) → drawer opens. Tap of an overlapped own event short-circuits the regular event drawer (cal-event-sheet / cal-group-sheet) in favor of this conflict drawer; coach can still get to the regular event drawer afterwards from inside Reschedule flow.</li>
+      <li><strong>Preview here:</strong> toggle "Overlap demo" in the state row above — 3 tiles get the marker visible on the timeline (HIIT Group at 18:00 + two Google externals at 18:30 and 18:45) plus a teal snackbar hint. Tap any of them to open this drawer.</li>
     </ul>
     <p class="note"><strong>Backend dep:</strong> day events endpoint already returns all event types; client computes overlap by pairwise interval intersection across all events for the day (matches iOS pattern in <code>ScheduleManager.overlapped: [Int: Set&lt;Int&gt;]</code>). No new API needed.</p>
   </div>
@@ -1965,11 +1966,20 @@ function setCalState(state, btn) {
     var el = document.getElementById(id); if (el) el.classList.remove('visible');
   });
   // Always reset overlap demo before applying new state
-  document.querySelectorAll('[data-overlap-target]').forEach(function(el) { el.classList.remove('overlapped'); });
+  document.querySelectorAll('[data-overlap-target]').forEach(function(el) {
+    el.classList.remove('overlapped');
+    el.onclick = null;   // restore default FitUI data-fit-sheet binding
+  });
   document.querySelectorAll('[data-overlap-twin]').forEach(function(el) {
     el.style.display = 'none';
     el.classList.remove('overlapped');
   });
+  // Restore default snackbar content (might have been overridden by overlap state)
+  var s = document.getElementById('cal-snackbar');
+  if (s) {
+    s.querySelector('span:last-child').textContent = "Can’t move to this time — slot occupied";
+    s.querySelector('.snack-dot').style.background = 'var(--fit-red-400)';
+  }
   // Apply selected state
   if (state === 'loading') {
     if (timeline) timeline.classList.add('loading');
@@ -1985,13 +1995,30 @@ function setCalState(state, btn) {
   } else if (state === 'cross-role') {
     document.getElementById('cal-cross-role-sheet').classList.add('visible');
   } else if (state === 'overlap') {
-    // Reveal twin external event + mark both tiles overlapped + open drawer
-    document.querySelectorAll('[data-overlap-target]').forEach(function(el) { el.classList.add('overlapped'); });
+    // Reveal twin external events + mark all overlapping tiles. Do NOT
+    // open the drawer automatically — coach taps any of the marked
+    // tiles on the timeline to open it (matches production behavior).
+    // Override default click handler on own event to route to overlap
+    // drawer instead of the regular event sheet while in this state.
+    document.querySelectorAll('[data-overlap-target]').forEach(function(el) {
+      el.classList.add('overlapped');
+      el.onclick = function(e) {
+        e.stopPropagation();
+        document.getElementById('cal-overlap-sheet').classList.add('visible');
+      };
+    });
     document.querySelectorAll('[data-overlap-twin]').forEach(function(el) {
       el.style.display = '';
       el.classList.add('overlapped');
     });
-    document.getElementById('cal-overlap-sheet').classList.add('visible');
+    // Surface tip toast so the user knows what to do
+    var snack = document.getElementById('cal-snackbar');
+    if (snack) {
+      snack.querySelector('span:last-child').textContent = 'Tap any flagged tile (18:00–19:45) to open the overlap drawer';
+      snack.querySelector('.snack-dot').style.background = 'linear-gradient(135deg,#BB7F7F,#705959)';
+      snack.classList.add('show');
+      setTimeout(function() { snack.classList.remove('show'); }, 4000);
+    }
   }
 }
 

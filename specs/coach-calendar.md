@@ -244,7 +244,9 @@ Overlap = two events occupying the same time window on the same coach's calendar
 - Small corner-dot marker (8pt circle, top-right of tile) with red gradient + 1.5pt screen-bg ring so it reads against dense tiles
 - Works on top of any tile type (Personal / Group / External / Cross-role / Custom) — additive, doesn't replace the underlying type color
 
-**Drawer (`cal-overlap-sheet`):** opens on tap of any overlapped tile. Supports **N events** in the conflict group, not just 2.
+**Entry point:** coach scrolls the timeline → sees the red-tinted overlay + corner dot on conflicting tiles → taps **any one of them** (own event or external) → `cal-overlap-sheet` opens. Tap-of-overlapped own-event **short-circuits** the regular event drawer (cal-event-sheet / cal-group-sheet) in favor of the conflict drawer; from there, Reschedule action can still hand off to the rescheduling flow.
+
+**Drawer (`cal-overlap-sheet`):** Supports **N events** in the conflict group, not just 2.
 
 - Status header "Time conflict" + Overlap badge
 - Hero row: dynamic count copy ("N events overlap") + combined start–end time + date
