@@ -1,6 +1,8 @@
 # Calendar Integration (Google & Apple)
 
-> Last updated: 2026-04-02
+> Status: Implemented (iOS + backend) · Default destination + Refresh trigger added to prototype 2026-05-21
+> Prototype: [flows/coach/calendar-sync.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar-sync.html)
+> Last updated: 2026-05-21
 
 ## Overview
 Users can connect external calendars (Google Calendar, Apple Calendar) to sync events bidirectionally. External events block booking slots, and app events are pushed to external calendars.
@@ -90,9 +92,37 @@ POST /apple-calendars (credentials)
 
 **Behavior:**
 - Only `approved` events are pushed to external calendars
-- Events are created in the "321 Fit" calendar (Google) or equivalent (Apple)
+- Events are created in the "321 Fit" calendar inside the **default destination account** (see § Default destination below)
 - Event title contains training type and participant info
 - When app event status changes (canceled, rescheduled) → external event is updated/deleted
+
+### 4a. Default destination (added 2026-05-21)
+
+When the coach has multiple connected accounts (e.g. two Google accounts + Apple), they must pick **one** as the destination for newly-created 321Fit events. The "321 Fit" calendar is auto-managed by us inside whichever account is currently default.
+
+**UX (prototype `flows/coach/calendar-sync.html`):**
+- On `s-calsync` (top-level): the default account shows the canonical `.fit-badge.fit-badge-accent` "Default" pill inline after its title — same pattern as locations.html "Default" gym pill. Pill is **hidden** when only one account is connected (implicit default).
+- On `s-cal-detail` (per-account):
+    - If this account IS default → read-only label with check icon: "Default destination · New 321Fit events are saved to '321 Fit' calendar in this account."
+    - If this account is NOT default → tappable row "Make default destination" + sub-copy. Tap → backend `PATCH /coach/calendar-sync/default { account_id }` → snackbar "Default set · 321Fit events will be saved here" → return to s-calsync with updated badge.
+
+**Backend rules:**
+- New field on coach settings: `default_writing_account_id` (FK to `google_calendar` or `apple_calendar` row).
+- On first connect (any provider) — auto-set as default.
+- On subsequent connects — keep existing default (don't change automatically when adding accounts).
+- On disconnect of default — fallback to first remaining connected account; UI shows a warning chip on the new default's row briefly.
+- **"321 Fit" calendar creation strategy:** lazy-create only inside the default account. When default changes, create "321 Fit" in the new default if it doesn't exist there yet. Old "321 Fit" calendars in non-default accounts remain as immutable history (we don't write to them anymore; deletion is the coach's call from Google UI).
+- Endpoint: `PATCH /coach/calendar-sync/default { account_id }` — additive, idempotent.
+
+### 4b. Calendar list refresh (added 2026-05-21)
+
+**Why:** if the coach creates a new calendar in Google **after** connecting, we don't pull it into our calendars list automatically — the list is fetched only at connect time. Need explicit re-fetch.
+
+**Triggers:**
+- **Manual** — refresh icon-btn (canonical `.fit-icon-btn` with `arrow-clockwise` glyph) in the header on both `s-calsync` (refetches all connected accounts) and `s-cal-detail` (refetches just this account). Snackbar result: "Calendars updated · N new" / "Already up to date" / inline error if Google API failed.
+- **Automatic** — silent fetch on screen open. No visible spinner unless network delay >500ms (then mini inline indicator). Cheap, frontend-driven.
+
+**Backend:** reuses existing Google Calendar API `calendarList.list` call — no new endpoint needed for the manual path. For automatic background sync (Google webhooks via Calendar API push notifications) — proper realtime option but deferred; pull-on-demand is enough for v1.
 
 ### 5. Initial Sync After Connection
 

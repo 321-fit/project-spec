@@ -618,7 +618,15 @@
 <div class="fit-phone fit-dark active" id="s-calsync">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header"><button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button><span class="fit-header-title">Calendar sync</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Calendar sync</span>
+      <!-- Refresh: refetches all connected accounts. Auto-fires silently on screen open;
+           manual tap shows spinner inline + snackbar result. -->
+      <button class="fit-icon-btn" data-a11y-id="coach.calsync.refresh" onclick="triggerCalsyncRefresh()" aria-label="Refresh calendars">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15.36 6.36L3 16"/></svg>
+      </button>
+    </div>
   </div>
   <div class="fit-phone-content">
     <!-- ZERO STATE (nothing connected) -->
@@ -635,9 +643,30 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>
       <span style="font-size:14px;">Google Calendar connected</span>
     </div>
+    <!-- Refresh + default-change result toast (canonical .fit-toast, shared across screens) -->
+    <div class="fit-toast" id="refresh-toast" style="border-left:3px solid var(--fit-blue-500);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/></svg>
+      <span style="font-size:14px;">Calendars updated</span>
+    </div>
     <!-- CONNECTED STATE -->
     <div id="calsync-connected" style="padding:0 16px 16px;display:flex;flex-direction:column;gap:12px;">
-      <div class="set-card" style="cursor:pointer;padding:14px 12px;" onclick="go('s-cal-detail',document.querySelector('[onclick*=s-cal-detail]'))"><div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div><div class="set-info"><div class="set-title">Google Calendar</div><div style="font-size:14px;color:var(--fit-blue-400);margin-top:2px;">john.miller@gmail.com</div><div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;" id="sync-status-ok">2 of 3 calendars synced</div><div style="display:none;font-size:12px;font-weight:500;color:var(--fit-red-400);margin-top:2px;" id="sync-status-error">⚠ Sync error</div></div><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <!-- Account row — Default pill follows the locations.html pattern
+           (.fit-badge.fit-badge-accent inline after the title). Pill is
+           hidden in single-account mode (1 connected account = implicit
+           default, no need for the affordance). -->
+      <div class="set-card" style="cursor:pointer;padding:14px 12px;" onclick="go('s-cal-detail',document.querySelector('[onclick*=s-cal-detail]'))">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div>
+        <div class="set-info">
+          <div class="set-title" style="display:flex;align-items:center;gap:6px;">
+            Google Calendar
+            <span class="fit-badge fit-badge-accent" data-default-badge>Default</span>
+          </div>
+          <div style="font-size:14px;color:var(--fit-blue-400);margin-top:2px;">john.miller@gmail.com</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;" id="sync-status-ok">2 of 3 calendars synced</div>
+          <div style="display:none;font-size:12px;font-weight:500;color:var(--fit-red-400);margin-top:2px;" id="sync-status-error">⚠ Sync error</div>
+        </div>
+        <svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
       <div class="set-card" style="padding:14px 12px;opacity:0.7;"><div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div><div class="set-info"><div class="set-title">Google Calendar</div><div style="font-size:14px;color:var(--fit-blue-400);margin-top:2px;">coach.work@gmail.com</div><div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;display:flex;align-items:center;gap:6px;"><div class="cal-spinner" style="width:10px;height:10px;border-width:1.5px;"></div>Fetching calendars...</div></div></div>
       <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border:1px dashed var(--fit-gray-700);border-radius:16px;cursor:pointer;"><svg style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span style="font-size:14px;color:var(--fit-blue-500);font-weight:500;">Add Google account</span></div>
       <div style="height:1px;background:var(--fit-gray-700);margin:4px 0;"></div>
@@ -647,10 +676,18 @@
 </div>
 
 <!-- ===== GOOGLE CALENDAR DETAIL ===== -->
-<div class="fit-phone fit-dark" id="s-cal-detail">
+<div class="fit-phone fit-dark" id="s-cal-detail" data-default-account="true">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header"><button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button><span class="fit-header-title">Google Calendar</span><button class="fit-icon-btn" style="background:rgba(240,92,91,0.1);" onclick="document.getElementById('disconnect-sheet').classList.add('visible')"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Google Calendar</span>
+      <!-- Refresh this single account's calendar list -->
+      <button class="fit-icon-btn" data-a11y-id="coach.calsync.detail.refresh" onclick="triggerCalDetailRefresh()" aria-label="Refresh calendars">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15.36 6.36L3 16"/></svg>
+      </button>
+      <button class="fit-icon-btn" style="background:rgba(240,92,91,0.1);" onclick="document.getElementById('disconnect-sheet').classList.add('visible')"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
+    </div>
   </div>
   <div class="fit-phone-content">
     <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:16px;">
@@ -675,7 +712,36 @@
         </div>
         <button class="fit-btn fit-btn-primary fit-btn-xs">Reconnect</button>
       </div>
-      <div style="display:flex;align-items:center;gap:12px;padding:0 4px;"><div style="width:40px;height:40px;border-radius:50%;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div><div><div style="font-size:16px;font-weight:500;">john.miller@gmail.com</div><div style="font-size:12px;color:var(--fit-teal-500);">Connected</div></div></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:0 4px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:500;display:flex;align-items:center;gap:6px;">
+            john.miller@gmail.com
+            <span class="fit-badge fit-badge-accent" data-default-badge>Default</span>
+          </div>
+          <div style="font-size:12px;color:var(--fit-teal-500);">Connected</div>
+        </div>
+      </div>
+
+      <!-- Default destination action — shown when account is NOT default.
+           Toggles to a read-only "Default destination" label when it is. -->
+      <div data-default-action style="display:none;padding:12px 14px;border-radius:12px;background:var(--fit-surface-low);display:flex;align-items:center;gap:10px;cursor:pointer;" data-a11y-id="coach.calsync.detail.make-default" onclick="makeAccountDefault()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;flex-shrink:0;"><path d="M2 12a10 10 0 1 0 20 0 10 10 0 1 0-20 0"/><circle cx="12" cy="12" r="4"/></svg>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Make default destination</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;line-height:1.4;">New 321Fit events will be saved to the "321 Fit" calendar in this account.</div>
+        </div>
+      </div>
+
+      <!-- Default destination read-only label — shown when this IS default -->
+      <div data-default-label style="padding:12px 14px;border-radius:12px;background:rgba(5,224,166,0.06);border:1px solid rgba(5,224,166,0.18);display:flex;align-items:center;gap:10px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Default destination</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;line-height:1.4;">New 321Fit events are saved to "321 Fit" calendar in this account.</div>
+        </div>
+      </div>
+
       <div><div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:10px;">Select calendars to sync</div>
         <div style="display:flex;flex-direction:column;gap:6px;">
           <div class="cal-select-row selected" onclick="this.classList.toggle('selected')"><div style="width:10px;height:10px;border-radius:50%;background:#4285F4;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Personal</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
@@ -810,14 +876,22 @@
       <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-teal-500);" onclick="var t=document.getElementById('connect-success-toast');t.classList.add('show');setTimeout(function(){t.classList.remove('show')},3000)">Toast</button>
       <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-red-400);" onclick="var ok=document.getElementById('sync-status-ok');var err=document.getElementById('sync-status-error');var show=err.style.display==='none';ok.style.display=show?'none':'block';err.style.display=show?'block':'none';">Sync Error</button>
     </div>
-    <p><strong>Connected:</strong> account cards with details. <strong>Zero:</strong> provider cards with Connect CTAs.</p><ul><li>Zero: two provider cards (Google + Apple) with full-width Connect buttons</li><li>Connected: account cards + dashed "Add" + Apple with inline Connect</li></ul><span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Connection flows</span><div class="ann-detail"><h4>Google OAuth</h4><p>Tap "+" → system Google Sign-In → OAuth → backend stores tokens → auto-creates "321 Fit" calendar → loading → calendars fetched.</p><h4>Apple CalDAV</h4><p>Tap Connect → Apple ID + app-specific password form. Backend validates → stores encrypted → fetches calendars.</p><h4>Sync</h4><p>Bidirectional. External events anonymized. Webhook + 15-min fallback.</p></div></div>
+    <p><strong>Connected:</strong> account cards with details. <strong>Zero:</strong> provider cards with Connect CTAs.</p><ul><li>Zero: two provider cards (Google + Apple) with full-width Connect buttons</li><li>Connected: account cards + dashed "Add" + Apple with inline Connect</li><li><strong>Default badge</strong> (<code>.fit-badge.fit-badge-accent</code>) — inline after account title, marks the account whose "321 Fit" calendar receives writes. Hidden in single-account mode (implicit default). Same pattern as locations.html "Default" gym pill.</li><li><strong>Refresh icon-btn</strong> in header — refetches calendar list for all connected accounts (used when coach adds a new calendar in Google after first connect). Also auto-fires silently on screen open.</li></ul>
+    <div style="display:inline-flex;gap:0;border-radius:6px;overflow:hidden;border:1px solid var(--fit-gray-700);margin:8px 0 0;">
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="setAccountCountState('multi',this)">Multi-account (badge shown)</button>
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setAccountCountState('single',this)">Single (badge hidden)</button>
+    </div><span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Connection flows</span><div class="ann-detail"><h4>Google OAuth</h4><p>Tap "+" → system Google Sign-In → OAuth → backend stores tokens → auto-creates "321 Fit" calendar → loading → calendars fetched.</p><h4>Apple CalDAV</h4><p>Tap Connect → Apple ID + app-specific password form. Backend validates → stores encrypted → fetches calendars.</p><h4>Sync</h4><p>Bidirectional. External events anonymized. Webhook + 15-min fallback.</p></div></div>
   <div class="ann" id="ann-s-cal-detail"><span class="ann-role coach">Coach</span><h3>Google Calendar Detail</h3>
     <div style="display:flex;flex-wrap:wrap;gap:4px;border-radius:6px;margin-bottom:12px;">
       <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="setDetailState('normal',this)">Normal</button>
       <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setDetailState('initial',this)">Fetch Failed</button>
       <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setDetailState('sync',this)">Sync Error</button>
       <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setDetailState('auth',this)">Auth Expired</button>
-    </div><p>Dedicated screen per account. 4 states via toggle.</p><ul><li>Selectable rows with Google calendar colors</li><li>"321 Fit" calendar NOT shown (auto-created)</li><li>Save in footer, trash icon for disconnect</li></ul></div>
+    </div><p>Dedicated screen per account. 4 states via toggle.</p><ul><li>Selectable rows with Google calendar colors</li><li><strong>"321 Fit" calendar NOT shown</strong> in the calendars list (it's our managed destination, auto-created on connect — not for the coach to toggle)</li><li><strong>Default destination row</strong> above the calendars list: subtle CTA "Make default destination" when this account is NOT default; read-only "Default destination" label (with check icon) when it IS</li><li><strong>Refresh icon-btn</strong> in header — refetches just this account's calendar list. Auto-fires silently on screen open. Sibling to disconnect (trash) button</li><li>Save in footer, trash icon for disconnect</li></ul>
+    <div style="display:inline-flex;gap:0;border-radius:6px;overflow:hidden;border:1px solid var(--fit-gray-700);margin:8px 0 0;">
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="document.getElementById('s-cal-detail').dataset.defaultAccount='true';applyDefaultState();this.parentElement.querySelectorAll('button').forEach(function(x){x.classList.remove('active');x.style.background='transparent';x.style.color='var(--fit-gray-400)'});this.style.background='var(--fit-gray-700)';this.style.color='var(--fit-white)';">Default (this account)</button>
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="document.getElementById('s-cal-detail').dataset.defaultAccount='false';applyDefaultState();this.parentElement.querySelectorAll('button').forEach(function(x){x.classList.remove('active');x.style.background='transparent';x.style.color='var(--fit-gray-400)'});this.style.background='var(--fit-gray-700)';this.style.color='var(--fit-white)';">Not default (Make default action visible)</button>
+    </div></div>
   <div class="ann" id="ann-s-apple-connect"><span class="ann-role coach">Coach</span><h3>Apple Calendar Connect</h3><p>CalDAV connection. Apple ID + <strong>app-specific password</strong>.</p><ul><li>Info banner explains CalDAV requirement</li><li>Steps always visible (not expandable)</li><li>"Open Apple ID Settings" → Safari</li><li>Password: eye toggle inside input</li><li>Validation: empty → red border, backend error → toast</li></ul></div>
   <div class="ann" id="ann-s-apple-detail"><span class="ann-role coach">Coach</span><h3>Apple Calendar Detail</h3>
     <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;">
@@ -854,7 +928,78 @@ function go(id, btn) {
   if (ann) ann.classList.add('active');
   // Re-init FitUI for newly visible screen
   FitUI.initAll(document.getElementById(id));
+  // Auto silent refresh on calendar-sync screens (prototype: just show toast after fake delay)
+  if (id === 's-calsync' || id === 's-cal-detail') {
+    // production: call backend list endpoint; here we just no-op silently
+  }
 }
+
+// === REFRESH HANDLERS (manual tap on header icon-btn) ===
+function triggerCalsyncRefresh() {
+  const toast = document.getElementById('refresh-toast');
+  if (!toast) return;
+  toast.textContent = 'Refreshing all accounts…';
+  toast.classList.add('show');
+  setTimeout(function() {
+    toast.textContent = 'Calendars updated · 1 new';
+    setTimeout(function() { toast.classList.remove('show'); }, 1800);
+  }, 900);
+}
+function triggerCalDetailRefresh() {
+  const toast = document.getElementById('refresh-toast');
+  if (!toast) return;
+  toast.textContent = 'Refreshing this account…';
+  toast.classList.add('show');
+  setTimeout(function() {
+    toast.textContent = 'Already up to date';
+    setTimeout(function() { toast.classList.remove('show'); }, 1800);
+  }, 800);
+}
+
+// === DEFAULT DESTINATION TOGGLE (s-cal-detail) ===
+function makeAccountDefault() {
+  const detail = document.getElementById('s-cal-detail');
+  if (!detail) return;
+  detail.dataset.defaultAccount = 'true';
+  applyDefaultState();
+  const toast = document.getElementById('refresh-toast');
+  if (toast) {
+    toast.textContent = 'Default set · 321Fit events will be saved here';
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 2200);
+  }
+}
+function applyDefaultState() {
+  const detail = document.getElementById('s-cal-detail');
+  if (!detail) return;
+  const isDefault = detail.dataset.defaultAccount === 'true';
+  const action = detail.querySelector('[data-default-action]');
+  const label  = detail.querySelector('[data-default-label]');
+  const badge  = detail.querySelector('[data-default-badge]');
+  if (action) action.style.display = isDefault ? 'none' : 'flex';
+  if (label)  label.style.display  = isDefault ? 'flex' : 'none';
+  if (badge)  badge.style.display  = isDefault ? 'inline-flex' : 'none';
+}
+
+// === SINGLE-ACCOUNT vs MULTI-ACCOUNT TOGGLE (s-calsync badge visibility) ===
+function setAccountCountState(mode, btn) {
+  const calsync = document.getElementById('s-calsync');
+  if (!calsync) return;
+  calsync.dataset.accounts = mode;
+  // Default badge hidden in single mode (implicit default), shown in multi
+  calsync.querySelectorAll('[data-default-badge]').forEach(function(b) {
+    b.style.display = (mode === 'multi') ? 'inline-flex' : 'none';
+  });
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(function(x) { x.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+}
+
+// Initial application
+document.addEventListener('DOMContentLoaded', function() {
+  applyDefaultState();
+});
 
 // === STATE TOGGLES ===
 function setListState(state, btn) {
