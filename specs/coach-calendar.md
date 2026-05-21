@@ -244,14 +244,24 @@ Overlap = two events occupying the same time window on the same coach's calendar
 - Small corner-dot marker (8pt circle, top-right of tile) with red gradient + 1.5pt screen-bg ring so it reads against dense tiles
 - Works on top of any tile type (Personal / Group / External / Cross-role / Custom) — additive, doesn't replace the underlying type color
 
-**Drawer (`cal-overlap-sheet`):** opens on tap of any overlapped tile.
-- Status header "Time conflict" + Overlap badge
-- Time-window summary (combined start–end)
-- Two conflicting events listed with their individual times
-- Info banner: external events are read-only here
-- Footer actions: primary "Reschedule {our event}" (existing reschedule sheet); secondary "Open in Google Calendar" (deep-link out)
+**Drawer (`cal-overlap-sheet`):** opens on tap of any overlapped tile. Supports **N events** in the conflict group, not just 2.
 
-**No automatic resolution.** Two consenting changes are needed: either reschedule our event in 321Fit, or coach moves the external event in Google/Apple. The drawer surfaces both options; the system doesn't pick.
+- Status header "Time conflict" + Overlap badge
+- Hero row: dynamic count copy ("N events overlap") + combined start–end time + date
+- **Scrollable event list** (max-height 280pt) — each row shows the event icon + name + "Yours" / "Google" / "Apple" badge inline + individual time. Badge clarifies which events are coach-editable vs read-only.
+- Info banner: external events are read-only here
+- Footer actions adapt to group composition:
+    - **Primary** (reschedule):
+        - 1 own event in group → "Reschedule {name}" — direct (opens existing reschedule sheet)
+        - 2+ own events → "Reschedule one of your events" → opens reschedule picker (which event first)
+    - **Secondary** (open external):
+        - 1 external event → "Open in Google Calendar" / "Open in Apple Calendar"
+        - 2+ external events → "Open external calendars" → deep-link picker (which calendar to open)
+        - 0 external (all 2+ are ours, rare race-condition case) → secondary hidden; reschedule picker is the only path
+
+**No automatic resolution.** Two consenting changes are needed: either reschedule our events in 321Fit, or coach moves the external ones in their owning calendar. The drawer surfaces both options; the system doesn't pick.
+
+**Realistic group sizes:** the 95% case is **2 events** (1 ours + 1 external). 3-4 events happen when multiple Google events land in the same window (e.g. "Team dinner" + "Bar meetup" both in the evening). 5+ rare; the scrollable list handles arbitrary N.
 
 **a11y prefix:** `coach.calendar.overlap.*`.
 

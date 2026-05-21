@@ -495,12 +495,16 @@
           </div>
         </div>
 
-        <!-- 18:30-19:30 external Google — appears only in overlap demo state.
-             Side-by-side with HIIT Group above (overlap visual). Tap → opens
-             cal-overlap-sheet which explains the conflict + Reschedule path. -->
-        <div class="fit-cal-event-external" data-overlap-twin onclick="document.getElementById('cal-overlap-sheet').classList.add('visible')" style="display:none;top:1200px;height:96px;">
+        <!-- External events appearing only in overlap demo. Two of them
+             show how multi-overlap renders + how drawer aggregates N events
+             instead of just 2. Tap any → cal-overlap-sheet. -->
+        <div class="fit-cal-event-external" data-overlap-twin onclick="document.getElementById('cal-overlap-sheet').classList.add('visible')" style="display:none;top:1200px;height:96px;left:48px;right:50%;">
           <div style="font-weight:500;">Team dinner</div>
           <div style="opacity:0.7;">18:30 - 19:30 · Google</div>
+        </div>
+        <div class="fit-cal-event-external" data-overlap-twin onclick="document.getElementById('cal-overlap-sheet').classList.add('visible')" style="display:none;top:1224px;height:96px;left:50%;right:8px;">
+          <div style="font-weight:500;">Bar meetup</div>
+          <div style="opacity:0.7;">18:45 - 19:45 · Google</div>
         </div>
 
         <!-- 19:30-20:30 personal REQUEST (incoming — athlete requested, coach needs action) -->
@@ -712,11 +716,15 @@
     </div>
   </div>
 
-  <!-- Overlap drawer — opens when coach taps an event marked as overlapped
-       OR taps an external event that conflicts with one of their trainings.
-       Read-only: external events can't be modified from our app. Primary
-       action is Reschedule our event; secondary is open the external in
-       Google/Apple to move it there. -->
+  <!-- Overlap drawer — opens on tap of any tile in overlap state. Supports
+       N events in the group (1 ours + N-1 external is the common case; can
+       also be N ours + M external if a race created multiple internal
+       overlaps). List is scrollable when > 3 entries. Primary action
+       labeled per how many of the events are OURS (single → direct
+       "Reschedule {name}"; 2+ → "Reschedule one of your events" → picker
+       inside cal-reschedule-sheet). Secondary action adapts per how many
+       are EXTERNAL (single → "Open in Google/Apple Calendar"; 2+ → "Open
+       external calendar" deep-link picker). -->
   <div class="fit-sheet-overlay" id="cal-overlap-sheet">
     <div class="fit-sheet">
       <div class="fit-sheet-handle"></div>
@@ -724,39 +732,67 @@
         <div class="fit-sheet-descriptor">Time conflict</div>
         <span class="fit-badge fit-badge-warning">Overlap</span>
       </div>
+
+      <!-- Hero row — dynamic count + combined time window -->
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
         <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#BB7F7F,#705959);display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </div>
         <div style="flex:1;">
-          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Two events overlap</div>
-          <div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:2px;">18:00 – 19:30 · Thu, Apr 10</div>
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);" id="overlap-count-title">3 events overlap</div>
+          <div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:2px;" id="overlap-window">18:00 – 19:45 · Thu, Apr 10</div>
         </div>
       </div>
-      <div style="background:var(--fit-surface-low);border-radius:14px;padding:12px;margin-bottom:14px;">
-        <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--fit-text-primary);font-weight:500;margin-bottom:4px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/></svg>
-          HIIT Group Session
+
+      <!-- Conflict list — scrollable when many. Cap at 280pt height so
+           the sheet stays bottom-anchored even with 6+ entries. -->
+      <div style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:20px;" id="overlap-list">
+        <!-- 1) Our group event -->
+        <div style="background:var(--fit-surface-low);border-radius:14px;padding:12px;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--fit-text-primary);font-weight:500;margin-bottom:4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/></svg>
+            HIIT Group Session
+            <span class="fit-badge fit-badge-info" style="margin-left:auto;">Yours</span>
+          </div>
+          <div style="font-size:13px;color:var(--fit-text-tertiary);">18:00 – 19:00 · 3/10 athletes</div>
         </div>
-        <div style="font-size:13px;color:var(--fit-text-tertiary);">18:00 – 19:00 · 3/10 athletes</div>
-      </div>
-      <div style="background:var(--fit-surface-low);border-radius:14px;padding:12px;margin-bottom:20px;">
-        <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--fit-text-primary);font-weight:500;margin-bottom:4px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-          Team dinner
+        <!-- 2) External — Google -->
+        <div style="background:var(--fit-surface-low);border-radius:14px;padding:12px;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--fit-text-primary);font-weight:500;margin-bottom:4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Team dinner
+            <span class="fit-badge fit-badge-neutral" style="margin-left:auto;">Google</span>
+          </div>
+          <div style="font-size:13px;color:var(--fit-text-tertiary);">18:30 – 19:30</div>
         </div>
-        <div style="font-size:13px;color:var(--fit-text-tertiary);">18:30 – 19:30 · From Google Calendar</div>
-      </div>
-      <div class="earn-banner info" style="margin:0 0 20px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-        <div class="earn-banner-body">
-          <div style="font-weight:500;color:var(--fit-text-primary);margin-bottom:2px;">External events can't be edited here</div>
-          <div style="font-size:13px;color:var(--fit-text-secondary);line-height:1.4;">Reschedule your training in 321Fit, or open Google Calendar to move the other event.</div>
+        <!-- 3) External — also Google -->
+        <div style="background:var(--fit-surface-low);border-radius:14px;padding:12px;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--fit-text-primary);font-weight:500;margin-bottom:4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Bar meetup
+            <span class="fit-badge fit-badge-neutral" style="margin-left:auto;">Google</span>
+          </div>
+          <div style="font-size:13px;color:var(--fit-text-tertiary);">18:45 – 19:45</div>
         </div>
       </div>
+
+      <!-- Info banner — inline-styled, no class dependency (matches
+           Schedule training info banner pattern; .earn-banner is balance-
+           local and was missing here). -->
+      <div style="margin:0 0 20px;padding:12px;border-radius:12px;background:rgba(3,178,226,0.06);border:1px solid rgba(3,178,226,0.18);display:flex;align-items:flex-start;gap:10px;">
+        <svg style="width:18px;height:18px;flex-shrink:0;margin-top:1px;color:var(--fit-blue-500);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);margin-bottom:2px;">External events can't be edited here</div>
+          <div style="font-size:13px;color:var(--fit-text-secondary);line-height:1.4;">Reschedule your training in 321Fit, or open Google Calendar to move the other events.</div>
+        </div>
+      </div>
+
+      <!-- Actions — primary copy reflects single own-event; secondary
+           copy + behavior reflects multiple externals (plural form +
+           opens picker sub-sheet in production). -->
       <div style="display:flex;flex-direction:column;gap:8px;">
         <button class="fit-btn fit-btn-primary" data-a11y-id="coach.calendar.overlap.reschedule" onclick="document.getElementById('cal-overlap-sheet').classList.remove('visible');document.getElementById('cal-reschedule-sheet').classList.add('visible');">Reschedule HIIT Group Session</button>
-        <button class="fit-btn fit-btn-secondary" data-a11y-id="coach.calendar.overlap.open-google" onclick="document.getElementById('cal-overlap-sheet').classList.remove('visible');">Open in Google Calendar</button>
+        <button class="fit-btn fit-btn-secondary" data-a11y-id="coach.calendar.overlap.open-external" onclick="document.getElementById('cal-overlap-sheet').classList.remove('visible');">Open external calendars</button>
       </div>
     </div>
   </div>
@@ -1755,14 +1791,15 @@
   </div>
 
   <div class="ann" id="ann-cal-overlap-sheet"><span class="ann-role coach">Coach</span><h3>Event overlap drawer</h3>
-    <p>Opens when an existing 321Fit event collides with an external (Google/Apple) event pulled in post-factum — coach connects calendar after the trainings are already booked. We can't prevent this at create time (external event predates our awareness), so we flag it visually.</p>
+    <p>Opens when an existing 321Fit event collides with one or more external (Google/Apple) events pulled in post-factum — coach connects calendar after the trainings are already booked. We can't prevent this at create time (external event predates our awareness), so we flag it visually and surface resolution options.</p>
     <ul>
-      <li><strong>Visual marker</strong> on each overlapping tile (canonical <code>.overlapped</code> modifier in lib): red-tinted gradient overlay + small corner dot. Mirrors iOS <code>Theme.Gradient.overlappedEvent</code> (#705959 → #BB7F7F muted brown-red). Works on top of any tile type (Personal/Group/External/Cross-role/Custom).</li>
-      <li><strong>Drawer content</strong>: status header "Time conflict" + overlap badge, time-window summary, two conflicting events listed (ours + theirs), info banner about external events being read-only here.</li>
-      <li><strong>Actions</strong>: primary "Reschedule our event" (opens existing reschedule sheet); secondary "Open in Google Calendar" (deep-link out).</li>
-      <li><strong>Trigger:</strong> tap on a tile in overlapped state. Toggle "Overlap demo" in s-calendar state row above to preview.</li>
+      <li><strong>Visual marker</strong> on each overlapping tile (canonical <code>.overlapped</code> modifier in lib): red-tinted gradient overlay + small corner dot. Mirrors iOS <code>Theme.Gradient.overlappedEvent</code> (#705959 → #BB7F7F muted brown-red). Additive on top of any tile type (Personal/Group/External/Cross-role/Custom).</li>
+      <li><strong>Drawer supports N events</strong> in the conflict group — list is scrollable (max-height 280pt). Hero copy is dynamic ("3 events overlap · 18:00 – 19:45"). Each row carries an inline "Yours" / "Google" / "Apple" badge so the coach immediately knows which events are editable here vs. need external action.</li>
+      <li><strong>Primary action</strong>: 1 own event in conflict → direct "Reschedule {name}". 2+ → "Reschedule one of your events" → picker.</li>
+      <li><strong>Secondary action</strong>: 1 external → "Open in Google/Apple Calendar". 2+ external → "Open external calendars" → picker. 0 external (rare race) → hidden.</li>
+      <li><strong>Trigger:</strong> tap on a tile in overlapped state. Toggle "Overlap demo" in s-calendar state row above to preview the 3-event case (1 ours + 2 Google).</li>
     </ul>
-    <p class="note"><strong>Backend dep:</strong> day events endpoint already returns both event types; client computes overlap by interval intersection (matches iOS pattern in <code>ScheduleManager.overlapped</code>). No new API needed.</p>
+    <p class="note"><strong>Backend dep:</strong> day events endpoint already returns all event types; client computes overlap by pairwise interval intersection across all events for the day (matches iOS pattern in <code>ScheduleManager.overlapped: [Int: Set&lt;Int&gt;]</code>). No new API needed.</p>
   </div>
 
   <div class="ann" id="ann-s-block-time-off"><span class="ann-role coach">Coach</span><h3>Block time off</h3>
