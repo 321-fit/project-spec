@@ -1,7 +1,7 @@
 # Accessibility Identifiers Registry
 
 > Canonical source of truth for every `data-a11y-id` in the prototypes, every `accessibilityIdentifier` on iOS, every `testTag` on Compose, and every `id:` selector in Maestro flows.
-> Last updated: 2026-05-19
+> Last updated: 2026-05-21
 
 ## Convention
 
@@ -169,8 +169,79 @@ Prototypes: `coach/dashboard.html`, `athlete/dashboard.html`
 
 Prototypes: `coach/calendar.html`, `athlete/calendar.html`
 
+Partial coverage — populated for screens added in the 2026-05-20/21 session (Schedule training, Block time off, all new drawers, overlap, FAB rework). Legacy timeline tiles + event sheet variants on `s-calendar` / `s-event` are a Phase 2 backfill item.
+
+#### FAB sheet (`coach/calendar.html#fab-sheet`)
+
+| ID | Element | Notes |
+|---|---|---|
+| `coach.calendar.fab.schedule-training` | "Schedule training" option | opens `s-schedule-event` |
+| `coach.calendar.fab.block-time-off` | "Block time off" option | opens `s-block-time-off` |
+
+#### Schedule training (`#s-schedule-event` + pickers)
+
 | ID | Element | Screen | Notes |
 |---|---|---|---|
+| `coach.calendar.schedule.back` | back chevron | s-schedule-event | returns to s-calendar |
+| `coach.calendar.schedule.type` | Personal/Group toggle group | s-schedule-event | `data-fit-selection="single"` |
+| `coach.calendar.schedule.athlete` | athlete picker entry | s-schedule-event | opens s-schedule-pick-athlete |
+| `coach.calendar.schedule.template` | template picker entry | s-schedule-event | opens s-schedule-pick-template |
+| `coach.calendar.schedule.date` | date picker entry | s-schedule-event | opens schedule-date-sheet |
+| `coach.calendar.schedule.time` | time picker entry | s-schedule-event | opens schedule-time-sheet |
+| `coach.calendar.schedule.payment` | payment toggle group | s-schedule-event | `data-fit-selection="multi"` |
+| `coach.calendar.schedule.note` | notes textarea | s-schedule-event | maxlength=300 |
+| `coach.calendar.schedule.save` | primary CTA | s-schedule-event | "Send invitation" |
+| `coach.calendar.schedule.date.confirm` | Confirm | date picker sheet | dismisses sheet |
+| `coach.calendar.schedule.time.slot` | hour slot | time picker sheet | generic — disambiguate via `data-hour` |
+| `coach.calendar.schedule.time.confirm` | Confirm | time picker sheet | dismisses sheet |
+| `coach.calendar.schedule.athlete.back` | back chevron | s-schedule-pick-athlete | returns to s-schedule-event |
+| `coach.calendar.schedule.athlete.search` | search input | s-schedule-pick-athlete | |
+| `coach.calendar.schedule.athlete.row` | athlete row | s-schedule-pick-athlete | generic — same on every row |
+| `coach.calendar.schedule.athlete.invite` | "Invite by phone" CTA | s-schedule-pick-athlete | |
+| `coach.calendar.schedule.template.back` | back chevron | s-schedule-pick-template | returns to s-schedule-event |
+| `coach.calendar.schedule.template.create` | "Create new template" CTA | s-schedule-pick-template | deep-links to sessions.html#s-create |
+| `coach.calendar.schedule.template.row` | template card | s-schedule-pick-template | generic — same on every row |
+
+#### Block time off (`#s-block-time-off` + pickers)
+
+| ID | Element | Screen | Notes |
+|---|---|---|---|
+| `coach.calendar.block.back` | back chevron | s-block-time-off | |
+| `coach.calendar.block.title` | title input | s-block-time-off | default "My time" |
+| `coach.calendar.block.all-day` | all-day toggle | s-block-time-off | |
+| `coach.calendar.block.date` | date picker entry | s-block-time-off | |
+| `coach.calendar.block.start-time` | start time picker entry | s-block-time-off | |
+| `coach.calendar.block.end-time` | end time picker entry | s-block-time-off | |
+| `coach.calendar.block.notes` | notes textarea | s-block-time-off | |
+| `coach.calendar.block.save` | primary CTA | s-block-time-off | |
+| `coach.calendar.block.date.confirm` | Confirm | block-date-sheet | |
+| `coach.calendar.block.start-time.confirm` | Confirm | block-start-sheet | wheel picker |
+| `coach.calendar.block.end-time.confirm` | Confirm | block-end-sheet | wheel picker |
+
+#### Event drawers
+
+| ID | Element | Drawer | Notes |
+|---|---|---|---|
+| `coach.calendar.cross-role.tile` | cross-role event tile | s-calendar timeline | tap → cross-role drawer |
+| `coach.calendar.cross-role.close` | Close btn | cal-cross-role-sheet | |
+| `coach.calendar.cross-role.switch-role` | "Switch to athlete" CTA | cal-cross-role-sheet | role switch |
+| `coach.calendar.custom.tile` | custom event tile | s-calendar timeline | tap → custom drawer |
+| `coach.calendar.custom.edit` | Edit | cal-custom-sheet | opens s-block-time-off prefilled |
+| `coach.calendar.custom.delete` | Delete | cal-custom-sheet | DELETE /events/{id} |
+| `coach.calendar.external.close` | Close | cal-external-sheet | |
+| `coach.calendar.external.hide` | "Hide from schedule" | cal-external-sheet | surgical per-event hide |
+| `coach.calendar.overlap.reschedule` | Primary CTA | cal-overlap-sheet | "Reschedule {name}" |
+| `coach.calendar.overlap.ignore-external` | Secondary CTA | cal-overlap-sheet | bulk hide all externals in this slot |
+| `coach.calendar.hide-event.undo` | Undo | cal-hide-snackbar | 5-sec window |
+| `coach.calendar.reschedule.scope` | radio group wrapper | cal-reschedule-sheet | recurring scope picker |
+| `coach.calendar.reschedule.scope.this` | "This session only" | cal-reschedule-sheet | |
+| `coach.calendar.reschedule.scope.following` | "This and all following" | cal-reschedule-sheet | |
+| `coach.calendar.reschedule.scope.all` | "All sessions" | cal-reschedule-sheet | |
+| `coach.calendar.reschedule.confirm` | Continue | cal-reschedule-sheet | |
+| `coach.calendar.drag-group.cancel` | Cancel | cal-drag-group-sheet | drop with participant conflicts |
+| `coach.calendar.drag-group.confirm` | "Move anyway" | cal-drag-group-sheet | |
+| `coach.calendar.threshold.proceed` | "Proceed with N athletes" | cal-threshold-sheet | min participants warning |
+| `coach.calendar.threshold.cancel` | "Cancel training" | cal-threshold-sheet | |
 
 ### `search` — athlete search (filters + results + map)
 
@@ -200,6 +271,18 @@ Prototypes: `coach/settings.html` + every sub-screen (personal-data, calendar-sy
 | ID | Element | Screen | Notes |
 |---|---|---|---|
 
+#### `calsync` — Calendar Sync sub-module (`coach/calendar-sync.html`)
+
+Has its own `coach.calsync.*` scope since it's a distinct subsystem (connects Google/Apple, manages hidden events). Populated for the bits added in the 2026-05-20/21 session (Default destination, Refresh, Hidden events). Calendar list + Apple CalDAV connect are Phase 2 backfill.
+
+| ID | Element | Screen | Notes |
+|---|---|---|---|
+| `coach.calsync.refresh` | refresh icon-btn in header | s-calsync (list of all accounts) | refetches every connected account |
+| `coach.calsync.detail.refresh` | refresh icon-btn in header | s-cal-detail (per-account) | refetches just this account's calendars |
+| `coach.calsync.detail.make-default` | "Make default destination" action row | s-cal-detail | shown only when this account is NOT default |
+| `coach.calsync.hidden-events.row` | hidden event row | s-cal-detail Hidden events section | generic — disambiguate via `data-event-id` |
+| `coach.calsync.hidden-events.unhide` | Unhide button | s-cal-detail Hidden events section | per-row; DELETE .../external-events/{id}/hide |
+
 ### `account-access` — re-auth / change-password / delete-account
 
 Prototype: `shared/account-access.html`
@@ -211,8 +294,14 @@ Prototype: `shared/account-access.html`
 
 Prototype: `coach/balance.html`
 
-| ID | Element | Screen | Notes |
-|---|---|---|---|
+Populated for `s-pending` (Pending balance breakdown) added in the 2026-05-20 session. Other screens (s-list / s-detail-month / s-txn-earning / s-payout-detail) are Phase 2 backfill.
+
+#### Pending breakdown (`#s-pending`)
+
+| ID | Element | Notes |
+|---|---|---|
+| `coach.earnings.pending.back` | back chevron | returns to s-earnings |
+| `coach.earnings.pending.row` | session-in-hold row | generic — disambiguate via athlete name or `data-method` |
 
 ### `booking` — athlete books a coach session
 
