@@ -124,6 +124,46 @@ When the coach has multiple connected accounts (e.g. two Google accounts + Apple
 
 **Backend:** reuses existing Google Calendar API `calendarList.list` call — no new endpoint needed for the manual path. For automatic background sync (Google webhooks via Calendar API push notifications) — proper realtime option but deferred; pull-on-demand is enough for v1.
 
+### 4c. Per-event hide (added 2026-05-21)
+
+**Why:** disabling a whole external calendar (`isActive=false` per `GoogleCalendarAccountDetailInfoObject`) is too blunt when the coach only wants to mute a *specific* noisy recurring event — e.g. one "Birthdays" calendar contains both relevant birthdays and 30+ "Family birthdays of distant relatives". Per-calendar mute kills both. Per-event mute is surgical.
+
+**Backend model** — new table `hidden_external_event`:
+```
+id, user_id, calendar_account_id, external_event_id (string — Google/Apple stable ID),
+scope ('occurrence' | 'series'), hidden_at
+```
+- Stored **per user** (not per role). One sync, one mute list. Cross-role users get one shared list.
+- `external_event_id` is the stable Google/Apple event ID. For recurring series, Google exposes both `id` (instance) and `recurringEventId` (parent). v1 stores per-instance.
+- Hidden events are **filtered server-side** out of the day endpoint payload before sending to client — clients never see the hidden event. This keeps client logic clean and respects role boundary (athletes never see coach's hidden list).
+
+**Endpoints** — see [poly-backend/docs/calendar-sync-api.md](../../poly-backend/docs/calendar-sync-api.md):
+- `POST /v1.0.0/coach/calendar/external-events/{external_event_id}/hide` — body `{ scope: "occurrence" }` (v1 only supports occurrence). Returns 204.
+- `DELETE /v1.0.0/coach/calendar/external-events/{external_event_id}/hide` — unhide. Returns 204.
+- `GET /v1.0.0/coach/calendar/external-events/hidden` — list, paginated. Used by Settings → Calendar Sync → Account detail → Hidden events section. Auto-cleanup: backend should drop stale entries when the underlying Google/Apple event has been deleted at source (detected on next sync pass).
+
+**Entry points (UI):**
+1. **External event drawer** (tap external tile on schedule) → footer button "Hide from schedule" (destructive-tinted, with eye-off icon). Closes drawer + shows snackbar "Hidden '{title}' · Undo" (5s).
+2. **Overlap drawer** (tap overlapped tile, mixed conflict group) → each external row carries an inline ⊘ icon-btn (28pt red-tinted circular) next to the source badge. Tap → hides + recomputes overlap + closes drawer if conflict resolved + same snackbar.
+3. **Hidden events list** (Settings → Calendar Sync → Account detail → footer section "Hidden events (N)") → per-row Unhide button. Empty state when count = 0 ("No events hidden from this account").
+
+**Behavior:**
+- Hide is **non-destructive** — event still exists in Google/Apple, only invisible in 321Fit.
+- **Toast Undo within 5 sec** — instant recovery without navigating to Settings.
+- **No confirmation sheet** — friction is unnecessary; Undo path is enough (matches Calendar app patterns).
+- **No effect on booking** — backend `_has_time_conflict` already doesn't gate on external events, so hiding has no impact on whether sessions can be booked at that time.
+- **Per-occurrence in v1, series scope deferred to Phase 2** — when backend exposes `recurringEventId` in event payload, drawer can offer radio "This event only" / "All future events" (Apple Calendar pattern). v1 always hides single occurrence; coach who wants series-mute disables the whole calendar via existing `isActive` toggle as workaround.
+
+**User Stories:**
+- As a coach with a noisy Google calendar (Birthdays / public meetings / recurring standups), I want to hide individual external events from my 321Fit schedule without disabling the whole calendar, so I can keep relevant events visible while removing the noise.
+- As a coach who accidentally hid an event, I want a 5-second Undo on the snackbar, so I can recover without diving into Settings.
+- As a coach who hid events long ago, I want to see them and unhide them from Settings → Calendar Sync → Account detail, so I can restore visibility later.
+
+**System Stories:**
+- As the backend, when the day endpoint is called, I filter out events whose `external_event_id` appears in `hidden_external_event` for the requesting user, so clients never see hidden events.
+- As the backend, when a hide is requested for an event that's already hidden, I return 204 idempotently, so retries from flaky clients don't error.
+- As the backend, after each Google/Apple sync pass, I drop `hidden_external_event` rows whose `external_event_id` is no longer in the source — auto-cleanup of stale entries, so the Hidden events list doesn't accumulate ghosts over time.
+
 ### 5. Initial Sync After Connection
 
 When user connects calendar after already having events:

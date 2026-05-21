@@ -750,6 +750,48 @@
           <div class="cal-select-row" onclick="this.classList.toggle('selected')"><div style="width:10px;height:10px;border-radius:50%;background:#34A853;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Holidays in Poland</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
         </div>
       </div>
+
+      <!-- Hidden events section — long-term management of per-event mutes.
+           Backend list: GET /v1.0.0/coach/calendar/external-events/hidden
+           Section omitted entirely when list is empty (state-toggle in ann
+           panel flips between Filled / Empty for preview). -->
+      <div id="hidden-events-section" data-hidden-state="filled" style="margin-top:24px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <div style="font-size:14px;color:var(--fit-text-secondary);">Hidden events</div>
+          <span class="fit-badge fit-badge-neutral" id="hidden-events-count">3</span>
+        </div>
+        <!-- Filled state — 3 hidden events -->
+        <div id="hidden-events-list" style="display:flex;flex-direction:column;gap:6px;">
+          <div class="hidden-event-row" data-event-id="ext-evt-1" style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--fit-surface-high);border-radius:12px;">
+            <div style="width:10px;height:10px;border-radius:50%;background:#FBBC04;flex-shrink:0;"></div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Bar meetup</div>
+              <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;">Birthdays · Thu, Apr 10 · 18:45 – 19:45</div>
+            </div>
+            <button class="fit-btn fit-btn-secondary fit-btn-xs" data-a11y-id="coach.calsync.hidden-events.unhide" onclick="unhideEvent(this)">Unhide</button>
+          </div>
+          <div class="hidden-event-row" data-event-id="ext-evt-2" style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--fit-surface-high);border-radius:12px;">
+            <div style="width:10px;height:10px;border-radius:50%;background:#FBBC04;flex-shrink:0;"></div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">John&rsquo;s birthday</div>
+              <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;">Birthdays · Sat, Apr 12 · All day</div>
+            </div>
+            <button class="fit-btn fit-btn-secondary fit-btn-xs" data-a11y-id="coach.calsync.hidden-events.unhide" onclick="unhideEvent(this)">Unhide</button>
+          </div>
+          <div class="hidden-event-row" data-event-id="ext-evt-3" style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--fit-surface-high);border-radius:12px;">
+            <div style="width:10px;height:10px;border-radius:50%;background:#EA4335;flex-shrink:0;"></div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Daily standup</div>
+              <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;">Work · Recurring · 09:00 – 09:15</div>
+            </div>
+            <button class="fit-btn fit-btn-secondary fit-btn-xs" data-a11y-id="coach.calsync.hidden-events.unhide" onclick="unhideEvent(this)">Unhide</button>
+          </div>
+        </div>
+        <!-- Empty state — no events hidden -->
+        <div id="hidden-events-empty" style="display:none;padding:16px;background:var(--fit-surface-high);border-radius:12px;text-align:center;">
+          <div style="font-size:13px;color:var(--fit-text-tertiary);line-height:1.5;">No events hidden from this account.<br>Hide noisy events from the calendar to clean up your schedule.</div>
+        </div>
+      </div>
     </div>
   </div>
   <div class="fit-sheet-overlay" id="disconnect-sheet">
@@ -887,10 +929,14 @@
       <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setDetailState('initial',this)">Fetch Failed</button>
       <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setDetailState('sync',this)">Sync Error</button>
       <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setDetailState('auth',this)">Auth Expired</button>
-    </div><p>Dedicated screen per account. 4 states via toggle.</p><ul><li>Selectable rows with Google calendar colors</li><li><strong>"321 Fit" calendar NOT shown</strong> in the calendars list (it's our managed destination, auto-created on connect — not for the coach to toggle)</li><li><strong>Default destination row</strong> above the calendars list: subtle CTA "Make default destination" when this account is NOT default; read-only "Default destination" label (with check icon) when it IS</li><li><strong>Refresh icon-btn</strong> in header — refetches just this account's calendar list. Auto-fires silently on screen open. Sibling to disconnect (trash) button</li><li>Save in footer, trash icon for disconnect</li></ul>
+    </div><p>Dedicated screen per account. 4 states via toggle.</p><ul><li>Selectable rows with Google calendar colors</li><li><strong>"321 Fit" calendar NOT shown</strong> in the calendars list (it's our managed destination, auto-created on connect — not for the coach to toggle)</li><li><strong>Default destination row</strong> above the calendars list: subtle CTA "Make default destination" when this account is NOT default; read-only "Default destination" label (with check icon) when it IS</li><li><strong>Refresh icon-btn</strong> in header — refetches just this account's calendar list. Auto-fires silently on screen open. Sibling to disconnect (trash) button</li><li><strong>Hidden events section</strong> at the bottom — long-term management of per-event mutes. Coach hides individual external events (noisy recurring like "Birthdays", "Daily standup") from the calendar; the entries live here with Unhide. Surgical alternative to disabling the whole calendar above. Section omits itself when list is empty.</li><li>Save in footer, trash icon for disconnect</li></ul>
     <div style="display:inline-flex;gap:0;border-radius:6px;overflow:hidden;border:1px solid var(--fit-gray-700);margin:8px 0 0;">
       <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="document.getElementById('s-cal-detail').dataset.defaultAccount='true';applyDefaultState();this.parentElement.querySelectorAll('button').forEach(function(x){x.classList.remove('active');x.style.background='transparent';x.style.color='var(--fit-gray-400)'});this.style.background='var(--fit-gray-700)';this.style.color='var(--fit-white)';">Default (this account)</button>
       <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="document.getElementById('s-cal-detail').dataset.defaultAccount='false';applyDefaultState();this.parentElement.querySelectorAll('button').forEach(function(x){x.classList.remove('active');x.style.background='transparent';x.style.color='var(--fit-gray-400)'});this.style.background='var(--fit-gray-700)';this.style.color='var(--fit-white)';">Not default (Make default action visible)</button>
+    </div>
+    <div style="display:inline-flex;gap:0;border-radius:6px;overflow:hidden;border:1px solid var(--fit-gray-700);margin:8px 0 0;">
+      <button class="active" style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="setHiddenEventsState('filled',this)">Hidden events: filled (3)</button>
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setHiddenEventsState('empty',this)">Hidden events: empty</button>
     </div></div>
   <div class="ann" id="ann-s-apple-connect"><span class="ann-role coach">Coach</span><h3>Apple Calendar Connect</h3><p>CalDAV connection. Apple ID + <strong>app-specific password</strong>.</p><ul><li>Info banner explains CalDAV requirement</li><li>Steps always visible (not expandable)</li><li>"Open Apple ID Settings" → Safari</li><li>Password: eye toggle inside input</li><li>Validation: empty → red border, backend error → toast</li></ul></div>
   <div class="ann" id="ann-s-apple-detail"><span class="ann-role coach">Coach</span><h3>Apple Calendar Detail</h3>
@@ -1000,6 +1046,64 @@ function setAccountCountState(mode, btn) {
 document.addEventListener('DOMContentLoaded', function() {
   applyDefaultState();
 });
+
+// === HIDDEN EVENTS ===
+// Backend: DELETE /v1.0.0/coach/calendar/external-events/{id}/hide → unhide.
+// In prototype the row just collapses; count + empty state update locally.
+function unhideEvent(btn) {
+  var row = btn.closest('.hidden-event-row');
+  if (!row) return;
+  row.style.transition = 'opacity 0.2s, transform 0.2s';
+  row.style.opacity = '0';
+  row.style.transform = 'translateX(20px)';
+  setTimeout(function() {
+    row.remove();
+    updateHiddenEventsCount();
+  }, 200);
+}
+
+function updateHiddenEventsCount() {
+  var list = document.getElementById('hidden-events-list');
+  var countBadge = document.getElementById('hidden-events-count');
+  var emptyState = document.getElementById('hidden-events-empty');
+  var remaining = list ? list.querySelectorAll('.hidden-event-row').length : 0;
+  if (countBadge) countBadge.textContent = remaining;
+  if (remaining === 0) {
+    if (list) list.style.display = 'none';
+    if (emptyState) emptyState.style.display = '';
+    document.getElementById('hidden-events-section').dataset.hiddenState = 'empty';
+  } else {
+    if (list) list.style.display = '';
+    if (emptyState) emptyState.style.display = 'none';
+    document.getElementById('hidden-events-section').dataset.hiddenState = 'filled';
+  }
+}
+
+// Annotation panel state toggle — switches between filled/empty for preview.
+function setHiddenEventsState(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(function(b) {
+      b.classList.remove('active');
+      b.style.background = 'transparent';
+      b.style.color = 'var(--fit-gray-400)';
+    });
+    btn.classList.add('active');
+    btn.style.background = 'var(--fit-gray-700)';
+    btn.style.color = 'var(--fit-white)';
+  }
+  var list = document.getElementById('hidden-events-list');
+  var emptyState = document.getElementById('hidden-events-empty');
+  var countBadge = document.getElementById('hidden-events-count');
+  if (state === 'empty') {
+    if (list) list.style.display = 'none';
+    if (emptyState) emptyState.style.display = '';
+    if (countBadge) countBadge.textContent = '0';
+  } else {
+    if (list) list.style.display = '';
+    if (emptyState) emptyState.style.display = 'none';
+    if (countBadge) countBadge.textContent = list ? list.querySelectorAll('.hidden-event-row').length : '0';
+  }
+}
 
 // === STATE TOGGLES ===
 function setListState(state, btn) {

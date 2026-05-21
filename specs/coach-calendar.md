@@ -251,7 +251,8 @@ Overlap = two events occupying the same time window on the same coach's calendar
 - Status header "Time conflict" + Overlap badge
 - Hero row: dynamic count copy ("N events overlap") + combined start–end time + date
 - **Scrollable event list** (max-height 280pt) — each row shows the event icon + name + "Yours" / "Google" / "Apple" badge inline + individual time. Badge clarifies which events are coach-editable vs read-only.
-- Info banner: external events are read-only here
+- **Per-row hide** for external rows — inline ⊘ icon-btn (28pt red-tinted circular) right of the source badge. Tap → hides that specific external event (POST `/v1.0.0/coach/calendar/external-events/{id}/hide`), closes the drawer, shows snackbar "Hidden '{title}' · Undo" (5s). If the hide resolves the conflict (1 own + 1 external case), no further action needed. If multiple externals remain, coach can re-tap any overlapped tile to reopen drawer with updated list. See [google-apple-calendar.md § 4c](./google-apple-calendar.md#4c-per-event-hide-added-2026-05-21).
+- Info banner: external events are read-only here (but can be hidden — see above)
 - Footer actions adapt to group composition:
     - **Primary** (reschedule):
         - 1 own event in group → "Reschedule {name}" — direct (opens existing reschedule sheet)

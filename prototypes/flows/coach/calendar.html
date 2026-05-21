@@ -531,6 +531,13 @@
     <span>Can&rsquo;t move to this time &mdash; slot occupied</span>
   </div>
 
+  <!-- Hide-external-event snackbar (5s with Undo) -->
+  <div class="fit-snackbar" id="cal-hide-snackbar">
+    <span class="snack-dot" style="background:var(--fit-text-tertiary);"></span>
+    <span class="snack-text">Hidden &lsquo;Dentist appointment&rsquo;</span>
+    <span class="snack-action" data-a11y-id="coach.calendar.hide-event.undo" onclick="undoHideExternalEvent()">Undo</span>
+  </div>
+
   <!-- FAB -->
   <div style="position:absolute;bottom:90px;right:20px;z-index:20;">
     <button onclick="document.getElementById('fab-sheet').classList.add('visible')" style="width:56px;height:56px;border-radius:50%;background:var(--fit-brand-gradient);border:none;color:var(--fit-white);font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.3);">+</button>
@@ -756,12 +763,17 @@
           </div>
           <div style="font-size:13px;color:var(--fit-text-tertiary);">18:00 – 19:00 · 3/10 athletes</div>
         </div>
-        <!-- 2) External — Google -->
+        <!-- 2) External — Google. Inline ⊘ icon-btn hides this single
+             external event (per-event mute). Closes drawer + shows undo
+             toast. In production this calls POST /external-events/{id}/hide -->
         <div style="background:var(--fit-surface-low);border-radius:14px;padding:12px;">
           <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--fit-text-primary);font-weight:500;margin-bottom:4px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            Team dinner
-            <span class="fit-badge fit-badge-neutral" style="margin-left:auto;">Google</span>
+            <span style="flex:1;">Team dinner</span>
+            <span class="fit-badge fit-badge-neutral">Google</span>
+            <button data-a11y-id="coach.calendar.overlap.hide-event.team-dinner" aria-label="Hide Team dinner from schedule" onclick="hideExternalEvent('Team dinner','cal-overlap-sheet')" style="border:none;background:rgba(240,92,91,0.10);color:var(--fit-red-400);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.58 10.58a2 2 0 002.83 2.83"/><path d="M16.68 16.68A10.07 10.07 0 0112 18c-7 0-10-7-10-7a18.45 18.45 0 014.06-5.94"/><path d="M6.06 6.06A18.45 18.45 0 0112 4c7 0 10 7 10 7a18.5 18.5 0 01-2.16 3.19"/></svg>
+            </button>
           </div>
           <div style="font-size:13px;color:var(--fit-text-tertiary);">18:30 – 19:30</div>
         </div>
@@ -769,8 +781,11 @@
         <div style="background:var(--fit-surface-low);border-radius:14px;padding:12px;">
           <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--fit-text-primary);font-weight:500;margin-bottom:4px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            Bar meetup
-            <span class="fit-badge fit-badge-neutral" style="margin-left:auto;">Google</span>
+            <span style="flex:1;">Bar meetup</span>
+            <span class="fit-badge fit-badge-neutral">Google</span>
+            <button data-a11y-id="coach.calendar.overlap.hide-event.bar-meetup" aria-label="Hide Bar meetup from schedule" onclick="hideExternalEvent('Bar meetup','cal-overlap-sheet')" style="border:none;background:rgba(240,92,91,0.10);color:var(--fit-red-400);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.58 10.58a2 2 0 002.83 2.83"/><path d="M16.68 16.68A10.07 10.07 0 0112 18c-7 0-10-7-10-7a18.45 18.45 0 014.06-5.94"/><path d="M6.06 6.06A18.45 18.45 0 0112 4c7 0 10 7 10 7a18.5 18.5 0 01-2.16 3.19"/></svg>
+            </button>
           </div>
           <div style="font-size:13px;color:var(--fit-text-tertiary);">18:45 – 19:45</div>
         </div>
@@ -903,12 +918,16 @@
         Thu, Apr 10 &middot; 15:00 – 16:00
       </div>
       <!-- Info text -->
-      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:28px;padding:10px;background:rgba(255,255,255,0.04);border-radius:8px;">
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:20px;padding:10px;background:rgba(255,255,255,0.04);border-radius:8px;">
         <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
-        <span style="font-size:12px;color:var(--fit-text-secondary);line-height:1.4;">This event is managed in Google Calendar. Open the Google Calendar app to edit or delete it.</span>
+        <span style="font-size:12px;color:var(--fit-text-secondary);line-height:1.4;">This event is managed in Google Calendar. Open the Google Calendar app to edit or delete it. You can also hide it from your 321 Fit schedule without affecting Google.</span>
       </div>
-      <!-- Close -->
-      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="document.getElementById('cal-external-sheet').classList.remove('visible');">Close</button>
+      <!-- Actions -->
+      <button class="fit-btn fit-btn-primary" data-a11y-id="coach.calendar.external.close" style="border-radius:99px;margin-bottom:8px;" onclick="document.getElementById('cal-external-sheet').classList.remove('visible');">Close</button>
+      <button class="fit-btn fit-btn-destructive" data-a11y-id="coach.calendar.external.hide" style="border-radius:99px;" onclick="hideExternalEvent('Dentist appointment','cal-external-sheet')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:-3px;"><path d="M3 3l18 18"/><path d="M10.58 10.58a2 2 0 002.83 2.83"/><path d="M16.68 16.68A10.07 10.07 0 0112 18c-7 0-10-7-10-7a18.45 18.45 0 014.06-5.94"/><path d="M6.06 6.06A18.45 18.45 0 0112 4c7 0 10 7 10 7a18.5 18.5 0 01-2.16 3.19"/></svg>
+        Hide from schedule
+      </button>
     </div>
   </div>
 
@@ -1795,6 +1814,7 @@
     <ul>
       <li><strong>Visual marker</strong> on each overlapping tile (canonical <code>.overlapped</code> modifier in lib): red-tinted gradient overlay + small corner dot. Mirrors iOS <code>Theme.Gradient.overlappedEvent</code> (#705959 → #BB7F7F muted brown-red). Additive on top of any tile type (Personal/Group/External/Cross-role/Custom).</li>
       <li><strong>Drawer supports N events</strong> in the conflict group — list is scrollable (max-height 280pt). Hero copy is dynamic ("3 events overlap · 18:00 – 19:45"). Each row carries an inline "Yours" / "Google" / "Apple" badge so the coach immediately knows which events are editable here vs. need external action.</li>
+      <li><strong>Per-event hide</strong> — each external row has an inline ⊘ icon-btn (red-tinted, 28pt circular) next to the source badge. Tap → hides that specific external event from the schedule + closes the drawer + shows undo snackbar ("Hidden 'Bar meetup' · Undo", 5s). Surgical alternative to per-calendar mute in Settings. Surfaces noise events (recurring Birthdays, public meetings) without affecting other events from the same calendar. Backend: POST <code>/v1.0.0/coach/calendar/external-events/{id}/hide</code> → DELETE same to unhide; long-term management in Settings → Calendar Sync → Account detail → "Hidden events" section.</li>
       <li><strong>Primary action</strong>: 1 own event in conflict → direct "Reschedule {name}". 2+ → "Reschedule one of your events" → picker.</li>
       <li><strong>Secondary action</strong>: 1 external → "Open in Google/Apple Calendar". 2+ external → "Open external calendars" → picker. 0 external (rare race) → hidden.</li>
       <li><strong>Trigger in production:</strong> coach scrolls timeline → sees the red-tinted overlay + corner dot on conflicting tiles → taps any one of them (own or external) → drawer opens. Tap of an overlapped own event short-circuits the regular event drawer (cal-event-sheet / cal-group-sheet) in favor of this conflict drawer; coach can still get to the regular event drawer afterwards from inside Reschedule flow.</li>
@@ -2096,6 +2116,45 @@ document.addEventListener('click', function(e) {
   }
   updateNoteCounter();
 });
+
+// === HIDE EXTERNAL EVENT (per-event mute) ===
+// In production: POST /v1.0.0/coach/calendar/external-events/{id}/hide
+// → backend filters this event from future day endpoint payloads → tile removed
+// On Undo (within 5s): DELETE same endpoint → event re-appears next refetch
+var hideExternalState = { lastHiddenTiles: [], snackTimer: null };
+
+function hideExternalEvent(eventTitle, sourceSheetId) {
+  // Hide any external tile matching this title across the timeline (demo
+  // is single-event but the real backend list-hide is targeted by ID).
+  hideExternalState.lastHiddenTiles = [];
+  document.querySelectorAll('.fit-cal-event-external').forEach(function(tile) {
+    var firstDiv = tile.querySelector('div');
+    if (firstDiv && firstDiv.textContent.trim().toLowerCase().indexOf(eventTitle.toLowerCase()) !== -1) {
+      hideExternalState.lastHiddenTiles.push({ el: tile, prevDisplay: tile.style.display });
+      tile.style.display = 'none';
+    }
+  });
+  // Close source sheet (external drawer or overlap drawer)
+  if (sourceSheetId) document.getElementById(sourceSheetId).classList.remove('visible');
+  // Update snackbar copy + show with Undo
+  var snack = document.getElementById('cal-hide-snackbar');
+  snack.querySelector('.snack-text').textContent = "Hidden ‘" + eventTitle + "’";
+  snack.classList.add('show');
+  clearTimeout(hideExternalState.snackTimer);
+  hideExternalState.snackTimer = setTimeout(function() {
+    snack.classList.remove('show');
+    hideExternalState.lastHiddenTiles = [];   // commit
+  }, 5000);
+}
+
+function undoHideExternalEvent() {
+  hideExternalState.lastHiddenTiles.forEach(function(rec) {
+    rec.el.style.display = rec.prevDisplay || '';
+  });
+  hideExternalState.lastHiddenTiles = [];
+  clearTimeout(hideExternalState.snackTimer);
+  document.getElementById('cal-hide-snackbar').classList.remove('show');
+}
 
 // === EVENT COMPLETION COUNTER ===
 function updateCompletionCounter() {
