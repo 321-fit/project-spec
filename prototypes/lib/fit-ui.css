@@ -1042,6 +1042,41 @@
 .fit-light .fit-cal-event-custom::before {
   background: var(--fit-gray-100);
 }
+
+/* Overlap modifier — applied to a tile when its time range collides with
+   another event on the same calendar (typically: our event vs. an external
+   Google/Apple event that was pulled in post-factum, where we can't prevent
+   the conflict at create time). Visual: red-tinted gradient overlay on the
+   card border via box-shadow inset — preserves the underlying type styling
+   (Personal/Group/External/Custom) while signalling "this clashes". Matches
+   iOS `Theme.Gradient.overlappedEvent` (#705959 → #BB7F7F muted brown-red). */
+.fit-cal-event.overlapped::before,
+.fit-cal-event-external.overlapped::before,
+.fit-cal-event-cross-role.overlapped::before,
+.fit-cal-event-custom.overlapped::before {
+  box-shadow: inset 0 0 0 2px transparent;
+  background-image: linear-gradient(135deg, rgba(112,89,89,0.35), rgba(187,127,127,0.35));
+}
+.fit-cal-event.overlapped,
+.fit-cal-event-external.overlapped,
+.fit-cal-event-cross-role.overlapped,
+.fit-cal-event-custom.overlapped {
+  /* small warning corner marker — 12pt red dot at top-right; sub-tile signal
+     without dominating the tile chrome */
+}
+.fit-cal-event.overlapped::after,
+.fit-cal-event-external.overlapped::after,
+.fit-cal-event-cross-role.overlapped::after,
+.fit-cal-event-custom.overlapped::after {
+  content: "";
+  position: absolute;
+  top: 6px; right: 8px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #BB7F7F, #705959);
+  box-shadow: 0 0 0 1.5px var(--fit-screen-bg);
+  z-index: 1;
+}
 .fit-cal-event-group::before {
   background: rgba(3,178,226,0.12);
   border-left: 3px solid var(--fit-blue-500);

@@ -3,7 +3,7 @@
 > Status: Approved (contract) / In Progress (event sheet + custom event migration)
 > Prototype: [flows/coach/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-05-20
+> Last updated: 2026-05-21
 > Implementation:
 > - iOS:     [321fit_ios/docs/coach-calendar-ios.md] (to be created)
 > - Backend: [poly-backend/docs/coach-calendar-backend.md] (to be created)
@@ -80,18 +80,20 @@ Root tab screen, has the nav bar footer. Acts as both agenda view (for the coach
 6. Tapping Reschedule → sheet closes, Reschedule flow starts.
 7. Tapping Cancel → confirmation sheet (destructive).
 
-### Flow 3: Create new event (2026-05-20 rework — intent-based FAB)
+### Flow 3: Create new event (2026-05-20 rework / 2026-05-21 update — intent-based FAB + Personal/Group toggle)
 
 1. Long-press on empty timeline slot OR tap FAB (`+`) → action sheet with **2 intent-based options**:
-   - **Schedule training** — primary action: 1-on-1 session with an athlete.
+   - **Schedule training** — primary action: creates a session event (Personal or one-off Group).
    - **Block time off** — secondary action: custom calendar event (doctor, vacation, personal time).
-2. **Schedule training** → `s-schedule-event` form: athlete picker → training session template picker → datetime → payment method → optional note. On save: POST `/coach/events` with status `awaiting`; athlete gets push to accept.
+2. **Schedule training** → `s-schedule-event` form with a **Training type toggle (Personal / Group)** at the top. Conditional rows + CTA copy adapt per type:
+   - **Personal:** athlete picker visible → template picker (personal templates only) → datetime → payment chips → optional "Note to athlete". CTA "Send invitation". On save: POST `/coach/events` with status `awaiting`; athlete gets push to accept.
+   - **Group (one-off):** athlete picker hidden — there's no specific athlete; athletes find the event on the marketplace and join independently. Template picker filters to group templates. Datetime + payment + optional "Note to athletes". CTA "Create group event". On save: POST `/coach/events` with type=group, status=planned.
 3. **Block time off** → `s-block-time-off` form (see Flow 5).
-4. **Group events are NOT created from FAB anymore.** Group session events auto-generate from recurring session templates per [session-creation.md](./session-creation.md). One-off group events are created from Sessions module, not from Calendar. Rationale: group session creation is template-bound (max participants, recurring schedule, registration flow) — it belongs next to template management, not behind a calendar action.
+4. **Recurring group events are still auto-generated** from session templates per [session-creation.md](./session-creation.md) — unchanged. The Group toggle on Schedule training is only for one-off events (special masterclasses, holiday sessions). Recurring chains continue to be managed from Sessions module.
 
 **Schedule training sub-flows:**
-- **Pick athlete** (`s-schedule-pick-athlete`) — search-first list of recent clients + "Invite by phone" CTA (Appsflyer OneLink SMS for non-321Fit recipients per [deep-linking-referrals.md](./deep-linking-referrals.md)).
-- **Pick template** (`s-schedule-pick-template`) — list of coach's **personal** session templates (group templates excluded) using canonical `v6d-card` visual from sessions module + "+ Create new template" CTA routes to `sessions.html#s-create`.
+- **Pick athlete** (`s-schedule-pick-athlete`) — search-first list of recent clients + "Invite by phone" CTA (Appsflyer OneLink SMS for non-321Fit recipients per [deep-linking-referrals.md](./deep-linking-referrals.md)). Only reachable in Personal mode.
+- **Pick template** (`s-schedule-pick-template`) — list of coach's session templates filtered by parent's Training type toggle (Personal vs Group). "+ Create new template" inline CTA routes to `sessions.html#s-create` with matching type preselected.
 
 ### Flow 4: Reschedule via drag & drop (same day)
 
@@ -120,6 +122,12 @@ Root tab screen, has the nav bar footer. Acts as both agenda view (for the coach
 8. Drag & drop within same day supported (custom events behave like regular own-role events for layout purposes).
 9. Delete: from drawer → Delete confirmation sheet (destructive high).
 
+**Edit a custom event (2026-05-21 added):**
+- From `cal-custom-sheet` → tap **Edit** → push `s-block-time-off` with all fields pre-filled (title, all-day flag, date, start/end time, notes).
+- Footer CTA changes from "Save block" to "Save changes".
+- On save → `PATCH /coach/events/{id}` with whatever changed. Title can be re-blanked → server re-applies the "My time" default rule.
+- Delete from drawer → `DELETE /coach/events/{id}` → destructive confirmation sheet → silent remove (no athlete to notify; custom events are coach-private).
+
 ### Flow 6: Create a past event (log cash session) — Tier 1 Q9
 
 1. Coach navigates to a past date via day strip or date picker. **Backdate window: 60 days** (= 2 months, consistent with calendar look-back). Date picker `min = today - 60d`. Older dates are not selectable (snackbar: "Can't log sessions older than 60 days").
@@ -141,6 +149,29 @@ Root tab screen, has the nav bar footer. Acts as both agenda view (for the coach
 ### Flow 8: Event sheet state variants — summary
 
 All 6 variants share the same DOM structure (avatar row + info + footer). Only the descriptor text + optional pill + footer buttons differ per `data-event-state`. See [event-statuses.md](./event-statuses.md) for the state enum. The unified sheet rules out the old parallel `cal-event-sheet` / `cal-invite-sheet` / `cal-group-sheet` divergence.
+
+### Flow 10: Deep link from push notification (2026-05-21 added)
+
+1. Coach gets push, e.g. "Athlete sent request for Tennis training".
+2. Tap push → app opens via deep link `321fit://coach/calendar?event_id=<id>`.
+3. App navigates to Calendar tab, scrolls timeline to the event's day + scrolls vertically to the event's time, then auto-opens the event drawer (`cal-event-sheet` for personal / `cal-group-sheet` for group / `cal-cross-role-sheet` if the event is in the OTHER role).
+4. If the event is in a not-currently-visible role profile (cross-role), the drawer is the cross-role variant; user can tap "Switch to {role}" to go full action context.
+5. Edge cases:
+   - Event was cancelled / deleted between push send and tap → toast "This session is no longer scheduled" and stay on Calendar at the relevant day.
+   - User on Athlete role but push references a Coach event (or vice versa) → cross-role drawer; never auto-switches role silently.
+
+### Flow 11: Resolve overlap with external calendar event (2026-05-21 added)
+
+When a coach connects Google/Apple Calendar AFTER they already have 321Fit bookings, an external event may collide with a planned 321Fit session. We can't prevent this at create time (external event predates our awareness), so we surface it visually.
+
+1. Day events endpoint returns both 321Fit events + external events for the day. Client computes overlap by interval intersection (matches iOS `ScheduleManager.overlapped: [Int: Set<Int>]`).
+2. Each tile in an overlap gets the `.overlapped` modifier (canonical lib class, also `.overlapped` on `FitCalEvent` component): red-tinted gradient overlay (#705959 → #BB7F7F, matches iOS `Theme.Gradient.overlappedEvent`) + corner-dot marker.
+3. Tap on either overlapped tile → `cal-overlap-sheet` opens:
+   - Status header "Time conflict" + Overlap badge.
+   - Both events listed (ours + theirs) with times.
+   - Info banner: "External events can't be edited here. Reschedule your training in 321Fit, or open Google Calendar to move the other event."
+   - Footer actions: primary "Reschedule {our event}" (opens existing reschedule sheet), secondary "Open in Google Calendar" (deep-link to native app).
+4. No automatic resolution. Two consenting changes are needed: either we reschedule our event or coach moves the external event in Google. The drawer surfaces both options; we don't pick.
 
 ### Flow 9: Tap a cross-role event → switch role
 
@@ -199,6 +230,30 @@ When the active user has BOTH roles (coach + athlete), events from the OTHER rol
 - The cross-role event's actual status (Planned / Request / Awaiting / etc.) still drives the badge in the **other** role's calendar — only the presentation differs based on which role is currently active.
 
 **a11y prefix:** `coach.calendar.cross-role.*` (this spec) and `athlete.calendar.cross-role.*` (per [athlete-schedule.md](./athlete-schedule.md)).
+
+---
+
+## 4c. Event overlap rendering (added 2026-05-21)
+
+Overlap = two events occupying the same time window on the same coach's calendar. Backend prevents new overlaps between our events at create time (`_has_time_conflict` in `coach/training_events.py` returns 400). External events (Google/Apple) **cannot be prevented** — they may pre-exist when coach connects calendar post-factum. The client surfaces these overlaps visually instead.
+
+**Detection (client-side):** day events endpoint returns all events for the day. Client computes overlaps by interval intersection between any two events (matches iOS `ScheduleManager.overlapped: [Int: Set<Int>]`). No backend overlap field on the response — purely client-derived.
+
+**Visual marker:** `.overlapped` modifier on the tile (canonical lib class + `FitCalEvent` component prop):
+- Red-tinted gradient overlay (#705959 → #BB7F7F, muted brown-red — matches iOS `Theme.Gradient.overlappedEvent`)
+- Small corner-dot marker (8pt circle, top-right of tile) with red gradient + 1.5pt screen-bg ring so it reads against dense tiles
+- Works on top of any tile type (Personal / Group / External / Cross-role / Custom) — additive, doesn't replace the underlying type color
+
+**Drawer (`cal-overlap-sheet`):** opens on tap of any overlapped tile.
+- Status header "Time conflict" + Overlap badge
+- Time-window summary (combined start–end)
+- Two conflicting events listed with their individual times
+- Info banner: external events are read-only here
+- Footer actions: primary "Reschedule {our event}" (existing reschedule sheet); secondary "Open in Google Calendar" (deep-link out)
+
+**No automatic resolution.** Two consenting changes are needed: either reschedule our event in 321Fit, or coach moves the external event in Google/Apple. The drawer surfaces both options; the system doesn't pick.
+
+**a11y prefix:** `coach.calendar.overlap.*`.
 
 ---
 
@@ -319,9 +374,13 @@ Returns per-day event-type indicators for the month grid above the day strip.
 
 - [ ] **Cross-day drag:** v2 scope? Or stick with Reschedule sheet? **Owner:** product.
 - [ ] **Custom event — recurring option?** Current spec: one-off only. Some coaches want "every Friday gym class". Defer to v2. **Owner:** product.
-- [x] ~~**Past event backdate limit:**~~ RESOLVED in Tier 1 Q9: 60 days (= 2 months, consistent with calendar look-back UI). Cash-only, silent for athlete, separate counter from maturity stats.
+- [x] ~~**Past event backdate limit:**~~ RESOLVED in Tier 1 Q9: 60 days. Cash-only, silent for athlete, separate counter from maturity stats.
+- [x] ~~**One-off group event creation:**~~ RESOLVED 2026-05-21 — added back as Group toggle on Schedule training (Flow 3). Recurring group events still go through Sessions templates.
 - [ ] **External calendar event modification:** read-only in our app. Any use case where we'd want to allow edit → bidirectional sync? Probably no. **Owner:** calendar-sync spec owner.
 - [ ] **Month grid view:** currently expandable from date strip. Rich month view (full grid) as separate screen? **Owner:** design.
+- [ ] **Time-zone display while coach is traveling:** events stored UTC; spec says rendered in viewing user's local TZ. Edge: coach in Vienna books a session, then travels to Tokyo — does the session show as "14:00 Vienna" or "21:00 Tokyo"? Current behavior = device TZ. Open: should we offer a "lock to home TZ" preference? **Owner:** product.
+- [ ] **Cancelled events history:** cancelled events disappear from calendar entirely (2-month retention then archive). Per-athlete cancellation history exists in Clients module ([clients-coaches.md](./clients-coaches.md)). Global "all cancellations" timeline as a coach-side audit view — needed? **Owner:** design.
+- [ ] **Empty-day visual:** day with zero events renders an empty timeline with work-hours hatching. No CTA, no hint copy — minimum chrome. Confirm acceptable, or add subtle empty-state copy? **Owner:** design. *(2026-05-21: tentatively kept minimal — no CTA.)*
 
 ---
 
