@@ -143,9 +143,11 @@ scope ('occurrence' | 'series'), hidden_at
 - `GET /v1.0.0/coach/calendar/external-events/hidden` — list, paginated. Used by Settings → Calendar Sync → Account detail → Hidden events section. Auto-cleanup: backend should drop stale entries when the underlying Google/Apple event has been deleted at source (detected on next sync pass).
 
 **Entry points (UI):**
-1. **External event drawer** (tap external tile on schedule) → footer button "Hide from schedule" (destructive-tinted, with eye-off icon). Closes drawer + shows snackbar "Hidden '{title}' · Undo" (5s).
-2. **Overlap drawer** (tap overlapped tile, mixed conflict group) → each external row carries an inline ⊘ icon-btn (28pt red-tinted circular) next to the source badge. Tap → hides + recomputes overlap + closes drawer if conflict resolved + same snackbar.
+1. **External event drawer** (tap external tile on schedule) → footer button "Hide from schedule" (destructive-tinted, with eye-off icon). Closes drawer + shows snackbar "Hidden '{title}' · Undo" (5s). This is the **surgical** path for muting a specific event.
+2. **Overlap drawer** secondary action **"Ignore external events"** → backend loops POST `.../external-events/{id}/hide` for every external event in the current conflict group (bulk hide). Snackbar "Ignored N events from this slot · Undo". After bulk hide, client recomputes overlap → own event tile loses the `.overlapped` marker. This is the **bulk** path for resolving a conflict from the external side without granular decisions. See [coach-calendar.md § 4c Event overlap rendering](./coach-calendar.md#4c-event-overlap-rendering-added-2026-05-21).
 3. **Hidden events list** (Settings → Calendar Sync → Account detail → footer section "Hidden events (N)") → per-row Unhide button. Empty state when count = 0 ("No events hidden from this account").
+
+A bulk endpoint (e.g. POST `.../external-events/hide-batch` with id list) can land in Phase 2 to reduce N round-trips on "Ignore external events" — current per-id loop is acceptable for typical N=1–4 conflict groups.
 
 **Behavior:**
 - Hide is **non-destructive** — event still exists in Google/Apple, only invisible in 321Fit.

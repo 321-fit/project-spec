@@ -250,17 +250,18 @@ Overlap = two events occupying the same time window on the same coach's calendar
 
 - Status header "Time conflict" + Overlap badge
 - Hero row: dynamic count copy ("N events overlap") + combined start–end time + date
-- **Scrollable event list** (max-height 280pt) — each row shows the event icon + name + "Yours" / "Google" / "Apple" badge inline + individual time. Badge clarifies which events are coach-editable vs read-only.
-- **Per-row hide** for external rows — inline ⊘ icon-btn (28pt red-tinted circular) right of the source badge. Tap → hides that specific external event (POST `/v1.0.0/coach/calendar/external-events/{id}/hide`), closes the drawer, shows snackbar "Hidden '{title}' · Undo" (5s). If the hide resolves the conflict (1 own + 1 external case), no further action needed. If multiple externals remain, coach can re-tap any overlapped tile to reopen drawer with updated list. See [google-apple-calendar.md § 4c](./google-apple-calendar.md#4c-per-event-hide-added-2026-05-21).
-- Info banner: external events are read-only here (but can be hidden — see above)
-- Footer actions adapt to group composition:
-    - **Primary** (reschedule):
+- **Scrollable event list** (max-height 280pt) — each row shows the event icon + name + "Yours" / "Google" / "Apple" badge inline + individual time. Badge clarifies which events are coach-editable vs read-only. Rows are read-only here — surgical per-event hide is **not** exposed in the overlap drawer (would be visual overload + drawer is for resolving conflict, not granular calendar management). Coach who wants to surgically mute a specific external event taps that tile directly on the schedule → uses "Hide from schedule" in `cal-external-sheet`.
+- Info banner: external events are read-only here
+- Footer actions adapt to group composition — **two buttons** in the common case:
+    - **Primary** (reschedule our event):
         - 1 own event in group → "Reschedule {name}" — direct (opens existing reschedule sheet)
         - 2+ own events → "Reschedule one of your events" → opens reschedule picker (which event first)
-    - **Secondary** (open external):
-        - 1 external event → "Open in Google Calendar" / "Open in Apple Calendar"
-        - 2+ external events → "Open external calendars" → deep-link picker (which calendar to open)
-        - 0 external (all 2+ are ours, rare race-condition case) → secondary hidden; reschedule picker is the only path
+    - **Secondary** (resolve conflict from the external side): **"Ignore external events"**
+        - One tap → backend calls POST `/v1.0.0/coach/calendar/external-events/{id}/hide` **for each external** in the current overlap group → all those externals disappear from the schedule → client recomputes overlap → our event tile drops its `.overlapped` marker → drawer closes → snackbar "Ignored N events from this slot · Undo" (5s). Undo restores all of them at once and re-applies the marker.
+        - 0 external in group (rare race-condition case, all events are ours) → secondary hidden; reschedule picker is the only path
+        - Per-occurrence in v1 (recurring noise re-appears next week — coach can re-Ignore, or disable the source calendar in Settings → Calendar Sync via existing `isActive` toggle, or wait for Phase 2 series scope when backend exposes `recurringEventId`)
+
+**Bulk hide vs surgical hide trade-off:** the bulk action removes the conflict marker but also hides the *individual* externals (one-shot per occurrence). Coach can recover any of them from Settings → Calendar Sync → Account detail → "Hidden events". Time-window-scoped acknowledgement (where externals remain visible but the marker silently clears) was considered and rejected for v1 — introduces a new backend primitive (`acknowledged_overlap_at` on training event) AND visually confusing (coach sees external in the same window without overlap styling and starts doubting whether the slot is free). Phase 2 may revisit.
 
 **No automatic resolution.** Two consenting changes are needed: either reschedule our events in 321Fit, or coach moves the external ones in their owning calendar. The drawer surfaces both options; the system doesn't pick.
 
