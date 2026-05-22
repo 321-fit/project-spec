@@ -1,7 +1,7 @@
 # Accessibility Identifiers Registry
 
 > Canonical source of truth for every `data-a11y-id` in the prototypes, every `accessibilityIdentifier` on iOS, every `testTag` on Compose, and every `id:` selector in Maestro flows.
-> Last updated: 2026-05-21
+> Last updated: 2026-05-22
 
 ## Convention
 
@@ -294,7 +294,28 @@ Prototype: `shared/account-access.html`
 
 Prototype: `coach/balance.html`
 
-Populated for `s-pending` (Pending balance breakdown) added in the 2026-05-20 session. Other screens (s-list / s-detail-month / s-txn-earning / s-payout-detail) are Phase 2 backfill.
+Full coverage for all 8 coach earnings screens populated 2026-05-22 ahead of issue creation. Stripe Connect onboarding (`s-stripe`) is tracked separately under existing in-flight issues (poly-backend #95/96/97 + iOS #150) — its ids will land alongside that work.
+
+#### Main Earnings (`#s-earnings` — two-axis swiper)
+
+| ID | Element | Notes |
+|---|---|---|
+| `coach.earnings.back` | back chevron | returns to settings |
+| `coach.earnings.cash.tap-zone` | Cash card body | tap → Earnings history (Cash filter) |
+| `coach.earnings.cash.owed-row` | "€X owed by N athletes" row | tap → Clients |
+| `coach.earnings.card.connect-stripe` | "Connect Stripe" CTA | Card lock state |
+| `coach.earnings.card.verifying-details` | "View details" row | Card verifying state — opens s-stripe |
+| `coach.earnings.card.resolve` | "Resolve now" CTA | Card action-required state |
+| `coach.earnings.card.tap-zone` | Card body (Available + Pending split) | tap → Earnings history (Card filter) |
+| `coach.earnings.card.pending.tap-zone` | Pending col (full hit area) | tap → s-pending breakdown |
+| `coach.earnings.card.withdraw` | "Withdraw" pill (premium) | Card active state |
+| `coach.earnings.swiper.dot` | dot indicator | generic — disambiguate via `data-idx` |
+| `coach.earnings.activity.view-all` | "View all" link | section action → s-transactions |
+| `coach.earnings.activity.filter-chip` | filter chip in Recent activity | generic — `data-filter="all\|cash\|card\|payouts"` |
+| `coach.earnings.activity.row` | activity row | generic — `data-method="card\|cash\|payout"` |
+| `coach.earnings.lifetime-footer` | lifetime summary footer | tap → Earnings history (All filter) |
+| `coach.earnings.withdraw.confirm` / `.cancel` | Withdraw sheet actions | |
+| `coach.earnings.snackbar.retry` | error snackbar Retry link | |
 
 #### Pending breakdown (`#s-pending`)
 
@@ -302,6 +323,54 @@ Populated for `s-pending` (Pending balance breakdown) added in the 2026-05-20 se
 |---|---|---|
 | `coach.earnings.pending.back` | back chevron | returns to s-earnings |
 | `coach.earnings.pending.row` | session-in-hold row | generic — disambiguate via athlete name or `data-method` |
+
+#### Transactions (`#s-transactions`)
+
+| ID | Element | Notes |
+|---|---|---|
+| `coach.earnings.transactions.back` | back chevron | |
+| `coach.earnings.transactions.filter-chip` | filter chip | generic — `data-filter="all\|earnings\|payouts\|refunds"` |
+| `coach.earnings.transactions.row` | transaction row | generic — `data-kind="earning\|payout\|refund"` |
+
+#### Earning detail (`#s-txn-earning`)
+
+| ID | Element | Notes |
+|---|---|---|
+| `coach.earnings.txn-earning.back` | back chevron | |
+
+#### Cash earning detail (`#s-txn-cash`)
+
+| ID | Element | Notes |
+|---|---|---|
+| `coach.earnings.txn-cash.back` | back chevron | |
+| `coach.earnings.txn-cash.mark-paid` | "Mark as paid" primary CTA | terminal action — POST mark-paid |
+
+#### Payout detail (`#s-txn-payout`)
+
+| ID | Element | Notes |
+|---|---|---|
+| `coach.earnings.txn-payout.back` | back chevron | |
+
+#### Earnings History (`#s-earnings-history`)
+
+| ID | Element | Notes |
+|---|---|---|
+| `coach.earnings.history.back` | back chevron | |
+| `coach.earnings.history.filter-chip` | filter chip | generic — `data-filter="all\|card\|cash"` |
+| _(Month rows currently read-only; tap-to-drill arrives with month-filter chip on Transactions per Variant A — id will be added then.)_ | | |
+
+#### Payout methods (`#s-methods`)
+
+| ID | Element | Notes |
+|---|---|---|
+| `coach.earnings.methods.back` | back chevron | |
+| `coach.earnings.methods.row` | provider card | generic — `data-provider="stripe\|revolut"` |
+| `coach.earnings.methods.connect` | inline "Connect" CTA | empty-state per-provider |
+| `coach.earnings.methods.radio` | default radio | multi-method state |
+| `coach.earnings.methods.more-menu` | ⋯ button | per-provider context menu trigger |
+| `coach.earnings.methods.context-menu.set-default` | menu item | |
+| `coach.earnings.methods.context-menu.disconnect` | menu item | destructive |
+| `coach.earnings.methods.disconnect.confirm` / `.cancel` | confirm sheet actions | |
 
 ### `booking` — athlete books a coach session
 

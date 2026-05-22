@@ -346,13 +346,50 @@ Monthly aggregated history for the Earnings History screen (`s-earnings-history`
 
 Lifetime totals are **net** (gross minus refunds, disputes, fees). Computed from `coach_transactions` ledger.
 
-#### `GET /coach/transactions?type=&page=&size=`
+#### `GET /coach/earnings/pending`
 
-Paginated transactions. `type` optional filter.
+Pending breakdown — sessions whose Card payment cleared the athlete side but is still inside Stripe's 24h hold (not yet moved to coach Available). Used by Pending breakdown screen (`s-pending`, Flow J2).
+
+**Response 200:**
+```json
+{
+  "total":      75.00,
+  "currency":   "EUR",
+  "clearsFrom": "2026-04-11T18:00:00Z",
+  "clearsTo":   "2026-04-13T20:00:00Z",
+  "items": [
+    {
+      "transactionId": "<uuid>",
+      "eventId":       "<uuid>",
+      "athleteName":   "Anna K.",
+      "athleteAvatar": "https://…",
+      "title":         "Basketball Training",
+      "completedAt":   "2026-04-10T12:00:00Z",
+      "amount":        50.00,
+      "clearsAt":      "2026-04-11T12:00:00Z"
+    },
+    …
+  ]
+}
+```
+
+Empty list → return `items: []` with `total: 0` (clients render empty state).
+
+#### `GET /coach/transactions?type=&month=YYYY-MM&page=&size=`
+
+Paginated transactions. `type` optional filter (earnings / payouts / refunds). `month` optional filter (added per § 10 Q2 Variant A decision — month rows on Earnings history deep-link here with `month` prefilled, displayed as removable filter chip on Transactions screen).
 
 #### `GET /coach/transactions/{id}`
 
 Detail view.
+
+#### `POST /coach/transactions/{id}/mark-paid`
+
+Mark a cash earning as received (Flow J). Idempotent — already-received returns 204.
+
+**Response 200:** updated transaction (now `status: "received"`, with `paidAt` timestamp). Adds a `cash_paid` ledger row server-side. No reverse action — corrections via Support.
+
+**400:** if transaction is not `method=cash` or already in non-`unpaid` state (race).
 
 #### `POST /coach/payouts/instant`
 
