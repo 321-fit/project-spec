@@ -87,10 +87,11 @@ Backend infra fully implemented across iOS and backend. Inbox UI in progress for
 ### Channels
 | Channel | Service | Usage |
 |---|---|---|
-| Push (FCM) | Firebase Admin SDK | Primary — all event notifications |
-| SMS | Twilio | OTP codes (signup ownership verification, password reset), training reminders. **Phone is non-unique across accounts (post-2026-05-11)** — the same phone may receive notifications for multiple users; recipient_user_id on the `notification` record is the source of truth, not the destination phone. |
-| Email | SendGrid | Password reset, welcome emails |
-| WhatsApp | WhatsApp Business API | Optional — user opt-in required |
+| Push (FCM) | Firebase Admin SDK | Primary — all event notifications. Title (bold) + body sent in standard FCM `Notification` payload. |
+| Inbox (in-app) | Persisted `Notification` rows | Every push also creates a DB row → renders in `s-notifications` feed. Inbox row title + subtitle = push title + body. |
+| SMS | Twilio | OTP codes (signup ownership verification, password reset). **Phone is non-unique across accounts (post-2026-05-11)** — the same phone may receive notifications for multiple users; `recipient_user_id` on the `notification` record is the source of truth, not the destination phone. |
+| Email | SendGrid | Password reset, welcome emails (transactional only — NOT for event notifications) |
+| WhatsApp | WhatsApp Business API | **On hold v1.** Infra dormant; see [notifications-catalog.md § 4 Channel selection](./notifications-catalog.md#whatsapp--on-hold-for-v1). |
 
 ### Celery Tasks
 | Task | Retry | Description |
@@ -160,10 +161,18 @@ See [Event Statuses spec](event-statuses.md) for complete push notification text
 
 > **v1.0 update — routing unified with inbox.** The "Default (app root)" entries for `trainingRequestDeclined` / `trainingEventCancelled` / `pendingRequestAutoDeclined` are superseded by the `Notification Inbox UI § Tap routing` section below — same routing function fires for both inbox tap and background push tap. See that section for the up-to-date destination per kit `type`.
 
-## WhatsApp Notifications
-- Opt-in toggle: `GET /me/whatsapp-notifications-toogle`
-- DB table: `whatsapp_notifications_allowed`
-- Uses `WHATSAPP_COMPANY_NUMBER` env var
+## WhatsApp Notifications (on hold — 2026-05-22)
+
+WhatsApp delivery is **scoped out of v1**. Backend infrastructure stays in code but no category actually delivers via WA. See [notifications-catalog.md § 4 Channel selection — WhatsApp on hold](./notifications-catalog.md#whatsapp--on-hold-for-v1) for the full reasoning + the path to re-enable when it makes sense.
+
+What's in code but dormant:
+- Twilio integration (`infra/services/twilio.py`, `whatsapp_notification_sender.py`)
+- Opt-in DB table `whatsapp_notifications_allowed`
+- Opt-in toggle endpoint `GET /me/whatsapp-notifications-toogle` *(typo `toogle` preserved for BC — see Known bugs)*
+- `WHATSAPP_COMPANY_NUMBER` env var
+- `create_and_send_whatsapp()` calls at several backend sites — these no-op silently when the template's `whatsapp_template_sid` is NULL (current state for all categories)
+
+When/if WhatsApp is re-enabled in a future release, the work is: register Twilio Content templates with Meta per-category → populate `whatsapp_template_sid` → expose the opt-in toggle in coach Settings UI → update the catalog `Channels` column with a `W` flag for the included categories.
 
 ## Notification Data Model
 
