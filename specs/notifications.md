@@ -185,6 +185,102 @@ See [Event Statuses spec](event-statuses.md) for complete push notification text
 | body_html | HTML email body |
 | body_text | Plain text email body |
 
+## Notification Catalog (canonical — 2026-05-22)
+
+The full registry of every notification the app sends — what triggers it, who receives it, what copy goes in the push / inbox row, what template variables backend must pass, where tap routes.
+
+### Why this exists
+
+Before 2026-05-22, copy lived only in the `notification_template` DB table seeded by Alembic migrations and in scattered `event-statuses.md` lines. Half the templates were anonymous ("Your training session request has been approved" with no name / date) and 3 call sites passed `template_data=None`, so placeholders never substituted. This catalog is the single source of truth — backend templates + call sites + spec must match it.
+
+When changing copy for any notification:
+1. Update the table in this section first
+2. Update `notification_template.push_text` via an Alembic migration
+3. Verify the call site passes all listed template variables (3 categories needed call-site fixes in BE-NOTIF-1 — `pending_request_auto_declined`, `training_request_approved`, `training_request_declined`)
+
+### Copy style guide
+
+1. **Active voice always.** "Anna accepted your request", not "Your request has been approved." Lead with the actor when there's one.
+2. **Lead with the person**, not the action — humans first, app verbs second.
+3. **Always include date + time** for any scheduled-event notification. Coach reading a 3am push must know whether this is about today or next week.
+4. **Always include the session name** (`{session_name}` — the training template name like "Basketball Training", "Yoga Private", "HIIT Group Session") so the recipient knows which session out of N this is about.
+5. **One sentence, ≤80 chars body.** Push char limits + scannability. Truncate gracefully if needed (Apple OS may cut at ~110 chars on lock screen).
+6. **Sentence case**, no ALL CAPS, no exclamation marks (per [copy standards](../../project-spec/specs/copy-standards.md) if extracted, otherwise per `feedback_copy_standards` memory).
+7. **No internal jargon** — "request" stays, "approval" stays; avoid "training session request approval" verbosity.
+8. **Hide auto-mechanics from the user where possible.** "expired" reads better than "automatically declined by the system after 48h."
+
+### Variables convention
+
+Use these placeholders consistently — backend `template_data` keys must match exactly.
+
+| Placeholder | Means | Example value | Notes |
+|---|---|---|---|
+| `{session_name}` | Training template name (the coach's "Basketball Training" / "Yoga Private" / "HIIT Group Session") | "Basketball Training" | NOT sport taxonomy. Falls back to "session" if event has no template. |
+| `{sender_name}` | The actor who triggered (athlete or coach name) | "Anna Müller" | Use when the action could come from either role. |
+| `{coach_name}` / `{athlete_name}` | Role-specific where direction matters and the template only fires for one role | "Mark Stevens" | |
+| `{other_name}` | The counterparty in summaries / reminders | "Anna" | First name only for reminders (shorter). |
+| `{date}` | Localized formatted date "Tue, Apr 10" | "Tue, Apr 10" | Use coach's timezone for coach-side, athlete's TZ for athlete-side. |
+| `{time}` | Time "10:00" | "10:00" | 24h (matches our `feedback_copy_standards` `· 10:00` pattern). |
+| `{new_date}` / `{new_time}` / `{old_date}` / `{old_time}` | Reschedule context (proposed new + previous values) | | Only the `_rescheduled_` templates need these. |
+| `{amount}` | Money with currency symbol | "€50" | Backend renames legacy `{sum}` → `{amount}` for consistency. |
+| `{rating}` | Review stars | "5" | Used in `new_review` only. |
+| `{provider}` | "Google" or "Apple" calendar | "Google" | Used in `calendar_sync_needs_attention`. |
+
+Legacy placeholders being **deprecated**: `{person_name}` (use `{sender_name}` or role-specific instead), `{trainer_name}` (use `{coach_name}`), `{sum}` (use `{amount}`).
+
+### Catalog — 19 notification categories
+
+`Channels`: P = Push (FCM/APNS), W = WhatsApp opt-in, E = Email, I = Inbox (in-app feed). Inbox is implicit for every category that creates a `Notification` DB row.
+
+| # | Category (`backend enum`) | Kit type | Trigger | Channels | Push body | Routing target | Template vars |
+|---|---|---|---|---|---|---|---|
+| 1 | `athlete_created_training_request` | `request` | Athlete books a session with coach | P · W · I | `{athlete_name} requested {session_name} on {date} at {time}.` | Coach → Clients → Requests | athlete_name, session_name, date, time |
+| 2 | `coach_created_training_request` | `request` | Coach proposes a session to athlete | P · W · I | `{coach_name} invited you to {session_name} on {date} at {time}.` | Athlete → Coaches → Requests | coach_name, session_name, date, time |
+| 3 | `training_request_approved` | `approved` | Other side accepts the request | P · W · I | `{sender_name} accepted your {session_name} on {date} at {time}.` | Recipient → Schedule (event sheet on the date) | sender_name, session_name, date, time |
+| 4 | `training_request_declined` | `declined` | Other side declines | P · W · I | `{sender_name} declined your {session_name} on {date} at {time}.` | Recipient → Schedule (sheet on the date) | sender_name, session_name, date, time |
+| 5 | `coach_rescheduled_training` | `reschedule` | Coach proposes a new time | P · W · I | `{coach_name} moved {session_name} to {new_date} at {new_time}.` | Athlete → Schedule (sheet on new_date) | coach_name, session_name, new_date, new_time, (old_date, old_time optional) |
+| 6 | `athlete_rescheduled_training` | `reschedule` | Athlete proposes a new time | P · W · I | `{athlete_name} moved {session_name} to {new_date} at {new_time}.` | Coach → Schedule (sheet on new_date) | athlete_name, session_name, new_date, new_time |
+| 7 | `pending_request_auto_declined` | `expired` | 48h timeout on a pending request | P · W · I | `Request for {session_name} with {other_name} on {date} expired — auto-declined after 48h.` | Recipient → Clients → athlete detail (or Coaches → coach detail) | session_name, other_name, date |
+| 8 | `athlete_onboarding_completed` | `onboardingDone` | Athlete finishes onboarding and is connected to coach (NOT referral path) | P · I | `{athlete_name} just joined 321Fit and is ready to train with you.` | Coach → Clients → athlete detail | athlete_name |
+| 9 | `training_event_cancelled` | `cancelled` | Session cancelled by either side | P · W · I | `{sender_name} cancelled {session_name} on {date} at {time}.` | Recipient → Schedule (sheet, cancelled state) | sender_name, session_name, date, time |
+| 10 | `training_session_successful_coach` | `payment` | Coach earns from completed session (money moves) | P · I | `{session_name} with {athlete_name} on {date} completed. €{amount} added to your balance.` | Coach → Earnings → s-txn-earning (this earning) | session_name, athlete_name, date, amount |
+| 11 | `training_session_successful_athlete` | `approved` | Session completed for athlete | P · I | `{session_name} with {coach_name} on {date} completed. Leave a review?` | Athlete → Schedule (sheet, finished state) — surfaces Leave Review CTA | session_name, coach_name, date |
+| 12 | `session_reminder_1h` *(new)* | `reminder` | Celery beat: 60 min before a planned session start | P · I | `{session_name} with {other_name} starts in 1 hour at {time}.` | Either side → Schedule (sheet) | session_name, other_name, time |
+| 13 | `session_reminder_10min` *(new — defer if 1h covers it)* | `reminder` | 10 min before a planned session start | P only (don't inbox-spam) | `{session_name} starts in 10 min.` | Either side → Schedule (sheet) | session_name |
+| 14 | `card_payment_cleared` *(new)* | `payment` | 24h Stripe hold released for an earning | P · I | `€{amount} from {athlete_name} cleared and is now available.` | Coach → Earnings → s-txn-earning | amount, athlete_name |
+| 15 | `payout_sent` *(new)* | `payment` | Stripe `transfer.created` webhook | P · I | `Payout of €{amount} sent to your bank — arrives in 1-2 days.` | Coach → Earnings → s-txn-payout | amount |
+| 16 | `cash_overdue` *(new)* | `reminder` | Daily Celery beat: cash earning unpaid > 3 days | P · I | `{athlete_name}'s {session_name} on {date} is still unpaid — mark as paid?` | Coach → Earnings → s-txn-cash | athlete_name, session_name, date |
+| 17 | `calendar_sync_needs_attention` *(new — already spec'd § Calendar sync, template missing)* | `calendarSync` | OAuth refresh fail / app-specific password revoked / 2FA disabled | P · I | `Reconnect {provider} Calendar to keep events synced.` | Coach/Athlete → Settings → Calendar Sync | provider |
+| 18 | `new_review` *(new — when athlete-review module ships)* | `review` | Athlete leaves a review on a finished session | P · I | `{athlete_name} left you a {rating}★ review on {session_name}.` | Coach → Profile → Reviews carousel (anchor to new entry) | athlete_name, rating, session_name |
+| 19 | `referral_athlete_joined` *(new — fills referral gap)* | `onboardingDone` | Athlete signs up via coach's referral link AND completes onboarding | P · I | `{athlete_name} joined 321Fit via your invite — ready to train.` | Coach → Clients → athlete detail | athlete_name |
+
+### Channel selection rules
+
+- **All categories** create an Inbox row (default behavior — server writes `Notification` row).
+- **Push** for every category — actionable signal.
+- **WhatsApp** only for categories where coach explicitly opted in (`whatsapp_notifications_allowed` table); skip the WA send if opt-out. Coach gets it via WA for time-sensitive coach-side events (requests, reschedule, cancel). Athlete WA isn't enabled in v1.
+- **Email** — none of these go to email in v1. Email is reserved for transactional (signup, password reset, receipts).
+
+### Routing — kit type table is the source of truth
+
+The `Kit type` column in the catalog maps to the visual + tap-routing logic in `§ Notification Inbox UI § Type → icon / color mapping` and `§ Tap routing`. When adding a new category, pick an existing kit type if visual / route match. New kit types added in this revision: **`reminder`**, **`payment`**, **`review`** — see updated mapping table.
+
+### Localization
+
+Templates currently English-only in DB. Live app supports 5 languages via `Localizable.strings` (iOS). Two options for localization parity, both deferred to a separate scope:
+
+- **A.** Backend stores templates per-language (`notification_template` becomes `notification_template × locale`).
+- **B.** Backend stores English templates + delivers via FCM `loc-key` / APNS `loc-key`, client formats locally using `Localizable.strings`.
+
+Option B is the iOS-native pattern. v1.0 ships English-only push copy; backlog item to revisit when international rollout starts.
+
+### Open questions
+
+- Should `session_reminder_10min` be opt-in? Coaches running back-to-back sessions might find 10 prior pushes/day too noisy. **Default proposal:** off by default for v1, exposed as a Settings toggle ("Last-call reminder · 10 min before") in a future release.
+- Group event reminders for athletes (1h before joined group session) — covered by `session_reminder_1h` if backend treats group_event same as personal_event in the reminder query. Verify during BE-NOTIF-2 impl.
+
+---
+
 ## Notification Inbox UI (v1.0 — new)
 
 ### Entry points
@@ -211,20 +307,23 @@ See [design-tokens/docs/components.md § FitNotificationRow](https://github.com/
 
 ### Type → icon / color mapping (kit `type` enum, decoupled from backend `TargetRoute`)
 
-Backend has 12 `TargetRoute` values; kit collapses to 10 visual variants:
+Backend has 19 `TargetRoute` / `NotificationCategory` values (post 2026-05-22 catalog expansion); kit collapses to 13 visual variants:
 
-| Kit `type` | Backend `TargetRoute`(s) | Icon plate |
+| Kit `type` | Backend `TargetRoute`(s) / category | Icon plate |
 |---|---|---|
 | `request` | `athleteCreatedTrainingRequest`, `coachCreatedTrainingRequest` | calendar+ · `FitIconPlate(.brand)` |
 | `reschedule` | `athleteRescheduledTraining`, `coachRescheduledTraining` | clock · `FitIconPlate(.warning)` |
-| `approved` | `trainingRequestApproved` | check-circle · `FitIconPlate(.success)` |
+| `approved` | `trainingRequestApproved`, `trainingSessionSuccessfulAthlete` | check-circle · `FitIconPlate(.success)` |
 | `cancelled` | `trainingEventCancelled` | x-circle · `FitIconPlate(.error)` |
 | `declined` | `trainingRequestDeclined` | x-circle · `FitIconPlate(.neutral)` |
 | `expired` | `pendingRequestAutoDeclined` | clock-x · `FitIconPlate(.neutral)` |
-| `onboardingDone` | `athleteOnboardingCompleted` | user-check · `FitIconPlate(.success)` |
-| `calendarSync` | `calendarSyncIssue` | alert-triangle · `FitIconPlate(.warning)` |
+| `onboardingDone` | `athleteOnboardingCompleted`, `referralAthleteJoined` | user-check · `FitIconPlate(.success)` |
+| `calendarSync` | `calendarSyncNeedsAttention` (formerly `calendarSyncIssue`) | alert-triangle · `FitIconPlate(.warning)` |
 | `videoReady` | `introVideoReady` | video-check · `FitIconPlate(.success)` |
 | `videoFailed` | `introVideoFailed` | video-x · `FitIconPlate(.error)` |
+| `reminder` *(new 2026-05-22)* | `sessionReminder1h`, `sessionReminder10min`, `cashOverdue` | bell · `FitIconPlate(.info)` |
+| `payment` *(new 2026-05-22)* | `trainingSessionSuccessfulCoach`, `cardPaymentCleared`, `payoutSent` | wallet-arrow-down · `FitIconPlate(.success)` |
+| `review` *(new 2026-05-22)* | `newReview` | star · `FitIconPlate(.success)` |
 
 Translation `TargetRoute → kit type` lives at the call site (one helper enum per platform). Kit doesn't know notification taxonomy — it owns its own visual semantics only.
 
@@ -240,6 +339,9 @@ Tap on a notification row triggers **(1)** optimistic mark-read + **(2)** naviga
 | `calendarSync` | **Push** → Profile tab → Settings → `s-calendar-sync` (account list) | Multi-account list view, not a single entity. User identifies the broken account via per-card "Reconnect required" / "Sync error" badge (see [calendar-sync.md § Sync error state](calendar-sync.md#1-calendar-sync-account-list)). Single route keeps kit logic simple — no provider-specific deep-link in v1.0. |
 | `videoReady` | **Push** → Profile tab → Settings → Edit personal info → `#pd-video-group` anchor | Coach is informed their freshly-uploaded intro video is live on their public profile. Land on Personal Data with the intro video card scrolled into view so coach can preview it / replace / share. |
 | `videoFailed` | **Push** → Profile tab → Settings → Edit personal info → `#pd-video-group` anchor | Coach lands on Personal Data with the video card in `errored` state showing the failure reason + Retry CTA. Same destination as `videoReady` so coach has one mental anchor for "video stuff". |
+| `reminder` | **Sheet over inbox** — `FitUI.openEventSheet(event:)` for `sessionReminder*`; **Push** → Earnings → `s-txn-cash` for `cashOverdue` | Reminders point to a single event (sheet pattern matches `approved` / `cancelled`). `cashOverdue` routes to the cash transaction detail so coach can act (Mark as paid). |
+| `payment` | **Push** → Earnings → relevant txn detail (`s-txn-earning` for cleared / successful coach, `s-txn-payout` for payout_sent) | Money-related notifications anchor on Earnings tab — coach mental model is "money lives there". |
+| `review` | **Push** → Profile tab → Reviews carousel anchor | New review is on the public profile; coach lands there to see it in context (and share/embed if they want). |
 
 **Background push tap** (FCM payload, app outside / locked) — same routing function. App opens to **Home tab** → relevant sheet/clients-detail layered on top. Dismiss → user lands on Home (familiar anchor), not in some random screen they didn't navigate to.
 
