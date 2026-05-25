@@ -1,7 +1,7 @@
 # Accessibility Identifiers Registry
 
 > Canonical source of truth for every `data-a11y-id` in the prototypes, every `accessibilityIdentifier` on iOS, every `testTag` on Compose, and every `id:` selector in Maestro flows.
-> Last updated: 2026-05-22
+> Last updated: 2026-05-25
 
 ## Convention
 
@@ -261,8 +261,30 @@ Prototypes: `coach/clients.html`, `coach/invite.html`, `coach/invite-coach.html`
 
 Prototypes: `coach/profile.html`, `shared/profile.html`
 
-| ID | Element | Screen | Notes |
-|---|---|---|---|
+Populated for `coach/profile.html` (Coach's own Profile tab + Reviews push) on 2026-05-25 ahead of Profile family epic issue creation. Athlete-side `shared/profile.html` (coach detail when athlete browses) is a separate scope — add `athlete.coach-detail.*` ids when that screen's epic lands.
+
+#### Coach Profile tab (`#s-coach-profile`)
+
+| ID | Element | Notes |
+|---|---|---|
+| `coach.profile.settings` | ⚙️ icon-btn in header | pushes to settings.html (Settings hub) |
+| `coach.profile.hero.edit` | camera pencil overlay on hero media | pushes to personal-data → Intro video card |
+| `coach.profile.identity` | identity row (avatar + name + location chevron) | pushes to personal-data top |
+| `coach.profile.maturity.learn-more` | "Learn more →" on FitMaturityProgress card (new coach only) | pushes to Maturity Explainer screen (currently alert stub — TBD) |
+| `coach.profile.sports.edit` | My Sports section head with pencil | pushes to sport-types.html |
+| `coach.profile.about.edit` | About Me section head with pencil | pushes to personal-data About me editor |
+| `coach.profile.tile.languages` | Languages FitStatTile | pushes to personal-data Languages picker |
+| `coach.profile.tile.sessions` | Training Sessions FitStatTile | pushes to sessions.html |
+| `coach.profile.tile.locations` | Locations FitStatTile | pushes to locations.html |
+| `coach.profile.tile.hours` | Available Hours FitStatTile | pushes to available-hours.html |
+| `coach.profile.reviews.card` | FitReviewCard in carousel | generic — disambiguate via review id |
+| `coach.profile.reviews.show-all` | "Show all N reviews" terminal card in carousel | pushes to s-coach-reviews |
+
+#### All Reviews (`#s-coach-reviews`) push
+
+| ID | Element | Notes |
+|---|---|---|
+| `coach.profile.reviews.back` | back chevron | returns to s-coach-profile |
 
 ### `settings` — settings hub + sub-screens
 
