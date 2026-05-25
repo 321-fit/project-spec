@@ -2,7 +2,7 @@
 
 > Status: Draft
 > Prototype: [flows/coach/settings.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html)
-> Last updated: 2026-05-12
+> Last updated: 2026-05-25 (prototype trimmed to match — Coaching subsection removed, Calendar Sync promoted to standalone Calendar section)
 
 ## Overview
 
