@@ -243,6 +243,31 @@ Partial coverage — populated for screens added in the 2026-05-20/21 session (S
 | `coach.calendar.threshold.proceed` | "Proceed with N athletes" | cal-threshold-sheet | min participants warning |
 | `coach.calendar.threshold.cancel` | "Cancel training" | cal-threshold-sheet | |
 
+### `event-detail` — coach-side full-screen group event detail (`coach/calendar.html#s-event`)
+
+Push screen from group event drawer (per [group-event-detail.md](../specs/group-event-detail.md)). Populated 2026-05-25 ahead of group-event-detail Bundle B epic.
+
+| ID | Element | Notes |
+|---|---|---|
+| `coach.event-detail.back` | back chevron | returns to calendar drawer / timeline |
+| `coach.event-detail.overflow` | ⋯ icon-btn | opens floating context menu |
+| `coach.event-detail.overflow.invite` | "Invite athletes" menu item | opens share sheet |
+| `coach.event-detail.overflow.reschedule` | "Reschedule" menu item | opens `cal-reschedule-sheet` (reused from coach-calendar) |
+| `coach.event-detail.overflow.cancel` | "Cancel training" menu item | destructive — opens `cal-cancel-sheet` |
+| `coach.event-detail.note` | note row (filled or empty state — same id across) | opens note edit sheet |
+| `coach.event-detail.note.textarea` | edit sheet textarea | 200-char limit + counter |
+| `coach.event-detail.note.save` | Save action | PATCH event with note body |
+| `coach.event-detail.note.delete` | Delete action | destructive — clears note |
+| `coach.event-detail.participants.row` | participant row | generic — disambiguate via athlete id |
+| `coach.event-detail.participants.row.remove` | × button on row (or swipe-left action) | adds to remove batch + Undo snackbar |
+| `coach.event-detail.participants.sheet.profile` | "View Profile" action sheet item | push to athlete detail |
+| `coach.event-detail.participants.sheet.message` | "Send Message" action sheet item | push to messenger |
+| `coach.event-detail.participants.sheet.remove` | "Remove from Training" destructive | same outcome as inline ×/swipe |
+| `coach.event-detail.undo` | Undo on remove snackbar | reverts batch within 5s |
+| `coach.event-detail.share.cta` | footer "Invite athletes" CTA | opens share sheet |
+| `coach.event-detail.share.sheet.copy` | "Copy" button in share sheet | copies link to clipboard |
+| `coach.event-detail.share.sheet.done` | "Done" closing share sheet | |
+
 ### `search` — athlete search (filters + results + map)
 
 Prototype: `athlete/search.html`
