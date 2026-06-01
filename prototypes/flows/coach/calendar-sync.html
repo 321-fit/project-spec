@@ -602,8 +602,9 @@
   <div class="label">Calendar Sync</div>
   <button class="active" onclick="go('s-calsync',this)">Calendar Sync</button>
   <button onclick="go('s-cal-detail',this)">Google Detail</button>
-  <button onclick="go('s-apple-connect',this)">Apple Connect</button>
-  <button onclick="go('s-apple-detail',this)">Apple Detail</button>
+  <button onclick="go('s-write-target-picker',this)">Write Target Picker</button>
+  <button onclick="go('s-apple-connect',this)" style="opacity:0.5;" title="Apple UI hidden v1 — reference only">Apple Connect (hidden v1)</button>
+  <button onclick="go('s-apple-detail',this)" style="opacity:0.5;" title="Apple UI hidden v1 — reference only">Apple Detail (hidden v1)</button>
   <div class="label">Other modules</div>
   <button onclick="window.location.href='./settings.html'">← Back to Settings</button>
   </div>
@@ -629,14 +630,16 @@
     </div>
   </div>
   <div class="fit-phone-content">
-    <!-- ZERO STATE (nothing connected) -->
+    <!-- ZERO STATE (nothing connected) — Apple row hidden v1 (Google-only) -->
     <div id="calsync-zero" style="display:none;padding:0 16px 16px;flex-direction:column;gap:12px;">
       <div style="padding:8px 0 4px;">
         <div style="font-size:16px;font-weight:500;color:var(--fit-text-secondary);margin-bottom:4px;">No calendars connected</div>
-        <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;">Sync your external calendars to avoid scheduling conflicts.</div>
+        <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;">Sync your Google Calendar to avoid scheduling conflicts.</div>
       </div>
       <div class="set-card" style="cursor:pointer;"><div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div><div class="set-info" style="flex:1;"><div class="set-title">Google Calendar</div><div class="set-sub">Not connected</div></div><button class="fit-btn fit-btn-primary fit-btn-xs">Connect</button></div>
+      <!-- Apple Calendar zero-state row hidden v1 (kept commented for revival path):
       <div class="set-card" style="cursor:pointer;" onclick="go('s-apple-connect',document.querySelector('[onclick*=s-apple-connect]'))"><div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/apple-calendar.svg" style="width:20px;height:20px;"></div><div class="set-info" style="flex:1;"><div class="set-title">Apple Calendar</div><div class="set-sub">Not connected</div></div><button class="fit-btn fit-btn-primary fit-btn-xs">Connect</button></div>
+      -->
     </div>
     <!-- Success toast -->
     <div class="fit-toast" id="connect-success-toast" style="border-left:3px solid var(--fit-teal-500);">
@@ -648,29 +651,61 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/></svg>
       <span style="font-size:14px;">Calendars updated</span>
     </div>
-    <!-- CONNECTED STATE -->
-    <div id="calsync-connected" style="padding:0 16px 16px;display:flex;flex-direction:column;gap:12px;">
-      <!-- Account row — Default pill follows the locations.html pattern
-           (.fit-badge.fit-badge-accent inline after the title). Pill is
-           hidden in single-account mode (1 connected account = implicit
-           default, no need for the affordance). -->
-      <div class="set-card" style="cursor:pointer;padding:14px 12px;" onclick="go('s-cal-detail',document.querySelector('[onclick*=s-cal-detail]'))">
-        <div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div>
-        <div class="set-info">
-          <div class="set-title" style="display:flex;align-items:center;gap:6px;">
-            Google Calendar
-            <span class="fit-badge fit-badge-accent" data-default-badge>Default</span>
+    <!-- CONNECTED STATE — restructured 2026-06-01:
+         Section 1: "Calendars to check for conflicts" — list of connected Google
+                    accounts + inline [+ Connect account] button (read sources).
+         Section 2: "Calendar to add events to" — single root-level selector,
+                    tap → push to s-write-target-picker (write destination).
+         Apple Calendar UI hidden v1 (only Google). Per-account "Default" badge
+         removed (default destination is now per-calendar, not per-account). -->
+    <div id="calsync-connected" style="padding:0 16px 16px;display:flex;flex-direction:column;gap:24px;">
+
+      <!-- ====== Section 1: Calendars to check for conflicts ====== -->
+      <div>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:4px;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Calendars to check for conflicts</div>
+            <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;line-height:1.4;">These calendars will be used to prevent double bookings.</div>
           </div>
-          <div style="font-size:14px;color:var(--fit-blue-400);margin-top:2px;">john.miller@gmail.com</div>
-          <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;" id="sync-status-ok">2 of 3 calendars synced</div>
-          <div style="display:none;font-size:12px;font-weight:500;color:var(--fit-red-400);margin-top:2px;" id="sync-status-error">⚠ Sync error</div>
+          <button class="fit-btn fit-btn-secondary fit-btn-xs" data-a11y-id="coach.calsync.connect" style="display:inline-flex;align-items:center;gap:6px;flex-shrink:0;white-space:nowrap;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+            Connect account
+          </button>
         </div>
-        <svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+          <div class="set-card" style="cursor:pointer;padding:14px 12px;" data-a11y-id="coach.calsync.account.row" onclick="go('s-cal-detail',document.querySelector('[onclick*=s-cal-detail]'))">
+            <div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div>
+            <div class="set-info">
+              <div class="set-title">Google Calendar</div>
+              <div style="font-size:14px;color:var(--fit-blue-400);margin-top:2px;">john.miller@gmail.com</div>
+              <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;" id="sync-status-ok">Checking 2 calendars</div>
+              <div style="display:none;font-size:12px;font-weight:500;color:var(--fit-red-400);margin-top:2px;" id="sync-status-error">⚠ Sync error</div>
+            </div>
+            <svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <div class="set-card" style="padding:14px 12px;opacity:0.7;" data-a11y-id="coach.calsync.account.row"><div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div><div class="set-info"><div class="set-title">Google Calendar</div><div style="font-size:14px;color:var(--fit-blue-400);margin-top:2px;">coach.work@gmail.com</div><div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;display:flex;align-items:center;gap:6px;"><div class="cal-spinner" style="width:10px;height:10px;border-width:1.5px;"></div>Fetching calendars...</div></div></div>
+        </div>
       </div>
-      <div class="set-card" style="padding:14px 12px;opacity:0.7;"><div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div><div class="set-info"><div class="set-title">Google Calendar</div><div style="font-size:14px;color:var(--fit-blue-400);margin-top:2px;">coach.work@gmail.com</div><div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;display:flex;align-items:center;gap:6px;"><div class="cal-spinner" style="width:10px;height:10px;border-width:1.5px;"></div>Fetching calendars...</div></div></div>
-      <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border:1px dashed var(--fit-gray-700);border-radius:16px;cursor:pointer;"><svg style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span style="font-size:14px;color:var(--fit-blue-500);font-weight:500;">Add Google account</span></div>
-      <div style="height:1px;background:var(--fit-gray-700);margin:4px 0;"></div>
-      <div class="set-card"><div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/apple-calendar.svg" style="width:20px;height:20px;"></div><div class="set-info" style="flex:1;"><div class="set-title">Apple Calendar</div><div class="set-sub">Not connected</div></div><button class="fit-btn fit-btn-primary fit-btn-xs" onclick="event.stopPropagation();go('s-apple-connect',document.querySelector('[onclick*=s-apple-connect]'))">Connect</button></div>
+
+      <!-- ====== Section 2: Calendar to add events to ====== -->
+      <div>
+        <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);margin-bottom:4px;">Calendar to add events to</div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);margin-bottom:12px;line-height:1.4;">New 321Fit events will be saved here. Visible in your Google Calendar.</div>
+        <div class="set-card" style="cursor:pointer;padding:14px 12px;" data-a11y-id="coach.calsync.write-target.selector" onclick="document.getElementById('s-calsync').dataset.firstHintDismissed='true';applyFirstHintState();go('s-write-target-picker',document.querySelector('[onclick*=s-write-target-picker]'))">
+          <div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div>
+          <div class="set-info">
+            <div class="set-title" id="write-target-name">Personal</div>
+            <div style="font-size:14px;color:var(--fit-blue-400);margin-top:2px;" id="write-target-email">john.miller@gmail.com</div>
+          </div>
+          <svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <!-- First-time hint — auto-dismisses on first tap of selector above. Toggle in ann panel -->
+        <div id="write-target-hint" style="display:none;align-items:flex-start;gap:8px;margin-top:10px;padding:10px 12px;background:rgba(3,178,226,0.06);border:1px solid rgba(3,178,226,0.18);border-radius:10px;">
+          <svg style="width:14px;height:14px;flex-shrink:0;margin-top:2px;color:var(--fit-blue-500);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span style="font-size:12px;color:var(--fit-text-secondary);line-height:1.4;">Auto-selected on first connect. Tap to choose a different calendar.</span>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -723,31 +758,30 @@
         </div>
       </div>
 
-      <!-- Default destination action — shown when account is NOT default.
-           Toggles to a read-only "Default destination" label when it is. -->
-      <div data-default-action style="display:none;padding:12px 14px;border-radius:12px;background:var(--fit-surface-low);display:flex;align-items:center;gap:10px;cursor:pointer;" data-a11y-id="coach.calsync.detail.make-default" onclick="makeAccountDefault()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;flex-shrink:0;"><path d="M2 12a10 10 0 1 0 20 0 10 10 0 1 0-20 0"/><circle cx="12" cy="12" r="4"/></svg>
-        <div style="flex:1;">
-          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Make default destination</div>
-          <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;line-height:1.4;">New 321Fit events will be saved to the "321 Fit" calendar in this account.</div>
-        </div>
-      </div>
-
-      <!-- Default destination read-only label — shown when this IS default -->
-      <div data-default-label style="padding:12px 14px;border-radius:12px;background:rgba(5,224,166,0.06);border:1px solid rgba(5,224,166,0.18);display:flex;align-items:center;gap:10px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>
-        <div style="flex:1;">
-          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Default destination</div>
-          <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;line-height:1.4;">New 321Fit events are saved to "321 Fit" calendar in this account.</div>
-        </div>
-      </div>
+      <!-- Default destination action + label REMOVED 2026-06-01 — default
+           writing destination is now a global per-calendar selector on
+           s-calsync root, not a per-account toggle here. -->
 
       <div><div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:10px;">Select calendars to sync</div>
         <div style="display:flex;flex-direction:column;gap:6px;">
-          <div class="cal-select-row selected" onclick="this.classList.toggle('selected')"><div style="width:10px;height:10px;border-radius:50%;background:#4285F4;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Personal</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
-          <div class="cal-select-row" onclick="this.classList.toggle('selected')"><div style="width:10px;height:10px;border-radius:50%;background:#EA4335;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Work</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
-          <div class="cal-select-row" onclick="this.classList.toggle('selected')"><div style="width:10px;height:10px;border-radius:50%;background:#FBBC04;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Birthdays</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
-          <div class="cal-select-row" onclick="this.classList.toggle('selected')"><div style="width:10px;height:10px;border-radius:50%;background:#34A853;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Holidays in Poland</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row selected" data-a11y-id="coach.calsync.detail.calendar.row" data-calendar-id="primary" onclick="toggleSyncCalendar(this)"><div style="width:10px;height:10px;border-radius:50%;background:#4285F4;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Personal</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" data-a11y-id="coach.calsync.detail.calendar.row" data-calendar-id="work" onclick="toggleSyncCalendar(this)"><div style="width:10px;height:10px;border-radius:50%;background:#EA4335;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Work</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" data-a11y-id="coach.calsync.detail.calendar.row" data-calendar-id="bday" onclick="toggleSyncCalendar(this)"><div style="width:10px;height:10px;border-radius:50%;background:#FBBC04;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Birthdays</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" data-a11y-id="coach.calsync.detail.calendar.row" data-calendar-id="hol" onclick="toggleSyncCalendar(this)"><div style="width:10px;height:10px;border-radius:50%;background:#34A853;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Holidays in Poland</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        </div>
+
+        <!-- Inline warning: all calendars in this account deselected.
+             Shows only when 0 rows have .selected. -->
+        <div id="warn-all-deselected" style="display:none;margin-top:12px;padding:10px 12px;background:rgba(247,201,72,0.08);border:1px solid rgba(247,201,72,0.24);border-radius:10px;align-items:flex-start;gap:8px;">
+          <svg style="width:14px;height:14px;flex-shrink:0;margin-top:2px;color:var(--fit-yellow-400);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span style="font-size:12px;color:var(--fit-text-secondary);line-height:1.4;">No events will be checked from this account. Sessions may be double-booked.</span>
+        </div>
+
+        <!-- Inline alert: user just unchecked the calendar that is currently
+             the write target. Backend would auto-move target on save. -->
+        <div id="warn-write-target-off" style="display:none;margin-top:12px;padding:10px 12px;background:rgba(3,178,226,0.06);border:1px solid rgba(3,178,226,0.18);border-radius:10px;align-items:flex-start;gap:8px;">
+          <svg style="width:14px;height:14px;flex-shrink:0;margin-top:2px;color:var(--fit-blue-500);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span style="font-size:12px;color:var(--fit-text-secondary);line-height:1.4;"><strong style="color:var(--fit-text-primary);">Personal</strong> is your default destination. Disabling it will move new 321Fit events to your next active calendar on save.</span>
         </div>
       </div>
 
@@ -806,6 +840,49 @@
     </div>
   </div>
   <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" style="border-radius:99px;">Save</button></div>
+</div>
+
+<!-- ===== WRITE TARGET PICKER (new 2026-06-01) =====
+     Pushed from s-calsync "Calendar to add events to" row. Lists all
+     calendars across all connected Google accounts grouped by account
+     email. Single-select radio (always exactly one selected). Tap any
+     row → instant set + back gesture returns to s-calsync with updated
+     selector. No Save / Cancel — instant-set + back pattern. -->
+<div class="fit-phone fit-dark" id="s-write-target-picker">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.calsync.write-target.back" onclick="go('s-calsync',document.querySelector('[onclick*=s-calsync]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Calendar to add events to</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div style="padding:8px 16px 16px;">
+      <div style="font-size:13px;color:var(--fit-text-tertiary);line-height:1.5;margin-bottom:20px;">New 321Fit events will be saved here. Choose any calendar from your connected Google accounts — tap to select.</div>
+
+      <!-- Account 1 group -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:12px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:10px;padding:0 4px;">john.miller@gmail.com</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div class="cal-select-row selected" data-a11y-id="coach.calsync.write-target.row" data-calendar-id="primary" onclick="selectWriteTarget(this,'Personal','john.miller@gmail.com')"><div style="width:10px;height:10px;border-radius:50%;background:#4285F4;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Personal</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" data-a11y-id="coach.calsync.write-target.row" data-calendar-id="work-jm" onclick="selectWriteTarget(this,'Work','john.miller@gmail.com')"><div style="width:10px;height:10px;border-radius:50%;background:#EA4335;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Work</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" data-a11y-id="coach.calsync.write-target.row" data-calendar-id="bday-jm" onclick="selectWriteTarget(this,'Birthdays','john.miller@gmail.com')"><div style="width:10px;height:10px;border-radius:50%;background:#FBBC04;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Birthdays</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" data-a11y-id="coach.calsync.write-target.row" data-calendar-id="hol-jm" onclick="selectWriteTarget(this,'Holidays in Poland','john.miller@gmail.com')"><div style="width:10px;height:10px;border-radius:50%;background:#34A853;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Holidays in Poland</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        </div>
+      </div>
+
+      <!-- Account 2 group -->
+      <div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:10px;padding:0 4px;">coach.work@gmail.com</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div class="cal-select-row" data-a11y-id="coach.calsync.write-target.row" data-calendar-id="primary-cw" onclick="selectWriteTarget(this,'Coaching','coach.work@gmail.com')"><div style="width:10px;height:10px;border-radius:50%;background:#673AB7;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Coaching</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" data-a11y-id="coach.calsync.write-target.row" data-calendar-id="family-cw" onclick="selectWriteTarget(this,'Family','coach.work@gmail.com')"><div style="width:10px;height:10px;border-radius:50%;background:#009688;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Family</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" data-a11y-id="coach.calsync.write-target.row" data-calendar-id="personal-cw" onclick="selectWriteTarget(this,'Personal','coach.work@gmail.com')"><div style="width:10px;height:10px;border-radius:50%;background:#FF9800;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Personal</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
 <!-- ===== APPLE CALENDAR CONNECT ===== -->
@@ -918,26 +995,60 @@
       <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-teal-500);" onclick="var t=document.getElementById('connect-success-toast');t.classList.add('show');setTimeout(function(){t.classList.remove('show')},3000)">Toast</button>
       <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-red-400);" onclick="var ok=document.getElementById('sync-status-ok');var err=document.getElementById('sync-status-error');var show=err.style.display==='none';ok.style.display=show?'none':'block';err.style.display=show?'block':'none';">Sync Error</button>
     </div>
-    <p><strong>Connected:</strong> account cards with details. <strong>Zero:</strong> provider cards with Connect CTAs.</p><ul><li>Zero: two provider cards (Google + Apple) with full-width Connect buttons</li><li>Connected: account cards + dashed "Add" + Apple with inline Connect</li><li><strong>Default badge</strong> (<code>.fit-badge.fit-badge-accent</code>) — inline after account title, marks the account whose "321 Fit" calendar receives writes. Hidden in single-account mode (implicit default). Same pattern as locations.html "Default" gym pill.</li><li><strong>Refresh icon-btn</strong> in header — refetches calendar list for all connected accounts (used when coach adds a new calendar in Google after first connect). Also auto-fires silently on screen open.</li></ul>
+    <p><strong>Restructured 2026-06-01.</strong> Two distinct sections:</p>
+    <ul>
+      <li><strong>§ Calendars to check for conflicts</strong> — list of connected Google accounts (READ sources for busy-time check). Right-aligned inline <code>+ Connect account</code> button replaces old dashed-bottom "Add Google account" row.</li>
+      <li><strong>§ Calendar to add events to</strong> — single global selector (WRITE destination). Tap → pushes to <code>s-write-target-picker</code> screen (NOT bottom sheet — list can grow with multiple accounts × multiple calendars). Default = first calendar of first connected Google account. No more auto-created "321 Fit" calendar.</li>
+      <li><strong>Apple Calendar UI hidden v1.</strong> Backend infra dormant in code; reactivate by uncommenting zero-state row + adding entries to picker. Same pattern as <code>feedback_openclaw_issue_body</code> / WhatsApp dormancy.</li>
+      <li><strong>"Default" badge on account rows removed</strong> — default destination is now per-calendar (root selector), not per-account.</li>
+      <li><strong>First-time hint</strong> — small info pill under selector ("Auto-selected on first connect. Tap to choose a different calendar.") shown on initial post-connect state, fades on first selector tap. State persisted server-side.</li>
+      <li><strong>Refresh icon-btn</strong> in header — refetches calendar list for all connected accounts. Auto-fires silently on screen open.</li>
+    </ul>
     <div style="display:inline-flex;gap:0;border-radius:6px;overflow:hidden;border:1px solid var(--fit-gray-700);margin:8px 0 0;">
-      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="setAccountCountState('multi',this)">Multi-account (badge shown)</button>
-      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setAccountCountState('single',this)">Single (badge hidden)</button>
-    </div><span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Connection flows</span><div class="ann-detail"><h4>Google OAuth</h4><p>Tap "+" → system Google Sign-In → OAuth → backend stores tokens → auto-creates "321 Fit" calendar → loading → calendars fetched.</p><h4>Apple CalDAV</h4><p>Tap Connect → Apple ID + app-specific password form. Backend validates → stores encrypted → fetches calendars.</p><h4>Sync</h4><p>Bidirectional. External events anonymized. Webhook + 15-min fallback.</p></div></div>
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="var c=document.getElementById('s-calsync');c.dataset.firstHint='true';c.dataset.firstHintDismissed='false';applyFirstHintState();this.parentElement.querySelectorAll('button').forEach(function(x){x.style.background='transparent';x.style.color='var(--fit-gray-400)'});this.style.background='var(--fit-gray-700)';this.style.color='var(--fit-white)';">First-time hint: shown</button>
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="var c=document.getElementById('s-calsync');c.dataset.firstHintDismissed='true';applyFirstHintState();this.parentElement.querySelectorAll('button').forEach(function(x){x.style.background='transparent';x.style.color='var(--fit-gray-400)'});this.style.background='var(--fit-gray-700)';this.style.color='var(--fit-white)';">First-time hint: hidden</button>
+    </div>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Connection flows</span><div class="ann-detail"><h4>Google OAuth</h4><p>Tap "+ Connect account" → system Google Sign-In → OAuth → backend stores tokens → calendar list fetched → first calendar auto-set as default writing destination (no "321 Fit" auto-creation anymore).</p><h4>Apple CalDAV</h4><p><em>Hidden v1.</em> Backend infra dormant; UI re-enable path documented in google-apple-calendar.md.</p><h4>Sync</h4><p>Bidirectional with read calendars (which-to-check toggles in s-cal-detail). Write goes only into the selected default destination calendar. External events anonymized. Webhook + 15-min fallback.</p></div></div>
   <div class="ann" id="ann-s-cal-detail"><span class="ann-role coach">Coach</span><h3>Google Calendar Detail</h3>
     <div style="display:flex;flex-wrap:wrap;gap:4px;border-radius:6px;margin-bottom:12px;">
       <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="setDetailState('normal',this)">Normal</button>
       <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setDetailState('initial',this)">Fetch Failed</button>
       <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setDetailState('sync',this)">Sync Error</button>
       <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setDetailState('auth',this)">Auth Expired</button>
-    </div><p>Dedicated screen per account. 4 states via toggle.</p><ul><li>Selectable rows with Google calendar colors</li><li><strong>"321 Fit" calendar NOT shown</strong> in the calendars list (it's our managed destination, auto-created on connect — not for the coach to toggle)</li><li><strong>Default destination row</strong> above the calendars list: subtle CTA "Make default destination" when this account is NOT default; read-only "Default destination" label (with check icon) when it IS</li><li><strong>Refresh icon-btn</strong> in header — refetches just this account's calendar list. Auto-fires silently on screen open. Sibling to disconnect (trash) button</li><li><strong>Hidden events section</strong> at the bottom — long-term management of per-event mutes. Coach hides individual external events (noisy recurring like "Birthdays", "Daily standup") from the calendar; the entries live here with Unhide. Surgical alternative to disabling the whole calendar above. Section omits itself when list is empty.</li><li>Save in footer, trash icon for disconnect</li></ul>
+    </div>
+    <p>Dedicated screen per Google account. 4 states via toggle (Normal / Fetch Failed / Sync Error / Auth Expired).</p>
+    <ul>
+      <li><strong>Selectable rows</strong> with Google calendar colors. Each toggle = "include this calendar in conflict check" (READ direction). Independent from the write target which lives on the root selector.</li>
+      <li><strong>"Make default destination" row REMOVED 2026-06-01</strong> — default writing destination is now a global per-calendar selector at root level (<code>s-write-target-picker</code>), not a per-account toggle here.</li>
+      <li><strong>Inline deselect warnings</strong> (added 2026-06-01):
+        <ul>
+          <li><em>All deselected</em> — yellow info: "No events will be checked from this account. Sessions may be double-booked." Appears when 0 rows selected.</li>
+          <li><em>Write target unchecked</em> — blue info: "&lt;Calendar&gt; is your default destination. Disabling it will move new 321Fit events to your next active calendar on save." Appears when the calendar that's currently the write target gets deselected.</li>
+        </ul>
+      </li>
+      <li><strong>Refresh icon-btn</strong> in header — refetches just this account's calendar list. Auto-fires silently on screen open. Sibling to disconnect (trash) button.</li>
+      <li><strong>Hidden events section</strong> at the bottom — long-term management of per-event mutes (existing behavior unchanged from 2026-05-21 work).</li>
+      <li>Save in footer, trash icon for disconnect.</li>
+    </ul>
     <div style="display:inline-flex;gap:0;border-radius:6px;overflow:hidden;border:1px solid var(--fit-gray-700);margin:8px 0 0;">
-      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="document.getElementById('s-cal-detail').dataset.defaultAccount='true';applyDefaultState();this.parentElement.querySelectorAll('button').forEach(function(x){x.classList.remove('active');x.style.background='transparent';x.style.color='var(--fit-gray-400)'});this.style.background='var(--fit-gray-700)';this.style.color='var(--fit-white)';">Default (this account)</button>
-      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="document.getElementById('s-cal-detail').dataset.defaultAccount='false';applyDefaultState();this.parentElement.querySelectorAll('button').forEach(function(x){x.classList.remove('active');x.style.background='transparent';x.style.color='var(--fit-gray-400)'});this.style.background='var(--fit-gray-700)';this.style.color='var(--fit-white)';">Not default (Make default action visible)</button>
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="document.querySelectorAll('#s-cal-detail .cal-select-row').forEach(function(r){if(r.dataset.calendarId==='primary')r.classList.add('selected');else r.classList.add('selected')});refreshDeselectWarnings();this.parentElement.querySelectorAll('button').forEach(function(x){x.style.background='transparent';x.style.color='var(--fit-gray-400)'});this.style.background='var(--fit-gray-700)';this.style.color='var(--fit-white)';">All selected</button>
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="document.querySelectorAll('#s-cal-detail .cal-select-row').forEach(function(r){r.classList.remove('selected')});refreshDeselectWarnings();this.parentElement.querySelectorAll('button').forEach(function(x){x.style.background='transparent';x.style.color='var(--fit-gray-400)'});this.style.background='var(--fit-gray-700)';this.style.color='var(--fit-white)';">All deselected (warn)</button>
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="document.querySelectorAll('#s-cal-detail .cal-select-row').forEach(function(r){if(r.dataset.calendarId==='primary')r.classList.remove('selected');else r.classList.add('selected')});refreshDeselectWarnings();this.parentElement.querySelectorAll('button').forEach(function(x){x.style.background='transparent';x.style.color='var(--fit-gray-400)'});this.style.background='var(--fit-gray-700)';this.style.color='var(--fit-white)';">Write target off (warn)</button>
     </div>
     <div style="display:inline-flex;gap:0;border-radius:6px;overflow:hidden;border:1px solid var(--fit-gray-700);margin:8px 0 0;">
       <button class="active" style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="setHiddenEventsState('filled',this)">Hidden events: filled (3)</button>
       <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setHiddenEventsState('empty',this)">Hidden events: empty</button>
     </div></div>
+  <div class="ann" id="ann-s-write-target-picker"><span class="ann-role coach">Coach</span><h3>Write Target Picker</h3>
+    <p><strong>New 2026-06-01.</strong> Push screen reached from "Calendar to add events to" on s-calsync. Single-select radio: lists all calendars from all connected Google accounts grouped by account email subheader.</p>
+    <ul>
+      <li><strong>Instant-set + back</strong> pattern — tap any row → check animates to that row + toast "Default destination updated" + back gesture returns to root with new selector value. No Save / Cancel button.</li>
+      <li><strong>Always exactly one selected</strong> — radio behavior. Cannot deselect to nothing (would leave writes orphaned).</li>
+      <li><strong>Grouped by account email</strong> — subheader per account (12px uppercase tertiary), matches our other grouped-list patterns.</li>
+      <li><strong>Calendar color dot + name</strong> — reuses canonical <code>.cal-select-row</code> styling from s-cal-detail for consistency.</li>
+      <li>Empty state (0 accounts connected) — shouldn't be reachable, but if hit shows "Connect a Google account first" with deep-link back to s-calsync zero state.</li>
+    </ul>
+  </div>
   <div class="ann" id="ann-s-apple-connect"><span class="ann-role coach">Coach</span><h3>Apple Calendar Connect</h3><p>CalDAV connection. Apple ID + <strong>app-specific password</strong>.</p><ul><li>Info banner explains CalDAV requirement</li><li>Steps always visible (not expandable)</li><li>"Open Apple ID Settings" → Safari</li><li>Password: eye toggle inside input</li><li>Validation: empty → red border, backend error → toast</li></ul></div>
   <div class="ann" id="ann-s-apple-detail"><span class="ann-role coach">Coach</span><h3>Apple Calendar Detail</h3>
     <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;">
@@ -1002,49 +1113,72 @@ function triggerCalDetailRefresh() {
   }, 800);
 }
 
-// === DEFAULT DESTINATION TOGGLE (s-cal-detail) ===
-function makeAccountDefault() {
-  const detail = document.getElementById('s-cal-detail');
-  if (!detail) return;
-  detail.dataset.defaultAccount = 'true';
-  applyDefaultState();
+// === WRITE TARGET PICKER (s-write-target-picker) — 2026-06-01 ===
+// Single-select radio: pick any calendar across all connected Google accounts
+// as the write destination for new 321Fit events. Instant-set + back.
+function selectWriteTarget(row, name, email) {
+  const picker = document.getElementById('s-write-target-picker');
+  if (!picker) return;
+  picker.querySelectorAll('.cal-select-row').forEach(function(r) { r.classList.remove('selected'); });
+  row.classList.add('selected');
+  // Update root selector display
+  const nameEl  = document.getElementById('write-target-name');
+  const emailEl = document.getElementById('write-target-email');
+  if (nameEl)  nameEl.textContent  = name;
+  if (emailEl) emailEl.textContent = email;
+  // First-time hint dismissed on first interaction
+  const calsync = document.getElementById('s-calsync');
+  if (calsync) { calsync.dataset.firstHintDismissed = 'true'; applyFirstHintState(); }
+  // Brief confirmation toast — back gesture takes user to root naturally
   const toast = document.getElementById('refresh-toast');
   if (toast) {
-    toast.textContent = 'Default set · 321Fit events will be saved here';
+    toast.querySelector('span').textContent = 'Default destination updated';
     toast.classList.add('show');
-    setTimeout(function() { toast.classList.remove('show'); }, 2200);
+    setTimeout(function() { toast.classList.remove('show'); }, 1800);
   }
-}
-function applyDefaultState() {
-  const detail = document.getElementById('s-cal-detail');
-  if (!detail) return;
-  const isDefault = detail.dataset.defaultAccount === 'true';
-  const action = detail.querySelector('[data-default-action]');
-  const label  = detail.querySelector('[data-default-label]');
-  const badge  = detail.querySelector('[data-default-badge]');
-  if (action) action.style.display = isDefault ? 'none' : 'flex';
-  if (label)  label.style.display  = isDefault ? 'flex' : 'none';
-  if (badge)  badge.style.display  = isDefault ? 'inline-flex' : 'none';
 }
 
-// === SINGLE-ACCOUNT vs MULTI-ACCOUNT TOGGLE (s-calsync badge visibility) ===
-function setAccountCountState(mode, btn) {
+// First-time hint under root selector. Shown when calsync.dataset.firstHint='true'
+// AND firstHintDismissed != 'true'. Auto-dismisses on first selector tap.
+function applyFirstHintState() {
   const calsync = document.getElementById('s-calsync');
-  if (!calsync) return;
-  calsync.dataset.accounts = mode;
-  // Default badge hidden in single mode (implicit default), shown in multi
-  calsync.querySelectorAll('[data-default-badge]').forEach(function(b) {
-    b.style.display = (mode === 'multi') ? 'inline-flex' : 'none';
+  const hint = document.getElementById('write-target-hint');
+  if (!calsync || !hint) return;
+  const show = calsync.dataset.firstHint === 'true' && calsync.dataset.firstHintDismissed !== 'true';
+  hint.style.display = show ? 'flex' : 'none';
+}
+
+// === DESELECT WARNINGS (s-cal-detail) — 2026-06-01 ===
+// 1) "All deselected" — appears when 0 rows have .selected in the sync list
+// 2) "Write target off" — appears when the currently-selected write target's
+//    row gets unchecked (data-calendar-id='primary' in demo)
+function toggleSyncCalendar(row) {
+  row.classList.toggle('selected');
+  refreshDeselectWarnings();
+}
+function refreshDeselectWarnings() {
+  const detail = document.getElementById('s-cal-detail');
+  if (!detail) return;
+  const rows = detail.querySelectorAll('.cal-select-row');
+  let selectedCount = 0;
+  let writeTargetUnchecked = false;
+  rows.forEach(function(r) {
+    if (r.classList.contains('selected')) selectedCount++;
+    // Demo wiring: 'primary' calendar id treated as current write target
+    if (r.dataset.calendarId === 'primary' && !r.classList.contains('selected')) {
+      writeTargetUnchecked = true;
+    }
   });
-  if (btn) {
-    btn.parentElement.querySelectorAll('button').forEach(function(x) { x.classList.remove('active'); });
-    btn.classList.add('active');
-  }
+  const warnAll = document.getElementById('warn-all-deselected');
+  const warnWT  = document.getElementById('warn-write-target-off');
+  if (warnAll) warnAll.style.display = (selectedCount === 0) ? 'flex' : 'none';
+  if (warnWT)  warnWT.style.display  = (writeTargetUnchecked && selectedCount > 0) ? 'flex' : 'none';
 }
 
 // Initial application
 document.addEventListener('DOMContentLoaded', function() {
-  applyDefaultState();
+  applyFirstHintState();
+  refreshDeselectWarnings();
 });
 
 // === HIDDEN EVENTS ===

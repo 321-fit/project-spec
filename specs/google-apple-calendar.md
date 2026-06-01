@@ -96,23 +96,53 @@ POST /apple-calendars (credentials)
 - Event title contains training type and participant info
 - When app event status changes (canceled, rescheduled) → external event is updated/deleted
 
-### 4a. Default destination (added 2026-05-21)
+### 4a. Default destination (rewritten 2026-06-01)
 
-When the coach has multiple connected accounts (e.g. two Google accounts + Apple), they must pick **one** as the destination for newly-created 321Fit events. The "321 Fit" calendar is auto-managed by us inside whichever account is currently default.
+The coach picks **one calendar** from any of their connected Google accounts as the destination for newly-created 321Fit events. This is a **per-calendar** choice, not per-account — coach can write into "Personal" of one account, or "Coaching" of another, or any of their existing Google calendars.
 
-**UX (prototype `flows/coach/calendar-sync.html`):**
-- On `s-calsync` (top-level): the default account shows the canonical `.fit-badge.fit-badge-accent` "Default" pill inline after its title — same pattern as locations.html "Default" gym pill. Pill is **hidden** when only one account is connected (implicit default).
-- On `s-cal-detail` (per-account):
-    - If this account IS default → read-only label with check icon: "Default destination · New 321Fit events are saved to '321 Fit' calendar in this account."
-    - If this account is NOT default → tappable row "Make default destination" + sub-copy. Tap → backend `PATCH /coach/calendar-sync/default { account_id }` → snackbar "Default set · 321Fit events will be saved here" → return to s-calsync with updated badge.
+**No more auto-created "321 Fit" calendar.** Replaces the 2026-05-21 model entirely. Events go straight into one of the coach's existing calendars (default = first calendar returned by Google for the first connected account).
 
-**Backend rules:**
-- New field on coach settings: `default_writing_account_id` (FK to `google_calendar` or `apple_calendar` row).
-- On first connect (any provider) — auto-set as default.
-- On subsequent connects — keep existing default (don't change automatically when adding accounts).
-- On disconnect of default — fallback to first remaining connected account; UI shows a warning chip on the new default's row briefly.
-- **"321 Fit" calendar creation strategy:** lazy-create only inside the default account. When default changes, create "321 Fit" in the new default if it doesn't exist there yet. Old "321 Fit" calendars in non-default accounts remain as immutable history (we don't write to them anymore; deletion is the coach's call from Google UI).
-- Endpoint: `PATCH /coach/calendar-sync/default { account_id }` — additive, idempotent.
+#### UX (prototype `flows/coach/calendar-sync.html`)
+
+`s-calsync` root screen now has **two distinct sections:**
+
+1. **§ Calendars to check for conflicts** — list of connected Google accounts (READ sources for busy-time check). Inline right-aligned `+ Connect account` button. Tap an account row → push to `s-cal-detail` for that account.
+2. **§ Calendar to add events to** — single row showing the currently-selected write target calendar (icon + calendar name + account email + `>` chevron). Tap → push to **`s-write-target-picker` screen** (NOT a bottom sheet — see below).
+
+`s-write-target-picker` (new push screen):
+- Lists **all calendars across all connected Google accounts**, grouped by account email (12px uppercase tertiary subheader per group).
+- Each row uses canonical `.cal-select-row` styling — color dot (Google calendar color) + name + check icon when selected.
+- **Single-select radio** — always exactly one calendar selected. No "None" option, no Save / Cancel.
+- **Instant-set + back** pattern — tap any row → check animates to the new row → toast "Default destination updated" → back gesture returns to `s-calsync` with refreshed selector. Matches iOS native Settings → Sound → Ringtone interaction.
+
+**First-time hint** (under the root selector): inline info pill "Auto-selected on first connect. Tap to choose a different calendar." Shown only on initial post-connect state, dismisses on first tap of selector. Persisted server-side as `coach_settings.write_target_hint_dismissed` boolean.
+
+**Why push screen (not bottom sheet):** 2+ Google accounts × 5–10 calendars each = 10–20+ rows with sub-descriptions (account email). Per `feedback_picker_sheet_vs_push` — bottom sheets are for ≤4 simple options; lists with sub-descriptions or 5+ items go to push screens. Also reuses the `.cal-select-row` pattern from `s-cal-detail` for consistency.
+
+#### Backend rules
+
+- New field on `coach_settings`: `default_writing_calendar_id` — opaque reference like `{ provider: "google", account_id: <uuid>, calendar_id: <Google calendarId string> }`. Replaces the deprecated `default_writing_account_id`.
+- **On first Google connect:** backend fetches `calendarList.list` → picks the **first calendar in response** (Google returns the primary email-bound calendar first by default) → stores as `default_writing_calendar_id`.
+- **On subsequent connects:** don't change the existing default. New calendars appear in the picker but selection stays where the coach left it.
+- **On disconnect of the account holding the default:** auto-fallback to the first calendar of the first remaining connected account. Show toast "Default destination moved to {calendar} ({email})".
+- **No "321 Fit" calendar created anywhere** — neither auto on connect nor lazy on default change. We write into what the coach already has.
+- Endpoint: `PATCH /v1.0.0/coach/calendar-sync/default-writing-calendar { account_id, calendar_id }` — additive, idempotent. Validates that account_id is owned by requester + calendar_id exists in that account's most-recent `calendarList.list`.
+
+#### Edge cases
+
+- **Coach unchecks the calendar that is currently the write target** (on `s-cal-detail` "Select calendars to sync" toggles): inline blue alert shown — "{Calendar} is your default destination. Disabling it will move new 321Fit events to your next active calendar on save." On Save, backend moves default to the next active calendar in the same account, or the first calendar of another account if this was the last active one in this account.
+- **Coach deselects ALL calendars in an account** (read sources): inline yellow warning — "No events will be checked from this account. Sessions may be double-booked." Coach can still save; write target unaffected unless it was one of the now-disabled calendars (in which case the previous edge case also applies).
+- **Open Q:** if coach has multiple accounts logged in under the same email (technically possible with personal + workspace sign-in mixing), how does picker dedupe? **Defer:** not commonly hit, decide if it ever happens in support tickets.
+
+#### Apple Calendar — hidden v1 (note added 2026-06-01)
+
+Apple Calendar UI is **scoped out for v1**:
+- `s-calsync` zero state Apple row commented out
+- Apple section in connected state removed
+- `s-apple-connect` + `s-apple-detail` screens stay in prototype file (sidebar marked "hidden v1") and backend CalDAV infrastructure remains in code, all dormant
+- Re-enable path: uncomment zero-state row + add Apple calendars to the picker grouped under email subheader + restore connector in connected state. No backend work needed (infra was already there from 2026-05-19 work).
+
+Same dormancy pattern as WhatsApp scoping in `notifications-catalog.md § 4`.
 
 ### 4b. Calendar list refresh (added 2026-05-21)
 

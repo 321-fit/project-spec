@@ -1,7 +1,7 @@
 # Accessibility Identifiers Registry
 
 > Canonical source of truth for every `data-a11y-id` in the prototypes, every `accessibilityIdentifier` on iOS, every `testTag` on Compose, and every `id:` selector in Maestro flows.
-> Last updated: 2026-05-25
+> Last updated: 2026-06-01
 
 ## Convention
 
@@ -325,8 +325,14 @@ Has its own `coach.calsync.*` scope since it's a distinct subsystem (connects Go
 | ID | Element | Screen | Notes |
 |---|---|---|---|
 | `coach.calsync.refresh` | refresh icon-btn in header | s-calsync (list of all accounts) | refetches every connected account |
+| `coach.calsync.connect` | "+ Connect account" inline btn | s-calsync § Calendars to check for conflicts (header right) | starts Google OAuth (Apple hidden v1) |
+| `coach.calsync.account.row` | account row (Google) | s-calsync § Calendars to check for conflicts | generic — disambiguate via account email |
+| `coach.calsync.write-target.selector` | "Calendar to add events to" row | s-calsync (root selector) | tap → push s-write-target-picker |
+| `coach.calsync.write-target.back` | back chevron | s-write-target-picker | returns to s-calsync |
+| `coach.calsync.write-target.row` | calendar row in picker | s-write-target-picker | generic — disambiguate via `data-calendar-id` |
 | `coach.calsync.detail.refresh` | refresh icon-btn in header | s-cal-detail (per-account) | refetches just this account's calendars |
-| `coach.calsync.detail.make-default` | "Make default destination" action row | s-cal-detail | shown only when this account is NOT default |
+| `coach.calsync.detail.calendar.row` | calendar toggle row (read source) | s-cal-detail "Select calendars to sync" | generic — disambiguate via `data-calendar-id` |
+| ~~`coach.calsync.detail.make-default`~~ | ~~"Make default destination" action row~~ | ~~s-cal-detail~~ | **REMOVED 2026-06-01** — default destination is per-calendar global selector now |
 | `coach.calsync.hidden-events.row` | hidden event row | s-cal-detail Hidden events section | generic — disambiguate via `data-event-id` |
 | `coach.calsync.hidden-events.unhide` | Unhide button | s-cal-detail Hidden events section | per-row; DELETE .../external-events/{id}/hide |
 
