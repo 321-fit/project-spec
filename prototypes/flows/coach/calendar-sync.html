@@ -660,19 +660,17 @@
          removed (default destination is now per-calendar, not per-account). -->
     <div id="calsync-connected" style="padding:0 16px 16px;display:flex;flex-direction:column;gap:24px;">
 
-      <!-- ====== Section 1: Calendars to check for conflicts ====== -->
+      <!-- ====== Section 1: Calendars to check for conflicts ======
+           Reverted 2026-06-01: section heading is title+subtitle only (no
+           inline right-aligned mini button — was an ugly invention).
+           Canonical "Add Google account" dashed-border card pattern at the
+           bottom is what we already had for "add another" — kept exactly. -->
       <div>
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:4px;">
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Calendars to check for conflicts</div>
-            <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;line-height:1.4;">These calendars will be used to prevent double bookings.</div>
-          </div>
-          <button class="fit-btn fit-btn-secondary fit-btn-xs" data-a11y-id="coach.calsync.connect" style="display:inline-flex;align-items:center;gap:6px;flex-shrink:0;white-space:nowrap;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
-            Connect account
-          </button>
+        <div style="margin-bottom:12px;">
+          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Calendars to check for conflicts</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;line-height:1.4;">These calendars will be used to prevent double bookings.</div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+        <div style="display:flex;flex-direction:column;gap:10px;">
           <div class="set-card" style="cursor:pointer;padding:14px 12px;" data-a11y-id="coach.calsync.account.row" onclick="go('s-cal-detail',document.querySelector('[onclick*=s-cal-detail]'))">
             <div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div>
             <div class="set-info">
@@ -684,6 +682,9 @@
             <svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
           </div>
           <div class="set-card" style="padding:14px 12px;opacity:0.7;" data-a11y-id="coach.calsync.account.row"><div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div><div class="set-info"><div class="set-title">Google Calendar</div><div style="font-size:14px;color:var(--fit-blue-400);margin-top:2px;">coach.work@gmail.com</div><div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;display:flex;align-items:center;gap:6px;"><div class="cal-spinner" style="width:10px;height:10px;border-width:1.5px;"></div>Fetching calendars...</div></div></div>
+          <!-- Canonical "Add another" dashed-border card — same pattern as
+               other multi-item lists in the app (e.g. locations.html add gym). -->
+          <div data-a11y-id="coach.calsync.connect" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border:1px dashed var(--fit-gray-700);border-radius:16px;cursor:pointer;"><svg style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span style="font-size:14px;color:var(--fit-blue-500);font-weight:500;">Add Google account</span></div>
         </div>
       </div>
 
@@ -997,7 +998,7 @@
     </div>
     <p><strong>Restructured 2026-06-01.</strong> Two distinct sections:</p>
     <ul>
-      <li><strong>§ Calendars to check for conflicts</strong> — list of connected Google accounts (READ sources for busy-time check). Right-aligned inline <code>+ Connect account</code> button replaces old dashed-bottom "Add Google account" row.</li>
+      <li><strong>§ Calendars to check for conflicts</strong> — list of connected Google accounts (READ sources for busy-time check). Canonical dashed-border <code>+ Add Google account</code> card under the list — same "add another" pattern used in <code>locations.html</code>.</li>
       <li><strong>§ Calendar to add events to</strong> — single global selector (WRITE destination). Tap → pushes to <code>s-write-target-picker</code> screen (NOT bottom sheet — list can grow with multiple accounts × multiple calendars). Default = first calendar of first connected Google account. No more auto-created "321 Fit" calendar.</li>
       <li><strong>Apple Calendar UI hidden v1.</strong> Backend infra dormant in code; reactivate by uncommenting zero-state row + adding entries to picker. Same pattern as <code>feedback_openclaw_issue_body</code> / WhatsApp dormancy.</li>
       <li><strong>"Default" badge on account rows removed</strong> — default destination is now per-calendar (root selector), not per-account.</li>
