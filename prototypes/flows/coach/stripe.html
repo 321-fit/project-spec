@@ -399,7 +399,7 @@
     <div class="label">Onboarding (3 steps)</div>
     <button onclick="go('s-stripe-onb-confirm',this)">1 · Confirm info</button>
     <button onclick="go('s-stripe-onb-id',this)">2 · Verification</button>
-    <button onclick="go('s-stripe-onb-bank',this)">3 · Bank account</button>
+    <button onclick="go('s-stripe-onb-bank',this)">3 · Payout destination</button>
 
     <div class="label">Edit fields (push from Confirm)</div>
     <button onclick="go('s-stripe-onb-edit-name',this)">Edit Name</button>
@@ -1012,12 +1012,12 @@
 
 
 <!-- ==================== SCREEN: s-stripe-onb-bank (step 3) ==================== -->
-<div class="fit-phone fit-dark" id="s-stripe-onb-bank">
+<div class="fit-phone fit-dark" id="s-stripe-onb-bank" data-method-type="bank">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
       <button class="fit-header-back" data-a11y-id="coach.stripe.onb.bank.back" onclick="go('s-stripe-onb-id',document.querySelector('[onclick*=s-stripe-onb-id]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Bank account</span>
+      <span class="fit-header-title">Payout destination</span>
     </div>
     <div class="stripe-onb-progress">
       <div class="stripe-onb-progress-bar done"></div>
@@ -1027,8 +1027,18 @@
   </div>
   <div class="fit-phone-content" style="padding-bottom:24px;">
 
-    <div style="padding:8px 16px 16px;">
-      <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;">Your earnings will be paid out here. Currency matches your country.</div>
+    <div style="padding:8px 16px 8px;">
+      <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;">Pick where your earnings should land. You can add the other type later in Stripe Connect.</div>
+    </div>
+
+    <!-- Type segmented control — same pattern as Add method post-onboarding. Default = bank. -->
+    <div style="padding:0 16px 8px;">
+      <div style="display:flex;background:var(--fit-surface-high);border-radius:12px;padding:4px;gap:4px;">
+        <button data-a11y-id="coach.stripe.onb.bank.type" data-onb-type-btn="bank" onclick="setOnbBankType('bank')" style="flex:1;padding:10px;border:none;border-radius:8px;background:var(--fit-gray-700);color:var(--fit-white);font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;">Bank account</button>
+        <button data-a11y-id="coach.stripe.onb.bank.type" data-onb-type-btn="card" onclick="setOnbBankType('card')" style="flex:1;padding:10px;border:none;border-radius:8px;background:transparent;color:var(--fit-text-tertiary);font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;">Debit card</button>
+      </div>
+      <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:8px;line-height:1.4;" data-onb-type-hint="bank"><strong style="color:var(--fit-teal-500);">Recommended.</strong> SEPA transfer &middot; 1&ndash;2 business days &middot; free.</div>
+      <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:8px;line-height:1.4;display:none;" data-onb-type-hint="card">Instant Payouts &middot; under 30 minutes &middot; <strong style="color:var(--fit-yellow-400);">1% Stripe fee per payout</strong> &middot; debit cards only.</div>
     </div>
 
     <div class="stripe-kv-group">
@@ -1036,12 +1046,35 @@
       <div class="stripe-kv"><span class="stripe-kv-label">Country</span><span class="stripe-kv-value" id="bank-country-value">Spain &middot; EUR</span></div>
     </div>
 
-    <div style="padding:16px;">
+    <!-- BANK form -->
+    <div style="padding:16px;" data-onb-type-form="bank">
       <div style="font-size:13px;color:var(--fit-text-tertiary);margin-bottom:6px;">IBAN</div>
       <input type="text" data-a11y-id="coach.stripe.onb.bank.iban" placeholder="ES00 0000 0000 0000 0000 0000" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
 
       <div style="font-size:13px;color:var(--fit-text-tertiary);margin:14px 0 6px;">SWIFT / BIC <span style="color:var(--fit-text-tertiary);">(optional)</span></div>
       <input type="text" data-a11y-id="coach.stripe.onb.bank.swift" placeholder="CAIXESBB" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);text-transform:uppercase;"/>
+    </div>
+
+    <!-- CARD form -->
+    <div style="padding:16px;display:none;" data-onb-type-form="card">
+      <div style="font-size:13px;color:var(--fit-text-tertiary);margin-bottom:6px;">Card number</div>
+      <input type="text" data-a11y-id="coach.stripe.onb.bank.card-number" placeholder="4242 4242 4242 4242" inputmode="numeric" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
+
+      <div style="display:flex;gap:12px;margin-top:14px;">
+        <div style="flex:1;">
+          <div style="font-size:13px;color:var(--fit-text-tertiary);margin-bottom:6px;">Expiry</div>
+          <input type="text" data-a11y-id="coach.stripe.onb.bank.card-expiry" placeholder="MM / YY" inputmode="numeric" maxlength="7" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:13px;color:var(--fit-text-tertiary);margin-bottom:6px;">CVC</div>
+          <input type="text" data-a11y-id="coach.stripe.onb.bank.card-cvc" placeholder="123" inputmode="numeric" maxlength="4" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
+        </div>
+      </div>
+
+      <div class="stripe-banner info" style="margin:16px 0 0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <div class="stripe-banner-body">Debit cards only. Credit cards aren't supported for payouts.</div>
+      </div>
     </div>
 
     <div style="padding:0 16px 16px;">
@@ -1050,7 +1083,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         <div style="font-size:13px;color:var(--fit-text-secondary);line-height:1.5;">
-          I authorize 321Fit and Stripe to debit / credit this account under the <a href="#" onclick="event.stopPropagation();return false;" style="color:var(--fit-teal-500);text-decoration:none;">Stripe Connected Account Agreement</a>.
+          I authorize 321Fit and Stripe to debit / credit this <span data-onb-type-noun="bank">account</span><span data-onb-type-noun="card" style="display:none;">card</span> under the <a href="#" onclick="event.stopPropagation();return false;" style="color:var(--fit-teal-500);text-decoration:none;">Stripe Connected Account Agreement</a>.
         </div>
       </div>
     </div>
@@ -1470,8 +1503,23 @@
     <p class="note"><strong>Passport vs ID/license behavior:</strong> Passport mode hides the second tile entirely (single page document). ID/license shows both tiles — back is required for most country IDs, optional only for US passports (which aren't passports in our switch anyway). Backend doesn't care about this UI distinction — it just receives 1 or 2 photos and forwards.</p>
   </div>
 
-  <div class="ann" id="ann-s-stripe-onb-bank"><span class="ann-role coach">Coach</span><h3>Onboarding — Bank account</h3>
-    <p><strong>Step 3 of 3.</strong> Holder + Country from confirm screen (locked here — change in Confirm if wrong). IBAN required, SWIFT/BIC optional. <strong>T&amp;C consent required</strong> — enables Submit. After Submit → <code>s-stripe</code> in pending state → transitions to done on webhook.</p>
+  <div class="ann" id="ann-s-stripe-onb-bank"><span class="ann-role coach">Coach</span><h3>Onboarding — Payout destination</h3>
+    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Type</div>
+    <div class="state-toggle">
+      <button class="active" onclick="setOnbBankType('bank');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Bank (default)</button>
+      <button onclick="setOnbBankType('card');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Debit card</button>
+    </div>
+    <p><strong>Step 3 of 3.</strong> Same Bank ↔ Debit card segmented control as the post-onboarding Add method screen — consistency keeps coaches from learning two slightly different UIs.</p>
+    <h4>Why Bank is the default</h4>
+    <p>Most coaches just want their money. Bank is free and reliable; card is opt-in for speed with a fee. Defaulting to Bank keeps the path of least resistance simple — the hint line under the control names this ("<span style="color:var(--fit-teal-500);">Recommended</span>" tag on Bank, "<span style="color:var(--fit-yellow-400);">1% Stripe fee</span>" on Card) so the choice is clear without pushing card.</p>
+    <h4>API</h4>
+    <p><code>POST /coach/stripe-onboarding/external-account</code> body:</p>
+    <ul>
+      <li><strong>Bank:</strong> <code>{type: "bank_account", iban, country, currency, swift_bic?}</code></li>
+      <li><strong>Card:</strong> <code>{type: "card", number, exp_month, exp_year, cvc}</code></li>
+    </ul>
+    <p>Followed by <code>POST /coach/stripe-onboarding/accept-tos</code>. Both must succeed; rollback on partial fail. T&amp;C copy adapts noun ("account" vs "card") via the segmented control.</p>
+    <p class="note"><strong>Country gating (same as Add method):</strong> Stripe only allows card external accounts in countries with Instant Payouts capability (US, UK, EU incl. Spain). If coach's country is unsupported, backend returns 400 → frontend hides the Card tab + shows toast. v1 assumes the coach is in a supported country (Spain test case).</p>
   </div>
 
   <div class="ann" id="ann-s-stripe-bank-add"><span class="ann-role coach">Coach</span><h3>Add payout method</h3>
@@ -1909,7 +1957,29 @@
     });
   }
 
-  // Add-method type switcher (Bank ↔ Card)
+  // Onboarding step 3 type switcher (Bank ↔ Card) — same UX as setAddMethodType
+  // but scoped to s-stripe-onb-bank (separate screen).
+  function setOnbBankType(type) {
+    var screen = document.getElementById('s-stripe-onb-bank');
+    if (!screen) return;
+    screen.setAttribute('data-method-type', type);
+    screen.querySelectorAll('[data-onb-type-btn]').forEach(function(btn) {
+      var active = btn.getAttribute('data-onb-type-btn') === type;
+      btn.style.background = active ? 'var(--fit-gray-700)' : 'transparent';
+      btn.style.color = active ? 'var(--fit-white)' : 'var(--fit-text-tertiary)';
+    });
+    screen.querySelectorAll('[data-onb-type-form]').forEach(function(f) {
+      f.style.display = f.getAttribute('data-onb-type-form') === type ? '' : 'none';
+    });
+    screen.querySelectorAll('[data-onb-type-hint]').forEach(function(h) {
+      h.style.display = h.getAttribute('data-onb-type-hint') === type ? '' : 'none';
+    });
+    screen.querySelectorAll('[data-onb-type-noun]').forEach(function(n) {
+      n.style.display = n.getAttribute('data-onb-type-noun') === type ? '' : 'none';
+    });
+  }
+
+  // Add-method type switcher (Bank ↔ Card) — used post-onboarding from s-stripe done state.
   function setAddMethodType(type) {
     var screen = document.getElementById('s-stripe-bank-add');
     if (!screen) return;
