@@ -219,10 +219,11 @@
   }
   .fit-switch.on .fit-switch-knob { left: 20px; }
 
-  /* Tappable settings row (editable form rows) */
+  /* Tappable settings row — 2-line layout (label on top, value below) for proper mobile tap targets */
   .stripe-row {
-    display: flex; align-items: center; gap: 14px;
+    display: flex; align-items: center; gap: 12px;
     padding: 14px 16px;
+    min-height: 68px;
     background: var(--fit-surface-high);
     cursor: pointer;
   }
@@ -230,10 +231,12 @@
   .stripe-row-group { border-radius: 14px; overflow: hidden; margin: 0 16px; }
   .fit-light .stripe-row-group { border: 1px solid var(--fit-gray-100); }
   .stripe-row + .stripe-row { border-top: 1px solid var(--fit-divider); }
-  .stripe-row-label { font-size: 13px; color: var(--fit-text-tertiary); min-width: 100px; }
-  .stripe-row-value { flex: 1; font-size: 15px; color: var(--fit-text-primary); }
+  .stripe-row-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .stripe-row-label { font-size: 12px; color: var(--fit-text-tertiary); text-transform: uppercase; letter-spacing: 0.3px; font-weight: 500; }
+  .stripe-row-value { font-size: 16px; color: var(--fit-text-primary); line-height: 1.3; word-break: break-word; }
   .stripe-row-value.placeholder { color: var(--fit-text-tertiary); }
-  .stripe-row-chev { width: 14px; height: 14px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .stripe-row-required { font-size: 11px; color: var(--fit-yellow-400); margin-left: 4px; }
+  .stripe-row-chev { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
 
   /* ID document upload tile */
   .stripe-id-upload {
@@ -698,43 +701,57 @@
 
     <div class="stripe-row-group">
       <div class="stripe-row" data-a11y-id="coach.stripe.onb.confirm.name" onclick="go('s-stripe-onb-edit-name',document.querySelector('[onclick*=s-stripe-onb-edit-name]'))">
-        <span class="stripe-row-label">Name</span>
-        <span class="stripe-row-value" id="confirm-name-value">Idella Lesch</span>
+        <div class="stripe-row-text">
+          <span class="stripe-row-label">Name</span>
+          <span class="stripe-row-value" id="confirm-name-value">Idella Lesch</span>
+        </div>
         <svg class="stripe-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </div>
       <div class="stripe-row" data-a11y-id="coach.stripe.onb.confirm.email" onclick="go('s-stripe-onb-edit-email',document.querySelector('[onclick*=s-stripe-onb-edit-email]'))">
-        <span class="stripe-row-label">Email</span>
-        <span class="stripe-row-value" id="confirm-email-value">idella&#8230;@gmail.com</span>
+        <div class="stripe-row-text">
+          <span class="stripe-row-label">Email</span>
+          <span class="stripe-row-value" id="confirm-email-value">idella@gmail.com</span>
+        </div>
         <svg class="stripe-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </div>
       <div class="stripe-row" data-a11y-id="coach.stripe.onb.confirm.phone" onclick="go('s-stripe-onb-edit-phone',document.querySelector('[onclick*=s-stripe-onb-edit-phone]'))">
-        <span class="stripe-row-label">Phone</span>
-        <span class="stripe-row-value" id="confirm-phone-value">+995 555 13 56 60</span>
+        <div class="stripe-row-text">
+          <span class="stripe-row-label">Phone</span>
+          <span class="stripe-row-value" id="confirm-phone-value">+995 555 13 56 60</span>
+        </div>
         <svg class="stripe-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </div>
       <div class="stripe-row" data-a11y-id="coach.stripe.onb.confirm.country" onclick="go('s-stripe-onb-edit-country',document.querySelector('[onclick*=s-stripe-onb-edit-country]'))">
-        <span class="stripe-row-label">Country</span>
-        <span class="stripe-row-value" id="confirm-country-value">Spain &middot; EUR</span>
+        <div class="stripe-row-text">
+          <span class="stripe-row-label">Country</span>
+          <span class="stripe-row-value" id="confirm-country-value">Spain &middot; EUR</span>
+        </div>
         <svg class="stripe-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </div>
       <div class="stripe-row" data-a11y-id="coach.stripe.onb.confirm.dob" onclick="openDobPicker()">
-        <span class="stripe-row-label">Date of birth</span>
-        <span class="stripe-row-value" id="confirm-dob-value">12 Mar 1990</span>
+        <div class="stripe-row-text">
+          <span class="stripe-row-label">Date of birth</span>
+          <span class="stripe-row-value" id="confirm-dob-value">12 Mar 1990</span>
+        </div>
         <svg class="stripe-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </div>
-      <div class="stripe-row" data-a11y-id="coach.stripe.onb.confirm.address" onclick="go('s-stripe-onb-edit-address',document.querySelector('[onclick*=s-stripe-onb-edit-address]'))">
-        <span class="stripe-row-label">HQ address</span>
-        <span class="stripe-row-value" id="confirm-address-value">1600 Pennsylvania Ave NW, Washington</span>
+      <!-- HQ address: mandatory field. data-address-state toggles "filled" vs "empty" via annotation state toggle -->
+      <div class="stripe-row" data-a11y-id="coach.stripe.onb.confirm.address" data-address-state="filled" onclick="go('s-stripe-onb-edit-address',document.querySelector('[onclick*=s-stripe-onb-edit-address]'))">
+        <div class="stripe-row-text">
+          <span class="stripe-row-label">HQ address <span class="stripe-row-required">Required</span></span>
+          <span class="stripe-row-value" id="confirm-address-value" data-address-text="filled">1600 Pennsylvania Ave NW, Washington</span>
+          <span class="stripe-row-value placeholder" data-address-text="empty" style="display:none;">Add your business address</span>
+        </div>
         <svg class="stripe-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     </div>
     <div style="font-size:12px;color:var(--fit-text-tertiary);margin:8px 20px 0;line-height:1.4;">
-      HQ address is for tax reporting &mdash; not where you train clients. Country can't be changed once Stripe verifies you.
+      HQ address is your business address for tax reporting &mdash; not where you train clients. Country can't be changed once Stripe verifies you.
     </div>
 
   </div>
   <div class="fit-phone-footer" style="padding:12px 16px 16px;">
-    <button class="fit-btn fit-btn-primary" data-a11y-id="coach.stripe.onb.confirm.continue" onclick="go('s-stripe-onb-id',document.querySelector('[onclick*=s-stripe-onb-id]'))">Continue</button>
+    <button class="fit-btn fit-btn-primary" id="confirm-continue-btn" data-a11y-id="coach.stripe.onb.confirm.continue" onclick="go('s-stripe-onb-id',document.querySelector('[onclick*=s-stripe-onb-id]'))">Continue</button>
   </div>
 
   <!-- DOB picker sheet (3-wheel) — mounted inside Confirm screen so it overlays it -->
@@ -947,11 +964,24 @@
       </div>
       <div style="font-size:18px;font-weight:500;color:var(--fit-text-primary);">Upload your ID document</div>
       <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:300px;">
-        Stripe verifies your identity to enable payouts. Passport, driver's license, or government ID.
+        Passport, driver's license, or government ID.
       </div>
     </div>
 
-    <div style="padding:8px 16px 16px;display:flex;flex-direction:column;gap:10px;">
+    <!-- Always-visible info banner — explains WHY ID is needed.
+         Replaces "Skip for now" anti-pattern (Continue always proceeds; this banner
+         tells the user what happens if they continue without uploading). -->
+    <div style="padding:0 16px 12px;">
+      <div class="stripe-banner info" style="margin:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <div class="stripe-banner-body">
+          <div class="stripe-banner-title">Required to receive payouts</div>
+          <div>Card payments work either way. Until your ID is verified, your earnings stay safe in Stripe but can't be paid out. You can finish this later from the Stripe screen.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:10px;">
       <div class="stripe-id-upload" data-a11y-id="coach.stripe.onb.id.upload-front" id="id-tile-front" onclick="toggleIdUpload('front')">
         <div class="stripe-id-upload-icon" data-id-icon><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
         <div class="stripe-id-upload-title">Front of ID</div>
@@ -964,20 +994,9 @@
       </div>
     </div>
 
-    <div data-id-skipped-banner style="display:none;padding:0 16px 16px;">
-      <div class="stripe-banner warn" style="margin:0;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        <div class="stripe-banner-body">
-          <div class="stripe-banner-title">You'll need this to get paid</div>
-          <div>Payouts stay on hold until ID is verified. Upload from Stripe screen any time.</div>
-        </div>
-      </div>
-    </div>
-
   </div>
-  <div class="fit-phone-footer" style="padding:12px 16px 16px;display:flex;flex-direction:column;gap:8px;">
-    <button class="fit-btn fit-btn-primary" data-a11y-id="coach.stripe.onb.id.continue" onclick="go('s-stripe-onb-bank',document.querySelector('[onclick*=s-stripe-onb-bank]'))">Continue</button>
-    <button data-a11y-id="coach.stripe.onb.id.skip" onclick="skipIdAndContinue()" style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Skip for now</button>
+  <div class="fit-phone-footer" style="padding:12px 16px 16px;">
+    <button class="fit-btn fit-btn-primary" data-a11y-id="coach.stripe.onb.id.continue" onclick="continueFromId()">Continue</button>
   </div>
 </div>
 
@@ -1323,17 +1342,35 @@
   </div>
 
   <div class="ann" id="ann-s-stripe-onb-confirm"><span class="ann-role coach">Coach</span><h3>Onboarding — Confirm info</h3>
-    <p><strong>Step 1 of 3.</strong> Every row tappable → push to dedicated edit screen (or open DOB wheel). All fields editable — no lock icons. Reasoning: forcing users back to Settings to fix Stripe-relevant data is friction; this is the moment they care, so let them fix it here.</p>
+    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">HQ address state</div>
+    <div class="state-toggle">
+      <button class="active" onclick="setConfirmAddressState('filled');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Filled (from profile)</button>
+      <button onclick="setConfirmAddressState('empty');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Empty (not in profile)</button>
+    </div>
+    <p><strong>Step 1 of 3.</strong> Two-line rows (label on top, value below) for proper mobile tap targets (~68px each). Every row tappable → push to dedicated edit screen (or open DOB wheel). All fields editable.</p>
     <h4>Edit triggers</h4>
     <ul>
-      <li>Name → <code>s-stripe-onb-edit-name</code> (push, first + last inputs)</li>
-      <li>Email → <code>s-stripe-onb-edit-email</code> (push, single input)</li>
-      <li>Phone → <code>s-stripe-onb-edit-phone</code> (push, country code dropdown + number)</li>
-      <li>Country → <code>s-stripe-onb-edit-country</code> (push, searchable list + warn re-verification)</li>
-      <li>DOB → <code>dob-picker-sheet</code> (canonical 3-wheel bottom sheet, copied from personal-data.html)</li>
-      <li>HQ address → <code>s-stripe-onb-edit-address</code> (push, street + apt + city + postal, country auto)</li>
+      <li>Name → <code>s-stripe-onb-edit-name</code></li>
+      <li>Email → <code>s-stripe-onb-edit-email</code></li>
+      <li>Phone → <code>s-stripe-onb-edit-phone</code> (country code + number)</li>
+      <li>Country → <code>s-stripe-onb-edit-country</code> (searchable list + warn re-verification)</li>
+      <li>DOB → <code>dob-picker-sheet</code> (canonical 3-wheel sheet)</li>
+      <li>HQ address → <code>s-stripe-onb-edit-address</code></li>
     </ul>
-    <p class="note">All edits write back to <code>auto</code> snapshot client-side. On Continue the merged payload is sent to <code>PATCH /coach/stripe-onboarding/individual</code>. Name + email + phone + DOB + address are also synced back to <code>coach_profile</code> (single source of truth — fixing them in Stripe context fixes them everywhere).</p>
+    <h4>HQ address — mandatory</h4>
+    <p>Stripe requires a business address for Custom accounts (tax forms — 1099 in US, equivalents in EU). The row is marked <code>Required</code> in yellow. <strong>Continue is disabled until filled.</strong></p>
+    <ul>
+      <li><em>Filled</em> — auto from <code>coach_profile</code> (HQ / business address field if we add it, otherwise the coach's primary training location as a hint they can edit).</li>
+      <li><em>Empty</em> — placeholder "Add your business address" in tertiary color. Continue disabled. Tap row → fill it in.</li>
+    </ul>
+    <h4>Hidden fields (handled by backend, not shown to user)</h4>
+    <ul>
+      <li><code>business_type: individual</code> — hardcoded server-side. Every coach is an individual sole prop unless we add a company toggle later.</li>
+      <li><code>mcc: "7997"</code> — Membership Clubs / Health &amp; Fitness Services. Hardcoded for all coaches.</li>
+      <li><code>url</code> — auto from <code>coach_profile.social_link</code> if present, otherwise null.</li>
+      <li><code>product_description</code> — auto from <code>coach_profile.bio</code> if present, otherwise null.</li>
+    </ul>
+    <p class="note">All edits write back to the local <code>auto</code> snapshot. On Continue the merged payload is sent to <code>PATCH /coach/stripe-onboarding/individual</code>. Name + email + phone + DOB + address are also synced back to <code>coach_profile</code> (single source of truth — fixing them in Stripe context fixes them everywhere).</p>
   </div>
 
   <div class="ann" id="ann-s-stripe-onb-edit-name"><span class="ann-role coach">Coach</span><h3>Edit Name</h3>
@@ -1361,15 +1398,17 @@
 
   <div class="ann" id="ann-s-stripe-onb-id"><span class="ann-role coach">Coach</span><h3>Onboarding — Verification</h3>
     <div class="state-toggle">
-      <button class="active" onclick="document.getElementById('s-stripe-onb-id').setAttribute('data-id-state','empty');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Empty</button>
+      <button class="active" onclick="document.getElementById('s-stripe-onb-id').setAttribute('data-id-state','empty');document.querySelectorAll('#s-stripe-onb-id .stripe-id-upload.done').forEach(function(t){t.classList.remove('done');var w=t.querySelector('[data-id-icon]');if(w)w.innerHTML='&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; style=&quot;width:18px;height:18px;&quot;&gt;&lt;path d=&quot;M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12&quot;/&gt;&lt;/svg&gt;';var ti=t.querySelector('.stripe-id-upload-title');if(ti)ti.textContent=t.id==='id-tile-front'?'Front of ID':'Back of ID'});this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Empty</button>
       <button onclick="toggleIdUpload('front');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Front uploaded</button>
-      <button onclick="document.getElementById('s-stripe-onb-id').setAttribute('data-id-state','skipped');var b=document.querySelector('[data-id-skipped-banner]');if(b)b.style.display='block';this.parentElement.querySelectorAll('button').forEach(function(x){x.classList.remove('active')});this.classList.add('active')">Skipped</button>
     </div>
-    <p><strong>Step 2 of 3.</strong> Two upload tiles — back is optional for passports. <strong>Skip for now</strong> text button below primary CTA — auto-advances to bank step + Stripe lands in action-required state.</p>
+    <p><strong>Step 2 of 3.</strong> Two upload tiles + always-visible info banner explaining what happens with/without upload. <strong>One Continue button only</strong> — no Skip.</p>
+    <h4>Why no Skip button</h4>
+    <p>"Skip for now" + "Continue" both did the same thing (advance to next step) when nothing was uploaded — false choice. Instead: keep just Continue, and use the info banner ("Required to receive payouts. Card payments work either way. Until verified, earnings stay safe in Stripe but can't be paid out.") to make the consequence clear upfront. User decides whether to upload now or later from one informed CTA.</p>
     <ul>
-      <li>Tile turns teal outline + checkmark on success</li>
-      <li>Skip → warn banner pops up for 700ms before navigating to bank</li>
-      <li>On return from skip, <code>s-stripe</code> shows action-required state with deep-link back here</li>
+      <li>Upload tile turns teal outline + checkmark when image picked.</li>
+      <li>Continue is always enabled (no gating on upload state).</li>
+      <li>If nothing uploaded → <code>s-stripe</code> on return shows <em>Connected · action needed</em> sub-mode (yellow banner "Identity document needed").</li>
+      <li>If uploaded → <code>s-stripe</code> on return shows <em>Connected · verifying</em> sub-mode (blue banner "Verifying your details").</li>
     </ul>
   </div>
 
@@ -1535,8 +1574,32 @@
   function saveAddress() {
     var l1 = document.getElementById('edit-addr-line1').value.trim();
     var city = document.getElementById('edit-addr-city').value.trim();
-    document.getElementById('confirm-address-value').textContent = (l1 + ', ' + city);
+    if (!l1 || !city) {
+      setConfirmAddressState('empty');
+    } else {
+      document.getElementById('confirm-address-value').textContent = (l1 + ', ' + city);
+      setConfirmAddressState('filled');
+    }
     go('s-stripe-onb-confirm', document.querySelector('[onclick*=s-stripe-onb-confirm]'));
+  }
+
+  // Toggle HQ address row between filled / empty + gate Continue button.
+  function setConfirmAddressState(state) {
+    var row = document.querySelector('.stripe-row[data-address-state]');
+    if (row) row.setAttribute('data-address-state', state);
+    document.querySelectorAll('[data-address-text]').forEach(function(el) {
+      el.style.display = el.getAttribute('data-address-text') === state ? '' : 'none';
+    });
+    var btn = document.getElementById('confirm-continue-btn');
+    if (btn) {
+      if (state === 'empty') {
+        btn.classList.add('fit-btn-disabled');
+        btn.disabled = true;
+      } else {
+        btn.classList.remove('fit-btn-disabled');
+        btn.disabled = false;
+      }
+    }
   }
 
   // ===== DOB picker (3-wheel) — copied verbatim from personal-data.html =====
@@ -1693,15 +1756,16 @@
     }
   }
 
-  function skipIdAndContinue() {
+  // Single Continue — proceeds whether or not anything is uploaded.
+  // If empty, Stripe will mark requirements as due and s-stripe lands in
+  // action sub-mode on return (matches what the info banner warned about).
+  function continueFromId() {
     var screen = document.getElementById('s-stripe-onb-id');
-    if (screen) screen.setAttribute('data-id-state', 'skipped');
-    var banner = document.querySelector('[data-id-skipped-banner]');
-    if (banner) banner.style.display = 'block';
-    setTimeout(function() {
-      go('s-stripe-onb-bank', document.querySelector('[onclick*=s-stripe-onb-bank]'));
-      if (banner) banner.style.display = 'none';
-    }, 700);
+    if (screen) {
+      var anyDone = !!screen.querySelector('.stripe-id-upload.done');
+      screen.setAttribute('data-id-state', anyDone ? 'uploaded' : 'skipped');
+    }
+    go('s-stripe-onb-bank', document.querySelector('[onclick*=s-stripe-onb-bank]'));
   }
 
   // ===== Bank step consent + submit =====
