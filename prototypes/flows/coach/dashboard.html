@@ -906,6 +906,34 @@
     cursor: pointer;
   }
 
+  /* Action row inside bottom-sheet drawer (Waiting Edit drawer + reused from balance.html cash actions) */
+  .cash-action-row {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 16px;
+    background: var(--fit-surface-high);
+    border-radius: 14px;
+    cursor: pointer;
+    text-align: left;
+    width: 100%; border: none;
+    font-family: var(--fit-font);
+  }
+  .cash-action-row + .cash-action-row { margin-top: 8px; }
+  .cash-action-row.destructive .cash-action-icon {
+    background: rgba(240,92,91,0.14); color: var(--fit-red-400);
+  }
+  .cash-action-row.primary .cash-action-icon {
+    background: rgba(5,224,166,0.12); color: var(--fit-teal-500);
+  }
+  .cash-action-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--fit-surface-higher); color: var(--fit-text-secondary);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .cash-action-body { flex: 1; min-width: 0; }
+  .cash-action-title { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
+  .cash-action-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; line-height: 1.4; }
+
 </style>
 </head>
 <body>
@@ -1882,7 +1910,7 @@
     <!-- ===== WAITING PANEL — outgoing coach → athlete sent invites ===== -->
     <div id="notif-panel-waiting" style="display:none;">
 
-      <div class="req-card" data-name="Anna" style="margin:16px 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
+      <div class="req-card" data-name="Anna" data-payment-type="cash" data-session-name="Yoga Morning Flow" data-session-when="Mon, May 4 · 09:00" style="margin:16px 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
           <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">AK</div>
           <div style="flex:1;">
@@ -1919,7 +1947,7 @@
         </div>
       </div>
 
-      <div class="req-card" data-name="Lukas" style="margin:0 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
+      <div class="req-card" data-name="Lukas" data-payment-type="cash" data-session-name="Boxing Training" data-session-when="Wed, Apr 23 · 19:00" style="margin:0 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
           <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">LN</div>
           <div style="flex:1;">
@@ -1965,6 +1993,65 @@
       </div>
 
     </div><!-- /notif-panel-waiting -->
+
+    <!-- ===== Edit drawer for cash outgoing invites (3 options) =====
+         Triggered by tap on Edit button when payment_type=cash. For card invites,
+         Edit pushes directly to event editor (no drawer). -->
+    <div class="fit-sheet-overlay" id="waiting-edit-sheet">
+      <div class="fit-sheet compact">
+        <div class="fit-sheet-handle"></div>
+        <div style="margin:6px 0 18px;text-align:center;">
+          <div style="font-size:18px;font-weight:500;color:var(--fit-text-primary);" data-waiting-edit-title>Manage invite &mdash; Anna</div>
+          <div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:4px;" data-waiting-edit-sub>Yoga Morning Flow &middot; Mon, May 4 &middot; 09:00</div>
+        </div>
+
+        <button class="cash-action-row primary" data-a11y-id="coach.inbox.waiting.coach-confirm" onclick="openCoachConfirmSheet()">
+          <div class="cash-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="cash-action-body">
+            <div class="cash-action-title">Confirm for athlete</div>
+            <div class="cash-action-sub">You agreed offline &mdash; mark this session confirmed without waiting for them to tap Accept.</div>
+          </div>
+        </button>
+
+        <button class="cash-action-row" data-a11y-id="coach.inbox.waiting.edit-details" onclick="closeWaitingEditSheet();setOutgoingAction('navigate-to-edit',document.querySelector('[data-waiting-current]'))">
+          <div class="cash-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+          <div class="cash-action-body">
+            <div class="cash-action-title">Edit invite details</div>
+            <div class="cash-action-sub">Change date, time, location, price, or note. Re-pings the athlete.</div>
+          </div>
+        </button>
+
+        <button class="cash-action-row destructive" data-a11y-id="coach.inbox.waiting.cancel-from-drawer" onclick="closeWaitingEditSheet();setOutgoingAction('cancel',document.querySelector('[data-waiting-current]'))">
+          <div class="cash-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+          <div class="cash-action-body">
+            <div class="cash-action-title">Cancel invite</div>
+            <div class="cash-action-sub">Withdraw the invitation. Athlete gets &ldquo;Coach cancelled invitation&rdquo;.</div>
+          </div>
+        </button>
+
+        <button style="width:100%;height:50px;margin-top:14px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="closeWaitingEditSheet()">Close</button>
+      </div>
+    </div>
+
+    <!-- ===== Coach Confirm confirmation sheet — final irreversible step ===== -->
+    <div class="fit-sheet-overlay" id="coach-confirm-sheet">
+      <div class="fit-sheet compact">
+        <div class="fit-sheet-handle"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin:12px 0 18px;text-align:center;">
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(5,224,166,0.12);display:flex;align-items:center;justify-content:center;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div style="font-size:18px;font-weight:500;color:var(--fit-text-primary);">Confirm <span data-coach-confirm-name>Anna</span> attended this session?</div>
+          <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:320px;">
+            Use only if you've agreed offline. <span data-coach-confirm-name>Anna</span> will see this confirmation when she next opens 321Fit. Cash debt activates as normal.
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button class="fit-btn fit-btn-primary" data-a11y-id="coach.inbox.waiting.coach-confirm.confirm" onclick="confirmForAthlete()">Confirm for athlete</button>
+          <button class="fit-btn fit-btn-secondary" data-a11y-id="coach.inbox.waiting.coach-confirm.cancel" onclick="closeCoachConfirmSheet()">Cancel</button>
+        </div>
+      </div>
+    </div>
 
     </div><!-- /data-list-state="default" -->
 
@@ -2191,7 +2278,8 @@
     <ul>
       <li><strong>Activity (default)</strong> — push-triggered notification history (Calendar sync errors, Anna requested a session, Mark rescheduled, Session confirmed/cancelled, Request declined/expired). Date-grouped feed.</li>
       <li><strong>To reply</strong> — incoming athlete → coach booking requests. Cards with [Decline] [Accept].</li>
-      <li><strong>Waiting</strong> — outgoing coach → athlete invites awaiting reply. Yellow "Awaiting reply" pill + sent-N-ago + expires-in. Cards with <strong>[Edit] [Cancel]</strong>.</li>
+      <li><strong>Waiting</strong> — outgoing coach → athlete invites awaiting reply. Yellow "Awaiting reply" pill + sent-N-ago + expires-in. Cards with <strong>[Edit] [Cancel]</strong>. Cancel inline = immediate withdraw. Edit behavior depends on payment type: <em>cash</em> → opens drawer with 3 options (<strong>Confirm for athlete</strong> / Edit details / Cancel); <em>card</em> → pushes directly to event editor (no force-confirm — athlete must accept card invites themselves).</li>
+      <li><strong>Confirm for athlete</strong> — coach proxies athlete's Accept after offline agreement (call / DM). Confirmation sheet warns "Anna will see this confirmation when she next opens 321Fit. Use only if you've agreed offline." On confirm: event status → <code>coach_confirmed</code> (separate from regular <code>confirmed</code> for audit / dispute purposes), cash debt activates normally. Athlete sees inline note in event detail ("Confirmed by Coach &lt;name&gt; on your behalf") — no push.</li>
     </ul>
     <h4>Why unified</h4>
     <p>Previously the bell icon appeared on both Dashboard and Clients headers leading to two different inboxes — confusing for coaches ("which bell?"). One bell = one mental model. Pending requests are a flavor of notification, not a separate category.</p>
@@ -2489,22 +2577,34 @@
     }, 220);
   }
 
-  // Outgoing pending invite — Edit (push to event editor) / Cancel (withdraw).
+  // Outgoing pending invite actions.
+  // - Edit on cash invite → open 3-option drawer (Confirm-for-athlete / Edit / Cancel)
+  // - Edit on card invite → push directly to event editor (no drawer)
+  // - Cancel (inline) → withdraw straight away
+  // - navigate-to-edit → drawer option chosen, navigate to event editor
   function setOutgoingAction(action, btn) {
-    var card = btn.closest('.req-card');
+    var card = btn ? btn.closest('.req-card') : null;
     if (!card) return;
     var name = card.dataset.name || 'Athlete';
+    var paymentType = card.dataset.paymentType || 'cash';
     var snack = document.getElementById('notif-snackbar') || document.getElementById('req-snackbar');
 
     if (action === 'edit') {
-      // In real app: push to s-event in edit mode with status=awaiting_reply.
-      // Prototype stub — just show a confirmation toast.
-      if (snack) {
-        snack.textContent = 'Opening invite to ' + name;
-        snack.classList.add('show');
-        clearTimeout(snack._t);
-        snack._t = setTimeout(function(){ snack.classList.remove('show'); }, 1800);
+      // Stash the card we're editing so the drawer's per-option handlers can find it.
+      document.querySelectorAll('[data-waiting-current]').forEach(function(c) { delete c.dataset.waitingCurrent; });
+      card.dataset.waitingCurrent = '1';
+      if (paymentType === 'cash') {
+        openWaitingEditSheet(card);
+      } else {
+        // Card invite → push directly to event editor (no force-confirm option available).
+        toastStub('Opening invite to ' + name + ' (card flow — direct editor push)');
       }
+      return;
+    }
+
+    if (action === 'navigate-to-edit') {
+      // Drawer's "Edit invite details" option — would push to s-event edit in real app.
+      toastStub('Opening editor for invite to ' + name);
       return;
     }
 
@@ -2530,6 +2630,68 @@
         }
       }, 220);
     }
+  }
+
+  function toastStub(msg) {
+    var snack = document.getElementById('notif-snackbar') || document.getElementById('req-snackbar');
+    if (!snack) return;
+    snack.textContent = msg;
+    snack.classList.add('show');
+    clearTimeout(snack._t);
+    snack._t = setTimeout(function(){ snack.classList.remove('show'); }, 1800);
+  }
+
+  // Edit drawer for cash outgoing invites
+  function openWaitingEditSheet(card) {
+    var sheet = document.getElementById('waiting-edit-sheet');
+    if (!sheet || !card) return;
+    var name = card.dataset.name || 'Athlete';
+    var sessionName = card.dataset.sessionName || '';
+    var sessionWhen = card.dataset.sessionWhen || '';
+    var titleEl = sheet.querySelector('[data-waiting-edit-title]');
+    var subEl = sheet.querySelector('[data-waiting-edit-sub]');
+    if (titleEl) titleEl.textContent = 'Manage invite — ' + name;
+    if (subEl) subEl.textContent = (sessionName && sessionWhen) ? (sessionName + ' · ' + sessionWhen) : (sessionName || sessionWhen);
+    sheet.classList.add('visible');
+  }
+  function closeWaitingEditSheet() {
+    var sheet = document.getElementById('waiting-edit-sheet');
+    if (sheet) sheet.classList.remove('visible');
+  }
+
+  // Coach-confirm confirmation sheet — final irreversible step
+  function openCoachConfirmSheet() {
+    closeWaitingEditSheet();
+    var card = document.querySelector('[data-waiting-current]');
+    var name = card ? (card.dataset.name || 'Athlete') : 'Athlete';
+    document.querySelectorAll('[data-coach-confirm-name]').forEach(function(el) { el.textContent = name; });
+    var sheet = document.getElementById('coach-confirm-sheet');
+    if (sheet) sheet.classList.add('visible');
+  }
+  function closeCoachConfirmSheet() {
+    var sheet = document.getElementById('coach-confirm-sheet');
+    if (sheet) sheet.classList.remove('visible');
+  }
+  function confirmForAthlete() {
+    var card = document.querySelector('[data-waiting-current]');
+    if (!card) { closeCoachConfirmSheet(); return; }
+    var name = card.dataset.name || 'Athlete';
+    closeCoachConfirmSheet();
+    // Mark card "confirmed-by-coach" — disappear from Waiting (it moves to athlete's confirmed events).
+    card.dataset.done = '1';
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(-12px)';
+    var remaining = document.querySelectorAll('#notif-panel-waiting .req-card:not([data-done="1"])').length;
+    var tabCount = document.getElementById('notif-tab-waiting-count');
+    if (tabCount) tabCount.textContent = '(' + remaining + ')';
+    toastStub('Confirmed for ' + name + ' — session is on');
+    setTimeout(function(){
+      card.style.display = 'none';
+      if (remaining === 0) {
+        var emp = document.getElementById('notif-waiting-empty');
+        if (emp) emp.style.display = 'block';
+      }
+    }, 220);
   }
 
   // Hash-based deep-link from dashboard action cards.

@@ -668,10 +668,11 @@
   #s-transactions.ts-empty   [data-txn-state="empty"]   { display: block; }
   #s-transactions.ts-loading [data-txn-state="loading"] { display: block; }
 
-  /* State switcher for #s-txn-cash (Cash Earning Detail) */
+  /* State switcher for #s-txn-cash (Cash Earning Detail) — 3 terminal states */
   #s-txn-cash [data-cash-status] { display: none; }
   #s-txn-cash[data-cash-status="received"] [data-cash-status="received"] { display: block; }
   #s-txn-cash[data-cash-status="pending"]  [data-cash-status="pending"]  { display: block; }
+  #s-txn-cash[data-cash-status="waived"]   [data-cash-status="waived"]   { display: block; }
 
   /* Cash detail status pill — themed by status, inline pill in hero */
   .cash-detail-pill {
@@ -682,7 +683,8 @@
     align-items: center; gap: 5px;
   }
   #s-txn-cash[data-cash-status="received"] .cash-detail-pill--received,
-  #s-txn-cash[data-cash-status="pending"] .cash-detail-pill--unpaid {
+  #s-txn-cash[data-cash-status="pending"] .cash-detail-pill--unpaid,
+  #s-txn-cash[data-cash-status="waived"] .cash-detail-pill--waived {
     display: inline-flex;
   }
   .cash-detail-pill--received {
@@ -691,6 +693,37 @@
   .cash-detail-pill--unpaid {
     background: rgba(247,201,72,0.14); color: #F7C948;
   }
+  .cash-detail-pill--waived {
+    background: var(--fit-gray-700); color: var(--fit-text-secondary);
+  }
+
+  /* Cash actions drawer rows */
+  .cash-action-row {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 16px;
+    background: var(--fit-surface-high);
+    border-radius: 14px;
+    cursor: pointer;
+    text-align: left;
+    width: 100%; border: none;
+    font-family: var(--fit-font);
+  }
+  .cash-action-row + .cash-action-row { margin-top: 8px; }
+  .cash-action-row.destructive .cash-action-icon {
+    background: rgba(240,92,91,0.14); color: var(--fit-red-400);
+  }
+  .cash-action-row.primary .cash-action-icon {
+    background: rgba(5,224,166,0.12); color: var(--fit-teal-500);
+  }
+  .cash-action-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--fit-surface-higher); color: var(--fit-text-secondary);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .cash-action-body { flex: 1; min-width: 0; }
+  .cash-action-title { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
+  .cash-action-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; line-height: 1.4; }
 
   /* Earnings history filter (All / Card / Cash) — toggles which numbers/sublines show */
   #s-earnings-history [data-show] { display: none; }
@@ -1614,6 +1647,10 @@
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
         Unpaid
       </div>
+      <div data-cash-status="waived" class="cash-detail-pill cash-detail-pill--waived">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Payment waived
+      </div>
     </div>
 
     <div class="earn-section-head">
@@ -1661,19 +1698,52 @@
         <span class="earn-kv-label">Status</span>
         <span class="earn-kv-value" style="color:#F7C948;">Unpaid</span>
       </div>
+      <div class="earn-kv" data-cash-status="waived">
+        <span class="earn-kv-label">Waived</span>
+        <span class="earn-kv-value">Mon, Apr 20 &middot; 11:42</span>
+      </div>
     </div>
 
-    <!-- Action area — only shown in pending state. Once marked paid, terminal. -->
+    <!-- Action area — only shown in pending state. Drawer with 2 options replaces single Mark-as-paid button. -->
     <div style="padding:24px 16px 0;display:flex;flex-direction:column;gap:8px;" data-cash-status="pending">
       <div class="earn-banner info" style="margin:0 0 12px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
         <div class="earn-banner-body">
-          <div style="font-size:13px;line-height:1.45;">Cash sessions don't auto-track. Tap below when Anna hands you the money so we record the payment.</div>
+          <div style="font-size:13px;line-height:1.45;">Cash sessions don't auto-track. Mark how this one settles &mdash; paid or waived &mdash; so your ledger stays clean.</div>
         </div>
       </div>
-      <button class="fit-btn fit-btn-primary" data-a11y-id="coach.earnings.txn-cash.mark-paid" onclick="markCashPaid()">Mark as paid</button>
+      <button class="fit-btn fit-btn-primary" data-a11y-id="coach.earnings.txn-cash.manage" onclick="openCashActionsSheet()">Manage payment</button>
     </div>
 
+  </div>
+
+  <!-- ===== Cash actions drawer (triggered by "Manage payment" CTA) ===== -->
+  <div class="fit-sheet-overlay" id="cash-actions-sheet">
+    <div class="fit-sheet compact">
+      <div class="fit-sheet-handle"></div>
+      <div style="margin:6px 0 18px;text-align:center;">
+        <div style="font-size:18px;font-weight:500;color:var(--fit-text-primary);">Mark Anna's payment</div>
+        <div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:4px;">Yoga 1:1 &middot; &euro;30 &middot; Mon, Apr 20</div>
+      </div>
+
+      <button class="cash-action-row primary" data-a11y-id="coach.earnings.txn-cash.mark-paid" onclick="markCashPaid()">
+        <div class="cash-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="cash-action-body">
+          <div class="cash-action-title">Mark as paid</div>
+          <div class="cash-action-sub">Anna handed you &euro;30 in cash &mdash; counts as income.</div>
+        </div>
+      </button>
+
+      <button class="cash-action-row destructive" data-a11y-id="coach.earnings.txn-cash.waive" onclick="markCashWaived()">
+        <div class="cash-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+        <div class="cash-action-body">
+          <div class="cash-action-title">Waive payment</div>
+          <div class="cash-action-sub">No charge to Anna &mdash; debt cleared. Session still counts toward your stats, &euro;0 income.</div>
+        </div>
+      </button>
+
+      <button style="width:100%;height:50px;margin-top:14px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" data-a11y-id="coach.earnings.txn-cash.actions.close" onclick="closeCashActionsSheet()">Close</button>
+    </div>
   </div>
 </div>
 
@@ -2178,14 +2248,16 @@
     <div class="state-toggle">
       <button class="active" onclick="setCashTxnStatus('pending',this)">Unpaid (default)</button>
       <button onclick="setCashTxnStatus('received',this)">Received</button>
+      <button onclick="setCashTxnStatus('waived',this)">Waived</button>
     </div>
-    <p>Per-session detail for a <strong>cash</strong> earning. Same scaffolding as the Card variant (hero + session + payment) but with cash-specific semantics: no 24h hold, no payout reference, no platform fee &mdash; just &laquo;has the athlete handed over the money yet?&raquo;</p>
+    <p>Per-session detail for a <strong>cash</strong> earning. Same scaffolding as the Card variant (hero + session + payment) but with cash-specific semantics: no 24h hold, no payout reference, no platform fee &mdash; just &laquo;has the athlete handed over the money yet, or did the coach waive the debt?&raquo;</p>
 
-    <p><strong>State machine:</strong> after the cash session is marked Finished, the txn starts as <strong>Unpaid</strong>. Coach taps <em>Mark as paid</em> &rarr; transitions to <strong>Received</strong>. <strong>Terminal</strong> &mdash; no Mark-as-unpaid reverse action (mistakes go through Support; keeps the audit trail clean).</p>
+    <p><strong>State machine:</strong> after the cash session is marked Finished, the txn starts as <strong>Unpaid</strong>. Coach taps <em>Manage payment</em> &rarr; bottom drawer with 2 terminal options: <strong>Mark as paid</strong> (&rarr; <strong>Received</strong>) or <strong>Waive payment</strong> (&rarr; <strong>Waived</strong>). Both terminal &mdash; no reverse action (mistakes go through Support; keeps the audit trail clean).</p>
 
     <ul>
-      <li><strong>Unpaid</strong> &mdash; session done, athlete hasn't handed over the money yet. Hero pill is yellow ("Unpaid"). Info banner explains why we can't auto-track. Primary CTA <em>Mark as paid</em>.</li>
-      <li><strong>Received</strong> &mdash; coach already marked it paid. Hero pill is teal ("Received"). "Marked paid" timestamp shown in Payment section. No bottom action &mdash; terminal state.</li>
+      <li><strong>Unpaid</strong> &mdash; session done, athlete hasn't handed over the money yet. Hero pill is yellow ("Unpaid"). Info banner explains why we can't auto-track. Primary CTA <em>Manage payment</em> opens the actions drawer.</li>
+      <li><strong>Received</strong> &mdash; coach marked the cash received. Hero pill is teal ("Received"). "Marked paid" timestamp shown in Payment section. No bottom action &mdash; terminal state.</li>
+      <li><strong>Waived</strong> &mdash; coach waived the debt (e.g. athlete had an emergency or no-show with goodwill exception). Hero pill is grey ("Payment waived"). "Waived" timestamp shown in Payment section. Counts toward training-done count in lifetime stats but contributes &euro;0 to income. <strong>Backend status:</strong> <code>payment_waived</code> on the transaction. Athlete receives <strong>no push</strong> (silent goodwill gesture). Terminal &mdash; no reverse.</li>
     </ul>
     <hr>
     <p class="note"><strong>Entry points:</strong> tap any <code>data-method="cash"</code> txn in Recent activity, or tap an athlete in Clients &rarr; Cash owed list (filter on Clients screen, future spec). Both routes land here.</p>
@@ -2380,12 +2452,40 @@
 
   // Cash earning detail — status toggle + Mark paid/unpaid (prototype only)
   function setCashTxnStatus(status, btn) {
-    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    if (btn) {
+      btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
     document.getElementById('s-txn-cash').setAttribute('data-cash-status', status);
   }
+  function openCashActionsSheet() {
+    var sheet = document.getElementById('cash-actions-sheet');
+    if (sheet) sheet.classList.add('visible');
+  }
+  function closeCashActionsSheet() {
+    var sheet = document.getElementById('cash-actions-sheet');
+    if (sheet) sheet.classList.remove('visible');
+  }
   function markCashPaid() {
-    setCashTxnStatus('received', document.querySelector('#ann-s-txn-cash .state-toggle button'));
+    closeCashActionsSheet();
+    // Sync annotation state toggle if present
+    var toggleBtns = document.querySelectorAll('#ann-s-txn-cash .state-toggle button');
+    setCashTxnStatus('received', toggleBtns[0] || null);
+    // Also sync to "Received" toggle button explicitly (index 1 in 3-button toggle)
+    if (toggleBtns.length >= 2) {
+      toggleBtns.forEach(function(b) { b.classList.remove('active'); });
+      toggleBtns[1].classList.add('active');
+    }
+  }
+  function markCashWaived() {
+    closeCashActionsSheet();
+    var toggleBtns = document.querySelectorAll('#ann-s-txn-cash .state-toggle button');
+    setCashTxnStatus('waived', null);
+    // Sync to "Waived" toggle button (index 2 in 3-button toggle)
+    if (toggleBtns.length >= 3) {
+      toggleBtns.forEach(function(b) { b.classList.remove('active'); });
+      toggleBtns[2].classList.add('active');
+    }
   }
 
   // Filter chips above Recent activity

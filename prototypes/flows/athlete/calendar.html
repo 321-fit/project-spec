@@ -204,6 +204,7 @@
   <button class="active" onclick="go('s-schedule',this)">My Schedule</button>
   <div class="label">Sheets / drawers</div>
   <button onclick="go('s-schedule',this);document.getElementById('ath-cross-role-sheet').classList.add('visible')">Cross-role drawer</button>
+  <button onclick="go('s-schedule',this);previewCoachConfirmedSheet()">Event sheet · Coach-confirmed</button>
   </div>
   <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
     <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
@@ -369,15 +370,31 @@
 
   <!-- Athlete event sheet (no reschedule/cancel — just view) -->
   <!-- Event action sheet -->
-  <div class="fit-sheet-overlay" id="ath-event-sheet">
+  <div class="fit-sheet-overlay" id="ath-event-sheet" data-event-status="regular">
     <div class="fit-sheet" style="padding:8px 16px 40px;">
       <div class="fit-sheet-handle"></div>
+
+      <!-- Coach-confirmed inline note — shown only when event was confirmed by coach on behalf of athlete.
+           Transparency without push: athlete sees this when they next open the event sheet. -->
+      <div data-coach-confirmed-note style="display:none;margin:6px 0 12px;padding:12px 14px;background:rgba(3,178,226,0.10);border-radius:12px;display:flex;gap:10px;align-items:flex-start;">
+        <svg style="width:18px;height:18px;flex-shrink:0;margin-top:1px;color:var(--fit-blue-500);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <div style="font-size:13px;color:var(--fit-text-secondary);line-height:1.5;">
+          <div style="font-weight:500;color:var(--fit-text-primary);">Confirmed by Coach Mark on your behalf</div>
+          <div style="margin-top:2px;">Mark indicated you agreed to this session offline (Apr 14). Reach out to your coach if this doesn't look right.</div>
+        </div>
+      </div>
+
       <div class="fit-sheet-item" data-action="view"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg> View Details</div>
       <div style="margin-top:12px;">
         <button style="width:100%;height:50px;border:none;border-radius:99px;background:rgba(240,92,91,0.15);color:var(--fit-red-400);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('ath-event-sheet').classList.remove('visible')">Cancel Registration</button>
       </div>
     </div>
   </div>
+
+  <!-- ===== Coach-confirmed mode CSS for ath-event-sheet ===== -->
+  <style>
+    #ath-event-sheet[data-event-status="coach-confirmed"] [data-coach-confirmed-note] { display: flex !important; }
+  </style>
 
   <!-- Post-training feedback sheet (triggered by push or tap on completed event) -->
   <div class="fit-sheet-overlay visible" id="post-training-sheet" onclick="this.classList.remove('visible')">
@@ -426,7 +443,25 @@
 
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
-  <div class="ann active" id="ann-s-schedule"><span class="ann-role athlete">Athlete</span><h3>Athlete Schedule</h3><p>Same calendar as coach, light theme. <strong>No drag & drop, no FAB.</strong> Post-training feedback as bottom sheet.</p><ul><li>Long press → View Details / Cancel Registration</li><li><strong>Post-training sheet</strong> — opens on push or tap completed event</li><li>Coach avatar + training name + "Done" badge</li><li>Star rating (1-5)</li><li>"Didn't happen? Report issue" link</li><li>Submit closes sheet</li><li><strong>Cross-role events</strong> — when the user is also a coach, their coaching sessions appear here as muted dashed-stripe tiles with a "Coach" tag. Tap → read-only drawer + CTA <strong>"Switch to coach"</strong> that flips the active role and reopens the event in its proper coach drawer (with reschedule/cancel/complete).</li></ul></div>
+  <div class="ann active" id="ann-s-schedule"><span class="ann-role athlete">Athlete</span><h3>Athlete Schedule</h3>
+    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Event sheet mode</div>
+    <div class="state-toggle">
+      <button class="active" onclick="previewRegularEventSheet();this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Regular</button>
+      <button onclick="previewCoachConfirmedSheet();this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Coach-confirmed</button>
+    </div>
+    <p>Same calendar as coach, light theme. <strong>No drag & drop, no FAB.</strong> Post-training feedback as bottom sheet.</p>
+    <ul>
+      <li>Long press → View Details / Cancel Registration</li>
+      <li><strong>Post-training sheet</strong> — opens on push or tap completed event</li>
+      <li>Coach avatar + training name + "Done" badge</li>
+      <li>Star rating (1-5)</li>
+      <li>"Didn't happen? Report issue" link</li>
+      <li>Submit closes sheet</li>
+      <li><strong>Cross-role events</strong> — when the user is also a coach, their coaching sessions appear here as muted dashed-stripe tiles with a "Coach" tag. Tap → read-only drawer + CTA <strong>"Switch to coach"</strong> that flips the active role and reopens the event in its proper coach drawer (with reschedule/cancel/complete).</li>
+    </ul>
+    <h4>Coach-confirmed inline note (NEW 2026-06-02)</h4>
+    <p>When event status = <code>coach_confirmed</code> (coach proxied the athlete's Accept after offline agreement), the event sheet shows an informational blue note above View Details: "Confirmed by Coach &lt;name&gt; on your behalf. Mark indicated you agreed to this session offline (&lt;date&gt;). Reach out to your coach if this doesn't look right." Transparency without push — athlete only sees it next time they open the event. Cash debt activates as normal. <strong>Backend status:</strong> <code>coach_confirmed</code> (separate from regular <code>confirmed</code> for dispute resolution / audit trail).</p>
+  </div>
 </div>
 
 <!-- ==================== SCRIPTS ==================== -->
@@ -447,6 +482,20 @@ function switchTheme(theme) {
       phone.classList.add("fit-dark");
     }
   });
+}
+
+// Preview the event sheet in coach-confirmed mode (sidebar shortcut + annotation toggle)
+function previewCoachConfirmedSheet() {
+  var sheet = document.getElementById('ath-event-sheet');
+  if (!sheet) return;
+  sheet.setAttribute('data-event-status', 'coach-confirmed');
+  sheet.classList.add('visible');
+}
+function previewRegularEventSheet() {
+  var sheet = document.getElementById('ath-event-sheet');
+  if (!sheet) return;
+  sheet.setAttribute('data-event-status', 'regular');
+  sheet.classList.add('visible');
 }
 
 // Screen navigation
