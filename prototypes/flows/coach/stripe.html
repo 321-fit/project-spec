@@ -1189,16 +1189,29 @@
       </div>
     </div>
 
-    <div class="stripe-kv-group">
+    <!-- Bank KV group -->
+    <div class="stripe-kv-group" data-method-kv="bank">
       <div class="stripe-kv"><span class="stripe-kv-label">Holder</span><span class="stripe-kv-value">Idella Lesch</span></div>
       <div class="stripe-kv"><span class="stripe-kv-label">IBAN</span><span class="stripe-kv-value">ES&hellip;<span data-bank-last4>4821</span></span></div>
       <div class="stripe-kv"><span class="stripe-kv-label">Country</span><span class="stripe-kv-value">Spain &middot; EUR</span></div>
       <div class="stripe-kv"><span class="stripe-kv-label">Added</span><span class="stripe-kv-value">Apr 12, 2026</span></div>
     </div>
 
+    <!-- Card KV group (different fields than bank) -->
+    <div class="stripe-kv-group" data-method-kv="card" style="display:none;">
+      <div class="stripe-kv"><span class="stripe-kv-label">Holder</span><span class="stripe-kv-value">Idella Lesch</span></div>
+      <div class="stripe-kv"><span class="stripe-kv-label">Card</span><span class="stripe-kv-value">Visa debit &middot; &bull;&bull;&bull;&bull; <span data-bank-last4>7732</span></span></div>
+      <div class="stripe-kv"><span class="stripe-kv-label">Expires</span><span class="stripe-kv-value">07 / 2028</span></div>
+      <div class="stripe-kv"><span class="stripe-kv-label">Country</span><span class="stripe-kv-value">Spain &middot; EUR</span></div>
+      <div class="stripe-kv"><span class="stripe-kv-label">Added</span><span class="stripe-kv-value">Apr 12, 2026</span></div>
+    </div>
+
     <div style="padding:16px;display:flex;flex-direction:column;gap:8px;">
       <button class="fit-btn fit-btn-secondary" data-bank-default-pill="hide" data-a11y-id="coach.stripe.bank-detail.set-default" onclick="setBankAsDefault()">Set as default</button>
-      <button class="fit-btn fit-btn-destructive" data-a11y-id="coach.stripe.bank-detail.remove" onclick="openRemoveBankSheet()">Remove bank account</button>
+      <button class="fit-btn fit-btn-destructive" data-a11y-id="coach.stripe.bank-detail.remove" onclick="openRemoveBankSheet()">
+        <span data-method-noun="bank">Remove bank account</span>
+        <span data-method-noun="card" style="display:none;">Remove card</span>
+      </button>
     </div>
 
   </div>
@@ -1213,13 +1226,13 @@
           <div style="width:48px;height:48px;border-radius:50%;background:rgba(247,201,72,0.12);display:flex;align-items:center;justify-content:center;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F7C948" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           </div>
-          <div style="font-size:18px;font-weight:500;">Can't remove your only bank</div>
+          <div style="font-size:18px;font-weight:500;">Can't remove your only payout method</div>
           <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:300px;">
-            You need at least one bank account on Stripe to receive payouts. Add another before removing this one.
+            You need at least one bank or card on Stripe to receive payouts. Add another before removing this one.
           </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;">
-          <button class="fit-btn fit-btn-primary" onclick="closeRemoveBankSheet();go('s-stripe-bank-add',document.querySelector('[onclick*=s-stripe-bank-add]'))">Add another bank</button>
+          <button class="fit-btn fit-btn-primary" onclick="closeRemoveBankSheet();go('s-stripe-bank-add',document.querySelector('[onclick*=s-stripe-bank-add]'))">Add another method</button>
           <button class="fit-btn fit-btn-secondary" onclick="closeRemoveBankSheet()">Cancel</button>
         </div>
       </div>
@@ -1229,9 +1242,12 @@
           <div style="width:48px;height:48px;border-radius:50%;background:rgba(240,92,91,0.12);display:flex;align-items:center;justify-content:center;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
           </div>
-          <div style="font-size:18px;font-weight:500;">Remove default bank?</div>
+          <div style="font-size:18px;font-weight:500;">
+            <span data-method-noun="bank">Remove default bank?</span>
+            <span data-method-noun="card" style="display:none;">Remove default card?</span>
+          </div>
           <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:300px;">
-            Your next payout will go to <strong>Bank &middot; &bull;&bull;&bull;&bull; 7732</strong>. You can change the default any time.
+            Your next payout will go to your next active payout method. You can change the default any time.
           </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;">
@@ -1245,7 +1261,10 @@
           <div style="width:48px;height:48px;border-radius:50%;background:rgba(240,92,91,0.12);display:flex;align-items:center;justify-content:center;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
           </div>
-          <div style="font-size:18px;font-weight:500;">Remove this bank?</div>
+          <div style="font-size:18px;font-weight:500;">
+            <span data-method-noun="bank">Remove this bank?</span>
+            <span data-method-noun="card" style="display:none;">Remove this card?</span>
+          </div>
           <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:300px;">You can add it back later if you change your mind.</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;">
@@ -1940,7 +1959,8 @@
     });
   }
 
-  // Method-detail wrapper — same screen as bank-detail, but swaps icon + sub-text by type.
+  // Method-detail wrapper — same screen as bank-detail, but swaps icon + sub-text
+  // + KV group (bank: IBAN; card: Card+Expiry) + Remove button noun + sheet copy nouns.
   function setMethodDetail(type, name, last4, isDefault, isLast) {
     setBankDetail(name, last4, isDefault, isLast);
     var screen = document.getElementById('s-stripe-bank-detail');
@@ -1951,6 +1971,13 @@
     });
     screen.querySelectorAll('[data-method-sub]').forEach(function(s) {
       s.style.display = s.getAttribute('data-method-sub') === type ? '' : 'none';
+    });
+    screen.querySelectorAll('[data-method-kv]').forEach(function(kv) {
+      kv.style.display = kv.getAttribute('data-method-kv') === type ? '' : 'none';
+    });
+    // Noun swap covers both the bank-detail action button + remove-sheet titles.
+    screen.querySelectorAll('[data-method-noun]').forEach(function(n) {
+      n.style.display = n.getAttribute('data-method-noun') === type ? '' : 'none';
     });
   }
 
