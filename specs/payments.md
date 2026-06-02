@@ -3,7 +3,7 @@
 > Status: Approved (athlete balance — implemented) / Draft (coach earnings — rewrite)
 > Prototype: [flows/coach/balance.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/balance.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-05-15
+> Last updated: 2026-06-02
 > Implementation:
 > - iOS:     [321fit_ios/docs/payments-ios.md] (to be created)
 > - Backend: [poly-backend/docs/payments-backend.md] (to be created — includes earnings ledger migration)
@@ -167,18 +167,69 @@ Coach lands on a **two-card swiper** that separates cash from card income — ea
 
 **Visual rule:** filled gradient = "money lives here right now"; outline = "frame waiting / needs action" (Stripe Lock / Verifying / Action only).
 
-### Flow J — Coach: Cash earning detail + Mark as paid
+### Flow J — Coach: Cash earning detail + Manage payment drawer
 
 Maps to prototype `flows/coach/balance.html#s-txn-cash`.
 
-**State machine** for a cash earning event:
+**State machine** for a cash earning event — 3 terminal states:
 
 1. Session marked `finished` → backend creates `coach_transactions` row with `method=cash`, `status=unpaid`. Default state on entry to Cash detail screen is **Unpaid** (yellow hero pill).
-2. Coach taps **Mark as paid** primary CTA (visible only in Unpaid state).
-3. In production: bottom-sheet confirm ("Confirm Anna paid €30 in cash?") → backend appends `cash_paid` ledger row → toast "Marked as paid" → screen re-renders.
-4. State transitions to **Received** (teal hero pill, "Marked paid {date}" in Payment section). **Terminal** — no Mark-as-unpaid reverse action in v1; corrections go through Support (keeps audit trail clean).
+2. Coach taps **Manage payment** primary CTA (visible only in Unpaid state).
+3. Bottom-sheet drawer opens with 2 large action rows:
+   - **Mark as paid** (teal icon) — "Anna handed you €30 in cash — counts as income."
+   - **Waive payment** (red icon) — "No charge to Anna — debt cleared. Session still counts toward your stats, €0 income."
+4. Tapping either action is final (no second confirm sheet inside the drawer for v1 — the drawer itself IS the confirmation gesture). Backend records the chosen outcome and re-renders.
 
-Entry points: tap any `data-method="cash"` txn in Recent activity, or tap an athlete in Clients → Cash owed list (filter on Clients screen, future spec). Both routes land on `s-txn-cash`.
+| Action | Backend transaction status | Hero pill | KV row added | Income | Session count |
+|---|---|---|---|---|---|
+| Mark as paid | `received` | teal "Received" | "Marked paid · {datetime}" | €amount | counted |
+| Waive payment | `payment_waived` (**new**) | grey "Payment waived" | "Waived · {datetime}" | €0 | counted |
+
+**Waive semantics:**
+- Used when athlete had a goodwill exception (injury, family emergency, no-show with valid reason) and coach chooses not to charge.
+- **Silent to athlete** — no push notification. Athlete sees the waived status only if they look at the event in their own app.
+- **Terminal** — no reverse action, same audit-trail rationale as Mark as paid. Mistakes go through Support.
+
+**Entry points:** tap any `data-method="cash"` txn in Recent activity, or tap an athlete in Clients → Cash owed list (filter on Clients screen, future spec). Both routes land on `s-txn-cash`.
+
+**API:**
+- `POST /api/v1.0.0/coach/transactions/{id}/mark-paid` (existing) → sets `status=received`.
+- `POST /api/v1.0.0/coach/transactions/{id}/waive` (**new**) → sets `status=payment_waived`. Body empty. Returns updated txn.
+- Both reject (400) if txn is not `method=cash` or already in non-`unpaid` state (race).
+
+### Flow J1.5 — Coach-confirmed events (2026-06-02 — new)
+
+Maps to prototype `flows/coach/dashboard.html#s-notifications` → Waiting tab → Edit drawer → "Confirm for athlete" → confirmation sheet.
+
+**Context.** Coach sent a cash invite to an athlete; athlete agreed offline (phone / DM / in-person) but didn't open 321Fit to tap Accept. The event sits in `coachInvited` status indefinitely until expiry. Coach wants to confirm the session on the athlete's behalf so the cash-debt flow can activate.
+
+**Flow:**
+
+1. Waiting tab card shows `[Edit] [Cancel]` inline. Coach taps **Edit**.
+2. If invite payment type is `cash` → bottom-sheet drawer with 3 options. (If payment type is `card`, Edit pushes directly to the event editor — force-confirm is not applicable for card payments, since coach can't pay on the athlete's behalf via Stripe.)
+3. Drawer options:
+   - **Confirm for athlete** (primary) — opens confirmation sheet (step 4).
+   - **Edit invite details** — pushes to event editor; saving re-pings the athlete via PATCH.
+   - **Cancel invite** — destructive withdraw (same as inline Cancel button).
+4. Confirmation sheet copy: "Confirm Anna attended this session? Use only if you've agreed offline. Anna will see this confirmation when she next opens 321Fit. Cash debt activates as normal."
+5. Coach taps **Confirm for athlete** → `POST /api/v1.0.0/coach/training-events/{id}/coach-confirm` → backend transitions `training_event.status` from `coachInvited` to **`coach_confirmed`** (new enum value, separate from regular `confirmed`).
+6. Side effects:
+   - Event flows through regular lifecycle (`coach_confirmed` → `review` after end time → `finished` after coach Completion).
+   - Cash transaction created in `unpaid` state at lifecycle's `finished` moment, same as regular flow.
+   - Audit trail: `training_event.coach_confirmed_at` timestamp + `training_event.coach_confirmed_by_user_id` recorded for dispute resolution.
+   - Athlete receives **no push** (silent).
+7. Next time athlete opens the event sheet, an informational blue note appears above View Details: "Confirmed by Coach Mark on your behalf. Mark indicated you agreed to this session offline (Apr 14). Reach out to your coach if this doesn't look right."
+
+**Eligibility:**
+- Allowed when: `payment_type = cash` AND `training_event.status = coachInvited` AND `coach_id = current_user.coach_id`.
+- Allowed **immediately after invite is sent** (no wait for scheduled time). Rationale: coach often agrees offline before sending the invite.
+
+**Backend status enum extension:**
+- `training_event.status` adds `coach_confirmed` value, positioned in the lifecycle between `coachInvited` and `review`.
+- Status appears in dispute/history queries as `coach_confirmed` (not collapsed to `confirmed`) so legal / Support can prove athlete consented offline rather than in-app.
+
+**API:**
+- `POST /api/v1.0.0/coach/training-events/{id}/coach-confirm` → body empty. Returns updated event with `status=coach_confirmed`. Rejects (400) if eligibility check fails; (404) if event not found / not owned by caller.
 
 ### Flow J2 — Coach: Pending breakdown (2026-05-20 — new)
 
@@ -263,8 +314,9 @@ State is **decomposed into two independent axes** (Cash card + Card card), each 
 
 | Status | When | UI |
 |---|---|---|
-| `unpaid` | Cash session marked finished, no `cash_paid` ledger row yet | Yellow hero pill + "Mark as paid" CTA |
-| `received` | After coach taps "Mark as paid" (creates `cash_paid` row) | Teal hero pill + "Marked paid {date}" — terminal, no reverse action |
+| `unpaid` | Cash session marked finished, no `cash_paid` ledger row yet | Yellow hero pill + "Manage payment" CTA opens drawer |
+| `received` | After coach taps "Mark as paid" in drawer (creates `cash_paid` row) | Teal hero pill + "Marked paid {date}" — terminal, no reverse action |
+| `payment_waived` (**new 2026-06-02**) | After coach taps "Waive payment" in drawer (no ledger row, but audit log entry) | Grey hero pill + "Waived {date}" — terminal, no reverse, silent to athlete |
 
 ### Stripe Connect state
 
