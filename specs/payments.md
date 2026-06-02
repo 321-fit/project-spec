@@ -17,7 +17,7 @@
 Two distinct money flows:
 
 - **Athlete side:** prepaid **balance** model. Top up via Stripe → funds held when a session is booked → released on completion or refunded on cancel per policy. Cash as alternative (no balance involvement).
-- **Coach side:** **earnings** accumulate from completed card sessions; paid out via **weekly batch** (free) or **Instant payout** (premium, fee-bearing). Stripe Connect is the payout provider. Architecture supports additional providers (Revolut Merchant planned) behind a `PayoutAccount` abstraction. Onboarding flow (consent + embedded SDK + 4-state lifecycle) is covered in a focused spec: see [stripe-connect-onboarding.md](./stripe-connect-onboarding.md).
+- **Coach side:** **earnings** accumulate from completed card sessions; paid out via **weekly batch** (free, default) or **manual Withdraw** (free for bank, 1% Stripe fee for debit card via Instant Payouts). Stripe Connect (Custom accounts, native UI only) is the payout provider. Architecture supports additional providers (Revolut Merchant planned) behind a `PayoutAccount` abstraction. Onboarding + in-app control are covered in a focused spec: see [stripe-connect-onboarding.md](./stripe-connect-onboarding.md).
 
 Currency: **EUR** only in v1.
 
@@ -268,7 +268,7 @@ State is **decomposed into two independent axes** (Cash card + Card card), each 
 
 ### Stripe Connect state
 
-Covered in detail in [stripe-connect-onboarding.md § 5](./stripe-connect-onboarding.md#5-states). Summary: 4-state lifecycle (`not_set_up | verifying | connected | action_required`), surfaced via `CoachEarningsSnapshot.defaultProvider.status`. Earnings flow only when `status = connected` and `payouts_enabled = true`.
+Covered in detail in [stripe-connect-onboarding.md § 3.2](./stripe-connect-onboarding.md#32-account-lifecycle). Summary: 2 lifecycle states (`not_set_up | connected`) + 3 sub-modes inside connected (`clean | verifying | action`), surfaced via `CoachEarningsSnapshot.defaultProvider.status`. Earnings flow regardless of sub-mode — charges work; only payouts pause on `action` / `verifying`.
 
 ### Coach transaction types
 
