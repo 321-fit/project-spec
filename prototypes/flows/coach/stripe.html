@@ -409,8 +409,8 @@
     <button onclick="go('s-stripe-onb-edit-address',this)">Edit Address</button>
 
     <div class="label">Control (connected)</div>
-    <button onclick="go('s-stripe-bank-add',this)">Add bank</button>
-    <button onclick="go('s-stripe-bank-detail',this)">Bank detail</button>
+    <button onclick="go('s-stripe-bank-add',this)">Add method (bank / card)</button>
+    <button onclick="go('s-stripe-bank-detail',this)">Method detail</button>
     <button onclick="go('s-stripe-withdraw',this)">Withdraw</button>
     <button onclick="go('s-stripe-payouts',this)">Payouts history</button>
   </div>
@@ -525,33 +525,28 @@
         </div>
       </div>
 
-      <!-- Account meta -->
-      <div class="stripe-kv-group">
-        <div class="stripe-kv"><span class="stripe-kv-label">Account</span><span class="stripe-kv-value">acct_1Q&hellip;Zq4</span></div>
-        <div class="stripe-kv"><span class="stripe-kv-label">Country</span><span class="stripe-kv-value">Spain &middot; EUR</span></div>
-      </div>
-
-      <!-- BANK ACCOUNTS -->
-      <div class="stripe-section-head"><div class="stripe-section-title">Bank accounts</div></div>
+      <!-- PAYOUT METHODS — bank + card unified list (cards = debit only, EU/US, Instant Payouts capability) -->
+      <div class="stripe-section-head"><div class="stripe-section-title">Payout methods</div></div>
       <div style="padding:0 16px;">
-        <div class="stripe-bank-card" data-a11y-id="coach.stripe.bank.row" data-bank-id="b1" onclick="setBankDetail('Visa','4821',true,false);go('s-stripe-bank-detail',document.querySelector('[onclick*=s-stripe-bank-detail]'));">
-          <div class="stripe-bank-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/></svg></div>
+        <div class="stripe-bank-card" data-a11y-id="coach.stripe.method.row" data-method-id="b1" data-method-type="bank" onclick="setMethodDetail('bank','BBVA','4821',true,false);go('s-stripe-bank-detail',document.querySelector('[onclick*=s-stripe-bank-detail]'));">
+          <div class="stripe-bank-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/></svg></div>
           <div class="stripe-bank-info">
-            <div class="stripe-bank-title">Visa &middot; &bull;&bull;&bull;&bull; 4821</div>
-            <div class="stripe-bank-sub"><span class="fit-badge fit-badge-accent">Default</span></div>
+            <div class="stripe-bank-title">BBVA &middot; &bull;&bull;&bull;&bull; 4821</div>
+            <div class="stripe-bank-sub"><span class="fit-badge fit-badge-accent">Default</span> <span style="color:var(--fit-text-tertiary);">&middot; Bank &middot; 1&ndash;2 days</span></div>
           </div>
           <svg class="stripe-bank-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
         </div>
-        <div class="stripe-bank-card" data-a11y-id="coach.stripe.bank.row" data-bank-id="b2" onclick="setBankDetail('Bank','7732',false,false);go('s-stripe-bank-detail',document.querySelector('[onclick*=s-stripe-bank-detail]'));">
+        <div class="stripe-bank-card" data-a11y-id="coach.stripe.method.row" data-method-id="c1" data-method-type="card" onclick="setMethodDetail('card','Visa debit','7732',false,false);go('s-stripe-bank-detail',document.querySelector('[onclick*=s-stripe-bank-detail]'));">
           <div class="stripe-bank-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/></svg></div>
           <div class="stripe-bank-info">
-            <div class="stripe-bank-title">Bank &middot; &bull;&bull;&bull;&bull; 7732</div>
+            <div class="stripe-bank-title">Visa debit &middot; &bull;&bull;&bull;&bull; 7732</div>
+            <div class="stripe-bank-sub" style="color:var(--fit-text-tertiary);">Card &middot; Instant &middot; 1% fee</div>
           </div>
           <svg class="stripe-bank-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
         </div>
-        <div data-a11y-id="coach.stripe.bank.add" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border:1px dashed var(--fit-gray-700);border-radius:14px;cursor:pointer;margin-top:8px;" onclick="go('s-stripe-bank-add',document.querySelector('[onclick*=s-stripe-bank-add]'))">
+        <div data-a11y-id="coach.stripe.method.add" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border:1px dashed var(--fit-gray-700);border-radius:14px;cursor:pointer;margin-top:8px;" onclick="go('s-stripe-bank-add',document.querySelector('[onclick*=s-stripe-bank-add]'))">
           <svg style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
-          <span style="font-size:14px;color:var(--fit-blue-500);font-weight:500;">Add bank account</span>
+          <span style="font-size:14px;color:var(--fit-blue-500);font-weight:500;">Add payout method</span>
         </div>
       </div>
 
@@ -599,10 +594,18 @@
         </span>
       </div>
       <div class="stripe-txn-group">
-        <div class="stripe-txn" data-a11y-id="coach.stripe.payouts.row" onclick="window.location.href='balance.html#s-txn-payout'">
+        <div class="stripe-txn" data-a11y-id="coach.stripe.payouts.row" data-txn-status="in-transit" onclick="window.location.href='balance.html#s-txn-payout'">
+          <div class="stripe-txn-icon" style="background:rgba(3,178,226,0.12);color:var(--fit-blue-500);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="stripe-txn-body">
+            <div class="stripe-txn-title">Transfer to BBVA &middot; &bull;&bull;&bull;&bull; 4821</div>
+            <div class="stripe-txn-sub">Today &middot; <span style="color:var(--fit-blue-500);">In transit &middot; arrives Tue, May 6</span></div>
+          </div>
+          <span class="stripe-txn-amount">&euro;240</span>
+        </div>
+        <div class="stripe-txn" data-a11y-id="coach.stripe.payouts.row" data-txn-status="completed" onclick="window.location.href='balance.html#s-txn-payout'">
           <div class="stripe-txn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg></div>
           <div class="stripe-txn-body">
-            <div class="stripe-txn-title">Payout to Visa &middot; &bull;&bull;&bull;&bull; 4821</div>
+            <div class="stripe-txn-title">Payout to BBVA &middot; &bull;&bull;&bull;&bull; 4821</div>
             <div class="stripe-txn-sub">Mon, Apr 27 &middot; <span style="color:var(--fit-teal-500);">Completed</span></div>
           </div>
           <span class="stripe-txn-amount">&euro;120</span>
@@ -943,7 +946,7 @@
 
 
 <!-- ==================== SCREEN: s-stripe-onb-id (step 2) ==================== -->
-<div class="fit-phone fit-dark" id="s-stripe-onb-id" data-id-state="empty">
+<div class="fit-phone fit-dark" id="s-stripe-onb-id" data-id-state="empty" data-id-doctype="passport">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -958,13 +961,18 @@
   </div>
   <div class="fit-phone-content" style="padding-bottom:24px;">
 
-    <div style="padding:16px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;">
+    <div style="padding:16px 16px 8px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;">
       <div style="width:56px;height:56px;border-radius:16px;background:rgba(3,178,226,0.12);display:flex;align-items:center;justify-content:center;">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5L5 20"/></svg>
       </div>
-      <div style="font-size:18px;font-weight:500;color:var(--fit-text-primary);">Upload your ID document</div>
-      <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:300px;">
-        Passport, driver's license, or government ID.
+      <div style="font-size:18px;font-weight:500;color:var(--fit-text-primary);">Verify your identity</div>
+    </div>
+
+    <!-- Document type segmented control -->
+    <div style="padding:0 16px 12px;">
+      <div style="display:flex;background:var(--fit-surface-high);border-radius:12px;padding:4px;gap:4px;">
+        <button data-a11y-id="coach.stripe.onb.id.doctype" data-doctype-btn="passport" onclick="setIdDocType('passport')" style="flex:1;padding:10px;border:none;border-radius:8px;background:var(--fit-gray-700);color:var(--fit-white);font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;">Passport</button>
+        <button data-a11y-id="coach.stripe.onb.id.doctype" data-doctype-btn="id-card" onclick="setIdDocType('id-card')" style="flex:1;padding:10px;border:none;border-radius:8px;background:transparent;color:var(--fit-text-tertiary);font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;">ID / Driver's license</button>
       </div>
     </div>
 
@@ -983,14 +991,16 @@
 
     <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:10px;">
       <div class="stripe-id-upload" data-a11y-id="coach.stripe.onb.id.upload-front" id="id-tile-front" onclick="toggleIdUpload('front')">
-        <div class="stripe-id-upload-icon" data-id-icon><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
-        <div class="stripe-id-upload-title">Front of ID</div>
-        <div class="stripe-id-upload-sub">JPG or PNG, up to 10 MB</div>
+        <div class="stripe-id-upload-icon" data-id-icon><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><rect x="2" y="6" width="20" height="14" rx="2"/><circle cx="8" cy="13" r="2"/><path d="M12 17h6M12 13h6M18 6V4"/></svg></div>
+        <div class="stripe-id-upload-title" data-doctype-tile-title="passport">Photo of passport page</div>
+        <div class="stripe-id-upload-title" data-doctype-tile-title="id-card" style="display:none;">Front of ID</div>
+        <div class="stripe-id-upload-sub">Tap to open camera</div>
       </div>
-      <div class="stripe-id-upload" data-a11y-id="coach.stripe.onb.id.upload-back" id="id-tile-back" onclick="toggleIdUpload('back')">
-        <div class="stripe-id-upload-icon" data-id-icon><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
+      <!-- Back tile — only shown for id-card variant (passport is single-page) -->
+      <div class="stripe-id-upload" data-a11y-id="coach.stripe.onb.id.upload-back" id="id-tile-back" data-doctype-tile="id-card" style="display:none;" onclick="toggleIdUpload('back')">
+        <div class="stripe-id-upload-icon" data-id-icon><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><rect x="2" y="6" width="20" height="14" rx="2"/><circle cx="8" cy="13" r="2"/><path d="M12 17h6M12 13h6M18 6V4"/></svg></div>
         <div class="stripe-id-upload-title">Back of ID</div>
-        <div class="stripe-id-upload-sub">Optional for passports</div>
+        <div class="stripe-id-upload-sub">Tap to open camera</div>
       </div>
     </div>
 
@@ -1052,58 +1062,98 @@
 </div>
 
 
-<!-- ==================== SCREEN: s-stripe-bank-add ==================== -->
-<div class="fit-phone fit-dark" id="s-stripe-bank-add">
+<!-- ==================== SCREEN: s-stripe-bank-add (unified Bank ↔ Card add) ==================== -->
+<div class="fit-phone fit-dark" id="s-stripe-bank-add" data-method-type="bank">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
-      <button class="fit-header-back" data-a11y-id="coach.stripe.bank-add.back" onclick="go('s-stripe',document.querySelector('[onclick*=s-stripe]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Add bank account</span>
+      <button class="fit-header-back" data-a11y-id="coach.stripe.method-add.back" onclick="go('s-stripe',document.querySelector('[onclick*=s-stripe]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Add payout method</span>
     </div>
   </div>
   <div class="fit-phone-content" style="padding-bottom:24px;">
 
-    <div style="padding:16px;"><div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;">Add an additional bank account. You can set it as default later.</div></div>
+    <!-- Type segmented control -->
+    <div style="padding:16px 16px 8px;">
+      <div style="display:flex;background:var(--fit-surface-high);border-radius:12px;padding:4px;gap:4px;">
+        <button data-a11y-id="coach.stripe.method-add.type" data-type-btn="bank" onclick="setAddMethodType('bank')" style="flex:1;padding:10px;border:none;border-radius:8px;background:var(--fit-gray-700);color:var(--fit-white);font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;">Bank account</button>
+        <button data-a11y-id="coach.stripe.method-add.type" data-type-btn="card" onclick="setAddMethodType('card')" style="flex:1;padding:10px;border:none;border-radius:8px;background:transparent;color:var(--fit-text-tertiary);font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;">Debit card</button>
+      </div>
+      <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:8px;line-height:1.4;" data-type-hint="bank">SEPA transfer &middot; 1&ndash;2 business days &middot; <strong style="color:var(--fit-teal-500);">free</strong></div>
+      <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:8px;line-height:1.4;display:none;" data-type-hint="card">Instant Payouts &middot; under 30 minutes &middot; <strong style="color:var(--fit-yellow-400);">1% fee per payout</strong> (debit cards only)</div>
+    </div>
 
+    <!-- Shared: holder + country -->
     <div class="stripe-kv-group">
       <div class="stripe-kv"><span class="stripe-kv-label">Holder</span><span class="stripe-kv-value">Idella Lesch</span></div>
       <div class="stripe-kv"><span class="stripe-kv-label">Country</span><span class="stripe-kv-value">Spain &middot; EUR</span></div>
     </div>
 
-    <div style="padding:16px;">
+    <!-- BANK form -->
+    <div style="padding:16px;" data-type-form="bank">
       <div style="font-size:13px;color:var(--fit-text-tertiary);margin-bottom:6px;">IBAN</div>
-      <input type="text" data-a11y-id="coach.stripe.bank-add.iban" placeholder="ES00 0000 0000 0000 0000 0000" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
+      <input type="text" data-a11y-id="coach.stripe.method-add.iban" placeholder="ES00 0000 0000 0000 0000 0000" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
 
       <div style="font-size:13px;color:var(--fit-text-tertiary);margin:14px 0 6px;">SWIFT / BIC <span style="color:var(--fit-text-tertiary);">(optional)</span></div>
-      <input type="text" data-a11y-id="coach.stripe.bank-add.swift" placeholder="CAIXESBB" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);text-transform:uppercase;"/>
+      <input type="text" data-a11y-id="coach.stripe.method-add.swift" placeholder="CAIXESBB" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);text-transform:uppercase;"/>
+    </div>
 
-      <div style="margin-top:14px;display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="this.querySelector('.fit-checkbox').classList.toggle('checked')">
-        <div class="fit-checkbox" style="margin-left:0;width:22px;height:22px;border-width:1.5px;"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <span style="font-size:14px;color:var(--fit-text-secondary);">Set as default payout method</span>
+    <!-- CARD form -->
+    <div style="padding:16px;display:none;" data-type-form="card">
+      <div style="font-size:13px;color:var(--fit-text-tertiary);margin-bottom:6px;">Card number</div>
+      <input type="text" data-a11y-id="coach.stripe.method-add.card-number" placeholder="4242 4242 4242 4242" inputmode="numeric" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
+
+      <div style="display:flex;gap:12px;margin-top:14px;">
+        <div style="flex:1;">
+          <div style="font-size:13px;color:var(--fit-text-tertiary);margin-bottom:6px;">Expiry</div>
+          <input type="text" data-a11y-id="coach.stripe.method-add.card-expiry" placeholder="MM / YY" inputmode="numeric" maxlength="7" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:13px;color:var(--fit-text-tertiary);margin-bottom:6px;">CVC</div>
+          <input type="text" data-a11y-id="coach.stripe.method-add.card-cvc" placeholder="123" inputmode="numeric" maxlength="4" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
+        </div>
       </div>
+
+      <div class="stripe-banner info" style="margin:16px 0 0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <div class="stripe-banner-body">Debit cards only. Credit cards aren't supported for payouts.</div>
+      </div>
+    </div>
+
+    <div style="padding:0 16px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="this.querySelector('.fit-checkbox').classList.toggle('checked')">
+      <div class="fit-checkbox" style="margin-left:0;width:22px;height:22px;border-width:1.5px;"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <span style="font-size:14px;color:var(--fit-text-secondary);">Set as default payout method</span>
     </div>
 
   </div>
   <div class="fit-phone-footer" style="padding:12px 16px 16px;">
-    <button class="fit-btn fit-btn-primary" data-a11y-id="coach.stripe.bank-add.submit" onclick="go('s-stripe',document.querySelector('[onclick*=s-stripe]'))">Add</button>
+    <button class="fit-btn fit-btn-primary" data-a11y-id="coach.stripe.method-add.submit" onclick="go('s-stripe',document.querySelector('[onclick*=s-stripe]'))">Add</button>
   </div>
 </div>
 
 
-<!-- ==================== SCREEN: s-stripe-bank-detail ==================== -->
-<div class="fit-phone fit-dark" id="s-stripe-bank-detail" data-bank-default="true" data-bank-last="false">
+<!-- ==================== SCREEN: s-stripe-bank-detail (works for bank + card via data-method-type) ==================== -->
+<div class="fit-phone fit-dark" id="s-stripe-bank-detail" data-bank-default="true" data-bank-last="false" data-method-type="bank">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
       <button class="fit-header-back" data-a11y-id="coach.stripe.bank-detail.back" onclick="go('s-stripe',document.querySelector('[onclick*=s-stripe]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Bank account</span>
+      <span class="fit-header-title">Payout method</span>
     </div>
   </div>
   <div class="fit-phone-content" style="padding-bottom:24px;">
 
     <div style="padding:24px 16px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;">
-      <div class="stripe-bank-icon" style="width:56px;height:56px;border-radius:16px;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/></svg></div>
-      <div style="font-size:17px;font-weight:500;color:var(--fit-text-primary);"><span data-bank-name>Visa</span> &middot; &bull;&bull;&bull;&bull; <span data-bank-last4>4821</span></div>
+      <div class="stripe-bank-icon" style="width:56px;height:56px;border-radius:16px;">
+        <!-- Icon swaps by type -->
+        <svg data-method-icon="bank" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/></svg>
+        <svg data-method-icon="card" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/></svg>
+      </div>
+      <div style="font-size:17px;font-weight:500;color:var(--fit-text-primary);"><span data-bank-name>BBVA</span> &middot; &bull;&bull;&bull;&bull; <span data-bank-last4>4821</span></div>
+      <div style="font-size:12px;color:var(--fit-text-tertiary);">
+        <span data-method-sub="bank">Bank &middot; SEPA &middot; 1&ndash;2 business days</span>
+        <span data-method-sub="card" style="display:none;">Debit card &middot; Instant Payouts &middot; 1% fee per payout</span>
+      </div>
       <div data-bank-default-pill="show" style="font-size:13px;color:var(--fit-teal-500);display:inline-flex;align-items:center;gap:6px;">
         <span class="stripe-dot"></span>Default payout method
       </div>
@@ -1329,7 +1379,7 @@
     <p><strong>2 lifecycle states only:</strong> Not set up vs Connected. "Verifying" and "Action needed" are <em>sub-modes inside Connected</em>, not separate lifecycle states — Stripe lets the account exist (and accept card payments) even while payouts are paused, so it's misleading to model them as a different lifecycle.</p>
     <ul>
       <li><strong>Not set up</strong> — intro + what-you'll-set-up list + consent → <code>Start setup</code> pushes to onb-confirm (step 1 of 3).</li>
-      <li><strong>Connected · clean</strong> — green pill "Payouts active". Full control center: bank accounts list → payout block (Available + Next payout always visible) → manual mode toggle → activity preview → Disconnect.</li>
+      <li><strong>Connected · clean</strong> — green pill "Payouts active". Full control center: Payout methods list (bank + card, mixed) → payout block (Available + Next payout always visible) → manual mode toggle → activity preview (incl. in-transit) → Disconnect. Account ID + Country meta removed (low-value).</li>
       <li><strong>Connected · verifying</strong> — blue info banner up top ("Verifying your details — usually within a few hours"). Hero pill turns blue "Payouts pending verification". Bank list + payout block stay visible (informational).</li>
       <li><strong>Connected · action</strong> — yellow warn banner up top ("Identity document needed — card payments work, payouts are paused"). <code>Upload ID now</code> CTA inside banner deep-links to <code>s-stripe-onb-id</code>. Hero pill yellow "Payouts paused".</li>
     </ul>
@@ -1401,32 +1451,58 @@
       <button class="active" onclick="document.getElementById('s-stripe-onb-id').setAttribute('data-id-state','empty');document.querySelectorAll('#s-stripe-onb-id .stripe-id-upload.done').forEach(function(t){t.classList.remove('done');var w=t.querySelector('[data-id-icon]');if(w)w.innerHTML='&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; style=&quot;width:18px;height:18px;&quot;&gt;&lt;path d=&quot;M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12&quot;/&gt;&lt;/svg&gt;';var ti=t.querySelector('.stripe-id-upload-title');if(ti)ti.textContent=t.id==='id-tile-front'?'Front of ID':'Back of ID'});this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Empty</button>
       <button onclick="toggleIdUpload('front');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Front uploaded</button>
     </div>
-    <p><strong>Step 2 of 3.</strong> Two upload tiles + always-visible info banner explaining what happens with/without upload. <strong>One Continue button only</strong> — no Skip.</p>
+    <p><strong>Step 2 of 3.</strong> Document type segmented control at top (<strong>Passport</strong> = 1 tile, <strong>ID / Driver's license</strong> = 2 tiles front+back) + always-visible info banner + single Continue (no Skip).</p>
+    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin:10px 0 6px;">Document type</div>
+    <div class="state-toggle">
+      <button class="active" onclick="setIdDocType('passport');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Passport</button>
+      <button onclick="setIdDocType('id-card');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">ID / License</button>
+    </div>
     <h4>Why no Skip button</h4>
-    <p>"Skip for now" + "Continue" both did the same thing (advance to next step) when nothing was uploaded — false choice. Instead: keep just Continue, and use the info banner ("Required to receive payouts. Card payments work either way. Until verified, earnings stay safe in Stripe but can't be paid out.") to make the consequence clear upfront. User decides whether to upload now or later from one informed CTA.</p>
+    <p>"Skip for now" + "Continue" both did the same thing — false choice. Instead: keep Continue, use the banner to explain the consequence upfront. User makes one informed call.</p>
     <ul>
-      <li>Upload tile turns teal outline + checkmark when image picked.</li>
+      <li>Upload tile turns teal outline + checkmark when image captured.</li>
       <li>Continue is always enabled (no gating on upload state).</li>
-      <li>If nothing uploaded → <code>s-stripe</code> on return shows <em>Connected · action needed</em> sub-mode (yellow banner "Identity document needed").</li>
-      <li>If uploaded → <code>s-stripe</code> on return shows <em>Connected · verifying</em> sub-mode (blue banner "Verifying your details").</li>
+      <li>If nothing uploaded → <code>s-stripe</code> on return shows <em>Connected · action</em> (yellow banner).</li>
+      <li>If uploaded → <code>s-stripe</code> on return shows <em>Connected · verifying</em> (blue banner).</li>
     </ul>
+    <h4>Camera-only capture (not gallery)</h4>
+    <p>In production, tap on upload tile launches <strong>Stripe Identity SDK</strong> → opens system camera (UIImagePickerController in <code>.camera</code> mode on iOS, equivalent on Android). Not a gallery picker — Stripe wants a fresh photo to prevent uploaded edited/stale documents. SDK does the framing overlay + auto-detects edges + handles compression before sending to Stripe Verification API directly (the file never hits our backend). Our backend just records the <code>verification.document.front/back</code> field IDs Stripe returns.</p>
+    <p class="note"><strong>Passport vs ID/license behavior:</strong> Passport mode hides the second tile entirely (single page document). ID/license shows both tiles — back is required for most country IDs, optional only for US passports (which aren't passports in our switch anyway). Backend doesn't care about this UI distinction — it just receives 1 or 2 photos and forwards.</p>
   </div>
 
   <div class="ann" id="ann-s-stripe-onb-bank"><span class="ann-role coach">Coach</span><h3>Onboarding — Bank account</h3>
     <p><strong>Step 3 of 3.</strong> Holder + Country from confirm screen (locked here — change in Confirm if wrong). IBAN required, SWIFT/BIC optional. <strong>T&amp;C consent required</strong> — enables Submit. After Submit → <code>s-stripe</code> in pending state → transitions to done on webhook.</p>
   </div>
 
-  <div class="ann" id="ann-s-stripe-bank-add"><span class="ann-role coach">Coach</span><h3>Add bank account</h3>
-    <p>Same form as onboarding bank step — minus T&amp;C consent (already accepted). Optional "Set as default payout method" checkbox below inputs. Add → new bank lands on s-stripe Bank accounts list.</p>
+  <div class="ann" id="ann-s-stripe-bank-add"><span class="ann-role coach">Coach</span><h3>Add payout method</h3>
+    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Type</div>
+    <div class="state-toggle">
+      <button class="active" onclick="setAddMethodType('bank');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Bank</button>
+      <button onclick="setAddMethodType('card');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Card</button>
+    </div>
+    <p><strong>Unified form for bank and debit card.</strong> Segmented control at top switches between them. Fields swap, holder + country shared. Optional "Set as default" checkbox below.</p>
+    <h4>Differences shown to user</h4>
+    <ul>
+      <li><strong>Bank</strong> — SEPA/IBAN transfer, 1–2 business days, <span style="color:var(--fit-teal-500);">free</span>. Fields: IBAN + SWIFT/BIC (optional).</li>
+      <li><strong>Card</strong> — Instant Payouts (under 30 min), <span style="color:var(--fit-yellow-400);">1% Stripe fee per payout</span>. Fields: Card number + Expiry + CVC. Info banner reminds that only debit cards work (credit not supported).</li>
+    </ul>
+    <h4>API</h4>
+    <p><code>POST /coach/stripe-onboarding/external-account</code> with body:</p>
+    <ul>
+      <li><strong>Bank:</strong> <code>{type: "bank_account", iban, country, currency}</code></li>
+      <li><strong>Card:</strong> <code>{type: "card", number, exp_month, exp_year, cvc}</code></li>
+    </ul>
+    <p class="note"><strong>Card-as-payout is country-gated.</strong> Stripe enables it for US, UK, and most EU (incl. Spain, FR, DE, IT). Backend checks coach's account country against Stripe's instant_payouts_supported list and hides the Card tab if not supported. For v1 we don't expose the toggle gating in UI — the form just rejects on submit with a friendly error.</p>
   </div>
 
-  <div class="ann" id="ann-s-stripe-bank-detail"><span class="ann-role coach">Coach</span><h3>Bank account detail</h3>
+  <div class="ann" id="ann-s-stripe-bank-detail"><span class="ann-role coach">Coach</span><h3>Payout method detail</h3>
+    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Type</div>
     <div class="state-toggle">
-      <button class="active" onclick="setBankDetail('Visa','4821',true,false);this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Default (not last)</button>
-      <button onclick="setBankDetail('Bank','7732',false,false);this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Non-default</button>
-      <button onclick="setBankDetail('Visa','4821',true,true);this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Only bank (last)</button>
+      <button class="active" onclick="setMethodDetail('bank','BBVA','4821',true,false);this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Bank (default)</button>
+      <button onclick="setMethodDetail('card','Visa debit','7732',false,false);this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Card</button>
+      <button onclick="setMethodDetail('bank','BBVA','4821',true,true);this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Only (last)</button>
     </div>
-    <p>Read-only info + 2 actions. Remove opens 3-variant sheet: <em>last</em> (block + nudge to Add another), <em>default</em> (warn + name fallback bank), <em>normal</em> (simple confirm).</p>
+    <p>Works for both bank and card. Icon + sub-text swap by type. 2 actions: Set as default (when non-default), Remove (destructive). Remove sheet has 3 variants: <em>last</em> (block + nudge to Add another), <em>default</em> (warn + name fallback), <em>normal</em> (simple confirm).</p>
   </div>
 
   <div class="ann" id="ann-s-stripe-withdraw"><span class="ann-role coach">Coach</span><h3>Withdraw</h3>
@@ -1816,6 +1892,56 @@
     screen.querySelectorAll('[data-bank-default-pill]').forEach(function(el) {
       var role = el.getAttribute('data-bank-default-pill');
       el.style.display = (role === 'show' ? isDefault : !isDefault) ? '' : 'none';
+    });
+  }
+
+  // Method-detail wrapper — same screen as bank-detail, but swaps icon + sub-text by type.
+  function setMethodDetail(type, name, last4, isDefault, isLast) {
+    setBankDetail(name, last4, isDefault, isLast);
+    var screen = document.getElementById('s-stripe-bank-detail');
+    if (!screen) return;
+    screen.setAttribute('data-method-type', type);
+    screen.querySelectorAll('[data-method-icon]').forEach(function(ic) {
+      ic.style.display = ic.getAttribute('data-method-icon') === type ? '' : 'none';
+    });
+    screen.querySelectorAll('[data-method-sub]').forEach(function(s) {
+      s.style.display = s.getAttribute('data-method-sub') === type ? '' : 'none';
+    });
+  }
+
+  // Add-method type switcher (Bank ↔ Card)
+  function setAddMethodType(type) {
+    var screen = document.getElementById('s-stripe-bank-add');
+    if (!screen) return;
+    screen.setAttribute('data-method-type', type);
+    screen.querySelectorAll('[data-type-btn]').forEach(function(btn) {
+      var active = btn.getAttribute('data-type-btn') === type;
+      btn.style.background = active ? 'var(--fit-gray-700)' : 'transparent';
+      btn.style.color = active ? 'var(--fit-white)' : 'var(--fit-text-tertiary)';
+    });
+    screen.querySelectorAll('[data-type-form]').forEach(function(f) {
+      f.style.display = f.getAttribute('data-type-form') === type ? '' : 'none';
+    });
+    screen.querySelectorAll('[data-type-hint]').forEach(function(h) {
+      h.style.display = h.getAttribute('data-type-hint') === type ? '' : 'none';
+    });
+  }
+
+  // ID document type switcher (Passport = 1 tile, ID/license = 2 tiles)
+  function setIdDocType(type) {
+    var screen = document.getElementById('s-stripe-onb-id');
+    if (!screen) return;
+    screen.setAttribute('data-id-doctype', type);
+    screen.querySelectorAll('[data-doctype-btn]').forEach(function(btn) {
+      var active = btn.getAttribute('data-doctype-btn') === type;
+      btn.style.background = active ? 'var(--fit-gray-700)' : 'transparent';
+      btn.style.color = active ? 'var(--fit-white)' : 'var(--fit-text-tertiary)';
+    });
+    screen.querySelectorAll('[data-doctype-tile-title]').forEach(function(t) {
+      t.style.display = t.getAttribute('data-doctype-tile-title') === type ? '' : 'none';
+    });
+    screen.querySelectorAll('[data-doctype-tile]').forEach(function(tile) {
+      tile.style.display = tile.getAttribute('data-doctype-tile') === type ? '' : 'none';
     });
   }
 
