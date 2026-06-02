@@ -1,7 +1,7 @@
 # Accessibility Identifiers Registry
 
 > Canonical source of truth for every `data-a11y-id` in the prototypes, every `accessibilityIdentifier` on iOS, every `testTag` on Compose, and every `id:` selector in Maestro flows.
-> Last updated: 2026-06-02
+> Last updated: 2026-06-02 (Stripe moved to standalone flow `coach/stripe.html`)
 
 ## Convention
 
@@ -347,7 +347,7 @@ Prototype: `shared/account-access.html`
 
 Prototype: `coach/balance.html`
 
-Full coverage for all 8 coach earnings screens populated 2026-05-22. **Stripe section expanded 2026-06-02** for the in-app Stripe Control + native 3-screen onboarding rewrite (7 new screens added to `balance.html`). Sections below.
+Full coverage for all 8 coach earnings screens populated 2026-05-22. **Stripe section moved to standalone flow `coach/stripe.html` on 2026-06-02** — namespace `coach.stripe.*` (not `coach.earnings.stripe.*`). Edit field screens (Name / Email / Phone / Country / Address) added so all confirm-screen fields are properly editable via push screens (instead of fake lock icons). DOB uses the canonical 3-wheel `dob-picker-sheet` (copied from `personal-data.html`). Sections below.
 
 #### Main Earnings (`#s-earnings` — two-axis swiper)
 
@@ -429,81 +429,121 @@ Full coverage for all 8 coach earnings screens populated 2026-05-22. **Stripe se
 
 | ID | Element | Notes |
 |---|---|---|
-| `coach.earnings.stripe.start-setup` | "Start setup" CTA | none state — pushes to onb-confirm |
-| `coach.earnings.stripe.continue-pending` | "Continue setup" CTA | pending state |
-| `coach.earnings.stripe.resolve` | "Resolve now" CTA | action-required state — deep-link to failing onb step |
-| `coach.earnings.stripe.bank.row` | bank account row | generic — `data-bank-id="..."` |
-| `coach.earnings.stripe.bank.add` | dashed "+ Add bank account" card | |
-| `coach.earnings.stripe.available` | Available balance value | shown in payout summary card |
-| `coach.earnings.stripe.manual-toggle` | manual payouts toggle row | tap to switch auto↔manual |
-| `coach.earnings.stripe.withdraw` | Withdraw CTA in payouts block | visible only in manual mode |
-| `coach.earnings.stripe.payouts.view-all` | "View all" action in Activity section | → s-stripe-payouts |
-| `coach.earnings.stripe.payouts.row` | activity row (single recent payout) | |
-| `coach.earnings.stripe.disconnect` | "Disconnect Stripe" destructive CTA | opens disconnect sheet |
-| `coach.earnings.stripe.disconnect.confirm` / `.cancel` | disconnect sheet actions | 3 variants: clean / pending-balance / active-events |
+| `coach.stripe.start-setup` | "Start setup" CTA | none state — pushes to onb-confirm |
+| `coach.stripe.continue-pending` | "Continue setup" CTA | pending state |
+| `coach.stripe.resolve` | "Resolve now" CTA | action-required state — deep-link to failing onb step |
+| `coach.stripe.bank.row` | bank account row | generic — `data-bank-id="..."` |
+| `coach.stripe.bank.add` | dashed "+ Add bank account" card | |
+| `coach.stripe.available` | Available balance value | shown in payout summary card |
+| `coach.stripe.manual-toggle` | manual payouts toggle row | tap to switch auto↔manual |
+| `coach.stripe.withdraw` | Withdraw CTA in payouts block | visible only in manual mode |
+| `coach.stripe.payouts.view-all` | "View all" action in Activity section | → s-stripe-payouts |
+| `coach.stripe.payouts.row` | activity row (single recent payout) | |
+| `coach.stripe.disconnect` | "Disconnect Stripe" destructive CTA | opens disconnect sheet |
+| `coach.stripe.disconnect.confirm` / `.cancel` | disconnect sheet actions | 3 variants: clean / pending-balance / active-events |
 
 #### Stripe Onboarding — Confirm info (`#s-stripe-onb-confirm`)
 
 | ID | Element | Notes |
 |---|---|---|
-| `coach.earnings.stripe.onb.confirm.back` | back chevron | |
-| `coach.earnings.stripe.onb.confirm.name` / `.email` / `.phone` / `.country` | locked rows | auto from `/prefill` |
-| `coach.earnings.stripe.onb.confirm.dob` | editable / picker row | conditional — present vs missing variant |
-| `coach.earnings.stripe.onb.confirm.address` | editable hint row | from training address |
-| `coach.earnings.stripe.onb.confirm.continue` | primary CTA | step 1 of 3 |
+| `coach.stripe.onb.confirm.back` | back chevron | |
+| `coach.stripe.onb.confirm.name` | row | tap → `s-stripe-onb-edit-name` push |
+| `coach.stripe.onb.confirm.email` | row | tap → `s-stripe-onb-edit-email` push |
+| `coach.stripe.onb.confirm.phone` | row | tap → `s-stripe-onb-edit-phone` push |
+| `coach.stripe.onb.confirm.country` | row | tap → `s-stripe-onb-edit-country` push (search + list) |
+| `coach.stripe.onb.confirm.dob` | row | tap → opens canonical `dob-picker-sheet` (3-wheel bottom sheet) |
+| `coach.stripe.onb.confirm.address` | row | tap → `s-stripe-onb-edit-address` push (4-field form) |
+| `coach.stripe.onb.confirm.continue` | primary CTA | step 1 of 3 |
+| `coach.stripe.onb.dob.set` / `.cancel` | sheet actions | DOB wheel picker |
+
+#### Stripe Onboarding — Edit Name (`#s-stripe-onb-edit-name`)
+
+| ID | Element | Notes |
+|---|---|---|
+| `coach.stripe.onb.edit-name.cancel` / `.save` | header buttons | iOS Cancel-Save pattern |
+| `coach.stripe.onb.edit-name.first` / `.last` | inputs | must match government-issued ID |
+
+#### Stripe Onboarding — Edit Email (`#s-stripe-onb-edit-email`)
+
+| ID | Element | Notes |
+|---|---|---|
+| `coach.stripe.onb.edit-email.cancel` / `.save` | header buttons | |
+| `coach.stripe.onb.edit-email.input` | email input | doesn't change sign-in email |
+
+#### Stripe Onboarding — Edit Phone (`#s-stripe-onb-edit-phone`)
+
+| ID | Element | Notes |
+|---|---|---|
+| `coach.stripe.onb.edit-phone.cancel` / `.save` | header buttons | |
+| `coach.stripe.onb.edit-phone.input` | tel input | country code dropdown sits next to it |
+
+#### Stripe Onboarding — Edit Country (`#s-stripe-onb-edit-country`)
+
+| ID | Element | Notes |
+|---|---|---|
+| `coach.stripe.onb.edit-country.back` | back chevron | |
+| `coach.stripe.onb.edit-country.search` | search input | filters list |
+| `coach.stripe.onb.edit-country.row` | country row | generic — `data-country="XX"` `data-currency="YYY"` |
+
+#### Stripe Onboarding — Edit Address (`#s-stripe-onb-edit-address`)
+
+| ID | Element | Notes |
+|---|---|---|
+| `coach.stripe.onb.edit-address.cancel` / `.save` | header buttons | |
+| `coach.stripe.onb.edit-address.line1` / `.line2` / `.city` / `.postal` | inputs | country is read-only (from confirm screen) |
 
 #### Stripe Onboarding — Verification (`#s-stripe-onb-id`)
 
 | ID | Element | Notes |
 |---|---|---|
-| `coach.earnings.stripe.onb.id.back` | back chevron | |
-| `coach.earnings.stripe.onb.id.upload-front` | front-of-ID upload tile | |
-| `coach.earnings.stripe.onb.id.upload-back` | back-of-ID upload tile | optional for passports |
-| `coach.earnings.stripe.onb.id.continue` | primary CTA | step 2 of 3 |
-| `coach.earnings.stripe.onb.id.skip` | "Skip for now" text button | sets state→skipped, auto-advances; `s-stripe` lands in action-required on return |
+| `coach.stripe.onb.id.back` | back chevron | |
+| `coach.stripe.onb.id.upload-front` | front-of-ID upload tile | |
+| `coach.stripe.onb.id.upload-back` | back-of-ID upload tile | optional for passports |
+| `coach.stripe.onb.id.continue` | primary CTA | step 2 of 3 |
+| `coach.stripe.onb.id.skip` | "Skip for now" text button | sets state→skipped, auto-advances; `s-stripe` lands in action-required on return |
 
 #### Stripe Onboarding — Bank account (`#s-stripe-onb-bank`)
 
 | ID | Element | Notes |
 |---|---|---|
-| `coach.earnings.stripe.onb.bank.back` | back chevron | |
-| `coach.earnings.stripe.onb.bank.iban` | IBAN input | |
-| `coach.earnings.stripe.onb.bank.swift` | SWIFT/BIC input | optional |
-| `coach.earnings.stripe.onb.bank.submit` | submit CTA | disabled until T&C consent checked |
+| `coach.stripe.onb.bank.back` | back chevron | |
+| `coach.stripe.onb.bank.iban` | IBAN input | |
+| `coach.stripe.onb.bank.swift` | SWIFT/BIC input | optional |
+| `coach.stripe.onb.bank.submit` | submit CTA | disabled until T&C consent checked |
 
 #### Add bank account (`#s-stripe-bank-add`)
 
 | ID | Element | Notes |
 |---|---|---|
-| `coach.earnings.stripe.bank-add.back` | back chevron | |
-| `coach.earnings.stripe.bank-add.iban` / `.swift` | inputs | |
-| `coach.earnings.stripe.bank-add.submit` | submit CTA | optional Set-as-default checkbox above |
+| `coach.stripe.bank-add.back` | back chevron | |
+| `coach.stripe.bank-add.iban` / `.swift` | inputs | |
+| `coach.stripe.bank-add.submit` | submit CTA | optional Set-as-default checkbox above |
 
 #### Bank account detail (`#s-stripe-bank-detail`)
 
 | ID | Element | Notes |
 |---|---|---|
-| `coach.earnings.stripe.bank-detail.back` | back chevron | |
-| `coach.earnings.stripe.bank-detail.set-default` | "Set as default" CTA | visible only on non-default banks |
-| `coach.earnings.stripe.bank-detail.remove` | destructive remove CTA | opens 3-variant sheet (last / default / normal) |
-| `coach.earnings.stripe.bank-detail.remove.confirm` / `.cancel` | sheet actions | |
+| `coach.stripe.bank-detail.back` | back chevron | |
+| `coach.stripe.bank-detail.set-default` | "Set as default" CTA | visible only on non-default banks |
+| `coach.stripe.bank-detail.remove` | destructive remove CTA | opens 3-variant sheet (last / default / normal) |
+| `coach.stripe.bank-detail.remove.confirm` / `.cancel` | sheet actions | |
 
 #### Withdraw (`#s-stripe-withdraw`, manual mode only)
 
 | ID | Element | Notes |
 |---|---|---|
-| `coach.earnings.stripe.withdraw.back` | back chevron | |
-| `coach.earnings.stripe.withdraw.amount` | amount input | |
-| `coach.earnings.stripe.withdraw.chip` | quick-amount chip | generic — `€50 / €100 / All` |
-| `coach.earnings.stripe.withdraw.destination` | destination bank row | v1 always default |
-| `coach.earnings.stripe.withdraw.confirm` | confirm CTA | min €20 enforced |
+| `coach.stripe.withdraw.back` | back chevron | |
+| `coach.stripe.withdraw.amount` | amount input | |
+| `coach.stripe.withdraw.chip` | quick-amount chip | generic — `€50 / €100 / All` |
+| `coach.stripe.withdraw.destination` | destination bank row | v1 always default |
+| `coach.stripe.withdraw.confirm` | confirm CTA | min €20 enforced |
 
 #### Payouts history (`#s-stripe-payouts`)
 
 | ID | Element | Notes |
 |---|---|---|
-| `coach.earnings.stripe.payouts.back` | back chevron | |
-| `coach.earnings.stripe.payouts.row` | payout row | reuses `#s-txn-payout` on tap |
+| `coach.stripe.payouts.back` | back chevron | |
+| `coach.stripe.payouts.row` | payout row | reuses `#s-txn-payout` on tap |
 
 ### `booking` — athlete books a coach session
 

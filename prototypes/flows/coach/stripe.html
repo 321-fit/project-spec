@@ -1,0 +1,1847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Stripe Connect</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--fit-font);
+    background: #0a0a0a;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 24px; min-height: 100vh;
+    min-width: 900px;
+  }
+
+  /* Sidebar (copied pattern from balance.html) */
+  .sidebar {
+    position: fixed; left: 24px; top: 24px; width: 220px;
+    background: var(--fit-surface-low); border-radius: 18px;
+    padding: 18px 12px; max-height: calc(100vh - 48px);
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+  .sidebar-scroll {
+    overflow-y: auto;
+    flex: 1; padding-right: 6px;
+  }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label {
+    font-size: 11px; color: var(--fit-text-tertiary); text-transform: uppercase;
+    letter-spacing: 0.4px; margin: 12px 6px 8px;
+  }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button {
+    display: block; width: 100%; text-align: left;
+    background: transparent; color: var(--fit-text-secondary);
+    border: none; padding: 8px 10px; border-radius: 8px;
+    font-family: var(--fit-font); font-size: 13px; cursor: pointer;
+    margin-bottom: 2px;
+  }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active {
+    background: var(--fit-gray-800); color: var(--fit-white);
+  }
+  .sidebar .back-link {
+    display: flex; align-items: center; gap: 6px;
+    color: var(--fit-text-tertiary); font-size: 12px;
+    text-decoration: none; padding: 10px 6px 14px;
+    border-bottom: 1px solid var(--fit-divider);
+    margin-bottom: 6px;
+  }
+  .sidebar .back-link:hover { color: var(--fit-blue-500); }
+
+  /* Annotations */
+  .ann-container {
+    position: fixed; right: 24px; top: 24px;
+    width: 380px; max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    background: var(--fit-surface-low); border-radius: 18px;
+    padding: 24px;
+  }
+  .ann-container::-webkit-scrollbar { width: 6px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 3px; }
+  .ann { display: none; }
+  .ann.active { display: block; }
+  .ann h3 { font-size: 18px; font-weight: 500; color: var(--fit-white); margin-bottom: 6px; }
+  .ann h4 { font-size: 13px; font-weight: 500; color: var(--fit-text-secondary); margin: 14px 0 4px; }
+  .ann p { font-size: 13px; color: var(--fit-text-tertiary); line-height: 1.5; margin-bottom: 8px; }
+  .ann ul { list-style: disc; padding-left: 16px; font-size: 13px; color: var(--fit-text-tertiary); line-height: 1.6; }
+  .ann ul li { margin-bottom: 4px; }
+  .ann code { font-family: 'SF Mono', Menlo, monospace; font-size: 12px; background: var(--fit-gray-800); padding: 1px 5px; border-radius: 4px; color: var(--fit-text-secondary); }
+  .ann hr { border: none; border-top: 1px solid var(--fit-divider); margin: 12px 0; }
+  .ann .note { font-size: 12px; color: var(--fit-text-tertiary); background: var(--fit-gray-900); padding: 10px 12px; border-radius: 8px; line-height: 1.5; }
+  .ann-role {
+    display: inline-block; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 2px 8px; border-radius: 4px; margin-bottom: 8px;
+  }
+  .ann-role.coach { background: rgba(3,178,226,0.15); color: var(--fit-blue-500); }
+  .state-toggle { display: flex; gap: 4px; padding: 2px; background: var(--fit-gray-900); border-radius: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .state-toggle button {
+    flex: 1; font-family: var(--fit-font); font-size: 11px; font-weight: 500;
+    padding: 6px 10px; border: none; border-radius: 6px; cursor: pointer;
+    background: transparent; color: var(--fit-gray-400);
+    min-width: 70px;
+  }
+  .state-toggle button.active { background: var(--fit-gray-700); color: var(--fit-white); }
+  .ann-detail-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--fit-blue-500); cursor: pointer;
+    margin: 8px 0;
+  }
+  .ann-detail-toggle svg { width: 10px; height: 10px; transition: transform 0.2s; }
+  .ann-detail-toggle.open svg { transform: rotate(90deg); }
+  .ann-detail { display: none; padding: 8px 0 0; border-top: 1px solid var(--fit-divider); margin-top: 8px; }
+  .ann-detail.open { display: block; }
+
+  /* Screen visibility */
+  .fit-phone { display: none; }
+  .fit-phone.active { display: block; }
+
+  /* ===== STRIPE-SPECIFIC ===== */
+
+  /* Stripe logo plate */
+  .stripe-logo {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: var(--fit-surface-higher);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 600; color: #635BFF;
+    flex-shrink: 0;
+  }
+
+  /* KV group (account meta + verification details) */
+  .stripe-kv-group {
+    margin: 0 16px; border-radius: 14px; overflow: hidden;
+    background: var(--fit-surface-high);
+  }
+  .fit-light .stripe-kv-group { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .stripe-kv {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px; gap: 12px;
+  }
+  .stripe-kv + .stripe-kv { border-top: 1px solid var(--fit-divider); }
+  .stripe-kv-label { font-size: 14px; color: var(--fit-text-tertiary); }
+  .stripe-kv-value { font-size: 14px; color: var(--fit-text-primary); text-align: right; }
+
+  /* Section heading */
+  .stripe-section-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 20px 8px; margin-top: 24px;
+  }
+  .stripe-section-title { font-size: 13px; color: var(--fit-text-tertiary); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 500; }
+  .stripe-section-action { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--fit-blue-500); cursor: pointer; }
+  .stripe-section-action svg { width: 12px; height: 12px; }
+
+  /* Banner (info / warn) */
+  .stripe-banner {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 14px;
+    border-radius: 12px;
+    margin: 0 16px;
+  }
+  .stripe-banner svg { flex-shrink: 0; width: 18px; height: 18px; margin-top: 2px; }
+  .stripe-banner.info { background: rgba(3,178,226,0.10); color: var(--fit-blue-500); }
+  .stripe-banner.warn { background: rgba(247,201,72,0.10); color: var(--fit-yellow-400); }
+  .stripe-banner-body { flex: 1; font-size: 14px; color: var(--fit-text-secondary); line-height: 1.45; }
+  .stripe-banner-title { font-weight: 500; color: var(--fit-text-primary); margin-bottom: 2px; }
+
+  /* Success dot */
+  .stripe-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--fit-teal-500); flex-shrink: 0; }
+  .stripe-dot.warn { background: var(--fit-yellow-400); }
+  .stripe-dot.blue { background: var(--fit-blue-500); }
+
+  /* Bank account card */
+  .stripe-bank-card {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 14px;
+    background: var(--fit-surface-high);
+    border-radius: 14px;
+    cursor: pointer;
+  }
+  .fit-light .stripe-bank-card { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .stripe-bank-card + .stripe-bank-card { margin-top: 8px; }
+  .stripe-bank-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--fit-surface-higher);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-text-secondary);
+    flex-shrink: 0;
+  }
+  .fit-light .stripe-bank-icon { background: var(--fit-gray-50); }
+  .stripe-bank-info { flex: 1; min-width: 0; }
+  .stripe-bank-title { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .stripe-bank-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 4px; display: flex; align-items: center; gap: 6px; }
+  .stripe-bank-chev { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+
+  /* Payout summary card (Available + Next payout) */
+  .stripe-payout-card {
+    background: var(--fit-surface-high);
+    border-radius: 14px;
+    margin: 0 16px;
+    padding: 16px;
+  }
+  .fit-light .stripe-payout-card { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .stripe-payout-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; }
+  .stripe-payout-row + .stripe-payout-row { border-top: 1px solid var(--fit-divider); margin-top: 2px; padding-top: 12px; }
+  .stripe-payout-label { font-size: 14px; color: var(--fit-text-tertiary); }
+  .stripe-payout-value { font-size: 17px; font-weight: 600; color: var(--fit-text-primary); }
+  .stripe-payout-value.muted { color: var(--fit-text-tertiary); font-weight: 500; font-size: 14px; }
+
+  /* Toggle row */
+  .stripe-toggle-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    cursor: pointer;
+  }
+  .stripe-toggle-info { flex: 1; min-width: 0; }
+  .stripe-toggle-title { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .stripe-toggle-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 2px; line-height: 1.4; }
+
+  /* iOS-style switch */
+  .fit-switch {
+    width: 44px; height: 26px; border-radius: 13px;
+    background: var(--fit-surface-higher);
+    position: relative; flex-shrink: 0;
+    transition: background 0.18s ease;
+  }
+  .fit-light .fit-switch { background: var(--fit-gray-200); }
+  .fit-switch.on { background: var(--fit-teal-500); }
+  .fit-switch-knob {
+    position: absolute; top: 2px; left: 2px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: left 0.18s ease;
+  }
+  .fit-switch.on .fit-switch-knob { left: 20px; }
+
+  /* Tappable settings row (editable form rows) */
+  .stripe-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    background: var(--fit-surface-high);
+    cursor: pointer;
+  }
+  .fit-light .stripe-row { background: var(--fit-white); }
+  .stripe-row-group { border-radius: 14px; overflow: hidden; margin: 0 16px; }
+  .fit-light .stripe-row-group { border: 1px solid var(--fit-gray-100); }
+  .stripe-row + .stripe-row { border-top: 1px solid var(--fit-divider); }
+  .stripe-row-label { font-size: 13px; color: var(--fit-text-tertiary); min-width: 100px; }
+  .stripe-row-value { flex: 1; font-size: 15px; color: var(--fit-text-primary); }
+  .stripe-row-value.placeholder { color: var(--fit-text-tertiary); }
+  .stripe-row-chev { width: 14px; height: 14px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+
+  /* ID document upload tile */
+  .stripe-id-upload {
+    border: 1px dashed var(--fit-gray-700);
+    border-radius: 14px;
+    padding: 22px 16px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    cursor: pointer;
+  }
+  .fit-light .stripe-id-upload { border-color: var(--fit-gray-300); }
+  .stripe-id-upload.done {
+    border-style: solid; border-color: var(--fit-teal-500);
+    background: rgba(5,224,166,0.08);
+  }
+  .stripe-id-upload-icon {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--fit-surface-higher);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-text-secondary);
+  }
+  .stripe-id-upload.done .stripe-id-upload-icon { background: rgba(5,224,166,0.16); color: var(--fit-teal-500); }
+  .stripe-id-upload-title { font-size: 14px; font-weight: 500; color: var(--fit-text-primary); }
+  .stripe-id-upload-sub { font-size: 12px; color: var(--fit-text-tertiary); }
+
+  /* Withdraw amount */
+  .stripe-withdraw-amount {
+    display: flex; align-items: baseline; justify-content: center; gap: 4px;
+    padding: 36px 16px 12px;
+  }
+  .stripe-withdraw-currency { font-size: 26px; font-weight: 500; color: var(--fit-text-tertiary); }
+  .stripe-withdraw-input {
+    font-size: 56px; font-weight: 600; color: var(--fit-text-primary);
+    background: transparent; border: none; outline: none;
+    text-align: center; width: 200px; padding: 0;
+    font-family: var(--fit-font);
+  }
+  .stripe-withdraw-available {
+    text-align: center; font-size: 13px; color: var(--fit-text-tertiary);
+    margin-bottom: 18px;
+  }
+  .stripe-withdraw-chips { display: flex; gap: 8px; justify-content: center; padding: 0 16px; }
+  .stripe-withdraw-chip {
+    flex: 1; padding: 10px 0;
+    background: var(--fit-surface-high); border-radius: 999px;
+    text-align: center; font-size: 13px; font-weight: 500;
+    color: var(--fit-text-primary); cursor: pointer;
+  }
+  .fit-light .stripe-withdraw-chip { background: var(--fit-gray-100); }
+
+  /* Payout history row */
+  .stripe-txn {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px;
+    background: var(--fit-surface-high);
+    cursor: pointer;
+  }
+  .fit-light .stripe-txn { background: var(--fit-white); }
+  .stripe-txn-group { border-radius: 14px; overflow: hidden; margin: 0 16px; }
+  .fit-light .stripe-txn-group { border: 1px solid var(--fit-gray-100); }
+  .stripe-txn + .stripe-txn { border-top: 1px solid var(--fit-divider); }
+  .stripe-txn-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(3,178,226,0.12); color: var(--fit-blue-500);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .stripe-txn-icon svg { width: 16px; height: 16px; }
+  .stripe-txn-body { flex: 1; min-width: 0; }
+  .stripe-txn-title { font-size: 14px; font-weight: 500; color: var(--fit-text-primary); }
+  .stripe-txn-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .stripe-txn-amount { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .stripe-txn-date {
+    font-size: 11px; color: var(--fit-text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.4px;
+    padding: 16px 20px 8px;
+  }
+
+  /* Country list (s-stripe-onb-edit-country) */
+  .stripe-country-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    background: var(--fit-surface-high);
+    cursor: pointer;
+  }
+  .fit-light .stripe-country-row { background: var(--fit-white); }
+  .stripe-country-row + .stripe-country-row { border-top: 1px solid var(--fit-divider); }
+  .stripe-country-name { flex: 1; font-size: 15px; color: var(--fit-text-primary); }
+  .stripe-country-currency { font-size: 13px; color: var(--fit-text-tertiary); }
+  .stripe-country-row.selected .stripe-country-name { color: var(--fit-teal-500); font-weight: 500; }
+
+  /* DOB picker — iOS wheel (copied verbatim from personal-data.html for parity) */
+  .avail-tp-wheels {
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+    padding: 12px 16px 4px;
+    position: relative;
+  }
+  .avail-tp-wheel {
+    flex: 0 1 96px; max-width: 96px;
+    height: 180px;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+    mask-image: linear-gradient(to bottom,
+      transparent 0%, rgba(0,0,0,0.3) 12%, rgba(0,0,0,1) 35%,
+      rgba(0,0,0,1) 65%, rgba(0,0,0,0.3) 88%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom,
+      transparent 0%, rgba(0,0,0,0.3) 12%, rgba(0,0,0,1) 35%,
+      rgba(0,0,0,1) 65%, rgba(0,0,0,0.3) 88%, transparent 100%);
+  }
+  .avail-tp-wheel::-webkit-scrollbar { display: none; }
+  .avail-tp-wheel-pad { height: 72px; scroll-snap-align: none; }
+  .avail-tp-wheel-item {
+    height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    scroll-snap-align: center;
+    font-size: 22px; color: var(--fit-text-primary);
+    font-family: var(--fit-font);
+    user-select: none;
+  }
+  .avail-tp-wheels::before {
+    content: "";
+    position: absolute; left: 16px; right: 16px;
+    top: 50%; transform: translateY(-50%);
+    height: 36px; pointer-events: none;
+    background: var(--fit-surface-low);
+    border-radius: 8px;
+    z-index: -1;
+  }
+
+  /* Progress stripe in header */
+  .stripe-onb-progress {
+    display: flex; gap: 6px; padding: 0 16px 12px;
+  }
+  .stripe-onb-progress-bar {
+    flex: 1; height: 3px; border-radius: 2px;
+    background: var(--fit-surface-higher);
+  }
+  .stripe-onb-progress-bar.done { background: var(--fit-teal-500); }
+
+  /* Theme switcher */
+  #theme-switcher {
+    position: fixed; left: 24px; bottom: 24px;
+    width: 220px; display: flex;
+    background: var(--fit-gray-900); border-radius: 8px; overflow: hidden;
+    border: 1px solid var(--fit-gray-700);
+    z-index: 10;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<div class="sidebar">
+  <a href="../../index.html" class="back-link"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Back to hub</a>
+  <div class="sidebar-scroll">
+    <div class="label">Overview</div>
+    <button class="active" onclick="go('s-stripe',this)">Stripe Connect</button>
+
+    <div class="label">Onboarding (3 steps)</div>
+    <button onclick="go('s-stripe-onb-confirm',this)">1 · Confirm info</button>
+    <button onclick="go('s-stripe-onb-id',this)">2 · Verification</button>
+    <button onclick="go('s-stripe-onb-bank',this)">3 · Bank account</button>
+
+    <div class="label">Edit fields (push from Confirm)</div>
+    <button onclick="go('s-stripe-onb-edit-name',this)">Edit Name</button>
+    <button onclick="go('s-stripe-onb-edit-email',this)">Edit Email</button>
+    <button onclick="go('s-stripe-onb-edit-phone',this)">Edit Phone</button>
+    <button onclick="go('s-stripe-onb-edit-country',this)">Edit Country</button>
+    <button onclick="go('s-stripe-onb-edit-address',this)">Edit Address</button>
+
+    <div class="label">Control (connected)</div>
+    <button onclick="go('s-stripe-bank-add',this)">Add bank</button>
+    <button onclick="go('s-stripe-bank-detail',this)">Bank detail</button>
+    <button onclick="go('s-stripe-withdraw',this)">Withdraw</button>
+    <button onclick="go('s-stripe-payouts',this)">Payouts history</button>
+  </div>
+  <div id="theme-switcher">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</div>
+
+
+<!-- ==================== SCREEN: s-stripe (4 states) ==================== -->
+<div class="fit-phone fit-dark active ss-done" id="s-stripe" data-payout-mode="auto">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.stripe.back" onclick="window.location.href='balance.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Stripe</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- ===== STATE: NONE (not set up) ===== -->
+    <div data-stripe-state="none">
+      <div style="padding:32px 24px 24px;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;">
+        <div class="stripe-logo">S</div>
+        <div style="font-size:20px;font-weight:500;color:var(--fit-text-primary);">Connect Stripe to receive payouts</div>
+        <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:300px;">
+          Stripe verifies your identity and lets us transfer your earnings securely. Takes 2&ndash;5 minutes.
+        </div>
+      </div>
+
+      <div class="stripe-kv-group">
+        <div class="stripe-kv">
+          <span class="stripe-kv-label" style="display:flex;align-items:center;gap:10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Identity verification
+          </span>
+        </div>
+        <div class="stripe-kv">
+          <span class="stripe-kv-label" style="display:flex;align-items:center;gap:10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Bank account
+          </span>
+        </div>
+        <div class="stripe-kv">
+          <span class="stripe-kv-label" style="display:flex;align-items:center;gap:10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Direct deposits
+          </span>
+        </div>
+      </div>
+
+      <div style="padding:20px 16px 0;">
+        <div onclick="toggleStripeConsent(event)" style="display:flex;gap:12px;align-items:flex-start;padding:14px;border:1px solid var(--fit-divider);border-radius:12px;cursor:pointer;">
+          <div class="fit-checkbox" id="stripe-consent-cb" style="margin-left:0;width:22px;height:22px;border-width:1.5px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div style="font-size:13px;color:var(--fit-text-secondary);line-height:1.5;">
+            I agree to 321Fit&rsquo;s <a href="#" onclick="event.stopPropagation();return false;" style="color:var(--fit-teal-500);text-decoration:none;">Terms</a> and <a href="#" onclick="event.stopPropagation();return false;" style="color:var(--fit-teal-500);text-decoration:none;">Privacy Policy</a>, and authorize 321Fit to share my information with Stripe under the <a href="#" onclick="event.stopPropagation();return false;" style="color:var(--fit-teal-500);text-decoration:none;">Stripe Connected Account Agreement</a>.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STATE: PENDING (in progress) ===== -->
+    <div data-stripe-state="pending">
+      <div style="padding:20px 0 0;">
+        <div class="stripe-banner info">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          <div class="stripe-banner-body">
+            <div class="stripe-banner-title">Setup in progress</div>
+            <div>Stripe is reviewing your information. Payouts start once verification is complete.</div>
+          </div>
+        </div>
+      </div>
+      <div class="stripe-kv-group" style="margin-top:16px;">
+        <div class="stripe-kv"><span class="stripe-kv-label">Status</span><span class="stripe-kv-value" style="display:inline-flex;align-items:center;gap:6px;"><span class="stripe-dot warn"></span>Verifying</span></div>
+        <div class="stripe-kv"><span class="stripe-kv-label">Submitted</span><span class="stripe-kv-value">Tue, Apr 23 &middot; 09:42</span></div>
+        <div class="stripe-kv"><span class="stripe-kv-label">ETA</span><span class="stripe-kv-value">Usually 1&ndash;3 business days</span></div>
+      </div>
+    </div>
+
+    <!-- ===== STATE: DONE (connected) ===== -->
+    <div data-stripe-state="done">
+
+      <!-- Hero -->
+      <div style="padding:24px 16px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;">
+        <div class="stripe-logo">S</div>
+        <div style="font-size:17px;font-weight:500;color:var(--fit-text-primary);">Stripe connected</div>
+        <div style="font-size:13px;color:var(--fit-teal-500);display:inline-flex;align-items:center;gap:6px;">
+          <span class="stripe-dot"></span>Active &middot; Default payout method
+        </div>
+      </div>
+
+      <!-- Account meta -->
+      <div class="stripe-kv-group">
+        <div class="stripe-kv"><span class="stripe-kv-label">Account</span><span class="stripe-kv-value">acct_1Q&hellip;Zq4</span></div>
+        <div class="stripe-kv"><span class="stripe-kv-label">Country</span><span class="stripe-kv-value">Spain &middot; EUR</span></div>
+      </div>
+
+      <!-- BANK ACCOUNTS -->
+      <div class="stripe-section-head"><div class="stripe-section-title">Bank accounts</div></div>
+      <div style="padding:0 16px;">
+        <div class="stripe-bank-card" data-a11y-id="coach.stripe.bank.row" data-bank-id="b1" onclick="setBankDetail('Visa','4821',true,false);go('s-stripe-bank-detail',document.querySelector('[onclick*=s-stripe-bank-detail]'));">
+          <div class="stripe-bank-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/></svg></div>
+          <div class="stripe-bank-info">
+            <div class="stripe-bank-title">Visa &middot; &bull;&bull;&bull;&bull; 4821</div>
+            <div class="stripe-bank-sub"><span class="fit-badge fit-badge-accent">Default</span></div>
+          </div>
+          <svg class="stripe-bank-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="stripe-bank-card" data-a11y-id="coach.stripe.bank.row" data-bank-id="b2" onclick="setBankDetail('Bank','7732',false,false);go('s-stripe-bank-detail',document.querySelector('[onclick*=s-stripe-bank-detail]'));">
+          <div class="stripe-bank-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/></svg></div>
+          <div class="stripe-bank-info">
+            <div class="stripe-bank-title">Bank &middot; &bull;&bull;&bull;&bull; 7732</div>
+          </div>
+          <svg class="stripe-bank-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div data-a11y-id="coach.stripe.bank.add" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border:1px dashed var(--fit-gray-700);border-radius:14px;cursor:pointer;margin-top:8px;" onclick="go('s-stripe-bank-add',document.querySelector('[onclick*=s-stripe-bank-add]'))">
+          <svg style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+          <span style="font-size:14px;color:var(--fit-blue-500);font-weight:500;">Add bank account</span>
+        </div>
+      </div>
+
+      <!-- PAYOUTS -->
+      <div class="stripe-section-head"><div class="stripe-section-title">Payouts</div></div>
+      <div class="stripe-payout-card">
+        <div class="stripe-payout-row">
+          <span class="stripe-payout-label">Available</span>
+          <span class="stripe-payout-value" data-a11y-id="coach.stripe.available">&euro;240</span>
+        </div>
+        <div class="stripe-payout-row" data-payout-mode-visible="auto">
+          <span class="stripe-payout-label">Next payout</span>
+          <span class="stripe-payout-value">Mon, Apr 27</span>
+        </div>
+        <div class="stripe-payout-row" data-payout-mode-visible="manual" style="display:none;">
+          <span class="stripe-payout-label">Next payout</span>
+          <span class="stripe-payout-value muted">Manual &middot; on demand</span>
+        </div>
+      </div>
+
+      <div class="stripe-kv-group" style="margin-top:12px;" data-payout-mode-visible="auto">
+        <div class="stripe-kv"><span class="stripe-kv-label">Schedule</span><span class="stripe-kv-value">Weekly &middot; Monday</span></div>
+      </div>
+
+      <!-- Manual mode toggle -->
+      <div class="stripe-toggle-row" data-a11y-id="coach.stripe.manual-toggle" onclick="toggleManualMode()">
+        <div class="stripe-toggle-info">
+          <div class="stripe-toggle-title">Manual payouts</div>
+          <div class="stripe-toggle-sub" data-payout-mode-visible="auto">Stripe pays out automatically on schedule</div>
+          <div class="stripe-toggle-sub" data-payout-mode-visible="manual" style="display:none;color:var(--fit-yellow-400);">Money stays in Stripe until you tap Withdraw</div>
+        </div>
+        <div class="fit-switch" id="manual-mode-switch"><div class="fit-switch-knob"></div></div>
+      </div>
+
+      <!-- Withdraw block — manual mode only -->
+      <div data-payout-mode-visible="manual" style="display:none;padding:0 16px 12px;">
+        <button class="fit-btn fit-btn-primary" data-a11y-id="coach.stripe.withdraw" onclick="go('s-stripe-withdraw',document.querySelector('[onclick*=s-stripe-withdraw]'))">Withdraw &euro;240</button>
+      </div>
+
+      <!-- ACTIVITY -->
+      <div class="stripe-section-head">
+        <div class="stripe-section-title">Activity</div>
+        <span class="stripe-section-action" data-a11y-id="coach.stripe.payouts.view-all" onclick="go('s-stripe-payouts',document.querySelector('[onclick*=s-stripe-payouts]'))">View all
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </span>
+      </div>
+      <div class="stripe-txn-group">
+        <div class="stripe-txn" data-a11y-id="coach.stripe.payouts.row" onclick="window.location.href='balance.html#s-txn-payout'">
+          <div class="stripe-txn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg></div>
+          <div class="stripe-txn-body">
+            <div class="stripe-txn-title">Payout to Visa &middot; &bull;&bull;&bull;&bull; 4821</div>
+            <div class="stripe-txn-sub">Mon, Apr 27 &middot; <span style="color:var(--fit-teal-500);">Completed</span></div>
+          </div>
+          <span class="stripe-txn-amount">&euro;120</span>
+        </div>
+      </div>
+
+      <!-- DESTRUCTIVE -->
+      <div style="padding:24px 16px 0;">
+        <button class="fit-btn fit-btn-destructive" data-a11y-id="coach.stripe.disconnect" onclick="openStripeDisconnectSheet()">Disconnect Stripe</button>
+      </div>
+    </div>
+
+    <!-- ===== STATE: ACTION REQUIRED ===== -->
+    <div data-stripe-state="action">
+      <div style="padding:20px 0 0;">
+        <div class="stripe-banner warn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <div class="stripe-banner-body">
+            <div class="stripe-banner-title">Action needed</div>
+            <div>Stripe needs an ID document to keep payouts active. Payouts paused until resolved.</div>
+          </div>
+        </div>
+      </div>
+      <div class="stripe-kv-group" style="margin-top:16px;">
+        <div class="stripe-kv"><span class="stripe-kv-label">Missing</span><span class="stripe-kv-value" style="color:var(--fit-yellow-400);">Identity document</span></div>
+        <div class="stripe-kv"><span class="stripe-kv-label">Deadline</span><span class="stripe-kv-value">Fri, May 1</span></div>
+      </div>
+    </div>
+
+    <!-- Footer CTA per state -->
+    <div style="padding:16px;" data-stripe-state="none"><button class="fit-btn fit-btn-primary fit-btn-disabled" id="stripe-start-setup-btn" data-a11y-id="coach.stripe.start-setup" disabled onclick="go('s-stripe-onb-confirm',document.querySelector('[onclick*=s-stripe-onb-confirm]'))">Start setup</button></div>
+    <div style="padding:16px;" data-stripe-state="pending"><button class="fit-btn fit-btn-secondary" data-a11y-id="coach.stripe.continue-pending" onclick="go('s-stripe-onb-confirm',document.querySelector('[onclick*=s-stripe-onb-confirm]'))">Continue setup</button></div>
+    <div style="padding:16px;" data-stripe-state="action"><button class="fit-btn fit-btn-primary" data-a11y-id="coach.stripe.resolve" onclick="go('s-stripe-onb-id',document.querySelector('[onclick*=s-stripe-onb-id]'))">Resolve now</button></div>
+  </div>
+
+  <!-- ===== STRIPE DISCONNECT SHEET ===== -->
+  <div class="fit-sheet-overlay" id="stripe-disconnect-sheet">
+    <div class="fit-sheet compact">
+      <div class="fit-sheet-handle"></div>
+
+      <div data-sd-variant="clean">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin:12px 0 20px;text-align:center;">
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(240,92,91,0.12);display:flex;align-items:center;justify-content:center;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 11-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+          </div>
+          <div style="font-size:18px;font-weight:500;">Disconnect Stripe?</div>
+          <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:300px;">
+            You'll stop receiving card payouts. You can reconnect any time &mdash; your transaction history stays.
+          </div>
+        </div>
+      </div>
+
+      <div data-sd-variant="pending-balance">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin:12px 0 16px;text-align:center;">
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(247,201,72,0.12);display:flex;align-items:center;justify-content:center;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F7C948" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div style="font-size:18px;font-weight:500;">You have &euro;240 in Stripe</div>
+          <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:300px;">
+            Withdraw your available balance before disconnecting. Once disconnected, Stripe handles the payout on its own schedule.
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button class="fit-btn fit-btn-primary" onclick="closeStripeDisconnectSheet();go('s-stripe-withdraw',document.querySelector('[onclick*=s-stripe-withdraw]'))">Withdraw first</button>
+          <button class="fit-btn fit-btn-text" onclick="setStripeDisconnectVariant('clean')">Disconnect anyway</button>
+        </div>
+      </div>
+
+      <div data-sd-variant="active-events">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin:12px 0 16px;text-align:center;">
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(247,201,72,0.12);display:flex;align-items:center;justify-content:center;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F7C948" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          </div>
+          <div style="font-size:18px;font-weight:500;">3 card-paid sessions ahead</div>
+          <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:320px;">
+            You have <strong style="color:var(--fit-text-primary);">3 upcoming sessions paid by card</strong>. Disconnecting will refund those payments. Athletes will need to re-pay in cash to keep them.
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button class="fit-btn fit-btn-secondary" onclick="closeStripeDisconnectSheet()">Keep Stripe</button>
+          <button class="fit-btn fit-btn-text" style="color:var(--fit-red-400);" onclick="setStripeDisconnectVariant('clean')">Disconnect anyway</button>
+        </div>
+      </div>
+
+      <div data-sd-default-actions style="display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-destructive" data-a11y-id="coach.stripe.disconnect.confirm" onclick="confirmStripeDisconnect()">Disconnect Stripe</button>
+        <button class="fit-btn fit-btn-secondary" data-a11y-id="coach.stripe.disconnect.cancel" onclick="closeStripeDisconnectSheet()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== SCREEN: s-stripe-onb-confirm (3-step, step 1) ==================== -->
+<div class="fit-phone fit-dark" id="s-stripe-onb-confirm">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.stripe.onb.confirm.back" onclick="go('s-stripe',document.querySelector('[onclick*=s-stripe]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Your info</span>
+    </div>
+    <div class="stripe-onb-progress">
+      <div class="stripe-onb-progress-bar done"></div>
+      <div class="stripe-onb-progress-bar"></div>
+      <div class="stripe-onb-progress-bar"></div>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div style="padding:8px 16px 16px;">
+      <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;">
+        We pulled this from your 321Fit profile. Tap any row to change before submitting to Stripe.
+      </div>
+    </div>
+
+    <div class="stripe-row-group">
+      <div class="stripe-row" data-a11y-id="coach.stripe.onb.confirm.name" onclick="go('s-stripe-onb-edit-name',document.querySelector('[onclick*=s-stripe-onb-edit-name]'))">
+        <span class="stripe-row-label">Name</span>
+        <span class="stripe-row-value" id="confirm-name-value">Idella Lesch</span>
+        <svg class="stripe-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="stripe-row" data-a11y-id="coach.stripe.onb.confirm.email" onclick="go('s-stripe-onb-edit-email',document.querySelector('[onclick*=s-stripe-onb-edit-email]'))">
+        <span class="stripe-row-label">Email</span>
+        <span class="stripe-row-value" id="confirm-email-value">idella&#8230;@gmail.com</span>
+        <svg class="stripe-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="stripe-row" data-a11y-id="coach.stripe.onb.confirm.phone" onclick="go('s-stripe-onb-edit-phone',document.querySelector('[onclick*=s-stripe-onb-edit-phone]'))">
+        <span class="stripe-row-label">Phone</span>
+        <span class="stripe-row-value" id="confirm-phone-value">+995 555 13 56 60</span>
+        <svg class="stripe-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="stripe-row" data-a11y-id="coach.stripe.onb.confirm.country" onclick="go('s-stripe-onb-edit-country',document.querySelector('[onclick*=s-stripe-onb-edit-country]'))">
+        <span class="stripe-row-label">Country</span>
+        <span class="stripe-row-value" id="confirm-country-value">Spain &middot; EUR</span>
+        <svg class="stripe-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="stripe-row" data-a11y-id="coach.stripe.onb.confirm.dob" onclick="openDobPicker()">
+        <span class="stripe-row-label">Date of birth</span>
+        <span class="stripe-row-value" id="confirm-dob-value">12 Mar 1990</span>
+        <svg class="stripe-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="stripe-row" data-a11y-id="coach.stripe.onb.confirm.address" onclick="go('s-stripe-onb-edit-address',document.querySelector('[onclick*=s-stripe-onb-edit-address]'))">
+        <span class="stripe-row-label">HQ address</span>
+        <span class="stripe-row-value" id="confirm-address-value">1600 Pennsylvania Ave NW, Washington</span>
+        <svg class="stripe-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--fit-text-tertiary);margin:8px 20px 0;line-height:1.4;">
+      HQ address is for tax reporting &mdash; not where you train clients. Country can't be changed once Stripe verifies you.
+    </div>
+
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 16px;">
+    <button class="fit-btn fit-btn-primary" data-a11y-id="coach.stripe.onb.confirm.continue" onclick="go('s-stripe-onb-id',document.querySelector('[onclick*=s-stripe-onb-id]'))">Continue</button>
+  </div>
+
+  <!-- DOB picker sheet (3-wheel) — mounted inside Confirm screen so it overlays it -->
+  <div class="fit-sheet-overlay" id="dob-picker-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Date of birth</div>
+      <div class="fit-sheet-subtitle">You must be at least 13 years old</div>
+      <div class="avail-tp-wheels" style="gap:12px;">
+        <div class="avail-tp-wheel" id="dob-wheel-day" style="flex:0 1 72px;max-width:72px;"></div>
+        <div class="avail-tp-wheel" id="dob-wheel-month" style="flex:0 1 110px;max-width:110px;"></div>
+        <div class="avail-tp-wheel" id="dob-wheel-year" style="flex:0 1 96px;max-width:96px;"></div>
+      </div>
+      <div id="dob-sheet-error" style="display:none;margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(240,92,91,0.12);color:var(--fit-red-400);font-size:13px;line-height:1.4;text-align:center;">Must be 13 or older on today's date</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
+        <button class="fit-btn fit-btn-primary" data-a11y-id="coach.stripe.onb.dob.set" style="border-radius:99px;" onclick="confirmDobPicker()">Set</button>
+        <button data-a11y-id="coach.stripe.onb.dob.cancel" style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="closeDobPicker()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== SCREEN: s-stripe-onb-edit-name ==================== -->
+<div class="fit-phone fit-dark" id="s-stripe-onb-edit-name">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;">
+      <button data-a11y-id="coach.stripe.onb.edit-name.cancel" style="border:none;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;cursor:pointer;" onclick="go('s-stripe-onb-confirm',document.querySelector('[onclick*=s-stripe-onb-confirm]'))">Cancel</button>
+      <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Name</span>
+      <button data-a11y-id="coach.stripe.onb.edit-name.save" style="border:none;background:transparent;color:var(--fit-teal-500);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="saveEditField('name','first-name','last-name')">Save</button>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding:16px;">
+    <div style="font-size:13px;color:var(--fit-text-tertiary);margin-bottom:8px;">First name</div>
+    <input type="text" id="edit-first-name" value="Idella" data-a11y-id="coach.stripe.onb.edit-name.first" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
+
+    <div style="font-size:13px;color:var(--fit-text-tertiary);margin:14px 0 8px;">Last name</div>
+    <input type="text" id="edit-last-name" value="Lesch" data-a11y-id="coach.stripe.onb.edit-name.last" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
+
+    <div class="stripe-banner info" style="margin:16px 0 0;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+      <div class="stripe-banner-body">Must match your government-issued ID. We'll also save this to your 321Fit profile.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== SCREEN: s-stripe-onb-edit-email ==================== -->
+<div class="fit-phone fit-dark" id="s-stripe-onb-edit-email">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;">
+      <button data-a11y-id="coach.stripe.onb.edit-email.cancel" style="border:none;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;cursor:pointer;" onclick="go('s-stripe-onb-confirm',document.querySelector('[onclick*=s-stripe-onb-confirm]'))">Cancel</button>
+      <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Email</span>
+      <button data-a11y-id="coach.stripe.onb.edit-email.save" style="border:none;background:transparent;color:var(--fit-teal-500);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="saveEditField('email','edit-email-input')">Save</button>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding:16px;">
+    <div style="font-size:13px;color:var(--fit-text-tertiary);margin-bottom:8px;">Email for Stripe</div>
+    <input type="email" id="edit-email-input" value="idella@gmail.com" inputmode="email" autocomplete="email" data-a11y-id="coach.stripe.onb.edit-email.input" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
+
+    <div class="stripe-banner info" style="margin:16px 0 0;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+      <div class="stripe-banner-body">Stripe sends payout notifications and tax forms here. Doesn't change your 321Fit sign-in email.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== SCREEN: s-stripe-onb-edit-phone ==================== -->
+<div class="fit-phone fit-dark" id="s-stripe-onb-edit-phone">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;">
+      <button data-a11y-id="coach.stripe.onb.edit-phone.cancel" style="border:none;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;cursor:pointer;" onclick="go('s-stripe-onb-confirm',document.querySelector('[onclick*=s-stripe-onb-confirm]'))">Cancel</button>
+      <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Phone</span>
+      <button data-a11y-id="coach.stripe.onb.edit-phone.save" style="border:none;background:transparent;color:var(--fit-teal-500);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="saveEditField('phone','edit-phone-input',null,document.getElementById('edit-phone-cc').value)">Save</button>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding:16px;">
+    <div style="font-size:13px;color:var(--fit-text-tertiary);margin-bottom:8px;">Mobile number</div>
+    <div style="display:flex;gap:8px;">
+      <select id="edit-phone-cc" style="padding:14px 10px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);min-width:90px;">
+        <option value="+995" selected>🇬🇪 +995</option>
+        <option value="+34">🇪🇸 +34</option>
+        <option value="+1">🇺🇸 +1</option>
+        <option value="+44">🇬🇧 +44</option>
+        <option value="+49">🇩🇪 +49</option>
+        <option value="+48">🇵🇱 +48</option>
+      </select>
+      <input type="tel" id="edit-phone-input" value="555 13 56 60" inputmode="tel" data-a11y-id="coach.stripe.onb.edit-phone.input" style="flex:1;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
+    </div>
+
+    <div class="stripe-banner info" style="margin:16px 0 0;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+      <div class="stripe-banner-body">Stripe may text a verification code during onboarding.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== SCREEN: s-stripe-onb-edit-country ==================== -->
+<div class="fit-phone fit-dark" id="s-stripe-onb-edit-country">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.stripe.onb.edit-country.back" onclick="go('s-stripe-onb-confirm',document.querySelector('[onclick*=s-stripe-onb-confirm]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Country</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding:0 0 24px;">
+    <div style="padding:12px 16px;">
+      <div style="position:relative;">
+        <input type="text" placeholder="Search country" data-a11y-id="coach.stripe.onb.edit-country.search" style="width:100%;padding:12px 12px 12px 40px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+    </div>
+
+    <div class="stripe-banner warn" style="margin:0 16px 12px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div class="stripe-banner-body">Changing country resets verification &mdash; you'll re-upload ID after this.</div>
+    </div>
+
+    <div style="border-top:1px solid var(--fit-divider);">
+      <div class="stripe-country-row selected" data-a11y-id="coach.stripe.onb.edit-country.row" data-country="ES" data-currency="EUR" onclick="saveCountry(this)">
+        <span class="stripe-country-name">Spain</span>
+        <span class="stripe-country-currency">EUR</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-teal-500);"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="stripe-country-row" data-a11y-id="coach.stripe.onb.edit-country.row" data-country="DE" data-currency="EUR" onclick="saveCountry(this)">
+        <span class="stripe-country-name">Germany</span>
+        <span class="stripe-country-currency">EUR</span>
+      </div>
+      <div class="stripe-country-row" data-a11y-id="coach.stripe.onb.edit-country.row" data-country="FR" data-currency="EUR" onclick="saveCountry(this)">
+        <span class="stripe-country-name">France</span>
+        <span class="stripe-country-currency">EUR</span>
+      </div>
+      <div class="stripe-country-row" data-a11y-id="coach.stripe.onb.edit-country.row" data-country="PL" data-currency="PLN" onclick="saveCountry(this)">
+        <span class="stripe-country-name">Poland</span>
+        <span class="stripe-country-currency">PLN</span>
+      </div>
+      <div class="stripe-country-row" data-a11y-id="coach.stripe.onb.edit-country.row" data-country="GB" data-currency="GBP" onclick="saveCountry(this)">
+        <span class="stripe-country-name">United Kingdom</span>
+        <span class="stripe-country-currency">GBP</span>
+      </div>
+      <div class="stripe-country-row" data-a11y-id="coach.stripe.onb.edit-country.row" data-country="US" data-currency="USD" onclick="saveCountry(this)">
+        <span class="stripe-country-name">United States</span>
+        <span class="stripe-country-currency">USD</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== SCREEN: s-stripe-onb-edit-address ==================== -->
+<div class="fit-phone fit-dark" id="s-stripe-onb-edit-address">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;">
+      <button data-a11y-id="coach.stripe.onb.edit-address.cancel" style="border:none;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;cursor:pointer;" onclick="go('s-stripe-onb-confirm',document.querySelector('[onclick*=s-stripe-onb-confirm]'))">Cancel</button>
+      <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">HQ address</span>
+      <button data-a11y-id="coach.stripe.onb.edit-address.save" style="border:none;background:transparent;color:var(--fit-teal-500);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="saveAddress()">Save</button>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding:16px;">
+
+    <div class="stripe-banner info" style="margin:0 0 16px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+      <div class="stripe-banner-body">Your business address &mdash; what Stripe sends on tax forms. Often your home address.</div>
+    </div>
+
+    <div style="font-size:13px;color:var(--fit-text-tertiary);margin-bottom:8px;">Street address</div>
+    <input type="text" id="edit-addr-line1" value="1600 Pennsylvania Ave NW" data-a11y-id="coach.stripe.onb.edit-address.line1" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
+
+    <div style="font-size:13px;color:var(--fit-text-tertiary);margin:14px 0 8px;">Apt / Suite <span style="color:var(--fit-text-tertiary);">(optional)</span></div>
+    <input type="text" id="edit-addr-line2" placeholder="Apt 4B" data-a11y-id="coach.stripe.onb.edit-address.line2" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
+
+    <div style="font-size:13px;color:var(--fit-text-tertiary);margin:14px 0 8px;">City</div>
+    <input type="text" id="edit-addr-city" value="Washington" data-a11y-id="coach.stripe.onb.edit-address.city" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
+
+    <div style="font-size:13px;color:var(--fit-text-tertiary);margin:14px 0 8px;">Postal code</div>
+    <input type="text" id="edit-addr-postal" value="20500" data-a11y-id="coach.stripe.onb.edit-address.postal" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
+
+    <div style="font-size:13px;color:var(--fit-text-tertiary);margin:14px 0 8px;">Country</div>
+    <div style="width:100%;padding:14px;background:var(--fit-surface-higher);border-radius:12px;color:var(--fit-text-tertiary);font-size:15px;">Spain &middot; from your account</div>
+  </div>
+</div>
+
+
+<!-- ==================== SCREEN: s-stripe-onb-id (step 2) ==================== -->
+<div class="fit-phone fit-dark" id="s-stripe-onb-id" data-id-state="empty">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.stripe.onb.id.back" onclick="go('s-stripe-onb-confirm',document.querySelector('[onclick*=s-stripe-onb-confirm]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Verification</span>
+    </div>
+    <div class="stripe-onb-progress">
+      <div class="stripe-onb-progress-bar done"></div>
+      <div class="stripe-onb-progress-bar done"></div>
+      <div class="stripe-onb-progress-bar"></div>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div style="padding:16px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;">
+      <div style="width:56px;height:56px;border-radius:16px;background:rgba(3,178,226,0.12);display:flex;align-items:center;justify-content:center;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5L5 20"/></svg>
+      </div>
+      <div style="font-size:18px;font-weight:500;color:var(--fit-text-primary);">Upload your ID document</div>
+      <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:300px;">
+        Stripe verifies your identity to enable payouts. Passport, driver's license, or government ID.
+      </div>
+    </div>
+
+    <div style="padding:8px 16px 16px;display:flex;flex-direction:column;gap:10px;">
+      <div class="stripe-id-upload" data-a11y-id="coach.stripe.onb.id.upload-front" id="id-tile-front" onclick="toggleIdUpload('front')">
+        <div class="stripe-id-upload-icon" data-id-icon><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
+        <div class="stripe-id-upload-title">Front of ID</div>
+        <div class="stripe-id-upload-sub">JPG or PNG, up to 10 MB</div>
+      </div>
+      <div class="stripe-id-upload" data-a11y-id="coach.stripe.onb.id.upload-back" id="id-tile-back" onclick="toggleIdUpload('back')">
+        <div class="stripe-id-upload-icon" data-id-icon><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
+        <div class="stripe-id-upload-title">Back of ID</div>
+        <div class="stripe-id-upload-sub">Optional for passports</div>
+      </div>
+    </div>
+
+    <div data-id-skipped-banner style="display:none;padding:0 16px 16px;">
+      <div class="stripe-banner warn" style="margin:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div class="stripe-banner-body">
+          <div class="stripe-banner-title">You'll need this to get paid</div>
+          <div>Payouts stay on hold until ID is verified. Upload from Stripe screen any time.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 16px;display:flex;flex-direction:column;gap:8px;">
+    <button class="fit-btn fit-btn-primary" data-a11y-id="coach.stripe.onb.id.continue" onclick="go('s-stripe-onb-bank',document.querySelector('[onclick*=s-stripe-onb-bank]'))">Continue</button>
+    <button class="fit-btn fit-btn-text" data-a11y-id="coach.stripe.onb.id.skip" onclick="skipIdAndContinue()">Skip for now</button>
+  </div>
+</div>
+
+
+<!-- ==================== SCREEN: s-stripe-onb-bank (step 3) ==================== -->
+<div class="fit-phone fit-dark" id="s-stripe-onb-bank">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.stripe.onb.bank.back" onclick="go('s-stripe-onb-id',document.querySelector('[onclick*=s-stripe-onb-id]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Bank account</span>
+    </div>
+    <div class="stripe-onb-progress">
+      <div class="stripe-onb-progress-bar done"></div>
+      <div class="stripe-onb-progress-bar done"></div>
+      <div class="stripe-onb-progress-bar done"></div>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div style="padding:8px 16px 16px;">
+      <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;">Your earnings will be paid out here. Currency matches your country.</div>
+    </div>
+
+    <div class="stripe-kv-group">
+      <div class="stripe-kv"><span class="stripe-kv-label">Holder</span><span class="stripe-kv-value" id="bank-holder-value">Idella Lesch</span></div>
+      <div class="stripe-kv"><span class="stripe-kv-label">Country</span><span class="stripe-kv-value" id="bank-country-value">Spain &middot; EUR</span></div>
+    </div>
+
+    <div style="padding:16px;">
+      <div style="font-size:13px;color:var(--fit-text-tertiary);margin-bottom:6px;">IBAN</div>
+      <input type="text" data-a11y-id="coach.stripe.onb.bank.iban" placeholder="ES00 0000 0000 0000 0000 0000" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
+
+      <div style="font-size:13px;color:var(--fit-text-tertiary);margin:14px 0 6px;">SWIFT / BIC <span style="color:var(--fit-text-tertiary);">(optional)</span></div>
+      <input type="text" data-a11y-id="coach.stripe.onb.bank.swift" placeholder="CAIXESBB" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);text-transform:uppercase;"/>
+    </div>
+
+    <div style="padding:0 16px 16px;">
+      <div onclick="toggleBankConsent(event)" style="display:flex;gap:12px;align-items:flex-start;padding:14px;border:1px solid var(--fit-divider);border-radius:12px;cursor:pointer;">
+        <div class="fit-checkbox" id="bank-consent-cb" style="margin-left:0;width:22px;height:22px;border-width:1.5px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div style="font-size:13px;color:var(--fit-text-secondary);line-height:1.5;">
+          I authorize 321Fit and Stripe to debit / credit this account under the <a href="#" onclick="event.stopPropagation();return false;" style="color:var(--fit-teal-500);text-decoration:none;">Stripe Connected Account Agreement</a>.
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 16px;">
+    <button class="fit-btn fit-btn-primary fit-btn-disabled" id="bank-submit-btn" data-a11y-id="coach.stripe.onb.bank.submit" disabled onclick="completeStripeOnboarding()">Submit</button>
+  </div>
+</div>
+
+
+<!-- ==================== SCREEN: s-stripe-bank-add ==================== -->
+<div class="fit-phone fit-dark" id="s-stripe-bank-add">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.stripe.bank-add.back" onclick="go('s-stripe',document.querySelector('[onclick*=s-stripe]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Add bank account</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div style="padding:16px;"><div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;">Add an additional bank account. You can set it as default later.</div></div>
+
+    <div class="stripe-kv-group">
+      <div class="stripe-kv"><span class="stripe-kv-label">Holder</span><span class="stripe-kv-value">Idella Lesch</span></div>
+      <div class="stripe-kv"><span class="stripe-kv-label">Country</span><span class="stripe-kv-value">Spain &middot; EUR</span></div>
+    </div>
+
+    <div style="padding:16px;">
+      <div style="font-size:13px;color:var(--fit-text-tertiary);margin-bottom:6px;">IBAN</div>
+      <input type="text" data-a11y-id="coach.stripe.bank-add.iban" placeholder="ES00 0000 0000 0000 0000 0000" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);"/>
+
+      <div style="font-size:13px;color:var(--fit-text-tertiary);margin:14px 0 6px;">SWIFT / BIC <span style="color:var(--fit-text-tertiary);">(optional)</span></div>
+      <input type="text" data-a11y-id="coach.stripe.bank-add.swift" placeholder="CAIXESBB" style="width:100%;padding:14px;background:var(--fit-surface-high);border:none;border-radius:12px;color:var(--fit-text-primary);font-size:15px;font-family:var(--fit-font);text-transform:uppercase;"/>
+
+      <div style="margin-top:14px;display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="this.querySelector('.fit-checkbox').classList.toggle('checked')">
+        <div class="fit-checkbox" style="margin-left:0;width:22px;height:22px;border-width:1.5px;"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <span style="font-size:14px;color:var(--fit-text-secondary);">Set as default payout method</span>
+      </div>
+    </div>
+
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 16px;">
+    <button class="fit-btn fit-btn-primary" data-a11y-id="coach.stripe.bank-add.submit" onclick="go('s-stripe',document.querySelector('[onclick*=s-stripe]'))">Add</button>
+  </div>
+</div>
+
+
+<!-- ==================== SCREEN: s-stripe-bank-detail ==================== -->
+<div class="fit-phone fit-dark" id="s-stripe-bank-detail" data-bank-default="true" data-bank-last="false">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.stripe.bank-detail.back" onclick="go('s-stripe',document.querySelector('[onclick*=s-stripe]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Bank account</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div style="padding:24px 16px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;">
+      <div class="stripe-bank-icon" style="width:56px;height:56px;border-radius:16px;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/></svg></div>
+      <div style="font-size:17px;font-weight:500;color:var(--fit-text-primary);"><span data-bank-name>Visa</span> &middot; &bull;&bull;&bull;&bull; <span data-bank-last4>4821</span></div>
+      <div data-bank-default-pill="show" style="font-size:13px;color:var(--fit-teal-500);display:inline-flex;align-items:center;gap:6px;">
+        <span class="stripe-dot"></span>Default payout method
+      </div>
+    </div>
+
+    <div class="stripe-kv-group">
+      <div class="stripe-kv"><span class="stripe-kv-label">Holder</span><span class="stripe-kv-value">Idella Lesch</span></div>
+      <div class="stripe-kv"><span class="stripe-kv-label">IBAN</span><span class="stripe-kv-value">ES&hellip;<span data-bank-last4>4821</span></span></div>
+      <div class="stripe-kv"><span class="stripe-kv-label">Country</span><span class="stripe-kv-value">Spain &middot; EUR</span></div>
+      <div class="stripe-kv"><span class="stripe-kv-label">Added</span><span class="stripe-kv-value">Apr 12, 2026</span></div>
+    </div>
+
+    <div style="padding:16px;display:flex;flex-direction:column;gap:8px;">
+      <button class="fit-btn fit-btn-secondary" data-bank-default-pill="hide" data-a11y-id="coach.stripe.bank-detail.set-default" onclick="setBankAsDefault()">Set as default</button>
+      <button class="fit-btn fit-btn-destructive" data-a11y-id="coach.stripe.bank-detail.remove" onclick="openRemoveBankSheet()">Remove bank account</button>
+    </div>
+
+  </div>
+
+  <!-- REMOVE WARNING SHEET -->
+  <div class="fit-sheet-overlay" id="remove-bank-sheet">
+    <div class="fit-sheet compact">
+      <div class="fit-sheet-handle"></div>
+
+      <div data-rb-variant="last">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin:12px 0 20px;text-align:center;">
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(247,201,72,0.12);display:flex;align-items:center;justify-content:center;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F7C948" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div style="font-size:18px;font-weight:500;">Can't remove your only bank</div>
+          <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:300px;">
+            You need at least one bank account on Stripe to receive payouts. Add another before removing this one.
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button class="fit-btn fit-btn-primary" onclick="closeRemoveBankSheet();go('s-stripe-bank-add',document.querySelector('[onclick*=s-stripe-bank-add]'))">Add another bank</button>
+          <button class="fit-btn fit-btn-secondary" onclick="closeRemoveBankSheet()">Cancel</button>
+        </div>
+      </div>
+
+      <div data-rb-variant="default">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin:12px 0 20px;text-align:center;">
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(240,92,91,0.12);display:flex;align-items:center;justify-content:center;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+          </div>
+          <div style="font-size:18px;font-weight:500;">Remove default bank?</div>
+          <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:300px;">
+            Your next payout will go to <strong>Bank &middot; &bull;&bull;&bull;&bull; 7732</strong>. You can change the default any time.
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button class="fit-btn fit-btn-destructive" data-a11y-id="coach.stripe.bank-detail.remove.confirm" onclick="confirmRemoveBank()">Remove</button>
+          <button class="fit-btn fit-btn-secondary" data-a11y-id="coach.stripe.bank-detail.remove.cancel" onclick="closeRemoveBankSheet()">Cancel</button>
+        </div>
+      </div>
+
+      <div data-rb-variant="normal">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin:12px 0 20px;text-align:center;">
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(240,92,91,0.12);display:flex;align-items:center;justify-content:center;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+          </div>
+          <div style="font-size:18px;font-weight:500;">Remove this bank?</div>
+          <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:300px;">You can add it back later if you change your mind.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button class="fit-btn fit-btn-destructive" onclick="confirmRemoveBank()">Remove</button>
+          <button class="fit-btn fit-btn-secondary" onclick="closeRemoveBankSheet()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== SCREEN: s-stripe-withdraw ==================== -->
+<div class="fit-phone fit-dark" id="s-stripe-withdraw">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.stripe.withdraw.back" onclick="go('s-stripe',document.querySelector('[onclick*=s-stripe]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Withdraw</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div class="stripe-withdraw-amount">
+      <span class="stripe-withdraw-currency">&euro;</span>
+      <input type="text" class="stripe-withdraw-input" data-a11y-id="coach.stripe.withdraw.amount" id="withdraw-amount-input" value="240" inputmode="numeric" oninput="validateWithdrawAmount(this)"/>
+    </div>
+    <div class="stripe-withdraw-available">Available &middot; &euro;240</div>
+
+    <div class="stripe-withdraw-chips">
+      <div class="stripe-withdraw-chip" data-a11y-id="coach.stripe.withdraw.chip" onclick="setWithdrawAmount(50)">&euro;50</div>
+      <div class="stripe-withdraw-chip" data-a11y-id="coach.stripe.withdraw.chip" onclick="setWithdrawAmount(100)">&euro;100</div>
+      <div class="stripe-withdraw-chip" data-a11y-id="coach.stripe.withdraw.chip" onclick="setWithdrawAmount(240)">All</div>
+    </div>
+
+    <div class="stripe-section-head" style="margin-top:32px;">
+      <div class="stripe-section-title">Destination</div>
+    </div>
+    <div style="padding:0 16px;">
+      <div class="stripe-bank-card" data-a11y-id="coach.stripe.withdraw.destination" style="cursor:default;">
+        <div class="stripe-bank-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/></svg></div>
+        <div class="stripe-bank-info">
+          <div class="stripe-bank-title">Visa &middot; &bull;&bull;&bull;&bull; 4821</div>
+          <div class="stripe-bank-sub"><span class="fit-badge fit-badge-accent">Default</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div data-withdraw-warn="below-min" style="display:none;padding:16px;">
+      <div class="stripe-banner warn" style="margin:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <div class="stripe-banner-body">
+          <div class="stripe-banner-title">Minimum &euro;20</div>
+          <div>Stripe requires at least &euro;20 per withdrawal.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px;font-size:12px;color:var(--fit-text-tertiary);line-height:1.5;">
+      Funds usually arrive in <strong style="color:var(--fit-text-secondary);">1&ndash;2 business days</strong>. Stripe may take longer for first payouts.
+    </div>
+
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 16px;">
+    <button class="fit-btn fit-btn-primary" id="withdraw-confirm-btn" data-a11y-id="coach.stripe.withdraw.confirm" onclick="confirmWithdraw()">Withdraw &euro;240</button>
+  </div>
+
+  <div class="fit-toast" id="withdraw-success-toast" style="border-left:3px solid var(--fit-teal-500);">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>
+    <span style="font-size:14px;">Withdrawal requested &middot; arrives in 1&ndash;2 days</span>
+  </div>
+</div>
+
+
+<!-- ==================== SCREEN: s-stripe-payouts ==================== -->
+<div class="fit-phone fit-dark" id="s-stripe-payouts">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.stripe.payouts.back" onclick="go('s-stripe',document.querySelector('[onclick*=s-stripe]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Payouts</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div style="padding:16px;">
+      <div style="background:var(--fit-surface-high);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:6px;">
+        <div style="font-size:13px;color:var(--fit-text-tertiary);">Total paid out</div>
+        <div style="font-size:28px;font-weight:600;color:var(--fit-text-primary);letter-spacing:-0.5px;">&euro;1,840</div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);">12 payouts since Mar 2026</div>
+      </div>
+    </div>
+
+    <div class="stripe-txn-date">April 2026</div>
+    <div class="stripe-txn-group">
+      <div class="stripe-txn" data-a11y-id="coach.stripe.payouts.row" onclick="window.location.href='balance.html#s-txn-payout'">
+        <div class="stripe-txn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg></div>
+        <div class="stripe-txn-body">
+          <div class="stripe-txn-title">Visa &middot; &bull;&bull;&bull;&bull; 4821</div>
+          <div class="stripe-txn-sub">Mon, Apr 27 &middot; <span style="color:var(--fit-teal-500);">Completed</span></div>
+        </div>
+        <span class="stripe-txn-amount">&euro;120</span>
+      </div>
+      <div class="stripe-txn" onclick="window.location.href='balance.html#s-txn-payout'">
+        <div class="stripe-txn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg></div>
+        <div class="stripe-txn-body">
+          <div class="stripe-txn-title">Visa &middot; &bull;&bull;&bull;&bull; 4821</div>
+          <div class="stripe-txn-sub">Mon, Apr 20 &middot; <span style="color:var(--fit-teal-500);">Completed</span></div>
+        </div>
+        <span class="stripe-txn-amount">&euro;180</span>
+      </div>
+      <div class="stripe-txn" onclick="window.location.href='balance.html#s-txn-payout'">
+        <div class="stripe-txn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg></div>
+        <div class="stripe-txn-body">
+          <div class="stripe-txn-title">Visa &middot; &bull;&bull;&bull;&bull; 4821</div>
+          <div class="stripe-txn-sub">Mon, Apr 13 &middot; <span style="color:var(--fit-blue-500);">In transit</span></div>
+        </div>
+        <span class="stripe-txn-amount">&euro;95</span>
+      </div>
+    </div>
+
+    <div class="stripe-txn-date">March 2026</div>
+    <div class="stripe-txn-group">
+      <div class="stripe-txn" onclick="window.location.href='balance.html#s-txn-payout'">
+        <div class="stripe-txn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg></div>
+        <div class="stripe-txn-body">
+          <div class="stripe-txn-title">Visa &middot; &bull;&bull;&bull;&bull; 4821</div>
+          <div class="stripe-txn-sub">Mon, Mar 30 &middot; <span style="color:var(--fit-red-400);">Failed &middot; retried</span></div>
+        </div>
+        <span class="stripe-txn-amount">&euro;75</span>
+      </div>
+      <div class="stripe-txn" onclick="window.location.href='balance.html#s-txn-payout'">
+        <div class="stripe-txn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg></div>
+        <div class="stripe-txn-body">
+          <div class="stripe-txn-title">Visa &middot; &bull;&bull;&bull;&bull; 4821</div>
+          <div class="stripe-txn-sub">Mon, Mar 23 &middot; <span style="color:var(--fit-teal-500);">Completed</span></div>
+        </div>
+        <span class="stripe-txn-amount">&euro;210</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+
+  <div class="ann active" id="ann-s-stripe"><span class="ann-role coach">Coach</span><h3>Stripe Connect</h3>
+    <div class="state-toggle">
+      <button onclick="setStripeState('none',this)">Not set up</button>
+      <button onclick="setStripeState('pending',this)">Verifying</button>
+      <button class="active" onclick="setStripeState('done',this)">Connected</button>
+      <button onclick="setStripeState('action',this)">Action required</button>
+    </div>
+    <p>Hub screen — 4 lifecycle states. Connected state = the entire in-app control center (no Stripe Dashboard redirect).</p>
+    <ul>
+      <li><strong>Not set up</strong> — intro + consent → <code>Start setup</code> pushes to onb-confirm (step 1 of 3).</li>
+      <li><strong>Verifying</strong> — info banner + KV (status / submitted / ETA) → <code>Continue setup</code> reopens onb flow.</li>
+      <li><strong>Connected</strong> — bank accounts list (multi + add) → payout block (Available + Next payout always visible) → manual mode toggle → activity preview → Disconnect.</li>
+      <li><strong>Action required</strong> — warn banner + missing items → <code>Resolve now</code> deep-links to failing onb step.</li>
+    </ul>
+    <h4>Manual mode</h4>
+    <p>Toggle switches Stripe <code>payouts.schedule</code> between automatic (weekly Monday) and manual. Manual hides Schedule row, shows yellow warning ("Money stays in Stripe until you tap Withdraw"), reveals Withdraw button.</p>
+    <h4>Disconnect</h4>
+    <p>3 sheet variants — <em>clean</em> (default), <em>pending-balance</em> (positive balance → suggest Withdraw first), <em>active-events</em> (future card-paid sessions → refund warn). Use JS console to preview the latter two: <code>setStripeDisconnectVariant('pending-balance')</code> / <code>setStripeDisconnectVariant('active-events')</code>.</p>
+  </div>
+
+  <div class="ann" id="ann-s-stripe-onb-confirm"><span class="ann-role coach">Coach</span><h3>Onboarding — Confirm info</h3>
+    <p><strong>Step 1 of 3.</strong> Every row tappable → push to dedicated edit screen (or open DOB wheel). All fields editable — no lock icons. Reasoning: forcing users back to Settings to fix Stripe-relevant data is friction; this is the moment they care, so let them fix it here.</p>
+    <h4>Edit triggers</h4>
+    <ul>
+      <li>Name → <code>s-stripe-onb-edit-name</code> (push, first + last inputs)</li>
+      <li>Email → <code>s-stripe-onb-edit-email</code> (push, single input)</li>
+      <li>Phone → <code>s-stripe-onb-edit-phone</code> (push, country code dropdown + number)</li>
+      <li>Country → <code>s-stripe-onb-edit-country</code> (push, searchable list + warn re-verification)</li>
+      <li>DOB → <code>dob-picker-sheet</code> (canonical 3-wheel bottom sheet, copied from personal-data.html)</li>
+      <li>HQ address → <code>s-stripe-onb-edit-address</code> (push, street + apt + city + postal, country auto)</li>
+    </ul>
+    <p class="note">All edits write back to <code>auto</code> snapshot client-side. On Continue the merged payload is sent to <code>PATCH /coach/stripe-onboarding/individual</code>. Name + email + phone + DOB + address are also synced back to <code>coach_profile</code> (single source of truth — fixing them in Stripe context fixes them everywhere).</p>
+  </div>
+
+  <div class="ann" id="ann-s-stripe-onb-edit-name"><span class="ann-role coach">Coach</span><h3>Edit Name</h3>
+    <p>Push screen with Cancel + Save in header (iOS-style). First + last name inputs. Reused for both Stripe onboarding and Profile editing — same canonical pattern.</p>
+    <p class="note"><strong>Must match government-issued ID.</strong> Stripe verifies the ID document against this exact spelling — typo here = verification failure later.</p>
+  </div>
+
+  <div class="ann" id="ann-s-stripe-onb-edit-email"><span class="ann-role coach">Coach</span><h3>Edit Email</h3>
+    <p>Single email input. Replaces <code>email</code> field on Stripe Custom account + saves to <code>coach_profile.contact_email</code> (different from sign-in email — that's separate in Account Access).</p>
+  </div>
+
+  <div class="ann" id="ann-s-stripe-onb-edit-phone"><span class="ann-role coach">Coach</span><h3>Edit Phone</h3>
+    <p>Country code dropdown + phone number input. Standard iOS phone picker. Stripe may text a verification code during onboarding.</p>
+  </div>
+
+  <div class="ann" id="ann-s-stripe-onb-edit-country"><span class="ann-role coach">Coach</span><h3>Edit Country</h3>
+    <p>Search + scrollable country list. Currently-selected country has teal name + ✓ tick. <strong>Warn banner</strong> at top: "Changing country resets verification — you'll re-upload ID after this." Tap row → toast + save + pop back.</p>
+    <p class="note">Backend: <code>POST /coach/stripe-onboarding/account</code> with <code>{country: "XX"}</code> — Stripe creates a NEW Custom account in that country; old one is closed. ID document state resets to required.</p>
+  </div>
+
+  <div class="ann" id="ann-s-stripe-onb-edit-address"><span class="ann-role coach">Coach</span><h3>Edit HQ address</h3>
+    <p>Push screen with 4 inputs (street + apt + city + postal) + read-only country pill. <strong>Info banner</strong>: "Your business address — what Stripe sends on tax forms. Often your home address." Save → updates <code>auto.address</code> + pops back to Confirm.</p>
+    <p class="note">Different from training address. Training addresses live in Locations (multiple gym pins). HQ address is the legal business location Stripe uses for tax forms and 1099/1042-S reporting.</p>
+  </div>
+
+  <div class="ann" id="ann-s-stripe-onb-id"><span class="ann-role coach">Coach</span><h3>Onboarding — Verification</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="document.getElementById('s-stripe-onb-id').setAttribute('data-id-state','empty');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Empty</button>
+      <button onclick="toggleIdUpload('front');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Front uploaded</button>
+      <button onclick="document.getElementById('s-stripe-onb-id').setAttribute('data-id-state','skipped');var b=document.querySelector('[data-id-skipped-banner]');if(b)b.style.display='block';this.parentElement.querySelectorAll('button').forEach(function(x){x.classList.remove('active')});this.classList.add('active')">Skipped</button>
+    </div>
+    <p><strong>Step 2 of 3.</strong> Two upload tiles — back is optional for passports. <strong>Skip for now</strong> text button below primary CTA — auto-advances to bank step + Stripe lands in action-required state.</p>
+    <ul>
+      <li>Tile turns teal outline + checkmark on success</li>
+      <li>Skip → warn banner pops up for 700ms before navigating to bank</li>
+      <li>On return from skip, <code>s-stripe</code> shows action-required state with deep-link back here</li>
+    </ul>
+  </div>
+
+  <div class="ann" id="ann-s-stripe-onb-bank"><span class="ann-role coach">Coach</span><h3>Onboarding — Bank account</h3>
+    <p><strong>Step 3 of 3.</strong> Holder + Country from confirm screen (locked here — change in Confirm if wrong). IBAN required, SWIFT/BIC optional. <strong>T&amp;C consent required</strong> — enables Submit. After Submit → <code>s-stripe</code> in pending state → transitions to done on webhook.</p>
+  </div>
+
+  <div class="ann" id="ann-s-stripe-bank-add"><span class="ann-role coach">Coach</span><h3>Add bank account</h3>
+    <p>Same form as onboarding bank step — minus T&amp;C consent (already accepted). Optional "Set as default payout method" checkbox below inputs. Add → new bank lands on s-stripe Bank accounts list.</p>
+  </div>
+
+  <div class="ann" id="ann-s-stripe-bank-detail"><span class="ann-role coach">Coach</span><h3>Bank account detail</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setBankDetail('Visa','4821',true,false);this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Default (not last)</button>
+      <button onclick="setBankDetail('Bank','7732',false,false);this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Non-default</button>
+      <button onclick="setBankDetail('Visa','4821',true,true);this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Only bank (last)</button>
+    </div>
+    <p>Read-only info + 2 actions. Remove opens 3-variant sheet: <em>last</em> (block + nudge to Add another), <em>default</em> (warn + name fallback bank), <em>normal</em> (simple confirm).</p>
+  </div>
+
+  <div class="ann" id="ann-s-stripe-withdraw"><span class="ann-role coach">Coach</span><h3>Withdraw</h3>
+    <p>Manual mode only. Large amount input + 3 quick chips. Destination = default bank. Below-minimum (&lt; €20) shows warn banner + disables Confirm. ETA copy below.</p>
+    <p class="note">Confirm → POST payout → success toast → back to s-stripe with refreshed Available. Min €20 enforced both client + server side.</p>
+  </div>
+
+  <div class="ann" id="ann-s-stripe-payouts"><span class="ann-role coach">Coach</span><h3>Payouts history</h3>
+    <p>Lifetime payouts grouped by month + lifetime summary card. Tap row → reuses <code>#s-txn-payout</code> in <code>balance.html</code>. 3 statuses with color coding: Completed (teal), In transit (blue), Failed · retried (red).</p>
+  </div>
+
+</div>
+
+
+<script>
+  // ===== Theme + Navigation =====
+  function switchTheme(theme) {
+    document.querySelectorAll('.fit-phone').forEach(function(p) {
+      p.classList.remove('fit-dark','fit-light');
+      p.classList.add('fit-' + theme);
+    });
+    document.getElementById('theme-dark').style.background = theme === 'dark' ? 'var(--fit-gray-700)' : 'transparent';
+    document.getElementById('theme-dark').style.color = theme === 'dark' ? 'var(--fit-white)' : 'var(--fit-gray-400)';
+    document.getElementById('theme-light').style.background = theme === 'light' ? 'var(--fit-gray-700)' : 'transparent';
+    document.getElementById('theme-light').style.color = theme === 'light' ? 'var(--fit-white)' : 'var(--fit-gray-400)';
+  }
+
+  function go(id, btn) {
+    document.querySelectorAll('.fit-phone').forEach(function(p) { p.classList.remove('active'); });
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.ann').forEach(function(a) { a.classList.remove('active'); });
+    var ann = document.getElementById('ann-' + id);
+    if (ann) ann.classList.add('active');
+    if (btn) {
+      document.querySelectorAll('.sidebar button').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+    }
+  }
+
+  function closeSheet(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.remove('visible');
+  }
+
+  // ===== s-stripe state toggle =====
+  function setStripeState(state, btn) {
+    btn.parentElement.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    var el = document.getElementById('s-stripe');
+    el.classList.remove('ss-none','ss-pending','ss-done','ss-action');
+    el.classList.add('ss-' + state);
+    el.querySelectorAll('[data-stripe-state]').forEach(function(blk) {
+      blk.style.display = blk.getAttribute('data-stripe-state') === state ? '' : 'none';
+    });
+    if (state !== 'none') resetStripeConsent();
+  }
+
+  // Initial state visibility — show "done" by default
+  document.querySelectorAll('#s-stripe [data-stripe-state]').forEach(function(blk) {
+    blk.style.display = blk.getAttribute('data-stripe-state') === 'done' ? '' : 'none';
+  });
+
+  // ===== Consent gate on s-stripe none state =====
+  function toggleStripeConsent(e) {
+    if (e && e.target && (e.target.tagName === 'A' || e.target.closest && e.target.closest('a'))) return;
+    var cb = document.getElementById('stripe-consent-cb');
+    if (cb) cb.classList.toggle('checked');
+    var btn = document.getElementById('stripe-start-setup-btn');
+    if (btn) {
+      if (cb && cb.classList.contains('checked')) {
+        btn.classList.remove('fit-btn-disabled');
+        btn.disabled = false;
+      } else {
+        btn.classList.add('fit-btn-disabled');
+        btn.disabled = true;
+      }
+    }
+  }
+  function resetStripeConsent() {
+    var cb = document.getElementById('stripe-consent-cb');
+    if (cb) cb.classList.remove('checked');
+    var btn = document.getElementById('stripe-start-setup-btn');
+    if (btn) { btn.classList.add('fit-btn-disabled'); btn.disabled = true; }
+  }
+
+  // ===== Onboarding edit field saves =====
+  function saveEditField(field, srcId1, srcId2, prefix) {
+    var val = '';
+    if (field === 'name') {
+      var f = document.getElementById(srcId1).value.trim();
+      var l = document.getElementById(srcId2).value.trim();
+      val = (f + ' ' + l).trim();
+      document.getElementById('confirm-name-value').textContent = val;
+      document.getElementById('bank-holder-value').textContent = val;
+    } else if (field === 'email') {
+      val = document.getElementById(srcId1).value.trim();
+      document.getElementById('confirm-email-value').textContent = val;
+    } else if (field === 'phone') {
+      var num = document.getElementById(srcId1).value.trim();
+      val = (prefix || '+995') + ' ' + num;
+      document.getElementById('confirm-phone-value').textContent = val;
+    }
+    go('s-stripe-onb-confirm', document.querySelector('[onclick*=s-stripe-onb-confirm]'));
+  }
+
+  function saveCountry(row) {
+    document.querySelectorAll('.stripe-country-row').forEach(function(r) { r.classList.remove('selected'); });
+    row.classList.add('selected');
+    var country = row.querySelector('.stripe-country-name').textContent;
+    var currency = row.getAttribute('data-currency');
+    document.getElementById('confirm-country-value').textContent = country + ' · ' + currency;
+    document.getElementById('bank-country-value').textContent = country + ' · ' + currency;
+    go('s-stripe-onb-confirm', document.querySelector('[onclick*=s-stripe-onb-confirm]'));
+  }
+
+  function saveAddress() {
+    var l1 = document.getElementById('edit-addr-line1').value.trim();
+    var city = document.getElementById('edit-addr-city').value.trim();
+    document.getElementById('confirm-address-value').textContent = (l1 + ', ' + city);
+    go('s-stripe-onb-confirm', document.querySelector('[onclick*=s-stripe-onb-confirm]'));
+  }
+
+  // ===== DOB picker (3-wheel) — copied verbatim from personal-data.html =====
+  var DOB_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function dobPopulate() {
+    var dayW = document.getElementById('dob-wheel-day');
+    var monW = document.getElementById('dob-wheel-month');
+    var yrW = document.getElementById('dob-wheel-year');
+    var pad = '<div class="avail-tp-wheel-pad"></div>';
+    if (dayW && !dayW.dataset.populated) {
+      dobRebuildDays(31);
+    }
+    if (monW && !monW.dataset.populated) {
+      var html = pad;
+      DOB_MONTHS.forEach(function(m, i) {
+        var v = String(i + 1).padStart(2,'0');
+        html += '<div class="avail-tp-wheel-item" data-val="' + v + '">' + m + '</div>';
+      });
+      html += pad;
+      monW.innerHTML = html;
+      monW.dataset.populated = '1';
+      monW.addEventListener('scroll', dobOnWheelChange);
+    }
+    if (yrW && !yrW.dataset.populated) {
+      var now = new Date();
+      var maxYear = now.getFullYear() - 13;
+      var html2 = pad;
+      for (var y = maxYear; y >= 1920; y--) {
+        html2 += '<div class="avail-tp-wheel-item" data-val="' + y + '">' + y + '</div>';
+      }
+      html2 += pad;
+      yrW.innerHTML = html2;
+      yrW.dataset.populated = '1';
+      yrW.addEventListener('scroll', dobOnWheelChange);
+    }
+  }
+
+  function dobRebuildDays(max) {
+    var dayW = document.getElementById('dob-wheel-day');
+    if (!dayW) return;
+    var pad = '<div class="avail-tp-wheel-pad"></div>';
+    var html = pad;
+    for (var d = 1; d <= max; d++) {
+      var v = String(d).padStart(2,'0');
+      html += '<div class="avail-tp-wheel-item" data-val="' + v + '">' + d + '</div>';
+    }
+    html += pad;
+    dayW.innerHTML = html;
+    dayW.dataset.populated = '1';
+  }
+
+  var _dobWheelTimer;
+  function dobOnWheelChange() {
+    clearTimeout(_dobWheelTimer);
+    _dobWheelTimer = setTimeout(function() {
+      var m = availTpReadWheel(document.getElementById('dob-wheel-month'));
+      var y = availTpReadWheel(document.getElementById('dob-wheel-year'));
+      if (!m || !y) return;
+      var monthNum = parseInt(m, 10);
+      var yearNum = parseInt(y, 10);
+      var daysInMonth = new Date(yearNum, monthNum, 0).getDate();
+      var dayW = document.getElementById('dob-wheel-day');
+      var currentDay = availTpReadWheel(dayW);
+      dobRebuildDays(daysInMonth);
+      if (currentDay) {
+        var clamped = Math.min(parseInt(currentDay, 10), daysInMonth);
+        requestAnimationFrame(function() {
+          availTpScrollTo(dayW, String(clamped).padStart(2,'0'));
+        });
+      }
+    }, 120);
+  }
+
+  function availTpScrollTo(wheel, val) {
+    if (!wheel) return;
+    var item = wheel.querySelector('[data-val="' + val + '"]');
+    if (!item) return;
+    var target = item.offsetTop - wheel.offsetTop - (wheel.clientHeight / 2 - item.clientHeight / 2);
+    wheel.scrollTop = Math.max(0, target);
+  }
+
+  function availTpReadWheel(wheel) {
+    if (!wheel) return null;
+    var center = wheel.scrollTop + wheel.clientHeight / 2;
+    var closest = null, closestDist = Infinity;
+    wheel.querySelectorAll('.avail-tp-wheel-item').forEach(function(item) {
+      var itemCenter = (item.offsetTop - wheel.offsetTop) + item.clientHeight / 2;
+      var dist = Math.abs(itemCenter - center);
+      if (dist < closestDist) { closestDist = dist; closest = item; }
+    });
+    return closest ? closest.getAttribute('data-val') : null;
+  }
+
+  function openDobPicker() {
+    dobPopulate();
+    var valEl = document.getElementById('confirm-dob-value');
+    var existing = (valEl && valEl.textContent || '').trim();
+    var dd = '01', mm = '01', yy = '2000';
+    var match = existing.match(/^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$/);
+    if (match) {
+      dd = String(match[1]).padStart(2,'0');
+      var monIdx = DOB_MONTHS.indexOf(match[2]);
+      if (monIdx >= 0) mm = String(monIdx + 1).padStart(2,'0');
+      yy = match[3];
+    }
+    var errBox = document.getElementById('dob-sheet-error');
+    if (errBox) errBox.style.display = 'none';
+    document.getElementById('dob-picker-sheet').classList.add('visible');
+    requestAnimationFrame(function() {
+      var monthNum = parseInt(mm, 10);
+      var yearNum = parseInt(yy, 10);
+      dobRebuildDays(new Date(yearNum, monthNum, 0).getDate());
+      availTpScrollTo(document.getElementById('dob-wheel-day'), dd);
+      availTpScrollTo(document.getElementById('dob-wheel-month'), mm);
+      availTpScrollTo(document.getElementById('dob-wheel-year'), yy);
+    });
+  }
+
+  function closeDobPicker() { closeSheet('dob-picker-sheet'); }
+
+  function confirmDobPicker() {
+    var dd = availTpReadWheel(document.getElementById('dob-wheel-day')) || '01';
+    var mm = availTpReadWheel(document.getElementById('dob-wheel-month')) || '01';
+    var yy = availTpReadWheel(document.getElementById('dob-wheel-year')) || '2000';
+    var picked = new Date(parseInt(yy,10), parseInt(mm,10) - 1, parseInt(dd,10));
+    var today = new Date();
+    var thirteenAgo = new Date(today.getFullYear() - 13, today.getMonth(), today.getDate());
+    if (picked > thirteenAgo) {
+      var errBox = document.getElementById('dob-sheet-error');
+      if (errBox) errBox.style.display = 'block';
+      return;
+    }
+    var valEl = document.getElementById('confirm-dob-value');
+    if (valEl) valEl.textContent = parseInt(dd, 10) + ' ' + DOB_MONTHS[parseInt(mm, 10) - 1] + ' ' + yy;
+    closeSheet('dob-picker-sheet');
+  }
+
+  // ===== ID upload =====
+  function toggleIdUpload(side) {
+    var tile = document.getElementById('id-tile-' + side);
+    if (!tile) return;
+    var done = tile.classList.toggle('done');
+    var titleEl = tile.querySelector('.stripe-id-upload-title');
+    if (titleEl) titleEl.textContent = done ? (side === 'front' ? 'Front uploaded' : 'Back uploaded') : (side === 'front' ? 'Front of ID' : 'Back of ID');
+    var iconWrap = tile.querySelector('[data-id-icon]');
+    if (iconWrap) iconWrap.innerHTML = done
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><polyline points="20 6 9 17 4 12"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>';
+    var screen = document.getElementById('s-stripe-onb-id');
+    if (screen) {
+      var anyDone = !!screen.querySelector('.stripe-id-upload.done');
+      screen.setAttribute('data-id-state', anyDone ? 'uploaded' : 'empty');
+    }
+  }
+
+  function skipIdAndContinue() {
+    var screen = document.getElementById('s-stripe-onb-id');
+    if (screen) screen.setAttribute('data-id-state', 'skipped');
+    var banner = document.querySelector('[data-id-skipped-banner]');
+    if (banner) banner.style.display = 'block';
+    setTimeout(function() {
+      go('s-stripe-onb-bank', document.querySelector('[onclick*=s-stripe-onb-bank]'));
+      if (banner) banner.style.display = 'none';
+    }, 700);
+  }
+
+  // ===== Bank step consent + submit =====
+  function toggleBankConsent(e) {
+    if (e && e.target && (e.target.tagName === 'A' || e.target.closest && e.target.closest('a'))) return;
+    var cb = document.getElementById('bank-consent-cb');
+    if (cb) cb.classList.toggle('checked');
+    var btn = document.getElementById('bank-submit-btn');
+    if (btn) {
+      if (cb && cb.classList.contains('checked')) {
+        btn.classList.remove('fit-btn-disabled');
+        btn.disabled = false;
+      } else {
+        btn.classList.add('fit-btn-disabled');
+        btn.disabled = true;
+      }
+    }
+  }
+
+  function completeStripeOnboarding() {
+    setStripeState('pending', document.querySelectorAll('#ann-s-stripe .state-toggle button')[1]);
+    go('s-stripe', document.querySelector('[onclick*=s-stripe]'));
+    setTimeout(function() {
+      setStripeState('done', document.querySelectorAll('#ann-s-stripe .state-toggle button')[2]);
+    }, 1500);
+  }
+
+  // ===== Manual mode + control center =====
+  function toggleManualMode() {
+    var sw = document.getElementById('manual-mode-switch');
+    if (!sw) return;
+    var on = sw.classList.toggle('on');
+    var stripe = document.getElementById('s-stripe');
+    if (stripe) stripe.setAttribute('data-payout-mode', on ? 'manual' : 'auto');
+    document.querySelectorAll('[data-payout-mode-visible]').forEach(function(el) {
+      var mode = el.getAttribute('data-payout-mode-visible');
+      el.style.display = mode === (on ? 'manual' : 'auto') ? '' : 'none';
+    });
+  }
+
+  function setBankDetail(name, last4, isDefault, isLast) {
+    var screen = document.getElementById('s-stripe-bank-detail');
+    if (!screen) return;
+    screen.setAttribute('data-bank-default', isDefault ? 'true' : 'false');
+    screen.setAttribute('data-bank-last', isLast ? 'true' : 'false');
+    screen.querySelectorAll('[data-bank-name]').forEach(function(el) { el.textContent = name; });
+    screen.querySelectorAll('[data-bank-last4]').forEach(function(el) { el.textContent = last4; });
+    screen.querySelectorAll('[data-bank-default-pill]').forEach(function(el) {
+      var role = el.getAttribute('data-bank-default-pill');
+      el.style.display = (role === 'show' ? isDefault : !isDefault) ? '' : 'none';
+    });
+  }
+
+  function setBankAsDefault() {
+    var screen = document.getElementById('s-stripe-bank-detail');
+    if (!screen) return;
+    screen.setAttribute('data-bank-default', 'true');
+    screen.querySelectorAll('[data-bank-default-pill]').forEach(function(el) {
+      var role = el.getAttribute('data-bank-default-pill');
+      el.style.display = role === 'show' ? '' : 'none';
+    });
+    var toast = document.getElementById('withdraw-success-toast');
+    if (toast) {
+      var span = toast.querySelector('span');
+      var oldText = span ? span.textContent : '';
+      if (span) span.textContent = 'Set as default payout method';
+      toast.classList.add('show');
+      setTimeout(function() {
+        toast.classList.remove('show');
+        if (span) span.textContent = oldText;
+      }, 1800);
+    }
+  }
+
+  function openRemoveBankSheet() {
+    var sheet = document.getElementById('remove-bank-sheet');
+    var screen = document.getElementById('s-stripe-bank-detail');
+    if (!sheet || !screen) return;
+    var isLast = screen.getAttribute('data-bank-last') === 'true';
+    var isDefault = screen.getAttribute('data-bank-default') === 'true';
+    var variant = isLast ? 'last' : (isDefault ? 'default' : 'normal');
+    sheet.querySelectorAll('[data-rb-variant]').forEach(function(el) {
+      el.style.display = el.getAttribute('data-rb-variant') === variant ? '' : 'none';
+    });
+    sheet.classList.add('visible');
+  }
+  function closeRemoveBankSheet() {
+    var sheet = document.getElementById('remove-bank-sheet');
+    if (sheet) sheet.classList.remove('visible');
+  }
+  function confirmRemoveBank() {
+    closeRemoveBankSheet();
+    go('s-stripe', document.querySelector('[onclick*=s-stripe]'));
+  }
+
+  // ===== Withdraw =====
+  function setWithdrawAmount(amt) {
+    var input = document.getElementById('withdraw-amount-input');
+    if (input) input.value = amt;
+    validateWithdrawAmount(input);
+  }
+  function validateWithdrawAmount(input) {
+    if (!input) return;
+    var v = parseInt(input.value || '0', 10);
+    var screen = document.getElementById('s-stripe-withdraw');
+    var warn = screen ? screen.querySelector('[data-withdraw-warn="below-min"]') : null;
+    var btn = document.getElementById('withdraw-confirm-btn');
+    var belowMin = v > 0 && v < 20;
+    var tooHigh = v > 240;
+    if (warn) warn.style.display = (belowMin || tooHigh) ? 'block' : 'none';
+    if (btn) {
+      btn.textContent = 'Withdraw €' + (v || 0);
+      if (belowMin || tooHigh || v === 0) {
+        btn.classList.add('fit-btn-disabled');
+        btn.disabled = true;
+      } else {
+        btn.classList.remove('fit-btn-disabled');
+        btn.disabled = false;
+      }
+    }
+  }
+  function confirmWithdraw() {
+    var toast = document.getElementById('withdraw-success-toast');
+    if (toast) {
+      toast.classList.add('show');
+      setTimeout(function() { toast.classList.remove('show'); }, 1800);
+    }
+    setTimeout(function() {
+      go('s-stripe', document.querySelector('[onclick*=s-stripe]'));
+    }, 600);
+  }
+
+  // ===== Stripe disconnect =====
+  function openStripeDisconnectSheet() {
+    setStripeDisconnectVariant('clean');
+    var sheet = document.getElementById('stripe-disconnect-sheet');
+    if (sheet) sheet.classList.add('visible');
+  }
+  function closeStripeDisconnectSheet() {
+    var sheet = document.getElementById('stripe-disconnect-sheet');
+    if (sheet) sheet.classList.remove('visible');
+  }
+  function setStripeDisconnectVariant(variant) {
+    var sheet = document.getElementById('stripe-disconnect-sheet');
+    if (!sheet) return;
+    sheet.querySelectorAll('[data-sd-variant]').forEach(function(el) {
+      el.style.display = el.getAttribute('data-sd-variant') === variant ? '' : 'none';
+    });
+    var defActions = sheet.querySelector('[data-sd-default-actions]');
+    if (defActions) defActions.style.display = variant === 'clean' ? 'flex' : 'none';
+  }
+  function confirmStripeDisconnect() {
+    closeStripeDisconnectSheet();
+    setStripeState('none', document.querySelector('#ann-s-stripe .state-toggle button'));
+  }
+
+  // Close sheet on backdrop click
+  document.querySelectorAll('.fit-sheet-overlay').forEach(function(ov) {
+    ov.addEventListener('click', function(e) {
+      if (e.target === ov) ov.classList.remove('visible');
+    });
+  });
+
+  // Honor URL hash for direct deep-links from balance.html / dashboard.html
+  // e.g. stripe.html#none — opens s-stripe in "none" state.
+  (function() {
+    var hash = (location.hash || '').replace('#', '');
+    if (['none','pending','done','action'].indexOf(hash) >= 0) {
+      var ann = document.querySelector('#ann-s-stripe .state-toggle');
+      if (ann) {
+        var idx = ['none','pending','done','action'].indexOf(hash);
+        var btn = ann.querySelectorAll('button')[idx];
+        if (btn) setStripeState(hash, btn);
+      }
+    }
+  })();
+</script>
+
+</body>
+</html>
