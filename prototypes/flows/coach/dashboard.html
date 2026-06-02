@@ -967,7 +967,8 @@
       <div>
         <div class="dash-section-label">Needs your attention</div>
         <div class="dash-actions">
-          <div class="dash-action" data-a11y-id="coach.dashboard.action.requests-incoming" onclick="window.location.href='clients.html#s-requests'">
+          <!-- Both action cards deep-link to the unified Inbox (s-notifications) and switch to the correct tab. -->
+          <div class="dash-action" data-a11y-id="coach.dashboard.action.requests-incoming" onclick="openInboxOnTab('toreply')">
             <div class="dash-action-icon req"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
             <div class="dash-action-body">
               <div class="dash-action-title">3 pending requests</div>
@@ -975,8 +976,7 @@
             </div>
             <svg class="dash-action-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
           </div>
-          <!-- Outgoing pending — paired with incoming above. Lands on Waiting tab inside s-requests. -->
-          <div class="dash-action" data-a11y-id="coach.dashboard.action.requests-outgoing" onclick="window.location.href='clients.html#s-requests-outgoing'">
+          <div class="dash-action" data-a11y-id="coach.dashboard.action.requests-outgoing" onclick="openInboxOnTab('waiting')">
             <div class="dash-action-icon" style="background:rgba(247,201,72,0.12);color:var(--fit-yellow-400);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg></div>
             <div class="dash-action-body">
               <div class="dash-action-title">2 invites awaiting reply</div>
@@ -1626,21 +1626,30 @@
 </div>
 
 <!-- ==================== NOTIFICATIONS INBOX ==================== -->
-<div class="fit-phone fit-dark nfn-default" id="s-notifications">
+<div class="fit-phone fit-dark nfn-default" id="s-notifications" data-notif-tab="activity">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
       <button class="fit-header-back" onclick="go('s-dashboard', document.querySelector('.sidebar button[onclick*=s-dashboard]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Notifications</span>
+      <span class="fit-header-title">Inbox</span>
       <button class="fit-icon-btn" aria-label="More" onclick="markAllNotifRead(event)" id="notif-more-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
       </button>
     </div>
+    <!-- 3-way segmented tabs: Activity (history) | To reply (incoming pending) | Waiting (outgoing pending) -->
+    <div style="display:flex;margin:0 16px 12px;border-radius:10px;overflow:hidden;background:var(--fit-surface-high);padding:3px;">
+      <button id="notif-tab-activity" data-a11y-id="coach.inbox.tab.activity" onclick="switchNotifTab('activity')" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;background:var(--fit-brand-gradient);color:var(--fit-white);">Activity <span id="notif-tab-activity-count" style="opacity:0.8;">(5)</span></button>
+      <button id="notif-tab-toreply" data-a11y-id="coach.inbox.tab.toreply" onclick="switchNotifTab('toreply')" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--fit-text-secondary);">To reply <span id="notif-tab-toreply-count" style="opacity:0.6;">(3)</span></button>
+      <button id="notif-tab-waiting" data-a11y-id="coach.inbox.tab.waiting" onclick="switchNotifTab('waiting')" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--fit-text-secondary);">Waiting <span id="notif-tab-waiting-count" style="opacity:0.6;">(2)</span></button>
+    </div>
   </div>
   <div class="fit-phone-content">
 
-    <!-- ========== DEFAULT: mixed feed, grouped by date ========== -->
+    <!-- ========== DEFAULT: tab content rendered per panel below ========== -->
     <div data-list-state="default">
+
+    <!-- ===== ACTIVITY PANEL (default) — historical feed, grouped by date ===== -->
+    <div id="notif-panel-activity">
 
       <div class="notif-date-header">Today</div>
 
@@ -1765,7 +1774,199 @@
       </div>
 
       <div style="padding:0 16px 24px;"></div>
-    </div>
+    </div><!-- /notif-panel-activity -->
+
+    <!-- ===== TO REPLY PANEL — incoming athlete → coach booking requests ===== -->
+    <div id="notif-panel-toreply" style="display:none;">
+
+      <div class="req-card" data-name="Tom" style="margin:16px 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
+          <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">TN</div>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Tom Novak</div>
+            <div style="font-size:12px;color:var(--fit-text-tertiary);">wants to book a session</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);margin-bottom:8px;">Boxing Training</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:8px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          Thu, Apr 17 &middot; 19:30 &ndash; 20:30
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            GYM Bro
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;40</span>
+            <span style="font-size:12px;color:var(--fit-text-tertiary);background:var(--fit-gray-700);padding:2px 6px;border-radius:4px;">Cash</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="fit-btn fit-btn-destructive" style="flex:1;height:44px;font-size:16px;" onclick="setIncomingAction('decline',this)">Decline</button>
+          <button style="flex:1;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="setIncomingAction('accept',this)">Accept</button>
+        </div>
+      </div>
+
+      <div class="req-card" data-name="Sara" style="margin:0 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
+          <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">SK</div>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Sara Kim</div>
+            <div style="font-size:12px;color:var(--fit-text-tertiary);">wants to book a session</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);margin-bottom:8px;">Basketball Training</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:8px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          Fri, Apr 18 &middot; 10:00 &ndash; 11:00
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            TNT Studio
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;50</span>
+            <span style="font-size:12px;color:var(--fit-text-tertiary);background:var(--fit-gray-700);padding:2px 6px;border-radius:4px;">Card</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="fit-btn fit-btn-destructive" style="flex:1;height:44px;font-size:16px;" onclick="setIncomingAction('decline',this)">Decline</button>
+          <button style="flex:1;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="setIncomingAction('accept',this)">Accept</button>
+        </div>
+      </div>
+
+      <div class="req-card" data-name="Lena" style="margin:0 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
+          <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">LR</div>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Lena Roth</div>
+            <div style="font-size:12px;color:var(--fit-text-tertiary);">wants to book a session</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);margin-bottom:8px;">Yoga Morning Flow</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:8px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          Mon, Apr 21 &middot; 08:00 &ndash; 09:30
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            GYM Bro
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;15</span>
+            <span style="font-size:12px;color:var(--fit-text-tertiary);background:var(--fit-gray-700);padding:2px 6px;border-radius:4px;">Cash</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="fit-btn fit-btn-destructive" style="flex:1;height:44px;font-size:16px;" onclick="setIncomingAction('decline',this)">Decline</button>
+          <button style="flex:1;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="setIncomingAction('accept',this)">Accept</button>
+        </div>
+      </div>
+
+      <div id="notif-toreply-empty" style="display:none;padding-top:40px;">
+        <div class="fit-empty-state">
+          <svg class="fes-illus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <div class="fit-empty-state-title">Inbox zero</div>
+          <div class="fit-empty-state-sub">No requests right now — we'll show new ones here.</div>
+        </div>
+      </div>
+
+    </div><!-- /notif-panel-toreply -->
+
+    <!-- ===== WAITING PANEL — outgoing coach → athlete sent invites ===== -->
+    <div id="notif-panel-waiting" style="display:none;">
+
+      <div class="req-card" data-name="Anna" style="margin:16px 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
+          <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">AK</div>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Anna Kowalski</div>
+            <div style="font-size:12px;color:var(--fit-text-tertiary);">
+              <span style="display:inline-flex;align-items:center;gap:4px;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--fit-yellow-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                Awaiting reply
+              </span>
+              &middot; sent 2 days ago
+            </div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);margin-bottom:8px;">Yoga Morning Flow</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:8px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          Mon, May 4 &middot; 09:00 &ndash; 10:30
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            GYM Bro
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;15</span>
+            <span style="font-size:12px;color:var(--fit-text-tertiary);background:var(--fit-gray-700);padding:2px 6px;border-radius:4px;">Cash</span>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);margin-bottom:14px;">Expires in 5 days</div>
+        <div style="display:flex;gap:8px;">
+          <button class="fit-btn fit-btn-secondary" data-a11y-id="coach.inbox.waiting.edit" style="flex:1;height:44px;font-size:16px;" onclick="setOutgoingAction('edit',this)">Edit</button>
+          <button class="fit-btn fit-btn-destructive" data-a11y-id="coach.inbox.waiting.cancel" style="flex:1;height:44px;font-size:16px;" onclick="setOutgoingAction('cancel',this)">Cancel</button>
+        </div>
+      </div>
+
+      <div class="req-card" data-name="Lukas" style="margin:0 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
+          <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">LN</div>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Lukas Navickas</div>
+            <div style="font-size:12px;color:var(--fit-text-tertiary);">
+              <span style="display:inline-flex;align-items:center;gap:4px;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--fit-yellow-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                Awaiting reply
+              </span>
+              &middot; sent 4 hours ago
+            </div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);margin-bottom:8px;">Boxing Training</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:8px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          Wed, Apr 23 &middot; 19:00 &ndash; 20:00
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            TNT Studio
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;40</span>
+            <span style="font-size:12px;color:var(--fit-text-tertiary);background:var(--fit-gray-700);padding:2px 6px;border-radius:4px;">Cash</span>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);margin-bottom:14px;">Expires in 6 days</div>
+        <div style="display:flex;gap:8px;">
+          <button class="fit-btn fit-btn-secondary" style="flex:1;height:44px;font-size:16px;" onclick="setOutgoingAction('edit',this)">Edit</button>
+          <button class="fit-btn fit-btn-destructive" style="flex:1;height:44px;font-size:16px;" onclick="setOutgoingAction('cancel',this)">Cancel</button>
+        </div>
+      </div>
+
+      <div id="notif-waiting-empty" style="display:none;padding-top:40px;">
+        <div class="fit-empty-state">
+          <svg class="fes-illus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
+          <div class="fit-empty-state-title">No invites pending</div>
+          <div class="fit-empty-state-sub">When you invite athletes to a session,<br>their pending replies show up here.</div>
+        </div>
+      </div>
+
+    </div><!-- /notif-panel-waiting -->
+
+    </div><!-- /data-list-state="default" -->
 
     <!-- ========== EMPTY ========== -->
     <div data-list-state="empty">
@@ -1971,14 +2172,31 @@
     <p class="note">Backend: needs <code>GET /coach/events?status=review</code> or equivalent filtered endpoint. Bulk actions (select-all &rarr; mark complete) deferred until user feedback warrants it.</p>
   </div>
 
-  <div class="ann" id="ann-s-notifications"><span class="ann-role coach">Coach</span><h3>Notifications inbox</h3>
+  <div class="ann" id="ann-s-notifications"><span class="ann-role coach">Coach</span><h3>Inbox (unified 2026-06-02)</h3>
+    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Tab</div>
+    <div class="state-toggle">
+      <button class="active" onclick="switchNotifTab('activity');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Activity</button>
+      <button onclick="switchNotifTab('toreply');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">To reply</button>
+      <button onclick="switchNotifTab('waiting');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Waiting</button>
+    </div>
+    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin:14px 0 6px;">List state</div>
     <div class="state-toggle">
       <button class="active" onclick="setNotifState('default',this)">Default</button>
       <button onclick="setNotifState('empty',this)">Empty</button>
       <button onclick="setNotifState('loading',this)">Loading</button>
       <button onclick="setNotifState('error',this)">Error</button>
     </div>
-    <p>Centralized inbox for all push-triggered notifications. Bell icon (dashboard header) and Home tab badge both reflect unread count from <code>GET /notifications/count</code>; tap on either bell or row pushes here / to the entity.</p>
+    <p><strong>Unified Inbox.</strong> Replaces the legacy split where Clients had its own bell + s-requests inbox alongside Dashboard notifications. Coach now has ONE bell → ONE inbox with 3 tabs.</p>
+    <h4>Tabs</h4>
+    <ul>
+      <li><strong>Activity (default)</strong> — push-triggered notification history (Calendar sync errors, Anna requested a session, Mark rescheduled, Session confirmed/cancelled, Request declined/expired). Date-grouped feed.</li>
+      <li><strong>To reply</strong> — incoming athlete → coach booking requests. Cards with [Decline] [Accept].</li>
+      <li><strong>Waiting</strong> — outgoing coach → athlete invites awaiting reply. Yellow "Awaiting reply" pill + sent-N-ago + expires-in. Cards with <strong>[Edit] [Cancel]</strong>.</li>
+    </ul>
+    <h4>Why unified</h4>
+    <p>Previously the bell icon appeared on both Dashboard and Clients headers leading to two different inboxes — confusing for coaches ("which bell?"). One bell = one mental model. Pending requests are a flavor of notification, not a separate category.</p>
+    <h4>Bell badge</h4>
+    <p>Counts unread Activity rows + incoming To reply count. Outgoing Waiting is NOT counted in the bell — bell signals "action needed by you"; waiting on others is monitoring, surfaced via tab counter + Dashboard pair card.</p>
     <ul>
       <li><strong>Header:</strong> back chevron &middot; title &ldquo;Notifications&rdquo; &middot; ⋯ menu (only action: <em>Mark all as read</em>; disabled when count = 0)</li>
       <li><strong>Date grouping:</strong> Today &middot; Yesterday &middot; Earlier this week &middot; month names. Section header 12px medium uppercase, secondary color.</li>
@@ -2216,6 +2434,109 @@
     // Real impl: POST /notifications/mark-read with data-notif-id, then route by TargetData.
     rowEl.classList.remove('notif-row--unread');
     updateNotifBadgeCount();
+  }
+
+  // ===== Inbox 3-tab switcher (Activity / To reply / Waiting) =====
+  function switchNotifTab(tab) {
+    var screen = document.getElementById('s-notifications');
+    if (!screen) return;
+    screen.setAttribute('data-notif-tab', tab);
+    var panels = { activity: 'notif-panel-activity', toreply: 'notif-panel-toreply', waiting: 'notif-panel-waiting' };
+    Object.keys(panels).forEach(function(t) {
+      var el = document.getElementById(panels[t]);
+      if (el) el.style.display = t === tab ? '' : 'none';
+    });
+    // Tab button visual states (active = gradient, inactive = transparent)
+    ['activity','toreply','waiting'].forEach(function(t) {
+      var b = document.getElementById('notif-tab-' + t);
+      if (!b) return;
+      if (t === tab) {
+        b.style.background = 'var(--fit-brand-gradient)'; b.style.color = 'var(--fit-white)';
+      } else {
+        b.style.background = 'transparent'; b.style.color = 'var(--fit-text-secondary)';
+      }
+    });
+  }
+
+  // Incoming pending request — Accept / Decline. Scoped to #notif-panel-toreply.
+  function setIncomingAction(action, btn) {
+    var card = btn.closest('.req-card');
+    if (!card || card.dataset.done === '1') return;
+    card.dataset.done = '1';
+    var name = card.dataset.name || 'Athlete';
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(-12px)';
+    var remaining = document.querySelectorAll('#notif-panel-toreply .req-card:not([data-done="1"])').length;
+    // Update Inbox tab counter + Dashboard pending-requests action card count
+    var tabCount = document.getElementById('notif-tab-toreply-count');
+    if (tabCount) tabCount.textContent = '(' + remaining + ')';
+    // Snackbar
+    var snack = document.getElementById('notif-snackbar') || document.getElementById('req-snackbar');
+    if (snack) {
+      snack.textContent = action === 'accept'
+        ? (name + ' accepted — event added to calendar')
+        : (name + '’s request declined');
+      snack.classList.add('show');
+      clearTimeout(snack._t);
+      snack._t = setTimeout(function(){ snack.classList.remove('show'); }, 2500);
+    }
+    setTimeout(function(){
+      card.style.display = 'none';
+      if (remaining === 0) {
+        var emp = document.getElementById('notif-toreply-empty');
+        if (emp) emp.style.display = 'block';
+      }
+    }, 220);
+  }
+
+  // Outgoing pending invite — Edit (push to event editor) / Cancel (withdraw).
+  function setOutgoingAction(action, btn) {
+    var card = btn.closest('.req-card');
+    if (!card) return;
+    var name = card.dataset.name || 'Athlete';
+    var snack = document.getElementById('notif-snackbar') || document.getElementById('req-snackbar');
+
+    if (action === 'edit') {
+      // In real app: push to s-event in edit mode with status=awaiting_reply.
+      // Prototype stub — just show a confirmation toast.
+      if (snack) {
+        snack.textContent = 'Opening invite to ' + name;
+        snack.classList.add('show');
+        clearTimeout(snack._t);
+        snack._t = setTimeout(function(){ snack.classList.remove('show'); }, 1800);
+      }
+      return;
+    }
+
+    if (action === 'cancel') {
+      if (card.dataset.done === '1') return;
+      card.dataset.done = '1';
+      card.style.opacity = '0';
+      card.style.transform = 'translateX(-12px)';
+      var remaining = document.querySelectorAll('#notif-panel-waiting .req-card:not([data-done="1"])').length;
+      var tabCount = document.getElementById('notif-tab-waiting-count');
+      if (tabCount) tabCount.textContent = '(' + remaining + ')';
+      if (snack) {
+        snack.textContent = 'Invite to ' + name + ' cancelled';
+        snack.classList.add('show');
+        clearTimeout(snack._t);
+        snack._t = setTimeout(function(){ snack.classList.remove('show'); }, 2500);
+      }
+      setTimeout(function(){
+        card.style.display = 'none';
+        if (remaining === 0) {
+          var emp = document.getElementById('notif-waiting-empty');
+          if (emp) emp.style.display = 'block';
+        }
+      }, 220);
+    }
+  }
+
+  // Hash-based deep-link from dashboard action cards.
+  function openInboxOnTab(tab) {
+    var btn = document.querySelector('.sidebar button[onclick*="\'s-notifications\'"]');
+    if (btn) go('s-notifications', btn);
+    switchNotifTab(tab);
   }
 
   function markAllNotifRead(ev) {

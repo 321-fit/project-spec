@@ -157,7 +157,7 @@
   <div class="sidebar-scroll">
   <div class="label">Clients</div>
   <button class="active" onclick="go('s-clients',this)">Clients</button>
-  <button onclick="go('s-requests',this)">Requests</button>
+  <!-- "Requests" sidebar entry removed 2026-06-02 — moved to dashboard.html Inbox 3-tab structure. -->
   <button onclick="go('s-client-detail',this)">Client Detail</button>
   <button onclick="go('s-client-history',this)">Client History</button>
   <button onclick="go('s-client-notes-editor',this)">Client Notes Editor</button>
@@ -178,13 +178,7 @@
     <div class="fit-header">
       <span class="fit-header-title" style="flex:1;">Clients</span>
       <div style="display:flex;gap:12px;">
-        <!-- Bell icon with badge → requests screen -->
-        <div style="position:relative;cursor:pointer;" onclick="go('s-requests',document.querySelector('[onclick*=s-requests]'))">
-          <button style="width:32px;height:32px;border-radius:50%;background:var(--fit-surface-high);border:none;display:flex;align-items:center;justify-content:center;color:var(--fit-text-primary);cursor:pointer;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-          </button>
-          <div id="cd-bell-badge" style="position:absolute;top:-2px;right:-2px;width:18px;height:18px;border-radius:50%;background:var(--fit-red-400);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--fit-white);"><span id="cd-bell-count">3</span></div>
-        </div>
+        <!-- Bell removed 2026-06-02 — Inbox unified into Dashboard s-notifications (3 tabs). -->
         <!-- + button → add client sheet -->
         <button style="width:32px;height:32px;border-radius:50%;background:var(--fit-surface-high);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--fit-text-primary);" onclick="document.getElementById('add-client-sheet').classList.add('visible')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -340,256 +334,6 @@
         Invite to training
       </div>
     </div>
-  </div>
-</div>
-
-<!-- ===== COACH: REQUESTS INBOX ===== -->
-<div class="fit-phone fit-dark ls-default" id="s-requests" data-tab="incoming">
-  <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header">
-      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Requests</span>
-    </div>
-    <!-- Segmented tabs: incoming (default) | outgoing pending. Same pattern as s-archived. -->
-    <div style="display:flex;margin:0 16px 12px;border-radius:10px;overflow:hidden;background:var(--fit-surface-high);padding:3px;">
-      <button id="req-tab-incoming" data-a11y-id="coach.clients.requests.tab.incoming" onclick="switchRequestsTab('incoming')" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;background:var(--fit-brand-gradient);color:var(--fit-white);">To reply <span id="req-tab-incoming-count" style="opacity:0.8;">(3)</span></button>
-      <button id="req-tab-outgoing" data-a11y-id="coach.clients.requests.tab.outgoing" onclick="switchRequestsTab('outgoing')" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;background:transparent;color:var(--fit-text-secondary);">Waiting <span id="req-tab-outgoing-count" style="opacity:0.6;">(2)</span></button>
-    </div>
-  </div>
-  <div class="fit-phone-content">
-
-    <!-- === DEFAULT STATE: filled inbox === -->
-    <div data-list-state="default">
-
-    <!-- ===== INCOMING PANEL (athlete → coach booking requests) ===== -->
-    <div id="req-panel-incoming">
-
-    <!-- Request 1 -->
-    <div class="req-card" data-name="Tom" style="margin:0 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
-        <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">TN</div>
-        <div style="flex:1;">
-          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Tom Novak</div>
-          <div style="font-size:12px;color:var(--fit-text-tertiary);">wants to book a session</div>
-        </div>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
-      </div>
-      <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);margin-bottom:8px;">Boxing Training</div>
-      <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:8px;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-        Thu, Apr 17 · 19:30 – 20:30
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-          GYM Bro
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">€40</span>
-          <span style="font-size:12px;color:var(--fit-text-tertiary);background:var(--fit-gray-700);padding:2px 6px;border-radius:4px;">Cash</span>
-        </div>
-      </div>
-      <div style="display:flex;gap:8px;">
-        <button class="fit-btn fit-btn-destructive" style="flex:1;height:44px;font-size:16px;" onclick="setRequestAction('decline',this)">Decline</button>
-        <button style="flex:1;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="setRequestAction('accept',this)">Accept</button>
-      </div>
-    </div>
-
-    <!-- Request 2 -->
-    <div class="req-card" data-name="Sara" style="margin:0 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
-        <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">SK</div>
-        <div style="flex:1;">
-          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Sara Kim</div>
-          <div style="font-size:12px;color:var(--fit-text-tertiary);">wants to book a session</div>
-        </div>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
-      </div>
-      <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);margin-bottom:8px;">Basketball Training</div>
-      <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:8px;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-        Fri, Apr 18 · 10:00 – 11:00
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-          TNT Studio
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">€50</span>
-          <span style="font-size:12px;color:var(--fit-text-tertiary);background:var(--fit-gray-700);padding:2px 6px;border-radius:4px;">Card</span>
-        </div>
-      </div>
-      <div style="display:flex;gap:8px;">
-        <button class="fit-btn fit-btn-destructive" style="flex:1;height:44px;font-size:16px;" onclick="setRequestAction('decline',this)">Decline</button>
-        <button style="flex:1;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="setRequestAction('accept',this)">Accept</button>
-      </div>
-    </div>
-
-    <!-- Request 3 (group) -->
-    <div class="req-card" data-name="Lena" style="margin:0 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
-        <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">LR</div>
-        <div style="flex:1;">
-          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Lena Roth</div>
-          <div style="font-size:12px;color:var(--fit-text-tertiary);">wants to book a session</div>
-        </div>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
-      </div>
-      <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);margin-bottom:8px;">Yoga Morning Flow</div>
-      <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:8px;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-        Mon, Apr 21 · 08:00 – 09:30
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-          GYM Bro
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">€15</span>
-          <span style="font-size:12px;color:var(--fit-text-tertiary);background:var(--fit-gray-700);padding:2px 6px;border-radius:4px;">Cash</span>
-        </div>
-      </div>
-      <div style="display:flex;gap:8px;">
-        <button class="fit-btn fit-btn-destructive" style="flex:1;height:44px;font-size:16px;" onclick="setRequestAction('decline',this)">Decline</button>
-        <button style="flex:1;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="setRequestAction('accept',this)">Accept</button>
-      </div>
-    </div>
-
-    </div><!-- /req-panel-incoming -->
-
-    <!-- ===== OUTGOING PANEL (coach → athlete sent invites, waiting on reply) ===== -->
-    <div id="req-panel-outgoing" style="display:none;">
-
-      <!-- Outgoing 1 -->
-      <div class="req-card" data-name="Anna" style="margin:0 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
-          <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">AK</div>
-          <div style="flex:1;">
-            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Anna Kowalski</div>
-            <div style="font-size:12px;color:var(--fit-text-tertiary);">
-              <span style="display:inline-flex;align-items:center;gap:4px;">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--fit-yellow-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-                Awaiting reply
-              </span>
-              &middot; sent 2 days ago
-            </div>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);margin-bottom:8px;">Yoga Morning Flow</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:8px;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-          Mon, May 4 &middot; 09:00 &ndash; 10:30
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-            GYM Bro
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;">
-            <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;15</span>
-            <span style="font-size:12px;color:var(--fit-text-tertiary);background:var(--fit-gray-700);padding:2px 6px;border-radius:4px;">Cash</span>
-          </div>
-        </div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);margin-bottom:14px;">Expires in 5 days</div>
-        <div style="display:flex;gap:8px;">
-          <button class="fit-btn fit-btn-secondary" data-a11y-id="coach.clients.requests.outgoing.cancel" style="flex:1;height:44px;font-size:16px;" onclick="setOutgoingAction('cancel',this)">Cancel</button>
-          <button data-a11y-id="coach.clients.requests.outgoing.resend" style="flex:1;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="setOutgoingAction('resend',this)">Resend</button>
-        </div>
-      </div>
-
-      <!-- Outgoing 2 -->
-      <div class="req-card" data-name="Lukas" style="margin:0 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
-          <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">LN</div>
-          <div style="flex:1;">
-            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Lukas Navickas</div>
-            <div style="font-size:12px;color:var(--fit-text-tertiary);">
-              <span style="display:inline-flex;align-items:center;gap:4px;">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--fit-yellow-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-                Awaiting reply
-              </span>
-              &middot; sent 4 hours ago
-            </div>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);margin-bottom:8px;">Boxing Training</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:8px;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-          Wed, Apr 23 &middot; 19:00 &ndash; 20:00
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-            TNT Studio
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;">
-            <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;40</span>
-            <span style="font-size:12px;color:var(--fit-text-tertiary);background:var(--fit-gray-700);padding:2px 6px;border-radius:4px;">Cash</span>
-          </div>
-        </div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);margin-bottom:14px;">Expires in 6 days &middot; resend available in 20 hours</div>
-        <div style="display:flex;gap:8px;">
-          <button class="fit-btn fit-btn-secondary" style="flex:1;height:44px;font-size:16px;" onclick="setOutgoingAction('cancel',this)">Cancel</button>
-          <button disabled style="flex:1;height:44px;border:none;border-radius:99px;background:var(--fit-gray-700);color:var(--fit-text-tertiary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:not-allowed;">Resend</button>
-        </div>
-      </div>
-
-      <!-- Outgoing empty state — visible only when 0 outgoing pending -->
-      <div id="req-outgoing-empty" style="display:none;padding-top:40px;">
-        <div class="fit-empty-state">
-          <svg class="fes-illus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
-          <div class="fit-empty-state-title">No invites pending</div>
-          <div class="fit-empty-state-sub">When you invite athletes to a session,<br>their pending replies show up here.</div>
-        </div>
-      </div>
-
-    </div><!-- /req-panel-outgoing -->
-
-    </div><!-- /data-list-state="default" -->
-
-    <!-- === EMPTY STATE: inbox zero === -->
-    <div data-list-state="empty">
-      <div class="fit-empty-state" style="padding-top:72px;">
-        <svg class="fes-illus" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M10 18l4-8h36l4 8v30a4 4 0 01-4 4H14a4 4 0 01-4-4V18z"/>
-          <path d="M10 18h16l4 6h4l4-6h16"/>
-          <path d="M24 36l6 6 12-12"/>
-        </svg>
-        <div class="fit-empty-state-title">All caught up</div>
-        <div class="fit-empty-state-sub">New training requests from athletes<br>will appear here.</div>
-      </div>
-    </div>
-
-    <!-- Snackbar for Accept/Decline confirmation -->
-    <div class="fit-snackbar" id="req-snackbar">Request handled</div>
-
-    <!-- === LOADING STATE: skeleton request cards === -->
-    <div data-list-state="loading">
-      <div class="sk-card lg">
-        <div class="sk-row"><div class="sk-circle lg sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:45%;"></div><div class="sk-line short sk-shimmer"></div></div></div>
-        <div class="sk-block sk-shimmer" style="width:60%;"></div>
-        <div class="sk-block sk-shimmer" style="width:80%;height:10px;"></div>
-        <div class="sk-btn-row"><div class="sk-btn sk-shimmer"></div><div class="sk-btn sk-shimmer"></div></div>
-      </div>
-      <div class="sk-card lg">
-        <div class="sk-row"><div class="sk-circle lg sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:38%;"></div><div class="sk-line short sk-shimmer"></div></div></div>
-        <div class="sk-block sk-shimmer" style="width:70%;"></div>
-        <div class="sk-block sk-shimmer" style="width:75%;height:10px;"></div>
-        <div class="sk-btn-row"><div class="sk-btn sk-shimmer"></div><div class="sk-btn sk-shimmer"></div></div>
-      </div>
-      <div class="sk-card lg">
-        <div class="sk-row"><div class="sk-circle lg sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:52%;"></div><div class="sk-line short sk-shimmer"></div></div></div>
-        <div class="sk-block sk-shimmer" style="width:55%;"></div>
-        <div class="sk-block sk-shimmer" style="width:78%;height:10px;"></div>
-        <div class="sk-btn-row"><div class="sk-btn sk-shimmer"></div><div class="sk-btn sk-shimmer"></div></div>
-      </div>
-    </div>
-
   </div>
 </div>
 
@@ -1204,43 +948,6 @@
       <button onclick="setArchivedRow(false,this)">No archived yet</button>
     </div>
     <p>CRM-style client list. Root tab screen (no back arrow).</p><ul><li><strong>Bell icon</strong> with red badge (3) → Requests inbox</li><li><strong>"+"</strong> icon → sheet with 3 options</li><li><strong>"€50 owed"</strong> red badge (Mark S.) — client has unpaid cash session</li><li><strong>"Deleted" badge</strong> (Ivan K.) — athlete removed their account. Muted avatar + text-tertiary name. History intact, tappable to Client Detail.</li><li><strong>"CRM" badge</strong> (Marta V.) — coach-created contact without app account. Teal-tinted pill, normal avatar color. Coach tracks sessions/cash manually; can later Invite to app to upgrade.</li><li>Tap client → Client Detail</li></ul><hr><p class="note"><strong>"+" sheet actions:</strong><br>• <strong>Create athlete profile</strong> → CRM form (New Client screen)<br>• <strong>Invite to app</strong> → opens native iOS share sheet directly. Prefilled: "Join me on 321Fit: https://321.fit/invite/coach_id". No intermediate screen.<br>• <strong>Invite to training</strong> → intermediate screen to select training template, then generates deep link with event attached.</p><hr><p class="note"><strong>Empty:</strong> fresh coach — «Add first client» CTA opens the same add-client sheet. <strong>Loading:</strong> 4 skeleton rows during initial fetch. <strong>Archived row</strong> at bottom is hidden when 0 archived+blocked — appears only after first use.</p></div>
-  <div class="ann" id="ann-s-requests"><span class="ann-role coach">Coach</span><h3>Requests</h3>
-    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Tab</div>
-    <div class="state-toggle">
-      <button class="active" onclick="switchRequestsTab('incoming');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">To reply (incoming)</button>
-      <button onclick="switchRequestsTab('outgoing');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Waiting (outgoing)</button>
-    </div>
-    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin:14px 0 6px;">List state</div>
-    <div class="state-toggle">
-      <button class="active" onclick="setRequestsState('default',this)">Filled</button>
-      <button onclick="setRequestsState('empty',this)">Empty</button>
-      <button onclick="setRequestsState('loading',this)">Loading</button>
-    </div>
-    <div class="state-toggle" style="margin-top:8px;">
-      <button onclick="resetRequestsDemo()">Reset Accept/Decline demo</button>
-    </div>
-    <p><strong>Two tabs.</strong> Default = <em>To reply</em> (incoming athlete requests). <em>Waiting</em> = outgoing invites the coach sent and is waiting on athlete reply.</p>
-    <h4>Incoming (To reply)</h4>
-    <ul>
-      <li>Cards: avatar + name + training + time + location + price + payment badge + <strong>[Decline] [Accept]</strong></li>
-      <li>Avatar row tappable → athlete profile</li>
-      <li>Accept → card fade-out, snackbar, event created in calendar, athlete added to clients if new. <strong>Bell badge decrements.</strong></li>
-      <li>Decline → fade-out + snackbar. Bell badge decrements.</li>
-      <li>Last incoming handled → screen transitions to inbox-zero illustration.</li>
-    </ul>
-    <h4>Outgoing (Waiting)</h4>
-    <ul>
-      <li>Cards: avatar + name + <span style="color:var(--fit-yellow-400);">Awaiting reply</span> · sent-N-ago + training + time + location + price + expires-in-N + <strong>[Cancel] [Resend]</strong></li>
-      <li><strong>Cancel</strong> → card fade-out, snackbar "Invite to N cancelled", athlete gets push notification.</li>
-      <li><strong>Resend</strong> → fires push/email reminder. <strong>Rate-limited 1×/24h</strong> server-side; UI shows "resend available in N hours" + disables button.</li>
-      <li>Tap card body → s-event detail screen with "Awaiting reply" status badge.</li>
-      <li>Last outgoing handled → inline empty illustration "No invites pending" within the panel (doesn't trigger screen-wide inbox-zero).</li>
-    </ul>
-    <h4>Bell badge logic</h4>
-    <p>Bell badge counts <strong>incoming only</strong>. Outgoing pending counter shown only on the Waiting tab itself + Dashboard pair card. Rationale: bell = "action needed by you"; outgoing is monitoring, not action.</p>
-    <h4>Loading</h4>
-    <p>3 skeleton cards matching incoming layout. Loading state is screen-wide (covers both tabs) — outgoing pending is fetched in parallel with incoming, so single loading state is fine.</p>
-  </div>
   <div class="ann" id="ann-s-client-detail"><span class="ann-role coach">Coach</span><h3>Client Detail</h3>
     <div class="state-toggle">
       <button class="active" onclick="setClientDetailState('default',this)">Filled</button>
@@ -1315,127 +1022,10 @@ function setArchivedRow(visible, btn) {
   var row = document.getElementById('cd-archived-row');
   if (row) row.style.display = visible ? 'flex' : 'none';
 }
-function setRequestsState(state, btn) {
-  if (btn) {
-    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  }
-  var list = document.getElementById('s-requests');
-  list.classList.remove('ls-default', 'ls-empty', 'ls-loading');
-  list.classList.add('ls-' + state);
-}
-
 // === ACCEPT/DECLINE REQUEST (inbox card action) ===
-function setRequestAction(action, btn) {
-  var card = btn.closest('.req-card');
-  if (!card || card.dataset.done === '1') return;
-  card.dataset.done = '1';
-  var name = card.dataset.name || 'Athlete';
-
-  // Fade card out
-  card.style.opacity = '0';
-  card.style.transform = 'translateX(-12px)';
-
-  // Scope count to INCOMING panel only — bell badge tracks "action needed by you",
-  // which is incoming requests; outgoing pending doesn't count toward urgency.
-  var remaining = document.querySelectorAll('#req-panel-incoming .req-card:not([data-done="1"])').length;
-  var badge = document.getElementById('cd-bell-badge');
-  var countEl = document.getElementById('cd-bell-count');
-  if (countEl) countEl.textContent = String(remaining);
-  if (badge) badge.style.display = remaining > 0 ? 'flex' : 'none';
-  var tabCount = document.getElementById('req-tab-incoming-count');
-  if (tabCount) tabCount.textContent = '(' + remaining + ')';
-
-  // Snackbar
-  var snack = document.getElementById('req-snackbar');
-  if (snack) {
-    snack.textContent = action === 'accept'
-      ? (name + ' accepted — event added to calendar')
-      : (name + '’s request declined');
-    snack.classList.add('show');
-    setTimeout(function(){ snack.classList.remove('show'); }, 2500);
-  }
-
-  // After fade, hide card; if incoming panel is now empty AND we're on incoming
-  // tab, transition to inbox-zero illustration.
-  setTimeout(function(){
-    card.style.display = 'none';
-    if (remaining === 0 && document.getElementById('s-requests').getAttribute('data-tab') === 'incoming') {
-      setRequestsState('empty', null);
-    }
-  }, 220);
-}
-
 // Outgoing (sent invites): Cancel = withdraw invite, Resend = repush athlete.
 // Both are local stubs in the prototype — backend would POST to event endpoint.
-function setOutgoingAction(action, btn) {
-  var card = btn.closest('.req-card');
-  if (!card || card.dataset.done === '1') return;
-  var name = card.dataset.name || 'Athlete';
-
-  if (action === 'cancel') {
-    card.dataset.done = '1';
-    card.style.opacity = '0';
-    card.style.transform = 'translateX(-12px)';
-    var remaining = document.querySelectorAll('#req-panel-outgoing .req-card:not([data-done="1"])').length;
-    var tabCount = document.getElementById('req-tab-outgoing-count');
-    if (tabCount) tabCount.textContent = '(' + remaining + ')';
-    var snack = document.getElementById('req-snackbar');
-    if (snack) {
-      snack.textContent = 'Invite to ' + name + ' cancelled';
-      snack.classList.add('show');
-      setTimeout(function(){ snack.classList.remove('show'); }, 2500);
-    }
-    setTimeout(function(){
-      card.style.display = 'none';
-      var emp = document.getElementById('req-outgoing-empty');
-      if (emp && remaining === 0) emp.style.display = 'block';
-    }, 220);
-  } else if (action === 'resend') {
-    // Local resend just shows confirmation toast; backend rate-limits to 1×/24h.
-    var snack = document.getElementById('req-snackbar');
-    if (snack) {
-      snack.textContent = 'Reminder sent to ' + name;
-      snack.classList.add('show');
-      setTimeout(function(){ snack.classList.remove('show'); }, 2500);
-    }
-  }
-}
-
 // Switch between incoming (default) and outgoing pending tabs.
-function switchRequestsTab(tab) {
-  var screen = document.getElementById('s-requests');
-  if (!screen) return;
-  screen.setAttribute('data-tab', tab);
-  var panels = { incoming: 'req-panel-incoming', outgoing: 'req-panel-outgoing' };
-  Object.keys(panels).forEach(function(t) {
-    var el = document.getElementById(panels[t]);
-    if (el) el.style.display = t === tab ? '' : 'none';
-  });
-  // Tab button styles
-  var inB = document.getElementById('req-tab-incoming');
-  var outB = document.getElementById('req-tab-outgoing');
-  if (inB && outB) {
-    if (tab === 'incoming') {
-      inB.style.background = 'var(--fit-brand-gradient)'; inB.style.color = 'var(--fit-white)';
-      outB.style.background = 'transparent'; outB.style.color = 'var(--fit-text-secondary)';
-    } else {
-      outB.style.background = 'var(--fit-brand-gradient)'; outB.style.color = 'var(--fit-white)';
-      inB.style.background = 'transparent'; inB.style.color = 'var(--fit-text-secondary)';
-    }
-  }
-  // Empty-state illustration follows the active tab — only valid for incoming.
-  // Outgoing empty is local (req-outgoing-empty inside its panel).
-  if (tab === 'incoming') {
-    var remaining = document.querySelectorAll('#req-panel-incoming .req-card:not([data-done="1"])').length;
-    if (remaining === 0) setRequestsState('empty', null);
-    else setRequestsState('default', null);
-  } else {
-    // Force default state when on outgoing — the panel handles its own empty.
-    setRequestsState('default', null);
-  }
-}
-
 // === CREATE CLIENT VALIDATION ===
 function validateCreateClient() {
   var screen = document.getElementById('s-create-client');
@@ -1526,24 +1116,6 @@ function setCreateClientState(state, btn) {
 }
 
 // Reset demo — restore all request cards + bell badge + default state
-function resetRequestsDemo() {
-  document.querySelectorAll('#s-requests .req-card').forEach(function(c){
-    c.dataset.done = '';
-    c.style.display = '';
-    c.style.opacity = '';
-    c.style.transform = '';
-  });
-  var badge = document.getElementById('cd-bell-badge');
-  var countEl = document.getElementById('cd-bell-count');
-  if (countEl) countEl.textContent = '3';
-  if (badge) badge.style.display = 'flex';
-  setRequestsState('default', null);
-  // Reset annotation toggle active state
-  var toggle = document.querySelector('#ann-s-requests .state-toggle button.active');
-  if (toggle) toggle.classList.remove('active');
-  var first = document.querySelector('#ann-s-requests .state-toggle button');
-  if (first) first.classList.add('active');
-}
 function setClientDetailState(state, btn) {
   btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -1695,16 +1267,9 @@ function resetMarkPaidDemo() {
 }
 
 // Deep-link via URL hash (e.g. clients.html#s-client-detail).
-// Special case: #s-requests-outgoing lands on s-requests + switches to outgoing tab.
 (function() {
   var hash = (location.hash || '').replace('#','');
   if (!hash) return;
-  if (hash === 's-requests-outgoing') {
-    var btn = document.querySelector('.sidebar button[onclick*="\'s-requests\'"]');
-    if (btn) go('s-requests', btn);
-    switchRequestsTab('outgoing');
-    return;
-  }
   var target = document.getElementById(hash);
   if (!target || !target.classList.contains('fit-phone')) return;
   var btn = document.querySelector('.sidebar button[onclick*="\'' + hash + '\'"]');
