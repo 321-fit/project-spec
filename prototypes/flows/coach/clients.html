@@ -149,6 +149,34 @@
   .fit-light .fit-navbar { background: rgba(255,255,255,0.75); box-shadow: 0 0 24px rgba(0,0,0,0.15); }
   .fit-light .fit-navbar-item { color: var(--fit-gray-400); }
   .fit-light .fit-navbar-item.active { color: var(--fit-text-primary); }
+
+  /* Cash actions drawer rows (shared with balance.html + dashboard.html pattern) */
+  .cash-action-row {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 16px;
+    background: var(--fit-surface-high);
+    border-radius: 14px;
+    cursor: pointer;
+    text-align: left;
+    width: 100%; border: none;
+    font-family: var(--fit-font);
+  }
+  .cash-action-row + .cash-action-row { margin-top: 8px; }
+  .cash-action-row.destructive .cash-action-icon {
+    background: rgba(240,92,91,0.14); color: var(--fit-red-400);
+  }
+  .cash-action-row.primary .cash-action-icon {
+    background: rgba(5,224,166,0.12); color: var(--fit-teal-500);
+  }
+  .cash-action-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--fit-surface-higher); color: var(--fit-text-secondary);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .cash-action-body { flex: 1; min-width: 0; }
+  .cash-action-title { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
+  .cash-action-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; line-height: 1.4; }
 </style>
 </head>
 <body>
@@ -432,7 +460,7 @@
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <span style="font-size:12px;color:var(--fit-text-tertiary);">Apr 14 &middot; Cash</span>
-          <button style="height:28px;padding:0 12px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:12px;font-weight:500;cursor:pointer;" onclick="setMarkPaid(this)">Mark Paid</button>
+          <button style="height:28px;padding:0 12px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:12px;font-weight:500;cursor:pointer;" data-a11y-id="coach.client-detail.pending.manage" onclick="openClientCashDrawer(this)">Manage</button>
         </div>
       </div>
       <div class="cd-pending-card" data-amount="25" style="min-width:280px;padding:12px 14px;border-radius:14px;background:rgba(240,92,91,0.06);border:1px solid rgba(240,92,91,0.2);flex-shrink:0;scroll-snap-align:start;transition:opacity 0.2s ease, transform 0.2s ease;">
@@ -442,7 +470,7 @@
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <span style="font-size:12px;color:var(--fit-text-tertiary);">Apr 10 &middot; Cash</span>
-          <button style="height:28px;padding:0 12px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:12px;font-weight:500;cursor:pointer;" onclick="setMarkPaid(this)">Mark Paid</button>
+          <button style="height:28px;padding:0 12px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:12px;font-weight:500;cursor:pointer;" data-a11y-id="coach.client-detail.pending.manage" onclick="openClientCashDrawer(this)">Manage</button>
         </div>
       </div>
     </div>
@@ -593,6 +621,36 @@
 
   <!-- Mark Paid snackbar (iOS HUD-style, confirms side-effect) -->
   <div class="fit-snackbar" id="cd-paid-snackbar">Payment recorded</div>
+
+  <!-- ===== Cash actions drawer for client detail (Mark paid / Waive payment) ===== -->
+  <!-- Mirrors balance.html cash-actions-sheet pattern. Bound to a specific pending card when opened. -->
+  <div class="fit-sheet-overlay" id="cd-cash-actions-sheet">
+    <div class="fit-sheet compact">
+      <div class="fit-sheet-handle"></div>
+      <div style="margin:6px 0 18px;text-align:center;">
+        <div style="font-size:18px;font-weight:500;color:var(--fit-text-primary);" id="cd-cash-actions-title">Mark payment</div>
+        <div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:4px;" id="cd-cash-actions-sub">Session · €amount</div>
+      </div>
+
+      <button class="cash-action-row primary" data-a11y-id="coach.client-detail.pending.mark-paid" onclick="confirmClientCashAction('paid')">
+        <div class="cash-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="cash-action-body">
+          <div class="cash-action-title">Mark as paid</div>
+          <div class="cash-action-sub">Athlete handed you the money &mdash; counts as income.</div>
+        </div>
+      </button>
+
+      <button class="cash-action-row destructive" data-a11y-id="coach.client-detail.pending.waive" onclick="confirmClientCashAction('waive')">
+        <div class="cash-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+        <div class="cash-action-body">
+          <div class="cash-action-title">Waive payment</div>
+          <div class="cash-action-sub">No charge to the athlete &mdash; debt cleared. Session still counts, &euro;0 income.</div>
+        </div>
+      </button>
+
+      <button style="width:100%;height:50px;margin-top:14px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="closeClientCashDrawer()">Close</button>
+    </div>
+  </div>
 
   <!-- Client options context menu (iOS UIMenu — floating popover near ⋯ button) -->
   <div class="fit-context-menu-backdrop" id="client-menu-backdrop" onclick="closeClientMenu()"></div>
@@ -964,7 +1022,7 @@
     <div class="state-toggle" style="margin-top:8px;">
       <button onclick="resetMarkPaidDemo()">Reset Mark Paid demo</button>
     </div>
-    <p>Full athlete profile from coach's perspective.</p><ul><li><strong>Header:</strong> avatar, name, location, sport chips — always visible (instant header, reused from list)</li><li><strong>Stats card:</strong> Sessions | Upcoming | Revenue | Owed. Fresh = all zeros in muted color.</li><li><strong>Pending Payments:</strong> section appears only when unpaid exists (hidden at 0). Tap <strong>Mark Paid</strong> → card fades, snackbar confirms, Owed/Revenue stats update, badge decrements. Last card cleared → whole section collapses.</li><li><strong>Upcoming Sessions:</strong> carousel of cards; when empty → outline card with <strong>Schedule training</strong> CTA</li><li><strong>Notes:</strong> outline card (transparent bg + divider border). Tap anywhere opens full-screen editor. Empty variant shows pencil + <strong>Add notes</strong>.</li><li><strong>Training History →</strong> row hidden when 0 sessions</li><li><strong>⋯ menu</strong> (header right): floating iOS UIMenu pattern. Menu items scoped per client state:<br>&bull; <strong>Normal</strong> → Schedule training / Edit / Archive / Block<br>&bull; <strong>Deleted</strong> → Archive only (can't act on a gone account)<br>&bull; <strong>CRM</strong> → Invite to app / Invite to training / Edit / Archive (no Schedule — no push target; no Block — not in app anyway)</li><li><strong>Status banners</strong> at top: Archived (gray, Restore) / Blocked (red, Unblock) / Deleted (gray, date-stamped, no action).</li><li><strong>CRM indicator</strong>: small teal <code>CRM</code> pill inline next to name (same pattern as in Clients list). No banner — less visual noise. «Invite to app» action lives in ⋯ menu.</li></ul><hr><p class="note"><strong>Schedule training</strong> (⋯ menu + fresh-state Upcoming CTA) → navigates to <code>invite.html?mode=schedule&amp;origin=s-client-detail</code>. Reuses Select Training + Date/Time screens with Request-badge review instead of Invitation-badge. Send Request → back to Client Detail.</p></div>
+    <p>Full athlete profile from coach's perspective.</p><ul><li><strong>Header:</strong> avatar, name, location, sport chips — always visible (instant header, reused from list)</li><li><strong>Stats card:</strong> Sessions | Upcoming | Revenue | Owed. Fresh = all zeros in muted color.</li><li><strong>Pending Payments:</strong> section appears only when unpaid exists (hidden at 0). Tap <strong>Manage</strong> on a pending card → bottom-sheet drawer with 2 options: <em>Mark as paid</em> (Owed↓ + Revenue↑) or <em>Waive payment</em> (Owed↓ only, €0 income, status <code>payment_waived</code>, silent to athlete). Both terminal. Snackbar confirms; card fades; badge decrements. Last card cleared → whole section collapses. Same drawer pattern as <code>balance.html#s-txn-cash</code> Manage payment.</li><li><strong>Upcoming Sessions:</strong> carousel of cards; when empty → outline card with <strong>Schedule training</strong> CTA</li><li><strong>Notes:</strong> outline card (transparent bg + divider border). Tap anywhere opens full-screen editor. Empty variant shows pencil + <strong>Add notes</strong>.</li><li><strong>Training History →</strong> row hidden when 0 sessions</li><li><strong>⋯ menu</strong> (header right): floating iOS UIMenu pattern. Menu items scoped per client state:<br>&bull; <strong>Normal</strong> → Schedule training / Edit / Archive / Block<br>&bull; <strong>Deleted</strong> → Archive only (can't act on a gone account)<br>&bull; <strong>CRM</strong> → Invite to app / Invite to training / Edit / Archive (no Schedule — no push target; no Block — not in app anyway)</li><li><strong>Status banners</strong> at top: Archived (gray, Restore) / Blocked (red, Unblock) / Deleted (gray, date-stamped, no action).</li><li><strong>CRM indicator</strong>: small teal <code>CRM</code> pill inline next to name (same pattern as in Clients list). No banner — less visual noise. «Invite to app» action lives in ⋯ menu.</li></ul><hr><p class="note"><strong>Schedule training</strong> (⋯ menu + fresh-state Upcoming CTA) → navigates to <code>invite.html?mode=schedule&amp;origin=s-client-detail</code>. Reuses Select Training + Date/Time screens with Request-badge review instead of Invitation-badge. Send Request → back to Client Detail.</p></div>
   <div class="ann" id="ann-s-client-history"><span class="ann-role coach">Coach</span><h3>Client History</h3>
     <div class="state-toggle">
       <button class="active" onclick="setClientHistoryState('default',this)">Filled</button>
@@ -1141,9 +1199,39 @@ function closeClientMenu() {
   document.getElementById('client-menu-backdrop').classList.remove('visible');
 }
 
-// === MARK PAID (snackbar + card fade + stats update) ===
-function setMarkPaid(btn) {
+// === Cash actions drawer for Client Detail Pending Payments ===
+// Tap "Manage" on a pending card → opens drawer with Mark paid + Waive options.
+// Mirrors balance.html s-txn-cash drawer pattern + dashboard.html waiting drawer.
+
+var _cdCashCurrentCard = null;
+
+function openClientCashDrawer(btn) {
   var card = btn.closest('.cd-pending-card');
+  if (!card || card.dataset.paid === '1') return;
+  _cdCashCurrentCard = card;
+  var amount = card.dataset.amount || '0';
+  var sessionName = (card.querySelector('span') && card.querySelector('span').textContent) || 'Session';
+  var dateLine = card.querySelectorAll('span');
+  // dateLine[2] is the "Apr 14 · Cash" subline (4th text span); fall back to empty
+  var dateText = dateLine.length >= 3 ? dateLine[2].textContent : '';
+  var titleEl = document.getElementById('cd-cash-actions-title');
+  var subEl = document.getElementById('cd-cash-actions-sub');
+  if (titleEl) titleEl.textContent = 'Mark payment — ' + sessionName;
+  if (subEl) subEl.textContent = dateText + ' · €' + amount;
+  var sheet = document.getElementById('cd-cash-actions-sheet');
+  if (sheet) sheet.classList.add('visible');
+}
+
+function closeClientCashDrawer() {
+  var sheet = document.getElementById('cd-cash-actions-sheet');
+  if (sheet) sheet.classList.remove('visible');
+  _cdCashCurrentCard = null;
+}
+
+// Apply chosen action to the bound card (mark as paid OR waive).
+function confirmClientCashAction(kind) {
+  var card = _cdCashCurrentCard;
+  closeClientCashDrawer();
   if (!card || card.dataset.paid === '1') return;
   card.dataset.paid = '1';
   var amount = parseInt(card.dataset.amount, 10) || 0;
@@ -1152,13 +1240,19 @@ function setMarkPaid(btn) {
   card.style.opacity = '0';
   card.style.transform = 'translateX(-12px)';
 
-  // Update stats (Owed down, Revenue up)
+  // Update Owed stat (drops in both cases — debt is cleared)
   var owedEl = document.getElementById('cd-stat-owed');
-  var revEl = document.getElementById('cd-stat-revenue');
   var owed = parseInt((owedEl.textContent || '').replace(/[^0-9]/g,''), 10) || 0;
-  var rev = parseInt((revEl.textContent || '').replace(/[^0-9]/g,''), 10) || 0;
-  owedEl.textContent = '€' + (owed - amount);
-  revEl.textContent = '€' + (rev + amount);
+  if (owedEl) owedEl.textContent = '€' + (owed - amount);
+
+  // Revenue stat — ONLY increases when paid, not on waive (€0 income on waive).
+  if (kind === 'paid') {
+    var revEl = document.getElementById('cd-stat-revenue');
+    if (revEl) {
+      var rev = parseInt((revEl.textContent || '').replace(/[^0-9]/g,''), 10) || 0;
+      revEl.textContent = '€' + (rev + amount);
+    }
+  }
 
   // Update count badge
   var list = document.getElementById('cd-pending-list');
@@ -1166,11 +1260,15 @@ function setMarkPaid(btn) {
   var countEl = document.getElementById('cd-pending-count');
   if (countEl) countEl.textContent = String(remaining);
 
-  // Show snackbar
+  // Snackbar
   var snack = document.getElementById('cd-paid-snackbar');
-  snack.textContent = 'Payment recorded · €' + amount;
-  snack.classList.add('show');
-  setTimeout(function(){ snack.classList.remove('show'); }, 2500);
+  if (snack) {
+    snack.textContent = (kind === 'paid')
+      ? ('Payment recorded · €' + amount)
+      : ('Payment waived · €' + amount + ' cleared');
+    snack.classList.add('show');
+    setTimeout(function(){ snack.classList.remove('show'); }, 2500);
+  }
 
   // After fade, remove from layout + collapse section if empty
   setTimeout(function(){
@@ -1180,6 +1278,11 @@ function setMarkPaid(btn) {
       if (section) section.style.display = 'none';
     }
   }, 220);
+}
+
+// Backward-compat alias for resetMarkPaidDemo + any external call sites.
+function setMarkPaid(btn) {
+  openClientCashDrawer(btn);
 }
 
 // === ARCHIVED/BLOCKED TABS ===
