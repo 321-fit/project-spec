@@ -738,18 +738,15 @@
         </div>
         <svg class="stripe-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </div>
-      <!-- HQ address: mandatory field. data-address-state toggles "filled" vs "empty" via annotation state toggle -->
+      <!-- Address: mandatory field. data-address-state toggles "filled" vs "empty" via annotation state toggle -->
       <div class="stripe-row" data-a11y-id="coach.stripe.onb.confirm.address" data-address-state="filled" onclick="go('s-stripe-onb-edit-address',document.querySelector('[onclick*=s-stripe-onb-edit-address]'))">
         <div class="stripe-row-text">
-          <span class="stripe-row-label">HQ address <span class="stripe-row-required">Required</span></span>
+          <span class="stripe-row-label">Address <span class="stripe-row-required">Required</span></span>
           <span class="stripe-row-value" id="confirm-address-value" data-address-text="filled">1600 Pennsylvania Ave NW, Washington</span>
-          <span class="stripe-row-value placeholder" data-address-text="empty" style="display:none;">Add your business address</span>
+          <span class="stripe-row-value placeholder" data-address-text="empty" style="display:none;">Add your address</span>
         </div>
         <svg class="stripe-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </div>
-    </div>
-    <div style="font-size:12px;color:var(--fit-text-tertiary);margin:8px 20px 0;line-height:1.4;">
-      HQ address is your business address for tax reporting &mdash; not where you train clients. Country can't be changed once Stripe verifies you.
     </div>
 
   </div>
@@ -916,7 +913,7 @@
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;">
       <button data-a11y-id="coach.stripe.onb.edit-address.cancel" style="border:none;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;cursor:pointer;" onclick="go('s-stripe-onb-confirm',document.querySelector('[onclick*=s-stripe-onb-confirm]'))">Cancel</button>
-      <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">HQ address</span>
+      <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Address</span>
       <button data-a11y-id="coach.stripe.onb.edit-address.save" style="border:none;background:transparent;color:var(--fit-teal-500);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="saveAddress()">Save</button>
     </div>
   </div>
@@ -1425,7 +1422,7 @@
   </div>
 
   <div class="ann" id="ann-s-stripe-onb-confirm"><span class="ann-role coach">Coach</span><h3>Onboarding — Confirm info</h3>
-    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">HQ address state</div>
+    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Address state</div>
     <div class="state-toggle">
       <button class="active" onclick="setConfirmAddressState('filled');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Filled (from profile)</button>
       <button onclick="setConfirmAddressState('empty');this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Empty (not in profile)</button>
@@ -1438,13 +1435,13 @@
       <li>Phone → <code>s-stripe-onb-edit-phone</code> (country code + number)</li>
       <li>Country → <code>s-stripe-onb-edit-country</code> (searchable list + warn re-verification)</li>
       <li>DOB → <code>dob-picker-sheet</code> (canonical 3-wheel sheet)</li>
-      <li>HQ address → <code>s-stripe-onb-edit-address</code></li>
+      <li>Address → <code>s-stripe-onb-edit-address</code></li>
     </ul>
-    <h4>HQ address — mandatory</h4>
+    <h4>Address — mandatory</h4>
     <p>Stripe requires a business address for Custom accounts (tax forms — 1099 in US, equivalents in EU). The row is marked <code>Required</code> in yellow. <strong>Continue is disabled until filled.</strong></p>
     <ul>
-      <li><em>Filled</em> — auto from <code>coach_profile</code> (HQ / business address field if we add it, otherwise the coach's primary training location as a hint they can edit).</li>
-      <li><em>Empty</em> — placeholder "Add your business address" in tertiary color. Continue disabled. Tap row → fill it in.</li>
+      <li><em>Filled</em> — auto from <code>coach_profile</code> (business address field if we add it, otherwise the coach's primary training location as a hint they can edit).</li>
+      <li><em>Empty</em> — placeholder "Add your address" in tertiary color. Continue disabled. Tap row → fill it in.</li>
     </ul>
     <h4>Hidden fields (handled by backend, not shown to user)</h4>
     <ul>
@@ -1474,9 +1471,9 @@
     <p class="note">Backend: <code>POST /coach/stripe-onboarding/account</code> with <code>{country: "XX"}</code> — Stripe creates a NEW Custom account in that country; old one is closed. ID document state resets to required.</p>
   </div>
 
-  <div class="ann" id="ann-s-stripe-onb-edit-address"><span class="ann-role coach">Coach</span><h3>Edit HQ address</h3>
+  <div class="ann" id="ann-s-stripe-onb-edit-address"><span class="ann-role coach">Coach</span><h3>Edit address</h3>
     <p>Push screen with 4 inputs (street + apt + city + postal) + read-only country pill. <strong>Info banner</strong>: "Your business address — what Stripe sends on tax forms. Often your home address." Save → updates <code>auto.address</code> + pops back to Confirm.</p>
-    <p class="note">Different from training address. Training addresses live in Locations (multiple gym pins). HQ address is the legal business location Stripe uses for tax forms and 1099/1042-S reporting.</p>
+    <p class="note">Different from training address. Training addresses live in Locations (multiple gym pins). This address is the legal business location Stripe uses for tax forms and 1099/1042-S reporting.</p>
   </div>
 
   <div class="ann" id="ann-s-stripe-onb-id"><span class="ann-role coach">Coach</span><h3>Onboarding — Verification</h3>
@@ -1707,7 +1704,7 @@
     go('s-stripe-onb-confirm', document.querySelector('[onclick*=s-stripe-onb-confirm]'));
   }
 
-  // Toggle HQ address row between filled / empty + gate Continue button.
+  // Toggle address row between filled / empty + gate Continue button.
   function setConfirmAddressState(state) {
     var row = document.querySelector('.stripe-row[data-address-state]');
     if (row) row.setAttribute('data-address-state', state);
