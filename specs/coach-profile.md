@@ -3,7 +3,7 @@
 > Status: Draft
 > Prototype: [flows/coach/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/profile.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-05-12
+> Last updated: 2026-06-03
 > Implementation:
 > - iOS:     [321fit_ios/docs/coach-profile-ios.md] (to be created)
 > - Backend: [poly-backend/docs/coach-profile-api.md] (to be created)
@@ -15,7 +15,7 @@
 
 ## 1. Overview
 
-Profile is **tab 5 of 5** in coach navigation (slot order: Dashboard, Clients, Messenger placeholder, Calendar, Profile). The screen renders the coach's **public profile as athletes will see it**, with **tap-to-edit affordances on every editable section**. The header carries a right-slot **⚙️ gear** that pushes to Settings (secondary entry; primary editing is in-place here).
+Profile is **tab 5 of 5** in coach navigation (slot order: Dashboard, Clients, Messenger placeholder, Calendar, Profile). The screen renders the coach's **public profile as athletes will see it**, with **tap-to-edit affordances on every editable section**. The header carries a right-slot **share** icon (opens the share-invite sheet — the same coach `inviteUser` deep link athletes get) and an **⚙️ gear** that pushes to Settings (secondary entry; primary editing is in-place here).
 
 The page intentionally mirrors the athlete-side `s-coach-v2` layout (hero media → identity → stats → my sports → about → reviews) so coaches see exactly the visual surface athletes will judge them by, with management tiles (Languages / Training Sessions / Locations / Available Hours) added below as a quick jump-off into the corresponding Settings sub-modules.
 
@@ -53,7 +53,7 @@ A `cv-new` family of state classes drives the **new-coach** variant — see § 4
 
 ### Layout (top to bottom)
 
-1. **Header** — title-only "Profile" + right-slot gear → `settings.html`. No back chevron (tab root). No status bar tweaks beyond standard.
+1. **Header** — title-only "Profile" + right-slot **share** icon-btn + **gear** → `settings.html`. Share opens the profile share-invite sheet (see §Share invite below). No back chevron (tab root). No status bar tweaks beyond standard.
 2. **Hero media** — 16:9 aspect, edge-to-edge. Camera-overlay button top-right → `personal-data.html#pd-video-group` (anchor scroll to intro video field).
 3. **Identity row** — 80×80 brand-gradient avatar (with small camera pip) + name (24pt 600) + location (with map-pin icon). Whole row tappable → `personal-data.html`. New-coach badge appears next to the location line when `cv-new-*` state is active.
 4. **Stats strip** — `FitStatStrip` 4-column readout: Rating / Reviews / Sessions / Price from. Read-only, system-computed.
@@ -98,6 +98,14 @@ No footer CTA (coach is viewing their own reviews, not booking).
 | Reviews | individual cards + "Show all N" | `s-coach-reviews` push |
 
 Read-only / system-computed (no edit affordance): Stats strip, Reviews carousel, Maturity progress.
+
+### Share invite
+
+The header **share** icon opens a bottom sheet (prototype mock of the native OS share sheet) that surfaces the coach's invite deep link — the **same** `inviteUser` AppsFlyer OneLink described in [`deep-linking-referrals.md`](deep-linking-referrals.md), encoding the coach's `userID` / `userName` / `userRole`. The link resolves to this coach profile on open, with onboarding for new users.
+
+- **Sheet contents:** prefilled share text + link row with **Copy** + share targets (WhatsApp / Telegram / Messages / More) + **Done**. Dismiss via handle, backdrop tap, or swipe-down (no × button — per bottom-sheet rules).
+- **Athlete side** (`s-coach-v2`): the share icon in the floating safe-area header opens the **same** sheet with viewer-appropriate copy ("Check out {coach} on 321Fit…"). Same link, same mechanics — an athlete recommending the coach shares the coach's own invite link.
+- **Native:** tap → `UIActivityViewController` (iOS) / `Intent.ACTION_SEND` (Android) with the generated link. The in-prototype sheet is a visual stand-in for the OS sheet.
 
 ---
 
@@ -178,13 +186,13 @@ For schema details and request/response samples, see `coach-profile-api.md`.
 ### iOS / Android
 
 - 5-tab bottom nav: Dashboard / Clients / Messenger / Calendar / Profile. Profile slot index = 4 (zero-based).
-- Header: title-only + `FitIconBtn` (gear). iOS: matches `UINavigationBar` standard; Android: `TopAppBar` from Material 3.
+- Header: title-only + 2× `FitIconBtn` (share + gear). iOS: matches `UINavigationBar` standard (2 trailing bar button items); Android: `TopAppBar` from Material 3 (2 trailing actions). Share invokes the native OS share sheet (`UIActivityViewController` / `Intent.ACTION_SEND`).
 - Hero media: `MuxPlayerView` (iOS via `MuxPlayerSwift` SPM / Android via `mux-player-android` Gradle) for video; `Image` for cover; `Text` for initials fallback. Layout layer enforces 16:9 aspect.
 - Sticky/scrolling: header sticky, content scrolls; navbar sticky.
 
 ### Kit components used
 
-- `FitIconBtn` — gear in header
+- `FitIconBtn` — share + gear in header
 - `FitAvatar(.lg, .brand)` — main avatar with camera pip overlay
 - `FitAvatar(.sm)` — reviewer avatars
 - `FitProfileBio` (CSS class `.fit-profile-bio`) + `.fit-see-more`
@@ -225,7 +233,7 @@ When an athlete opens a coach profile (from Search, My Coaches, Dashboard recomm
 
 | Element | Coach side | Athlete side |
 |---|---|---|
-| Header right slot | `⚙` gear → Settings | `📤 Share` + `♡ Heart` (save) |
+| Header right slot | `📤 Share` + `⚙` gear → Settings | `📤 Share` + `♡ Heart` (save) |
 | Hero camera edit pip | yes | hidden |
 | Section pencils (My Sports, About) | yes (tap → edit) | hidden (read-only) |
 | Management tiles (Languages / Sessions / Locations / Available Hours) | yes — link to coach settings | replaced by **inline read-only blocks** (see below) |
@@ -297,3 +305,4 @@ Maturity variants are NOT separate sidebar entries — they live as state toggle
 - `review-queue.md` — coach-side handling of incoming session reviews (different surface)
 - `notifications.md` — `videoReady` + `videoFailed` kit types (Mux asset.ready / asset.errored webhooks)
 - `architecture/mux-integration.md` — full integration (upload, webhooks, playback)
+- `deep-linking-referrals.md` — `inviteUser` OneLink shared from the header share icon (coach + athlete side)

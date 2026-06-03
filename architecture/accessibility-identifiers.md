@@ -292,6 +292,9 @@ Populated for `coach/profile.html` (Coach's own Profile tab + Reviews push) on 2
 
 | ID | Element | Notes |
 |---|---|---|
+| `coach.profile.share` | share icon-btn in header (left of ⚙️) | opens profile share-invite sheet |
+| `coach.profile.share.sheet.copy` | "Copy" button in share sheet | copies `321.fit/invite/<coach>` to clipboard |
+| `coach.profile.share.sheet.done` | "Done" closing share sheet | |
 | `coach.profile.settings` | ⚙️ icon-btn in header | pushes to settings.html (Settings hub) |
 | `coach.profile.hero.edit` | camera pencil overlay on hero media | pushes to personal-data → Intro video card |
 | `coach.profile.identity` | identity row (avatar + name + location chevron) | pushes to personal-data top |
@@ -310,6 +313,16 @@ Populated for `coach/profile.html` (Coach's own Profile tab + Reviews push) on 2
 | ID | Element | Notes |
 |---|---|---|
 | `coach.profile.reviews.back` | back chevron | returns to s-coach-profile |
+
+#### Athlete-side coach profile (`shared/profile.html` → `#s-coach-v2`)
+
+Partial registration — only the share-invite affordance. Remaining `athlete.coach-profile.*` ids to be populated when that screen's epic lands (see scope note above).
+
+| ID | Element | Notes |
+|---|---|---|
+| `athlete.coach-profile.share` | share icon-btn in floating header (over hero) | opens coach share-invite sheet |
+| `athlete.coach-profile.share.sheet.copy` | "Copy" button in share sheet | copies `321.fit/invite/<coach>` to clipboard |
+| `athlete.coach-profile.share.sheet.done` | "Done" closing share sheet | |
 
 ### `settings` — settings hub + sub-screens
 
