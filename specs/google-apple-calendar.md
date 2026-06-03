@@ -170,7 +170,7 @@ scope ('occurrence' | 'series'), hidden_at
 **Endpoints** — see [poly-backend/docs/calendar-sync-api.md](../../poly-backend/docs/calendar-sync-api.md):
 - `POST /v1.0.0/coach/calendar/external-events/{external_event_id}/hide` — body `{ scope: "occurrence" }` (v1 only supports occurrence). Returns 204.
 - `DELETE /v1.0.0/coach/calendar/external-events/{external_event_id}/hide` — unhide. Returns 204.
-- `GET /v1.0.0/coach/calendar/external-events/hidden` — list, paginated. Used by Settings → Calendar Sync → Account detail → Hidden events section. Auto-cleanup: backend should drop stale entries when the underlying Google/Apple event has been deleted at source (detected on next sync pass).
+- `GET /v1.0.0/coach/calendar/external-events/hidden` — list, paginated. ⚠️ **2026-06-03: the "Hidden events" management section was removed from the Account-detail screen (over-complex). This endpoint currently has no UI consumer.** Unhide is now only via the transient **Undo snackbar** right after hiding; there is no permanent "recover hidden event" surface. **Open decision:** drop per-event hide entirely, or relocate the recovery list elsewhere (see open question). Auto-cleanup unchanged: backend drops stale entries when the underlying event is deleted at source.
 
 **Entry points (UI):**
 1. **External event drawer** (tap external tile on schedule) → footer button "Hide from schedule" (destructive-tinted, with eye-off icon). Closes drawer + shows snackbar "Hidden '{title}' · Undo" (5s). This is the **surgical** path for muting a specific event.

@@ -108,7 +108,6 @@
 
   /* Prototype-specific */
   .detail-participants { padding: 0 var(--fit-sp-4); }
-  #tp-slot-list::-webkit-scrollbar { display: none; }
 
 
 
@@ -235,6 +234,11 @@
   #s-booking.bk-empty .fit-phone-footer,
   #s-booking.bk-loading .fit-phone-footer,
   #s-booking.bk-error .fit-phone-footer { display: none; }
+  /* Pinned grid hint lives in the sticky header — show only in personal state */
+  #s-booking .bk-grid-hint { display: none; padding: 8px 16px 12px; }
+  #s-booking.bk-personal .bk-grid-hint { display: block; }
+
+  /* Booking time-grid atoms (.fit-bk-*) now live in fit-ui.css (shared with coach/invite.html) */
 
   /* States: .cv-established (default) / .cv-new-video / .cv-new-image / .cv-new-default */
 
@@ -364,99 +368,63 @@
     <div class="fit-day-strip" data-fit-day-strip data-month="4" data-year="2026" data-today="10" data-selected="10" data-events="7:g,9:g,10:g,14:g,16:g,21:g,23:g,28:g,30:g">
       <div class="fit-day-strip-inner"></div>
     </div>
+    <!-- Pinned grid hint + legend (personal state only) — stays under the date header -->
+    <div class="bk-grid-hint">
+      <div style="font-size:14px;color:var(--fit-text-secondary);">Tap a free slot or drag the block to set your time</div>
+      <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <span style="display:flex;align-items:center;gap:6px;"><span style="width:14px;height:10px;border-radius:2px;background:var(--fit-surface-high);border-left:2px solid var(--fit-teal-500);"></span>Your events</span>
+        <span style="display:flex;align-items:center;gap:6px;"><span class="fit-bk-legend-busy" style="width:14px;height:10px;border-radius:2px;"></span>Coach busy</span>
+      </div>
+    </div>
   </div>
   <div class="fit-phone-content">
 
-    <!-- ===== PERSONAL: expandable hour → minutes slot list ===== -->
+    <!-- ===== PERSONAL: time-grid + drag/tap slot selection (dual availability) ===== -->
     <div data-booking-state="personal">
-      <div style="padding:0 16px;">
-        <div style="font-size:14px;color:var(--fit-text-tertiary);margin-bottom:12px;">Available slots for Basketball Training · 1h</div>
+      <div class="fit-bk-grid" id="bk-grid" data-a11y-id="athlete.booking.grid">
+        <div class="fit-timeline">
+          <div class="fit-hour"><span class="fit-hour-label">08:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">09:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">10:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">11:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">12:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">13:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">14:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">15:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">16:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">17:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">18:00</span></div>
 
-        <div class="tp-slot-list" id="bk-slot-list">
+          <!-- Outside coach working hours (after 18:00) — hatched zone -->
+          <div class="fit-bk-off" style="top:960px;height:96px;"><span class="fit-bk-off-label">Outside coach hours</span></div>
 
-          <div class="tp-slot" data-hour="08" onclick="bkToggleSlot(this)">
-            <div class="tp-slot-row">
-              <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-              <span class="tp-slot-label">08:00</span>
-              <span class="tp-slot-status"></span>
-              <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-            </div>
-            <div class="tp-slot-minutes">
-              <div class="min-chip" data-min="00" onclick="bkPickTime('08','00',event)">08:00</div>
-              <div class="min-chip" data-min="15" onclick="bkPickTime('08','15',event)">08:15</div>
-              <div class="min-chip" data-min="30" onclick="bkPickTime('08','30',event)">08:30</div>
-              <div class="min-chip" data-min="45" onclick="bkPickTime('08','45',event)">08:45</div>
-            </div>
+          <!-- Coach busy 12:00–13:00 — anonymized solid tile (same as external/Google in calendar) -->
+          <div class="fit-cal-event-external" style="top:384px;height:96px;">
+            <div style="font-weight:500;color:var(--fit-text-secondary);">Coach busy</div>
+            <div style="opacity:0.7;">12:00 – 13:00</div>
           </div>
 
-          <div class="tp-slot expanded" data-hour="10" onclick="bkToggleSlot(this)">
-            <div class="tp-slot-row selected">
-              <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-              <span class="tp-slot-label">10:00</span>
-              <span class="tp-slot-status"></span>
-              <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-            </div>
-            <div class="tp-slot-minutes">
-              <div class="min-chip selected" data-min="00" onclick="bkPickTime('10','00',event)">10:00</div>
-              <div class="min-chip" data-min="15" onclick="bkPickTime('10','15',event)">10:15</div>
-              <div class="min-chip" data-min="30" onclick="bkPickTime('10','30',event)">10:30</div>
-              <div class="min-chip" data-min="45" onclick="bkPickTime('10','45',event)">10:45</div>
-            </div>
+          <!-- Your own event 09:00–09:45 — full calendar tile -->
+          <div class="fit-cal-event fit-cal-event-personal" style="top:96px;height:72px;">
+            <div class="fit-cal-event-title">Yoga Flow</div>
+            <div class="fit-cal-event-meta">09:00 – 09:45</div>
           </div>
 
-          <div class="tp-slot tp-slot-busy" data-hour="12">
-            <div class="tp-slot-row">
-              <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-              <span class="tp-slot-label">12:00</span>
-              <span class="tp-slot-busy-label">Busy · HIIT Group</span>
-            </div>
+          <!-- Your event from the OTHER role (booked as coach) 16:00–17:00 — cross-role tile -->
+          <div class="fit-cal-event-cross-role" style="top:768px;height:96px;">
+            <div class="fit-cal-event-title">Tennis Training</div>
+            <div class="fit-cal-event-meta">with Anna K. &middot; 16:00 – 17:00</div>
+            <span class="fit-cal-event-cross-role-tag">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
+              Coach
+            </span>
           </div>
 
-          <div class="tp-slot" data-hour="14" onclick="bkToggleSlot(this)">
-            <div class="tp-slot-row">
-              <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-              <span class="tp-slot-label">14:00</span>
-              <span class="tp-slot-status"></span>
-              <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-            </div>
-            <div class="tp-slot-minutes">
-              <div class="min-chip" data-min="00" onclick="bkPickTime('14','00',event)">14:00</div>
-              <div class="min-chip" data-min="15" onclick="bkPickTime('14','15',event)">14:15</div>
-              <div class="min-chip disabled" data-min="30">14:30</div>
-              <div class="min-chip disabled" data-min="45">14:45</div>
-            </div>
+          <!-- Draggable / tappable selection block (default 10:00–11:00) -->
+          <div class="fit-bk-sel" id="bk-sel" data-a11y-id="athlete.booking.slot" style="top:192px;height:96px;">
+            <div class="fit-bk-sel-title">Basketball Training</div>
+            <div class="fit-bk-sel-time" id="bk-sel-label">10:00 – 11:00</div>
           </div>
-
-          <div class="tp-slot" data-hour="16" onclick="bkToggleSlot(this)">
-            <div class="tp-slot-row">
-              <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-              <span class="tp-slot-label">16:00</span>
-              <span class="tp-slot-status"></span>
-              <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-            </div>
-            <div class="tp-slot-minutes">
-              <div class="min-chip" data-min="00" onclick="bkPickTime('16','00',event)">16:00</div>
-              <div class="min-chip" data-min="15" onclick="bkPickTime('16','15',event)">16:15</div>
-              <div class="min-chip" data-min="30" onclick="bkPickTime('16','30',event)">16:30</div>
-              <div class="min-chip" data-min="45" onclick="bkPickTime('16','45',event)">16:45</div>
-            </div>
-          </div>
-
-          <div class="tp-slot" data-hour="18" onclick="bkToggleSlot(this)">
-            <div class="tp-slot-row">
-              <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-              <span class="tp-slot-label">18:00</span>
-              <span class="tp-slot-status"></span>
-              <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-            </div>
-            <div class="tp-slot-minutes">
-              <div class="min-chip" data-min="00" onclick="bkPickTime('18','00',event)">18:00</div>
-              <div class="min-chip" data-min="15" onclick="bkPickTime('18','15',event)">18:15</div>
-              <div class="min-chip" data-min="30" onclick="bkPickTime('18','30',event)">18:30</div>
-              <div class="min-chip" data-min="45" onclick="bkPickTime('18','45',event)">18:45</div>
-            </div>
-          </div>
-
         </div>
       </div>
     </div>
@@ -566,7 +534,7 @@
   </div>
 
   <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
-    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" id="booking-confirm-cta" onclick="document.getElementById('booking-confirm-sheet').classList.add('visible');">Confirm · 10:00 – 11:00</button>
+    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" id="booking-confirm-cta" onclick="document.getElementById('booking-confirm-sheet').classList.add('visible');">Book · 10:00 – 11:00</button>
   </div>
 
   <!-- Booking confirm bottom sheet (personal) -->
@@ -1103,7 +1071,7 @@
       <button style="width:50px;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
       </button>
-      <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Book Training</button>
+      <button data-a11y-id="athlete.coach-profile.book-training" onclick="go('s-book-sessions', null)" style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Book Training</button>
     </div>
   </div>
 
@@ -1268,7 +1236,7 @@
 
   </div>
   <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
-    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Book Training</button>
+    <button data-a11y-id="athlete.coach-profile.reviews.book-training" onclick="go('s-book-sessions', null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Book Training</button>
   </div>
 </div>
 
@@ -1320,7 +1288,7 @@
             </div>
             <span style="font-size:14px;color:var(--fit-teal-500);font-weight:500;">3/10 spots</span>
           </div>
-          <button style="width:100%;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Book &middot; &euro;25</button>
+          <button data-a11y-id="athlete.booking.catalog.book" onclick="go('s-group', null)" style="width:100%;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Book &middot; &euro;25</button>
         </div>
       </div>
 
@@ -1346,7 +1314,7 @@
             <span style="font-size:14px;color:var(--fit-text-secondary);">One-off event</span>
             <span style="font-size:14px;color:var(--fit-teal-500);font-weight:500;">5/20 spots</span>
           </div>
-          <button style="width:100%;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Book &middot; &euro;35</button>
+          <button data-a11y-id="athlete.booking.catalog.book" onclick="go('s-group', null)" style="width:100%;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Book &middot; &euro;35</button>
         </div>
       </div>
 
@@ -1376,7 +1344,7 @@
         </div>
         <div style="padding:12px 16px;">
           <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">Personal training</div>
-          <button style="width:100%;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Book &middot; &euro;50</button>
+          <button data-a11y-id="athlete.booking.catalog.book" onclick="go('s-booking', null);setBookingState('personal')" style="width:100%;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Book &middot; &euro;50</button>
         </div>
       </div>
 
@@ -1401,7 +1369,7 @@
         </div>
         <div style="padding:12px 16px;">
           <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">Personal training</div>
-          <button style="width:100%;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Book &middot; &euro;70</button>
+          <button data-a11y-id="athlete.booking.catalog.book" onclick="go('s-booking', null);setBookingState('personal')" style="width:100%;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Book &middot; &euro;70</button>
         </div>
       </div>
 
@@ -1423,9 +1391,9 @@
       <button onclick="setBookingState('error');annHighlight(this)">Error</button>
     </div>
     <h3>Booking Calendar</h3>
-    <p>Date strip in header + state-aware content list. Sticky Confirm CTA at bottom opens <strong>Booking Confirm sheet</strong> for review &amp; send.</p>
+    <p>Date strip in header + state-aware content. Sticky Confirm CTA at bottom opens <strong>Booking Confirm sheet</strong> for review &amp; send.</p>
     <ul>
-      <li><strong>Personal</strong> — expandable hour rows (08:00 ▾) with :00/:15/:30/:45 minute chips. Busy hours dimmed with event name.</li>
+      <li><strong>Personal</strong> — vertical <strong>time-grid</strong> (reuses <code>.fit-timeline</code>/<code>.fit-hour</code>, 96px = 1h). <strong>Tap a free band</strong> to place the 1h block, or <strong>drag</strong> to fine-tune (snaps to 15 min). Shows <strong>both parties' unavailability</strong>: hatched = coach off-hours + coach's booked events ("Coach busy"); solid gray = your own conflicts ("You · Yoga"). Block turns red + CTA disables over any busy range; release/tap snaps to nearest free slot. Replaces the old expandable-hour picker — mirrors prod iOS <code>SelectSlotsView</code> drag-n-drop, plus dual-availability + tap-to-place as improvements.</li>
       <li><strong>Group</strong> — upcoming session blocks of the picked template, each with date+time+spots. Tap = open confirm sheet.</li>
       <li><strong>No slots</strong> — empty state with hint to pick another date</li>
       <li><strong>Loading</strong> — skeleton slot cards</li>
@@ -1487,7 +1455,7 @@ function go(id, btn) {
   document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
   const ann = document.getElementById('ann-' + id);
   if (ann) ann.classList.add('active');
@@ -1495,43 +1463,91 @@ function go(id, btn) {
   FitUI.initAll(document.getElementById(id));
 }
 
-var bkHour = '10', bkMin = '00';
-function bkToggleSlot(slot) {
-  if (slot.classList.contains('tp-slot-busy')) return;
-  var wasExpanded = slot.classList.contains('expanded');
-  document.querySelectorAll('#bk-slot-list .tp-slot').forEach(function(s) { s.classList.remove('expanded'); });
-  if (!wasExpanded) {
-    slot.classList.add('expanded');
-    var first = slot.querySelector('.min-chip:not(.disabled)');
-    if (first) {
-      var min = first.getAttribute('data-min');
-      document.querySelectorAll('#bk-slot-list .tp-slot-row').forEach(function(r) { r.classList.remove('selected'); });
-      document.querySelectorAll('#bk-slot-list .min-chip').forEach(function(c) { c.classList.remove('selected'); });
-      slot.querySelector('.tp-slot-row').classList.add('selected');
-      first.classList.add('selected');
-      bkHour = slot.getAttribute('data-hour');
-      bkMin = min;
-      bkUpdateConfirmCta();
-    }
+/* ===== Booking time-grid (drag-n-drop + tap-to-place) =====
+   Coordinates in minutes-from-grid-start (08:00 = 0). 96px = 60min.
+   BK.busy = union of both parties' unavailable ranges → selection can't land on them. */
+var BK = {
+  startHour: 8, pxPerHour: 96, stepMin: 15, durMin: 60, totalMin: 660, /* 08:00–19:00 */
+  busy: [ [60, 105], [240, 300], [480, 540], [600, 660] ] /* Yoga 09:00–09:45 · Coach busy 12:00–13:00 · Tennis (as coach) 16:00–17:00 · off 18:00+ */
+};
+var bkStart = 120; /* default 10:00 */
+function bkMinToPx(m) { return m / 60 * BK.pxPerHour; }
+function bkPxToMin(px) { return px / BK.pxPerHour * 60; }
+function bkSnap(m) { return Math.round(m / BK.stepMin) * BK.stepMin; }
+function bkFmt(m) {
+  var h = Math.floor(m / 60) + BK.startHour, mm = m % 60;
+  return String(h).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+}
+function bkOverlaps(s) {
+  var e = s + BK.durMin;
+  return BK.busy.some(function(b) { return s < b[1] && e > b[0]; });
+}
+function bkClamp(s) { return Math.max(0, Math.min(BK.totalMin - BK.durMin, s)); }
+function bkNearestFree(s) {
+  s = bkClamp(s);
+  if (!bkOverlaps(s)) return s;
+  for (var d = BK.stepMin; d <= BK.totalMin; d += BK.stepMin) {
+    var dn = bkClamp(s + d), up = bkClamp(s - d);
+    if (s + d <= BK.totalMin - BK.durMin && !bkOverlaps(dn)) return dn;
+    if (s - d >= 0 && !bkOverlaps(up)) return up;
+  }
+  return s;
+}
+function bkRender() {
+  var sel = document.getElementById('bk-sel');
+  if (!sel) return;
+  bkStart = bkClamp(bkStart);
+  sel.style.top = bkMinToPx(bkStart) + 'px';
+  sel.style.height = bkMinToPx(BK.durMin) + 'px';
+  var invalid = bkOverlaps(bkStart);
+  sel.classList.toggle('invalid', invalid);
+  var lbl = document.getElementById('bk-sel-label');
+  if (lbl) lbl.textContent = bkFmt(bkStart) + ' – ' + bkFmt(bkStart + BK.durMin) + (invalid ? ' · taken' : '');
+  var cta = document.getElementById('booking-confirm-cta');
+  if (cta) {
+    cta.style.opacity = invalid ? '0.5' : '1';
+    cta.style.pointerEvents = invalid ? 'none' : 'auto';
+    cta.textContent = invalid ? 'Pick a free slot' : 'Book · ' + bkFmt(bkStart) + ' – ' + bkFmt(bkStart + BK.durMin);
   }
 }
-function bkPickTime(h, m, ev) {
-  if (ev) ev.stopPropagation();
-  document.querySelectorAll('#bk-slot-list .min-chip').forEach(function(c) { c.classList.remove('selected'); });
-  document.querySelectorAll('#bk-slot-list .tp-slot-row').forEach(function(r) { r.classList.remove('selected'); });
-  if (ev && ev.target) ev.target.classList.add('selected');
-  var slot = document.querySelector('#bk-slot-list .tp-slot[data-hour="' + h + '"]');
-  if (slot) slot.querySelector('.tp-slot-row').classList.add('selected');
-  bkHour = h; bkMin = m;
-  bkUpdateConfirmCta();
-}
-function bkUpdateConfirmCta() {
-  var cta = document.getElementById('booking-confirm-cta');
-  if (!cta) return;
-  var startH = parseInt(bkHour, 10);
-  var startM = bkMin;
-  var endH = (startH + 1).toString().padStart(2, '0');
-  cta.textContent = 'Confirm · ' + bkHour + ':' + startM + ' – ' + endH + ':' + startM;
+/* setBookingState('personal') calls this — keep the name as the CTA refresher */
+function bkUpdateConfirmCta() { bkInitGrid(); bkRender(); }
+function bkInitGrid() {
+  var grid = document.getElementById('bk-grid'), sel = document.getElementById('bk-sel');
+  if (!grid || !sel || grid._bkInit) return;
+  grid._bkInit = true;
+  var tl = grid.querySelector('.fit-timeline');
+  function minAt(clientY) { return bkPxToMin(clientY - tl.getBoundingClientRect().top); }
+  var dragging = false, moved = false, grabOffMin = 0;
+  /* Tap a free area to place the block start there */
+  tl.addEventListener('click', function(e) {
+    if (dragging || moved) { moved = false; return; }
+    if (e.target.closest('#bk-sel')) return;
+    bkStart = bkNearestFree(bkSnap(minAt(e.clientY)));
+    bkRender();
+  });
+  /* Drag the block to fine-tune */
+  sel.addEventListener('pointerdown', function(e) {
+    dragging = true; moved = false;
+    grabOffMin = minAt(e.clientY) - bkStart;
+    sel.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  sel.addEventListener('pointermove', function(e) {
+    if (!dragging) return;
+    moved = true;
+    bkStart = bkClamp(bkSnap(minAt(e.clientY) - grabOffMin));
+    bkRender();
+  });
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    try { sel.releasePointerCapture(e.pointerId); } catch (err) {}
+    if (bkOverlaps(bkStart)) bkStart = bkNearestFree(bkStart);
+    bkRender();
+  }
+  sel.addEventListener('pointerup', endDrag);
+  sel.addEventListener('pointercancel', endDrag);
 }
 
 function sendGroupJoin() {
@@ -1665,6 +1681,10 @@ function rateStar(n) {
     s.style.transform = i < n ? 'scale(1.1)' : 'scale(1)';
   });
 }
+
+/* Init booking grid once the DOM is ready (screen is in DOM on load) */
+bkInitGrid();
+bkRender();
 </script>
 </body>
 </html>

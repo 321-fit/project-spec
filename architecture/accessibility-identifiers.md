@@ -333,7 +333,7 @@ Prototypes: `coach/settings.html` + every sub-screen (personal-data, calendar-sy
 
 #### `calsync` — Calendar Sync sub-module (`coach/calendar-sync.html`)
 
-Has its own `coach.calsync.*` scope since it's a distinct subsystem (connects Google/Apple, manages hidden events). Populated for the bits added in the 2026-05-20/21 session (Default destination, Refresh, Hidden events). Calendar list + Apple CalDAV connect are Phase 2 backfill.
+Has its own `coach.calsync.*` scope since it's a distinct subsystem (connects Google/Apple). Populated for the bits added in the 2026-05-20/21 session (Default destination, Refresh). Calendar list + Apple CalDAV connect are Phase 2 backfill.
 
 | ID | Element | Screen | Notes |
 |---|---|---|---|
@@ -346,8 +346,7 @@ Has its own `coach.calsync.*` scope since it's a distinct subsystem (connects Go
 | `coach.calsync.detail.refresh` | refresh icon-btn in header | s-cal-detail (per-account) | refetches just this account's calendars |
 | `coach.calsync.detail.calendar.row` | calendar toggle row (read source) | s-cal-detail "Select calendars to sync" | generic — disambiguate via `data-calendar-id` |
 | ~~`coach.calsync.detail.make-default`~~ | ~~"Make default destination" action row~~ | ~~s-cal-detail~~ | **REMOVED 2026-06-01** — default destination is per-calendar global selector now |
-| `coach.calsync.hidden-events.row` | hidden event row | s-cal-detail Hidden events section | generic — disambiguate via `data-event-id` |
-| `coach.calsync.hidden-events.unhide` | Unhide button | s-cal-detail Hidden events section | per-row; DELETE .../external-events/{id}/hide |
+| ~~`coach.calsync.hidden-events.row` / `.unhide`~~ | ~~hidden event row + Unhide btn~~ | ~~s-cal-detail Hidden events section~~ | **REMOVED 2026-06-03** — Hidden events management section dropped (over-complex) |
 
 ### `account-access` — re-auth / change-password / delete-account
 
@@ -564,6 +563,15 @@ Spec: `booking-flow.md` — prototype lives partly in `athlete/search.html` + `s
 
 | ID | Element | Screen | Notes |
 |---|---|---|---|
+| `athlete.coach-profile.book-training` | "Book Training" sticky CTA | `s-coach-v2` | → `s-book-sessions` catalog |
+| `athlete.coach-profile.reviews.book-training` | "Book Training" CTA | `s-reviews` | → `s-book-sessions` catalog |
+| `athlete.booking.catalog.book` | "Book · €X" on a session card | `s-book-sessions` | generic — personal → `s-booking` grid, group → `s-group` |
+| `athlete.booking.grid` | time-grid scroll/tap area | `s-booking` (personal) | tap a free band to place the slot block |
+| `athlete.booking.slot` | draggable `.fit-bk-sel` selection block | `s-booking` (personal) | drag to set start; Maestro reads time via label |
+| `coach.invite.select.back` | back chevron | `s-invite-select` | returns to origin (calendar/clients) via `resolveOrigin` |
+| `coach.invite.grid` | time-grid scroll/tap area | `s-invite-time` | mirror of athlete grid (coach invite/schedule) |
+| `coach.invite.slot` | draggable `.fit-bk-sel` selection block | `s-invite-time` | drag to set start |
+| `coach.invite.time.back` | back chevron | `s-invite-time` | returns to `s-invite-select` (template chooser) |
 
 ### `country` — country picker (re-used: phone signup, edit phone, Personal Data home country, Search filter country)
 

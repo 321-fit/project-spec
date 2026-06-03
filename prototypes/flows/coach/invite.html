@@ -141,6 +141,9 @@
   .fit-phone.ls-loading [data-list-state="loading"],
   .fit-phone.ls-error [data-list-state="error"],
   .fit-phone.ls-none [data-list-state="none"] { display: block; }
+  /* Pinned grid hint lives in the sticky header — show only when the grid (default) is up */
+  #s-invite-time .bk-grid-hint { display: none; padding: 8px 16px 12px; }
+  #s-invite-time.ls-default .bk-grid-hint { display: block; }
 
   /* Review send state (on the review screens — controls CTA + banner) */
   .fit-phone [data-review-state] { display: none; }
@@ -189,7 +192,7 @@
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
-      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="fit-header-back" data-a11y-id="coach.invite.select.back" onclick="var u=resolveOrigin(inviteOrigin); if(u){location.href=u;}else{history.back();}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
       <span class="fit-header-title">Select training</span>
     </div>
   </div>
@@ -275,7 +278,7 @@
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header" style="justify-content:space-between;">
-      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="fit-header-back" data-a11y-id="coach.invite.time.back" onclick="go('s-invite-select', null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
       <div class="fit-cal-header" onclick="toggleMonthView('inv-month-grid')">
         <span class="fit-cal-header-month">April</span>
         <span class="fit-cal-header-year">2026</span>
@@ -296,100 +299,64 @@
     <div class="fit-day-strip" data-fit-day-strip data-month="4" data-year="2026" data-today="20" data-selected="20">
       <div class="fit-day-strip-inner"></div>
     </div>
+    <!-- Pinned grid hint + legend — stays under the date header -->
+    <div class="bk-grid-hint">
+      <div style="font-size:14px;color:var(--fit-text-secondary);">Tap a free slot or drag the block to set the time</div>
+      <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <span style="display:flex;align-items:center;gap:6px;"><span style="width:14px;height:10px;border-radius:2px;background:var(--fit-surface-high);border-left:2px solid var(--fit-teal-500);"></span>Your events</span>
+        <span class="inv-athlete-legend" style="display:flex;align-items:center;gap:6px;"><span class="fit-bk-legend-busy" style="width:14px;height:10px;border-radius:2px;"></span>Athlete busy</span>
+      </div>
+    </div>
   </div>
   <div class="fit-phone-content">
     <!-- ===== DEFAULT: time slots ===== -->
     <div data-list-state="default">
-    <div style="padding:0 16px;">
-      <div style="font-size:14px;color:var(--fit-text-tertiary);margin-bottom:12px;">Available slots for Basketball Training · 1h</div>
+      <div class="fit-bk-grid" id="inv-grid" data-a11y-id="coach.invite.grid">
+        <div class="fit-timeline">
+          <div class="fit-hour"><span class="fit-hour-label">08:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">09:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">10:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">11:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">12:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">13:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">14:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">15:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">16:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">17:00</span></div>
+          <div class="fit-hour"><span class="fit-hour-label">18:00</span></div>
 
-      <div class="tp-slot-list" id="inv-slot-list">
+          <!-- Outside your working hours (after 18:00) — hatched zone -->
+          <div class="fit-bk-off" style="top:960px;height:96px;"><span class="fit-bk-off-label">Outside your hours</span></div>
 
-        <div class="tp-slot" data-hour="08" onclick="invToggleSlot(this)">
-          <div class="tp-slot-row">
-            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-            <span class="tp-slot-label">08:00</span>
-            <span class="tp-slot-status"></span>
-            <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          <!-- Target athlete (Anna) busy 11:00–12:00 — anonymized solid tile, schedule mode only -->
+          <div class="fit-cal-event-external inv-athlete-busy" style="top:288px;height:96px;">
+            <div style="font-weight:500;color:var(--fit-text-secondary);">Athlete busy</div>
+            <div style="opacity:0.7;">11:00 – 12:00</div>
           </div>
-          <div class="tp-slot-minutes">
-            <div class="min-chip" data-min="00" onclick="invPickTime('08','00',event)">08:00</div>
-            <div class="min-chip" data-min="15" onclick="invPickTime('08','15',event)">08:15</div>
-            <div class="min-chip" data-min="30" onclick="invPickTime('08','30',event)">08:30</div>
-            <div class="min-chip" data-min="45" onclick="invPickTime('08','45',event)">08:45</div>
+
+          <!-- Your own event 14:00–15:00 — full calendar tile -->
+          <div class="fit-cal-event fit-cal-event-personal" style="top:576px;height:96px;">
+            <div class="fit-cal-event-title">Express Boxing</div>
+            <div class="fit-cal-event-meta">Mark S. &middot; 14:00 – 15:00</div>
+          </div>
+
+          <!-- Your event from the OTHER role (booked as athlete) 16:00–17:00 — cross-role tile -->
+          <div class="fit-cal-event-cross-role" style="top:768px;height:96px;">
+            <div class="fit-cal-event-title">Padel Training</div>
+            <div class="fit-cal-event-meta">with Coach Lena R. &middot; 16:00 – 17:00</div>
+            <span class="fit-cal-event-cross-role-tag">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
+              Athlete
+            </span>
+          </div>
+
+          <!-- Draggable / tappable selection block (default 09:00–10:00) -->
+          <div class="fit-bk-sel" id="inv-sel" data-a11y-id="coach.invite.slot" style="top:96px;height:96px;">
+            <div class="fit-bk-sel-title">Basketball Training</div>
+            <div class="fit-bk-sel-time" id="inv-sel-label">09:00 – 10:00</div>
           </div>
         </div>
-
-        <div class="tp-slot expanded" data-hour="09" onclick="invToggleSlot(this)">
-          <div class="tp-slot-row selected">
-            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-            <span class="tp-slot-label">09:00</span>
-            <span class="tp-slot-status"></span>
-            <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-          </div>
-          <div class="tp-slot-minutes">
-            <div class="min-chip selected" data-min="00" onclick="invPickTime('09','00',event)">09:00</div>
-            <div class="min-chip" data-min="15" onclick="invPickTime('09','15',event)">09:15</div>
-            <div class="min-chip" data-min="30" onclick="invPickTime('09','30',event)">09:30</div>
-            <div class="min-chip" data-min="45" onclick="invPickTime('09','45',event)">09:45</div>
-          </div>
-        </div>
-
-        <div class="tp-slot tp-slot-busy" data-hour="10">
-          <div class="tp-slot-row">
-            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-            <span class="tp-slot-label">10:00</span>
-            <span class="tp-slot-busy-label">Busy · HIIT Group</span>
-          </div>
-        </div>
-
-        <div class="tp-slot" data-hour="11" onclick="invToggleSlot(this)">
-          <div class="tp-slot-row">
-            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-            <span class="tp-slot-label">11:00</span>
-            <span class="tp-slot-status"></span>
-            <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-          </div>
-          <div class="tp-slot-minutes">
-            <div class="min-chip" data-min="00" onclick="invPickTime('11','00',event)">11:00</div>
-            <div class="min-chip" data-min="15" onclick="invPickTime('11','15',event)">11:15</div>
-            <div class="min-chip disabled" data-min="30">11:30</div>
-            <div class="min-chip disabled" data-min="45">11:45</div>
-          </div>
-        </div>
-
-        <div class="tp-slot" data-hour="14" onclick="invToggleSlot(this)">
-          <div class="tp-slot-row">
-            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-            <span class="tp-slot-label">14:00</span>
-            <span class="tp-slot-status"></span>
-            <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-          </div>
-          <div class="tp-slot-minutes">
-            <div class="min-chip" data-min="00" onclick="invPickTime('14','00',event)">14:00</div>
-            <div class="min-chip" data-min="15" onclick="invPickTime('14','15',event)">14:15</div>
-            <div class="min-chip" data-min="30" onclick="invPickTime('14','30',event)">14:30</div>
-            <div class="min-chip" data-min="45" onclick="invPickTime('14','45',event)">14:45</div>
-          </div>
-        </div>
-
-        <div class="tp-slot" data-hour="16" onclick="invToggleSlot(this)">
-          <div class="tp-slot-row">
-            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-            <span class="tp-slot-label">16:00</span>
-            <span class="tp-slot-status"></span>
-            <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-          </div>
-          <div class="tp-slot-minutes">
-            <div class="min-chip" data-min="00" onclick="invPickTime('16','00',event)">16:00</div>
-            <div class="min-chip" data-min="15" onclick="invPickTime('16','15',event)">16:15</div>
-            <div class="min-chip" data-min="30" onclick="invPickTime('16','30',event)">16:30</div>
-            <div class="min-chip disabled" data-min="45">16:45</div>
-          </div>
-        </div>
-
       </div>
-    </div>
     </div><!-- /default -->
 
     <!-- ===== LOADING: skeleton slots ===== -->
@@ -425,7 +392,7 @@
 
   </div>
   <div class="fit-phone-footer" style="padding:12px 16px 40px;">
-    <button id="inv-confirm-cta" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" onclick="openInviteConfirm()">Confirm · 09:00 – 10:00</button>
+    <button id="inv-confirm-cta" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" onclick="openInviteConfirm()">Schedule · 09:00 – 10:00</button>
   </div>
 
   <!-- Coach invite confirm bottom sheet -->
@@ -805,7 +772,7 @@
       <button onclick="setScreenState('s-invite-time','empty',this)">No availability</button>
       <button onclick="setScreenState('s-invite-time','error',this)">Error</button>
     </div>
-    <p>Step 2 for personal training. Choose when.</p><ul><li>Day strip for date selection</li><li>Expandable hour rows with :00/:15/:30/:45 chips — busy hours dimmed with event name</li><li>Selected slot: gradient + checkmark</li><li>Confirm → bottom sheet (link-invite vs in-app schedule depending on flow mode)</li></ul><hr><p class="note"><strong>No availability:</strong> all slots busy on this day — user picks another date. <strong>Error:</strong> inline banner with Retry (no outer banner — positioned after content, CTA remains in footer).</p>
+    <p>Step 2 for personal training. Choose when.</p><ul><li>Day strip for date selection</li><li><strong>Time-grid</strong> (reuses <code>.fit-timeline</code>/<code>.fit-hour</code>, 96px = 1h). <strong>Tap a free band</strong> to place the block or <strong>drag</strong> it (snaps 15 min). Block snaps off any busy range to the nearest free slot.</li><li><strong>Dual availability:</strong> solid gray = <strong>your</strong> own events ("You · …"); hatched = blocked (after-hours, and in <em>schedule</em> mode the in-app athlete's conflicts, e.g. "Anna busy"). In <em>invite</em> mode (external athlete) the athlete row is hidden — calendar unknown.</li><li>Confirm → bottom sheet (link-invite vs in-app schedule depending on flow mode)</li></ul><hr><p class="note">Same grid component as athlete <code>s-booking</code> (<code>.fit-bk-*</code> in fit-ui.css), mirrored. <strong>No availability:</strong> user picks another date. <strong>Error:</strong> inline banner with Retry.</p>
     <p style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;margin-top:12px;">
       <button style="height:32px;padding:0 14px;font-size:13px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-text-primary);border-radius:99px;cursor:pointer;font-family:var(--fit-font);" onclick="go('s-invite-time',document.querySelector('.sidebar button[onclick*=s-invite-time]:not([onclick*=group])'));setTimeout(function(){document.getElementById('invite-confirm-sheet').classList.add('visible');},80)">Open invite confirm sheet (link)</button>
       <button style="height:32px;padding:0 14px;font-size:13px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-text-primary);border-radius:99px;cursor:pointer;font-family:var(--fit-font);" onclick="go('s-invite-time',document.querySelector('.sidebar button[onclick*=s-invite-time]:not([onclick*=group])'));setTimeout(function(){document.getElementById('schedule-confirm-sheet').classList.add('visible');},80)">Open schedule confirm sheet (in-app)</button>
@@ -879,7 +846,7 @@ function go(id, btn) {
   document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
   const ann = document.getElementById('ann-' + id);
   if (ann) ann.classList.add('active');
@@ -894,42 +861,98 @@ var inviteMode = _params.get('mode') || 'invite';
 var inviteOrigin = _params.get('origin') || 's-clients';
 
 // Routed from time-picker → review screen for current mode
-var invHour = '09', invMin = '00';
-function invToggleSlot(slot) {
-  if (slot.classList.contains('tp-slot-busy')) return;
-  var wasExpanded = slot.classList.contains('expanded');
-  document.querySelectorAll('#inv-slot-list .tp-slot').forEach(function(s) { s.classList.remove('expanded'); });
-  if (!wasExpanded) {
-    slot.classList.add('expanded');
-    var first = slot.querySelector('.min-chip:not(.disabled)');
-    if (first) {
-      var min = first.getAttribute('data-min');
-      document.querySelectorAll('#inv-slot-list .tp-slot-row').forEach(function(r) { r.classList.remove('selected'); });
-      document.querySelectorAll('#inv-slot-list .min-chip').forEach(function(c) { c.classList.remove('selected'); });
-      slot.querySelector('.tp-slot-row').classList.add('selected');
-      first.classList.add('selected');
-      invHour = slot.getAttribute('data-hour');
-      invMin = min;
-      invUpdateConfirmCta();
-    }
+/* ===== Time-grid slot picker (drag-n-drop + tap-to-place, dual availability) =====
+   Coordinates = minutes-from-08:00. 96px = 60min. Mirrors athlete s-booking grid.
+   Effective busy = coach's own events + (schedule mode) target athlete's conflicts. */
+var INV = {
+  startHour: 8, pxPerHour: 96, stepMin: 15, durMin: 60, totalMin: 660,
+  busyCoach: [ [360, 420], [480, 540], [600, 660] ],  /* Boxing 14:00–15:00 · Padel (as athlete) 16:00–17:00 · after 18:00 */
+  busyAthlete: [ [180, 240] ]                          /* Anna 11:00–12:00 (schedule mode) */
+};
+var invStart = 60; /* default 09:00 */
+function invBusy() { return INV.busyCoach.concat(inviteMode === 'schedule' ? INV.busyAthlete : []); }
+function invMinToPx(m) { return m / 60 * INV.pxPerHour; }
+function invPxToMin(px) { return px / INV.pxPerHour * 60; }
+function invSnap(m) { return Math.round(m / INV.stepMin) * INV.stepMin; }
+function invFmt(m) {
+  var h = Math.floor(m / 60) + INV.startHour, mm = m % 60;
+  return String(h).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+}
+function invOverlaps(s) {
+  var e = s + INV.durMin;
+  return invBusy().some(function(b) { return s < b[1] && e > b[0]; });
+}
+function invClamp(s) { return Math.max(0, Math.min(INV.totalMin - INV.durMin, s)); }
+function invNearestFree(s) {
+  s = invClamp(s);
+  if (!invOverlaps(s)) return s;
+  for (var d = INV.stepMin; d <= INV.totalMin; d += INV.stepMin) {
+    var dn = invClamp(s + d), up = invClamp(s - d);
+    if (s + d <= INV.totalMin - INV.durMin && !invOverlaps(dn)) return dn;
+    if (s - d >= 0 && !invOverlaps(up)) return up;
+  }
+  return s;
+}
+function invRender() {
+  var sel = document.getElementById('inv-sel');
+  if (!sel) return;
+  invStart = invClamp(invStart);
+  sel.style.top = invMinToPx(invStart) + 'px';
+  sel.style.height = invMinToPx(INV.durMin) + 'px';
+  var invalid = invOverlaps(invStart);
+  sel.classList.toggle('invalid', invalid);
+  var lbl = document.getElementById('inv-sel-label');
+  if (lbl) lbl.textContent = invFmt(invStart) + ' – ' + invFmt(invStart + INV.durMin) + (invalid ? ' · taken' : '');
+  var cta = document.getElementById('inv-confirm-cta');
+  if (cta) {
+    cta.style.opacity = invalid ? '0.5' : '1';
+    cta.style.pointerEvents = invalid ? 'none' : 'auto';
+    var verb = inviteMode === 'schedule' ? 'Schedule' : 'Invite';
+    cta.textContent = invalid ? 'Pick a free slot' : verb + ' · ' + invFmt(invStart) + ' – ' + invFmt(invStart + INV.durMin);
   }
 }
-function invPickTime(h, m, ev) {
-  if (ev) ev.stopPropagation();
-  document.querySelectorAll('#inv-slot-list .min-chip').forEach(function(c) { c.classList.remove('selected'); });
-  document.querySelectorAll('#inv-slot-list .tp-slot-row').forEach(function(r) { r.classList.remove('selected'); });
-  if (ev && ev.target) ev.target.classList.add('selected');
-  var slot = document.querySelector('#inv-slot-list .tp-slot[data-hour="' + h + '"]');
-  if (slot) slot.querySelector('.tp-slot-row').classList.add('selected');
-  invHour = h; invMin = m;
-  invUpdateConfirmCta();
-}
-function invUpdateConfirmCta() {
-  var cta = document.getElementById('inv-confirm-cta');
-  if (!cta) return;
-  var startH = parseInt(invHour, 10);
-  var endH = (startH + 1).toString().padStart(2, '0');
-  cta.textContent = 'Confirm · ' + invHour + ':' + invMin + ' – ' + endH + ':' + invMin;
+/* Kept name — older callers refresh the CTA through here */
+function invUpdateConfirmCta() { invInitGrid(); invRender(); }
+function invInitGrid() {
+  var grid = document.getElementById('inv-grid'), sel = document.getElementById('inv-sel');
+  if (!grid || !sel || grid._invInit) return;
+  grid._invInit = true;
+  /* Invite mode = external athlete with no known calendar → hide the athlete row */
+  if (inviteMode !== 'schedule') {
+    grid.querySelectorAll('.inv-athlete-busy').forEach(function(el) { el.style.display = 'none'; });
+    document.querySelectorAll('.inv-athlete-legend').forEach(function(el) { el.style.display = 'none'; });
+  }
+  var tl = grid.querySelector('.fit-timeline');
+  function minAt(clientY) { return invPxToMin(clientY - tl.getBoundingClientRect().top); }
+  var dragging = false, moved = false, grabOffMin = 0;
+  tl.addEventListener('click', function(e) {
+    if (dragging || moved) { moved = false; return; }
+    if (e.target.closest('#inv-sel')) return;
+    invStart = invNearestFree(invSnap(minAt(e.clientY)));
+    invRender();
+  });
+  sel.addEventListener('pointerdown', function(e) {
+    dragging = true; moved = false;
+    grabOffMin = minAt(e.clientY) - invStart;
+    sel.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  sel.addEventListener('pointermove', function(e) {
+    if (!dragging) return;
+    moved = true;
+    invStart = invClamp(invSnap(minAt(e.clientY) - grabOffMin));
+    invRender();
+  });
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    try { sel.releasePointerCapture(e.pointerId); } catch (err) {}
+    if (invOverlaps(invStart)) invStart = invNearestFree(invStart);
+    invRender();
+  }
+  sel.addEventListener('pointerup', endDrag);
+  sel.addEventListener('pointercancel', endDrag);
+  invRender();
 }
 
 // Opens the right confirm sheet on the Confirm CTA based on inviteMode
@@ -1000,6 +1023,10 @@ function resolveOrigin(origin) {
 
 // On load — auto-open review for current mode if URL targets it via hash (e.g. direct link for mode preview)
 // Not required for flow walk-through, but useful when mode=schedule&#s-schedule-review deep-linked
+
+// Init the time-grid slot picker (screen is in DOM on load)
+invInitGrid();
+invRender();
 </script>
 </body>
 </html>
