@@ -334,8 +334,8 @@
   <button onclick="go('s-full',this)">Group Full</button>
   </div>
   <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
-    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
-    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-light" onclick="switchTheme('light')">Light</button>
   </div>
 </nav>
 
@@ -343,7 +343,7 @@
 
 
 <!-- ===== ATHLETE: BOOKING CALENDAR (group template → dates) ===== -->
-<div class="fit-phone fit-dark bk-personal" id="s-booking">
+<div class="fit-phone fit-light bk-personal" id="s-booking">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header" style="justify-content:space-between;">
@@ -593,7 +593,7 @@
 </div>
 
 <!-- ===== ATHLETE: GROUP DETAIL ===== -->
-<div class="fit-phone fit-dark" id="s-group">
+<div class="fit-phone fit-light" id="s-group">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -706,7 +706,7 @@
 </div>
 
 <!-- ===== ATHLETE: GROUP JOINED ===== -->
-<div class="fit-phone fit-dark" id="s-joined">
+<div class="fit-phone fit-light" id="s-joined">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -770,7 +770,7 @@
 </div>
 
 <!-- ===== ATHLETE: GROUP FULL ===== -->
-<div class="fit-phone fit-dark" id="s-full">
+<div class="fit-phone fit-light" id="s-full">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -830,7 +830,7 @@
 </div>
 
 <!-- ===== COACH PROFILE V2 (video layout) ===== -->
-<div class="fit-phone fit-dark active cv-established" id="s-coach-v2">
+<div class="fit-phone fit-light active cv-established" id="s-coach-v2">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
   </div>
@@ -1117,7 +1117,7 @@
 
 
 <!-- ===== ALL REVIEWS ===== -->
-<div class="fit-phone fit-dark" id="s-reviews">
+<div class="fit-phone fit-light" id="s-reviews">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -1242,7 +1242,7 @@
 
 
 <!-- ===== BOOK SESSIONS (Personal / Group tabs) ===== -->
-<div class="fit-phone fit-dark" id="s-book-sessions">
+<div class="fit-phone fit-light" id="s-book-sessions">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -1685,6 +1685,23 @@ function rateStar(n) {
 /* Init booking grid once the DOM is ready (screen is in DOM on load) */
 bkInitGrid();
 bkRender();
+
+// Athlete-side prototype defaults to LIGHT theme (role cue: athlete = light, coach = dark)
+switchTheme('light');
+
+// Deep-link: open a specific screen when reached via #hash (e.g. Rebook → profile.html#s-book-sessions)
+(function () {
+  var h = location.hash ? location.hash.slice(1) : '';
+  if (!h) return;
+  var el = document.getElementById(h);
+  if (!el || !el.classList.contains('fit-phone')) return;
+  document.querySelectorAll('.fit-phone').forEach(function (p) { p.classList.remove('active'); });
+  el.classList.add('active');
+  document.querySelectorAll('.ann').forEach(function (a) { a.classList.remove('active'); });
+  var ann = document.getElementById('ann-' + h);
+  if (ann) ann.classList.add('active');
+  if (window.FitUI && FitUI.initAll) FitUI.initAll(el);
+})();
 </script>
 </body>
 </html>
