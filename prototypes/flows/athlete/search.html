@@ -109,12 +109,17 @@
   }
   /* Header icons use canonical .fit-icon-btn from fit-ui.css */
 
-  /* Custom header layout for search */
+  /* Search root header (results/empty/loading/error states — sport + actions, no back) */
   .srch-header {
     display: flex; align-items: center;
     padding: 6px 12px;
     min-height: 48px;
   }
+  /* Sport selector row — sits below the nav bar on the landing, left-aligned (primary filter context) */
+  .srch-sport-row {
+    padding: 4px 16px 12px;
+  }
+  .srch-sport-row .sport-anchor { height: 36px; font-size: 15px; }
 
   /* ==================== CHIPS / FILTERS ROW ==================== */
   .chips-row {
@@ -217,7 +222,7 @@
   }
   .coach-photo {
     width: 72px; height: 72px;
-    border-radius: 14px;
+    border-radius: 50%;
     background: var(--fit-brand-gradient);
     color: var(--fit-white);
     display: flex; align-items: center; justify-content: center;
@@ -946,22 +951,22 @@
 <div class="fit-phone fit-light active" id="s-search-landing">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="srch-header">
-      <button class="fit-icon-btn" data-a11y-id="athlete.search.back" aria-label="Back" style="margin-right:4px;flex-shrink:0;" onclick="if(history.length>1){history.back();}else{window.location.href='my-coaches.html';}">
+    <!-- Nav row: back (left) + title + text-search (right, 1 action) -->
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="athlete.search.back" aria-label="Back" onclick="if(history.length>1){history.back();}else{window.location.href='my-coaches.html';}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
       </button>
-      <a href="../coach/sport-types.html" class="sport-anchor">
+      <span class="fit-header-title" style="flex:1;">Find a coach</span>
+      <button class="fit-icon-btn" data-a11y-id="athlete.search.text" aria-label="Search by name" onclick="go('s-search-text', document.querySelector('.sidebar button[onclick*=s-search-text]'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      </button>
+    </div>
+    <!-- Sport selector — own row below the nav bar (primary filter context) -->
+    <div class="srch-sport-row">
+      <a href="../coach/sport-types.html" class="sport-anchor" data-a11y-id="athlete.search.sport">
         Tennis, Padel
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
       </a>
-      <div class="header-actions">
-        <button class="fit-icon-btn" aria-label="Search" onclick="go('s-search-text', document.querySelector('.sidebar button[onclick*=s-search-text]'))">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        </button>
-        <button class="fit-icon-btn" aria-label="Map view" onclick="go('s-search-map', document.querySelector('.sidebar button[onclick*=s-search-map]'))">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-        </button>
-      </div>
     </div>
   </div>
   <div class="fit-phone-content">
@@ -1010,8 +1015,6 @@
             <div class="coach-meta-row">
               <span>Tennis &middot; Padel</span>
               <span class="dot"></span>
-              <span>1.2 km</span>
-              <span class="dot"></span>
               <span class="coach-langs">🇪🇸 🇬🇧</span>
             </div>
             <div class="coach-meta-row">
@@ -1043,8 +1046,6 @@
             </div>
             <div class="coach-meta-row">
               <span>Tennis</span>
-              <span class="dot"></span>
-              <span>1.8 km</span>
               <span class="dot"></span>
               <span class="coach-langs">🇱🇹 🇬🇧 🇷🇺</span>
             </div>
@@ -1078,8 +1079,6 @@
             <div class="coach-meta-row">
               <span>Tennis &middot; Padel</span>
               <span class="dot"></span>
-              <span>2.1 km</span>
-              <span class="dot"></span>
               <span class="coach-langs">🇱🇹 🇬🇧</span>
             </div>
             <div class="coach-meta-row">
@@ -1110,8 +1109,6 @@
             </div>
             <div class="coach-meta-row">
               <span>Tennis</span>
-              <span class="dot"></span>
-              <span>2.7 km</span>
               <span class="dot"></span>
               <span class="coach-langs">🇱🇹 🇬🇧</span>
             </div>
@@ -1145,8 +1142,6 @@
             <div class="coach-meta-row">
               <span>Tennis</span>
               <span class="dot"></span>
-              <span>3.5 km</span>
-              <span class="dot"></span>
               <span class="coach-langs">🇱🇹</span>
             </div>
             <div class="coach-meta-row">
@@ -1179,8 +1174,6 @@
             <div class="coach-meta-row">
               <span>Tennis &middot; Squash</span>
               <span class="dot"></span>
-              <span>4.2 km</span>
-              <span class="dot"></span>
               <span class="coach-langs">🇱🇹 🇬🇧</span>
             </div>
             <div class="coach-meta-row">
@@ -1212,8 +1205,6 @@
             </div>
             <div class="coach-meta-row">
               <span>Tennis</span>
-              <span class="dot"></span>
-              <span>4.8 km</span>
               <span class="dot"></span>
               <span class="coach-langs">🇱🇹 🇷🇺</span>
             </div>
@@ -1248,9 +1239,6 @@
       <div class="header-actions">
         <button class="fit-icon-btn" aria-label="Search" onclick="go('s-search-text', document.querySelector('.sidebar button[onclick*=s-search-text]'))">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        </button>
-        <button class="fit-icon-btn" aria-label="Map view" onclick="go('s-search-map', document.querySelector('.sidebar button[onclick*=s-search-map]'))">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
         </button>
       </div>
     </div>
@@ -1300,8 +1288,6 @@
             <div class="coach-meta-row">
               <span>Tennis &middot; Padel</span>
               <span class="dot"></span>
-              <span>1.2 km</span>
-              <span class="dot"></span>
               <span class="coach-langs">🇪🇸 🇬🇧</span>
             </div>
             <div class="coach-meta-row">
@@ -1333,8 +1319,6 @@
             </div>
             <div class="coach-meta-row">
               <span>Tennis</span>
-              <span class="dot"></span>
-              <span>1.8 km</span>
               <span class="dot"></span>
               <span class="coach-langs">🇱🇹 🇬🇧 🇷🇺</span>
             </div>
@@ -1368,8 +1352,6 @@
             <div class="coach-meta-row">
               <span>Tennis &middot; Padel</span>
               <span class="dot"></span>
-              <span>2.1 km</span>
-              <span class="dot"></span>
               <span class="coach-langs">🇱🇹 🇬🇧</span>
             </div>
             <div class="coach-meta-row">
@@ -1400,8 +1382,6 @@
             </div>
             <div class="coach-meta-row">
               <span>Tennis</span>
-              <span class="dot"></span>
-              <span>2.7 km</span>
               <span class="dot"></span>
               <span class="coach-langs">🇱🇹 🇬🇧</span>
             </div>
@@ -1494,9 +1474,6 @@
       <div class="header-actions">
         <button class="fit-icon-btn" aria-label="Search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        </button>
-        <button class="fit-icon-btn" aria-label="Map view">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
         </button>
       </div>
     </div>
@@ -1703,8 +1680,6 @@
               <div class="coach-meta-row">
                 <span>Boxing &middot; Kickboxing</span>
                 <span class="dot"></span>
-                <span>2.4 km</span>
-                <span class="dot"></span>
                 <span class="coach-langs">🇷🇺 🇬🇧</span>
               </div>
               <div class="coach-meta-row">
@@ -1736,8 +1711,6 @@
               </div>
               <div class="coach-meta-row">
                 <span>Boxing &middot; Kickboxing</span>
-                <span class="dot"></span>
-                <span>4.1 km</span>
                 <span class="dot"></span>
                 <span class="coach-langs">🇱🇹 🇬🇧</span>
               </div>
@@ -1771,8 +1744,6 @@
               <div class="coach-meta-row">
                 <span>Boxing</span>
                 <span class="dot"></span>
-                <span>3.1 km</span>
-                <span class="dot"></span>
                 <span class="coach-langs">🇱🇹 🇬🇧 🇷🇺</span>
               </div>
               <div class="coach-meta-row">
@@ -1803,8 +1774,6 @@
               </div>
               <div class="coach-meta-row">
                 <span>Boxing</span>
-                <span class="dot"></span>
-                <span>6.8 km</span>
                 <span class="dot"></span>
                 <span class="coach-langs">🇱🇹</span>
               </div>

@@ -57,7 +57,7 @@
   .coach-card:hover { background: var(--fit-surface-higher); }
   .fit-light .coach-card:hover { background: var(--fit-gray-50); }
   .coach-top { display: flex; gap: 12px; align-items: flex-start; }
-  .coach-photo { width: 56px; height: 56px; border-radius: 50%; background: var(--fit-brand-gradient); color: var(--fit-white); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600; flex-shrink: 0; overflow: hidden; position: relative; }
+  .coach-photo { width: 72px; height: 72px; border-radius: 50%; background: var(--fit-brand-gradient); color: var(--fit-white); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 600; flex-shrink: 0; overflow: hidden; position: relative; }
   .coach-photo-grad-1 { background: linear-gradient(135deg,#06b6d4,#0ea5e9); }
   .coach-photo-grad-2 { background: linear-gradient(135deg,#ef4444,#f59e0b); }
   .coach-photo-grad-3 { background: linear-gradient(135deg,#8b5cf6,#ec4899); }
@@ -77,18 +77,49 @@
   .coach-rating-count { color: var(--fit-text-tertiary); font-weight: 400; }
   .coach-rating-sep { width: 2px; height: 2px; border-radius: 50%; background: var(--fit-text-tertiary); }
   .coach-sports { color: var(--fit-text-tertiary); font-size: 13px; }
+  /* Search-parity sub-rows (price + sports·langs meta) */
+  .coach-price { color: var(--fit-text-primary); font-weight: 500; }
+  .coach-price-from { color: var(--fit-text-tertiary); font-weight: 400; font-size: 12px; }
+  .coach-meta-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--fit-text-tertiary); flex-wrap: wrap; }
+  .coach-meta-row .dot { width: 2px; height: 2px; border-radius: 50%; background: var(--fit-text-tertiary); }
+  .coach-langs { display: inline-flex; gap: 2px; font-size: 11px; }
 
-  /* ===== My Coaches relationship row additions (page-local) ===== */
+  /* ===== My Coaches relationship row — relationship + CTA sits full-width below coach-top (where Search shows bio) ===== */
   .mc-list { display: flex; flex-direction: column; gap: 10px; padding: 0 16px; }
-  .mc-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; min-height: 30px; }
+  .mc-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; min-height: 28px; }
   .mc-rel { font-size: 13px; color: var(--fit-text-secondary); display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
   .mc-rel svg { width: 13px; height: 13px; flex-shrink: 0; color: var(--fit-text-tertiary); }
   .mc-rel-muted { color: var(--fit-text-tertiary); }
   .mc-rel-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--fit-yellow-600); flex-shrink: 0; }
-  /* Uniform card height regardless of relationship content */
-  .mc-list .coach-card { min-height: 116px; display: flex; flex-direction: column; justify-content: center; }
   .mc-sec-title { padding: 0 16px; margin: 20px 0 10px; }
   .mc-sec-title:first-child { margin-top: 4px; }
+
+  /* Coach-detail screen states (default / loading / error) */
+  #s-coach-detail [data-cd-state] { display: none; }
+  #s-coach-detail.cd-default [data-cd-state="default"] { display: block; }
+  #s-coach-detail.cd-loading [data-cd-state="loading"] { display: block; }
+  #s-coach-detail.cd-error   [data-cd-state="error"]   { display: block; }
+  #s-coach-detail.cd-loading .fit-phone-footer,
+  #s-coach-detail.cd-error   .fit-phone-footer { display: none; }
+  #s-coach-detail.cd-nodebt .cd-cash { display: none; }
+  /* Coach-detail "Your review" — has-review / no-review-CTA / locked (can't yet) */
+  #s-coach-detail [data-review-state] { display: none; }
+  #s-coach-detail.dr-has    [data-review-state="has"]    { display: block; }
+  #s-coach-detail.dr-none   [data-review-state="none"]   { display: block; }
+  #s-coach-detail.dr-locked [data-review-state="locked"] { display: block; }
+  /* Review composer: trash (delete) only in edit mode; dim unselected stars; bordered text card */
+  #s-coach-review .cr-trash { display: none; }
+  #s-coach-review.cr-edit .cr-trash { display: flex; }
+  .cr-star.dim { fill: var(--fit-gray-300); }
+  .fit-dark .cr-star.dim { fill: var(--fit-gray-600); }
+  .cr-textcard {
+    width: 100%; min-height: 180px;
+    border: 1px solid var(--fit-divider); border-radius: 12px; padding: 12px 14px;
+    font-family: var(--fit-font); font-size: 16px; line-height: 1.6;
+    color: var(--fit-text-primary); outline: none; background: transparent;
+  }
+  .fit-light .cr-textcard { background: var(--fit-white); }
+  .cr-textcard:focus { border-color: var(--fit-teal-500); }
 
   /* State visibility */
   #s-my-coaches [data-mc-state] { display: none; }
@@ -108,6 +139,9 @@
   <button onclick="go('s-coach-detail',this)">Coach detail</button>
   <button onclick="go('s-coach-history',this)">Coach history</button>
   <button onclick="go('s-coach-note-editor',this)">Note editor</button>
+  <button onclick="setCrMode('write');go('s-coach-review',this)">Review · write</button>
+  <button onclick="setCrMode('edit');go('s-coach-review',this)">Review · edit</button>
+  <button onclick="setDetailReview('none');go('s-coach-detail',this)">Coach detail · no review</button>
   <div class="label">States</div>
   <button onclick="go('s-my-coaches',this);setMcState('default')">Default (list)</button>
   <button onclick="go('s-my-coaches',this);setMcState('empty')">Empty</button>
@@ -140,10 +174,8 @@
     <!-- ===== DEFAULT: relationship list ===== -->
     <div data-mc-state="default">
 
-      <div class="fit-section-title mc-sec-title">Training with</div>
+      <div class="fit-section-title--md mc-sec-title">Training with</div>
       <div class="mc-list">
-
-        <!-- Upcoming session -->
         <div class="coach-card" data-a11y-id="athlete.my-coaches.row" onclick="go('s-coach-detail', null)">
           <div class="coach-top">
             <div class="coach-photo coach-photo-grad-1">MR</div>
@@ -156,17 +188,15 @@
                 <span class="coach-rating"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>4.9</span>
                 <span class="coach-rating-count">(47)</span>
                 <span class="coach-rating-sep"></span>
-                <span class="coach-sports">Tennis · Padel</span>
+                <span class="coach-price">&euro;40 <span class="coach-price-from">from</span></span>
               </div>
-              <div class="mc-foot">
-                <span class="mc-rel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Next: Thu, Apr 10 · 10:00</span>
-                <button class="fit-btn fit-btn-secondary fit-btn-xs" data-a11y-id="athlete.my-coaches.rebook" onclick="event.stopPropagation();window.location.href='../shared/profile.html#s-book-sessions'">Rebook</button>
+              <div class="coach-meta-row">
+                <span>Tennis · Padel</span><span class="dot"></span><span class="coach-langs">🇪🇸 🇬🇧</span>
               </div>
             </div>
           </div>
+          <div class="mc-foot"><span class="mc-rel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Next: Thu, Apr 10 · 10:00</span><button class="fit-btn fit-btn-secondary fit-btn-xs" data-a11y-id="athlete.my-coaches.rebook" onclick="event.stopPropagation();window.location.href='../shared/profile.html#s-book-sessions'">Rebook</button></div>
         </div>
-
-        <!-- Pending request -->
         <div class="coach-card" data-a11y-id="athlete.my-coaches.row" onclick="go('s-coach-detail', null)">
           <div class="coach-top">
             <div class="coach-photo coach-photo-grad-2">JD</div>
@@ -179,17 +209,15 @@
                 <span class="coach-rating"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>4.7</span>
                 <span class="coach-rating-count">(31)</span>
                 <span class="coach-rating-sep"></span>
-                <span class="coach-sports">Boxing</span>
+                <span class="coach-price">&euro;35 <span class="coach-price-from">from</span></span>
               </div>
-              <div class="mc-foot">
-                <span class="mc-rel"><span class="mc-rel-dot"></span>Request sent · waiting for coach</span>
-                <button class="fit-btn fit-btn-secondary fit-btn-xs" data-a11y-id="athlete.my-coaches.cancel-request" onclick="event.stopPropagation();alert('Cancel request — confirm sheet TBD')">Cancel</button>
+              <div class="coach-meta-row">
+                <span>Boxing</span><span class="dot"></span><span class="coach-langs">🇬🇧</span>
               </div>
             </div>
           </div>
+          <div class="mc-foot"><span class="mc-rel"><span class="mc-rel-dot"></span>Request sent · waiting for coach</span><button class="fit-btn fit-btn-secondary fit-btn-xs" data-a11y-id="athlete.my-coaches.cancel-request" onclick="event.stopPropagation();alert('Cancel request — confirm sheet TBD')">Cancel</button></div>
         </div>
-
-        <!-- History only (no upcoming) -->
         <div class="coach-card" data-a11y-id="athlete.my-coaches.row" onclick="go('s-coach-detail', null)">
           <div class="coach-top">
             <div class="coach-photo coach-photo-grad-4">SK</div>
@@ -202,21 +230,19 @@
                 <span class="coach-rating"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>4.8</span>
                 <span class="coach-rating-count">(58)</span>
                 <span class="coach-rating-sep"></span>
-                <span class="coach-sports">Strength</span>
+                <span class="coach-price">&euro;55 <span class="coach-price-from">from</span></span>
               </div>
-              <div class="mc-foot">
-                <span class="mc-rel mc-rel-muted">12 sessions · last Apr 2</span>
-                <button class="fit-btn fit-btn-secondary fit-btn-xs" onclick="event.stopPropagation();window.location.href='../shared/profile.html#s-book-sessions'">Rebook</button>
+              <div class="coach-meta-row">
+                <span>Strength</span><span class="dot"></span><span class="coach-langs">🇩🇪 🇬🇧</span>
               </div>
             </div>
           </div>
+          <div class="mc-foot"><span class="mc-rel mc-rel-muted">12 sessions · last Apr 2</span><button class="fit-btn fit-btn-secondary fit-btn-xs" onclick="event.stopPropagation();window.location.href='../shared/profile.html#s-book-sessions'">Rebook</button></div>
         </div>
-
       </div>
 
-      <div class="fit-section-title mc-sec-title">Saved</div>
+      <div class="fit-section-title--md mc-sec-title">Saved</div>
       <div class="mc-list" style="padding-bottom:16px;">
-
         <div class="coach-card" data-a11y-id="athlete.my-coaches.row" onclick="go('s-coach-detail', null)">
           <div class="coach-top">
             <div class="coach-photo coach-photo-grad-3">AL</div>
@@ -229,16 +255,15 @@
                 <span class="coach-rating"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>5.0</span>
                 <span class="coach-rating-count">(22)</span>
                 <span class="coach-rating-sep"></span>
-                <span class="coach-sports">Yoga · Pilates</span>
+                <span class="coach-price">&euro;45 <span class="coach-price-from">from</span></span>
               </div>
-              <div class="mc-foot">
-                <span class="mc-rel mc-rel-muted">Saved · not booked yet</span>
-                <button class="fit-btn fit-btn-secondary fit-btn-xs" onclick="event.stopPropagation();window.location.href='../shared/profile.html'">Book</button>
+              <div class="coach-meta-row">
+                <span>Yoga · Pilates</span><span class="dot"></span><span class="coach-langs">🇬🇧</span>
               </div>
             </div>
           </div>
+          <div class="mc-foot"><span class="mc-rel mc-rel-muted">Saved · not booked yet</span><button class="fit-btn fit-btn-secondary fit-btn-xs" onclick="event.stopPropagation();window.location.href='../shared/profile.html'">Book</button></div>
         </div>
-
       </div>
     </div>
 
@@ -259,7 +284,7 @@
 
     <!-- ===== LOADING ===== -->
     <div data-mc-state="loading" style="padding-top:8px;">
-      <div class="fit-section-title mc-sec-title">Training with</div>
+      <div class="fit-section-title--md mc-sec-title">Training with</div>
       <div class="mc-list">
         <div class="sk-card lg"><div class="sk-row"><div class="sk-circle sm sq sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:55%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
         <div class="sk-card lg"><div class="sk-row"><div class="sk-circle sm sq sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:48%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
@@ -291,21 +316,21 @@
 </div>
 
 <!-- ==================== SCREEN: COACH RELATIONSHIP DETAIL ==================== -->
-<div class="fit-phone fit-light" id="s-coach-detail">
+<div class="fit-phone fit-light cd-default dr-none" id="s-coach-detail">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
       <button class="fit-header-back" data-a11y-id="athlete.coach-detail.back" onclick="go('s-my-coaches', null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Maria Rodriguez</span>
     </div>
   </div>
   <div class="fit-phone-content">
+    <div data-cd-state="default">
 
-    <!-- Identity — whole row taps through to the public coach profile (chevron cue; handles long names) -->
-    <div data-a11y-id="athlete.coach-detail.view-profile" onclick="window.location.href='../shared/profile.html'" style="display:flex;align-items:center;gap:12px;padding:8px 16px 18px;cursor:pointer;">
+    <!-- Identity — whole row taps through to the public coach profile (chevron cue; handles long names). Name = .fit-identity-name (shown once, in body — Variant 1) -->
+    <div data-a11y-id="athlete.coach-detail.view-profile" onclick="window.location.href='../shared/profile.html'" style="display:flex;align-items:center;gap:16px;padding:8px 16px 18px;cursor:pointer;">
       <div class="coach-photo coach-photo-grad-1">MR</div>
       <div style="flex:1;min-width:0;">
-        <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Maria Rodriguez</div>
+        <div class="fit-identity-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Maria Rodriguez</div>
         <div class="coach-rating-row" style="margin-top:2px;">
           <span class="coach-rating"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>4.9</span>
           <span class="coach-rating-count">(47)</span>
@@ -326,9 +351,10 @@
       <div style="width:1px;background:var(--fit-divider);"></div>
       <div style="text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-red-400);">&euro;70</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Owed</div></div>
     </div>
-    <!-- Cash owed — horizontal list (multiple debts possible), mirrors coach Pending Payments -->
-    <div style="display:flex;align-items:center;gap:8px;padding:0 16px;margin-bottom:10px;">
-      <span class="fit-section-title" style="padding:0;">Cash owed</span>
+    <!-- Cash owed — horizontal list (multiple debts possible). Hidden in no-debt state. -->
+    <div class="cd-cash">
+    <div class="fit-section-title--md-row">
+      <span class="fit-section-title--md">Cash owed</span>
       <span class="fit-badge fit-badge-danger">2</span>
     </div>
     <div data-a11y-id="athlete.coach-detail.owed" style="display:flex;gap:10px;padding:0 16px 22px;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;scroll-padding-left:16px;">
@@ -353,9 +379,10 @@
         </div>
       </div>
     </div>
+    </div><!-- /cd-cash -->
 
     <!-- Upcoming — coach-style cards, tap → calendar event -->
-    <div class="fit-section-title" style="padding:0 16px;margin-bottom:10px;">Upcoming</div>
+    <div class="fit-section-title--md">Upcoming</div>
     <div data-a11y-id="athlete.coach-detail.upcoming" style="display:flex;gap:10px;padding:0 16px 22px;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;scroll-padding-left:16px;">
       <div style="min-width:280px;padding:14px;border-radius:14px;background:var(--fit-surface-high);flex-shrink:0;scroll-snap-align:start;cursor:pointer;" onclick="window.location.href='calendar.html'">
         <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);margin-bottom:4px;">Tennis Training</div>
@@ -376,7 +403,7 @@
     </div>
 
     <!-- Private note about this coach (outline card → editor) -->
-    <div class="fit-section-title" style="padding:0 16px;margin-bottom:10px;">My note</div>
+    <div class="fit-section-title--md">My note</div>
     <div data-a11y-id="athlete.coach-detail.note" style="margin:0 16px 22px;padding:14px;border-radius:12px;background:transparent;border:1px solid var(--fit-divider);font-size:14px;line-height:1.5;color:var(--fit-text-secondary);cursor:pointer;" onclick="go('s-coach-note-editor', null)">
       Prefers morning courts. Great on backhand drills. Pays cash.
     </div>
@@ -395,18 +422,49 @@
       </div>
     </div>
 
-    <!-- Your review of this coach -->
-    <div class="fit-section-title" style="padding:0 16px;margin-bottom:10px;">Your review</div>
-    <div style="margin:0 16px 24px;padding:14px;border-radius:12px;background:var(--fit-surface-high);">
+    <!-- Your review of this coach (per-coach, one, editable) -->
+    <div class="fit-section-title--md">Your review</div>
+
+    <!-- B. Review left -->
+    <div data-review-state="has" style="margin:0 16px 24px;padding:14px;border-radius:12px;background:var(--fit-surface-high);">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <span style="display:inline-flex;gap:2px;color:var(--fit-yellow-400);">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
         </span>
-        <button data-a11y-id="athlete.coach-detail.edit-review" onclick="alert('Edit review — sheet TBD')" style="background:transparent;border:none;cursor:pointer;color:var(--fit-blue-500);font-family:var(--fit-font);font-size:13px;font-weight:500;">Edit</button>
+        <button data-a11y-id="athlete.coach-detail.edit-review" onclick="openReview('edit')" style="background:transparent;border:none;cursor:pointer;color:var(--fit-blue-500);font-family:var(--fit-font);font-size:13px;font-weight:500;">Edit</button>
       </div>
       <div style="font-size:14px;line-height:1.5;color:var(--fit-text-secondary);">Great coach — super structured sessions and really patient with technique. Highly recommend.</div>
     </div>
 
+    <!-- A. No review yet, but ≥1 completed session (eligible) — CTA -->
+    <div data-review-state="none" style="margin:0 16px 24px;padding:16px;border-radius:12px;background:transparent;border:1px solid var(--fit-divider);text-align:center;">
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">How was training with Maria Rodriguez?</div>
+      <button class="fit-btn fit-btn-secondary" data-a11y-id="athlete.coach-detail.write-review" onclick="openReview('write')" style="display:inline-flex;width:auto;height:40px;padding:0 20px;">Write a review</button>
+    </div>
+
+    <!-- C. Can't review yet — no completed session -->
+    <div data-review-state="locked" style="margin:0 16px 24px;padding:16px;border-radius:12px;background:transparent;border:1px solid var(--fit-divider);text-align:center;">
+      <div style="font-size:13px;color:var(--fit-text-tertiary);line-height:1.5;">You can leave a review after your first completed session with Maria.</div>
+    </div>
+
+    </div><!-- /default -->
+
+    <!-- LOADING -->
+    <div data-cd-state="loading" style="padding-top:8px;">
+      <div style="display:flex;align-items:center;gap:16px;padding:8px 16px 24px;"><div class="sk-circle sk-shimmer" style="width:72px;height:72px;border-radius:50%;flex-shrink:0;"></div><div class="sk-lines" style="flex:1;"><div class="sk-line sk-shimmer" style="width:55%;"></div><div class="sk-line short sk-shimmer" style="width:35%;"></div></div></div>
+      <div class="sk-card" style="margin:0 16px 16px;height:64px;border-radius:12px;"></div>
+      <div class="sk-card" style="margin:0 16px 16px;height:120px;border-radius:14px;"></div>
+      <div class="sk-card" style="margin:0 16px 16px;height:64px;border-radius:12px;"></div>
+    </div>
+
+    <!-- ERROR -->
+    <div data-cd-state="error" style="padding-top:24px;">
+      <div class="fit-inline-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span class="fit-inline-error-body">Couldn't load this coach. Check your connection.</span>
+        <button class="fit-inline-error-retry" onclick="setCdState('default')">Retry</button>
+      </div>
+    </div>
   </div>
   <!-- Sticky Rebook -->
   <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
@@ -453,7 +511,7 @@
           <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;40</span>
         </div>
         <div style="font-size:12px;color:var(--fit-text-tertiary);">Mon, Mar 14 &middot; 10:00 - 11:00 &middot; TNT Studio</div>
-        <span data-a11y-id="athlete.coach-history.leave-review" onclick="alert('Leave review — star + text sheet TBD')" style="font-size:12px;color:var(--fit-blue-500);font-weight:500;margin-top:4px;display:inline-block;cursor:pointer;">Leave a review</span>
+        <span style="font-size:12px;color:var(--fit-text-tertiary);margin-top:4px;display:inline-block;">Not rated</span>
       </div>
       <div style="padding:14px 0;border-bottom:1px solid var(--fit-divider);">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
@@ -508,6 +566,64 @@
   </div>
 </div>
 
+<!-- ==================== SCREEN: REVIEW COMPOSER (full-screen, write/edit) ==================== -->
+<div class="fit-phone fit-light cr-write" id="s-coach-review">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-icon-btn" data-a11y-id="athlete.review.close" aria-label="Close" onclick="go('s-coach-detail', null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      <span style="flex:1;"></span>
+      <button class="fit-icon-btn cr-trash" data-a11y-id="athlete.review.delete" aria-label="Delete review" onclick="deleteReview()"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <!-- Hero: coach avatar + prompt + big centered stars + dynamic rating word (à la Chipotle) -->
+    <div style="text-align:center;padding:16px 24px 4px;">
+      <div class="coach-photo coach-photo-grad-1" style="width:72px;height:72px;margin:0 auto 12px;">MR</div>
+      <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);margin-bottom:14px;">How was training with Maria Rodriguez?</div>
+      <div id="cr-stars" data-a11y-id="athlete.review.stars" style="display:flex;justify-content:center;gap:12px;margin-bottom:10px;">
+        <svg class="cr-star" onclick="crSetStars(1)" width="38" height="38" viewBox="0 0 24 24" fill="var(--fit-yellow-400)" style="cursor:pointer;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+        <svg class="cr-star" onclick="crSetStars(2)" width="38" height="38" viewBox="0 0 24 24" fill="var(--fit-yellow-400)" style="cursor:pointer;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+        <svg class="cr-star" onclick="crSetStars(3)" width="38" height="38" viewBox="0 0 24 24" fill="var(--fit-yellow-400)" style="cursor:pointer;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+        <svg class="cr-star" onclick="crSetStars(4)" width="38" height="38" viewBox="0 0 24 24" fill="var(--fit-yellow-400)" style="cursor:pointer;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+        <svg class="cr-star" onclick="crSetStars(5)" width="38" height="38" viewBox="0 0 24 24" fill="var(--fit-yellow-400)" style="cursor:pointer;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+      </div>
+      <div id="cr-rating-word" style="font-size:14px;font-weight:500;color:var(--fit-teal-500);min-height:18px;">Loved it</div>
+    </div>
+
+    <!-- Any other details — label + big text card + char counter -->
+    <div style="padding:18px 16px 0;">
+      <div style="font-size:14px;font-weight:500;color:var(--fit-text-secondary);text-align:center;margin-bottom:10px;">Any other details? <span style="color:var(--fit-text-tertiary);font-weight:400;">(optional)</span></div>
+      <div id="cr-text" class="cr-textcard" contenteditable="true" oninput="crCount()" data-placeholder="Anything else you'd like to share?"></div>
+      <div id="cr-counter" style="text-align:right;font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;">0/200</div>
+    </div>
+
+    <!-- Public disclosure -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px 0;font-size:12px;color:var(--fit-text-tertiary);">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+      <span>Your review is public on Maria Rodriguez&rsquo;s profile.</span>
+    </div>
+
+    <!-- Error state (hidden by default) -->
+    <div class="cr-error" style="display:none;padding:16px 16px 0;">
+      <div class="fit-inline-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span class="fit-inline-error-body">Couldn&rsquo;t post your review. Check your connection.</span>
+        <button class="fit-inline-error-retry" onclick="postReview()">Retry</button>
+      </div>
+    </div>
+
+  </div>
+  <!-- Sticky primary CTA -->
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
+    <button id="cr-post" data-a11y-id="athlete.review.post" onclick="postReview()" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Post review</button>
+  </div>
+</div>
+
+<!-- Snackbar (review posted / updated / deleted) -->
+<div class="fit-snackbar" id="cr-snackbar"><span class="snack-dot"></span><span class="snack-text" id="cr-snack-text">Review posted</span></div>
+
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
   <div class="ann active" id="ann-s-my-coaches"><span class="ann-role athlete">Athlete</span>
@@ -530,7 +646,16 @@
     <p class="note">Backend: list endpoint TBD — verify against live API before issues (likely <code>GET /v1.0.0/athlete/coaches/</code> + favourites). Reuse, don't invent the contract.</p>
   </div>
 
-  <div class="ann" id="ann-s-coach-detail"><span class="ann-role athlete">Athlete</span><h3>Coach detail (relationship)</h3>
+  <div class="ann" id="ann-s-coach-detail"><span class="ann-role athlete">Athlete</span>
+    <div class="state-toggle">
+      <button class="active" onclick="go('s-coach-detail',null);setCdState('default');setDetailReview('none');setCdDebt(true);annHighlight(this)">Default</button>
+      <button onclick="go('s-coach-detail',null);setCdState('default');setDetailReview('has');annHighlight(this)">Has review</button>
+      <button onclick="go('s-coach-detail',null);setCdState('default');setCdDebt(false);annHighlight(this)">No debt</button>
+      <button onclick="go('s-coach-detail',null);setCdState('default');setDetailReview('locked');annHighlight(this)">Can't review</button>
+      <button onclick="go('s-coach-detail',null);setCdState('loading');annHighlight(this)">Loading</button>
+      <button onclick="go('s-coach-detail',null);setCdState('error');annHighlight(this)">Error</button>
+    </div>
+    <h3>Coach detail (relationship)</h3>
     <p>Reached by tapping a coach in My Coaches. The athlete's <strong>relationship</strong> with one coach — <strong>mirror of the coach's Client Detail</strong>, athlete-side.</p>
     <ul>
       <li><strong>Stats strip</strong> — Sessions · Hours · Spent · <strong>Owed</strong> (red, cash debt — symmetric to the coach's "Owed").</li>
@@ -538,7 +663,7 @@
       <li><strong>Upcoming</strong> — coach-style session cards (name · date·time · location · price), horizontal scroll, tap → calendar event.</li>
       <li><strong>My note</strong> — athlete's <strong>private</strong> note about the coach (mirrors coach's notes about clients). Outline card → editor (stub).</li>
       <li><strong>Training history</strong> — preview link → <strong>pushes <code>s-coach-history</code></strong> (separate screen, keeps detail uncluttered — same pattern as coach Client Detail).</li>
-      <li><strong>Your review</strong> of this coach (stars + text + Edit).</li>
+      <li><strong>Your review</strong> — per-coach (one, editable). <strong>Has review</strong>: stars + text + Edit → composer (edit). <strong>No review yet</strong> (≥1 completed session): CTA "Write a review" → composer (write). Hidden if 0 completed sessions. (Per-session quick rating lives in the Dashboard rate-queue, not here.)</li>
       <li>Sticky <strong>Rebook</strong> → booking grid. <strong>Profile ›</strong> (top-right of identity) → public coach profile <code>s-coach-v2</code>.</li>
     </ul>
     <hr>
@@ -549,9 +674,25 @@
     <p>Full chronological list of completed sessions with this coach. Pushed from the Coach detail history link.</p>
     <ul>
       <li>Each row: session · date · time · location · price.</li>
-      <li><strong>Unrated</strong> → <code>Leave review</code> button (closes the review loop — same entry as Notifications "Rate your session").</li>
-      <li><strong>Rated</strong> → shows the star score given.</li>
+      <li>Status line = the <strong>per-session quick rating</strong> you gave (★ score) or <em>"Not rated"</em>. No per-session written review — the written review is per-coach (one), left from Coach detail.</li>
     </ul>
+  </div>
+
+  <div class="ann" id="ann-s-coach-review"><span class="ann-role athlete">Athlete</span>
+    <div class="state-toggle">
+      <button class="active" onclick="setCrMode('write');annHighlight(this)">Write</button>
+      <button onclick="setCrMode('edit');annHighlight(this)">Edit</button>
+    </div>
+    <h3>Review composer</h3>
+    <p>Written review = <strong>per-coach, one, editable</strong>. <strong>Full-screen modal overlay</strong> — dismiss with <strong>× (close), not a back chevron</strong>: it's commonly opened from a push (next-day deep-link), so there's no screen to go "back" to (per <code>feedback_back_vs_close</code>). Not a drawer — text input in a bottom sheet gets cramped by the keyboard (<code>feedback_screen_vs_sheet_vs_toast</code>). Coach <strong>full name</strong> in the prompt so a push recipient knows which coach.</p>
+    <ul>
+      <li><strong>Stars prefilled</strong> from the athlete's latest session rating (they may have trained several times before reviewing) — tappable to change.</li>
+      <li><strong>Text</strong> = notepad-style contenteditable, optional. Tags/chips deferred to v2 (need a curated pool).</li>
+      <li><strong>Write</strong>: Post → snackbar "Review posted" → back to detail (now has-review). <strong>Edit</strong>: Update → "Review updated"; Delete → "Review deleted" → detail shows the Write CTA again.</li>
+      <li>Error → inline banner + Retry (CTA stays). Verified: composer only reachable after a completed session.</li>
+    </ul>
+    <hr>
+    <p class="note">Entry points: push next-day after 1st completed session ("How was training with Maria?") → composer; or the "Write a review" CTA on Coach detail.</p>
   </div>
 </div>
 
@@ -592,6 +733,76 @@ function annHighlight(btn) {
   if (!btn) return;
   btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+}
+
+/* ===== Review composer (per-coach, write/edit) ===== */
+var crRating = 5;
+var CR_WORDS = { 1: 'Poor', 2: 'Fair', 3: 'Good', 4: 'Great', 5: 'Loved it' };
+function crSetStars(n) {
+  crRating = n;
+  document.querySelectorAll('#cr-stars .cr-star').forEach(function (s, i) { s.classList.toggle('dim', i >= n); });
+  var w = document.getElementById('cr-rating-word');
+  if (w) w.textContent = CR_WORDS[n] || '';
+}
+function setCrMode(mode) {
+  var el = document.getElementById('s-coach-review');
+  if (!el) return;
+  el.classList.remove('cr-write', 'cr-edit');
+  el.classList.add('cr-' + mode);
+  el.querySelector('.cr-error').style.display = 'none';
+  var post = document.getElementById('cr-post'), txt = document.getElementById('cr-text');
+  if (mode === 'edit') {
+    post.textContent = 'Update review';
+    if (txt) txt.textContent = 'Great coach — super structured sessions and really patient with technique. Highly recommend.';
+  } else {
+    post.textContent = 'Post review';
+    if (txt) txt.textContent = '';        // write: text empty, stars prefilled from last session rating
+  }
+  crSetStars(5);   // prefilled from latest session rating
+  crCount();
+}
+function crCount() {
+  var t = document.getElementById('cr-text'), c = document.getElementById('cr-counter');
+  if (!t || !c) return;
+  var n = (t.textContent || '').length;
+  c.textContent = n + '/200';
+  c.style.color = n >= 200 ? 'var(--fit-red-400)' : 'var(--fit-text-tertiary)';
+}
+function openReview(mode) { setCrMode(mode); go('s-coach-review', null); }
+function crSnack(msg) {
+  var sn = document.getElementById('cr-snackbar'), t = document.getElementById('cr-snack-text');
+  if (t) t.textContent = msg;
+  if (!sn) return;
+  sn.classList.add('show');
+  setTimeout(function () { sn.classList.remove('show'); }, 1600);
+}
+function postReview() {
+  var el = document.getElementById('s-coach-review');
+  var edit = el && el.classList.contains('cr-edit');
+  setDetailReview('has');
+  go('s-coach-detail', null);
+  crSnack(edit ? 'Review updated' : 'Review posted');
+}
+function deleteReview() {
+  setDetailReview('none');
+  go('s-coach-detail', null);
+  crSnack('Review deleted');
+}
+function setDetailReview(state) {
+  var el = document.getElementById('s-coach-detail');
+  if (!el) return;
+  el.classList.remove('dr-has', 'dr-none', 'dr-locked');
+  el.classList.add('dr-' + state);
+}
+function setCdState(state) {
+  var el = document.getElementById('s-coach-detail');
+  if (!el) return;
+  el.classList.remove('cd-default', 'cd-loading', 'cd-error');
+  el.classList.add('cd-' + state);
+}
+function setCdDebt(has) {
+  var el = document.getElementById('s-coach-detail');
+  if (el) el.classList.toggle('cd-nodebt', !has);
 }
 
 // Athlete-side prototype defaults to LIGHT theme (role cue: athlete = light, coach = dark)

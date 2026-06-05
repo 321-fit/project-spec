@@ -573,6 +573,50 @@ Spec: `booking-flow.md` — prototype lives partly in `athlete/search.html` + `s
 | `coach.invite.slot` | draggable `.fit-bk-sel` selection block | `s-invite-time` | drag to set start |
 | `coach.invite.time.back` | back chevron | `s-invite-time` | returns to `s-invite-select` (template chooser) |
 
+### `my-coaches` — athlete relationships + reviews (`athlete/my-coaches.html`)
+
+Tab 2. List + per-coach relationship detail + history + private note + review composer. Specs: `booking-flow.md` (rebook), `reviews.md`.
+
+| ID | Element | Screen | Notes |
+|---|---|---|---|
+| `athlete.my-coaches.search` | loupe in header | `s-my-coaches` | → pushes Search (discovery) |
+| `athlete.my-coaches.row` | coach relationship card | `s-my-coaches` | generic; → `s-coach-detail` |
+| `athlete.my-coaches.fav` | ❤️ on a row | `s-my-coaches` | toggle saved |
+| `athlete.my-coaches.rebook` | Rebook on a row | `s-my-coaches` | → `s-book-sessions` grid |
+| `athlete.my-coaches.cancel-request` | Cancel on a pending row | `s-my-coaches` | cancel sent request (confirm TBD) |
+| `athlete.coach-detail.back` | back chevron | `s-coach-detail` | → `s-my-coaches` |
+| `athlete.coach-detail.view-profile` | identity row | `s-coach-detail` | → public coach profile `s-coach-v2` |
+| `athlete.coach-detail.owed` | Cash-owed scroll list | `s-coach-detail` | per-session cash debts; hidden in no-debt state |
+| `athlete.coach-detail.upcoming` | Upcoming cards scroll | `s-coach-detail` | tap card → calendar |
+| `athlete.coach-detail.note` | My-note outline card | `s-coach-detail` | → `s-coach-note-editor` |
+| `athlete.coach-detail.history` | Training-history link | `s-coach-detail` | → `s-coach-history` |
+| `athlete.coach-detail.write-review` | "Write a review" CTA | `s-coach-detail` (no-review) | → composer (write) |
+| `athlete.coach-detail.edit-review` | "Edit" on a review | `s-coach-detail` (has-review) | → composer (edit) |
+| `athlete.coach-detail.rebook` | sticky Rebook | `s-coach-detail` | → `s-book-sessions` grid |
+| `athlete.coach-history.back` | back chevron | `s-coach-history` | → `s-coach-detail` |
+| `athlete.coach-note.cancel` / `.save` | Cancel / Save | `s-coach-note-editor` | private note (notepad) |
+| `athlete.review.close` | × close | `s-coach-review` | dismiss modal composer |
+| `athlete.review.delete` | trash | `s-coach-review` (edit) | delete review |
+| `athlete.review.stars` | star rating row | `s-coach-review` | tap to set 1–5 |
+| `athlete.review.post` | sticky CTA | `s-coach-review` | Post / Update review |
+
+### `profile` (athlete) — `athlete/profile.html` (tab 5)
+
+| ID | Element | Screen | Notes |
+|---|---|---|---|
+| `athlete.profile.settings` | gear (header right) | `s-profile` | → Settings (TBD) |
+| `athlete.profile.identity` | avatar + name + sports | `s-profile` | → Personal Data (TBD) |
+| `athlete.profile.history` | Training-history link | `s-profile` | aggregate across all coaches (TBD) |
+| `athlete.profile.coaches` | My-coaches link | `s-profile` | → my-coaches.html |
+
+### `search` (athlete, partial) — `athlete/search.html`
+
+| ID | Element | Screen | Notes |
+|---|---|---|---|
+| `athlete.search.back` | back (× of discovery) | `s-search-landing` | pushed from My Coaches loupe → history.back |
+| `athlete.search.sport` | sport selector | `s-search-landing` | own row below nav → sport-types |
+| `athlete.search.text` | text-search icon | `s-search-landing` | → `s-search-text` |
+
 ### `country` — country picker (re-used: phone signup, edit phone, Personal Data home country, Search filter country)
 
 Prototypes: `shared/auth.html` (phone OTP), `coach/personal-data.html`, `athlete/search.html`
