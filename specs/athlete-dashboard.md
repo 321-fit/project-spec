@@ -63,15 +63,18 @@ Three screens total in this module:
 
 ### Layout — Default state (active athlete, has bookings)
 
-1. **Header** — title "Home" (left) + `🔔` notification bell with badge (right, `.fit-icon-btn` with `.notif-bell-badge` if `unread_count > 0`).
-2. **Greeting** — "Good morning, {first_name}" + sub-line "Next session · tomorrow at 10:00" (or context-relevant fact).
-3. **Balance card** (top priority) — €240 main amount + "Topped up €100 · Apr 28" sub + two actions: `Top up` (primary gradient) and `Transactions` (outline).
-4. **Next training** — coach avatar + name + sport · duration · location + "Tomorrow · 10:00" (teal accent). Tap → event detail.
-5. **Awaiting confirmation (N)** — list of pending booking requests. Each row: yellow clock icon + "Yoga with Anna K." + sub "Tue, Apr 14 · 18:00 · sent 4h ago". Tap → event detail.
-6. **Recommended for you** — horizontal carousel of coach cards (`.rec-card`): gradient placeholder image + heart save + distance badge + name + sport + ⭐ rating + price from. "See all →" link routes to Search with sport filter.
-7. **Recently viewed** — list (max 2-3 rows): avatar + name + sport · price from + chevron. Tap → coach profile.
-8. **Your activity** — teaser card: "This month · April" + `[12 sessions | 9h training | 3wk 🔥]` stat strip. Tap → Profile (athlete's own).
-9. **Footer** — 5-tab `FitNavbar` with Home slot 1 active.
+Reordered 2026-06-05 to mirror the coach Home module order (Next → Needs attention → Balance → …) and the **Recommended** carousel was **removed**.
+
+1. **Header** — title "Home" (left) + `🔔` bell with badge (right). Badge = unread Activity + To reply (see Inbox).
+2. **Greeting** — "Good morning, {first_name}" + context sub-line.
+3. **Next session** — coach avatar + name + sport · duration · location + "Tomorrow · 10:00" (teal accent). Tap → event detail. (Empty variant with CTA when none.)
+4. **Needs your attention** — conditional action list (`.pending-row` grammar, same as coach), shown only when present. Athlete need-attention types: *N requests awaiting confirmation* (→ Inbox **Waiting** tab via `openInboxOnTab('waiting')`), *request declined* (→ rebook), *rate your last session* (→ rate queue), *cash to settle* (→ My Coaches). Icon color by severity (yellow/red/teal).
+5. **Balance card** — €240 amount + "Topped up €100 · Apr 28" + actions `Top up` / `Transactions` (both → Balance screen). Whole card tappable → Balance.
+6. **Recently viewed** — list (max 2-3 rows): avatar + name + sport · price from + chevron → coach profile.
+7. **Your activity** — teaser: "This month" + `[sessions | hours | streak]` stat strip → Profile (athlete's own).
+8. **Footer** — 5-tab `FitNavbar`, Home slot 1 active.
+
+> **Removed 2026-06-05:** the "Recommended for you" carousel (was a `.rec-card` horizontal scroll) — discovery now lives in Search (loupe-push from My Coaches), not on Home. The standalone "Awaiting confirmation" list folded into **Needs your attention**.
 
 ### States (7)
 
@@ -79,9 +82,9 @@ Three screens total in this module:
 |---|---|---|
 | **Default** | Active athlete with bookings | All blocks above visible |
 | **Welcome** | First launch post-onboarding | Greeting + setup checklist (4 steps), no other blocks |
-| **Low balance** | Balance = €0 AND pending requests > 0 | Balance card in red alert mode + Pending list + Recommended (other blocks hidden) |
-| **Idle** | Has balance, 0 upcoming, no pending | Greeting + Balance + Next training empty CTA + Recommended + Activity teaser |
-| **All zero** | Has balance, no bookings, no recent | Greeting + Balance + "Time for your next session" CTA + Recommended (minimal) |
+| **Low balance** | Balance = €0 AND pending requests > 0 | Balance card in red alert mode + Needs-attention list (other blocks hidden) |
+| **Idle** | Has balance, 0 upcoming, no pending | Greeting + Next training empty CTA + Balance + Activity teaser |
+| **All zero** | Has balance, no bookings, no recent | Greeting + Next "Time for your next session" CTA + Balance (minimal) |
 | **Loading** | First fetch in flight | Skeleton cards for greeting, balance, next, recommended |
 | **Error** | Offline first-fetch failure | Offline banner + cached greeting + cached balance + cached next training |
 
@@ -97,21 +100,17 @@ Reached from Notifications inbox "Rate your session" tap OR from athlete Profile
 `Rate now` → opens star-rating + free-text review sheet (separate flow, not specced here).
 `Skip` → dismisses card without rating (can re-surface later).
 
-### Push: Notifications inbox (`s-notifications`)
+### Push: Inbox (`s-notifications`) — unified, 3 tabs (2026-06-05)
 
-Reached from header bell. Grouped by date (Today / Yesterday / older). Each row: leading colored icon plate + body (title + meta) + optional unread blue dot on right.
+Reached from the header **bell**. Reworked from a single "Notifications" list into a **unified Inbox with 3 segmented tabs**, mirroring the coach Inbox (one bell → one inbox; memory `one-bell-one-inbox`):
 
-**Athlete notification types** (icon color codes):
-- **Confirm** (green) — coach approved booking
-- **Decline** (red) — coach rejected (often with note)
-- **Soon** (blue clock) — session starts in N min
-- **Review** (yellow star) — rate your completed session
-- **Balance** (red card) — top-up needed
-- **Match** (purple search) — new coaches match your filters
+- **Activity** (default) — push-history feed, grouped by date (Today / Yesterday / older). Each row: leading colored icon plate + body (title + meta) + unread blue dot. Types (icon color): Confirm (green) · Decline (red) · Soon (blue clock) · Review (yellow star) · Balance (red card) · Match (purple search) · Calendar sync (yellow alert). Tap routes: confirm/decline/soon → event detail · review → rate sheet · balance → Balance/top-up · match → Search filtered · calendar sync → Settings → Calendar Sync.
+- **To reply** — coach-initiated items needing the athlete's answer, on the canonical **`.req-card`** (avatar + name + action line + session block + location/price + [Decline] [Accept]): *coach invited you to a session*, *coach proposed a new time* (reschedule, old→new).
+- **Waiting** — the athlete's own **sent** booking requests, awaiting the coach. `.req-card` with yellow "Awaiting reply" pill + sent/expires meta + **[Cancel request]** (athlete has no Edit — coach-only).
 
-Tap routes to relevant screen: confirm/decline → event detail · soon → event detail · review → rate sheet · balance → top-up · match → Search filtered.
+**Bell badge** = unread Activity **+ To reply** count. **Waiting is NOT counted** — the bell signals "action needed by you"; waiting on a coach is monitoring (surfaced via the tab counter + Home "Needs your attention" row). Same rule as coach.
 
-**States:** Default (mixed feed) · Empty (zero state) · Loading (skeleton) · Error (failed to load).
+**States:** Default (per-tab content) · Empty (per-tab empty-state) · Loading (skeleton) · Error (inline + retry).
 
 ---
 
@@ -199,6 +198,8 @@ Detailed shapes live in `poly-backend/docs/athlete-dashboard-api.md` (to be crea
 - **2026-05-12** — Recently viewed lives on Dashboard (NOT inside Search text overlay). Memory: `feedback_dashboard_recently_viewed`.
 - **2026-05-12** — Notification types mapped to specific colored icon plates: confirm (green), decline (red), soon (blue), review (yellow), balance (red), match (purple).
 - **2026-05-12** — Sidebar = screens only (3 entries: Dashboard / Sessions to rate / Notifications). State variants live in right annotation panel `.state-toggle`. Memory: `feedback_sidebar_states_separation`.
+- **2026-06-05** — Home **module order reworked** to mirror coach: Next session → Needs your attention → Balance → Recently viewed → Your activity. **Recommended carousel removed** (discovery → Search); standalone "Awaiting confirmation" folded into Needs-attention. Earlier (2026-05-12) "Balance pinned at top" superseded.
+- **2026-06-05** — Notifications → **unified Inbox** with 3 tabs (Activity / To reply / Waiting), mirroring coach. Bell badge = Activity unread + To reply (Waiting excluded). To-reply/Waiting use the canonical `.req-card`. Memory: `one-bell-one-inbox`.
 
 ---
 

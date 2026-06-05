@@ -602,12 +602,57 @@ Tab 2. List + per-coach relationship detail + history + private note + review co
 
 ### `profile` (athlete) — `athlete/profile.html` (tab 5)
 
+Trimmed mirror of coach Profile (`.cp-*` grammar; no video hero). Spec: `athlete-profile.md`.
+
 | ID | Element | Screen | Notes |
 |---|---|---|---|
-| `athlete.profile.settings` | gear (header right) | `s-profile` | → Settings (TBD) |
-| `athlete.profile.identity` | avatar + name + sports | `s-profile` | → Personal Data (TBD) |
-| `athlete.profile.history` | Training-history link | `s-profile` | aggregate across all coaches (TBD) |
-| `athlete.profile.coaches` | My-coaches link | `s-profile` | → my-coaches.html |
+| `athlete.profile.settings` | gear (header right) | `s-profile` | → settings.html |
+| `athlete.profile.identity` | identity row (avatar + name + location) | `s-profile` | → Personal Data (TBD) |
+| `athlete.profile.sports.edit` | "My sports" head + pencil | `s-profile` | → sport-types.html |
+| `athlete.profile.about.edit` | "About me" head + pencil | `s-profile` | → Personal Data (TBD) |
+| `athlete.profile.tile.history` | Training-history tile | `s-profile` | aggregate across all coaches (TBD) |
+| `athlete.profile.tile.coaches` | My-coaches tile | `s-profile` | → my-coaches.html |
+| `athlete.profile.tile.calendar-sync` | Calendar-sync tile | `s-profile` | → calendar-sync.html |
+| `athlete.profile.tile.balance` | Balance tile | `s-profile` | → balance.html |
+| `athlete.profile.review` | a "My reviews" card (generic) | `s-profile` | review athlete left to a coach |
+
+### `inbox` (athlete) — unified Inbox (`athlete/dashboard.html#s-notifications`)
+
+3 tabs (Activity / To reply / Waiting). Spec: `athlete-dashboard.md`. Mirrors coach `coach.inbox.*`.
+
+| ID | Element | Screen | Notes |
+|---|---|---|---|
+| `athlete.inbox.tab.activity` / `.toreply` / `.waiting` | segmented tabs | `s-notifications` | switch panel |
+| `athlete.inbox.toreply.decline` / `.accept` | buttons on a `.req-card` | `s-notifications` (To reply) | coach invite / reschedule |
+| `athlete.inbox.waiting.cancel` | "Cancel request" on a `.req-card` | `s-notifications` (Waiting) | withdraw sent request |
+| `athlete.dashboard.balance` | balance card | `s-dashboard` | → balance.html |
+| `athlete.dashboard.attention.awaiting` | "requests awaiting confirmation" row | `s-dashboard` | → Inbox Waiting tab |
+
+### `settings` (athlete) — `athlete/settings.html`
+
+Trimmed analog of coach Settings. Spec: `settings.md` (Athlete section).
+
+| ID | Element | Screen | Notes |
+|---|---|---|---|
+| `athlete.settings.back` | back chevron | `s-settings` | → profile.html |
+| `athlete.settings.personal-info` | Edit personal info card | `s-settings` | → Personal Data (TBD) |
+| `athlete.settings.invite-friend` | Invite a friend card | `s-settings` | placeholder (referral on hold) |
+| `athlete.settings.sport` | Choose a sport card | `s-settings` | → sport-types.html |
+| `athlete.settings.calendar-sync` | Calendar Sync card | `s-settings` | → calendar-sync.html |
+| `athlete.settings.balance` | Balance card | `s-settings` | → balance.html |
+| `athlete.settings.account-access` | Account Access card | `s-settings` | → account-access.html |
+| `athlete.settings.logout` | Log out row | `s-settings` | "Signed out" toast |
+
+### `balance` (athlete) — `athlete/balance.html`
+
+Spending ledger (mirror of coach Earnings). Spec: `payments.md` Flow C1.
+
+| ID | Element | Screen | Notes |
+|---|---|---|---|
+| `athlete.balance.back` | back chevron | `s-balance` | → settings.html |
+| `athlete.balance.topup` | "Top up" pill (hero) | `s-balance` | → Stripe top-up sheet (TBD) |
+| `athlete.balance.filters` | filter chip row | `s-balance` | All / Top-ups / Spent / Refunds |
+| `athlete.balance.txn` | a transaction row (generic) | `s-balance` | → transaction detail (TBD) |
 
 ### `search` (athlete, partial) — `athlete/search.html`
 

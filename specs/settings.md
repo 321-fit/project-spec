@@ -1,8 +1,9 @@
 # Settings
 
 > Status: Draft
-> Prototype: [flows/coach/settings.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html)
-> Last updated: 2026-05-25 (prototype trimmed to match — Coaching subsection removed, Calendar Sync promoted to standalone Calendar section)
+> Prototype (coach): [flows/coach/settings.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html)
+> Prototype (athlete): [flows/athlete/settings.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/settings.html)
+> Last updated: 2026-06-05 (athlete Settings landed — trimmed analog of coach; Balance → athlete spending screen)
 
 ## Overview
 
@@ -41,14 +42,25 @@ Notes / Coaching subsection (Sport Types, Training Sessions, Available Hours, GY
 - Available hours → tap "Available Hours" tile on Profile → available-hours screen
 - GYM locations → tap "Locations" tile on Profile → [location-picker.md](./location-picker.md)
 
-### Athlete Settings (analog — when athlete profile lands)
+### Athlete Settings (landed 2026-06-05)
 
-| Section | Items |
-|---|---|
-| Profile | Edit personal info (incl. body metrics: weight + height), Invite a Friend |
-| Training | Choose a sport, Calendar Sync |
-| Payments | Balance |
-| Account | Account Access, Log out |
+Reached via the **gear** on the athlete Profile tab → `settings.html`. Same `.set-card` grammar and section grouping as coach, trimmed to athlete scope. Ends with a **version footer** (`v1.45 (build 4) · STAGING`).
+
+| Section | Item | Subtitle | Destination |
+|---|---|---|---|
+| Profile | Edit personal info | Avatar, name, gender, height, weight | Personal Data (athlete variant — **TBD**, stubbed) |
+| Profile | Invite a friend | Recommend the app to a friend | placeholder (referral on hold — [invite-coach.md](./invite-coach.md), memory `project_invite_a_coach`) |
+| Training | Choose a sport | Basketball, Tennis | [sport-picker.md](./sport-picker.md) (shared `sport-types.html`) |
+| Training | Calendar Sync | Google connected | [calendar-sync.md](./calendar-sync.md) |
+| Payments | Balance | €240.00 | [payments.md](./payments.md) — athlete Balance screen (`balance.html`) |
+| Account | Account Access | Login and security | [account-access.md](./account-access.md) (shared) |
+| (footer) | Log out | — | inline action → "Signed out" toast |
+
+**Diff vs coach Settings:**
+- ❌ no Stripe Connect / payout rows (athlete pays, never receives)
+- Earnings → **Balance** (spending screen)
+- Invite a Coach → **Invite a friend**
+- ➕ **Choose a sport** surfaced here (coach edits sports inline on Profile; athlete has no public profile storefront, so the sport edit lives in Settings + the Profile "My sports" pencil)
 
 Athlete-side Personal Data **does include** body metrics (weight + height in kg/cm). Coach-side intentionally omits them — see [personal-data.md § 10](./personal-data.md).
 

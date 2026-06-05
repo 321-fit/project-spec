@@ -32,33 +32,46 @@
   .ann ul li { margin-bottom: 6px; }
   .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
   .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  .ann code { font-size: 12px; background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 3px; color: var(--fit-gray-400); }
+  .state-toggle { display: inline-flex; flex-wrap: wrap; gap: 0; border-radius: 6px; overflow: hidden; border: 1px solid var(--fit-gray-700); margin-bottom: 12px; }
+  .state-toggle button { font-family: var(--fit-font); font-size: 12px; font-weight: 500; padding: 4px 10px; border: none; cursor: pointer; background: transparent; color: var(--fit-gray-400); transition: all 0.15s; }
+  .state-toggle button.active { background: var(--fit-gray-700); color: var(--fit-white); }
 
   .fit-phone { display: none; }
   .fit-phone.active { display: flex; }
   .fit-dark .fit-phone-header, .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
   .fit-dark .fit-phone-footer, .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+  svg.i-sm { width: 14px; height: 14px; vertical-align: middle; margin-right: 4px; }
 
-  /* Profile-local */
-  .pf-id { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 8px 16px 20px; }
-  .pf-avatar { width: 84px; height: 84px; border-radius: 50%; background: linear-gradient(135deg,#06b6d4,#0ea5e9); color: var(--fit-white); display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 600; margin-bottom: 12px; }
-  .pf-name { font-size: 22px; font-weight: 600; color: var(--fit-text-primary); }
-  .pf-sports { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
-  .pf-chip { font-size: 13px; padding: 5px 12px; border-radius: 99px; background: var(--fit-surface-high); color: var(--fit-text-secondary); }
-  .fit-light .pf-chip { background: var(--fit-gray-100); }
-  .pf-stats { display: flex; justify-content: space-around; padding: 16px; margin: 0 16px 24px; border-radius: 14px; background: var(--fit-surface-high); }
-  .fit-light .pf-stats { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
-  .pf-stat { text-align: center; }
-  .pf-stat-num { font-size: 20px; font-weight: 600; color: var(--fit-text-primary); }
-  .pf-stat-lbl { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 2px; }
-  .pf-stat-div { width: 1px; background: var(--fit-divider); }
-  .pf-link { margin: 0 16px 12px; cursor: pointer; }
-  .pf-link-inner { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-radius: 12px; background: var(--fit-surface-high); }
-  .fit-light .pf-link-inner { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
-  .pf-link-left { display: flex; align-items: center; gap: 12px; font-size: 16px; color: var(--fit-text-primary); }
-  .pf-link-left svg { width: 18px; height: 18px; color: var(--fit-text-secondary); }
-  .pf-link-right { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--fit-text-tertiary); }
-  .pf-review-card { margin: 0 16px 10px; padding: 14px; border-radius: 12px; background: var(--fit-surface-high); }
-  .fit-light .pf-review-card { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  /* Profile content states (identity stays always visible above) */
+  #s-profile [data-pf-state] { display: none; }
+  #s-profile.pfs-default [data-pf-state="default"] { display: block; }
+  #s-profile.pfs-new     [data-pf-state="new"]     { display: block; }
+  #s-profile.pfs-loading [data-pf-state="loading"] { display: block; }
+  #s-profile.pfs-error   [data-pf-state="error"]   { display: block; }
+
+  /* ===== Profile layout — reused 1:1 from coach/profile.html (.cp-*), trimmed (no video hero) ===== */
+  .cp-section-head { display: flex; align-items: center; justify-content: space-between; padding: 0 var(--fit-sp-4) 10px; }
+  .cp-section-head--tap { cursor: pointer; }
+  .cp-section-head--tap:hover { opacity: 0.85; }
+  .cp-section-title { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
+  .cp-section-meta { display: flex; align-items: center; gap: 4px; font-size: 14px; color: var(--fit-text-tertiary); }
+  .cp-edit-pencil { flex-shrink: 0; width: 18px; height: 18px; color: var(--fit-text-tertiary); }
+  .cp-edit-pencil svg { width: 18px; height: 18px; }
+  .cp-section { margin-bottom: 28px; }
+
+  .cp-identity { display: flex; align-items: center; gap: 16px; padding: 12px 16px 16px; cursor: pointer; }
+  .cp-identity:active { opacity: 0.85; }
+  .cp-identity-avatar { position: relative; flex-shrink: 0; }
+  .cp-identity-name { font-size: 22px; font-weight: 600; color: var(--fit-text-primary); line-height: 1.2; }
+  .cp-identity-location { display: flex; align-items: center; gap: 4px; font-size: 14px; color: var(--fit-text-secondary); margin-top: 4px; }
+  .cp-identity-location svg { width: 13px; height: 13px; }
+  .cp-identity-chev { flex-shrink: 0; width: 18px; height: 18px; color: var(--fit-text-tertiary); }
+  .cp-identity-chev svg { width: 18px; height: 18px; }
+  .cp-avatar-pip { position: absolute; bottom: -2px; right: -2px; width: 22px; height: 22px; border-radius: 50%; background: var(--fit-brand-primary); border: 2px solid var(--fit-screen-bg); display: flex; align-items: center; justify-content: center; color: white; }
+  .cp-avatar-pip svg { width: 11px; height: 11px; }
+
+  .cp-tile-group { display: flex; flex-direction: column; gap: 8px; padding: 0 16px; margin-bottom: 28px; }
 </style>
 </head>
 <body>
@@ -67,8 +80,15 @@
 <nav class="sidebar">
   <div class="sidebar-scroll">
   <div class="label">Profile</div>
-  <button class="active" onclick="go('s-profile',this)">Profile</button>
+  <button class="active" onclick="go('s-profile',this);setPfState('default')">Profile</button>
+  <div class="label">States</div>
+  <button onclick="go('s-profile',this);setPfState('default',this)">Default</button>
+  <button onclick="go('s-profile',this);setPfState('new',this)">New (no sessions)</button>
+  <button onclick="go('s-profile',this);setPfState('loading',this)">Loading</button>
+  <button onclick="go('s-profile',this);setPfState('error',this)">Error</button>
   <div class="label">Other modules</div>
+  <button onclick="window.location.href='settings.html'">Settings</button>
+  <button onclick="window.location.href='balance.html'">Balance</button>
   <button onclick="window.location.href='dashboard.html'">Dashboard</button>
   <button onclick="window.location.href='my-coaches.html'">My Coaches</button>
   <button onclick="window.location.href='calendar.html'">Calendar</button>
@@ -80,70 +100,199 @@
 </nav>
 
 <!-- ==================== SCREEN: PROFILE ==================== -->
-<div class="fit-phone fit-light active" id="s-profile">
+<div class="fit-phone fit-light active pfs-default" id="s-profile">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
       <span class="fit-header-title" style="flex:1;">Profile</span>
-      <button class="fit-icon-btn" data-a11y-id="athlete.profile.settings" aria-label="Settings" onclick="alert('Settings — coming next')">
+      <button class="fit-icon-btn" data-a11y-id="athlete.profile.settings" aria-label="Settings" onclick="window.location.href='settings.html'">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       </button>
     </div>
   </div>
-  <div class="fit-phone-content" style="padding-top:8px;">
+  <div class="fit-phone-content" style="padding-top:0;">
 
-    <!-- Identity (tap → personal data) -->
-    <div class="pf-id" data-a11y-id="athlete.profile.identity" onclick="alert('Personal data — TBD')" style="cursor:pointer;">
-      <div class="pf-avatar">YK</div>
-      <div class="pf-name">Yuri K.</div>
-      <div class="pf-sports">
-        <span class="pf-chip">🎾 Tennis</span>
-        <span class="pf-chip">🥊 Boxing</span>
-        <span class="pf-chip">🧘 Yoga</span>
+    <!-- ============ IDENTITY (avatar + name + location) → personal data. Always visible. ============ -->
+    <div class="cp-identity" data-a11y-id="athlete.profile.identity" onclick="alert('Personal data — TBD (avatar, name, gender, height, weight, languages)')">
+      <div class="cp-identity-avatar">
+        <div class="fit-avatar fit-avatar-lg fit-avatar-brand">YK</div>
+        <span class="cp-avatar-pip" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="3"/></svg>
+        </span>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div class="cp-identity-name">Yuri K.</div>
+        <div class="cp-identity-location">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          Warsaw, Poland
+        </div>
+      </div>
+      <span class="cp-identity-chev">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </span>
+    </div>
+
+    <!-- ============ DEFAULT ============ -->
+    <div data-pf-state="default">
+
+      <!-- Stats strip (aggregate across all coaches) — FitStatStrip -->
+      <div class="fit-stat-strip" style="margin-bottom:28px;">
+        <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">28</div><div class="fit-stat-strip-label">Sessions</div></div>
+        <div class="fit-stat-strip-divider"></div>
+        <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">31h</div><div class="fit-stat-strip-label">Hours</div></div>
+        <div class="fit-stat-strip-divider"></div>
+        <div class="fit-stat-strip-col"><div class="fit-stat-strip-value fit-stat-strip-value--accent">3 wk</div><div class="fit-stat-strip-label">Streak</div></div>
+      </div>
+
+      <!-- My sports (edit pencil) → sport-types -->
+      <section class="cp-section">
+        <div class="cp-section-head cp-section-head--tap" data-a11y-id="athlete.profile.sports.edit" onclick="window.location.href='../coach/sport-types.html'">
+          <span class="cp-section-title">My sports</span>
+          <span class="cp-edit-pencil" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 113 3L7 19l-4 1 1-4z"/></svg>
+          </span>
+        </div>
+        <div style="display:flex;gap:6px;padding:0 var(--fit-sp-4);flex-wrap:wrap;">
+          <span class="fit-sport-chip"><svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="10" cy="9" rx="5" ry="6"/><path d="M13 13l5 7M7 5l6 8M13 5l-6 8"/></svg>Tennis</span>
+          <span class="fit-sport-chip" style="margin-left:0;"><svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10v5a3 3 0 003 3h5a3 3 0 003-3v-2"/><path d="M9 10h7a2 2 0 002-2 3 3 0 00-3-3H9a3 3 0 00-3 3v2"/><path d="M10 12v2"/></svg>Boxing</span>
+          <span class="fit-sport-chip" style="margin-left:0;"><svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v5M7 12h10M5 18c2-4 5-4 7-2 2-2 5-2 7 2"/></svg>Yoga</span>
+        </div>
+      </section>
+
+      <!-- About me (edit pencil) → personal data -->
+      <section class="cp-section">
+        <div class="cp-section-head cp-section-head--tap" data-a11y-id="athlete.profile.about.edit" onclick="alert('Personal data — TBD')">
+          <span class="cp-section-title">About me</span>
+          <span class="cp-edit-pencil" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 113 3L7 19l-4 1 1-4z"/></svg>
+          </span>
+        </div>
+        <div class="fit-profile-bio" style="padding-bottom:0;">Amateur tennis &amp; boxing enthusiast, training 3&times; a week. Focused on improving technique and staying consistent. Prefer morning sessions. <span class="fit-see-more">See more</span></div>
+      </section>
+
+      <!-- ============ MANAGEMENT TILES — links to profile content + settings sub-modules ============ -->
+      <div class="cp-tile-group">
+        <button class="fit-stat-tile" data-a11y-id="athlete.profile.tile.history" onclick="alert('Training history — TBD (all coaches, history-row pattern)')">
+          <span class="fit-icon-plate fit-icon-plate--neutral fit-icon-plate--md" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          </span>
+          <div class="fit-stat-tile-body">
+            <div class="fit-stat-tile-title">Training history</div>
+            <div class="fit-stat-tile-sub">28 sessions &middot; 31h trained</div>
+          </div>
+          <span class="fit-stat-tile-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+        </button>
+
+        <button class="fit-stat-tile" data-a11y-id="athlete.profile.tile.coaches" onclick="window.location.href='my-coaches.html'">
+          <span class="fit-icon-plate fit-icon-plate--neutral fit-icon-plate--md" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg>
+          </span>
+          <div class="fit-stat-tile-body">
+            <div class="fit-stat-tile-title">My coaches</div>
+            <div class="fit-stat-tile-sub">4 active &middot; Maria, Pavel, Anna +1</div>
+          </div>
+          <span class="fit-stat-tile-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+        </button>
+
+        <button class="fit-stat-tile" data-a11y-id="athlete.profile.tile.calendar-sync" onclick="window.location.href='../coach/calendar-sync.html'">
+          <span class="fit-icon-plate fit-icon-plate--neutral fit-icon-plate--md" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15.36 6.36L3 16"/></svg>
+          </span>
+          <div class="fit-stat-tile-body">
+            <div class="fit-stat-tile-title">Calendar sync</div>
+            <div class="fit-stat-tile-sub">Google connected</div>
+          </div>
+          <span class="fit-stat-tile-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+        </button>
+
+        <button class="fit-stat-tile" data-a11y-id="athlete.profile.tile.balance" onclick="window.location.href='balance.html'">
+          <span class="fit-icon-plate fit-icon-plate--neutral fit-icon-plate--md" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20M17 15h2"/></svg>
+          </span>
+          <div class="fit-stat-tile-body">
+            <div class="fit-stat-tile-title">Balance</div>
+            <div class="fit-stat-tile-sub">&euro;240.00 available</div>
+          </div>
+          <span class="fit-stat-tile-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+        </button>
+      </div>
+
+      <!-- My reviews (reviews I left to coaches) -->
+      <section class="cp-section">
+        <div class="cp-section-head">
+          <span class="cp-section-title">My reviews</span>
+          <span class="cp-section-meta">2</span>
+        </div>
+        <div style="padding:0 16px;display:flex;flex-direction:column;gap:10px;">
+          <div class="fit-review-card" style="width:auto;" data-a11y-id="athlete.profile.review">
+            <div class="fit-review-card-head">
+              <div class="fit-avatar fit-avatar-sm">MR</div>
+              <div style="flex:1;min-width:0;">
+                <div class="fit-review-card-name">Maria Rodriguez</div>
+                <div class="fit-review-card-when">2 weeks ago</div>
+              </div>
+              <span style="display:inline-flex;align-items:center;gap:2px;color:var(--fit-teal-500);font-size:13px;font-weight:500;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>5.0
+              </span>
+            </div>
+            <div class="fit-review-card-body">Great coach — super structured sessions and really patient with technique.</div>
+          </div>
+          <div class="fit-review-card" style="width:auto;" data-a11y-id="athlete.profile.review">
+            <div class="fit-review-card-head">
+              <div class="fit-avatar fit-avatar-sm">SK</div>
+              <div style="flex:1;min-width:0;">
+                <div class="fit-review-card-name">Sofia Klein</div>
+                <div class="fit-review-card-when">1 month ago</div>
+              </div>
+              <span style="display:inline-flex;align-items:center;gap:2px;color:var(--fit-teal-500);font-size:13px;font-weight:500;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>4.0
+              </span>
+            </div>
+            <div class="fit-review-card-body">Solid strength programming. Pushed me harder than I expected — in a good way.</div>
+          </div>
+        </div>
+      </section>
+
+      <div style="height:8px;"></div>
+    </div>
+
+    <!-- ============ NEW: no completed sessions yet ============ -->
+    <div data-pf-state="new">
+      <div class="fit-stat-strip" style="margin-bottom:28px;">
+        <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">0</div><div class="fit-stat-strip-label">Sessions</div></div>
+        <div class="fit-stat-strip-divider"></div>
+        <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">0h</div><div class="fit-stat-strip-label">Hours</div></div>
+        <div class="fit-stat-strip-divider"></div>
+        <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">&ndash;</div><div class="fit-stat-strip-label">Streak</div></div>
+      </div>
+      <div class="fit-empty-state" style="display:block;padding-top:24px;">
+        <svg class="fes-illus" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="20" cy="32" r="6"/><circle cx="44" cy="32" r="6"/><path d="M14 32H8M56 32h-6M26 32h12"/></svg>
+        <div class="fit-empty-state-title">No sessions yet</div>
+        <div class="fit-empty-state-sub">Book your first session — your stats, history<br>and reviews will show up here.</div>
+        <button class="fit-btn fit-btn-primary" style="display:inline-flex;width:auto;height:44px;padding:0 24px;font-size:16px;" onclick="window.location.href='my-coaches.html'">Find a coach</button>
       </div>
     </div>
 
-    <!-- Stats strip (aggregate across all coaches) -->
-    <div class="pf-stats">
-      <div class="pf-stat"><div class="pf-stat-num">28</div><div class="pf-stat-lbl">Sessions</div></div>
-      <div class="pf-stat-div"></div>
-      <div class="pf-stat"><div class="pf-stat-num">31h</div><div class="pf-stat-lbl">Hours</div></div>
-      <div class="pf-stat-div"></div>
-      <div class="pf-stat"><div class="pf-stat-num">🔥 3wk</div><div class="pf-stat-lbl">Streak</div></div>
-    </div>
-
-    <!-- Training history (all coaches) → push -->
-    <div class="fit-section-title" style="padding:0 16px;margin-bottom:10px;">Activity</div>
-    <div class="pf-link" data-a11y-id="athlete.profile.history" onclick="alert('My training history — TBD (reuse history-row pattern)')">
-      <div class="pf-link-inner">
-        <span class="pf-link-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Training history</span>
-        <span class="pf-link-right">28 sessions <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
-      </div>
-    </div>
-    <div class="pf-link" data-a11y-id="athlete.profile.coaches" onclick="window.location.href='my-coaches.html'">
-      <div class="pf-link-inner">
-        <span class="pf-link-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg>My coaches</span>
-        <span class="pf-link-right">4 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+    <!-- ============ LOADING ============ -->
+    <div data-pf-state="loading" style="padding-top:4px;">
+      <div style="margin:0 16px 28px;"><div class="sk-card sk-shimmer" style="height:64px;border-radius:16px;"></div></div>
+      <div style="padding:0 16px 10px;"><div class="sk-card sk-shimmer" style="width:90px;height:16px;border-radius:8px;"></div></div>
+      <div style="display:flex;gap:6px;padding:0 16px 28px;"><div class="sk-card sk-shimmer" style="width:78px;height:32px;border-radius:99px;"></div><div class="sk-card sk-shimmer" style="width:78px;height:32px;border-radius:99px;"></div><div class="sk-card sk-shimmer" style="width:70px;height:32px;border-radius:99px;"></div></div>
+      <div style="padding:0 16px;display:flex;flex-direction:column;gap:8px;">
+        <div class="sk-card sk-shimmer" style="height:64px;border-radius:14px;"></div>
+        <div class="sk-card sk-shimmer" style="height:64px;border-radius:14px;"></div>
+        <div class="sk-card sk-shimmer" style="height:64px;border-radius:14px;"></div>
       </div>
     </div>
 
-    <!-- My reviews (reviews I left to coaches) -->
-    <div class="fit-section-title" style="padding:0 16px;margin:20px 0 10px;">My reviews</div>
-    <div class="pf-review-card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-        <span style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Maria Rodriguez</span>
-        <span style="display:inline-flex;gap:1px;color:var(--fit-yellow-400);"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>5.0</span>
+    <!-- ============ ERROR ============ -->
+    <div data-pf-state="error" style="padding-top:24px;">
+      <div class="fit-inline-error" style="margin:0 16px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span class="fit-inline-error-body">Couldn&rsquo;t load your activity. Check your connection.</span>
+        <button class="fit-inline-error-retry" onclick="setPfState('default')">Retry</button>
       </div>
-      <div style="font-size:13px;line-height:1.5;color:var(--fit-text-secondary);">Great coach — super structured sessions and really patient with technique.</div>
     </div>
-    <div class="pf-review-card" style="margin-bottom:24px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-        <span style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Sofia Klein</span>
-        <span style="display:inline-flex;gap:1px;color:var(--fit-yellow-400);"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>4.0</span>
-      </div>
-      <div style="font-size:13px;line-height:1.5;color:var(--fit-text-secondary);">Solid strength programming. Pushed me harder than I expected — in a good way.</div>
-    </div>
-
   </div>
 
   <!-- Bottom nav: Dashboard / My Coaches / ✨Assistant / Calendar / Profile -->
@@ -161,16 +310,23 @@
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
   <div class="ann active" id="ann-s-profile"><span class="ann-role athlete">Athlete</span><h3>Profile (tab 5)</h3>
-    <p>Athlete's private <strong>motivational hub</strong> + entry to Settings. Distinct from the public coach view. Returned as tab 5 (2026-06-04) when My Coaches took tab 2 and Search moved to a loupe-push.</p>
+    <div class="state-toggle">
+      <button class="active" onclick="setPfState('default',this)">Default</button>
+      <button onclick="setPfState('new',this)">New</button>
+      <button onclick="setPfState('loading',this)">Loading</button>
+      <button onclick="setPfState('error',this)">Error</button>
+    </div>
+    <p>Built as a <strong>trimmed mirror of the coach Profile</strong> — same <code>.cp-*</code> grammar (identity row, stat strip, warm section heads + edit pencils, <code>.fit-stat-tile</code> group), minus the video/cover hero and the coach-only maturity / reviews-received / price blocks.</p>
     <ul>
-      <li><strong>Settings gear</strong> (top-right) → Settings hub (TBD — athlete settings module pending).</li>
-      <li><strong>Identity</strong> — avatar + name + sport chips. Tap → Personal Data (TBD).</li>
-      <li><strong>Stats strip</strong> — aggregate across ALL coaches: Sessions · Hours · Streak (per-coach stats live in the Coach detail under My Coaches).</li>
-      <li><strong>Activity</strong> — Training history (all coaches) + My coaches shortcut.</li>
-      <li><strong>My reviews</strong> — reviews the athlete left to coaches.</li>
+      <li><strong>Identity</strong> (always visible) — avatar + camera pip + name + location → Personal Data.</li>
+      <li><strong>Stat strip</strong> — Sessions · Hours · Streak (athlete aggregate; no rating/price).</li>
+      <li><strong>My sports</strong> — edit pencil → Sport Types (green chips with the sport icon set).</li>
+      <li><strong>About me</strong> — short bio → Personal Data.</li>
+      <li><strong>Tiles</strong> — quick links to content + Settings sub-modules: Training history, My coaches, Calendar sync, Balance.</li>
+      <li><strong>My reviews</strong> — reviews the athlete left to coaches (coach name + stars + text).</li>
     </ul>
     <hr>
-    <p class="note">First pass — open question what else to surface (Achievements deferred to Phase 2). Settings module + full history screen are next builds.</p>
+    <p class="note">Everything theme-adaptive (light default for athlete). Settings gear → settings.html. Personal Data + Training history screens still TBD (stubbed). Achievements deferred to Phase 2.</p>
   </div>
 </div>
 
@@ -194,7 +350,21 @@ function go(id, btn) {
   document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
   const ann = document.getElementById('ann-' + id);
   if (ann) ann.classList.add('active');
-  FitUI.initAll(document.getElementById(id));
+  if (window.FitUI) FitUI.initAll(document.getElementById(id));
+}
+function setPfState(s, btn) {
+  var el = document.getElementById('s-profile');
+  if (!el) return;
+  el.classList.remove('pfs-default', 'pfs-new', 'pfs-loading', 'pfs-error');
+  el.classList.add('pfs-' + s);
+  var tog = document.querySelector('#ann-s-profile .state-toggle');
+  if (tog) {
+    if (btn && btn.parentElement === tog) { tog.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+    else {
+      var match = Array.from(tog.querySelectorAll('button')).find(b => b.textContent.trim().toLowerCase().startsWith(s));
+      if (match) { tog.querySelectorAll('button').forEach(b => b.classList.remove('active')); match.classList.add('active'); }
+    }
+  }
 }
 </script>
 </body>

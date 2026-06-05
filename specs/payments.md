@@ -1,9 +1,10 @@
 # Payments, Balance & Coach Earnings
 
 > Status: Approved (athlete balance — implemented) / Draft (coach earnings — rewrite)
-> Prototype: [flows/coach/balance.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/balance.html)
+> Prototype (coach earnings): [flows/coach/balance.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/balance.html)
+> Prototype (athlete balance): [flows/athlete/balance.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/balance.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-02
+> Last updated: 2026-06-05 (athlete Balance screen prototyped — spending ledger, mirror of coach Earnings)
 > Implementation:
 > - iOS:     [321fit_ios/docs/payments-ios.md] (to be created)
 > - Backend: [poly-backend/docs/payments-backend.md] (to be created — includes earnings ledger migration)
@@ -99,6 +100,21 @@ This spec consolidates the previous "Payment User Flow" + "Revisited Payment Flo
 2. Athlete books → event → `planned`. No athlete balance impact.
 3. Session completes → coach marks `finished`. Session logged, cash expected at session. No automatic ledger entry on coach side.
 4. Coach manually marks paid via **Mark Paid** flow (see [clients-coaches.md](./clients-coaches.md)) — creates `cash_paid` transaction on coach side.
+
+### Flow C1 — Athlete: Balance screen (spending ledger) — 2026-06-05 (new)
+
+The athlete-side mirror of the coach **Earnings** screen, flipped from income to **spend**. Reached from **Settings → Payments → Balance** and the **Dashboard balance card** (card tap / "Top up" / "Transactions").
+
+Layout (`s-balance`):
+1. **Hero** (brand gradient) — "Available balance" + amount (e.g. €240.00) + **Top up** pill (vs coach's *Withdraw*) + "Auto top-up off" note.
+2. **This-month summary** — Spent · Topped up · Sessions count.
+3. **Transactions** — filter chips **All / Top-ups / Spent / Refunds** (client-side filter on `data-txn`) + date-grouped `.bal-txn` rows:
+   - **top-up** — teal **+** (money in) — "Top-up · Visa •• 4242"
+   - **spend** — gray **−** (money out) — "Tennis with {coach}" (session payment from balance)
+   - **refund** — blue icon, teal **+** — "Refund · {session} cancelled"
+4. Row tap → transaction detail (**TBD**).
+
+**Top up** opens the Stripe PaymentSheet (Flow A). No payouts, no Stripe Connect — the athlete only ever pays in.
 
 ### Flow D — Coach: Onboard Stripe Connect
 
@@ -287,6 +303,23 @@ Each row: icon + label + amount + date + status. Tap → Transaction Detail scre
 | `has_balance` | `amount > 0` | Balance screen normal |
 | `insufficient` | `amount < session_price` at book time | Red warning + "Top up" CTA |
 | `topup_pending` | PaymentIntent processing | Loading indicator, no action |
+
+**Balance screen states** (`s-balance`, `bs-*` — same list pattern as other screens):
+
+| State | Trigger | UI |
+|---|---|---|
+| `default` | has transactions | hero + summary + filtered ledger |
+| `empty` | no transaction history | €0 hero + "No transactions yet" empty-state |
+| `loading` | first fetch | skeleton hero + rows |
+| `error` | fetch failed | inline error + Retry |
+
+**Athlete transaction types** (`athlete_transactions.type`, for the ledger):
+
+| Type | When | Amount sign |
+|---|---|---|
+| `top_up` | Stripe top-up succeeded | + (money in) |
+| `spend` | Balance held/charged for a booked session | − (money out) |
+| `refund` | Session cancelled, funds returned per policy | + (money in) |
 
 ### Coach earnings states (Earnings screen — swiper)
 

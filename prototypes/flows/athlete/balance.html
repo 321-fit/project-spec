@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Athlete · Balance</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: var(--fit-font); background: #0a0a0a; display: flex; justify-content: center; align-items: flex-start; padding: 24px; min-height: 100vh; min-width: 900px; }
+  .sidebar { position: fixed; left: max(16px, calc(50% - 195px - 200px - 48px)); top: 24px; bottom: 24px; width: 200px; display: flex; flex-direction: column; }
+  .sidebar-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--fit-gray-600); padding: 0 8px; margin: 16px 0 8px; }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button { font-family: var(--fit-font); font-size: 14px; font-weight: 400; padding: 10px 12px; border-radius: 10px; border: none; background: transparent; color: var(--fit-gray-400); cursor: pointer; text-align: left; width: 100%; transition: all 0.15s; }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active { background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500; }
+  .ann-container { position: fixed; left: calc(50% + 195px + 48px); top: 24px; bottom: 24px; width: 280px; overflow-y: auto; }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; }
+  .ann.active { display: block; }
+  .ann-role { display: inline-block; font-size: 14px; font-weight: 500; padding: 4px 12px; border-radius: 8px; margin-bottom: 16px; }
+  .ann-role.athlete { background: rgba(5,224,166,0.15); color: var(--fit-teal-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 14px; padding-left: 18px; font-size: 16px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 6px; }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  .state-toggle { display: inline-flex; gap: 0; border-radius: 6px; overflow: hidden; border: 1px solid var(--fit-gray-700); margin-bottom: 12px; flex-wrap: wrap; }
+  .state-toggle button { font-family: var(--fit-font); font-size: 12px; font-weight: 500; padding: 4px 10px; border: none; cursor: pointer; background: transparent; color: var(--fit-gray-400); transition: all 0.15s; }
+  .state-toggle button.active { background: var(--fit-gray-700); color: var(--fit-white); }
+
+  .fit-phone { display: none; }
+  .fit-phone.active { display: flex; }
+  .fit-dark .fit-phone-header, .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-dark .fit-phone-footer, .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+
+  /* ===== Balance hero ===== */
+  .bal-hero {
+    position: relative; overflow: hidden;
+    margin: 4px 16px 8px; padding: 20px;
+    border-radius: 18px;
+    background: var(--fit-brand-gradient); color: var(--fit-white);
+  }
+  .bal-hero-label { font-size: 14px; opacity: 0.85; display: flex; align-items: center; gap: 6px; }
+  .bal-hero-label svg { width: 14px; height: 14px; }
+  .bal-hero-value { font-size: 34px; font-weight: 600; margin-top: 4px; letter-spacing: -0.5px; }
+  .bal-hero-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.18); }
+  .bal-hero-note { font-size: 13px; opacity: 0.85; display: flex; align-items: center; gap: 6px; }
+  .bal-hero-note svg { width: 14px; height: 14px; opacity: 0.9; }
+  .bal-topup { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 99px; border: none; cursor: pointer; background: rgba(255,255,255,0.22); color: var(--fit-white); font-family: var(--fit-font); font-size: 14px; font-weight: 500; }
+  .bal-topup:hover { background: rgba(255,255,255,0.30); }
+  .bal-topup svg { width: 14px; height: 14px; }
+
+  /* Spend summary (this month) */
+  .bal-summary { display: flex; margin: 8px 16px 4px; padding: 14px 16px; border-radius: 14px; background: var(--fit-surface-high); }
+  .fit-light .bal-summary { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .bal-summary-col { flex: 1; }
+  .bal-summary-lbl { font-size: 12px; color: var(--fit-text-tertiary); }
+  .bal-summary-val { font-size: 18px; font-weight: 600; color: var(--fit-text-primary); margin-top: 2px; }
+  .bal-summary-div { width: 1px; background: var(--fit-divider); margin: 0 4px; }
+
+  /* Section head */
+  .bal-section-head { padding: 24px 16px 8px; font-size: 16px; color: var(--fit-text-secondary); }
+
+  /* Filter chips */
+  .bal-filter-row { display: flex; gap: 8px; overflow-x: auto; padding: 0 16px 12px; scrollbar-width: none; }
+  .bal-filter-row::-webkit-scrollbar { display: none; }
+  .bal-filter-chip { flex-shrink: 0; padding: 7px 14px; border-radius: 99px; border: 1px solid var(--fit-divider); background: transparent; color: var(--fit-text-secondary); font-family: var(--fit-font); font-size: 13px; font-weight: 500; cursor: pointer; }
+  .bal-filter-chip.active { background: var(--fit-selection-gradient); border-color: var(--fit-teal-600); color: var(--fit-text-primary); }
+
+  /* Transaction rows */
+  .bal-txn-date { padding: 8px 16px 6px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--fit-text-tertiary); }
+  .bal-txn-group { margin: 0 16px 4px; border-radius: 14px; overflow: hidden; }
+  .fit-light .bal-txn-group { border: 1px solid var(--fit-gray-100); }
+  .bal-txn { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--fit-surface-high); cursor: pointer; }
+  .fit-light .bal-txn { background: var(--fit-white); }
+  .bal-txn + .bal-txn { border-top: 1px solid var(--fit-divider); }
+  .bal-txn-icon { width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .bal-txn-icon svg { width: 16px; height: 16px; }
+  .bal-txn-icon.topup  { background: rgba(5,224,166,0.12); color: var(--fit-teal-500); }
+  .bal-txn-icon.spend  { background: rgba(117,126,135,0.14); color: var(--fit-text-secondary); }
+  .bal-txn-icon.refund { background: rgba(3,178,226,0.12); color: var(--fit-blue-500); }
+  .bal-txn-body { flex: 1; min-width: 0; }
+  .bal-txn-title { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .bal-txn-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .bal-txn-amt { font-size: 15px; font-weight: 600; flex-shrink: 0; }
+  .bal-txn-amt.plus  { color: var(--fit-teal-500); }
+  .bal-txn-amt.minus { color: var(--fit-text-secondary); }
+
+  /* Empty / loading / error */
+  #s-balance [data-bs-state] { display: none; }
+  #s-balance.bs-default [data-bs-state="default"] { display: block; }
+  #s-balance.bs-empty   [data-bs-state="empty"]   { display: block; }
+  #s-balance.bs-loading [data-bs-state="loading"] { display: block; }
+  #s-balance.bs-error   [data-bs-state="error"]   { display: block; }
+  .bal-empty { text-align: center; padding: 40px 24px; }
+  .bal-empty svg { width: 52px; height: 52px; color: var(--fit-gray-500); margin-bottom: 14px; }
+  .fit-light .bal-empty svg { color: var(--fit-gray-400); }
+  .bal-empty-title { font-size: 17px; font-weight: 500; color: var(--fit-text-secondary); margin-bottom: 6px; }
+  .bal-empty-sub { font-size: 14px; color: var(--fit-text-tertiary); line-height: 1.5; margin-bottom: 18px; }
+  .sk-row { display: flex; gap: 12px; align-items: center; padding: 14px 16px; }
+  .sk-box { width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0; }
+  .sk-ln { height: 14px; border-radius: 7px; }
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+  <div class="label">Balance</div>
+  <button class="active" onclick="go('s-balance',this)">Balance</button>
+  <div class="label">States</div>
+  <button onclick="go('s-balance',this);setBalState('default')">Default</button>
+  <button onclick="go('s-balance',this);setBalState('empty')">Empty (no history)</button>
+  <button onclick="go('s-balance',this);setBalState('loading')">Loading</button>
+  <button onclick="go('s-balance',this);setBalState('error')">Error</button>
+  <div class="label">Other modules</div>
+  <button onclick="window.location.href='settings.html'">Settings</button>
+  <button onclick="window.location.href='profile.html'">Profile</button>
+  </div>
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ==================== SCREEN: BALANCE ==================== -->
+<div class="fit-phone fit-light active bs-default" id="s-balance">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="athlete.balance.back" onclick="window.location.href='settings.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Balance</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- ===== DEFAULT ===== -->
+    <div data-bs-state="default">
+
+      <!-- Hero -->
+      <div class="bal-hero">
+        <div class="bal-hero-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20M17 15h2"/></svg>Available balance</div>
+        <div class="bal-hero-value">&euro;240.00</div>
+        <div class="bal-hero-footer">
+          <span class="bal-hero-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6M3 12a9 9 0 0115.36-6.36L21 8"/></svg>Auto top-up off</span>
+          <button class="bal-topup" data-a11y-id="athlete.balance.topup" onclick="alert('Top up — Stripe sheet (TBD)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Top up</button>
+        </div>
+      </div>
+
+      <!-- This-month summary -->
+      <div class="bal-summary">
+        <div class="bal-summary-col"><div class="bal-summary-lbl">Spent this month</div><div class="bal-summary-val">&euro;175.00</div></div>
+        <div class="bal-summary-div"></div>
+        <div class="bal-summary-col"><div class="bal-summary-lbl">Topped up</div><div class="bal-summary-val">&euro;200.00</div></div>
+        <div class="bal-summary-div"></div>
+        <div class="bal-summary-col"><div class="bal-summary-lbl">Sessions</div><div class="bal-summary-val">6</div></div>
+      </div>
+
+      <!-- Transactions -->
+      <div class="bal-section-head">Transactions</div>
+      <div class="bal-filter-row" data-a11y-id="athlete.balance.filters">
+        <button class="bal-filter-chip active" onclick="balFilter('all',this)">All</button>
+        <button class="bal-filter-chip" onclick="balFilter('topup',this)">Top-ups</button>
+        <button class="bal-filter-chip" onclick="balFilter('spend',this)">Spent</button>
+        <button class="bal-filter-chip" onclick="balFilter('refund',this)">Refunds</button>
+      </div>
+
+      <div class="bal-txn-date">This week</div>
+      <div class="bal-txn-group">
+        <div class="bal-txn" data-txn="spend" data-a11y-id="athlete.balance.txn" onclick="alert('Transaction detail — TBD')">
+          <div class="bal-txn-icon spend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/></svg></div>
+          <div class="bal-txn-body"><div class="bal-txn-title">Tennis with Maria Rodriguez</div><div class="bal-txn-sub">Mon, Apr 21 &middot; 18:00</div></div>
+          <div class="bal-txn-amt minus">&minus;&euro;25.00</div>
+        </div>
+        <div class="bal-txn" data-txn="topup" data-a11y-id="athlete.balance.txn" onclick="alert('Transaction detail — TBD')">
+          <div class="bal-txn-icon topup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+          <div class="bal-txn-body"><div class="bal-txn-title">Top-up</div><div class="bal-txn-sub">Visa &bull;&bull; 4242 &middot; Mon, Apr 21</div></div>
+          <div class="bal-txn-amt plus">+&euro;100.00</div>
+        </div>
+        <div class="bal-txn" data-txn="spend" data-a11y-id="athlete.balance.txn" onclick="alert('Transaction detail — TBD')">
+          <div class="bal-txn-icon spend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10v5a3 3 0 003 3h5a3 3 0 003-3v-2"/><path d="M9 10h7a2 2 0 002-2 3 3 0 00-3-3H9a3 3 0 00-3 3v2"/></svg></div>
+          <div class="bal-txn-body"><div class="bal-txn-title">Boxing with Pavel S.</div><div class="bal-txn-sub">Sun, Apr 20 &middot; 09:00</div></div>
+          <div class="bal-txn-amt minus">&minus;&euro;30.00</div>
+        </div>
+      </div>
+
+      <div class="bal-txn-date">Apr 14 – 18</div>
+      <div class="bal-txn-group">
+        <div class="bal-txn" data-txn="refund" data-a11y-id="athlete.balance.txn" onclick="alert('Transaction detail — TBD')">
+          <div class="bal-txn-icon refund"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 015 5v1"/></svg></div>
+          <div class="bal-txn-body"><div class="bal-txn-title">Refund &middot; Yoga cancelled</div><div class="bal-txn-sub">Anna K. &middot; Thu, Apr 17</div></div>
+          <div class="bal-txn-amt plus">+&euro;20.00</div>
+        </div>
+        <div class="bal-txn" data-txn="spend" data-a11y-id="athlete.balance.txn" onclick="alert('Transaction detail — TBD')">
+          <div class="bal-txn-icon spend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/></svg></div>
+          <div class="bal-txn-body"><div class="bal-txn-title">Tennis with Maria Rodriguez</div><div class="bal-txn-sub">Wed, Apr 16 &middot; 18:00</div></div>
+          <div class="bal-txn-amt minus">&minus;&euro;25.00</div>
+        </div>
+        <div class="bal-txn" data-txn="topup" data-a11y-id="athlete.balance.txn" onclick="alert('Transaction detail — TBD')">
+          <div class="bal-txn-icon topup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+          <div class="bal-txn-body"><div class="bal-txn-title">Top-up</div><div class="bal-txn-sub">Apple&nbsp;Pay &middot; Mon, Apr 14</div></div>
+          <div class="bal-txn-amt plus">+&euro;100.00</div>
+        </div>
+      </div>
+
+      <div id="bal-no-match" class="bal-empty" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <div class="bal-empty-title">Nothing here</div>
+        <div class="bal-empty-sub">No transactions match this filter.</div>
+      </div>
+    </div>
+
+    <!-- ===== EMPTY (no history) ===== -->
+    <div data-bs-state="empty">
+      <div class="bal-hero">
+        <div class="bal-hero-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20M17 15h2"/></svg>Available balance</div>
+        <div class="bal-hero-value">&euro;0.00</div>
+        <div class="bal-hero-footer">
+          <span class="bal-hero-note">Top up to book your first session</span>
+          <button class="bal-topup" onclick="alert('Top up — Stripe sheet (TBD)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Top up</button>
+        </div>
+      </div>
+      <div class="bal-empty" style="padding-top:48px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>
+        <div class="bal-empty-title">No transactions yet</div>
+        <div class="bal-empty-sub">Top-ups, session payments and refunds<br>will show up here.</div>
+      </div>
+    </div>
+
+    <!-- ===== LOADING ===== -->
+    <div data-bs-state="loading">
+      <div class="sk-card sk-shimmer" style="margin:4px 16px 8px;height:128px;border-radius:18px;"></div>
+      <div class="sk-card sk-shimmer" style="margin:8px 16px 4px;height:62px;border-radius:14px;"></div>
+      <div class="bal-section-head"><div class="sk-card sk-shimmer" style="width:120px;height:16px;border-radius:8px;"></div></div>
+      <div class="bal-txn-group">
+        <div class="sk-row"><div class="sk-card sk-shimmer sk-box"></div><div style="flex:1;"><div class="sk-card sk-shimmer sk-ln" style="width:70%;margin-bottom:6px;"></div><div class="sk-card sk-shimmer sk-ln" style="width:45%;height:12px;"></div></div></div>
+        <div class="sk-row"><div class="sk-card sk-shimmer sk-box"></div><div style="flex:1;"><div class="sk-card sk-shimmer sk-ln" style="width:55%;margin-bottom:6px;"></div><div class="sk-card sk-shimmer sk-ln" style="width:40%;height:12px;"></div></div></div>
+        <div class="sk-row"><div class="sk-card sk-shimmer sk-box"></div><div style="flex:1;"><div class="sk-card sk-shimmer sk-ln" style="width:65%;margin-bottom:6px;"></div><div class="sk-card sk-shimmer sk-ln" style="width:35%;height:12px;"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ===== ERROR ===== -->
+    <div data-bs-state="error">
+      <div class="fit-inline-error" style="margin:24px 16px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span class="fit-inline-error-body">Couldn&rsquo;t load your balance. Check your connection.</span>
+        <button class="fit-inline-error-retry" onclick="setBalState('default')">Retry</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+  <div class="ann active" id="ann-s-balance"><span class="ann-role athlete">Athlete</span><h3>Balance</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setBalState('default',this)">Default</button>
+      <button onclick="setBalState('empty',this)">Empty</button>
+      <button onclick="setBalState('loading',this)">Loading</button>
+      <button onclick="setBalState('error',this)">Error</button>
+    </div>
+    <p>The athlete <strong>spending mirror</strong> of the coach Earnings screen — same <code>.bal-txn</code> ledger grammar, flipped: athlete <em>spends</em> (out) and <em>tops up</em> (in), no payouts.</p>
+    <ul>
+      <li><strong>Hero</strong> — available balance + <strong>Top up</strong> (vs coach&rsquo;s Withdraw). &ldquo;Auto top-up&rdquo; note.</li>
+      <li><strong>This-month summary</strong> — Spent / Topped up / Sessions count.</li>
+      <li><strong>Filter chips</strong> — All / Top-ups / Spent / Refunds (client-side filter on <code>data-txn</code>).</li>
+      <li><strong>Rows</strong> — spend = gray minus, top-up + refund = teal plus; icon colour by type (spend gray / top-up teal / refund blue).</li>
+    </ul>
+    <hr>
+    <p><strong>Reached from</strong>: Settings → Payments → Balance, and the Dashboard balance card.</p>
+    <p class="note">Top-up opens the Stripe top-up sheet (payment-backend). Transaction detail + auto-top-up config are TBD. Money wire = minor units (memory: money-serialization).</p>
+  </div>
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+function switchTheme(theme) {
+  document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.getElementById("theme-light").style.background = theme === "light" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-light").style.color = theme === "light" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.querySelectorAll(".fit-phone").forEach(function (phone) {
+    if (theme === "light") { phone.classList.remove("fit-dark"); phone.classList.add("fit-light"); }
+    else { phone.classList.remove("fit-light"); phone.classList.add("fit-dark"); }
+  });
+}
+function go(id, btn) {
+  document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+  const ann = document.getElementById('ann-' + id);
+  if (ann) ann.classList.add('active');
+  if (window.FitUI) FitUI.initAll(document.getElementById(id));
+}
+function setBalState(s, btn) {
+  var el = document.getElementById('s-balance');
+  if (!el) return;
+  el.classList.remove('bs-default', 'bs-empty', 'bs-loading', 'bs-error');
+  el.classList.add('bs-' + s);
+  if (btn) { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+}
+function balFilter(type, btn) {
+  btn.parentElement.querySelectorAll('.bal-filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  var rows = document.querySelectorAll('#s-balance [data-bs-state="default"] .bal-txn');
+  var anyVisible = false;
+  rows.forEach(function(r) {
+    var show = type === 'all' || r.getAttribute('data-txn') === type;
+    r.style.display = show ? '' : 'none';
+    if (show) anyVisible = true;
+  });
+  // Hide date headers + groups that ended up empty
+  document.querySelectorAll('#s-balance [data-bs-state="default"] .bal-txn-group').forEach(function(g) {
+    var visible = Array.from(g.querySelectorAll('.bal-txn')).some(r => r.style.display !== 'none');
+    g.style.display = visible ? '' : 'none';
+    var date = g.previousElementSibling;
+    if (date && date.classList.contains('bal-txn-date')) date.style.display = visible ? '' : 'none';
+  });
+  var noMatch = document.getElementById('bal-no-match');
+  if (noMatch) noMatch.style.display = anyVisible ? 'none' : 'block';
+}
+</script>
+</body>
+</html>
