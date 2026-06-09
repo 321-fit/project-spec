@@ -122,8 +122,8 @@ References to screen IDs are from `flows/coach/settings.html`.
 
 | State | When shown | What user sees | Transition |
 |---|---|---|---|
-| `loc-empty` | Coach has zero locations of any type | `#s-locations` with empty hints per section | → `loc-list` after first add |
-| `loc-list` | Coach has ≥ 1 location | Sectioned cards | → edit / picker / delete |
+| `loc-empty` (**per section**) | A given section (In-person / Online / Home visit) has zero entries | That section shows a **dashed "Add…" CTA** — same footprint as a location card (`min-height` 64, radius 16), icon + "Add an in-person location" / "Add an online location" / "Set up home visit". **Each section is independent**: e.g. in-person filled but online empty → only Online shows the CTA. The `+` in the section header stays as the persistent quick-add. | → cards after first add to that section |
+| `loc-list` | Section has ≥ 1 entry | Sectioned cards | → edit / picker / delete |
 | `loc-add-map` | Coach in `#s-loc-add` | Map + search + pin + Confirm | → `loc-add-form` after Confirm |
 | `loc-add-form` | Coach in `#s-loc-form` (post-map for new) | Address read-only + name + default toggle | → `loc-list` after Save |
 | `loc-edit` | Coach edits existing in-person | Same form, can change name/default only | → `loc-list` after Save |

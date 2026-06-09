@@ -61,8 +61,7 @@ This spec focuses on the **coach-side Clients tab** (the more complex half) and 
 3. List of connected clients, each row: avatar + name + last-session date + "€X owed" badge if outstanding cash.
 4. Special visual markers:
    - **CRM:** teal-tinted pill next to name
-   - **Deleted:** muted avatar (0.5 opacity) + gray `Deleted` badge + text-tertiary name
-   - **CRM + Deleted:** both markers
+   - ~~**Deleted:** muted avatar in active list~~ — **changed 2026-06-09:** deleted accounts no longer appear in the active list (relationship is effectively dead). They surface under **Archived & Blocked → Blocked** instead. See Flow 8.
 5. Tap row → Client Detail screen.
 
 ### Flow 2: Pending requests inbox
@@ -152,12 +151,18 @@ Tap `+` in Clients tab header → action sheet with 3 options:
 
 1. Athlete deletes their 321Fit account (see [authentication.md](./authentication.md)).
 2. Backend sets `athlete.deleted_at = now`, emits event.
-3. Coach-side consequences:
-   - Client row: muted avatar + `Deleted` badge + text-tertiary name.
-   - Client Detail: gray banner at top: "This account was deleted · {date}" — NO action button (unlike archived/blocked banners).
-   - ⋯ menu: only `Archive client` available (other items hidden — no point messaging / scheduling / blocking a deleted account).
-   - Stats and history preserved.
-   - Mark Paid (on outstanding cash) still works for retroactive bookkeeping.
+3. Coach-side consequences (**changed 2026-06-09 — deleted ≈ blocked**):
+   - **No longer shown in the active Clients list.** A deleted account's relationship is effectively dead, so it surfaces under **Archived & Blocked → Blocked** tab as a **terminal entry**: muted avatar (0.45) + `Deleted` badge + "Account deleted · {date} · N sessions". **No unblock/restore action** — there's nothing to restore.
+   - Client Detail (opened from history): gray banner "This account was deleted · {date}" — no action button.
+   - Stats and history preserved; Mark Paid on outstanding cash still works for bookkeeping.
+   - **⚠️ Backend reconciliation needed:** grouping deleted under the Blocked tab is a **UI choice**. Backend keeps `athlete_account_status=deleted` separate from `relationship_state` and **forbids the block *action* on a deleted account** (`relationship_state.py`: "Cannot block a deleted athlete account"). So `GET /coach/clients?state=blocked` (or the client) must additionally surface `deleted` accounts in the Blocked tab **without** setting `relationship_state=blocked`.
+
+### Archived & Blocked — per-tab zero states (added 2026-06-09)
+
+Each segment empties **independently** (`#s-archived.arch-empty` / `.blk-empty`):
+- **Archived empty** while Blocked has items → the Archived tab shows its own empty state (archive-box illustration + "No archived clients" + "Clients you archive show up here. They return automatically if they book again."); the Blocked tab still lists. And vice-versa.
+- **No CTA** on these empty states — archive/block happens from Client Detail's ⋯ menu, not from this screen.
+- The tab counter shows `(0)` for the empty segment.
 
 ### Flow 9: CRM client upgrades to app (Tier 1 Q6 — phone-primary auto-link + invite-token)
 
@@ -235,9 +240,9 @@ V2 follow-up tracks both surfaces as a separate ticket once the prototype gains 
 |---|---|---|
 | `app` | Athlete has an active app account | Normal state |
 | `crm` | No app account; coach created contact manually | Coach can log sessions + cash; no push/chat possible |
-| `deleted` | Athlete deleted their account | Soft-delete; coach retains record; limited action menu |
+| `deleted` | Athlete deleted their account | Soft-delete; coach retains record; **surfaced under Archived & Blocked → Blocked tab** (terminal, no actions); **not** in the active Clients list (changed 2026-06-09) |
 
-Stackable: a relationship can be `(active, crm)`, `(active, deleted)`, `(archived, deleted)`, etc.
+Stackable: a relationship can be `(active, crm)`, `(archived, deleted)`, `(blocked, deleted)`, etc. — but a `deleted` account is **never** rendered in the active list; it always appears in the Blocked tab regardless of the underlying relationship state.
 
 ### UI menu scoping per combined state
 
