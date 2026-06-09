@@ -126,6 +126,13 @@
   .fit-empty-state-sub { font-size: 14px; color: var(--fit-text-tertiary); margin-bottom: 20px; line-height: 1.5; }
   .fit-light .fit-empty-state svg.fes-illus { color: var(--fit-gray-400); }
 
+  /* Archived / Blocked per-tab zero states (independent) */
+  .arch-empty-state { display: none; }
+  #s-archived.arch-empty #arch-panel-archived .arch-content { display: none; }
+  #s-archived.arch-empty #arch-panel-archived .arch-empty-state { display: block; }
+  #s-archived.blk-empty #arch-panel-blocked .arch-content { display: none; }
+  #s-archived.blk-empty #arch-panel-blocked .arch-empty-state { display: block; }
+
   /* List state switcher — generalized (ls-* class on screen, [data-list-state] on children) */
   .fit-phone [data-list-state] { display: none; }
   .fit-phone.ls-default [data-list-state="default"],
@@ -853,6 +860,7 @@
     <!-- ARCHIVED TAB -->
     <div id="arch-panel-archived">
 
+      <div class="arch-content">
       <!-- Info note (outline card, no action — explains what Archived means) -->
       <div style="display:flex;align-items:flex-start;gap:10px;margin:0 16px 12px;padding:12px 14px;border:1px solid var(--fit-divider);border-radius:14px;" data-a11y-id="coach.archived.info">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-text-tertiary);flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="8" r="0.5" fill="currentColor"/></svg>
@@ -894,12 +902,23 @@
           <button style="height:32px;padding:0 14px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;" onclick="showArchivedSnack('Sofia restored')">Restore</button>
         </div>
       </div>
+      </div><!-- /arch-content (archived) -->
+
+      <!-- Zero state: no archived clients -->
+      <div class="arch-empty-state">
+        <div class="fit-empty-state" style="padding-top:64px;">
+          <svg class="fes-illus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v12a1 1 0 01-1 1H4a1 1 0 01-1-1V8M2 4h20v4H2zM10 12h4"/></svg>
+          <div class="fit-empty-state-title">No archived clients</div>
+          <div class="fit-empty-state-sub">Clients you archive show up here.<br>They return automatically if they book again.</div>
+        </div>
+      </div>
 
     </div>
 
     <!-- BLOCKED TAB -->
     <div id="arch-panel-blocked" style="display:none;">
 
+      <div class="arch-content">
       <!-- Info note (outline card, no action — explains what Blocked means) -->
       <div style="display:flex;align-items:flex-start;gap:10px;margin:0 16px 12px;padding:12px 14px;border:1px solid var(--fit-divider);border-radius:14px;" data-a11y-id="coach.blocked.info">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-text-tertiary);flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="8" r="0.5" fill="currentColor"/></svg>
@@ -925,6 +944,16 @@
             <div style="font-size:12px;color:var(--fit-text-tertiary);">Blocked Jan 8</div>
           </div>
           <button style="height:32px;padding:0 14px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;" onclick="showArchivedSnack('Roman unblocked')">Unblock</button>
+        </div>
+      </div>
+      </div><!-- /arch-content (blocked) -->
+
+      <!-- Zero state: no blocked clients -->
+      <div class="arch-empty-state">
+        <div class="fit-empty-state" style="padding-top:64px;">
+          <svg class="fes-illus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>
+          <div class="fit-empty-state-title">No blocked clients</div>
+          <div class="fit-empty-state-sub">Clients you block show up here,<br>hidden from you until you unblock them.</div>
         </div>
       </div>
 
@@ -1042,7 +1071,7 @@
       <button onclick="setClientHistoryState('loading',this)">Loading</button>
     </div>
     <p>Full training history with athlete.</p><ul><li>All past events: name, date/time, location, price, status</li><li><strong>Completed + Paid:</strong> green label</li><li><strong>Cancelled:</strong> red label, price struck through</li><li>Sorted newest first</li></ul><hr><p class="note"><strong>Empty:</strong> brand-new client with 0 past sessions — no CTA (coaches initiate training from Client Detail, not here).</p></div>
-  <div class="ann" id="ann-s-archived"><span class="ann-role coach">Coach</span><h3>Archived &amp; Blocked</h3><p>List of clients removed from active Clients tab — by archive (soft) or block (hard).</p><ul><li><strong>Segmented tabs</strong>: Archived / Blocked with counts</li><li><strong>Muted cards</strong> (opacity avatar) — signals inactive status</li><li><strong>Restore</strong> / <strong>Unblock</strong> buttons: single-tap (no confirm) → snackbar feedback</li><li>Tap card → Client Detail with status banner (see banner preview in Client Detail annotation)</li><li><strong>Archive</strong> = soft, reversible, athlete unaffected — a new request brings them back</li><li><strong>Block</strong> = silent shadow-ban, coach invisible in athlete's search, upcoming sessions untouched</li><li><strong>Deleted badge</strong> (Karl L.) — athlete who deleted their account AND was archived by coach. Compound state. Restore still works: returns to active list with Deleted badge intact.</li></ul><hr><p class="note">Entry: "Archived &amp; Blocked" row at bottom of Clients list (iOS Mail "Trash" pattern).</p></div>
+  <div class="ann" id="ann-s-archived"><span class="ann-role coach">Coach</span><h3>Archived &amp; Blocked</h3><div class="state-toggle"><button onclick="toggleArchEmpty('archived',this)">Archived empty</button><button onclick="toggleArchEmpty('blocked',this)">Blocked empty</button></div><p>List of clients removed from active Clients tab — by archive (soft) or block (hard).</p><ul><li><strong>Per-tab zero states</strong> — each tab empties independently (e.g. you have blocked clients but none archived → Archived tab shows its own empty state, Blocked still lists). Toggles above flip each tab + its count; no CTA (you archive/block from Client Detail, not here).</li><li><strong>Segmented tabs</strong>: Archived / Blocked with counts</li><li><strong>Muted cards</strong> (opacity avatar) — signals inactive status</li><li><strong>Restore</strong> / <strong>Unblock</strong> buttons: single-tap (no confirm) → snackbar feedback</li><li>Tap card → Client Detail with status banner (see banner preview in Client Detail annotation)</li><li><strong>Archive</strong> = soft, reversible, athlete unaffected — a new request brings them back</li><li><strong>Block</strong> = silent shadow-ban, coach invisible in athlete's search, upcoming sessions untouched</li><li><strong>Deleted badge</strong> (Karl L.) — athlete who deleted their account AND was archived by coach. Compound state. Restore still works: returns to active list with Deleted badge intact.</li></ul><hr><p class="note">Entry: "Archived &amp; Blocked" row at bottom of Clients list (iOS Mail "Trash" pattern).</p></div>
   <div class="ann" id="ann-s-client-notes-editor"><span class="ann-role coach">Coach</span><h3>Client Notes Editor</h3><p>Full-screen editor for coach's private notes about an athlete. Same pattern as About Me editor — Cancel / title / Save header, contenteditable body, no character counter.</p><ul><li>Opens from Notes card on Client Detail (tap whole card — filled or empty variant)</li><li>Accumulating journal: injuries, preferences, payment habits, personal reminders</li><li>No length limit — notes grow over months of coaching</li><li>Keyboard auto-opens; Save pops back to Client Detail</li></ul><hr><p class="note">Distinct from <strong>event note</strong> (group training, per-session, 200 char limit) — client notes are long-lived and persistent.</p></div>
   <div class="ann" id="ann-s-create-client"><span class="ann-role coach">Coach</span><h3>Create Client</h3>
     <div class="state-toggle">
@@ -1310,6 +1339,22 @@ function switchArchivedTab(tab) {
   on.style.color = 'var(--fit-white)';
   off.style.background = 'transparent';
   off.style.color = 'var(--fit-text-secondary)';
+}
+
+// Toggle a tab's empty (zero) state — independent per tab. Updates the tab count + jumps to it.
+function toggleArchEmpty(which, btn) {
+  var screen = document.getElementById('s-archived');
+  var cls = which === 'archived' ? 'arch-empty' : 'blk-empty';
+  screen.classList.toggle(cls);
+  var isEmpty = screen.classList.contains(cls);
+  if (btn) btn.classList.toggle('active');
+  var tabBtn = document.getElementById('arch-tab-' + which);
+  if (tabBtn) {
+    var label = which === 'archived' ? 'Archived' : 'Blocked';
+    var fullCount = which === 'archived' ? '3' : '2';
+    tabBtn.textContent = label + ' (' + (isEmpty ? '0' : fullCount) + ')';
+  }
+  switchArchivedTab(which); // bring that tab into view so the change is visible
 }
 function showArchivedSnack(msg) {
   var snack = document.getElementById('arch-snackbar');
