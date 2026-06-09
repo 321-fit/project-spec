@@ -238,6 +238,13 @@
   #s-booking .bk-grid-hint { display: none; padding: 8px 16px 12px; }
   #s-booking.bk-personal .bk-grid-hint { display: block; }
 
+  /* ===== Booking payment-method picker (bpm-) — segmented chips, shown only when the session accepts both cash & balance ===== */
+  .bpm-block { margin-bottom: 4px; }
+  .bpm-label { font-size: 13px; font-weight: 500; color: var(--fit-text-secondary); margin-bottom: 8px; }
+  /* When the coach offers a single method, hide the picker and show a static line instead */
+  #booking-confirm-sheet.pm-single .bpm-block { display: none; }
+  #booking-confirm-sheet:not(.pm-single) .bpm-single-line { display: none; }
+
   /* Booking time-grid atoms (.fit-bk-*) now live in fit-ui.css (shared with coach/invite.html) */
 
   /* States: .cv-established (default) / .cv-new-video / .cv-new-image / .cv-new-default */
@@ -572,19 +579,34 @@
       </div>
 
       <!-- Price row -->
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--fit-divider);">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0 16px;border-top:1px solid var(--fit-divider);">
         <span style="font-size:15px;color:var(--fit-text-primary);">Price</span>
         <span style="font-size:18px;font-weight:500;color:var(--fit-text-primary);">&euro;50.00</span>
       </div>
 
-      <!-- Hold info -->
-      <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0 20px;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-        <span style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.5;">&euro;50 held from your balance &middot; refunded if coach declines. Coach has 24h to approve.</span>
+      <!-- Payment method — segmented picker shown only when the coach accepts both cash & balance; default = Cash -->
+      <div class="bpm-block">
+        <div class="bpm-label">How would you like to pay?</div>
+        <div class="fit-selection-group" style="padding:0;margin-bottom:12px;">
+          <div class="fit-selection-chip selected" id="bpm-cash" data-a11y-id="athlete.booking.pay-cash" onclick="bkSetPay('cash')">Cash</div>
+          <div class="fit-selection-chip" id="bpm-balance" data-a11y-id="athlete.booking.pay-balance" onclick="bkSetPay('balance')">Balance</div>
+        </div>
       </div>
 
-      <!-- CTA -->
-      <button class="fit-btn fit-btn-primary" onclick="sendBookingRequest()" style="border-radius:99px;">Send Request &middot; &euro;50</button>
+      <!-- Single-method static line (when coach offers cash-only or balance-only) -->
+      <div class="bpm-single-line" style="display:flex;justify-content:space-between;align-items:center;padding:0 0 12px;">
+        <span style="font-size:15px;color:var(--fit-text-primary);">Payment</span>
+        <span id="bpm-single-label" style="font-size:14px;color:var(--fit-text-secondary);">Cash · in person</span>
+      </div>
+
+      <!-- Info line — copy follows the selected method -->
+      <div style="display:flex;align-items:flex-start;gap:8px;padding:0 0 20px;">
+        <svg id="bpm-info-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span id="bpm-info-text" style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.5;">You'll pay &euro;50 to the coach in person. Nothing is reserved now — the coach confirms the payment after the session. Coach has 24h to approve.</span>
+      </div>
+
+      <!-- CTA — turns into "Top up balance" when paying from balance with insufficient funds -->
+      <button class="fit-btn fit-btn-primary" id="bpm-cta" onclick="bkBookingCta()" style="border-radius:99px;">Send Request &middot; &euro;50</button>
     </div>
   </div>
 
@@ -1392,6 +1414,24 @@
     </div>
     <h3>Booking Calendar</h3>
     <p>Date strip in header + state-aware content. Sticky Confirm CTA at bottom opens <strong>Booking Confirm sheet</strong> for review &amp; send.</p>
+
+    <!-- Preview controls for the confirm sheet (pulled to top — sheet is a drawer over this screen) -->
+    <div style="border:1px solid var(--fit-gray-700);border-radius:10px;padding:12px;margin:4px 0 16px;">
+      <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--fit-gray-500);margin-bottom:8px;">Confirm sheet · payment</div>
+      <button class="dash-cta-secondary" style="height:32px;padding:0 14px;font-size:13px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-text-primary);border-radius:99px;cursor:pointer;font-family:var(--fit-font);" onclick="setBookingState('personal');setTimeout(function(){document.getElementById('booking-confirm-sheet').classList.add('visible');},80)">Open confirm sheet →</button>
+      <div style="font-size:12px;color:var(--fit-gray-500);margin:10px 0 4px;">Coach accepts:</div>
+      <div class="state-toggle" style="margin-bottom:0;">
+        <button class="active" onclick="bkSetPayMode('both');annHighlight(this)">Cash + Card</button>
+        <button onclick="bkSetPayMode('card');annHighlight(this)">Card only</button>
+        <button onclick="bkSetPayMode('cash');annHighlight(this)">Cash only</button>
+      </div>
+      <div style="font-size:12px;color:var(--fit-gray-500);margin:10px 0 4px;">Athlete balance:</div>
+      <div class="state-toggle" style="margin-bottom:0;">
+        <button class="active" onclick="bkSetBalance(80);annHighlight(this)">Balance OK</button>
+        <button onclick="bkSetBalance(30);annHighlight(this)">Low balance</button>
+      </div>
+    </div>
+
     <ul>
       <li><strong>Personal</strong> — vertical <strong>time-grid</strong> (reuses <code>.fit-timeline</code>/<code>.fit-hour</code>, 96px = 1h). <strong>Tap a free band</strong> to place the 1h block, or <strong>drag</strong> to fine-tune (snaps to 15 min). Shows <strong>both parties' unavailability</strong>: hatched = coach off-hours + coach's booked events ("Coach busy"); solid gray = your own conflicts ("You · Yoga"). Block turns red + CTA disables over any busy range; release/tap snaps to nearest free slot. Replaces the old expandable-hour picker — mirrors prod iOS <code>SelectSlotsView</code> drag-n-drop, plus dual-availability + tap-to-place as improvements.</li>
       <li><strong>Group</strong> — upcoming session blocks of the picked template, each with date+time+spots. Tap = open confirm sheet.</li>
@@ -1400,10 +1440,13 @@
       <li><strong>Error</strong> — inline banner with Retry</li>
     </ul>
     <hr>
-    <p><strong>Confirm sheet</strong> — bottom sheet opened by Confirm CTA. Contains coach identity + session card + optional Note textarea + price + payment hold info + Send Request CTA. Unified pattern with athlete Group join sheet and coach invite/schedule sheets. Memory: <code>feedback_booking_confirm_pattern</code>.</p>
-    <p>
-      <button class="dash-cta-secondary" style="height:32px;padding:0 14px;font-size:13px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-text-primary);border-radius:99px;cursor:pointer;font-family:var(--fit-font);" onclick="setBookingState('personal');setTimeout(function(){document.getElementById('booking-confirm-sheet').classList.add('visible');},80)">Open confirm sheet →</button>
-    </p>
+    <p><strong>Confirm sheet</strong> — bottom sheet opened by Confirm CTA. Contains coach identity + session card + optional Note textarea + price + <strong>payment method</strong> + dynamic info line + Send Request CTA. Unified pattern with athlete Group join sheet and coach invite/schedule sheets. Memory: <code>feedback_booking_confirm_pattern</code>.</p>
+    <p><strong>Payment method</strong> — segmented chips (same component as the coach's Personal/Group toggle). The session inherits the methods the coach enabled for it. There's <strong>no card hold</strong> — the athlete prepays into a <strong>321Fit balance</strong>; online payment = reserved from that balance.</p>
+    <ul>
+      <li><strong>Cash + Card</strong> → <em>Cash | Balance</em> chips, <strong>Cash preselected</strong>. <em>Cash</em> = pay in person, nothing reserved, coach confirms after. <em>Balance</em> = €50 reserved from prepaid balance, refunded if declined.</li>
+      <li><strong>Card-only</strong> / <strong>Cash-only</strong> → no choice; a single static "Payment" line + matching info copy.</li>
+      <li><strong>Insufficient balance</strong> — when paying from Balance and funds fall short, the info line shows the shortfall and the CTA flips to <strong>"Top up balance"</strong> → <code>athlete/balance.html</code> (no request sent until topped up). Use the preview controls above to demo it.</li>
+    </ul>
   </div>
   <div class="ann" id="ann-s-group"><span class="ann-role athlete">Athlete</span><h3>Group Training Detail</h3><p>Before joining. Ticket card with coach info, tappable participant list.</p><ul><li>Chevron ">" hints tappable rows</li><li>Tap → sheet (View Profile, Message)</li><li><strong>Join Training · €25</strong> — sticky CTA</li></ul><span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Full flow details</span><div class="ann-detail"><h4>Before Join — checks</h4><p>Athlete cannot join if: training is full, they have a conflicting event at this time, or balance insufficient (card).</p><h4>Confirmation Modal</h4><p>Tap "Join" → bottom sheet: training summary, price, payment method (Visa ••••), cancellation policy (24h free). Tap "Continue" → registered.</p><h4>Payment</h4><p>Card: amount held from balance immediately. Cash: just registration, no hold. Coach marks cash payment after training.</p><h4>After Join</h4><p>Navigates to "Joined" screen. User first in list with "You" label + gradient avatar. Event added to athlete schedule with "Group" badge.</p><h4>Cancellation</h4><p>24h+ before: free cancel, full refund. Less than 24h: penalty applies (same policy as personal).</p></div></div>
   <div class="ann" id="ann-s-joined"><span class="ann-role athlete">Athlete</span><h3>Group — Joined</h3><p>After joining. Current user first with "You" label and gradient avatar.</p><ul><li>Green "Joined" badge</li><li>You = first in list, branded avatar</li><li>Other participants tappable</li><li>Leave Training — red, refund within 24h</li></ul></div>
@@ -1554,6 +1597,61 @@ function sendGroupJoin() {
   var sheet = document.getElementById('join-confirm-sheet');
   if (sheet) sheet.classList.remove('visible');
   setTimeout(function(){ location.href = '../athlete/calendar.html'; }, 400);
+}
+
+/* Payment method in the booking confirm sheet.
+   Model: athlete prepays into a 321Fit balance (no card hold at booking).
+   'cash' = pay coach in person · 'balance' = reserved from prepaid balance.
+   Default = cash when the coach accepts both. Info copy + CTA follow the choice + balance. */
+var bkPay = 'cash';
+var BK_PRICE = 50;
+var bkBalance = 80;        // athlete's prepaid balance (€); toggle Low balance to demo top-up
+function bkSetPay(method) {
+  bkPay = method;
+  var cash = document.getElementById('bpm-cash'), bal = document.getElementById('bpm-balance');
+  if (cash) cash.classList.toggle('selected', method === 'cash');
+  if (bal) bal.classList.toggle('selected', method === 'balance');
+  var txt = document.getElementById('bpm-info-text');
+  var cta = document.getElementById('bpm-cta');
+  var short = BK_PRICE - bkBalance;
+  if (method === 'balance' && short > 0) {
+    // Insufficient prepaid balance → CTA becomes Top up → balance screen
+    if (txt) txt.innerHTML = 'Your balance is &euro;' + bkBalance + ' — &euro;' + short + ' short for this session. Top up to pay from balance.';
+    if (cta) cta.textContent = 'Top up balance';
+    bkCtaMode = 'topup';
+  } else if (method === 'balance') {
+    if (txt) txt.innerHTML = '&euro;' + BK_PRICE + ' reserved from your &euro;' + bkBalance + ' balance &middot; refunded if the coach declines. Coach has 24h to approve.';
+    if (cta) cta.textContent = 'Send Request · €' + BK_PRICE;
+    bkCtaMode = 'send';
+  } else {
+    if (txt) txt.innerHTML = 'You’ll pay &euro;' + BK_PRICE + ' to the coach in person. Nothing is reserved now — the coach confirms the payment after the session. Coach has 24h to approve.';
+    if (cta) cta.textContent = 'Send Request · €' + BK_PRICE;
+    bkCtaMode = 'send';
+  }
+}
+var bkCtaMode = 'send';
+function bkBookingCta() {
+  if (bkCtaMode === 'topup') { location.href = '../athlete/balance.html'; return; }
+  sendBookingRequest();
+}
+/* Demo: switch the athlete's balance to preview the top-up state */
+function bkSetBalance(amount) { bkBalance = amount; bkSetPay(bkPay); }
+/* Coach's accepted methods: 'both' (picker, default cash) | 'card' | 'cash' (single, no choice).
+   Coach-side "card" maps to athlete-side 'balance' (prepaid). */
+function bkSetPayMode(mode) {
+  var sheet = document.getElementById('booking-confirm-sheet');
+  if (!sheet) return;
+  sheet.classList.toggle('pm-single', mode !== 'both');
+  if (mode === 'both') { bkSetPay('cash'); }
+  else if (mode === 'card') {
+    bkSetPay('balance');
+    var lbl = document.getElementById('bpm-single-label');
+    if (lbl) lbl.textContent = 'Balance';
+  } else {
+    bkSetPay('cash');
+    var lbl2 = document.getElementById('bpm-single-label');
+    if (lbl2) lbl2.textContent = 'Cash · in person';
+  }
 }
 
 function sendBookingRequest() {

@@ -5,7 +5,7 @@
 > - [flows/shared/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/profile.html) (athlete booking)
 > - [flows/coach/invite.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/invite.html) (coach invite + schedule)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-03
+> Last updated: 2026-06-09
 > Implementation:
 > - iOS:     [321fit_ios/docs/booking-flow-ios.md] (to be created)
 > - Android: [321fit_android/docs/booking-flow-android.md] (to be created)
@@ -124,10 +124,15 @@ Content:
 3. Session summary card (gray bg, padding 14) — name + Request pill + datetime + location
 4. Note textarea — `.fit-input-ta` + `.fit-input-counter`, max 300 chars, placeholder "Anything the coach should know — injuries, goals, level…"
 5. Price row — divider top, "Price" left + "€50.00" right
-6. Hold info line — lock icon + "€50 held from your balance · refunded if coach declines. Coach has 24h to approve."
-7. Send CTA — `.fit-btn.fit-btn-primary` "Send Request · €50"
+6. **Payment method** — segmented chips (`.fit-selection-group` / `.fit-selection-chip`, same component as the coach's Personal/Group toggle), shown **only when the session accepts both methods**. Options **Cash | Balance**, **Cash preselected** by default. There is **no card hold** — the athlete prepays into a 321Fit **balance**; the online option ("Balance") reserves from that balance, it does not charge a card at booking time.
+   - When the coach offers a **single method** the chips are hidden and a static "Payment" line shows the one method (`Cash · in person` or `Balance`).
+7. Info line — copy follows the selected method:
+   - **Cash** → "You'll pay €50 to the coach in person. Nothing is reserved now — the coach confirms the payment after the session. Coach has 24h to approve."
+   - **Balance** (sufficient) → "€50 reserved from your €80 balance · refunded if the coach declines. Coach has 24h to approve."
+   - **Balance** (insufficient) → shortfall copy: "Your balance is €30 — €20 short for this session. Top up to pay from balance."
+8. CTA — `.fit-btn.fit-btn-primary`. "Send Request · €50" for Cash / sufficient Balance; **flips to "Top up balance"** when Balance is selected with insufficient funds (routes to `athlete/balance.html`, no request sent).
 
-Dismiss: handle drag or backdrop tap. Send → `sendBookingRequest()` → snackbar + redirect to `athlete/calendar.html`.
+Dismiss: handle drag or backdrop tap. Send → `sendBookingRequest()` → snackbar + redirect to `athlete/calendar.html`. JS: `bkSetPay(method)` (cash/balance), `bkSetPayMode(mode)` (both/card/cash — coach-side "card" maps to athlete-side "balance"), `bkBookingCta()` (send vs top-up branch).
 
 ### Athlete · `s-group` + `join-confirm-sheet` (Group)
 
@@ -237,8 +242,9 @@ Detailed payloads + response shapes go to `poly-backend/docs/booking-flow-api.md
 ## 8. Business rules
 
 - **24h response window** — both athlete-requested and coach-scheduled requests auto-expire if not actioned within 24h. Configurable per coach in future.
-- **Funds hold** — athlete-requested personal/group: amount held from athlete balance immediately on Send. Released to coach after session completes (24h post-end). Refunded if coach declines or cancels.
-- **Cancellation policy** — athlete: free cancel up to 24h before session; coach: must cancel via Calendar (different flow). Cash sessions: no hold, no refund logic; coach marks paid post-session.
+- **Payment method** — a session inherits the methods the coach enabled (cash and/or card). Athlete-facing the two options are **Cash** (pay coach in person) and **Balance** (reserved from prepaid 321Fit balance — the coach-side "card" option). When both are enabled the confirm sheet shows a chip picker with **Cash preselected**; with one enabled there's no choice.
+- **No card hold** — there is **no card charge/hold at booking**. Online payment is funded by the athlete's prepaid balance (topped up via Stripe, see `payments.md`). "Balance" reserves from that balance on Send; released to coach after the session completes (24h post-end); refunded if the coach declines or cancels.
+- **Cancellation policy** — athlete: free cancel up to 24h before session; coach: must cancel via Calendar (different flow). Cash sessions: no reservation, no refund logic; coach marks paid post-session.
 - **Sheet content per flow** is determined client-side from `inviteMode` URL param (`invite` / `schedule`) on coach side, and from session type on athlete side. Backend doesn't need to know which sheet variant.
 - **Personal mode in `s-booking`** uses a time-grid: the selection block = session duration, drag/tap snaps the **start** to 15-min steps. Non-standard durations (45/90 min) keep the block the right height; only the start snaps. Backend receives the resolved `datetimeStart`/`datetimeEnd`.
 - **Dual availability** — the bookable surface is the counterparty's working hours **minus** the union of both parties' busy ranges. A start is valid only if `[start, start+duration]` overlaps no busy range. On an invalid drop the client snaps to the nearest free start; the Book CTA stays disabled until valid. The backend re-validates on Send (race guard, see §9) — the client grid is an optimistic convenience, not the authority.
@@ -251,7 +257,7 @@ Detailed payloads + response shapes go to `poly-backend/docs/booking-flow-api.md
 
 - **All day busy for personal** — `s-booking` shows `.bk-empty` state with "Pick another date" hint (day-strip remains visible at top).
 - **Template has no scheduled group sessions** — `s-invite-time-group` shows empty state with "Schedule one first" CTA (coach action).
-- **Athlete balance insufficient at Send tap** — sheet stays open, inline error replaces info-line with "Top up to send — €30 short", action `[Top up]` links to balance flow.
+- **Athlete balance insufficient (Balance method)** — the info line shows the shortfall ("Your balance is €30 — €20 short…") and the primary CTA flips from "Send Request" to **"Top up balance"** → `athlete/balance.html`. No request is sent until the athlete tops up. (Only applies when paying from Balance; Cash needs no funds.)
 - **Coach offline when sheet opens** — sheet renders normally (it's local state); on Send, request goes to retry queue if network down, snackbar shows "Sent when online".
 - **Athlete already has a conflicting booking** — backend rejects, sheet error: "You already have a session at 10:00 — pick another time".
 - **Coach revokes invite link** before athlete signs up — link → "This invitation is no longer valid".

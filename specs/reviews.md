@@ -60,7 +60,7 @@ Modes: **write** (empty text, stars prefilled) / **edit** (text + stars prefille
 - **Has review**: stars + text + **Edit** → composer (edit).
 - **Locked** (can't review yet — 0 completed sessions): muted "You can leave a review after your first completed session."
 
-Screen-level states (same pattern as other list/detail screens): **default · loading** (skeleton) **· error** (inline + retry). Plus content variant **no-debt** (hides the Cash owed section). Footer (Rebook) hidden in loading/error.
+Screen-level states (same pattern as other list/detail screens): **default · loading** (skeleton) **· error** (inline + retry). Plus content variant **no-debt** (hides the Cash owed section). Footer (Book) hidden in loading/error.
 
 ---
 

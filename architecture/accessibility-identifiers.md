@@ -568,6 +568,8 @@ Spec: `booking-flow.md` — prototype lives partly in `athlete/search.html` + `s
 | `athlete.booking.catalog.book` | "Book · €X" on a session card | `s-book-sessions` | generic — personal → `s-booking` grid, group → `s-group` |
 | `athlete.booking.grid` | time-grid scroll/tap area | `s-booking` (personal) | tap a free band to place the slot block |
 | `athlete.booking.slot` | draggable `.fit-bk-sel` selection block | `s-booking` (personal) | drag to set start; Maestro reads time via label |
+| `athlete.booking.pay-cash` | "Cash" payment chip | `booking-confirm-sheet` | shown only when coach accepts both; preselected by default |
+| `athlete.booking.pay-balance` | "Balance" payment chip | `booking-confirm-sheet` | pay from prepaid 321Fit balance; CTA flips to "Top up balance" if short |
 | `coach.invite.select.back` | back chevron | `s-invite-select` | returns to origin (calendar/clients) via `resolveOrigin` |
 | `coach.invite.grid` | time-grid scroll/tap area | `s-invite-time` | mirror of athlete grid (coach invite/schedule) |
 | `coach.invite.slot` | draggable `.fit-bk-sel` selection block | `s-invite-time` | drag to set start |
