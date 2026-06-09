@@ -145,6 +145,11 @@
   #s-list.ls-empty [data-list-state="empty"] { display: block; }
   #s-list.ls-loading [data-list-state="loading"] { display: block; }
 
+  /* Training locations zero-state switch */
+  #s-locations [data-loc-state] { display: none; }
+  #s-locations.loc-default [data-loc-state="default"] { display: block; }
+  #s-locations.loc-empty [data-loc-state="empty"] { display: block; }
+
   /* Skeleton classes migrated to fit-ui.css (Phase 2) */
 
   /* Conditional fields animation */
@@ -617,7 +622,7 @@
 
 <!-- ==================== PHONE ==================== -->
 <!-- ===== SETTINGS: TRAINING LOCATIONS (list) ===== -->
-<div class="fit-phone fit-dark active" id="s-locations">
+<div class="fit-phone fit-dark active loc-default" id="s-locations">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -626,6 +631,9 @@
     </div>
   </div>
   <div class="fit-phone-content">
+
+    <!-- ===== DEFAULT: has locations ===== -->
+    <div data-loc-state="default">
 
     <!-- In-person section with + Add -->
     <div style="display:flex;justify-content:space-between;align-items:center;padding:0 16px;margin-bottom:10px;">
@@ -727,6 +735,18 @@
           <div style="font-size:14px;color:var(--fit-text-secondary);margin-top:2px;">30 min travel buffer</div>
         </div>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+
+    </div><!-- /data-loc-state="default" -->
+
+    <!-- ===== ZERO STATE: no locations configured yet ===== -->
+    <div data-loc-state="empty">
+      <div class="fit-empty-state" style="padding-top:56px;">
+        <svg class="fes-illus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <div class="fit-empty-state-title">No locations yet</div>
+        <div class="fit-empty-state-sub">Add where you train &mdash; in person, online,<br>or at the athlete&rsquo;s home &mdash; so athletes can book.</div>
+        <button class="fit-btn fit-btn-primary" style="display:inline-flex;width:auto;height:44px;padding:0 24px;font-size:16px;" data-a11y-id="coach.locations.empty.add" onclick="go('s-loc-map',document.querySelector('[onclick*=s-loc-map]'))">Add location</button>
       </div>
     </div>
 
@@ -1129,7 +1149,7 @@
 
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
-  <div class="ann" id="ann-s-locations"><span class="ann-role coach">Coach</span><h3>Training Locations</h3><p>Three location types + two usage modes.</p><ul><li><strong>In-person:</strong> pin icon + name + address + "Default" badge</li><li><strong>Online:</strong> video icon (colored per platform) + masked link</li><li><strong>Home Visit:</strong> toggle on/off + travel buffer (15/30/45/60 min). Visual timeline shows total blocked time.</li><li>Swipe left to delete (in-person/online)</li></ul><hr><p class="note"><strong>Settings mode:</strong> tap card → edit details<br><strong>Select mode:</strong> tap → select + pop back<br><br><strong>Travel buffer:</strong> added before AND after each home visit session. Backend uses <code>blocked_start = event_start - buffer</code>, <code>blocked_end = event_end + buffer</code> for overlap checks.</p></div>
+  <div class="ann active" id="ann-s-locations"><span class="ann-role coach">Coach</span><h3>Training Locations</h3><div class="state-toggle"><button class="active" onclick="setLocState('default',this)">Default</button><button onclick="setLocState('empty',this)">Empty (zero state)</button></div><p>Three location types + two usage modes.</p><p><strong>Zero state</strong> (new coach, no locations): illustration + "No locations yet" + subtitle + single "Add location" CTA → Add In-person search. Same pattern as other empty screens (<code>feedback_empty_states</code>).</p><ul><li><strong>In-person:</strong> pin icon + name + address + "Default" badge</li><li><strong>Online:</strong> video icon (colored per platform) + masked link</li><li><strong>Home Visit:</strong> toggle on/off + travel buffer (15/30/45/60 min). Visual timeline shows total blocked time.</li><li>Swipe left to delete (in-person/online)</li></ul><hr><p class="note"><strong>Settings mode:</strong> tap card → edit details<br><strong>Select mode:</strong> tap → select + pop back<br><br><strong>Travel buffer:</strong> added before AND after each home visit session. Backend uses <code>blocked_start = event_start - buffer</code>, <code>blocked_end = event_end + buffer</code> for overlap checks.</p></div>
   <div class="ann" id="ann-s-loc-map"><span class="ann-role coach">Coach</span><h3>Add In-person</h3><p>Search-first approach with smart suggestions.</p><ul><li><strong>Search:</strong> Google Places autocomplete</li><li><strong>Gyms Near You:</strong> pre-fetched from Google Places API (type=gym) sorted by distance</li><li>Tap result → Location Details form with map preview</li><li><strong>Use current location:</strong> reverse geocode user's position</li><li><strong>Pick on map:</strong> opens fullscreen map for manual pin drop</li></ul><p>When user types → "Gyms Near You" replaced by autocomplete results.</p></div>
   <div class="ann" id="ann-s-loc-pick"><span class="ann-role coach">Coach</span><h3>Pick on Map</h3><p>Fullscreen map with two modes. <strong>Tap the pill to toggle.</strong></p><ul><li><strong>Locked</strong> (default) — "Pin is locked - Tap to adjust". Map scrollable but pin stays. Safe for reviewing.</li><li><strong>Unlocked</strong> — "Drag to set location - Tap to lock". Pin follows map center. Address updates live.</li><li><strong>Search bar</strong> at top — tap opens search screen</li><li><strong>My location</strong> button — centers map on user</li><li><strong>Bottom card:</strong> reverse geocoded address</li><li><strong>"Confirm Location"</strong> → Location Details form</li></ul><hr><p class="note"><strong>Why locked by default:</strong> prevents accidental pin movement when user opens from Location Details to verify position.</p></div>
   <div class="ann" id="ann-s-loc-form"><span class="ann-role coach">Coach</span><h3>Location Details</h3><p>Used for both <strong>create</strong> and <strong>edit</strong> location.</p><ul><li><strong>Map preview</strong> (top) — tap opens <strong>Pick on Map</strong> for pin adjustment</li><li><strong>Address card</strong> — "Change" → back to search (new address)</li><li><strong>Location name / Description / Default toggle</strong></li><li><strong>Trash icon</strong> (header, edit mode only) → delete confirmation sheet</li><li><strong>Delete sheet:</strong> warns if location used in templates — "This location is used in 3 training templates. They will need a new location assigned."</li><li><strong>"Save Location"</strong> → POST (create) or PUT (edit)</li></ul><hr><p class="note"><strong>Create vs Edit:</strong> same screen. Edit prefills all fields + shows trash icon. Create hides trash icon.</p></div>
@@ -1171,6 +1191,13 @@ function setListState(state, btn) {
   var list = document.getElementById('s-list');
   list.classList.remove('ls-default', 'ls-empty', 'ls-loading');
   list.classList.add('ls-' + state);
+}
+
+function setLocState(state, btn) {
+  var el = document.getElementById('s-locations');
+  el.classList.remove('loc-default', 'loc-empty');
+  el.classList.add('loc-' + state);
+  if (btn) { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
 }
 
 function setCreateState(state, btn) {
