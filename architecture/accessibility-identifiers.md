@@ -281,6 +281,20 @@ Prototypes: `coach/clients.html`, `coach/invite.html`, `coach/invite-coach.html`
 
 | ID | Element | Screen | Notes |
 |---|---|---|---|
+| `coach.clients.add.create` | "Create profile" row in add-client drawer | `s-clients` | → `s-create-client` |
+| `coach.clients.add.import` | "Import from contacts" row in add-client drawer | `s-clients` | → `s-import-contacts` |
+| `coach.clients.add.invite-app` | "Invite to app" row in add-client drawer | `s-clients` | opens invite share drawer (OneLink) |
+| `coach.clients.add.invite-training` | "Invite to training" row in add-client drawer | `s-clients` | → invite.html template chooser |
+| `coach.import.back` | back chevron | `s-import-contacts` | → `s-clients` |
+| `coach.import.select-all` | "Select all / Deselect all" link | `s-import-contacts` | toggles every eligible contact |
+| `coach.import.confirm` | "Import N contacts" CTA | `s-import-contacts` | bulk-create CRM → `s-import-done` |
+| `coach.import.invite-all` | "Invite all N" CTA | `s-import-done` | opens invite share drawer (bulk) |
+| `coach.import.not-now` | "Not now" CTA | `s-import-done` | → `s-clients` |
+| `coach.import.close` | × close (top-right) | `s-import-done` | dismisses modal-type screen → `s-clients` |
+| `coach.invite-share.whatsapp` | WhatsApp channel row | `invite-share-sheet` | native-share simulation |
+| `coach.invite-share.messages` | Messages channel row | `invite-share-sheet` | |
+| `coach.invite-share.copy` | "Copy link" row | `invite-share-sheet` | |
+| `coach.invite-share.more` | "More…" (system share) row | `invite-share-sheet` | |
 
 ### `profile` — coach + athlete profile + shared/profile
 

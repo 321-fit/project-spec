@@ -1,9 +1,9 @@
 # Clients & Coaches
 
-> Status: Approved (contract) / In Progress (Archive/Block + CRM + Deleted migration)
+> Status: Approved (contract) / In Progress (Archive/Block + CRM + Deleted migration + Contact import)
 > Prototype: [flows/coach/clients.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/clients.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-04-30
+> Last updated: 2026-06-09
 > Implementation:
 > - iOS:     [321fit_ios/docs/clients-coaches-ios.md] (to be created)
 > - Backend: [poly-backend/docs/clients-coaches-backend.md] (to be created — includes relationship model migration)
@@ -26,7 +26,10 @@ This spec focuses on the **coach-side Clients tab** (the more complex half) and 
 
 - As a coach, I want to see my active clients in one list so that CRM is obvious.
 - As a coach, I want to **add a client manually** (someone I coach offline who doesn't use the app yet) so that I can track their sessions and cash payments in one place until they join.
-- As a coach, when that offline client joins 321Fit via my invite, I want the system to automatically link their app account to my existing CRM record so that no data is lost.
+- As a coach, I want to **import many contacts at once from my phone book** as CRM clients, so that onboarding my offline roster isn't one-by-one data entry.
+- As a coach, after importing, I want to **send all of them my invite link in one go** (through my own WhatsApp/Messages, as a message from me) so that it feels personal, not a platform spam blast.
+- As a coach, I want **credit for the users I bring to 321Fit** (who signed up through my link), so that my contribution to growing the platform is tracked.
+- As a coach, when that offline/imported client joins 321Fit (via my link or because their phone matches), I want the system to automatically link their app account to my existing CRM record so that no data is lost — and I want to be **notified** when it happens.
 - As a coach, I want to **archive** a client who stopped training (quietly, reversibly) without affecting them so that my active list stays clean.
 - As a coach, I want to **block** a problematic client (harassment, repeated no-shows) so that they silently can't book me anymore, without the drama of notification.
 - As a coach, when a client **deletes their app account**, I want their history to remain in my records (muted visually) so that my reports don't lose data.
@@ -45,7 +48,9 @@ This spec focuses on the **coach-side Clients tab** (the more complex half) and 
 
 - As the backend, every **coach ↔ athlete relationship** has an explicit state (`active | archived | blocked | crm`) and a separate `athlete_account_status` field (`app | crm | deleted`) representing whether the athlete side has an app account at all.
 - As the backend, **relationship state** is mutable (coach actions); **athlete_account_status** is driven by athlete's account lifecycle.
-- As the backend, the `crm → app` transition happens automatically when an invited athlete (with matching phone/email or invite-token) signs up; no manual link required.
+- As the backend, the `crm → app` transition happens automatically when an invited athlete (with matching phone or invite-link) signs up; no manual link required.
+- As the backend, a CRM record created via contact import carries `origin: "import"`; referral credit for a signup is attributed to exactly **one** coach — the one whose invite link (AppsFlyer OneLink) the new user actually opened — while phone-match links the same user to every other coach holding that phone (those links are `auto_phone_match`, not referral-credited).
+- As the backend, when an imported/CRM contact's phone matches a new signup (or they open a coach's link), the coach receives a **"contact joined" notification**.
 - As the backend, `blocked` athletes must be filtered out of that coach's search visibility for the athlete (shadow ban).
 - As the backend, `deleted` athlete's existing events + history remain visible to the coach; no push / message functionality works toward them.
 - As the client, menu scope and state banners must reflect combined states (active + deleted = "muted active"; crm + archived = "archived CRM contact"; etc.).
@@ -76,16 +81,30 @@ This spec focuses on the **coach-side Clients tab** (the more complex half) and 
 
 ### Flow 3: Add client — 3 paths
 
-Tap `+` in Clients tab header → action sheet with 3 options:
+Tap `+` in Clients tab header → calendar-style drawer (title + a description line per row) with **4 options**, in order: **Import from contacts** · Create profile · Invite to app · Invite to training.
+
+#### Flow 3d: Import from contacts (bulk CRM) — `s-import-contacts`
+
+The primary path for onboarding an offline roster.
+
+1. OS asks for **Contacts permission**.
+   - **Denied** → explainer screen ("Contacts access needed") + Open Settings. We never message contacts automatically — sending is always coach-initiated (see Flow 3d step 6).
+2. **Granted** → brief **loading** (skeleton) while the client reads the address book and runs a **dedup/match pass** against existing clients & app users.
+3. **Multi-select list** (search + Select all). Each row = contact photo (or initials fallback) + name + phone/email. Per-row tags:
+   - **Already a client** → row disabled (no dupes).
+   - **On 321Fit** (phone already matches an app user) → selecting it **connects instantly** as an `active app-account` relationship (`origin: auto_phone_match`) instead of creating a CRM stub.
+   - **No phone** (email-only contact) → still importable as CRM, but tagged — **can't be invited or auto-linked** (no phone key).
+4. **Import N** → bulk-creates CRM records (`origin: "import"`). Name parsed from the contact; **last name optional** (a contact may be first-name-only).
+5. **Import Done** screen (modal-type, × to dismiss): "N contacts added" + invitable count → **Invite all N** or **Not now**.
+6. **Invite all** → native **share drawer** with the coach's personal **OneLink** (`321.fit/i/{coach}?c=crm_import`). Coach picks a channel (WhatsApp, Messages…) and broadcasts to everyone at once. Attribution + auto-link covered in deep-linking-referrals.md.
 
 #### Flow 3a: Create athlete profile (CRM)
 
 1. Opens `s-create-client` form:
-   - Avatar placeholder + initials
+   - Avatar placeholder + initials (contact photo when imported)
    - First name (required)
-   - Last name (required)
-   - Phone (optional)
-   - Email (optional)
+   - Last name (optional — a CRM contact may be name-only)
+   - Phone (optional; the single contact/match key — **email removed**)
    - Sport (required — from closed 33-sport taxonomy)
    - Notes (optional, 0–500 chars)
 2. Submit → `POST /coach/crm-clients` → new relationship created with `athlete_account_status: crm`, `relationship_state: active`.
@@ -94,10 +113,10 @@ Tap `+` in Clients tab header → action sheet with 3 options:
 
 #### Flow 3b: Invite to app
 
-1. Opens native iOS share sheet directly — no intermediate screen.
-2. Prefilled: "Join me on 321Fit: https://321.fit/invite/{coach_id}".
-3. User taps through to SMS / Messenger / WhatsApp / etc. and sends.
-4. When the recipient signs up via that link + matches phone/email, their account **auto-links** to this coach's CRM records (if any) — flow covered in deep-linking-referrals.md.
+1. Opens the native **share drawer** with the coach's personal **OneLink** — no intermediate screen. Also available from a CRM client's ⋯ menu.
+2. Link: `321.fit/i/{coach_id}` (AppsFlyer OneLink; carries coach attribution).
+3. Coach picks a channel (WhatsApp / Messages / Copy link / system share) and sends.
+4. When the recipient signs up via that link or their phone matches, their account **auto-links** to this coach's CRM record (if any) — flow covered in deep-linking-referrals.md.
 
 #### Flow 3c: Invite to training
 
@@ -167,11 +186,16 @@ Each segment empties **independently** (`#s-archived.arch-empty` / `.blk-empty`)
 ### Flow 9: CRM client upgrades to app (Tier 1 Q6 — phone-primary auto-link + invite-token)
 
 **Matching priority (deterministic):**
-1. **Invite token** (exact match) — strongest signal: athlete arrived via `/invite/{coach_id}/{token}` link → directly attaches to that coach's CRM record (the one carrying the token, if any) plus the inviting coach's relationship.
+1. **Invite link (OneLink)** — strongest signal: athlete arrived via the coach's AppsFlyer OneLink (`321.fit/i/{coach}`) → attaches to that coach's CRM record (if any) + marks the coach as the **referral creditee**. Replaces the prior raw `/invite/{coach_id}/{token}` form.
 2. **Phone E.164** (normalized exact match) — silent auto-link: backend scans all CRM records with `phone_e164 = athlete.phone_e164` after phone verification at signup → links to all matching coaches simultaneously. Each becomes an `active app-account` relationship.
-3. **Email** (lowercase exact match) — fallback when no phone present in CRM record.
 
-**Origin tagging:** every linked relationship records `origin: "invite" | "auto_phone_match" | "auto_email_match" | "manual"` for analytics and audit. Manual = coach added the relationship after the athlete already had an app account (rare path).
+> **Deprecated 2026-06-09:** the **email** fallback match (`auto_email_match`) is no longer used — email was removed from CRM contacts (phone is the single key). The enum value stays for historical records but no new links are created via email.
+
+**Referral credit = exactly one coach:** the coach whose OneLink the user actually opened (`origin: invite`). All other coaches whose stored phone matches get the relationship via `origin: auto_phone_match` — linked, but **not** referral-credited. This keeps the "who brought N users" metric unambiguous.
+
+**Origin tagging:** every linked relationship records `origin: "invite" | "auto_phone_match" | "manual" | "import"` (legacy `auto_email_match` retained read-only) for analytics and audit. `import` = created via bulk contact import; `manual` = single manual add.
+
+**Coach notification (mandatory):** when a relationship flips `crm → app` — whether via OneLink signup OR phone-match — the owning coach gets a **"contact joined"** notification (see notifications-catalog.md). Tap → the now-upgraded Client Detail.
 
 **Multi-coach same phone (intentional, not a conflict):** an athlete may be a real client of several coaches simultaneously. Phone-match links the athlete's app account to each coach's CRM record independently. Each coach sees their own notes/history attached; no cross-coach data leak.
 
@@ -268,7 +292,7 @@ Edit info opens one screen with two modes — **same form scaffolding** (avatar 
 
 | Mode trigger | Editable fields | Endpoint |
 |---|---|---|
-| `athlete_account_status = crm` (**CRM mode**) — coach owns the contact card | First name · Last name · Phone · Email · Sport · Notes · optional Avatar (full Create-Client form) | `PATCH /coach/crm-clients/{id}` |
+| `athlete_account_status = crm` (**CRM mode**) — coach owns the contact card | First name · Last name (optional) · Phone (single match key) · Sport · Notes · optional Avatar (full Create-Client form; **no Email**) | `PATCH /coach/crm-clients/{id}` |
 | `athlete_account_status ∈ {app, deleted}` (**App mode**) — coach does NOT edit athlete identity | Read-only identity card on top (avatar + name + sport chips, footnote "Managed by athlete · contact athlete to update"). Editable: **Sport-of-coaching** (which sport coach trains them in — different from athlete's own sport list) + **Notes** (coach-private). | `PATCH /coach/clients/{id}/update-profile` (narrowed payload — no identity fields) |
 
 **Why two modes, not two separate screens:** dirty-tracking + validation + save state machinery is identical; only the visible field set differs. Same code path, different `Mode` enum case.
@@ -283,21 +307,45 @@ Edit info opens one screen with two modes — **same form scaffolding** (avatar 
 
 #### `POST /coach/crm-clients`
 
-Create a coach-managed CRM contact.
+Create a coach-managed CRM contact (manual, single).
 
 **Body:**
 ```json
 {
   "firstName":      "string",
-  "lastName":       "string",
+  "lastName":       "string" | null,
   "phone":          "+E164 string" | null,
-  "email":          "string" | null,
   "sport":          "sport_id",
   "notes":          "string" | null
 }
 ```
 
+> **Changed 2026-06-09 (additive/relaxed):** `email` field **removed** from CRM contacts — phone is the single match key (email-fallback match deprecated, see Flow 9). `lastName` is now **nullable** (contact/import may be first-name-only). `firstName` stays required. Existing stored emails are ignored for matching; not surfaced in the CRM edit form.
+
 **Response 200:** new `CoachClientRelationship` with `athlete_account_status: crm`, `relationship_state: active`, `origin: "manual"`.
+
+#### `POST /coach/crm-clients/bulk` (NEW — contact import)
+
+Bulk-create CRM contacts from the coach's address book (Flow 3d).
+
+**Body:**
+```json
+{
+  "contacts": [
+    { "firstName": "string", "lastName": "string" | null, "phone": "+E164 string" | null }
+  ]
+}
+```
+
+**Behaviour:**
+- Each created relationship gets `origin: "import"`, `athlete_account_status: crm`, `relationship_state: active`.
+- **Dedup server-side** — a contact whose phone matches an existing relationship for this coach is skipped (not duplicated).
+- A contact whose phone matches an existing **app account** is created/linked as `active app-account` (`origin: auto_phone_match`) instead of a CRM stub.
+- Contacts with no phone are valid CRM records (no auto-link possible).
+
+**Response 200:** `{ created: int, linked: int, skipped: int }` + the created/linked relationship records.
+
+The bulk **invite** is not a backend call — it's a client-side native share of the coach's OneLink (see deep-linking-referrals.md).
 
 **Relationship model fields (Q6 + Q7 additions):**
 ```typescript
@@ -306,7 +354,7 @@ type CoachAthleteRelationship = {
   athleteId:             UUID | null,        // null while athlete is CRM-only
   relationshipState:     "active" | "archived" | "blocked",  // coach-driven
   athleteAccountStatus:  "app" | "crm" | "deleted",
-  origin:                "invite" | "auto_phone_match" | "auto_email_match" | "manual",
+  origin:                "invite" | "auto_phone_match" | "auto_email_match" | "manual" | "import",
   pausedByAthlete:       boolean,            // Q7 silent pause
   blockedByAthlete:      boolean,            // Q7 silent block
   pausedAt:              ISO8601 | null,

@@ -184,6 +184,45 @@
   .cash-action-body { flex: 1; min-width: 0; }
   .cash-action-title { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
   .cash-action-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; line-height: 1.4; }
+
+  /* ===== Add-client drawer rows (calendar-style: title + description) ===== */
+  .add-client-row { display: flex; align-items: flex-start; gap: 14px; padding: 14px 4px; cursor: pointer; border-bottom: 1px solid var(--fit-divider); }
+  .add-client-row:last-child { border-bottom: none; }
+  .add-client-row svg.aci { width: 22px; height: 22px; flex-shrink: 0; margin-top: 2px; color: var(--fit-text-secondary); }
+  .add-client-row.accent svg.aci { color: var(--fit-teal-500); }
+  .add-client-title { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
+  .add-client-desc { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; line-height: 1.4; }
+
+  /* ===== Import contacts — search + multi-select contact rows (imp-) ===== */
+  .imp-search { display: flex; align-items: center; gap: 8px; margin: 0 16px 8px; padding: 10px 12px; border-radius: 12px; background: var(--fit-surface-high); }
+  .imp-search svg { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .imp-search input { flex: 1; border: none; outline: none; background: transparent; font-family: var(--fit-font); font-size: 15px; color: var(--fit-text-primary); }
+  .imp-search input::placeholder { color: var(--fit-text-placeholder); }
+  .imp-selectall { display: flex; align-items: center; justify-content: space-between; padding: 6px 16px 10px; }
+  .imp-selectall-link { font-size: 14px; font-weight: 500; color: var(--fit-brand-primary); background: none; border: none; cursor: pointer; font-family: var(--fit-font); }
+  .imp-count { font-size: 13px; color: var(--fit-text-tertiary); }
+  .imp-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer; }
+  .imp-row[aria-disabled="true"] { opacity: 0.4; cursor: default; }
+  .imp-check { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--fit-text-tertiary); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.12s, border-color 0.12s; }
+  .imp-row.selected .imp-check { background: var(--fit-teal-500); border-color: var(--fit-teal-500); }
+  .imp-check svg { width: 13px; height: 13px; color: #fff; opacity: 0; }
+  .imp-row.selected .imp-check svg { opacity: 1; }
+  .imp-av { width: 40px; height: 40px; border-radius: 50%; background: var(--fit-gray-600); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; color: var(--fit-white); flex-shrink: 0; }
+  .imp-body { flex: 1; min-width: 0; }
+  .imp-name-row { display: flex; align-items: center; gap: 6px; }
+  .imp-name { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .imp-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 1px; }
+  .imp-tag { font-size: 9px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+  .imp-tag.client { color: var(--fit-text-tertiary); background: var(--fit-surface-high); border: 1px solid var(--fit-divider); }
+  .imp-tag.app { color: var(--fit-teal-500); background: rgba(5,224,166,0.08); border: 1px solid rgba(5,224,166,0.3); }
+  .imp-tag.nophone { color: var(--fit-yellow-600); background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); }
+  /* Permission-denied variant */
+  #s-import-contacts [data-imp-state] { display: none; }
+  #s-import-contacts.imp-granted [data-imp-state="granted"] { display: block; }
+  #s-import-contacts.imp-loading [data-imp-state="loading"] { display: block; }
+  #s-import-contacts.imp-denied  [data-imp-state="denied"]  { display: block; }
+  #s-import-contacts.imp-loading .fit-phone-footer,
+  #s-import-contacts.imp-denied .fit-phone-footer { display: none; }
 </style>
 </head>
 <body>
@@ -198,6 +237,9 @@
   <button onclick="go('s-client-notes-editor',this)">Client Notes Editor</button>
   <button onclick="go('s-archived',this)">Archived &amp; Blocked</button>
   <button onclick="go('s-create-client',this)">Create Client</button>
+  <div class="label">Import flow</div>
+  <button onclick="go('s-import-contacts',this)">Import Contacts</button>
+  <button onclick="go('s-import-done',this)">Import Done</button>
   </div>
   <!-- Dark/Light toggle at bottom -->
   <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
@@ -338,23 +380,67 @@
     </div>
   </div>
 
-  <!-- Add client sheet -->
+  <!-- Add client sheet — calendar-drawer style (title + per-option description) -->
   <div class="fit-sheet-overlay" id="add-client-sheet">
     <div class="fit-sheet" >
       <div class="fit-sheet-handle"></div>
-      <div style="font-size:18px;font-weight:600;margin-bottom:28px;">Add Client</div>
-      <div class="fit-sheet-item" onclick="document.getElementById('add-client-sheet').classList.remove('visible');go('s-create-client',document.querySelector('[onclick*=s-create-client]'));">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/><path d="M20 8v6M23 11h-6"/></svg>
-        Create athlete profile
+      <div style="font-size:18px;font-weight:600;margin-bottom:4px;">Add a client</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:18px;">How would you like to add them?</div>
+
+      <div class="add-client-row accent" data-a11y-id="coach.clients.add.import" onclick="document.getElementById('add-client-sheet').classList.remove('visible');impEnter();">
+        <svg class="aci" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18a4 4 0 00-8 0"/><circle cx="12" cy="9" r="3"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
+        <div><div class="add-client-title">Import from contacts</div><div class="add-client-desc">Bulk-add from your phone book, invite in a tap</div></div>
       </div>
-      <div class="fit-sheet-item" onclick="document.getElementById('add-client-sheet').classList.remove('visible');">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-        Invite to app
+
+      <div class="add-client-row" data-a11y-id="coach.clients.add.create" onclick="document.getElementById('add-client-sheet').classList.remove('visible');go('s-create-client',null);">
+        <svg class="aci" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/><path d="M20 8v6M23 11h-6"/></svg>
+        <div><div class="add-client-title">Create profile</div><div class="add-client-desc">Add manually — track sessions &amp; cash</div></div>
       </div>
-      <div class="fit-sheet-item" onclick="document.getElementById('add-client-sheet').classList.remove('visible');location.href='../coach/invite.html?mode=invite&amp;origin=s-clients#s-invite-select'">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v4M10 16h4"/></svg>
-        Invite to training
+
+      <div class="add-client-row" data-a11y-id="coach.clients.add.invite-app" onclick="document.getElementById('add-client-sheet').classList.remove('visible');openInviteShare('single');">
+        <svg class="aci" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        <div><div class="add-client-title">Invite to app</div><div class="add-client-desc">Share your link — they join &amp; auto-connect</div></div>
       </div>
+
+      <div class="add-client-row" data-a11y-id="coach.clients.add.invite-training" onclick="document.getElementById('add-client-sheet').classList.remove('visible');location.href='../coach/invite.html?mode=invite&amp;origin=s-clients#s-invite-select'">
+        <svg class="aci" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v4M10 16h4"/></svg>
+        <div><div class="add-client-title">Invite to training</div><div class="add-client-desc">Send a link with a session attached</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Invite share drawer (native-share simulation) — reused by single invite + bulk import ===== -->
+  <div class="fit-sheet-overlay" id="invite-share-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:600;margin-bottom:4px;" id="invite-share-title">Invite to 321Fit</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:14px;" id="invite-share-sub">Share your personal link — anyone who joins through it connects to you automatically.</div>
+
+      <!-- Link preview -->
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--fit-surface-high);margin-bottom:16px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/><path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>
+        <span style="flex:1;min-width:0;font-size:13px;color:var(--fit-text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">321.fit/i/coach_mike?c=crm_import</span>
+      </div>
+
+      <!-- Channels (native share targets) -->
+      <div class="fit-sheet-item" data-a11y-id="coach.invite-share.whatsapp" onclick="finishShare('WhatsApp')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 01-12.6 7.4L3 21l2.1-5.4A8.5 8.5 0 1121 11.5z"/></svg>
+        WhatsApp
+      </div>
+      <div class="fit-sheet-item" data-a11y-id="coach.invite-share.messages" onclick="finishShare('Messages')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Messages
+      </div>
+      <div class="fit-sheet-item" data-a11y-id="coach.invite-share.copy" onclick="finishShare('copy')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        Copy link
+      </div>
+      <div class="fit-sheet-item" data-a11y-id="coach.invite-share.more" onclick="finishShare('share')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+        More…
+      </div>
+
+      <button style="width:100%;height:50px;margin-top:12px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('invite-share-sheet').classList.remove('visible')">Cancel</button>
     </div>
   </div>
 </div>
@@ -653,7 +739,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v4M10 16h4"/></svg>
       Schedule training
     </div>
-    <div class="fit-context-menu-item" data-menu-item="invite-app" style="display:none;" onclick="closeClientMenu();showClientSnack('Invite link copied')">
+    <div class="fit-context-menu-item" data-menu-item="invite-app" style="display:none;" onclick="closeClientMenu();openInviteShare('single')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/><path d="M20 8v6M23 11h-6"/></svg>
       Invite to app
     </div>
@@ -995,13 +1081,14 @@
       <span class="fit-input-label">First name</span>
       <div class="fit-input" contenteditable="true" data-placeholder="Enter first name" style="outline:none;cursor:text;"></div>
     </div>
-    <div class="fit-input-group" style="padding:0 16px;" data-required="lname">
-      <span class="fit-input-label">Last name</span>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Last name <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
       <div class="fit-input" contenteditable="true" data-placeholder="Enter last name" style="outline:none;cursor:text;"></div>
     </div>
-    <div class="fit-input-group" style="padding:0 16px;" data-optional-format="phone-or-email">
-      <span class="fit-input-label">Phone or Email <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
-      <div class="fit-input" contenteditable="true" data-placeholder="+1 234 567 8900 or email" style="outline:none;cursor:text;"></div>
+    <div class="fit-input-group" style="padding:0 16px;" data-optional-format="phone">
+      <span class="fit-input-label">Phone number <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <div class="fit-input" contenteditable="true" data-placeholder="+1 234 567 8900" style="outline:none;cursor:text;"></div>
+      <span class="fit-input-hint" style="font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;display:block;">Used to invite them &amp; auto-connect when they join.</span>
     </div>
     <div class="fit-input-group" style="padding:0 16px;">
       <span class="fit-input-label">Sport</span>
@@ -1021,6 +1108,121 @@
   <div class="fit-snackbar" id="cc-validation-snack"><span class="snack-dot" style="background:var(--fit-red-400);"></span>Please fill in required fields</div>
 </div>
 
+<!-- ===== COACH: IMPORT FROM CONTACTS (bulk CRM) ===== -->
+<div class="fit-phone fit-dark imp-granted" id="s-import-contacts">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.import.back" onclick="go('s-clients',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Import contacts</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <!-- GRANTED: contact list -->
+    <div data-imp-state="granted">
+      <div class="imp-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search contacts" oninput="impFilter(this.value)">
+      </div>
+      <div class="imp-selectall">
+        <button class="imp-selectall-link" data-a11y-id="coach.import.select-all" onclick="impSelectAll()">Select all</button>
+        <span class="imp-count" id="imp-avail-count">6 contacts</span>
+      </div>
+
+      <div id="imp-list">
+        <!-- selectable: phone -->
+        <div class="imp-row selected" data-imp="1" data-name="Marta Vega" onclick="impToggle(this)">
+          <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <span class="imp-av">MV</span>
+          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Marta Vega</span></span><span class="imp-sub">+49 170 555 0142</span></span>
+        </div>
+        <div class="imp-row selected" data-imp="1" data-name="Jon Schmidt" onclick="impToggle(this)">
+          <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <span class="imp-av">JS</span>
+          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Jon Schmidt</span></span><span class="imp-sub">+49 151 555 0188</span></span>
+        </div>
+        <div class="imp-row selected" data-imp="1" data-name="Tom Novak" onclick="impToggle(this)">
+          <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <span class="imp-av">TN</span>
+          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Tom Novak</span></span><span class="imp-sub">+49 160 555 0177</span></span>
+        </div>
+        <div class="imp-row selected" data-imp="1" data-name="Paul Weber" onclick="impToggle(this)">
+          <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <span class="imp-av">PW</span>
+          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Paul Weber</span></span><span class="imp-sub">+49 171 555 0103</span></span>
+        </div>
+        <!-- already a 321Fit user (phone matched) → selecting connects directly -->
+        <div class="imp-row" data-imp="1" data-app="1" data-name="Sara Kim" onclick="impToggle(this)">
+          <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <span class="imp-av">SK</span>
+          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Sara Kim</span><span class="imp-tag app">On 321Fit</span></span><span class="imp-sub">+1 415 555 0199 · connects instantly</span></span>
+        </div>
+        <!-- no phone/email-only → CRM only, can't invite -->
+        <div class="imp-row" data-imp="1" data-nophone="1" data-name="Lena Roth" onclick="impToggle(this)">
+          <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <span class="imp-av">LR</span>
+          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Lena Roth</span><span class="imp-tag nophone">No phone</span></span><span class="imp-sub">lena.roth@mail.com · CRM only, can't invite</span></span>
+        </div>
+        <!-- already a client → disabled -->
+        <div class="imp-row" data-imp="0" aria-disabled="true" data-name="Anna Kowalski">
+          <span class="imp-check"></span>
+          <span class="imp-av">AK</span>
+          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Anna Kowalski</span><span class="imp-tag client">Already a client</span></span><span class="imp-sub">+48 600 555 010</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADING: reading address book + dedup/match pass -->
+    <div data-imp-state="loading" style="padding-top:8px;">
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 16px 16px;color:var(--fit-text-tertiary);font-size:13px;">
+        <span class="cal-spinner" style="width:16px;height:16px;border-width:2px;"></span>
+        Reading your contacts…
+      </div>
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:46%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:58%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:40%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:52%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:62%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:44%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+    </div>
+
+    <!-- DENIED: permission explainer -->
+    <div data-imp-state="denied">
+      <div class="fit-empty-state" style="padding-top:64px;">
+        <svg class="fes-illus" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="12" y="6" width="40" height="52" rx="6"/><circle cx="32" cy="26" r="7"/><path d="M20 48a12 12 0 0124 0"/></svg>
+        <div class="fit-empty-state-title">Contacts access needed</div>
+        <div class="fit-empty-state-sub">Allow 321Fit to read your contacts to bulk-add<br>clients. We never message anyone without you.</div>
+        <button class="fit-btn fit-btn-primary" style="display:inline-flex;width:auto;height:44px;padding:0 24px;font-size:16px;" onclick="showClientSnack('Opening Settings…')">Open Settings</button>
+      </div>
+    </div>
+
+  </div>
+  <!-- Footer: import CTA -->
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;">
+    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" id="imp-cta" data-a11y-id="coach.import.confirm" onclick="importContacts()">Import 4 contacts</button>
+  </div>
+</div>
+
+<!-- ===== COACH: IMPORT DONE — offer bulk invite (modal-type → × dismiss) ===== -->
+<div class="fit-phone fit-dark" id="s-import-done">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div style="display:flex;justify-content:flex-end;padding:8px 16px;">
+      <button class="fit-icon-btn" data-a11y-id="coach.import.close" aria-label="Close" onclick="go('s-clients',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 32px;">
+    <div style="width:72px;height:72px;border-radius:50%;background:rgba(5,224,166,0.12);display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div style="font-size:22px;font-weight:600;color:var(--fit-text-primary);margin-bottom:8px;"><span id="imp-done-count">4</span> contacts added</div>
+    <div style="font-size:15px;color:var(--fit-text-secondary);line-height:1.5;margin-bottom:32px;">They're in your CRM now. Invite them to the app so sessions &amp; payments sync automatically.<br><span style="font-size:13px;color:var(--fit-text-tertiary);"><span id="imp-done-invitable">4</span> have a phone number to send your link to.</span></div>
+    <button style="width:100%;max-width:300px;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;margin-bottom:10px;" data-a11y-id="coach.import.invite-all" onclick="openInviteShare('bulk')">Invite all <span id="imp-done-invite-n">4</span></button>
+    <button style="width:100%;max-width:300px;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" data-a11y-id="coach.import.not-now" onclick="go('s-clients',null)">Not now</button>
+  </div>
+</div>
+
 <!-- Annotations -->
 <div class="ann-container">
   <div class="ann active" id="ann-s-clients"><span class="ann-role coach">Coach</span><h3>Clients</h3>
@@ -1033,7 +1235,7 @@
       <button class="active" onclick="setArchivedRow(true,this)">With archived row</button>
       <button onclick="setArchivedRow(false,this)">No archived yet</button>
     </div>
-    <p>CRM-style client list. Root tab screen (no back arrow).</p><ul><li><strong>Bell icon</strong> with red badge (3) → Requests inbox</li><li><strong>"+"</strong> icon → sheet with 3 options</li><li><strong>"€50 owed"</strong> red badge (Mark S.) — client has unpaid cash session</li><li><strong>Deleted accounts are NOT in this active list</strong> — when an athlete deletes their account the relationship is effectively dead, so it surfaces under Archived &amp; Blocked → <strong>Blocked</strong> (terminal, no unblock), not here. History stays intact.</li><li><strong>"CRM" badge</strong> (Marta V.) — coach-created contact without app account. Teal-tinted pill, normal avatar color. Coach tracks sessions/cash manually; can later Invite to app to upgrade.</li><li>Tap client → Client Detail</li></ul><hr><p class="note"><strong>"+" sheet actions:</strong><br>• <strong>Create athlete profile</strong> → CRM form (New Client screen)<br>• <strong>Invite to app</strong> → opens native iOS share sheet directly. Prefilled: "Join me on 321Fit: https://321.fit/invite/coach_id". No intermediate screen.<br>• <strong>Invite to training</strong> → intermediate screen to select training template, then generates deep link with event attached.</p><hr><p class="note"><strong>Empty:</strong> fresh coach — «Add first client» CTA opens the same add-client sheet. <strong>Loading:</strong> 4 skeleton rows during initial fetch. <strong>Archived row</strong> at bottom is hidden when 0 archived+blocked — appears only after first use.</p></div>
+    <p>CRM-style client list. Root tab screen (no back arrow).</p><ul><li><strong>"+"</strong> icon → calendar-style drawer with 4 options (Create profile / Import from contacts / Invite to app / Invite to training), each with a description line</li><li><strong>"€50 owed"</strong> red badge (Mark S.) — client has unpaid cash session</li><li><strong>Deleted accounts are NOT in this active list</strong> — when an athlete deletes their account the relationship is effectively dead, so it surfaces under Archived &amp; Blocked → <strong>Blocked</strong> (terminal, no unblock), not here. History stays intact.</li><li><strong>"CRM" badge</strong> (Marta V.) — coach-created contact without app account. Teal-tinted pill, normal avatar color. Coach tracks sessions/cash manually; can later Invite to app to upgrade.</li><li>Tap client → Client Detail</li></ul><hr><p class="note"><strong>"+" drawer actions:</strong><br>• <strong>Create profile</strong> → CRM form (New Client screen)<br>• <strong>Import from contacts</strong> → bulk-add from phone book → Import Done → mass invite (see Import Contacts annotation)<br>• <strong>Invite to app</strong> → native share drawer with the coach's OneLink. No intermediate screen.<br>• <strong>Invite to training</strong> → select training template, then a deep link with the event attached.</p><hr><p class="note"><strong>Empty:</strong> fresh coach — «Add first client» CTA opens the same add-client sheet. <strong>Loading:</strong> 4 skeleton rows during initial fetch. <strong>Archived row</strong> at bottom is hidden when 0 archived+blocked — appears only after first use.</p></div>
   <div class="ann" id="ann-s-client-detail"><span class="ann-role coach">Coach</span><h3>Client Detail</h3>
     <div class="state-toggle">
       <button class="active" onclick="setClientDetailState('default',this)">Filled</button>
@@ -1065,7 +1267,36 @@
       <button class="active" onclick="setCreateClientState('default',this)">Default</button>
       <button onclick="setCreateClientState('errors',this)">Validation errors</button>
     </div>
-    <p>CRM card for athletes without app account.</p><ul><li><strong>First name / Last name</strong> — required</li><li><strong>Phone or Email</strong> — optional, but if filled validates format (must contain @ for email, or start with + / digit for phone)</li><li><strong>Sport</strong> — dropdown from coach's sports</li><li><strong>Notes</strong> — tap opens full-screen editor (injuries, preferences)</li></ul><hr><p class="note"><strong>Validation:</strong> tap <strong>Create Client</strong> → red border + red label on missing/invalid fields (all at once) + auto-scroll to first error + snackbar «Please fill in required fields» for 2.5s. Error styles auto-clear after 3s so user can retype. Mirrors Create Session pattern.</p><p>Created athlete appears in Clients list. Coach can track sessions/payments.</p></div>
+    <p>CRM card for athletes without app account.</p><ul><li><strong>First name</strong> — required. <strong>Last name</strong> — optional (a contact / import may be first-name-only; backend allows a name with no last name).</li><li><strong>Phone number</strong> — optional; if filled validates phone format. <strong>Email removed</strong> — phone is the single match key for auto-linking when they join (email-fallback match deprecated).</li><li><strong>Sport</strong> — dropdown from coach's sports</li><li><strong>Notes</strong> — tap opens full-screen editor (injuries, preferences)</li></ul><hr><p class="note"><strong>Validation:</strong> tap <strong>Create Client</strong> → red border + red label on missing/invalid fields (all at once) + auto-scroll to first error + snackbar «Please fill in required fields» for 2.5s. Error styles auto-clear after 3s so user can retype. Mirrors Create Session pattern.</p><p>Created athlete appears in Clients list with a teal <code>CRM</code> pill. Coach can track sessions/payments.</p></div>
+
+  <div class="ann" id="ann-s-import-contacts"><span class="ann-role coach">Coach</span><h3>Import from contacts</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setImpPerm('granted',this)">Granted</button>
+      <button onclick="setImpPerm('loading',this)">Loading</button>
+      <button onclick="setImpPerm('denied',this)">Permission denied</button>
+    </div>
+    <p>Bulk-add clients from the phone address book. Opened from the Add-client drawer → OS asks for Contacts permission.</p>
+    <ul>
+      <li><strong>Granted</strong> → brief <strong>loading</strong> (skeleton) while we read the address book + run a <strong>dedup/match pass</strong> against existing clients &amp; app users (to tag <em>Already a client</em> / <em>On 321Fit</em>) → list.</li>
+      <li><strong>Multi-select</strong> rows with search. <strong>Select all</strong> toggles every eligible contact.</li>
+      <li><strong>Already a client</strong> → row disabled (no dupes).</li>
+      <li><strong>On 321Fit</strong> (phone already matches an app user) → selecting it <strong>connects instantly</strong> (active app relationship, <code>origin: auto_phone_match</code>) instead of creating a CRM stub.</li>
+      <li><strong>No phone</strong> (email-only contact) → still importable as CRM, but tagged — <strong>can't be invited or auto-linked</strong> (no phone key).</li>
+      <li><strong>Import N</strong> → bulk-creates CRM records (<code>origin: "import"</code>) → <strong>Import Done</strong> screen. Name parsed from the contact; <strong>last name optional</strong> for imports (a contact may be first-name-only).</li>
+    </ul>
+    <hr>
+    <p class="note"><strong>Permission denied</strong> → explainer + Open Settings. We never message contacts automatically — sending is always coach-initiated via native share.</p></div>
+
+  <div class="ann" id="ann-s-import-done"><span class="ann-role coach">Coach</span><h3>Import Done — invite all</h3>
+    <p>Confirmation after a bulk import + the entry point to the mass invite.</p>
+    <ul>
+      <li>Shows how many landed in CRM + how many are <strong>invitable</strong> (have a phone).</li>
+      <li><strong>Invite all N</strong> → opens the <strong>native share drawer</strong> with the coach's personal <strong>OneLink</strong> (<code>321.fit/i/{coach}?c=crm_import</code>). Coach picks a channel (WhatsApp, Messages…) and broadcasts to everyone at once — a message from a known person, not a platform blast.</li>
+      <li><strong>Attribution</strong> lives in the link: anyone who signs up through it is credited to the coach (referral analytics), regardless of channel. <strong>Per-contact linking</strong> happens via phone-match on signup — no per-contact tokens needed.</li>
+      <li><strong>Not now</strong> → straight to Clients; contacts stay as CRM, invite anytime later from the client's ⋯ menu.</li>
+    </ul>
+    <hr>
+    <p class="note">A coach gets a <strong>notification</strong> when an imported contact joins (via the link OR phone-match) — handled in the notifications catalog / Dashboard inbox, not here.</p></div>
 </div>
 
 <script src="../../lib/fit-ui.js"></script>
@@ -1085,7 +1316,9 @@ function go(id, btn) {
   document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  // btn may be null when navigating from in-screen actions; fall back to the matching sidebar entry
+  if (!btn) btn = document.querySelector('.sidebar button[onclick*="\'' + id + '\'"]');
+  if (btn) btn.classList.add('active');
   document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
   const ann = document.getElementById('ann-' + id);
   if (ann) ann.classList.add('active');
@@ -1130,22 +1363,15 @@ function validateCreateClient() {
     if (!firstError) firstError = fnameGroup;
   }
 
-  // Last name required
-  var lnameGroup = screen.querySelector('[data-required="lname"]');
-  var lnameEl = lnameGroup && lnameGroup.querySelector('.fit-input');
-  if (!lnameEl || !lnameEl.textContent.trim()) {
-    lnameGroup && lnameGroup.classList.add('error');
-    if (!firstError) firstError = lnameGroup;
-  }
+  // Last name is optional (a CRM contact / import may be first-name-only)
 
-  // Phone/Email format (optional, only when filled)
-  var contactGroup = screen.querySelector('[data-optional-format="phone-or-email"]');
+  // Phone format (optional, only when filled — email removed from CRM, phone is the match key)
+  var contactGroup = screen.querySelector('[data-optional-format="phone"]');
   var contactEl = contactGroup && contactGroup.querySelector('.fit-input');
   var contact = contactEl && contactEl.textContent.trim();
   if (contact) {
-    var isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact);
     var isPhone = /^[+\d][\d\s-]{6,}$/.test(contact);
-    if (!isEmail && !isPhone) {
+    if (!isPhone) {
       contactGroup && contactGroup.classList.add('error');
       if (!firstError) firstError = contactGroup;
     }
@@ -1193,10 +1419,8 @@ function setCreateClientState(state, btn) {
     // Clear required inputs + put invalid phone/email → validate runs error pass
     var fname = screen.querySelector('[data-required="fname"] .fit-input');
     if (fname) fname.textContent = '';
-    var lname = screen.querySelector('[data-required="lname"] .fit-input');
-    if (lname) lname.textContent = '';
-    var contact = screen.querySelector('[data-optional-format="phone-or-email"] .fit-input');
-    if (contact) contact.textContent = 'not-an-email';
+    var contact = screen.querySelector('[data-optional-format="phone"] .fit-input');
+    if (contact) contact.textContent = 'not-a-phone';
     validateCreateClient();
   }
 }
@@ -1411,6 +1635,99 @@ function resetMarkPaidDemo() {
   if (countEl) countEl.textContent = '2';
   var section = document.getElementById('cd-pending-section');
   if (section) section.style.display = '';
+}
+
+// === IMPORT FROM CONTACTS (bulk CRM) ===
+function setImpPerm(state, btn) {
+  if (btn) { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+  var screen = document.getElementById('s-import-contacts');
+  screen.classList.remove('imp-granted', 'imp-loading', 'imp-denied');
+  screen.classList.add('imp-' + state);
+}
+// Real entry from the Add-client drawer: OS permission → brief load (read address book +
+// dedup/match against existing clients & app users) → list.
+function impEnter() {
+  go('s-import-contacts', null);
+  setImpPerm('loading');
+  setTimeout(function(){ setImpPerm('granted'); }, 900);
+}
+function impSelectedRows() {
+  return Array.prototype.slice.call(document.querySelectorAll('#imp-list .imp-row.selected'));
+}
+function impRefreshCount() {
+  var sel = impSelectedRows();
+  var n = sel.length;
+  var cta = document.getElementById('imp-cta');
+  if (cta) {
+    cta.textContent = n ? ('Import ' + n + ' contact' + (n === 1 ? '' : 's')) : 'Select contacts';
+    cta.style.opacity = n ? '1' : '0.5';
+    cta.style.pointerEvents = n ? 'auto' : 'none';
+  }
+}
+function impToggle(row) {
+  if (row.getAttribute('aria-disabled') === 'true') return;
+  row.classList.toggle('selected');
+  impRefreshCount();
+}
+function impSelectAll() {
+  var rows = Array.prototype.slice.call(document.querySelectorAll('#imp-list .imp-row:not([aria-disabled="true"])'));
+  var allOn = rows.every(function(r){ return r.classList.contains('selected'); });
+  rows.forEach(function(r){ r.classList.toggle('selected', !allOn); });
+  var link = document.querySelector('.imp-selectall-link');
+  if (link) link.textContent = allOn ? 'Select all' : 'Deselect all';
+  impRefreshCount();
+}
+function impFilter(q) {
+  q = (q || '').toLowerCase();
+  document.querySelectorAll('#imp-list .imp-row').forEach(function(r){
+    var name = (r.dataset.name || '').toLowerCase();
+    r.style.display = name.indexOf(q) === -1 ? 'none' : 'flex';
+  });
+}
+function importContacts() {
+  var sel = impSelectedRows();
+  var total = sel.length;
+  if (!total) return;
+  // invitable = selected rows that have a phone (everything except no-phone rows)
+  var invitable = sel.filter(function(r){ return r.dataset.nophone !== '1'; }).length;
+  document.getElementById('imp-done-count').textContent = String(total);
+  document.getElementById('imp-done-invitable').textContent = String(invitable);
+  document.getElementById('imp-done-invite-n').textContent = String(invitable);
+  go('s-import-done', null);
+}
+
+// === INVITE SHARE DRAWER (native-share simulation; OneLink) ===
+var _shareMode = 'single';
+function openInviteShare(mode) {
+  _shareMode = mode || 'single';
+  var title = document.getElementById('invite-share-title');
+  var sub = document.getElementById('invite-share-sub');
+  if (_shareMode === 'bulk') {
+    var n = document.getElementById('imp-done-invite-n');
+    var count = n ? n.textContent : '';
+    if (title) title.textContent = 'Invite ' + count + ' to 321Fit';
+    if (sub) sub.textContent = 'Pick a channel — send your link to everyone at once. Whoever joins through it connects to you automatically.';
+  } else {
+    if (title) title.textContent = 'Invite to 321Fit';
+    if (sub) sub.textContent = 'Share your personal link — anyone who joins through it connects to you automatically.';
+  }
+  // The drawer is called from 3 different screens; move it into the active phone so the
+  // absolute overlay covers the visible screen (a hidden parent = display:none = no overlay).
+  var sheet = document.getElementById('invite-share-sheet');
+  var active = document.querySelector('.fit-phone.active');
+  if (active && sheet.parentElement !== active) active.appendChild(sheet);
+  sheet.classList.add('visible');
+}
+function finishShare(channel) {
+  document.getElementById('invite-share-sheet').classList.remove('visible');
+  var msg = channel === 'copy' ? 'Link copied' : 'Opening ' + (channel === 'share' ? 'share sheet' : channel) + '…';
+  if (_shareMode === 'bulk') {
+    // After bulk invite → back to Clients (contacts now imported + invited)
+    showClientSnack(msg);
+    setTimeout(function(){ go('s-clients', null); }, 700);
+  } else {
+    showClientSnack(msg);
+  }
 }
 
 // Deep-link via URL hash (e.g. clients.html#s-client-detail).

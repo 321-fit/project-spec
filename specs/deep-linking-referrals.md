@@ -1,6 +1,6 @@
 # Deep Linking & Referrals
 
-> Last updated: 2026-04-02
+> Last updated: 2026-06-09
 
 ## Overview
 The app uses AppsFlyer OneLink for deep linking and referral tracking. Coaches can invite athletes via shareable links, and users can share training session invites. The referral system tracks who invited whom.
@@ -130,6 +130,27 @@ Same as above plus training session token for session-specific invites.
 - Self-referral prevented
 - User can only use one referral token (can't be referred twice)
 - Referral count tracked (handler returns count)
+
+## Bulk contact import + mass invite (coach Clients tab — 2026-06-09)
+
+Coaches can import phone contacts as CRM clients and invite them all at once. Prototype + UX in `clients-coaches.md` (Flow 3d); this section covers the link + attribution side.
+
+### Delivery: native share, not platform-sent
+The mass invite is **not** a backend SMS/email blast. The coach taps **Invite all N** → the OS **share drawer** opens with one link; the coach picks a channel (WhatsApp, Messages, …) and broadcasts to whoever they want. Rationale: a message from a known person converts better and avoids spam/consent/cost of a platform blast. The app never messages contacts automatically.
+
+### Attribution: coach OneLink (channel-agnostic)
+- The shared link is the coach's personal **OneLink** with an import campaign tag: `321.fit/i/{coach_id}?c=crm_import` (`c` → AppsFlyer `af_channel`/campaign param, distinct from the Settings "Invite friend" link so import-sourced signups are separable in analytics).
+- Attribution lives **in the link**, not in the send mechanism — anyone who signs up through it is credited to that coach regardless of which app the coach sent it from.
+- **No per-contact token needed.** Coach-level credit comes from the OneLink; per-CRM-record linking comes from **phone-match** at signup (the phone was imported). One link to a group → all who join are credited to the coach AND each cascades to their own CRM record.
+
+### Referral credit = exactly one coach
+The coach whose OneLink the new user actually opened gets `origin: invite` (referral credit). Other coaches holding the same phone link via `origin: auto_phone_match` — connected, but not credited. Keeps the "users brought" metric unambiguous (see `clients-coaches.md` Flow 9).
+
+### "Contact joined" notification (mandatory)
+When an imported/CRM contact's relationship flips `crm → app` — via the OneLink **or** via phone-match on an organic signup — the owning coach is notified. See `notifications-catalog.md` (category: contact joined). This extends the existing referral push (which fired only on token signup) to also cover phone-match joins.
+
+### Already-on-321Fit at import time
+If an imported contact's phone already matches an existing app account, it's connected instantly as an `active app-account` relationship (`origin: auto_phone_match`) — no invite link needed for that row.
 
 ## Invite UI
 

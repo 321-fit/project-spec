@@ -2,13 +2,13 @@
 
 > Status: Approved
 > Companion to: [notifications.md](./notifications.md) (infrastructure — registration, delivery, inbox UI, routing internals)
-> Last updated: 2026-05-22
+> Last updated: 2026-06-09
 
 The **single source of truth** for every notification the app sends — what triggers it, who receives it, what copy lands in the push body / inbox row, what template variables backend must pass, where tap routes to.
 
 When changing copy, **update this file first**, then mirror in `notification_template` DB via Alembic migration, then verify call sites pass exact `template_data` keys listed in the row.
 
-## 1. The catalog — 19 categories
+## 1. The catalog — 20 categories
 
 Each notification has two visible parts on the user's device:
 
@@ -38,7 +38,8 @@ Each notification has two visible parts on the user's device:
 | 16 | `cash_overdue` *new 2026-05-22* | `reminder` | Daily Celery beat: cash earning unpaid > 3 days | P · I | **Cash unpaid** | `{athlete_name}'s {session_name} on {date} is still unpaid — mark as paid?` | Coach → Earnings → s-txn-cash | **action** | `athlete_name, session_name, date` |
 | 17 | `calendar_sync_needs_attention` *new 2026-05-22 — spec'd in notifications.md § Calendar sync issue, template was missing* | `calendarSync` | OAuth refresh fail / app-specific password revoked / 2FA disabled | P · I | **Calendar sync issue** | `Reconnect {provider} Calendar to keep events synced.` | Coach/Athlete → Settings → Calendar Sync | **action** | `provider` |
 | 18 | `new_review` *new 2026-05-22 — when athlete-review module ships* | `review` | Athlete leaves a review on a finished session | P · I | **New review** | `{athlete_name} left you a {rating}★ review on {session_name}.` | Coach → Profile → Reviews carousel (anchor to new entry) | tap | `athlete_name, rating, session_name` |
-| 19 | `referral_athlete_joined` *new 2026-05-22 — fills the referral gap* | `onboardingDone` | Athlete signs up via coach's referral link AND completes onboarding | P · I | **Athlete joined** | `{athlete_name} joined 321Fit via your invite — ready to train.` | Coach → Clients → athlete detail | tap | `athlete_name` |
+| 19 | `referral_athlete_joined` *new 2026-05-22 — fills the referral gap* | `onboardingDone` | Athlete signs up via coach's referral/invite link (incl. the `crm_import` OneLink) AND completes onboarding | P · I | **Athlete joined** | `{athlete_name} joined 321Fit via your invite — ready to train.` | Coach → Clients → athlete detail | tap | `athlete_name` |
+| 20 | `crm_contact_joined` *new 2026-06-09 — contact import / phone-match path* | `onboardingDone` | A coach's existing **CRM contact** is auto-linked to a new app account via **phone-match** (the coach did not necessarily send a link) → relationship flips `crm → app` | P · I | **Contact joined** | `{athlete_name} from your contacts just joined 321Fit — now connected.` | Coach → Clients → athlete detail (upgraded) | tap | `athlete_name` |
 
 ### Clearance tag legend
 
