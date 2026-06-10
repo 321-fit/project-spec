@@ -774,11 +774,24 @@
 
     var originalGo = window.go;
 
+    // Some pages define go(id, btn) without a null-guard on btn — when we restore
+    // from a hash / popstate there may be no matching sidebar button (sub-screens).
+    // Swallow the resulting throw so navigation never breaks (screen still switches;
+    // only the sidebar highlight may lag on those pages).
+    function safeGo(id, btn) {
+      try { originalGo(id, btn); } catch (e) { /* page go() not null-safe — ignore */ }
+    }
+    // history API can throw on file:// (opaque origin) in some browsers — guard so a
+    // blocked pushState never breaks the actual screen switch. URL just won't sync there.
+    function safeHistory(method, id) {
+      try { history[method]({ fitScreen: id }, '', '#' + id); } catch (e) { /* URL sync unavailable */ }
+    }
+
     window.go = function (id, btn) {
       originalGo(id, btn);
-      // Push hash (replace if we're already on this screen to avoid duplicate entries)
+      // Push hash (skip if we're already on this screen to avoid duplicate entries)
       if (location.hash === '#' + id) return;
-      history.pushState({ fitScreen: id }, '', '#' + id);
+      safeHistory('pushState', id);
     };
 
     // Restore screen from hash on page load
@@ -786,8 +799,8 @@
     if (hash && document.getElementById(hash)) {
       // Find matching sidebar button
       var sidebarBtn = document.querySelector('.sidebar button[onclick*="\'' + hash + '\'"]');
-      originalGo(hash, sidebarBtn);
-      history.replaceState({ fitScreen: hash }, '', '#' + hash);
+      safeGo(hash, sidebarBtn);
+      safeHistory('replaceState', hash);
     }
 
     // Handle browser back / forward
@@ -795,7 +808,7 @@
       var screenId = (e.state && e.state.fitScreen) || location.hash.replace('#', '');
       if (screenId && document.getElementById(screenId)) {
         var sidebarBtn = document.querySelector('.sidebar button[onclick*="\'' + screenId + '\'"]');
-        originalGo(screenId, sidebarBtn);
+        safeGo(screenId, sidebarBtn);
       }
     });
   }
