@@ -757,6 +757,58 @@
     return { close: close, element: overlay };
   }
 
+  // ============================================================
+  // HASH ROUTING
+  // ============================================================
+  // Hooks into the page-level go() function to sync screen id ↔ URL hash.
+  // - go('s-foo', btn) → URL becomes  …page.html#s-foo
+  // - Opening a URL with #s-foo     → activates that screen on load
+  // - Browser back/forward          → switches screens via popstate
+  //
+  // Works automatically: wraps window.go() once on DOMContentLoaded.
+  // No changes needed in individual HTML files.
+
+  function initHashRouting() {
+    // Only activate if the page defines go()
+    if (typeof window.go !== 'function') return;
+
+    var originalGo = window.go;
+
+    window.go = function (id, btn) {
+      originalGo(id, btn);
+      // Push hash (replace if we're already on this screen to avoid duplicate entries)
+      if (location.hash === '#' + id) return;
+      history.pushState({ fitScreen: id }, '', '#' + id);
+    };
+
+    // Restore screen from hash on page load
+    var hash = location.hash.replace('#', '');
+    if (hash && document.getElementById(hash)) {
+      // Find matching sidebar button
+      var sidebarBtn = document.querySelector('.sidebar button[onclick*="\'' + hash + '\'"]');
+      originalGo(hash, sidebarBtn);
+      history.replaceState({ fitScreen: hash }, '', '#' + hash);
+    }
+
+    // Handle browser back / forward
+    window.addEventListener('popstate', function (e) {
+      var screenId = (e.state && e.state.fitScreen) || location.hash.replace('#', '');
+      if (screenId && document.getElementById(screenId)) {
+        var sidebarBtn = document.querySelector('.sidebar button[onclick*="\'' + screenId + '\'"]');
+        originalGo(screenId, sidebarBtn);
+      }
+    });
+  }
+
+  // Init hash routing after a tick — let page scripts define go() first
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () {
+      setTimeout(initHashRouting, 0);
+    });
+  } else {
+    setTimeout(initHashRouting, 0);
+  }
+
   // Expose for manual init
   window.FitUI = {
     initAll,
