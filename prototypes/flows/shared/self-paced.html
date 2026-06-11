@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Self-paced Training (WIP)</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: var(--fit-font); background: #0a0a0a; display: flex; justify-content: center; align-items: flex-start; padding: 24px; min-height: 100vh; min-width: 900px; }
+
+  /* Sidebar */
+  .sidebar { position: fixed; left: 24px; top: 24px; bottom: 24px; width: 200px; display: flex; flex-direction: column; }
+  .sidebar-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--fit-gray-600); padding: 0 8px; margin: 16px 0 8px; }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar .label.co { color: var(--fit-blue-500); } .sidebar .label.at { color: var(--fit-teal-500); }
+  .sidebar button { font-family: var(--fit-font); font-size: 14px; font-weight: 400; padding: 10px 12px; border-radius: 10px; border: none; background: transparent; color: var(--fit-gray-400); cursor: pointer; text-align: left; width: 100%; transition: all 0.15s; }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active { background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500; }
+
+  /* Annotations */
+  .ann-container { position: fixed; left: calc(50% + 195px + 48px); right: 24px; top: 24px; bottom: 24px; width: auto; overflow-y: auto; }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; } .ann.active { display: block; }
+  .ann-role { display: inline-block; font-size: 14px; font-weight: 500; padding: 4px 12px; border-radius: 8px; margin-bottom: 16px; }
+  .ann-role.coach { background: rgba(3,178,226,0.15); color: var(--fit-blue-500); }
+  .ann-role.athlete { background: rgba(5,224,166,0.15); color: var(--fit-teal-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 15px; line-height: 1.6; color: var(--fit-gray-400); }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 12px; padding-left: 18px; font-size: 15px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 6px; }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 13px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  .ann code { font-size: 12px; background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 3px; color: var(--fit-gray-400); }
+  .state-toggle { display: inline-flex; gap: 0; border-radius: 6px; overflow: hidden; border: 1px solid var(--fit-gray-700); margin-bottom: 12px; flex-wrap: wrap; }
+  .state-toggle button { font-family: var(--fit-font); font-size: 12px; font-weight: 500; padding: 4px 10px; border: none; cursor: pointer; background: transparent; color: var(--fit-gray-400); }
+  .state-toggle button.active { background: var(--fit-gray-700); color: var(--fit-white); }
+
+  /* Screen visibility */
+  .fit-phone { display: none; } .fit-phone.active { display: flex; }
+  .fit-dark .fit-phone-header, .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-dark .fit-phone-footer, .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+  [contenteditable][data-placeholder]:empty::before { content: attr(data-placeholder); color: var(--fit-text-placeholder); pointer-events: none; }
+
+  /* ===== Self-paced atoms (sp-) ===== */
+  .sp-pill { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; padding: 3px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+  .sp-pill.assigned  { color: var(--fit-blue-500);  background: rgba(3,178,226,0.12);  border: 1px solid rgba(3,178,226,0.3); }
+  .sp-pill.scheduled { color: var(--fit-teal-500);  background: rgba(5,224,166,0.10);  border: 1px solid rgba(5,224,166,0.3); }
+  .sp-pill.submitted { color: var(--fit-yellow-600);background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.3); }
+  .sp-pill.finished  { color: var(--fit-text-tertiary); background: var(--fit-surface-high); border: 1px solid var(--fit-divider); }
+  .sp-pill.online    { color: var(--fit-brand-primary); background: rgba(0,167,208,0.12); border: 1px solid rgba(0,167,208,0.3); }
+
+  .sp-sec { padding: 0 16px; margin: 20px 0 10px; } .sp-sec:first-child { margin-top: 4px; }
+
+  /* Generic row-card (sessions, requests, history, library) */
+  .sp-card { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; background: var(--fit-surface-high); cursor: pointer; }
+  .fit-light .sp-card { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .sp-card + .sp-card { margin-top: 8px; }
+  .sp-thumb { width: 52px; height: 52px; border-radius: 10px; background: var(--fit-brand-gradient); flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; }
+  .sp-thumb.g2 { background: linear-gradient(135deg,#ef4444,#f59e0b); } .sp-thumb.g3 { background: linear-gradient(135deg,#8b5cf6,#ec4899); } .sp-thumb.g4 { background: linear-gradient(135deg,#10b981,#06b6d4); }
+  .sp-body { flex: 1; min-width: 0; }
+  .sp-row1 { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .sp-title { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sp-meta { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sp-av { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: #fff; background: var(--fit-gray-600); }
+
+  /* Outline note card → editor (reuse of My-note pattern) */
+  .sp-note { margin: 0 16px 8px; padding: 14px; border-radius: 12px; background: transparent; border: 1px solid var(--fit-divider); cursor: pointer; }
+  .sp-note-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: var(--fit-text-tertiary); margin-bottom: 6px; }
+  .sp-note-body { font-size: 14px; line-height: 1.55; color: var(--fit-text-secondary); }
+  .sp-note-body.empty { color: var(--fit-text-tertiary); display: flex; align-items: center; gap: 8px; }
+
+  /* ===== Setup builder — step cards ===== */
+  .sp-step { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 12px; background: var(--fit-surface-high); cursor: pointer; }
+  .fit-light .sp-step { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .sp-step + .sp-step { margin-top: 8px; }
+  .sp-drag { color: var(--fit-text-tertiary); flex-shrink: 0; display: flex; cursor: grab; }
+  .sp-num { width: 24px; height: 24px; border-radius: 7px; background: var(--fit-surface-higher); color: var(--fit-text-secondary); font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .fit-light .sp-num { background: var(--fit-gray-100); }
+  .sp-tbadge { font-size: 11px; font-weight: 500; color: var(--fit-text-secondary); background: var(--fit-surface-higher); border-radius: 6px; padding: 2px 7px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+  .fit-light .sp-tbadge { background: var(--fit-gray-100); }
+  .sp-tbadge svg { width: 11px; height: 11px; }
+  .sp-vthumb { width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; background: var(--fit-brand-gradient); }
+
+  /* Add-step dashed button */
+  .sp-add { width: calc(100% - 32px); margin: 8px 16px 0; padding: 14px; border-radius: 12px; border: 1.5px dashed var(--fit-divider); background: transparent; color: var(--fit-text-secondary); font-family: var(--fit-font); font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .sp-add svg { width: 18px; height: 18px; }
+
+  /* Step-editor counter header */
+  .sp-counter { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 0 16px 14px; }
+  .sp-counter .nav { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--fit-surface-high); color: var(--fit-text-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .sp-counter .nav:disabled { opacity: 0.35; cursor: default; }
+  .sp-counter .lbl { font-size: 14px; font-weight: 500; color: var(--fit-text-secondary); min-width: 88px; text-align: center; }
+
+  /* Step-editor target conditional fields */
+  #s-step [data-tgt] { display: none; }
+  #s-step.tgt-timer [data-tgt="timer"] { display: block; }
+  #s-step.tgt-reps  [data-tgt="reps"]  { display: block; }
+
+  /* Video frame */
+  .sp-video { margin: 0 16px 16px; border-radius: 14px; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; }
+  .sp-video .ph { position: absolute; inset: 0; background: linear-gradient(135deg,#1f2937,#374151); }
+  .sp-video svg { position: relative; opacity: 0.92; }
+
+  /* Timer */
+  .sp-timer-ring { width: 200px; height: 200px; border-radius: 50%; border: 6px solid var(--fit-surface-high); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 8px auto 20px; }
+  .fit-light .sp-timer-ring { border-color: var(--fit-gray-100); }
+  .sp-timer-num { font-size: 44px; font-weight: 600; color: var(--fit-text-primary); font-variant-numeric: tabular-nums; }
+  .sp-timer-cap { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+
+  /* Upload box */
+  .sp-upload { margin: 0 16px 16px; padding: 22px; border-radius: 14px; border: 1.5px dashed var(--fit-divider); text-align: center; cursor: pointer; }
+  .sp-upload svg { width: 28px; height: 28px; color: var(--fit-text-tertiary); margin-bottom: 8px; }
+  .sp-upload-title { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .sp-upload-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .sp-attached { display: flex; align-items: center; gap: 12px; margin: 0 16px 16px; padding: 12px; border-radius: 12px; background: var(--fit-surface-high); }
+  .fit-light .sp-attached { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+
+  /* Remove (×) */
+  .sp-remove { width: 28px; height: 28px; border-radius: 50%; border: none; background: transparent; color: var(--fit-text-tertiary); cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .sp-remove:hover { background: var(--fit-surface-higher); color: var(--fit-text-primary); }
+  .sp-remove svg { width: 16px; height: 16px; }
+
+  /* Comments */
+  .sp-cmt { display: flex; gap: 10px; padding: 0 16px 16px; }
+  .sp-cmt.me { flex-direction: row-reverse; }
+  .sp-cmt-av { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #fff; background: var(--fit-gray-600); }
+  .sp-cmt-bub { max-width: 75%; padding: 10px 12px; border-radius: 14px; background: var(--fit-surface-high); }
+  .fit-light .sp-cmt-bub { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .sp-cmt.me .sp-cmt-bub { background: var(--fit-selection-gradient); }
+  .sp-cmt-name { font-size: 12px; font-weight: 500; color: var(--fit-text-secondary); margin-bottom: 3px; }
+  .sp-cmt-text { font-size: 14px; line-height: 1.45; color: var(--fit-text-primary); }
+  .sp-cmt-time { font-size: 11px; color: var(--fit-text-tertiary); margin-top: 4px; }
+  .sp-cmt-bar { display: flex; align-items: center; gap: 8px; padding: 10px 16px 16px; }
+  .sp-cmt-input { flex: 1; border: 1px solid var(--fit-divider); border-radius: 99px; padding: 10px 14px; background: transparent; font-family: var(--fit-font); font-size: 14px; color: var(--fit-text-primary); outline: none; }
+  .sp-cmt-send { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--fit-brand-gradient); color: #fff; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+
+  /* Upload progress */
+  .sp-prog-track { height: 8px; border-radius: 4px; background: var(--fit-surface-high); overflow: hidden; }
+  .fit-light .sp-prog-track { background: var(--fit-gray-100); }
+  .sp-prog-fill { height: 100%; border-radius: 4px; background: var(--fit-brand-gradient); width: 0; transition: width 0.2s linear; }
+
+  /* Trim */
+  .sp-trim-track { position: relative; height: 56px; border-radius: 10px; margin: 0 16px 8px; background: var(--fit-surface-high); overflow: hidden; }
+  .fit-light .sp-trim-track { background: var(--fit-gray-100); }
+  .sp-trim-sel { position: absolute; top: 0; bottom: 0; left: 12%; right: 14%; border: 2px solid var(--fit-brand-primary); border-radius: 8px; background: rgba(0,167,208,0.10); }
+  .sp-trim-handle { position: absolute; top: 0; bottom: 0; width: 14px; background: var(--fit-brand-primary); display: flex; align-items: center; justify-content: center; cursor: ew-resize; }
+  .sp-trim-handle.l { left: -2px; border-radius: 8px 0 0 8px; } .sp-trim-handle.r { right: -2px; border-radius: 0 8px 8px 0; }
+  .sp-trim-handle::after { content: ''; width: 2px; height: 18px; background: #fff; border-radius: 1px; }
+
+  /* ===== Inbox-style request card (matches coach unified Inbox .req-card) ===== */
+  .spq { padding: 16px; border-radius: 16px; background: var(--fit-surface-high); }
+  .fit-light .spq { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .spq + .spq { margin-top: 12px; }
+  .spq-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; cursor: pointer; }
+  .spq-av { width: 44px; height: 44px; border-radius: 50%; background: var(--fit-surface-higher); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 500; color: var(--fit-text-secondary); flex-shrink: 0; }
+  .fit-light .spq-av { background: var(--fit-gray-100); }
+  .spq-name { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .spq-sub { font-size: 12px; color: var(--fit-text-tertiary); display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+  .spq-title { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); margin-bottom: 8px; }
+  .spq-meta { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--fit-text-secondary); margin-bottom: 14px; }
+  .spq-meta svg { width: 13px; height: 13px; flex-shrink: 0; }
+  .spq-btn { width: 100%; height: 44px; border: none; border-radius: 99px; background: var(--fit-brand-gradient); color: #fff; font-family: var(--fit-font); font-size: 16px; font-weight: 500; cursor: pointer; }
+  .spq-wait { font-size: 13px; color: var(--fit-text-tertiary); display: flex; align-items: center; gap: 6px; }
+  .spq-tag { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; padding: 2px 6px; border-radius: 5px; color: var(--fit-brand-primary); background: rgba(0,167,208,0.12); border: 1px solid rgba(0,167,208,0.3); display: inline-flex; align-items: center; gap: 3px; }
+  .spq-tag svg { width: 9px; height: 9px; }
+  /* segmented tabs — EXACT match of coach unified-Inbox tabs (dashboard.html s-notifications) */
+  .spq-seg { display: flex; margin: 0 16px 12px; border-radius: 10px; overflow: hidden; background: var(--fit-surface-high); padding: 3px; }
+  .fit-light .spq-seg { background: var(--fit-gray-100); }
+  .spq-seg button { flex: 1; padding: 8px 0; border: none; border-radius: 8px; background: transparent; color: var(--fit-text-secondary); font-family: var(--fit-font); font-size: 13px; font-weight: 500; cursor: pointer; }
+  .spq-seg button.selected { background: var(--fit-brand-gradient); color: var(--fit-white); }
+  .spq-seg button .ct { opacity: 0.6; }
+  .spq-seg button.selected .ct { opacity: 0.8; }
+
+  /* List/welcome/player state toggles */
+  [data-st] { display: none; }
+  .ls-default [data-st="default"], .ls-empty [data-st="empty"], .ls-loading [data-st="loading"] { display: block; }
+  #s-welcome [data-wlc] { display: none; }
+  #s-welcome.wlc-paid [data-wlc="paid"] { display: block; }
+  #s-welcome.wlc-unpaid [data-wlc="unpaid"] { display: block; }
+  #s-player [data-pl] { display: none; }
+  #s-player.pl-timed [data-pl="timed"] { display: flex; }
+  #s-player.pl-untimed [data-pl="untimed"] { display: block; }
+  #s-review [data-rv] { display: none; }
+  #s-review.rv-clip [data-rv="clip"] { display: block; }
+  #s-review.rv-noclip [data-rv="noclip"] { display: block; }
+
+  /* Review — athlete clips carousel */
+  .sp-clips { display: flex; gap: 10px; padding: 0 16px 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; scroll-padding-left: 16px; }
+  .sp-clip { position: relative; width: 104px; height: 150px; border-radius: 12px; overflow: hidden; flex-shrink: 0; cursor: pointer; scroll-snap-align: start; background: #000; }
+  .sp-clip .ph { position: absolute; inset: 0; }
+  .sp-clip .pl { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+  .sp-clip .pl svg { width: 30px; height: 30px; color: #fff; opacity: 0.95; }
+  .sp-clip .dur { position: absolute; bottom: 6px; right: 6px; font-size: 11px; font-weight: 500; color: #fff; background: rgba(0,0,0,0.55); padding: 1px 6px; border-radius: 6px; }
+  /* No-clip inline state (distinct from the note quote) */
+  .sp-noclip { display: flex; align-items: center; gap: 8px; margin: 0 16px 4px; font-size: 14px; color: var(--fit-text-tertiary); }
+  .sp-noclip svg { width: 16px; height: 16px; color: var(--fit-teal-500); flex-shrink: 0; }
+  /* Athlete note as a quote (left accent + italic) — distinct from outline cards */
+  .sp-quote { margin: 16px 16px 4px; padding: 2px 0 2px 14px; border-left: 3px solid var(--fit-divider); }
+  .sp-quote-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: var(--fit-text-tertiary); margin-bottom: 5px; }
+  .sp-quote-text { font-size: 15px; line-height: 1.5; color: var(--fit-text-secondary); font-style: italic; }
+  .sp-ta-counter { text-align: right; font-size: 12px; color: var(--fit-text-tertiary); margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+    <button onclick="window.location.href='../../index.html'" style="display:flex;align-items:center;gap:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;padding:8px 12px;border-radius:10px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-gray-300);cursor:pointer;width:100%;margin-bottom:8px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      All modules
+    </button>
+    <div class="label">Self-paced · WIP</div>
+    <button class="active" onclick="go('s-overview',this)">Overview</button>
+    <div class="label co">Coach</div>
+    <button onclick="go('s-offering',this)">Offering (catalog)</button>
+    <button onclick="go('s-queue',this)">Requests + review</button>
+    <button onclick="go('s-inbox',this)">↳ in unified Inbox</button>
+    <button onclick="go('s-setup',this)">Setup builder</button>
+    <button onclick="go('s-step',this)">Step editor</button>
+    <button onclick="go('s-review',this)">Review submission</button>
+    <button onclick="go('s-history',this)">Client history</button>
+    <button onclick="go('s-library',this)">Coach library</button>
+    <div class="label at">Athlete</div>
+    <button onclick="go('s-book',this)">Book offering</button>
+    <button onclick="go('s-list',this)">My self-paced</button>
+    <button onclick="go('s-welcome',this)">Welcome / intro</button>
+    <button onclick="go('s-player',this)">Player</button>
+    <button onclick="go('s-complete',this)">Complete + upload</button>
+    <button onclick="go('s-comments',this)">Comments</button>
+    <div class="label">Video sub-flow</div>
+    <button onclick="go('s-trim',this)">Trim clip</button>
+    <button onclick="go('s-upload',this)">Uploading (Mux)</button>
+    <div class="label">Other modules</div>
+    <button onclick="window.location.href='profile.html'">← shared/profile</button>
+  </div>
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ==================== OVERVIEW ==================== -->
+<div class="fit-phone fit-dark active" id="s-overview">
+  <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div><div class="fit-header"><span class="fit-header-title">Self-paced — flow</span></div></div>
+  <div class="fit-phone-content" style="padding-top:8px;">
+    <div class="sp-note" style="cursor:default;border-color:var(--fit-brand-primary);">
+      <div class="sp-note-label" style="color:var(--fit-brand-primary);">Model</div>
+      <div class="sp-note-body">A cheap, online training type. Coach offers it generically; <strong>builds the actual workout per athlete</strong> after a booking (or initiates it). Athlete does it on their own time, optionally films a clip, both comment. Coach reviews.</div>
+    </div>
+    <div class="fit-section-title--md">Flow</div>
+    <div style="padding:0 16px 8px;font-size:14px;line-height:1.9;color:var(--fit-text-secondary);">
+      <strong style="color:var(--fit-blue-500);">Coach</strong> creates a generic <em>offering</em> (name + price)<br>
+      → <strong style="color:var(--fit-teal-500);">Athlete</strong> books it → coach gets a <strong>request</strong><br>
+      → Coach taps it → <strong>setup builder</strong> (steps, per athlete) → Send<br>
+      → Athlete: <strong>welcome</strong> → <strong>player</strong> → complete + clip<br>
+      → Coach <strong>reviews</strong>; both keep a per-session comment thread
+    </div>
+    <div class="fit-section-title--md">Lifecycle</div>
+    <div style="padding:0 16px 24px;font-size:14px;line-height:2;color:var(--fit-text-secondary);">
+      <span class="sp-pill assigned">Requested</span> booked, coach to set up<br>
+      <span class="sp-pill scheduled">Ready</span> set up, athlete to do<br>
+      <span class="sp-pill submitted">Submitted</span> done, coach to review<br>
+      <span class="sp-pill finished">Finished</span> reviewed
+    </div>
+  </div>
+</div>
+
+<!-- ==================== COACH: OFFERING (catalog entry) ==================== -->
+<div class="fit-phone fit-dark" id="s-offering">
+  <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-icon-btn" aria-label="Close" onclick="go('s-overview',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      <span class="fit-header-title" style="flex:1;text-align:center;">Self-paced offering</span><span style="width:32px;"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-top:8px;">
+    <div class="sp-note" style="cursor:default;">
+      <div class="sp-note-body">This is just a <strong>catalog entry</strong> athletes can book. You build the actual workout per athlete when a request comes in — so it stays individual.</div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;margin-top:8px;">
+      <span class="fit-input-label">Name</span>
+      <div class="fit-input" contenteditable="true" style="outline:none;cursor:text;">Online self-paced session</div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Price <span style="font-weight:400;color:var(--fit-text-tertiary);">— usually below your live rate</span></span>
+      <div class="fit-input" contenteditable="true" style="outline:none;cursor:text;">€12</div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Sport</span>
+      <div class="fit-input" style="cursor:pointer;"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg></span> Fitness<span class="fit-input-chevron" style="margin-left:auto;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
+    <button onclick="go('s-queue',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Save offering</button>
+  </div>
+</div>
+
+<!-- ==================== COACH: REQUESTS + REVIEW (queue) ==================== -->
+<div class="fit-phone fit-dark ls-default" id="s-queue">
+  <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" aria-label="Back" onclick="go('s-overview',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Self-paced</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-top:8px;">
+    <div data-st="default">
+      <div class="spq-seg">
+        <button class="selected" onclick="spqTab('setup',this)">Set up <span class="ct">(1)</span></button>
+        <button onclick="spqTab('review',this)">Review <span class="ct">(2)</span></button>
+        <button onclick="spqTab('active',this)">Active <span class="ct">(1)</span></button>
+      </div>
+
+      <!-- TO SET UP -->
+      <div id="qp-setup" style="padding:0 16px 24px;">
+        <div class="spq">
+          <div class="spq-head" onclick="go('s-setup',null)">
+            <span class="spq-av">AK</span>
+            <div style="flex:1;min-width:0;"><div class="spq-name">Anna Kowalski</div><div class="spq-sub"><span class="spq-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 9l5-2v10l-5-2z"/></svg>Self-paced</span> booked · paid €12 · 1h ago</div></div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <div class="spq-title">Online self-paced session</div>
+          <div class="spq-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>Build the workout for Anna</div>
+          <button class="spq-btn" onclick="go('s-setup',null)">Set up workout</button>
+        </div>
+      </div>
+
+      <!-- TO REVIEW -->
+      <div id="qp-review" style="padding:0 16px 24px;display:none;">
+        <div class="spq">
+          <div class="spq-head" onclick="go('s-review',null)">
+            <span class="spq-av">JD</span>
+            <div style="flex:1;min-width:0;"><div class="spq-name">Julia Dent</div><div class="spq-sub"><span class="spq-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 9l5-2v10l-5-2z"/></svg>Self-paced</span> uploaded a clip · 2h ago</div></div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <div class="spq-title">Lower-body mobility</div>
+          <div class="spq-meta"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>1 clip · note attached · 3 steps</div>
+          <button class="spq-btn" onclick="go('s-review',null)">Review</button>
+        </div>
+        <div class="spq">
+          <div class="spq-head" onclick="go('s-review',null)">
+            <span class="spq-av">MS</span>
+            <div style="flex:1;min-width:0;"><div class="spq-name">Mark Schmidt</div><div class="spq-sub"><span class="spq-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 9l5-2v10l-5-2z"/></svg>Self-paced</span> marked done · yesterday</div></div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <div class="spq-title">Core circuit</div>
+          <div class="spq-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>No clip — done from her note</div>
+          <button class="spq-btn" onclick="go('s-review',null)">Review</button>
+        </div>
+      </div>
+
+      <!-- ACTIVE -->
+      <div id="qp-active" style="padding:0 16px 24px;display:none;">
+        <div class="spq">
+          <div class="spq-head" style="cursor:default;">
+            <span class="spq-av">PW</span>
+            <div style="flex:1;min-width:0;"><div class="spq-name">Paul Weber</div><div class="spq-sub"><span class="spq-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 9l5-2v10l-5-2z"/></svg>Self-paced</span> sent 2 days ago</div></div>
+            <span class="sp-pill scheduled">Ready</span>
+          </div>
+          <div class="spq-title">Mobility reset</div>
+          <div class="spq-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Waiting for Paul to do it · 3 steps</div>
+        </div>
+      </div>
+    </div>
+    <div data-st="empty">
+      <div class="fit-empty-state" style="padding-top:72px;">
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:56px;height:56px;color:var(--fit-gray-600);margin-bottom:16px;"><rect x="10" y="14" width="44" height="30" rx="4"/><path d="M28 24l10 5-10 5z"/></svg>
+        <div class="fit-empty-state-title">Nothing here yet</div>
+        <div style="font-size:14px;color:var(--fit-text-tertiary);margin-top:8px;text-align:center;line-height:1.5;">When an athlete books your self-paced<br>offering, set-up requests land here.</div>
+      </div>
+    </div>
+    <div data-st="loading" style="padding-top:8px;">
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:52%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:44%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== COACH: UNIFIED INBOX (self-paced lives here) ==================== -->
+<div class="fit-phone fit-dark" id="s-inbox">
+  <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" aria-label="Back" onclick="go('s-overview',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Inbox</span>
+      <button class="fit-icon-btn" aria-label="More"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></button>
+    </div>
+    <div class="spq-seg">
+      <button onclick="inbTab('activity',this)">Activity <span class="ct">(5)</span></button>
+      <button class="selected" onclick="inbTab('reply',this)">To reply <span class="ct">(4)</span></button>
+      <button onclick="inbTab('waiting',this)">Waiting <span class="ct">(1)</span></button>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-top:8px;">
+
+    <!-- TO REPLY: self-paced + normal requests mixed, same card shell -->
+    <div id="inb-reply" style="padding:0 16px 24px;">
+      <!-- self-paced: set up -->
+      <div class="spq">
+        <div class="spq-head" onclick="go('s-setup',null)">
+          <span class="spq-av">AK</span>
+          <div style="flex:1;min-width:0;"><div class="spq-name">Anna Kowalski</div><div class="spq-sub"><span class="spq-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 9l5-2v10l-5-2z"/></svg>Self-paced</span> booked · paid €12</div></div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="spq-title">Online self-paced session</div>
+        <div class="spq-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>Build the workout for Anna</div>
+        <button class="spq-btn" onclick="go('s-setup',null)">Set up workout</button>
+      </div>
+
+      <!-- normal booking request (existing inbox card) -->
+      <div class="spq">
+        <div class="spq-head" style="cursor:pointer;">
+          <span class="spq-av">TN</span>
+          <div style="flex:1;min-width:0;"><div class="spq-name">Tom Novak</div><div class="spq-sub">wants to book a session</div></div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="spq-title">Boxing Training</div>
+        <div class="spq-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Thu, Apr 17 · 19:30 – 20:30</div>
+        <div style="display:flex;gap:8px;">
+          <button class="fit-btn fit-btn-destructive" style="flex:1;height:44px;font-size:16px;">Decline</button>
+          <button class="fit-btn" style="flex:1;height:44px;font-size:16px;background:var(--fit-brand-gradient);color:#fff;">Accept</button>
+        </div>
+      </div>
+
+      <!-- self-paced: review -->
+      <div class="spq">
+        <div class="spq-head" onclick="go('s-review',null)">
+          <span class="spq-av">JD</span>
+          <div style="flex:1;min-width:0;"><div class="spq-name">Julia Dent</div><div class="spq-sub"><span class="spq-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 9l5-2v10l-5-2z"/></svg>Self-paced</span> uploaded a clip · 2h ago</div></div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="spq-title">Lower-body mobility</div>
+        <div class="spq-meta"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>1 clip · note attached</div>
+        <button class="spq-btn" onclick="go('s-review',null)">Review</button>
+      </div>
+    </div>
+
+    <!-- WAITING -->
+    <div id="inb-waiting" style="padding:0 16px 24px;display:none;">
+      <div class="spq">
+        <div class="spq-head" style="cursor:default;">
+          <span class="spq-av">PW</span>
+          <div style="flex:1;min-width:0;"><div class="spq-name">Paul Weber</div><div class="spq-sub"><span class="spq-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 9l5-2v10l-5-2z"/></svg>Self-paced</span> sent 2 days ago</div></div>
+          <span class="sp-pill scheduled">Ready</span>
+        </div>
+        <div class="spq-title">Mobility reset</div>
+        <div class="spq-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Waiting for Paul to do it · 3 steps</div>
+      </div>
+      <div class="spq-wait" style="padding:14px 4px 0;justify-content:center;">Plus your usual outgoing invites awaiting reply…</div>
+    </div>
+
+    <!-- ACTIVITY (just a hint for the mock) -->
+    <div id="inb-activity" style="padding:24px 16px;display:none;">
+      <div class="spq-wait" style="justify-content:center;text-align:center;line-height:1.5;">Push-history feed (sync errors, joined, payments…). Self-paced events also log here.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== COACH: SETUP BUILDER (home / list) ==================== -->
+<div class="fit-phone fit-dark" id="s-setup">
+  <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" aria-label="Back" onclick="go('s-queue',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Set up for Anna</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-top:8px;">
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Workout title</span>
+      <div class="fit-input" contenteditable="true" style="outline:none;cursor:text;">Lower-body mobility</div>
+    </div>
+    <!-- Welcome note → outline card → editor (reuse My-note pattern) -->
+    <div style="padding:0 16px;"><span class="fit-input-label">Welcome note for Anna</span></div>
+    <div class="sp-note" onclick="go('s-comments',null)">
+      <div class="sp-note-body">Do these this week — film set 3 of the hip openers so I can check your depth.</div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin:18px 0 10px;">
+      <span class="fit-section-title--md" style="padding:0;margin:0;">Steps (3)</span>
+      <span style="font-size:12px;color:var(--fit-text-tertiary);">drag to reorder</span>
+    </div>
+    <div style="padding:0 16px;" id="setup-steps">
+      <div class="sp-step" onclick="go('s-step',null)">
+        <span class="sp-drag"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="18" r="1"/></svg></span>
+        <span class="sp-num">1</span>
+        <span class="sp-vthumb"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        <div class="sp-body"><div class="sp-title">Warm-up</div><div style="margin-top:4px;"><span class="sp-tbadge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>3:00</span></div></div>
+        <button class="sp-remove" aria-label="Remove" onclick="event.stopPropagation();this.closest('.sp-step').remove()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="sp-step" onclick="go('s-step',null)">
+        <span class="sp-drag"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="18" r="1"/></svg></span>
+        <span class="sp-num">2</span>
+        <span class="sp-vthumb g2" style="background:linear-gradient(135deg,#ef4444,#f59e0b);"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        <div class="sp-body"><div class="sp-title">Hip openers</div><div style="margin-top:4px;"><span class="sp-tbadge">×12 · 4 sets</span></div></div>
+        <button class="sp-remove" aria-label="Remove" onclick="event.stopPropagation();this.closest('.sp-step').remove()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="sp-step" onclick="go('s-step',null)">
+        <span class="sp-drag"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="18" r="1"/></svg></span>
+        <span class="sp-num">3</span>
+        <span class="sp-vthumb" style="background:linear-gradient(135deg,#8b5cf6,#ec4899);"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        <div class="sp-body"><div class="sp-title">Cooldown stretch</div><div style="margin-top:4px;"><span class="sp-tbadge" style="background:transparent;color:var(--fit-text-tertiary);padding-left:0;">follow the video</span></div></div>
+        <button class="sp-remove" aria-label="Remove" onclick="event.stopPropagation();this.closest('.sp-step').remove()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+    <button class="sp-add" onclick="go('s-step',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Add step</button>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
+    <button onclick="go('s-queue',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Send to Anna</button>
+  </div>
+</div>
+
+<!-- ==================== COACH: STEP EDITOR (focused, with counter) ==================== -->
+<div class="fit-phone fit-dark tgt-timer" id="s-step">
+  <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-icon-btn" aria-label="Close" onclick="go('s-setup',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      <span class="fit-header-title" style="flex:1;text-align:center;">Edit step</span><span style="width:32px;"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-top:12px;">
+    <!-- counter / step nav -->
+    <div class="sp-counter">
+      <button class="nav" aria-label="Previous step"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="lbl">Step 2 of 3</span>
+      <button class="nav" aria-label="Next step"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Exercise name</span>
+      <div class="fit-input" contenteditable="true" style="outline:none;cursor:text;">Hip openers</div>
+    </div>
+
+    <!-- Video -->
+    <div style="padding:0 16px;"><span class="fit-input-label">Video</span></div>
+    <div class="sp-attached" style="margin:0 16px 16px;">
+      <span class="sp-vthumb" style="background:linear-gradient(135deg,#ef4444,#f59e0b);"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+      <div class="sp-body"><div class="sp-title">hip_openers.mov</div><div class="sp-meta">0:48 · trimmed</div></div>
+      <button class="sp-remove" aria-label="Replace" onclick="openVidSource('coach')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v6h6M21 12A9 9 0 006 5.3L3 8"/></svg></button>
+    </div>
+
+    <!-- Target (optional) -->
+    <div style="padding:0 16px;"><span class="fit-input-label">Target <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span></div>
+    <div class="fit-selection-group" style="padding:0 16px;margin-bottom:14px;">
+      <div class="fit-selection-chip" onclick="spTarget('none',this)">None</div>
+      <div class="fit-selection-chip selected" onclick="spTarget('timer',this)">Timer</div>
+      <div class="fit-selection-chip" onclick="spTarget('reps',this)">Reps</div>
+    </div>
+    <div data-tgt="timer" class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Duration · rest after</span>
+      <div style="display:flex;gap:10px;">
+        <div class="fit-input" style="flex:1;cursor:text;" contenteditable="true">00:45</div>
+        <div class="fit-input" style="flex:1;cursor:text;color:var(--fit-text-tertiary);">rest 00:20</div>
+      </div>
+    </div>
+    <div data-tgt="reps" class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Reps × sets</span>
+      <div style="display:flex;gap:10px;">
+        <div class="fit-input" style="flex:1;cursor:text;" contenteditable="true">12</div>
+        <div class="fit-input" style="flex:1;cursor:text;" contenteditable="true">4</div>
+      </div>
+    </div>
+
+    <div class="fit-input-group" style="padding:0 16px;margin-bottom:0;">
+      <span class="fit-input-label">Instructions / cues <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <textarea class="fit-input-ta" placeholder="Form cues, what to focus on…">Slow the eccentric. Keep the back flat. Film this one.</textarea>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
+    <button onclick="go('s-setup',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Save step</button>
+  </div>
+</div>
+
+<!-- ==================== COACH: REVIEW SUBMISSION ==================== -->
+<div class="fit-phone fit-dark rv-clip" id="s-review">
+  <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" aria-label="Back" onclick="go('s-queue',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Review · Julia</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-top:8px;">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 16px 16px;">
+      <span class="sp-av" style="width:40px;height:40px;background:linear-gradient(135deg,#8b5cf6,#ec4899);">JD</span>
+      <div style="min-width:0;"><div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Lower-body mobility</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Julia Dent · submitted 2h ago</div></div>
+    </div>
+    <!-- Athlete's clips — carousel (supports multiple); tap → full view -->
+    <div data-rv="clip">
+      <div class="fit-section-title--md">Athlete's clips <span style="font-weight:400;color:var(--fit-text-tertiary);">(2)</span></div>
+      <div class="sp-clips">
+        <div class="sp-clip" onclick="alert('Full-screen player — TBD')"><div class="ph" style="background:linear-gradient(135deg,#1f2937,#374151);"></div><div class="pl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div><span class="dur">0:38</span></div>
+        <div class="sp-clip" onclick="alert('Full-screen player — TBD')"><div class="ph" style="background:linear-gradient(135deg,#374151,#4b5563);"></div><div class="pl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div><span class="dur">0:22</span></div>
+      </div>
+    </div>
+    <!-- No clips: compact inline state, visually distinct from the note -->
+    <div data-rv="noclip"><div class="sp-noclip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Marked done — no clips to review</div></div>
+
+    <!-- Athlete's note as a quote -->
+    <div class="sp-quote">
+      <div class="sp-quote-label">Julia's note</div>
+      <div class="sp-quote-text">“Felt tight on the left hip — couldn't go as deep on set 3.”</div>
+    </div>
+
+    <div class="fit-section-title--md" style="margin-top:22px;">Your feedback</div>
+    <div class="fit-rating" style="justify-content:flex-start;padding:0 16px 6px;">
+      <svg class="filled" onclick="spRate(this,1)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+      <svg class="filled" onclick="spRate(this,2)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+      <svg class="filled" onclick="spRate(this,3)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+      <svg class="filled" onclick="spRate(this,4)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+      <svg onclick="spRate(this,5)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+    </div>
+    <div data-rate-word style="padding:0 16px 14px;font-size:13px;font-weight:500;color:var(--fit-teal-500);">Great</div>
+    <div class="fit-input-group" style="padding:0 16px;margin-bottom:0;">
+      <textarea class="fit-input-ta" maxlength="300" placeholder="Leave feedback for Julia…" oninput="document.getElementById('rv-count').textContent=this.value.length+' / 300'">Good depth overall. For the left hip, slow the eccentric and add the band drill before set 3.</textarea>
+      <div class="sp-ta-counter" id="rv-count">96 / 300</div>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
+    <button onclick="go('s-queue',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Send feedback &amp; finish</button>
+  </div>
+</div>
+
+<!-- ==================== COACH: CLIENT HISTORY ==================== -->
+<div class="fit-phone fit-dark ls-default" id="s-history">
+  <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" aria-label="Back" onclick="go('s-queue',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Julia · self-paced</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-top:8px;">
+    <div data-st="default">
+      <div class="sp-note" style="cursor:default;border:none;padding:0 0 6px;"><div class="sp-note-body" style="padding:0 16px;font-size:13px;color:var(--fit-text-tertiary);">Lives inside the coach's Client Detail in production — not the calendar.</div></div>
+      <div style="padding:0 16px;">
+        <div class="sp-card" onclick="go('s-review',null)"><span class="sp-vthumb"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Lower-body mobility</span><span class="sp-pill finished">Finished</span></div><div class="sp-meta">Apr 12 · €12 · you rated 4★ · 1 clip</div></div></div>
+        <div class="sp-card" onclick="go('s-review',null)"><span class="sp-vthumb g2" style="background:linear-gradient(135deg,#ef4444,#f59e0b);"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Core circuit</span><span class="sp-pill submitted">Submitted</span></div><div class="sp-meta">Apr 10 · €12 · awaiting your review</div></div></div>
+        <div class="sp-card" style="opacity:0.85;cursor:default;"><span class="sp-vthumb" style="background:linear-gradient(135deg,#8b5cf6,#ec4899);"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Upper-body push</span><span class="sp-pill scheduled">Ready</span></div><div class="sp-meta">Sent · athlete hasn't done it</div></div></div>
+      </div>
+    </div>
+    <div data-st="empty">
+      <div class="fit-empty-state" style="padding-top:72px;">
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:56px;height:56px;color:var(--fit-gray-600);margin-bottom:16px;"><rect x="10" y="14" width="44" height="30" rx="4"/><path d="M28 24l10 5-10 5z"/></svg>
+        <div class="fit-empty-state-title">No self-paced yet</div>
+        <div style="font-size:14px;color:var(--fit-text-tertiary);margin-top:8px;text-align:center;line-height:1.5;">Set one up for Julia and it'll show here.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== COACH: VIDEO LIBRARY ==================== -->
+<div class="fit-phone fit-dark ls-default" id="s-library">
+  <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" aria-label="Back" onclick="go('s-step',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title" style="flex:1;">Video library</span>
+      <button class="fit-icon-btn" aria-label="Add clip" onclick="openVidSource('coach')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-top:8px;">
+    <div data-st="default">
+      <div style="padding:0 16px 10px;font-size:13px;color:var(--fit-text-tertiary);">Reuse a demo clip across athletes — tap to attach to this step.</div>
+      <div style="padding:0 16px;">
+        <div class="sp-card" onclick="finishVidUpload()"><span class="sp-thumb"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-title">Warm-up routine</div><div class="sp-meta">3:20 · used in 6 sessions</div></div></div>
+        <div class="sp-card" onclick="finishVidUpload()"><span class="sp-thumb g2"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-title">Hip openers</div><div class="sp-meta">5:10 · used in 3 sessions</div></div></div>
+        <div class="sp-card" onclick="finishVidUpload()"><span class="sp-thumb g3"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-title">Core circuit</div><div class="sp-meta">11:48 · used in 9 sessions</div></div></div>
+      </div>
+    </div>
+    <div data-st="empty">
+      <div class="fit-empty-state" style="padding-top:72px;">
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:56px;height:56px;color:var(--fit-gray-600);margin-bottom:16px;"><rect x="10" y="14" width="44" height="30" rx="4"/><path d="M28 24l10 5-10 5z"/></svg>
+        <div class="fit-empty-state-title">No clips yet</div>
+        <div style="font-size:14px;color:var(--fit-text-tertiary);margin:8px 0 20px;text-align:center;line-height:1.5;">Record or upload your first clip.</div>
+        <button class="fit-btn fit-btn-primary" style="display:inline-flex;width:auto;height:44px;padding:0 24px;" onclick="openVidSource('coach')">Add a clip</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ATHLETE: BOOK OFFERING ==================== -->
+<div class="fit-phone fit-light" id="s-book">
+  <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" aria-label="Back" onclick="go('s-overview',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Book session</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-top:8px;">
+    <div style="display:flex;align-items:center;gap:12px;padding:0 16px 16px;">
+      <span class="sp-av" style="width:48px;height:48px;background:var(--fit-brand-gradient);">MR</span>
+      <div><div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Maria Rodriguez</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Tennis · Fitness</div></div>
+    </div>
+    <!-- self-paced offering card -->
+    <div class="sp-card" style="cursor:default;align-items:flex-start;">
+      <span class="sp-thumb"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M21 8l-4 4 4 4z"/></svg></span>
+      <div class="sp-body">
+        <div class="sp-row1"><span class="sp-title">Online self-paced session</span><span class="sp-pill online">Online</span></div>
+        <div class="sp-meta" style="white-space:normal;">Do it on your own time. Maria builds a custom workout for you, you film yourself, she gives feedback.</div>
+      </div>
+    </div>
+    <div class="sp-note" style="cursor:default;margin-top:14px;">
+      <div class="sp-note-body" style="display:flex;align-items:center;gap:8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>No fixed time — reschedule whenever. Cheaper than a live session.</div>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
+    <button onclick="document.getElementById('book-sheet').classList.add('visible')" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Book · €12</button>
+  </div>
+  <!-- confirm sheet -->
+  <div class="fit-sheet-overlay" id="book-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:600;margin-bottom:16px;">Confirm booking</div>
+      <div class="sp-card" style="cursor:default;margin-bottom:16px;"><span class="sp-thumb"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M21 8l-4 4 4 4z"/></svg></span><div class="sp-body"><div class="sp-title">Online self-paced · Maria</div><div class="sp-meta">Custom workout, built for you</div></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--fit-divider);"><span style="font-size:15px;color:var(--fit-text-primary);">Price</span><span style="font-size:18px;font-weight:500;color:var(--fit-text-primary);">€12.00</span></div>
+      <div style="display:flex;align-items:flex-start;gap:8px;padding:0 0 18px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><span style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.5;">Paid from your balance now. Maria sets up your workout, then it lands in your list — do it anytime.</span></div>
+      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="document.getElementById('book-sheet').classList.remove('visible');spSnack('Booked — Maria will set it up');setTimeout(function(){go('s-list',null)},700)">Pay &amp; book · €12</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ATHLETE: MY SELF-PACED (list) ==================== -->
+<div class="fit-phone fit-light ls-default" id="s-list">
+  <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" aria-label="Back" onclick="go('s-overview',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Self-paced training</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-top:8px;">
+    <div data-st="default">
+      <div class="sp-sec"><span class="fit-section-title--md" style="padding:0;">To do</span></div>
+      <div style="padding:0 16px;">
+        <div class="sp-card" onclick="go('s-welcome',null)"><span class="sp-thumb"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Lower-body mobility</span><span class="sp-pill scheduled">Ready</span></div><div class="sp-meta">From Maria · 3 steps · ~15 min</div></div></div>
+        <div class="sp-card" style="cursor:default;opacity:0.9;"><span class="sp-thumb g2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Core circuit</span><span class="sp-pill assigned">Setting up</span></div><div class="sp-meta">From Maria · she's preparing it</div></div></div>
+      </div>
+      <div class="sp-sec"><span class="fit-section-title--md" style="padding:0;">Awaiting feedback</span></div>
+      <div style="padding:0 16px;">
+        <div class="sp-card" onclick="go('s-comments',null)" style="opacity:0.9;"><span class="sp-thumb g3"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Upper-body push</span><span class="sp-pill submitted">Submitted</span></div><div class="sp-meta">Done Apr 8 · waiting for Maria</div></div></div>
+      </div>
+      <div class="sp-sec"><span class="fit-section-title--md" style="padding:0;">Done</span></div>
+      <div style="padding:0 16px 24px;">
+        <div class="sp-card" onclick="go('s-comments',null)" style="opacity:0.75;"><span class="sp-thumb" style="background:var(--fit-gray-400);"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Mobility reset</span><span class="sp-pill finished">4★</span></div><div class="sp-meta">Apr 2 · Maria left feedback</div></div></div>
+      </div>
+    </div>
+    <div data-st="empty">
+      <div class="fit-empty-state" style="padding-top:72px;">
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:56px;height:56px;color:var(--fit-gray-400);margin-bottom:16px;"><rect x="10" y="14" width="44" height="30" rx="4"/><path d="M28 24l10 5-10 5z"/></svg>
+        <div class="fit-empty-state-title">Nothing yet</div>
+        <div style="font-size:14px;color:var(--fit-text-tertiary);margin-top:8px;text-align:center;line-height:1.5;">Book an online session with a coach<br>and it shows up here.</div>
+      </div>
+    </div>
+    <div data-st="loading" style="padding-top:8px;">
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sm sq sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:55%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sm sq sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:48%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ATHLETE: WELCOME / INTRO ==================== -->
+<div class="fit-phone fit-light wlc-paid" id="s-welcome">
+  <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-icon-btn" aria-label="Close" onclick="go('s-list',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      <span style="flex:1;"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-top:0;">
+    <div style="text-align:center;padding:8px 24px 18px;">
+      <span class="sp-av" style="width:56px;height:56px;background:var(--fit-brand-gradient);margin:0 auto 12px;">MR</span>
+      <div style="font-size:13px;color:var(--fit-text-tertiary);">From Maria Rodriguez</div>
+      <div style="font-size:22px;font-weight:600;color:var(--fit-text-primary);margin-top:2px;">Lower-body mobility</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-top:6px;display:inline-flex;align-items:center;gap:8px;"><span>🎬 3 steps</span><span>·</span><span>~15 min</span></div>
+    </div>
+    <div class="sp-note" style="cursor:default;">
+      <div class="sp-note-label">Note from Maria</div>
+      <div class="sp-note-body">Do these this week — film set 3 of the hip openers so I can check your depth.</div>
+    </div>
+    <div class="fit-section-title--md">What you'll do</div>
+    <div style="padding:0 16px;">
+      <div class="sp-step" style="cursor:default;"><span class="sp-num">1</span><div class="sp-body"><div class="sp-title">Warm-up</div></div><span class="sp-tbadge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>3:00</span></div>
+      <div class="sp-step" style="cursor:default;"><span class="sp-num">2</span><div class="sp-body"><div class="sp-title">Hip openers</div></div><span class="sp-tbadge">×12 · 4 sets</span></div>
+      <div class="sp-step" style="cursor:default;"><span class="sp-num">3</span><div class="sp-body"><div class="sp-title">Cooldown stretch</div></div><span class="sp-tbadge" style="background:transparent;color:var(--fit-text-tertiary);padding-right:0;">follow video</span></div>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
+    <button data-wlc="paid" onclick="go('s-player',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Start</button>
+    <button data-wlc="unpaid" onclick="go('s-player',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Pay €12 &amp; start</button>
+  </div>
+</div>
+
+<!-- ==================== ATHLETE: PLAYER ==================== -->
+<div class="fit-phone fit-light pl-timed" id="s-player">
+  <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-icon-btn" aria-label="Close" onclick="go('s-welcome',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      <span class="fit-header-title" style="flex:1;text-align:center;">Step 2 of 3</span><span style="width:32px;"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-top:8px;">
+    <div class="sp-video" style="aspect-ratio:16/9;"><div class="ph" style="background:linear-gradient(135deg,#ef4444,#f59e0b);"></div><svg width="44" height="44" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>
+    <div style="text-align:center;padding:0 16px;"><div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">Hip openers</div><div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:2px;">Slow the eccentric · film this one</div></div>
+    <!-- timed variant -->
+    <div data-pl="timed" style="flex-direction:column;align-items:center;">
+      <div class="sp-timer-ring"><div class="sp-timer-num" id="sp-timer">00:45</div><div class="sp-timer-cap">set 3 of 4</div></div>
+      <div style="display:flex;gap:10px;padding:0 16px;width:100%;">
+        <button class="fit-btn fit-btn-secondary" style="flex:1;" onclick="spToggleTimer(this)">Pause</button>
+        <button class="fit-btn fit-btn-secondary" style="flex:1;">Skip set</button>
+      </div>
+    </div>
+    <!-- untimed variant (reps / follow-video) -->
+    <div data-pl="untimed" style="padding:24px 16px 0;text-align:center;">
+      <div style="font-size:15px;color:var(--fit-text-secondary);margin-bottom:6px;">Do <strong style="color:var(--fit-text-primary);">12 reps × 4 sets</strong> at your pace.</div>
+      <div style="font-size:13px;color:var(--fit-text-tertiary);">No timer on this one — tap Done when finished.</div>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
+    <button onclick="go('s-complete',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Done · next step</button>
+  </div>
+</div>
+
+<!-- ==================== ATHLETE: COMPLETE + UPLOAD ==================== -->
+<div class="fit-phone fit-light" id="s-complete">
+  <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header"><span class="fit-header-title" style="flex:1;text-align:center;">Nice work 🎉</span></div>
+  </div>
+  <div class="fit-phone-content" style="padding-top:16px;">
+    <div style="text-align:center;padding:0 24px 18px;">
+      <div style="width:64px;height:64px;border-radius:50%;background:rgba(5,224,166,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">Lower-body mobility — done</div>
+    </div>
+    <div style="text-align:center;font-size:14px;font-weight:500;color:var(--fit-text-secondary);margin-bottom:10px;">How was it?</div>
+    <div class="fit-rating" style="margin-bottom:6px;">
+      <svg class="filled" onclick="spRate(this,1)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+      <svg class="filled" onclick="spRate(this,2)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+      <svg class="filled" onclick="spRate(this,3)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+      <svg class="filled" onclick="spRate(this,4)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+      <svg onclick="spRate(this,5)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+    </div>
+    <div data-rate-word style="text-align:center;font-size:13px;font-weight:500;color:var(--fit-teal-500);margin-bottom:24px;">Great</div>
+    <div class="fit-section-title--md">Share a clip <span style="font-weight:400;color:var(--fit-text-tertiary);font-size:13px;">(optional)</span></div>
+    <div id="at-upload-zone">
+      <div class="sp-upload" onclick="openVidSource('athlete')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+        <div class="sp-upload-title">Upload your video</div>
+        <div class="sp-upload-sub">record now or pick from camera roll</div>
+      </div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;margin-bottom:0;">
+      <span class="fit-input-label">Note to Maria <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <textarea class="fit-input-ta" placeholder="How did it feel?"></textarea>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
+    <button onclick="go('s-comments',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;margin-bottom:8px;">Submit to Maria</button>
+    <button onclick="go('s-list',null)" style="width:100%;height:46px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:15px;font-weight:500;cursor:pointer;">Just mark done</button>
+  </div>
+</div>
+
+<!-- ==================== COMMENTS THREAD (shared) ==================== -->
+<div class="fit-phone fit-light ls-default" id="s-comments">
+  <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" aria-label="Back" onclick="go('s-list',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div style="flex:1;min-width:0;"><div class="fit-header-title" style="font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Lower-body mobility</div><div style="font-size:12px;color:var(--fit-text-tertiary);">with Maria · self-paced</div></div>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-top:12px;">
+    <div data-st="default">
+      <div style="text-align:center;font-size:12px;color:var(--fit-text-tertiary);margin-bottom:14px;">Comments on this session only</div>
+      <div class="sp-cmt me"><span class="sp-cmt-av" style="background:var(--fit-brand-gradient);">YO</span><div class="sp-cmt-bub"><div class="sp-cmt-text">Done! Left hip felt tight on set 3.</div><div class="sp-cmt-time">Apr 12 · 18:04</div></div></div>
+      <div class="sp-cmt"><span class="sp-cmt-av">MR</span><div class="sp-cmt-bub"><div class="sp-cmt-name">Maria</div><div class="sp-cmt-text">Good depth overall 👏 For the left hip, slow the eccentric and add the band drill before set 3.</div><div class="sp-cmt-time">Apr 12 · 20:11</div></div></div>
+      <div class="sp-cmt me"><span class="sp-cmt-av" style="background:var(--fit-brand-gradient);">YO</span><div class="sp-cmt-bub"><div class="sp-cmt-text">Got it, will retry tomorrow 🙏</div><div class="sp-cmt-time">Apr 12 · 20:30</div></div></div>
+    </div>
+    <div data-st="empty">
+      <div class="fit-empty-state" style="padding-top:96px;">
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:52px;height:52px;color:var(--fit-gray-400);margin-bottom:14px;"><path d="M54 38a4 4 0 01-4 4H20l-8 8V14a4 4 0 014-4h34a4 4 0 014 4z"/></svg>
+        <div class="fit-empty-state-title">No comments yet</div>
+        <div style="font-size:14px;color:var(--fit-text-tertiary);margin-top:8px;text-align:center;line-height:1.5;">Say something about this session —<br>your coach will see it here.</div>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
+    <div class="sp-cmt-bar"><input class="sp-cmt-input" placeholder="Message about this session…"><button class="sp-cmt-send" aria-label="Send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ==================== VIDEO TRIM ==================== -->
+<div class="fit-phone fit-dark" id="s-trim">
+  <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-icon-btn" aria-label="Cancel" onclick="go(spReturn,null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      <span class="fit-header-title" style="flex:1;text-align:center;">Trim clip</span><span style="width:32px;"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-top:8px;">
+    <div class="sp-video" style="aspect-ratio:16/9;"><div class="ph"></div><svg width="44" height="44" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>
+    <div style="display:flex;justify-content:space-between;padding:0 16px 6px;font-size:12px;color:var(--fit-text-tertiary);"><span>Drag handles to trim</span><span>0:38 selected</span></div>
+    <div class="sp-trim-track"><div class="sp-trim-sel"><div class="sp-trim-handle l"></div><div class="sp-trim-handle r"></div></div></div>
+    <div style="display:flex;justify-content:space-between;padding:2px 16px 0;font-size:11px;color:var(--fit-text-tertiary);"><span>0:00</span><span>1:12</span></div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
+    <button onclick="startUpload()" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Use this clip</button>
+  </div>
+</div>
+
+<!-- ==================== VIDEO UPLOADING ==================== -->
+<div class="fit-phone fit-dark" id="s-upload">
+  <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div><div class="fit-header"><span class="fit-header-title" style="flex:1;text-align:center;">Uploading</span></div></div>
+  <div class="fit-phone-content">
+    <div style="min-height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:24px;box-sizing:border-box;">
+      <div style="width:56px;height:56px;border-radius:14px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;margin-bottom:18px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg></div>
+      <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);margin-bottom:4px;">Uploading to Mux…</div>
+      <div style="font-size:13px;color:var(--fit-text-tertiary);margin-bottom:22px;" id="sp-up-pct">0% · transcoding starts after upload</div>
+      <div class="sp-prog-track" style="width:100%;max-width:280px;"><div class="sp-prog-fill" id="sp-prog"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Source-pick sheet (moved into active phone on open) -->
+<div class="fit-sheet-overlay" id="vid-source-sheet">
+  <div class="fit-sheet">
+    <div class="fit-sheet-handle"></div>
+    <div style="font-size:18px;font-weight:600;margin-bottom:4px;">Add a video</div>
+    <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:14px;" id="vid-source-sub">Record or pick a file — you can trim it next.</div>
+    <div class="fit-sheet-item" onclick="pickSource('record')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg> Record video</div>
+    <div class="fit-sheet-item" onclick="pickSource('upload')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg> Upload from device</div>
+    <div class="fit-sheet-item" id="vid-source-library" onclick="pickSource('library')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/><path d="M3 21h18"/></svg> Choose from library</div>
+    <button style="width:100%;height:50px;margin-top:12px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('vid-source-sheet').classList.remove('visible')">Cancel</button>
+  </div>
+</div>
+
+<!-- Snackbar -->
+<div class="fit-snackbar" id="sp-snack"><span class="snack-dot"></span><span id="sp-snack-text">Saved</span></div>
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+  <div class="ann active" id="ann-s-overview"><span class="ann-role coach">Coach</span><span class="ann-role athlete" style="margin-left:6px;">Athlete</span>
+    <h3>Self-paced — overview</h3>
+    <p>A cheap, <strong>online training type</strong> (own session type + own price, not a flag on a normal booking). Coach offers it generically; <strong>builds the workout per athlete</strong> after a booking. Individual by design.</p>
+    <hr><p class="note">Isolated WIP in <code>shared/</code>. In prod: offering = a session-type in the coach catalog; setup/queue live in Client Detail + Inbox; athlete sees it in Coach Detail / Dashboard. Reuses Mux (#116), session cards, fit-rating, outline-note→editor.</p>
+  </div>
+
+  <div class="ann" id="ann-s-offering"><span class="ann-role coach">Coach</span><h3>Offering (catalog)</h3>
+    <p>Just a bookable <strong>entry point</strong> — name + price (cheaper than live) + sport. <strong>No content here</strong> (content is per-athlete at setup). One generic offering for v1.</p>
+    <p class="note">In prod this is a 3rd type in Create Session (Personal / Group / Self-paced).</p>
+  </div>
+
+  <div class="ann" id="ann-s-queue"><span class="ann-role coach">Coach</span>
+    <div class="state-toggle"><button class="active" onclick="setSt('s-queue','default',this)">Default</button><button onclick="setSt('s-queue','empty',this)">Empty</button><button onclick="setSt('s-queue','loading',this)">Loading</button></div>
+    <h3>Self-paced hub (batch)</h3>
+    <p>Dedicated batch view for the coach's "review day" — <strong>segmented tabs</strong> (Set up / Review / Active), each its own scroll, so it scales when a block gets long.</p>
+    <ul><li><strong>Set up</strong> = booked → tap → builder. <strong>Review</strong> = submitted → tap → review. <strong>Active</strong> = sent, athlete doing it.</li><li>Cards match the unified-Inbox <code>.req-card</code> shell (avatar + name + sub + chevron + title + meta + action) — see the Inbox screen.</li></ul>
+    <p class="note">Placement (decided: C-lite): events also drop into the unified Inbox (next screen); this hub is reached from a Dashboard card for batch work. Same items, filtered view.</p>
+  </div>
+
+  <div class="ann" id="ann-s-inbox"><span class="ann-role coach">Coach</span>
+    <h3>Self-paced in the Inbox</h3>
+    <p>Self-paced events live in the <strong>existing unified Inbox</strong> — no new bell, no 4th tab. Same card shell as booking requests, with a <code>Self-paced</code> tag to tell them apart.</p>
+    <ul>
+      <li><strong>To reply</strong> ← <em>Set up</em> (booked) + <em>Review</em> (submitted) — your actions. Single primary button per card (Set up workout / Review).</li>
+      <li><strong>Waiting</strong> ← <em>Active</em> (athlete doing it).</li>
+      <li><strong>Activity</strong> ← push-history (assigned / joined / etc.).</li>
+    </ul>
+    <p class="note">Maps onto our existing inbox semantics 1:1 (action-by-you vs waiting). The hub screen is just this, filtered to self-paced + tabbed for batch.</p>
+  </div>
+
+  <div class="ann" id="ann-s-setup"><span class="ann-role coach">Coach</span><h3>Setup builder (home)</h3>
+    <p><strong>One screen</strong> = workout title + welcome note (outline-card → editor) + the <strong>step list</strong> (compact cards, drag-reorder) + Add step + Send. Built per athlete.</p>
+    <ul><li>Each step card: order · video · target badge (⏱ / ×reps / follow). Tap → focused editor.</li><li>Price isn't here — it's fixed on the offering at booking.</li></ul>
+    <p class="note">Best practice: list + focused per-step editor (not one infinite-scroll form, not a rigid wizard) — handles variable count + reorder + clarity for non-techy coaches.</p>
+  </div>
+
+  <div class="ann" id="ann-s-step"><span class="ann-role coach">Coach</span>
+    <div class="state-toggle"><button onclick="spTarget('none',this)">None</button><button class="active" onclick="spTarget('timer',this)">Timer</button><button onclick="spTarget('reps',this)">Reps</button></div>
+    <h3>Step editor (focused)</h3>
+    <p>Separate screen per step with a <strong>counter «Step 2 of 3 ‹ ›»</strong> to flip between steps. Fields: name · video (Mux + trim / library) · <strong>Target (optional)</strong> · instructions.</p>
+    <ul><li><strong>Target optional</strong>: None (just follow the video) / Timer (duration + rest) / Reps×sets. Not every exercise needs a timer.</li></ul>
+  </div>
+
+  <div class="ann" id="ann-s-review"><span class="ann-role coach">Coach</span>
+    <div class="state-toggle"><button class="active" onclick="setRv('clip',this)">With clip</button><button onclick="setRv('noclip',this)">No clip</button></div>
+    <h3>Review submission</h3>
+    <p>Layout reworked (async-coaching apps: CoachNow / OnForm / Freeletics) — clips up top, athlete's words as a quote, your verdict at the bottom.</p>
+    <ul>
+      <li><strong>Clips carousel</strong> — supports <strong>multiple</strong> athlete videos; compact thumbs (play + duration), tap → full-screen player. No giant inline video.</li>
+      <li><strong>No clip</strong> → a compact inline "Marked done — no clips" line (teal check), visually distinct from the note. <em>(bug fixed: it no longer shows in the With-clip state.)</em></li>
+      <li><strong>Athlete's note</strong> → a <strong>quote</strong> (left accent + italic), not another card — so it's not confused with status lines.</li>
+      <li><strong>Your feedback</strong> → rating + <strong>inline textarea with char counter</strong> (300). Not the note→editor pattern — it's a single bounded comment.</li>
+    </ul>
+  </div>
+
+  <div class="ann" id="ann-s-history"><span class="ann-role coach">Coach</span>
+    <div class="state-toggle"><button class="active" onclick="setSt('s-history','default',this)">Default</button><button onclick="setSt('s-history','empty',this)">Empty</button></div>
+    <h3>Client history</h3>
+    <p>All self-paced with this client, by status. In prod = a section inside Client Detail (NOT the calendar).</p>
+  </div>
+
+  <div class="ann" id="ann-s-library"><span class="ann-role coach">Coach</span>
+    <div class="state-toggle"><button class="active" onclick="setSt('s-library','default',this)">Default</button><button onclick="setSt('s-library','empty',this)">Empty</button></div>
+    <h3>Video library</h3>
+    <p>Reuse demo clips across athletes (scale lever). Opened from the step editor's video picker. Coach-only.</p>
+  </div>
+
+  <div class="ann" id="ann-s-book"><span class="ann-role athlete">Athlete</span><h3>Book offering</h3>
+    <p>How the athlete books self-paced — just a card in the coach's catalog with an <strong>Online</strong> badge + lower price. No slot-grid (no live time). Confirm sheet → pay from balance → lands as a <strong>request</strong> for the coach to set up.</p>
+    <p class="note">In prod this card sits in the coach's session catalog (shared/profile booking) — no extra booking machinery.</p>
+  </div>
+
+  <div class="ann" id="ann-s-list"><span class="ann-role athlete">Athlete</span>
+    <div class="state-toggle"><button class="active" onclick="setSt('s-list','default',this)">Default</button><button onclick="setSt('s-list','empty',this)">Empty</button><button onclick="setSt('s-list','loading',this)">Loading</button></div>
+    <h3>My self-paced</h3>
+    <p>Athlete's aggregated list: To do (Ready / Setting up) · Awaiting feedback · Done. Not a tab — surfaced from Dashboard + per-coach in Coach Detail.</p>
+  </div>
+
+  <div class="ann" id="ann-s-welcome"><span class="ann-role athlete">Athlete</span>
+    <div class="state-toggle"><button class="active" onclick="setWlc('paid',this)">Already paid</button><button onclick="setWlc('unpaid',this)">Coach-initiated</button></div>
+    <h3>Welcome / intro</h3>
+    <p>What the coach prepared: title · steps · ~total time · note · step preview. Then start.</p>
+    <ul><li><strong>Already paid</strong> (athlete booked) → CTA <strong>Start</strong>.</li><li><strong>Coach-initiated</strong> (coach pushed it, not yet paid) → CTA <strong>Pay €12 &amp; start</strong>.</li></ul>
+  </div>
+
+  <div class="ann" id="ann-s-player"><span class="ann-role athlete">Athlete</span>
+    <div class="state-toggle"><button class="active" onclick="setPl('timed',this)">Timed step</button><button onclick="setPl('untimed',this)">Reps / no timer</button></div>
+    <h3>Player</h3>
+    <p>Step-by-step. <strong>Timed</strong> step → countdown ring. <strong>Reps / no-timer</strong> step → just the cue + Done. Advances through the steps the coach built.</p>
+    <p class="note">Timer is a live demo (Pause toggles).</p>
+  </div>
+
+  <div class="ann" id="ann-s-complete"><span class="ann-role athlete">Athlete</span><h3>Complete + upload</h3>
+    <p>Rate the session (<code>fit-rating</code>) + optional <strong>proof-video upload</strong> (Mux) + optional note → <strong>Submit</strong> (→ coach review) OR <strong>Just mark done</strong>.</p>
+  </div>
+
+  <div class="ann" id="ann-s-comments"><span class="ann-role athlete">Athlete</span><span class="ann-role coach" style="margin-left:6px;">Coach</span>
+    <div class="state-toggle"><button class="active" onclick="setSt('s-comments','default',this)">Default</button><button onclick="setSt('s-comments','empty',this)">Empty</button></div>
+    <h3>Comments thread</h3>
+    <p>Per-session conversation, both sides. <strong>Scoped to one session</strong> — our first messaging surface, deliberately not a global chat.</p>
+  </div>
+
+  <div class="ann" id="ann-s-trim"><span class="ann-role coach">Coach</span><span class="ann-role athlete" style="margin-left:6px;">Athlete</span><h3>Trim clip</h3>
+    <p>Shared step after picking a source. <strong>Mux has no end-user editor</strong> — trim is native client-side before upload, or via Mux clip API server-side. v1 = native pre-upload.</p>
+  </div>
+
+  <div class="ann" id="ann-s-upload"><span class="ann-role coach">Coach</span><span class="ann-role athlete" style="margin-left:6px;">Athlete</span><h3>Uploading (Mux)</h3>
+    <p>Mux direct-upload (reuses #116). Progress → clip attaches to the caller → return.</p>
+    <p class="note">Auto-advances from Trim's "Use this clip".</p>
+  </div>
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+function switchTheme(theme) {
+  document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.getElementById("theme-light").style.background = theme === "light" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-light").style.color = theme === "light" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.querySelectorAll(".fit-phone").forEach(function(p){ if(theme==="light"){p.classList.remove("fit-dark");p.classList.add("fit-light");}else{p.classList.remove("fit-light");p.classList.add("fit-dark");} });
+}
+function go(id, btn) {
+  document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+  if (!btn) btn = document.querySelector('.sidebar button[onclick*="\'' + id + '\'"]');
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+  var ann = document.getElementById('ann-' + id); if (ann) ann.classList.add('active');
+  if (window.FitUI) FitUI.initAll(document.getElementById(id));
+}
+function setSt(id, state, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} var el=document.getElementById(id); el.classList.remove('ls-default','ls-empty','ls-loading'); el.classList.add('ls-'+state); }
+function spqTab(name, btn){ if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');} ['setup','review','active'].forEach(function(n){ var p=document.getElementById('qp-'+n); if(p)p.style.display=n===name?'block':'none'; }); }
+function inbTab(name, btn){ if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');} ['activity','reply','waiting'].forEach(function(n){ var p=document.getElementById('inb-'+n); if(p)p.style.display=n===name?'block':'none'; }); }
+function setRv(v, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} var el=document.getElementById('s-review'); el.classList.remove('rv-clip','rv-noclip'); el.classList.add('rv-'+v); }
+function setWlc(v, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} var el=document.getElementById('s-welcome'); el.classList.remove('wlc-paid','wlc-unpaid'); el.classList.add('wlc-'+v); }
+function setPl(v, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} var el=document.getElementById('s-player'); el.classList.remove('pl-timed','pl-untimed'); el.classList.add('pl-'+v); }
+function spTarget(v, btn) {
+  if (btn && btn.parentElement.classList.contains('state-toggle')) { btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+  var grp = document.querySelector('#s-step .fit-selection-group');
+  if (grp) { grp.querySelectorAll('.fit-selection-chip').forEach(function(c){ c.classList.toggle('selected', c.textContent.trim().toLowerCase()===v); }); }
+  var el = document.getElementById('s-step'); el.classList.remove('tgt-none','tgt-timer','tgt-reps'); el.classList.add('tgt-'+v);
+}
+/* interactive rating (review + complete) */
+var RATE_WORDS = { 1:'Poor', 2:'Fair', 3:'Good', 4:'Great', 5:'Excellent' };
+function spRate(star, n) {
+  var grp = star.parentElement;
+  grp.querySelectorAll('svg').forEach(function(s, i){ s.classList.toggle('filled', i < n); });
+  var w = grp.parentElement.querySelector('[data-rate-word]');
+  if (w) w.textContent = RATE_WORDS[n] || '';
+}
+/* timer demo */
+var spT=45, spRun=null;
+function spTick(){ spT=Math.max(0,spT-1); var m=String(Math.floor(spT/60)).padStart(2,'0'),s=String(spT%60).padStart(2,'0'); var el=document.getElementById('sp-timer'); if(el)el.textContent=m+':'+s; if(spT===0&&spRun){clearInterval(spRun);spRun=null;} }
+function spToggleTimer(b){ if(spRun){clearInterval(spRun);spRun=null;b.textContent='Resume';}else{spRun=setInterval(spTick,1000);b.textContent='Pause';} }
+/* video upload sub-flow */
+var spRole='coach', spReturn='s-setup';
+function spThemeOf(r){ return r==='athlete'?'light':'dark'; }
+function setScreenTheme(id,t){ var el=document.getElementById(id); if(!el)return; el.classList.remove('fit-dark','fit-light'); el.classList.add('fit-'+t); }
+function openVidSource(role){
+  spRole=role; spReturn = role==='athlete'?'s-complete':'s-step';
+  var lib=document.getElementById('vid-source-library'); if(lib) lib.style.display = role==='coach'?'':'none';
+  var sub=document.getElementById('vid-source-sub'); if(sub) sub.textContent = role==='athlete'?'Record your set or pick a file — trim it next.':'Record, upload, or reuse a clip from your library.';
+  var t=spThemeOf(role); ['s-trim','s-upload','s-library'].forEach(function(id){ setScreenTheme(id,t); });
+  var sheet=document.getElementById('vid-source-sheet'), active=document.querySelector('.fit-phone.active');
+  if(active && sheet.parentElement!==active) active.appendChild(sheet);
+  sheet.classList.add('visible');
+}
+function pickSource(kind){ document.getElementById('vid-source-sheet').classList.remove('visible'); if(kind==='library'){go('s-library',null);return;} go('s-trim',null); }
+function startUpload(){ go('s-upload',null); var fill=document.getElementById('sp-prog'),pct=document.getElementById('sp-up-pct'); var v=0; if(fill)fill.style.width='0%'; var t=setInterval(function(){ v+=12+Math.floor(v/20); if(v>=100){v=100;clearInterval(t);setTimeout(finishVidUpload,350);} if(fill)fill.style.width=v+'%'; if(pct)pct.textContent=v+'%'+(v<100?' · uploading':' · done'); },180); }
+function finishVidUpload(){
+  if(spRole==='athlete'){
+    var zone=document.getElementById('at-upload-zone');
+    if(zone) zone.innerHTML='<div class="sp-attached"><span class="sp-vthumb" style="background:linear-gradient(135deg,#ef4444,#f59e0b);"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-title">my_set3.mov</div><div class="sp-meta">0:38 · ready to send</div></div><button class="sp-remove" aria-label="Remove" onclick="resetAthleteUpload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>';
+    go('s-complete',null); spSnack('Clip attached');
+  } else { go('s-step',null); spSnack('Video attached to step'); }
+}
+function resetAthleteUpload(){ var zone=document.getElementById('at-upload-zone'); if(zone) zone.innerHTML='<div class="sp-upload" onclick="openVidSource(\'athlete\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg><div class="sp-upload-title">Upload your video</div><div class="sp-upload-sub">record now or pick from camera roll</div></div>'; }
+function spSnack(msg){ var sn=document.getElementById('sp-snack'),t=document.getElementById('sp-snack-text'); if(t)t.textContent=msg; if(!sn)return; sn.classList.add('show'); setTimeout(function(){sn.classList.remove('show');},1800); }
+</script>
+</body>
+</html>

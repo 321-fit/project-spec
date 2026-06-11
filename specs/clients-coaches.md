@@ -3,7 +3,7 @@
 > Status: Approved (contract) / In Progress (Archive/Block + CRM + Deleted migration + Contact import)
 > Prototype: [flows/coach/clients.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/clients.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-09
+> Last updated: 2026-06-11
 > Implementation:
 > - iOS:     [321fit_ios/docs/clients-coaches-ios.md] (to be created)
 > - Backend: [poly-backend/docs/clients-coaches-backend.md] (to be created — includes relationship model migration)
@@ -106,6 +106,8 @@ The primary path for onboarding an offline roster.
    - Last name (optional — a CRM contact may be name-only)
    - Phone (optional; the single contact/match key — **email removed**)
    - Sport (required — from closed 33-sport taxonomy)
+   - Location (optional — city/country picker)
+   - Timezone (optional — picker; helps the coach schedule across timezones, esp. self-paced/online clients)
    - Notes (optional, 0–500 chars)
 2. Submit → `POST /coach/crm-clients` → new relationship created with `athlete_account_status: crm`, `relationship_state: active`.
 3. Client appears in list with teal `CRM` pill.
@@ -208,6 +210,7 @@ Each segment empties **independently** (`#s-archived.arch-empty` / `.blk-empty`)
    - Phone match → link to all other coaches' CRM records with same phone, mark `origin: auto_phone_match`.
 5. Each linked relationship's `athlete_account_status` flips `crm → app`. CRM pill disappears; previously hidden actions (Schedule training, Block, message) unlock for each coach.
 6. Historical CRM-logged sessions and cash payments remain attributed to this client per coach.
+7. **Coach-created trainings materialize on the athlete side.** Any training events the coach created for this CRM contact (logged sessions, scheduled/upcoming, self-paced assignments) become real `training_event`s on the **athlete's** account → they appear in the **athlete's calendar** (and self-paced list). They continue to show in the coach's **Client Detail** as before. Past events land as history; future ones as upcoming. No duplication — the same event is now visible to both sides.
 
 **Edge case — phone changes after signup:** athlete updates their phone in profile → re-link is **not retroactive**. Existing relationships keep their origin tags. New CRM records with the new phone match only future signups.
 
@@ -292,7 +295,7 @@ Edit info opens one screen with two modes — **same form scaffolding** (avatar 
 
 | Mode trigger | Editable fields | Endpoint |
 |---|---|---|
-| `athlete_account_status = crm` (**CRM mode**) — coach owns the contact card | First name · Last name (optional) · Phone (single match key) · Sport · Notes · optional Avatar (full Create-Client form; **no Email**) | `PATCH /coach/crm-clients/{id}` |
+| `athlete_account_status = crm` (**CRM mode**) — coach owns the contact card | First name · Last name (optional) · Phone (single match key) · Sport · **Location** · **Timezone** · Notes · optional Avatar (full Create-Client form; **no Email**) | `PATCH /coach/crm-clients/{id}` |
 | `athlete_account_status ∈ {app, deleted}` (**App mode**) — coach does NOT edit athlete identity | Read-only identity card on top (avatar + name + sport chips, footnote "Managed by athlete · contact athlete to update"). Editable: **Sport-of-coaching** (which sport coach trains them in — different from athlete's own sport list) + **Notes** (coach-private). | `PATCH /coach/clients/{id}/update-profile` (narrowed payload — no identity fields) |
 
 **Why two modes, not two separate screens:** dirty-tracking + validation + save state machinery is identical; only the visible field set differs. Same code path, different `Mode` enum case.
@@ -316,11 +319,14 @@ Create a coach-managed CRM contact (manual, single).
   "lastName":       "string" | null,
   "phone":          "+E164 string" | null,
   "sport":          "sport_id",
+  "location":       "string" | null,        // city/country
+  "timezone":       "IANA tz string" | null, // e.g. "Europe/Berlin"
   "notes":          "string" | null
 }
 ```
 
 > **Changed 2026-06-09 (additive/relaxed):** `email` field **removed** from CRM contacts — phone is the single match key (email-fallback match deprecated, see Flow 9). `lastName` is now **nullable** (contact/import may be first-name-only). `firstName` stays required. Existing stored emails are ignored for matching; not surfaced in the CRM edit form.
+> **Changed 2026-06-11 (additive):** `location` + `timezone` added to CRM create/edit (both optional). Same fields on `PATCH /coach/crm-clients/{id}`. Timezone helps schedule online/self-paced clients across zones.
 
 **Response 200:** new `CoachClientRelationship` with `athlete_account_status: crm`, `relationship_state: active`, `origin: "manual"`.
 

@@ -254,6 +254,13 @@ This applies equally to **decorative elements** that often live in CSS-only on t
 
 **For architect agents (`/ios-architect impl-doc`, `/android-architect impl-doc`):** when reading the prototype CSS, every recurring decorative class is a candidate component. Don't paper over it with inline styling instructions in §6 UI mapping — propose the kit component first, spec it, then reference it from the impl-doc.
 
+### Pending component extractions (tech debt)
+
+Some recurring prototype patterns are still **inline-styled per file** instead of shared CSS classes / FitUI components — so copies **drift** (different gradients, fonts, metrics, missing affordances) when reused in another flow. Extract these to `fit-ui.css` (+ FitUI mirrors) during design-system formalization. Until then, when reusing them, **copy the exact markup + metrics from the source file — do not re-approximate.**
+
+- **Unified Inbox tabs** — the 3-way segmented tab row (Activity / To reply / Waiting) in `coach/dashboard.html#s-notifications` is inline-styled (wrapper `surface-high` `padding:3px` `radius:10px`; buttons `8px/radius:8px/13px/500`; active = `--fit-brand-gradient`; `(N)` count span). Surfaced 2026-06-11 when the self-paced Inbox mock diverged. → a `.fit-segmented-tabs` component.
+- **`.req-card`** — the inbox request-card shell (44px neutral avatar + name + sub + chevron · title · meta · action row) is inline-styled in `coach/dashboard.html`. Reused ad-hoc by self-paced (`.spq` lookalike). → a `FitRequestCard` / `.fit-request-card` component.
+
 ### Greenfield isolation — new modules go in new files
 
 Phase 4 modules are **not migrations** of legacy screens. Each module ships as **net-new files in a new namespace**, sitting next to the legacy version, not on top of it. The legacy screen keeps working until the redesign cuts over wholesale.
