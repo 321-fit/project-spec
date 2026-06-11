@@ -3,13 +3,15 @@
 > Status: Draft
 > Prototype: [flows/athlete/my-coaches.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/my-coaches.html) (`#s-coach-review`, `#s-coach-detail`)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-05
+> Last updated: 2026-06-11
 > Implementation:
 > - iOS:     [321fit_ios/docs/reviews-ios.md] (to be created)
 > - Android: [321fit_android/docs/reviews-android.md] (to be created)
 > - Backend: [poly-backend/docs/reviews-api.md] (to be created)
 
-**Scope note:** how an athlete leaves a written **review** of a coach. This is distinct from the per-session **quick rating** (1-tap stars, captured right after a session in the Dashboard rate-queue), which already exists and feeds the coach's aggregate score. This spec covers the **written review** only.
+**Scope note:** how an athlete leaves a written **review** of a coach. This is distinct from the per-session **quick rating** (1-tap stars, captured right after a session in the Dashboard rate-queue), which feeds the coach's aggregate score + prefills this composer. This spec covers the **written review** only.
+
+> ⚠️ **Backend reality (verified 2026-06-11):** neither the quick rating nor written reviews exist on the backend yet — there is **no `rating`/`review` table**, and `post-confirm` stores only free-text `feedback`. Both are being built greenfield under epic **poly-backend#396** (quick-rating storage + aggregate = #398/#399; athlete written-review CRUD = #399; athlete-facing read = #400). The "already exists" assumption in earlier drafts was incorrect.
 
 ---
 
