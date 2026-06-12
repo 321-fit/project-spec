@@ -59,8 +59,8 @@
   .sp-sec { padding: 0 16px; margin: 20px 0 10px; } .sp-sec:first-child { margin-top: 4px; }
 
   /* Generic row-card (sessions, requests, history, library) */
-  .sp-card { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; background: var(--fit-surface-high); border: 1px solid var(--fit-gray-600); cursor: pointer; }
-  .fit-light .sp-card { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .sp-card { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; background: var(--fit-surface-high); cursor: pointer; }
+  .fit-light .sp-card { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
   .sp-card + .sp-card { margin-top: 8px; }
   .sp-thumb { width: 52px; height: 52px; border-radius: 10px; background: var(--fit-brand-gradient); flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; }
   .sp-thumb.g2 { background: linear-gradient(135deg,#ef4444,#f59e0b); } .sp-thumb.g3 { background: linear-gradient(135deg,#8b5cf6,#ec4899); } .sp-thumb.g4 { background: linear-gradient(135deg,#10b981,#06b6d4); }
@@ -77,8 +77,8 @@
   .sp-note-body.empty { color: var(--fit-text-tertiary); display: flex; align-items: center; gap: 8px; }
 
   /* ===== Setup builder — step cards ===== */
-  .sp-step { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 12px; background: var(--fit-surface-high); border: 1px solid var(--fit-gray-600); cursor: pointer; }
-  .fit-light .sp-step { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .sp-step { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 12px; background: var(--fit-surface-high); cursor: pointer; }
+  .fit-light .sp-step { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
   .sp-step + .sp-step { margin-top: 8px; }
   .sp-drag { color: var(--fit-text-tertiary); flex-shrink: 0; display: flex; cursor: grab; }
   .sp-num { width: 24px; height: 24px; border-radius: 7px; background: var(--fit-surface-higher); color: var(--fit-text-secondary); font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -101,8 +101,8 @@
   /* Step-editor target conditional fields */
   /* Step target — independent Reps / Timer toggles + Rest after */
   .sp-optwrap + .sp-optwrap { margin-top: 8px; }
-  .sp-opt { display: flex; align-items: center; justify-content: space-between; padding: 13px 14px; border-radius: 12px; background: var(--fit-surface-high); border: 1px solid var(--fit-gray-600); cursor: pointer; }
-  .fit-light .sp-opt { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .sp-opt { display: flex; align-items: center; justify-content: space-between; padding: 13px 14px; border-radius: 12px; background: var(--fit-surface-high); cursor: pointer; }
+  .fit-light .sp-opt { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
   .sp-opt-label { font-size: 15px; color: var(--fit-text-primary); }
   .sp-switch { width: 44px; height: 26px; border-radius: 99px; background: var(--fit-surface-higher); position: relative; transition: background 0.15s; flex-shrink: 0; }
   .fit-light .sp-switch { background: var(--fit-gray-300); }
@@ -122,48 +122,68 @@
   .fit-light .sp-timer-ring { border-color: var(--fit-gray-100); }
   .sp-timer-num { font-size: 44px; font-weight: 600; color: var(--fit-text-primary); font-variant-numeric: tabular-nums; }
   .sp-timer-cap { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
-  /* Player progress segments + get-ready overlay + voice */
-  .sp-segs { display: flex; gap: 4px; padding: 0 16px 12px; }
-  .sp-seg { flex: 1; height: 4px; border-radius: 2px; background: var(--fit-surface-higher); }
-  .fit-light .sp-seg { background: var(--fit-gray-200); }
-  .sp-seg.done { background: var(--fit-brand-primary); }
-  .sp-seg.cur  { background: var(--fit-brand-primary); opacity: 0.45; }
-  .sp-next { text-align: center; font-size: 13px; color: var(--fit-text-tertiary); padding: 14px 16px 0; }
-  .sp-ready { position: absolute; inset: 0; background: var(--fit-screen-bg); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 5; text-align: center; padding: 24px; }
+  /* Player (Freeletics-style): full-bleed media, bottom-left metric, one segment bar */
+  #s-player .fit-phone-content { padding: 0 !important; display: flex; flex-direction: column; }
+  .plf-media { flex: 1; min-height: 0; position: relative; display: flex; align-items: center; justify-content: center; background: var(--fit-gray-100); overflow: hidden; }
+  .plf-exvis { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+  .plf-exvis .ph { position: absolute; inset: 0; }
+  .plf-exvis .play { position: relative; width: 46px; height: 46px; opacity: 0.92; }
+  #s-player.pl-rest .plf-exvis { display: none; }
+  #s-player.pl-rest .plf-media { background: var(--fit-screen-bg); }
+  .plf-bottom { padding: 18px 22px 6px; }
+  .plf-metric { font-size: 60px; font-weight: 700; line-height: 1; color: var(--fit-text-primary); font-variant-numeric: tabular-nums; }
+  .plf-metric small { font-size: 26px; font-weight: 600; color: var(--fit-text-tertiary); }
+  .plf-name { font-size: 20px; font-weight: 600; color: var(--fit-text-primary); margin-top: 8px; }
+  .plf-detail { font-size: 14px; color: var(--fit-text-secondary); margin-top: 2px; }
+  .plf-next { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 8px; display: flex; align-items: center; gap: 5px; }
+  .plf-pause { display: inline-block; margin-top: 12px; font-size: 14px; font-weight: 600; color: var(--fit-brand-primary); cursor: pointer; }
+  .plf-bar { display: flex; gap: 3px; padding: 10px 22px 0; }
+  .plf-bar i { flex: 1; height: 4px; border-radius: 2px; background: var(--fit-gray-200); }
+  .plf-bar i.done { background: var(--fit-brand-primary); }
+  .plf-bar i.cur { background: var(--fit-brand-primary); opacity: 0.4; }
+  /* Get-ready overlay (f08): huge centered number, caption bottom-left */
+  .sp-ready { position: absolute; inset: 0; background: var(--fit-screen-bg); display: none; align-items: center; justify-content: center; z-index: 5; cursor: pointer; }
   #s-player.pl-ready .sp-ready { display: flex; }
-  .sp-ready-cap { font-size: 15px; font-weight: 500; color: var(--fit-text-secondary); }
-  .sp-ready-num { font-size: 96px; font-weight: 600; color: var(--fit-text-primary); line-height: 1.1; margin: 8px 0; font-variant-numeric: tabular-nums; }
-  .sp-ready-voice { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fit-brand-primary); }
+  .sp-ready-num { font-size: 130px; font-weight: 700; color: var(--fit-text-primary); line-height: 1; font-variant-numeric: tabular-nums; }
+  .sp-ready-foot { position: absolute; left: 22px; bottom: 26px; }
+  .sp-ready-cap { font-size: 26px; font-weight: 700; color: var(--fit-text-primary); }
+  .sp-ready-voice { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fit-brand-primary); margin-top: 6px; }
   .sp-voicebtn.muted { color: var(--fit-text-tertiary); }
-  /* Player — step structure chips + set dots + reps + rest */
-  .sp-struct { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; padding: 8px 16px 0; }
-  .sp-struct span { font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 99px; background: var(--fit-surface-high); color: var(--fit-text-secondary); }
-  .fit-light .sp-struct span { background: var(--fit-gray-100); }
-  .sp-setdots { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; }
-  .sp-setdot { width: 9px; height: 9px; border-radius: 50%; background: var(--fit-surface-higher); }
-  .fit-light .sp-setdot { background: var(--fit-gray-200); }
-  .sp-setdot.done { background: var(--fit-brand-primary); }
-  .sp-setdot.cur { background: var(--fit-brand-primary); box-shadow: 0 0 0 3px rgba(5,224,166,0.2); }
-  .sp-reps-big { font-size: 56px; font-weight: 700; color: var(--fit-text-primary); line-height: 1; }
-  .sp-reps-cap { font-size: 14px; color: var(--fit-text-tertiary); margin-top: 6px; }
-  .sp-timer-ring.rest { border-color: rgba(5,224,166,0.25); }
-  .sp-rest-tag { font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--fit-teal-500); }
   /* Booking catalog card — mirrors profile.html s-book-sessions (.v6d-card) */
   .v6d-card { background: var(--fit-surface-high); }
-  .fit-light .v6d-card { background: var(--fit-white) !important; box-shadow: 0 1px 12px rgba(0,0,0,0.12); border: 1px solid var(--fit-gray-200); }
+  .fit-light .v6d-card { background: var(--fit-white) !important; box-shadow: 0 1px 12px rgba(0,0,0,0.12); }
   /* Complete — structured feedback scales (coach-actionable) */
   .sp-scale { display: flex; gap: 8px; padding: 0 16px; }
   .sp-scale button { flex: 1; padding: 12px 4px; border-radius: 12px; border: 1px solid var(--fit-divider); background: transparent; font-family: var(--fit-font); font-size: 14px; font-weight: 500; color: var(--fit-text-secondary); cursor: pointer; }
   .sp-scale button.sel { border-color: var(--fit-teal-500); background: rgba(5,224,166,0.08); color: var(--fit-text-primary); }
   .sp-scale-help { padding: 8px 16px 0; font-size: 13px; color: var(--fit-text-tertiary); }
+  /* Review (coach) — two clean zones: her submission, your review */
+  .rv-card { margin: 0 16px; border: 1px solid var(--fit-divider); border-radius: 16px; overflow: hidden; }
+  .rv-clip-hero { position: relative; height: 230px; background: #0b0f14; display: flex; align-items: center; justify-content: center; }
+  .rv-clip-hero .play { width: 52px; height: 52px; color: #fff; opacity: 0.95; }
+  .rv-clip-hero .dur { position: absolute; right: 10px; bottom: 10px; background: rgba(0,0,0,0.6); color: #fff; font-size: 12px; padding: 3px 8px; border-radius: 7px; }
+  .rv-thumbs { display: flex; gap: 8px; padding: 10px; }
+  .rv-thumb { position: relative; width: 54px; height: 54px; border-radius: 8px; overflow: hidden; flex-shrink: 0; cursor: pointer; }
+  .rv-thumb.more { display: flex; align-items: center; justify-content: center; background: var(--fit-surface-high); color: var(--fit-text-secondary); font-size: 13px; font-weight: 600; }
+  .rv-stats { display: flex; }
+  .rv-stats > div { flex: 1; padding: 12px 14px; }
+  .rv-stats > div + div { border-left: 1px solid var(--fit-divider); }
+  .rv-stats .k { font-size: 12px; color: var(--fit-text-tertiary); }
+  .rv-stats .v { font-size: 15px; font-weight: 600; color: var(--fit-text-primary); margin-top: 3px; }
+  .rv-note { padding: 0 14px 14px; font-size: 14px; line-height: 1.5; color: var(--fit-text-secondary); font-style: italic; }
+  .rv-zone { margin: 18px 16px 0; padding: 14px; border-radius: 16px; background: var(--fit-surface-high); }
+  .fit-light .rv-zone { background: var(--fit-gray-50); }
+  .rv-zone-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .rv-zone-head .t { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--fit-text-tertiary); }
+  .rv-label { font-size: 13px; font-weight: 600; color: var(--fit-text-secondary); padding: 0 16px 8px; }
 
   /* Upload box */
   .sp-upload { margin: 0 16px 16px; padding: 22px; border-radius: 14px; border: 1.5px dashed var(--fit-divider); text-align: center; cursor: pointer; }
   .sp-upload svg { width: 28px; height: 28px; color: var(--fit-text-tertiary); margin-bottom: 8px; }
   .sp-upload-title { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
   .sp-upload-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 2px; }
-  .sp-attached { display: flex; align-items: center; gap: 12px; margin: 0 16px 16px; padding: 12px; border-radius: 12px; background: var(--fit-surface-high); border: 1px solid var(--fit-gray-600); }
-  .fit-light .sp-attached { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .sp-attached { display: flex; align-items: center; gap: 12px; margin: 0 16px 16px; padding: 12px; border-radius: 12px; background: var(--fit-surface-high); }
+  .fit-light .sp-attached { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
 
   /* Remove (×) */
   .sp-remove { width: 28px; height: 28px; border-radius: 50%; border: none; background: transparent; color: var(--fit-text-tertiary); cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
@@ -174,8 +194,8 @@
   .sp-cmt { display: flex; gap: 10px; padding: 0 16px 16px; }
   .sp-cmt.me { flex-direction: row-reverse; }
   .sp-cmt-av { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #fff; background: var(--fit-gray-600); }
-  .sp-cmt-bub { max-width: 75%; padding: 10px 12px; border-radius: 14px; background: var(--fit-surface-high); border: 1px solid var(--fit-gray-600); }
-  .fit-light .sp-cmt-bub { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .sp-cmt-bub { max-width: 75%; padding: 10px 12px; border-radius: 14px; background: var(--fit-surface-high); }
+  .fit-light .sp-cmt-bub { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
   .sp-cmt.me .sp-cmt-bub { background: var(--fit-selection-gradient); }
   .sp-cmt-name { font-size: 12px; font-weight: 500; color: var(--fit-text-secondary); margin-bottom: 3px; }
   .sp-cmt-text { font-size: 14px; line-height: 1.45; color: var(--fit-text-primary); }
@@ -198,8 +218,8 @@
   .sp-trim-handle::after { content: ''; width: 2px; height: 18px; background: #fff; border-radius: 1px; }
 
   /* ===== Inbox-style request card (matches coach unified Inbox .req-card) ===== */
-  .spq { padding: 16px; border-radius: 16px; background: var(--fit-surface-high); border: 1px solid var(--fit-gray-600); }
-  .fit-light .spq { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .spq { padding: 16px; border-radius: 16px; background: var(--fit-surface-high); }
+  .fit-light .spq { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
   .spq + .spq { margin-top: 12px; }
   .spq-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; cursor: pointer; }
   .spq-av { width: 44px; height: 44px; border-radius: 50%; background: var(--fit-surface-higher); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 500; color: var(--fit-text-secondary); flex-shrink: 0; }
@@ -228,9 +248,9 @@
   #s-welcome.wlc-paid [data-wlc="paid"] { display: block; }
   #s-welcome.wlc-unpaid [data-wlc="unpaid"] { display: block; }
   #s-player [data-pl] { display: none; }
-  #s-player.pl-timed [data-pl="timed"] { display: flex; }
-  #s-player.pl-reps  [data-pl="reps"]  { display: flex; }
-  #s-player.pl-rest  [data-pl="rest"]  { display: flex; }
+  #s-player.pl-timed [data-pl="timed"] { display: block; }
+  #s-player.pl-reps  [data-pl="reps"]  { display: block; }
+  #s-player.pl-rest  [data-pl="rest"]  { display: block; }
   /* Complete: practice (re-do) hides the one-time submit-to-coach block */
   #s-complete.cp-practice [data-cp="first"] { display: none; }
   #s-complete [data-cp="practice"] { display: none; }
@@ -647,42 +667,50 @@
       <span class="sp-av" style="width:40px;height:40px;background:linear-gradient(135deg,#8b5cf6,#ec4899);">JD</span>
       <div style="min-width:0;"><div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Lower-body mobility</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Julia Dent · submitted 2h ago</div></div>
     </div>
-    <!-- Athlete's clips — carousel (supports multiple); tap → full view -->
-    <div data-rv="clip">
-      <div class="fit-section-title--md">Athlete's clips <span style="font-weight:400;color:var(--fit-text-tertiary);">(2)</span></div>
-      <div class="sp-clips">
-        <div class="sp-clip" onclick="alert('Full-screen player — TBD')"><div class="ph" style="background:linear-gradient(135deg,#1f2937,#374151);"></div><div class="pl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div><span class="dur">0:38</span></div>
-        <div class="sp-clip" onclick="alert('Full-screen player — TBD')"><div class="ph" style="background:linear-gradient(135deg,#374151,#4b5563);"></div><div class="pl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div><span class="dur">0:22</span></div>
+
+    <!-- ZONE 1 — what Julia submitted: clip + self-check + note, one card -->
+    <div class="rv-label">Julia's submission</div>
+    <div class="rv-card">
+      <!-- clip hero (+ extra clips as thumbs) -->
+      <div data-rv="clip">
+        <div class="rv-clip-hero" onclick="alert('Full-screen player — TBD')">
+          <svg class="play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          <span class="dur">0:38</span>
+        </div>
+        <div class="rv-thumbs">
+          <div class="rv-thumb" onclick="alert('Full-screen player — TBD')"><div style="position:absolute;inset:0;background:linear-gradient(135deg,#374151,#4b5563);"></div></div>
+          <div class="rv-thumb more">+1</div>
+        </div>
       </div>
-    </div>
-    <!-- No clips: compact inline state, visually distinct from the note -->
-    <div data-rv="noclip"><div class="sp-noclip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Marked done — no clips to review</div></div>
-
-    <!-- Athlete's structured self-report (what she submitted on Complete) -->
-    <div class="fit-section-title--md" style="margin-top:18px;">How Julia felt it</div>
-    <div style="display:flex;gap:8px;padding:0 16px;">
-      <div style="flex:1;border:1px solid var(--fit-divider);border-radius:12px;padding:10px 12px;"><div style="font-size:12px;color:var(--fit-text-tertiary);">Intensity</div><div style="font-size:15px;font-weight:600;color:var(--fit-text-primary);margin-top:2px;">Just right</div></div>
-      <div style="flex:1;border:1px solid var(--fit-divider);border-radius:12px;padding:10px 12px;"><div style="font-size:12px;color:var(--fit-text-tertiary);">Technique</div><div style="font-size:15px;font-weight:600;color:var(--fit-text-primary);margin-top:2px;">Solid</div></div>
-    </div>
-
-    <!-- Athlete's note as a quote -->
-    <div class="sp-quote" style="margin-top:14px;">
-      <div class="sp-quote-label">Julia's note</div>
-      <div class="sp-quote-text">“Felt tight on the left hip — couldn't go as deep on set 3.”</div>
+      <!-- no clip -->
+      <div data-rv="noclip" style="border-bottom:1px solid var(--fit-divider);">
+        <div style="padding:14px;display:flex;align-items:center;gap:8px;font-size:14px;color:var(--fit-text-secondary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Marked done — no clip to review</div>
+      </div>
+      <!-- self-check -->
+      <div class="rv-stats" style="border-top:1px solid var(--fit-divider);">
+        <div><div class="k">Intensity</div><div class="v">Just right</div></div>
+        <div><div class="k">Technique</div><div class="v">Solid</div></div>
+      </div>
+      <div class="rv-note" style="border-top:1px solid var(--fit-divider);padding-top:12px;">“Felt tight on the left hip — couldn't go as deep on set 3.”</div>
     </div>
 
-    <div class="fit-section-title--md" style="margin-top:22px;">Your feedback</div>
-    <div class="fit-rating" style="justify-content:flex-start;padding:0 16px 6px;">
-      <svg class="filled" onclick="spRate(this,1)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
-      <svg class="filled" onclick="spRate(this,2)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
-      <svg class="filled" onclick="spRate(this,3)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
-      <svg class="filled" onclick="spRate(this,4)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
-      <svg onclick="spRate(this,5)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
-    </div>
-    <div data-rate-word style="padding:0 16px 14px;font-size:13px;font-weight:500;color:var(--fit-teal-500);">Great</div>
-    <div class="fit-input-group" style="padding:0 16px;margin-bottom:0;">
-      <textarea class="fit-input-ta" maxlength="300" placeholder="Leave feedback for Julia…" oninput="document.getElementById('rv-count').textContent=this.value.length+' / 300'">Good depth overall. For the left hip, slow the eccentric and add the band drill before set 3.</textarea>
-      <div class="sp-ta-counter" id="rv-count">96 / 300</div>
+    <!-- ZONE 2 — your review (visually set apart) -->
+    <div class="rv-zone">
+      <div class="rv-zone-head">
+        <span class="t">Your review</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="fit-rating" style="padding:0;gap:2px;">
+            <svg class="filled" onclick="spRate(this,1)" viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+            <svg class="filled" onclick="spRate(this,2)" viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+            <svg class="filled" onclick="spRate(this,3)" viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+            <svg class="filled" onclick="spRate(this,4)" viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+            <svg onclick="spRate(this,5)" viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+          </div>
+          <span data-rate-word style="font-size:13px;font-weight:500;color:var(--fit-teal-500);">Great</span>
+        </div>
+      </div>
+      <textarea class="fit-input-ta" maxlength="300" style="margin:0;" placeholder="Leave feedback for Julia…" oninput="document.getElementById('rv-count').textContent=this.value.length+' / 300'">Good depth overall. For the left hip, slow the eccentric and add the band drill before set 3.</textarea>
+      <div class="sp-ta-counter" id="rv-count" style="padding-top:4px;">96 / 300</div>
     </div>
   </div>
   <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
@@ -899,55 +927,34 @@
   <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
       <button class="fit-icon-btn" aria-label="Close" onclick="go('s-welcome',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
-      <span class="fit-header-title" style="flex:1;text-align:center;">Step 2 of 3</span>
+      <span style="flex:1;"></span>
       <button class="fit-icon-btn sp-voicebtn" aria-label="Voice cues" onclick="spVoice(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 010 7M19 5a9 9 0 010 14"/></svg></button>
+      <button class="fit-icon-btn" aria-label="Message coach" onclick="go('s-comments',null)" style="margin-left:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></button>
     </div>
   </div>
-  <div class="fit-phone-content" style="padding-top:8px;position:relative;">
-    <!-- step progress segments (one per exercise) -->
-    <div class="sp-segs"><span class="sp-seg done"></span><span class="sp-seg cur"></span><span class="sp-seg"></span></div>
-    <div class="sp-video" style="aspect-ratio:16/9;"><div class="ph" style="background:linear-gradient(135deg,#ef4444,#f59e0b);"></div><svg width="44" height="44" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>
-    <div style="text-align:center;padding:0 16px;"><div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">Hip openers</div><div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:2px;">Slow the eccentric · film this one</div></div>
-    <!-- planned structure for this exercise (reps + sets + rest, as the coach built it) -->
-    <div class="sp-struct"><span>×12 reps</span><span>4 sets</span><span>rest 0:20</span></div>
-
-    <!-- WORK · reps phase (do a set, then rest) -->
-    <div data-pl="reps" style="flex-direction:column;align-items:center;padding:18px 16px 0;">
-      <div class="sp-setdots"><span class="sp-setdot done"></span><span class="sp-setdot done"></span><span class="sp-setdot cur"></span><span class="sp-setdot"></span></div>
-      <div class="sp-reps-big">×12</div>
-      <div class="sp-reps-cap">Set 3 of 4 · at your pace</div>
-      <button class="fit-btn fit-btn-primary" style="border-radius:99px;width:100%;margin-top:18px;" onclick="setPl('rest',null)">Done set → rest</button>
-    </div>
-
-    <!-- WORK · timed phase (hold/AMRAP for the duration) -->
-    <div data-pl="timed" style="flex-direction:column;align-items:center;padding-top:6px;">
-      <div class="sp-setdots"><span class="sp-setdot done"></span><span class="sp-setdot done"></span><span class="sp-setdot cur"></span><span class="sp-setdot"></span></div>
-      <div class="sp-timer-ring"><div class="sp-timer-num" id="sp-timer">00:45</div><div class="sp-timer-cap">Set 3 of 4</div></div>
-      <div style="display:flex;gap:10px;padding:0 16px;width:100%;">
-        <button class="fit-btn fit-btn-secondary" style="flex:1;" onclick="spToggleTimer(this)">Pause</button>
-        <button class="fit-btn fit-btn-secondary" style="flex:1;" onclick="setPl('rest',null)">Skip set</button>
+  <div class="fit-phone-content">
+    <!-- big exercise media (fills) -->
+    <div class="plf-media">
+      <div class="plf-exvis"><div class="ph" style="background:linear-gradient(135deg,#ef4444,#f59e0b);"></div><svg class="play" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>
+      <!-- get-ready overlay (huge number, caption bottom-left) — tap to begin -->
+      <div class="sp-ready" onclick="setPl('reps',null)">
+        <div class="sp-ready-num">3</div>
+        <div class="sp-ready-foot"><div class="sp-ready-cap">Get ready</div><div class="sp-ready-voice"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 010 7"/></svg>“Three… two… one…”</div></div>
       </div>
     </div>
-
-    <!-- REST phase (countdown between sets; voice reads it; auto-flows to next set) -->
-    <div data-pl="rest" style="flex-direction:column;align-items:center;padding-top:6px;">
-      <div class="sp-rest-tag">Rest</div>
-      <div class="sp-timer-ring rest" style="margin-top:8px;"><div class="sp-timer-num">00:20</div><div class="sp-timer-cap">Next: Set 4 · ×12</div></div>
-      <div class="sp-ready-voice" style="margin-bottom:16px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 010 7"/></svg>“Twenty… get ready for set four”</div>
-      <button class="fit-btn fit-btn-secondary" style="width:100%;" onclick="setPl('reps',null)">Skip rest</button>
+    <!-- bottom metric block (one per phase) -->
+    <div class="plf-bottom">
+      <div data-pl="reps"><div class="plf-metric">12<small>×</small></div><div class="plf-name">Hip openers</div><div class="plf-detail">Set 3 of 4 · at your pace</div><div class="plf-next">Next: 20s rest</div></div>
+      <div data-pl="timed"><div class="plf-metric">00:45</div><div class="plf-name">Hip openers</div><div class="plf-detail">Set 3 of 4 · hold the position</div><div class="plf-next">Next: 20s rest</div><span class="plf-pause" onclick="spToggleTimer(this)">Pause</span></div>
+      <div data-pl="rest"><div class="plf-metric">20<small>s</small></div><div class="plf-name">Rest</div><div class="plf-detail">Nice — get set for set 4 · ×12</div><div class="plf-next"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 010 7"/></svg>“Twenty… get ready for set four”</div></div>
     </div>
-
-    <div class="sp-next">Next exercise: Cooldown stretch</div>
-    <!-- Get-ready overlay (3-2-1 with voice, before the first set of an exercise) -->
-    <div class="sp-ready">
-      <div class="sp-ready-cap">Get ready · Hip openers</div>
-      <div class="sp-ready-num">3</div>
-      <div class="sp-ready-voice"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 010 7"/></svg>“Three… two… one…”</div>
-      <button class="fit-btn fit-btn-primary" style="border-radius:99px;margin-top:24px;padding:0 28px;" onclick="setPl('reps',null)">Start set</button>
-    </div>
+    <!-- whole-session progress (sets + rests across the workout) -->
+    <div class="plf-bar"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="cur"></i><i></i><i></i><i></i><i></i><i></i></div>
   </div>
   <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
-    <button onclick="go('s-complete',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Finish exercise → next</button>
+    <button data-pl="reps" onclick="setPl('rest',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;text-align:center;">Done</button>
+    <button data-pl="timed" onclick="setPl('rest',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;text-align:center;">Done</button>
+    <button data-pl="rest" onclick="go('s-complete',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;border:1px solid var(--fit-divider);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;text-align:center;">Skip to next →</button>
   </div>
 </div>
 
@@ -1196,11 +1203,11 @@
 
   <div class="ann" id="ann-s-player"><span class="ann-role athlete">Athlete</span>
     <div class="state-toggle"><button onclick="setPl('ready',this)">Get ready</button><button class="active" onclick="setPl('reps',this)">Reps set</button><button onclick="setPl('rest',this)">Rest</button><button onclick="setPl('timed',this)">Timed set</button></div>
-    <h3>Player (Freeletics-style sequence)</h3>
-    <p>An exercise plays as a <strong>sequence of phases</strong>, driven by how the coach built the step (<code>reps</code> / <code>timer</code> / <code>rest</code>, independently):</p>
-    <p><strong>Get ready</strong> (3-2-1, voiced) → <strong>work</strong> (a <em>Reps set</em> — big rep count, tap when done; or a <em>Timed set</em> — countdown ring) → <strong>Rest</strong> (voiced countdown, auto-flows to the next set) → repeat per the <strong>set dots</strong> → next exercise. The <strong>structure chips</strong> (×12 · 4 sets · rest 0:20) show the plan; <strong>segments</strong> track exercises, <strong>set dots</strong> track sets within one.</p>
-    <p><strong>Voice cues</strong> (speaker toggle): native TTS reads get-ready <em>and</em> rest countdowns; respects silent mode. Prototype = icon + toggle, no real audio.</p>
-    <p class="note">Phases are wired so you can step through them; Pause toggles the live timer.</p>
+    <h3>Player (Freeletics-style)</h3>
+    <p>Deliberately minimal, one focus at a time (ref: Freeletics). <strong>Full-bleed exercise media</strong> on top; <strong>bottom-left</strong> = the one number that matters (<em>12×</em> reps / <em>00:45</em> timer / <em>20s</em> rest) + exercise name + a gray <strong>Next:</strong> line. A single thin <strong>segment bar</strong> at the very bottom tracks the whole workout (every set + rest).</p>
+    <p>An exercise plays as a sequence: <strong>Get ready</strong> (3-2-1, voiced) → <strong>work</strong> (Reps set — tap <em>Done</em>; or Timed set — counts down, <em>Pause</em>) → <strong>Rest</strong> (voiced countdown) → next set/exercise. <strong>One action only</strong> per phase (Done / Skip) — no competing CTAs.</p>
+    <p>Header is just icon-buttons: × · <strong>voice toggle</strong> · <strong>message coach</strong>. The plan (steps + targets) lives on the Welcome overview, not crowded onto the player.</p>
+    <p class="note">Voice cues = native TTS for get-ready + rest countdowns; prototype shows icon + caption, no real audio.</p>
   </div>
 
   <div class="ann" id="ann-s-complete"><span class="ann-role athlete">Athlete</span>

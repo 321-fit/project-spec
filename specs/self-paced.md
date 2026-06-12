@@ -104,8 +104,8 @@ An exercise is **not one screen** — it plays as a Freeletics-style sequence dr
 Get ready (3-2-1, voiced)  →  WORK set  →  Rest (voiced countdown, auto-flow)  →  [repeat per set count]  →  next exercise
 ```
 
-- **WORK set** renders by target: **Reps set** = big rep count, athlete taps when done; **Timed set** = countdown ring (Pause / Skip); **Reps + Timer** both on = a timed work set (e.g. max reps in 45s).
-- **Set dots** track sets within one exercise; **progress segments** track exercises within the workout; **structure chips** (`×12 · 4 sets · rest 0:20`) show the plan up front.
+- **Minimal, one focus at a time** (ref: Freeletics): full-bleed exercise media on top, the single number that matters bottom-left (reps / timer / rest), exercise name + a gray `Next:` line, and **one thin segment bar** at the very bottom tracking the whole workout. **One action per phase** (Done / Skip) — no competing CTAs. Header = icon-buttons only (× · voice · message coach). The plan/steps live on the Welcome overview, not on the player.
+- **WORK set** renders by target: **Reps set** = big rep count, tap Done; **Timed set** = countdown + Pause; **Reps + Timer** both on = a timed work set (e.g. max reps in 45s).
 - **Voice cues** read the get-ready and rest countdowns (native TTS, toggle, respects silent mode).
 
 ---
