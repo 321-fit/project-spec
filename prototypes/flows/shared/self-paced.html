@@ -99,9 +99,18 @@
   .sp-counter .lbl { font-size: 14px; font-weight: 500; color: var(--fit-text-secondary); min-width: 88px; text-align: center; }
 
   /* Step-editor target conditional fields */
-  #s-step [data-tgt] { display: none; }
-  #s-step.tgt-timer [data-tgt="timer"] { display: block; }
-  #s-step.tgt-reps  [data-tgt="reps"]  { display: block; }
+  /* Step target — independent Reps / Timer toggles + Rest after */
+  .sp-optwrap + .sp-optwrap { margin-top: 8px; }
+  .sp-opt { display: flex; align-items: center; justify-content: space-between; padding: 13px 14px; border-radius: 12px; background: var(--fit-surface-high); cursor: pointer; }
+  .fit-light .sp-opt { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+  .sp-opt-label { font-size: 15px; color: var(--fit-text-primary); }
+  .sp-switch { width: 44px; height: 26px; border-radius: 99px; background: var(--fit-surface-higher); position: relative; transition: background 0.15s; flex-shrink: 0; }
+  .fit-light .sp-switch { background: var(--fit-gray-300); }
+  .sp-optwrap.on .sp-switch { background: var(--fit-brand-primary); }
+  .sp-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: left 0.15s; }
+  .sp-optwrap.on .sp-switch::after { left: 21px; }
+  .sp-opt-fields { display: none; gap: 10px; padding: 10px 2px 2px; }
+  .sp-optwrap.on .sp-opt-fields { display: flex; }
 
   /* Video frame */
   .sp-video { margin: 0 16px 16px; border-radius: 14px; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; }
@@ -113,6 +122,24 @@
   .fit-light .sp-timer-ring { border-color: var(--fit-gray-100); }
   .sp-timer-num { font-size: 44px; font-weight: 600; color: var(--fit-text-primary); font-variant-numeric: tabular-nums; }
   .sp-timer-cap { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  /* Player progress segments + get-ready overlay + voice */
+  .sp-segs { display: flex; gap: 4px; padding: 0 16px 12px; }
+  .sp-seg { flex: 1; height: 4px; border-radius: 2px; background: var(--fit-surface-higher); }
+  .fit-light .sp-seg { background: var(--fit-gray-200); }
+  .sp-seg.done { background: var(--fit-brand-primary); }
+  .sp-seg.cur  { background: var(--fit-brand-primary); opacity: 0.45; }
+  .sp-next { text-align: center; font-size: 13px; color: var(--fit-text-tertiary); padding: 14px 16px 0; }
+  .sp-ready { position: absolute; inset: 0; background: var(--fit-screen-bg); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 5; text-align: center; padding: 24px; }
+  #s-player.pl-ready .sp-ready { display: flex; }
+  .sp-ready-cap { font-size: 15px; font-weight: 500; color: var(--fit-text-secondary); }
+  .sp-ready-num { font-size: 96px; font-weight: 600; color: var(--fit-text-primary); line-height: 1.1; margin: 8px 0; font-variant-numeric: tabular-nums; }
+  .sp-ready-voice { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fit-brand-primary); }
+  .sp-voicebtn.muted { color: var(--fit-text-tertiary); }
+  /* Complete — structured feedback scales (coach-actionable) */
+  .sp-scale { display: flex; gap: 8px; padding: 0 16px; }
+  .sp-scale button { flex: 1; padding: 12px 4px; border-radius: 12px; border: 1px solid var(--fit-divider); background: transparent; font-family: var(--fit-font); font-size: 14px; font-weight: 500; color: var(--fit-text-secondary); cursor: pointer; }
+  .sp-scale button.sel { border-color: var(--fit-teal-500); background: rgba(5,224,166,0.08); color: var(--fit-text-primary); }
+  .sp-scale-help { padding: 8px 16px 0; font-size: 13px; color: var(--fit-text-tertiary); }
 
   /* Upload box */
   .sp-upload { margin: 0 16px 16px; padding: 22px; border-radius: 14px; border: 1.5px dashed var(--fit-divider); text-align: center; cursor: pointer; }
@@ -476,6 +503,12 @@
       <span class="fit-input-label">Workout title</span>
       <div class="fit-input" contenteditable="true" style="outline:none;cursor:text;">Lower-body mobility</div>
     </div>
+    <!-- Day to do it (day-bound, not time-bound) -->
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Day to do it</span>
+      <div class="fit-input" style="cursor:pointer;"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span> Thu, Apr 17<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div>
+      <span class="fit-input-hint" style="font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;display:block;">Anna does it anytime that day — she can reschedule freely.</span>
+    </div>
     <!-- Welcome note → outline card → editor (reuse My-note pattern) -->
     <div style="padding:0 16px;"><span class="fit-input-label">Welcome note for Anna</span></div>
     <div class="sp-note" onclick="go('s-comments',null)">
@@ -517,7 +550,7 @@
 </div>
 
 <!-- ==================== COACH: STEP EDITOR (focused, with counter) ==================== -->
-<div class="fit-phone fit-dark tgt-timer" id="s-step">
+<div class="fit-phone fit-dark" id="s-step">
   <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
       <button class="fit-icon-btn" aria-label="Close" onclick="go('s-setup',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
@@ -545,25 +578,27 @@
       <button class="sp-remove" aria-label="Replace" onclick="openVidSource('coach')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v6h6M21 12A9 9 0 006 5.3L3 8"/></svg></button>
     </div>
 
-    <!-- Target (optional) -->
-    <div style="padding:0 16px;"><span class="fit-input-label">Target <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span></div>
-    <div class="fit-selection-group" style="padding:0 16px;margin-bottom:14px;">
-      <div class="fit-selection-chip" onclick="spTarget('none',this)">None</div>
-      <div class="fit-selection-chip selected" onclick="spTarget('timer',this)">Timer</div>
-      <div class="fit-selection-chip" onclick="spTarget('reps',this)">Reps</div>
-    </div>
-    <div data-tgt="timer" class="fit-input-group" style="padding:0 16px;">
-      <span class="fit-input-label">Duration · rest after</span>
-      <div style="display:flex;gap:10px;">
-        <div class="fit-input" style="flex:1;cursor:text;" contenteditable="true">00:45</div>
-        <div class="fit-input" style="flex:1;cursor:text;color:var(--fit-text-tertiary);">rest 00:20</div>
+    <!-- Target — Reps and Timer are independent (both / either / neither). Neither on = just follow the video. -->
+    <div style="padding:0 16px;margin-bottom:4px;"><span class="fit-input-label">Target <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional — leave both off to just follow the video)</span></span></div>
+    <div style="padding:0 16px;margin-bottom:14px;">
+      <div class="sp-optwrap" id="opt-reps">
+        <div class="sp-opt" onclick="spOpt('reps')"><span class="sp-opt-label">Reps &times; sets</span><span class="sp-switch"></span></div>
+        <div class="sp-opt-fields">
+          <div class="fit-input" style="flex:1;cursor:text;" contenteditable="true">12</div>
+          <span style="align-self:center;color:var(--fit-text-tertiary);">reps &times;</span>
+          <div class="fit-input" style="flex:1;cursor:text;" contenteditable="true">4</div>
+          <span style="align-self:center;color:var(--fit-text-tertiary);font-size:13px;">sets</span>
+        </div>
       </div>
-    </div>
-    <div data-tgt="reps" class="fit-input-group" style="padding:0 16px;">
-      <span class="fit-input-label">Reps × sets</span>
-      <div style="display:flex;gap:10px;">
-        <div class="fit-input" style="flex:1;cursor:text;" contenteditable="true">12</div>
-        <div class="fit-input" style="flex:1;cursor:text;" contenteditable="true">4</div>
+      <div class="sp-optwrap on" id="opt-timer">
+        <div class="sp-opt" onclick="spOpt('timer')"><span class="sp-opt-label">Timer <span style="color:var(--fit-text-tertiary);font-size:13px;">(hold / duration)</span></span><span class="sp-switch"></span></div>
+        <div class="sp-opt-fields">
+          <div class="fit-input" style="flex:1;cursor:text;" contenteditable="true">00:45</div>
+        </div>
+      </div>
+      <div class="fit-input-group" style="padding:0;margin:12px 0 0;">
+        <span class="fit-input-label">Rest after <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+        <div class="fit-input" style="cursor:text;" contenteditable="true">00:20</div>
       </div>
     </div>
 
@@ -622,7 +657,7 @@
     </div>
   </div>
   <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
-    <button onclick="go('s-queue',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Send feedback &amp; finish</button>
+    <button onclick="go('s-comments',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Send feedback &amp; finish</button>
   </div>
 </div>
 
@@ -715,7 +750,13 @@
     <div class="fit-sheet">
       <div class="fit-sheet-handle"></div>
       <div style="font-size:18px;font-weight:600;margin-bottom:16px;">Confirm booking</div>
-      <div class="sp-card" style="cursor:default;margin-bottom:16px;"><span class="sp-thumb"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M21 8l-4 4 4 4z"/></svg></span><div class="sp-body"><div class="sp-title">Online self-paced · Maria</div><div class="sp-meta">Custom workout, built for you</div></div></div>
+      <div class="sp-card" style="cursor:default;margin-bottom:14px;"><span class="sp-thumb"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M21 8l-4 4 4 4z"/></svg></span><div class="sp-body"><div class="sp-title">Online self-paced · Maria</div><div class="sp-meta">Custom workout, built for you</div></div></div>
+      <!-- Pick a day (no time — do it anytime that day) -->
+      <div class="fit-input-group" style="padding:0;margin-bottom:14px;">
+        <span class="fit-input-label">Which day?</span>
+        <div class="fit-input" style="cursor:pointer;"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span> Thu, Apr 17<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div>
+        <span class="fit-input-hint" style="font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;display:block;">No fixed time — do it whenever that day; reschedule anytime.</span>
+      </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--fit-divider);"><span style="font-size:15px;color:var(--fit-text-primary);">Price</span><span style="font-size:18px;font-weight:500;color:var(--fit-text-primary);">€12.00</span></div>
       <div style="display:flex;align-items:flex-start;gap:8px;padding:0 0 18px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><span style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.5;">Paid from your balance now. Maria sets up your workout, then it lands in your list — do it anytime.</span></div>
       <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="document.getElementById('book-sheet').classList.remove('visible');spSnack('Booked — Maria will set it up');setTimeout(function(){go('s-list',null)},700)">Pay &amp; book · €12</button>
@@ -776,6 +817,12 @@
       <div style="font-size:22px;font-weight:600;color:var(--fit-text-primary);margin-top:2px;">Lower-body mobility</div>
       <div style="font-size:14px;color:var(--fit-text-secondary);margin-top:6px;display:inline-flex;align-items:center;gap:8px;"><span>🎬 3 steps</span><span>·</span><span>~15 min</span></div>
     </div>
+    <!-- Day-bound schedule + free reschedule -->
+    <div style="margin:0 16px 16px;padding:12px 14px;border-radius:12px;background:var(--fit-surface-high);display:flex;align-items:center;gap:10px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-secondary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <div style="flex:1;min-width:0;"><div style="font-size:14px;color:var(--fit-text-primary);">Thu, Apr 17</div><div style="font-size:12px;color:var(--fit-text-tertiary);">1h block · do it anytime that day</div></div>
+      <button style="border:none;background:transparent;color:var(--fit-brand-primary);font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;" onclick="document.getElementById('resched-sheet').classList.add('visible')">Reschedule</button>
+    </div>
     <div class="sp-note" style="cursor:default;">
       <div class="sp-note-label">Note from Maria</div>
       <div class="sp-note-body">Do these this week — film set 3 of the hip openers so I can check your depth.</div>
@@ -791,6 +838,19 @@
     <button data-wlc="paid" onclick="go('s-player',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Start</button>
     <button data-wlc="unpaid" onclick="go('s-player',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Pay €12 &amp; start</button>
   </div>
+  <!-- Reschedule sheet (day picker; coach notified only on day-change) -->
+  <div class="fit-sheet-overlay" id="resched-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:600;margin-bottom:4px;">Move to another day</div>
+      <div style="font-size:13px;color:var(--fit-text-secondary);margin-bottom:14px;">Pick a new day — you can do it anytime that day. Changing the <strong>time</strong> within a day is silent; moving to a <strong>different day</strong> lets Maria know.</div>
+      <div class="fit-sheet-item" onclick="document.getElementById('resched-sheet').classList.remove('visible');spSnack('Moved to Fri, Apr 18 · Maria notified')">Fri, Apr 18</div>
+      <div class="fit-sheet-item" onclick="document.getElementById('resched-sheet').classList.remove('visible');spSnack('Moved to Sat, Apr 19 · Maria notified')">Sat, Apr 19</div>
+      <div class="fit-sheet-item" onclick="document.getElementById('resched-sheet').classList.remove('visible');spSnack('Moved to Mon, Apr 21 · Maria notified')">Mon, Apr 21</div>
+      <div class="fit-sheet-item" onclick="document.getElementById('resched-sheet').classList.remove('visible')">Pick another day…</div>
+      <button style="width:100%;height:50px;margin-top:12px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('resched-sheet').classList.remove('visible')">Cancel</button>
+    </div>
+  </div>
 </div>
 
 <!-- ==================== ATHLETE: PLAYER ==================== -->
@@ -798,12 +858,15 @@
   <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
       <button class="fit-icon-btn" aria-label="Close" onclick="go('s-welcome',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
-      <span class="fit-header-title" style="flex:1;text-align:center;">Step 2 of 3</span><span style="width:32px;"></span>
+      <span class="fit-header-title" style="flex:1;text-align:center;">Step 2 of 3</span>
+      <button class="fit-icon-btn sp-voicebtn" aria-label="Voice cues" onclick="spVoice(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 010 7M19 5a9 9 0 010 14"/></svg></button>
     </div>
   </div>
-  <div class="fit-phone-content" style="padding-top:8px;">
+  <div class="fit-phone-content" style="padding-top:8px;position:relative;">
+    <!-- step progress segments -->
+    <div class="sp-segs"><span class="sp-seg done"></span><span class="sp-seg cur"></span><span class="sp-seg"></span></div>
     <div class="sp-video" style="aspect-ratio:16/9;"><div class="ph" style="background:linear-gradient(135deg,#ef4444,#f59e0b);"></div><svg width="44" height="44" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>
-    <div style="text-align:center;padding:0 16px;"><div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">Hip openers</div><div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:2px;">Slow the eccentric · film this one</div></div>
+    <div style="text-align:center;padding:0 16px;"><div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">Hip openers</div><div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:2px;">Slow the eccentric · film this one</div><button onclick="go('s-comments',null)" style="margin-top:8px;border:none;background:transparent;color:var(--fit-brand-primary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Tell your coach</button></div>
     <!-- timed variant -->
     <div data-pl="timed" style="flex-direction:column;align-items:center;">
       <div class="sp-timer-ring"><div class="sp-timer-num" id="sp-timer">00:45</div><div class="sp-timer-cap">set 3 of 4</div></div>
@@ -816,6 +879,13 @@
     <div data-pl="untimed" style="padding:24px 16px 0;text-align:center;">
       <div style="font-size:15px;color:var(--fit-text-secondary);margin-bottom:6px;">Do <strong style="color:var(--fit-text-primary);">12 reps × 4 sets</strong> at your pace.</div>
       <div style="font-size:13px;color:var(--fit-text-tertiary);">No timer on this one — tap Done when finished.</div>
+    </div>
+    <div class="sp-next">Next: Cooldown stretch</div>
+    <!-- Get-ready overlay (voice countdown before a timed step) -->
+    <div class="sp-ready">
+      <div class="sp-ready-cap">Get ready</div>
+      <div class="sp-ready-num">3</div>
+      <div class="sp-ready-voice"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 010 7"/></svg>“Three… two… one…”</div>
     </div>
   </div>
   <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
@@ -833,16 +903,23 @@
       <div style="width:64px;height:64px;border-radius:50%;background:rgba(5,224,166,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
       <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">Lower-body mobility — done</div>
     </div>
-    <div style="text-align:center;font-size:14px;font-weight:500;color:var(--fit-text-secondary);margin-bottom:10px;">How was it?</div>
-    <div class="fit-rating" style="margin-bottom:6px;">
-      <svg class="filled" onclick="spRate(this,1)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
-      <svg class="filled" onclick="spRate(this,2)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
-      <svg class="filled" onclick="spRate(this,3)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
-      <svg class="filled" onclick="spRate(this,4)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
-      <svg onclick="spRate(this,5)" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+    <!-- Structured feedback the coach uses to adjust the next workout (Freeletics pattern) -->
+    <div class="fit-section-title--md">How did it feel?</div>
+    <div class="sp-scale" id="sc-intensity">
+      <button onclick="spScale(this)">Too easy</button>
+      <button class="sel" onclick="spScale(this)">Just right</button>
+      <button onclick="spScale(this)">Too hard</button>
     </div>
-    <div data-rate-word style="text-align:center;font-size:13px;font-weight:500;color:var(--fit-teal-500);margin-bottom:24px;">Great</div>
-    <div class="fit-section-title--md">Share a clip <span style="font-weight:400;color:var(--fit-text-tertiary);font-size:13px;">(optional)</span></div>
+    <div class="sp-scale-help" id="sc-help">Maria keeps the intensity as is.</div>
+
+    <div class="fit-section-title--md" style="margin-top:20px;">How was your technique?</div>
+    <div class="sp-scale" id="sc-tech">
+      <button onclick="spScale(this)">Struggled</button>
+      <button onclick="spScale(this)">OK</button>
+      <button class="sel" onclick="spScale(this)">Solid</button>
+    </div>
+
+    <div class="fit-section-title--md" style="margin-top:20px;">Share a clip <span style="font-weight:400;color:var(--fit-text-tertiary);font-size:13px;">(optional)</span></div>
     <div id="at-upload-zone">
       <div class="sp-upload" onclick="openVidSource('athlete')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
@@ -872,8 +949,20 @@
   <div class="fit-phone-content" style="padding-top:12px;">
     <div data-st="default">
       <div style="text-align:center;font-size:12px;color:var(--fit-text-tertiary);margin-bottom:14px;">Comments on this session only</div>
+      <!-- ANCHOR: athlete submission -->
+      <div style="border:1px solid var(--fit-divider);border-radius:14px;overflow:hidden;margin-bottom:14px;background:var(--fit-card-bg);">
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--fit-divider);"><span class="sp-cmt-av" style="width:24px;height:24px;font-size:11px;background:var(--fit-brand-gradient);">YO</span><span style="font-size:13px;font-weight:600;color:var(--fit-text-primary);">You submitted this session</span><span style="margin-left:auto;font-size:11px;color:var(--fit-text-tertiary);">Apr 12 · 18:04</span></div>
+        <div style="position:relative;aspect-ratio:16/9;background:#000;display:flex;align-items:center;justify-content:center;"><svg width="40" height="40" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg><span style="position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:2px 6px;border-radius:6px;">0:38</span></div>
+        <div style="display:flex;gap:6px;padding:10px 12px;flex-wrap:wrap;"><span style="font-size:12px;font-weight:500;padding:4px 10px;border-radius:99px;background:var(--fit-bg-tinted);color:var(--fit-text-secondary);">Intensity · Just right</span><span style="font-size:12px;font-weight:500;padding:4px 10px;border-radius:99px;background:var(--fit-bg-tinted);color:var(--fit-text-secondary);">Technique · Solid</span></div>
+      </div>
       <div class="sp-cmt me"><span class="sp-cmt-av" style="background:var(--fit-brand-gradient);">YO</span><div class="sp-cmt-bub"><div class="sp-cmt-text">Done! Left hip felt tight on set 3.</div><div class="sp-cmt-time">Apr 12 · 18:04</div></div></div>
-      <div class="sp-cmt"><span class="sp-cmt-av">MR</span><div class="sp-cmt-bub"><div class="sp-cmt-name">Maria</div><div class="sp-cmt-text">Good depth overall 👏 For the left hip, slow the eccentric and add the band drill before set 3.</div><div class="sp-cmt-time">Apr 12 · 20:11</div></div></div>
+      <!-- ANCHOR: coach review -->
+      <div style="border:1px solid var(--fit-divider);border-radius:14px;padding:12px;margin-bottom:14px;background:var(--fit-card-bg);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span class="sp-cmt-av" style="width:24px;height:24px;font-size:11px;">MR</span><span style="font-size:13px;font-weight:600;color:var(--fit-text-primary);">Maria reviewed your clip</span><span style="margin-left:auto;display:inline-flex;gap:1px;color:#F5A623;">★★★★<span style="color:var(--fit-gray-400);">★</span></span></div>
+        <div style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;">Good depth overall 👏 For the left hip, slow the eccentric and add the band drill before set 3.</div>
+        <div style="font-size:11px;color:var(--fit-text-tertiary);margin-top:6px;">Apr 12 · 20:11</div>
+      </div>
+      <div class="sp-cmt"><span class="sp-cmt-av">MR</span><div class="sp-cmt-bub"><div class="sp-cmt-name">Maria</div><div class="sp-cmt-text">Got the band? Try it before tomorrow's set and film just that drill 🎥</div><div class="sp-cmt-time">Apr 12 · 20:12</div></div></div>
       <div class="sp-cmt me"><span class="sp-cmt-av" style="background:var(--fit-brand-gradient);">YO</span><div class="sp-cmt-bub"><div class="sp-cmt-text">Got it, will retry tomorrow 🙏</div><div class="sp-cmt-time">Apr 12 · 20:30</div></div></div>
     </div>
     <div data-st="empty">
@@ -905,6 +994,7 @@
   </div>
   <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
     <button onclick="startUpload()" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Use this clip</button>
+    <button onclick="startUpload()" style="width:100%;height:44px;margin-top:6px;border:none;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:15px;font-weight:500;cursor:pointer;">Skip — upload full clip</button>
   </div>
 </div>
 
@@ -976,10 +1066,13 @@
   </div>
 
   <div class="ann" id="ann-s-step"><span class="ann-role coach">Coach</span>
-    <div class="state-toggle"><button onclick="spTarget('none',this)">None</button><button class="active" onclick="spTarget('timer',this)">Timer</button><button onclick="spTarget('reps',this)">Reps</button></div>
     <h3>Step editor (focused)</h3>
-    <p>Separate screen per step with a <strong>counter «Step 2 of 3 ‹ ›»</strong> to flip between steps. Fields: name · video (Mux + trim / library) · <strong>Target (optional)</strong> · instructions.</p>
-    <ul><li><strong>Target optional</strong>: None (just follow the video) / Timer (duration + rest) / Reps×sets. Not every exercise needs a timer.</li></ul>
+    <p>Separate screen per step with a <strong>counter «Step 2 of 3 ‹ ›»</strong> to flip between steps. Fields: name · video (Mux + optional clip / library) · <strong>Target</strong> · instructions.</p>
+    <ul>
+      <li><strong>Target = independent toggles</strong> (tap the switches in the screen): <strong>Reps × sets</strong> and <strong>Timer (hold/duration)</strong> can be on <strong>together, either, or neither</strong>. Both off = "just follow the video".</li>
+      <li><strong>Rest after</strong> is its own optional field (applies regardless). A standalone "Rest" step = a step with only Timer on, named Rest.</li>
+    </ul>
+    <p class="note">Open: player behaviour when Reps + Timer are both on (e.g. "12 reps within 45s" vs "hold 45s"). To define.</p>
   </div>
 
   <div class="ann" id="ann-s-review"><span class="ann-role coach">Coach</span>
@@ -1025,14 +1118,15 @@
   </div>
 
   <div class="ann" id="ann-s-player"><span class="ann-role athlete">Athlete</span>
-    <div class="state-toggle"><button class="active" onclick="setPl('timed',this)">Timed step</button><button onclick="setPl('untimed',this)">Reps / no timer</button></div>
+    <div class="state-toggle"><button class="active" onclick="setPl('timed',this)">Timed step</button><button onclick="setPl('untimed',this)">Reps / no timer</button><button onclick="setPl('ready',this)">Get ready</button></div>
     <h3>Player</h3>
-    <p>Step-by-step. <strong>Timed</strong> step → countdown ring. <strong>Reps / no-timer</strong> step → just the cue + Done. Advances through the steps the coach built.</p>
+    <p>Step-by-step. <strong>Timed</strong> step → countdown ring. <strong>Reps / no-timer</strong> step → just the cue + Done. <strong>Get ready</strong> = 3-2-1 overlay before a step (with voice countdown). Header shows <strong>progress segments</strong> + a <strong>Next:</strong> preview of the upcoming step.</p>
+    <p><strong>Voice cues</strong> (speaker toggle): native TTS reads the get-ready <em>and</em> rest countdowns; respects silent mode. Prototype = icon + toggle only, no real audio. <strong>Tell your coach</strong> link → per-session thread.</p>
     <p class="note">Timer is a live demo (Pause toggles).</p>
   </div>
 
   <div class="ann" id="ann-s-complete"><span class="ann-role athlete">Athlete</span><h3>Complete + upload</h3>
-    <p>Rate the session (<code>fit-rating</code>) + optional <strong>proof-video upload</strong> (Mux) + optional note → <strong>Submit</strong> (→ coach review) OR <strong>Just mark done</strong>.</p>
+    <p><strong>Structured feedback</strong> (coach-actionable, replaces plain stars): <em>How did the intensity feel?</em> (Too easy / Just right / Too hard — helper line says what the coach will adjust) + <em>How was your technique?</em> (Struggled / OK / Solid). Plus optional <strong>proof-video upload</strong> (Mux) + optional note → <strong>Submit</strong> (→ coach review) OR <strong>Just mark done</strong>.</p>
   </div>
 
   <div class="ann" id="ann-s-comments"><span class="ann-role athlete">Athlete</span><span class="ann-role coach" style="margin-left:6px;">Coach</span>
@@ -1041,8 +1135,8 @@
     <p>Per-session conversation, both sides. <strong>Scoped to one session</strong> — our first messaging surface, deliberately not a global chat.</p>
   </div>
 
-  <div class="ann" id="ann-s-trim"><span class="ann-role coach">Coach</span><span class="ann-role athlete" style="margin-left:6px;">Athlete</span><h3>Trim clip</h3>
-    <p>Shared step after picking a source. <strong>Mux has no end-user editor</strong> — trim is native client-side before upload, or via Mux clip API server-side. v1 = native pre-upload.</p>
+  <div class="ann" id="ann-s-trim"><span class="ann-role coach">Coach</span><span class="ann-role athlete" style="margin-left:6px;">Athlete</span><h3>Trim clip (optional)</h3>
+    <p>Shared step after picking a source. Trim is <strong>optional</strong> — many self-paced clips don't need it; <strong>Skip</strong> uploads the full take. Clipping via <strong>Mux SDK clip API</strong> (upload full → set clip start/end), not native-only. Reuses #116.</p>
   </div>
 
   <div class="ann" id="ann-s-upload"><span class="ann-role coach">Coach</span><span class="ann-role athlete" style="margin-left:6px;">Athlete</span><h3>Uploading (Mux)</h3>
@@ -1075,12 +1169,20 @@ function spqTab(name, btn){ if(btn){btn.parentElement.querySelectorAll('button')
 function inbTab(name, btn){ if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');} ['activity','reply','waiting'].forEach(function(n){ var p=document.getElementById('inb-'+n); if(p)p.style.display=n===name?'block':'none'; }); }
 function setRv(v, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} var el=document.getElementById('s-review'); el.classList.remove('rv-clip','rv-noclip'); el.classList.add('rv-'+v); }
 function setWlc(v, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} var el=document.getElementById('s-welcome'); el.classList.remove('wlc-paid','wlc-unpaid'); el.classList.add('wlc-'+v); }
-function setPl(v, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} var el=document.getElementById('s-player'); el.classList.remove('pl-timed','pl-untimed'); el.classList.add('pl-'+v); }
-function spTarget(v, btn) {
-  if (btn && btn.parentElement.classList.contains('state-toggle')) { btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
-  var grp = document.querySelector('#s-step .fit-selection-group');
-  if (grp) { grp.querySelectorAll('.fit-selection-chip').forEach(function(c){ c.classList.toggle('selected', c.textContent.trim().toLowerCase()===v); }); }
-  var el = document.getElementById('s-step'); el.classList.remove('tgt-none','tgt-timer','tgt-reps'); el.classList.add('tgt-'+v);
+function setPl(v, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} var el=document.getElementById('s-player'); el.classList.remove('pl-timed','pl-untimed','pl-ready'); el.classList.add('pl-'+v); }
+function spVoice(btn) { btn.classList.toggle('muted'); }
+function spScale(btn) {
+  var g = btn.parentElement;
+  g.querySelectorAll('button').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  if (g.id === 'sc-intensity') {
+    var h = document.getElementById('sc-help'); var t = btn.textContent.trim();
+    if (h) h.textContent = t === 'Too easy' ? 'Maria will make the next one harder.' : t === 'Too hard' ? 'Maria will ease the next one off.' : 'Maria keeps the intensity as is.';
+  }
+}
+function spOpt(which) {
+  var el = document.getElementById('opt-' + which);
+  if (el) el.classList.toggle('on');
 }
 /* interactive rating (review + complete) */
 var RATE_WORDS = { 1:'Poor', 2:'Fair', 3:'Good', 4:'Great', 5:'Excellent' };
