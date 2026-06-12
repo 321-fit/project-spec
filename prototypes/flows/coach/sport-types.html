@@ -595,16 +595,27 @@
   /* Custom sport: coach-created, pending admin review (placeholder icon) */
   .sp-card.sp-custom { position: relative; }
   .sp-card.sp-custom svg { stroke-dasharray: 3 3; opacity: 0.8; }
+  /* Empty-state prompt (no custom sport yet) — full width, centered */
   .sp-add-custom {
-    width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
-    padding: 14px 16px; border-radius: 14px;
+    width: 100%; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 16px; border-radius: 14px;
     border: 1px dashed var(--fit-gray-600); background: transparent;
     color: var(--fit-text-primary); font-family: var(--fit-font);
-    font-size: 15px; font-weight: 600; cursor: pointer; text-align: left;
+    font-size: 15px; font-weight: 600; cursor: pointer; text-align: center;
   }
   .fit-light .sp-add-custom { border-color: var(--fit-gray-300); }
-  .sp-add-custom span { font-size: 12px; font-weight: 400; color: var(--fit-text-tertiary); }
+  .sp-add-custom .sp-add-custom-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .sp-add-custom .sp-add-custom-row svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .sp-add-custom .sp-add-custom-sub { font-size: 12px; font-weight: 400; color: var(--fit-text-tertiary); }
   .sp-add-custom:active { transform: scale(0.99); }
+  /* Compact +Add tile (shown once ≥1 custom sport exists) — sized like a sport card */
+  .sp-card.sp-add-tile {
+    justify-content: center; gap: 8px;
+    border: 1px dashed var(--fit-gray-600); background: transparent;
+    color: var(--fit-text-secondary); font-weight: 600;
+  }
+  .fit-light .sp-card.sp-add-tile { border-color: var(--fit-gray-300); background: transparent; }
+  .sp-card.sp-add-tile svg { color: var(--fit-text-secondary); }
   #custom-sport-create:disabled { opacity: 0.5; pointer-events: none; }
 
   /* ===== SPORT TYPES — flow states (loading / saving / error / network-error / saved) ===== */
@@ -786,12 +797,6 @@
     <!-- Real content wrapper (only one of these renders at a time per fs-* state) -->
     <div class="sp-fs-content">
 
-    <!-- Your custom sports (coach-created, pending review) — hidden until one exists -->
-    <div class="sp-section" id="sp-custom-section" style="display:none;">
-      <div class="sp-section-title">Your custom sports</div>
-      <div class="sp-grid" id="sp-custom-grid"></div>
-    </div>
-
     <!-- Fitness & Strength -->
     <div class="sp-section">
       <div class="sp-section-title">Fitness &amp; Strength</div>
@@ -881,11 +886,20 @@
       </div>
     </div>
 
-    <!-- Create custom sport -->
-    <div class="sp-section">
+    <!-- Your custom sports (coach-created) — at the BOTTOM. Hidden until ≥1 exists;
+         then the create CTA collapses into the inline "+ Add" tile in this grid. -->
+    <div class="sp-section" id="sp-custom-section" style="display:none;">
+      <div class="sp-section-title">Your custom sports</div>
+      <div class="sp-grid" id="sp-custom-grid">
+        <div class="sp-card sp-add-tile" data-a11y-id="coach.sport-types.custom.create-trigger" onclick="openCustomSportSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg><span class="sp-card-label">Add</span></div>
+      </div>
+    </div>
+
+    <!-- Empty-state prompt — only shown when no custom sport yet -->
+    <div class="sp-section" id="sp-custom-empty-cta">
       <button class="sp-add-custom" data-a11y-id="coach.sport-types.custom.create-trigger" onclick="openCustomSportSheet()">
-        <span style="display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;color:var(--fit-text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Create custom sport</span>
-        <span>Don&rsquo;t see your sport? Add your own.</span>
+        <span class="sp-add-custom-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Create custom sport</span>
+        <span class="sp-add-custom-sub">Don&rsquo;t see your sport? Add your own.</span>
       </button>
     </div>
 
@@ -942,7 +956,7 @@
 <div class="ann-container">
   <div class="ann active" id="ann-s-sport-types"><span class="ann-role coach">Coach</span><h3>Sport types</h3>
     <p>Push screen opened from <strong>Sport types</strong> set-card in Settings. Curated list of 33 sports across 8 sections, <strong>+ coach-created custom sports</strong> (see below).</p>
-    <p><strong>Custom sports (updated — supersedes the old "closed list, no custom" rule).</strong> "Create custom sport" (dashed tile at the end) → drawer with a name → a chip appears in <strong>"Your custom sports"</strong> with a placeholder icon, selected for this coach (no "pending" state shown — moderation is invisible to the coach). It is sent to the <strong>moderation admin</strong> (321-admin → Content → Sports → <em>Custom/Pending</em> tab; <code>approve</code> / <code>merge</code> / <code>reject</code> + icon upload).</p>
+    <p><strong>Custom sports (updated — supersedes the old "closed list, no custom" rule).</strong> At the <strong>bottom</strong> of the list: a centered dashed <strong>"Create custom sport"</strong> prompt (when none yet) → drawer with a name → a chip appears in <strong>"Your custom sports"</strong> (also at the bottom) with a placeholder icon, selected for this coach (no "pending" state — moderation is invisible to the coach). Once ≥1 exists, the prompt <strong>collapses into a compact "+ Add" tile</strong> (sport-card sized, dashed) inside that grid. It is sent to the <strong>moderation admin</strong> (321-admin → Content → Sports → <em>Custom/Pending</em> tab; <code>approve</code> / <code>merge</code> / <code>reject</code> + icon upload).</p>
     <ul>
       <li><strong>Usable immediately:</strong> the coach can label their own sessions with it right away, while it's still pending — no waiting on review.</li>
       <li><strong>Gated:</strong> a custom sport is <code>is_global=false</code> → <strong>NOT shown in athlete search, filters or matching, and not in other coaches' pick list</strong>. Private to the creating coach unless promoted.</li>
@@ -2030,7 +2044,9 @@ function createCustomSport() {
   if (!name) return;
   var sec = document.getElementById('sp-custom-section');
   var grid = document.getElementById('sp-custom-grid');
+  var emptyCta = document.getElementById('sp-custom-empty-cta');
   if (sec) sec.style.display = '';
+  if (emptyCta) emptyCta.style.display = 'none';   // CTA collapses into the inline +Add tile
   var card = document.createElement('div');
   card.className = 'sp-card sp-custom selected';
   card.setAttribute('data-label', name);
@@ -2038,7 +2054,10 @@ function createCustomSport() {
   card.innerHTML =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4.5M12 16h.01"/></svg>'
     + '<span class="sp-card-label">' + name + '</span>';
-  if (grid) grid.appendChild(card);
+  if (grid) {
+    var addTile = grid.querySelector('.sp-add-tile');
+    grid.insertBefore(card, addTile);   // keep the +Add tile last
+  }
   closeSheet('custom-sport-sheet');
   if (typeof pdUpdateMultiFooter === 'function') pdUpdateMultiFooter('sport');
   if (typeof spUpdateHints === 'function') spUpdateHints();
