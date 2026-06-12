@@ -56,7 +56,7 @@
 ```
 COACH offers (generic, cheap)
    ▼
-ATHLETE books it (catalog card, "Online" badge, picks a DAY, no time) → pays from balance
+ATHLETE books it (catalog card, "Self-paced · do it anytime", picks a DAY, no time) → pays from balance
    ▼
 COACH gets a REQUEST → opens SETUP BUILDER (picks the day) → builds per-athlete workout → Send
    ▼
@@ -76,7 +76,7 @@ Lifecycle: **Requested** (booked, coach to set up) → **Ready** (set up, athlet
 ## 5. Screens (prototype `shared/self-paced.html`)
 
 **Coach:** Offering (catalog entry) · Requests+Review hub (tabbed: Set up / Review / Active) · Setup builder (step list home) · Step editor (focused, with "Step N of M" counter) · Review submission · Client history · Video library.
-**Athlete:** Book (NOT a new screen — a card in the **existing Book training → Personal tab**, same `.v6d-card` as `profile.html#s-book-sessions`: the **sport icon** of the offering, the card's location-strip slot repurposed as "**Online · do it anytime**", a short slogan body, lower price; full description + day picker live in the Book drawer) · My self-paced (list) · Welcome/intro (day + reschedule sheet) · Player (sequenced phases — see §7.1) · Complete (structured feedback, first-time only) + upload · Comments thread.
+**Athlete:** Book (NOT a new screen — a card in the **existing Book training → Personal tab**, same `.v6d-card` as `profile.html#s-book-sessions`: the **sport icon** of the offering, the card's location-strip slot repurposed as "**Self-paced · do it anytime**" (clock icon — deliberately not "Online", to avoid confusion with live online sessions), a short slogan body, lower price; full description + day picker live in the Book drawer) · My self-paced (list) · Welcome/intro (day + reschedule sheet) · Player (sequenced phases — see §7.1) · Complete (structured feedback, first-time only) + upload · Comments thread.
 **Shared sub-flow:** video source sheet → Trim (optional, skippable) → Uploading (Mux); reused by coach (instruction clips) + athlete (proof clips).
 
 ---
@@ -125,7 +125,7 @@ Get ready (3-2-1, voiced)  →  WORK set  →  Rest (voiced countdown, auto-flow
 - **Day-bound, not time-bound.** Coach setup + athlete booking pick a **day** (date picker, no time). It lands as a **default 1-hour** athlete calendar event, freely reschedulable; **coach notified only on a day change**.
 - **Structured completion feedback** (replaces plain stars on the athlete side): intensity (too easy / just right / too hard, with a helper line on what the coach adjusts) + technique (struggled / OK / solid). Coach review still uses a rating + feedback text.
 - **Targets are independent** (Reps and Timer + Rest, not a one-of segment). Player plays them as a sequence (§7.1).
-- **Booking is not a new screen** — self-paced is a personal session **type**; it appears as a card in the existing Book training → Personal tab, body describes it, Online badge, lower price.
+- **Booking is not a new screen** — self-paced is a personal session **type**; it appears as a card in the existing Book training → Personal tab, "Self-paced · do it anytime" strip (not "Online" — avoids confusion with live online sessions), lower price.
 - **A bought session is the athlete's forever** — they can re-do it as practice anytime. But **feedback to the coach is one-time**: a re-do skips the structured report / clip / submit (just "Done"), keeping the coach's review queue to one submission per session.
 - **The coach's Review surfaces the athlete's structured self-report** (intensity + technique) — same data the athlete submits on Complete, shown to the coach before they rate.
 - **Missed day → notify the coach** (athlete didn't do it on the assigned day).
