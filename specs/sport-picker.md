@@ -232,8 +232,11 @@ A `sectionKey` field on `SportTypeResponse` is the minimum required to group spo
 > Supersedes the earlier "closed list, no custom" rule. The reason for that rule — uncurated IDs breaking discovery — is preserved by the **gate**: a custom sport never enters discovery until an admin promotes it.
 
 - The 33-sport list is curated; coaches additionally may **create a custom sport** from the sport picker (see Flow below).
-- A custom sport is `isGlobal=false`: **visible only to the creating coach** (to label their own sessions). It is **excluded from athlete search, filters, matching, and other coaches' pick lists** until promoted.
-- It is sent to the **moderation admin** (321-admin → Content → Sports, `custom`/`pending` tab) where staff **approve** (set `isGlobal=true` + assign an icon → joins the canonical pool with a stable ID), **merge** into an existing sport, or **reject**.
+- A custom sport is `isGlobal=false`: **visible only to the creating coach**, who can **use it immediately** to label their own sessions (no wait on review). It is **excluded from athlete search, filters, matching, and other coaches' pick lists** unless promoted.
+- It is sent to the **moderation admin** (321-admin → Content → Sports, `custom`/`pending` tab) where staff:
+  - **approve** → set `isGlobal=true` + assign an icon → joins the canonical pool with a stable ID (searchable/matchable for everyone);
+  - **merge** → into an existing sport (the coach's link repoints to the canonical one);
+  - **reject** → **non-destructive for the coach**: it is simply *not* added to the shared pool and **stays as the coach's private custom sport** (still usable, still gated). No deletion, name only — drawer collects just the name.
 - Backend `POST /coach/sports {isGlobal:false}` already creates the entry (was "left in place for admin/future use" — now the UI exposes it). The athlete-facing discovery/match queries **must filter `isGlobal=true`**.
 - Free-text is still **not** allowed on athlete-facing discovery surfaces — custom only enters them after promotion.
 
