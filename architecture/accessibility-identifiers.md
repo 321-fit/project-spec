@@ -306,6 +306,9 @@ Populated for `coach/profile.html` (Coach's own Profile tab + Reviews push) on 2
 
 | ID | Element | Notes |
 |---|---|---|
+| `coach.profile.role-switch.trigger` | role chip in header (top-left, "Coach" + swap icon) | opens role-switch confirm drawer (first time) / instant switch |
+| `coach.profile.role-switch.confirm` | primary CTA in role-switch drawer | coach→athlete: creates `athlete_profile`, switches instantly |
+| `coach.profile.role-switch.cancel` | "Not now" in role-switch drawer | dismiss |
 | `coach.profile.share` | share icon-btn in header (left of ⚙️) | opens profile share-invite sheet |
 | `coach.profile.share.sheet.copy` | "Copy" button in share sheet | copies `321.fit/invite/<coach>` to clipboard |
 | `coach.profile.share.sheet.done` | "Done" closing share sheet | |
@@ -337,6 +340,17 @@ Partial registration — only the share-invite affordance. Remaining `athlete.co
 | `athlete.coach-profile.share` | share icon-btn in floating header (over hero) | opens coach share-invite sheet |
 | `athlete.coach-profile.share.sheet.copy` | "Copy" button in share sheet | copies `321.fit/invite/<coach>` to clipboard |
 | `athlete.coach-profile.share.sheet.done` | "Done" closing share sheet | |
+
+### `sport-types` — sport picker + custom sports (`coach/sport-types.html`)
+
+Shared multi-select sport picker (coach + athlete). Custom-sport creation is coach-side. Spec: `sport-picker.md`.
+
+| ID | Element | Notes |
+|---|---|---|
+| `coach.sport-types.custom.create-trigger` | "Create custom sport" prompt (empty) **or** the compact "+ Add" tile (once ≥1 custom) | opens the custom-sport drawer |
+| `coach.sport-types.custom.name` | sport-name text input in drawer | name only |
+| `coach.sport-types.custom.confirm` | "Create" in drawer | adds a coach-private custom sport (`isGlobal=false`) |
+| `coach.sport-types.custom.cancel` | "Cancel" in drawer | dismiss |
 
 ### `settings` — settings hub + sub-screens
 
@@ -622,6 +636,9 @@ Trimmed mirror of coach Profile (`.cp-*` grammar; no video hero). Spec: `athlete
 
 | ID | Element | Screen | Notes |
 |---|---|---|---|
+| `athlete.profile.role-switch.trigger` | role chip (header top-left, "Athlete" + swap icon) | `s-profile` | role-switch confirm drawer (first time) / instant switch |
+| `athlete.profile.role-switch.confirm` | primary CTA in role-switch drawer | `s-profile` | athlete→coach: creates `coach_profile` → coach onboarding |
+| `athlete.profile.role-switch.cancel` | "Not now" in role-switch drawer | `s-profile` | dismiss |
 | `athlete.profile.settings` | gear (header right) | `s-profile` | → settings.html |
 | `athlete.profile.identity` | identity row (avatar + name + location) | `s-profile` | → Personal Data (TBD) |
 | `athlete.profile.sports.edit` | "My sports" head + pencil | `s-profile` | → sport-types.html |
