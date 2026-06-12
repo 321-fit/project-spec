@@ -36,9 +36,17 @@ A single account can be **both an athlete and a coach**. **Role Switch** lets a 
 
 ## 3. System stories
 
-- As the backend, an account may own an `athlete_profile` and/or a `coach_profile`; **registration creates the first role's profile only**. ⚠️ *Verify current behaviour with backend — see §7.*
-- As the backend, switching to a role whose profile **doesn't exist** must **create it lazily** on confirm; switching to an existing role is a **view/active-role change** only.
-- As the client, the **active role** drives which tab set / navigation / endpoints are used; switching changes the active role and re-renders the role's home.
+**Backend model — confirmed in poly-backend (2026-06-12, `feature/phase4-coach-rework`):** the dual-role architecture already exists.
+- `user_role` is a **many-to-many** join (a user can hold both `athlete` and `coach` roles).
+- `user.active_role_id` (nullable FK → `role`) already stores the **active role**.
+- `athlete_profile.user_id` and `coach_profile.user_id` are each **unique** → both profiles can coexist, 1:1 with the user.
+- **Registration creates exactly one profile** (`register.py` `_ROLE_PROFILE_MAP`, default `athlete`) — confirms the lazy-second-role model.
+- **`GET /user/me` already loads both profiles** and computes `active_role`; it returns the active role's profile as the base profile.
+
+Given that, the system stories:
+- As the backend, switching to a role the user **already holds** is just setting `active_role_id` (no creation).
+- As the backend, switching to a role the user **doesn't hold yet** must, on confirm, **add the `user_role` row + create that role's profile** (athlete = instant; coach = via the onboarding profile-creation path), then set it active.
+- As the client, **active role** drives the tab set / navigation / endpoints; `GET /user/me` tells me the active role and (after the additive change below) which roles already exist → first-time drawer vs instant switch.
 
 ---
 
@@ -70,19 +78,21 @@ Copy is placeholder pending **Настя**.
 
 > Detail + wire format in `poly-backend/docs/role-switch-api.md` (to be created) + live Swagger.
 
-| Need | Likely shape | Note |
-|---|---|---|
-| Create missing role profile | `POST /coach/profile` (exists for onboarding) / `POST /athlete/profile` | Reuse onboarding's profile-creation; don't add a parallel path |
-| Read which roles exist | dashboard/me payload should expose `has_athlete_profile` / `has_coach_profile` | Drives chip + first-time gate |
-| Set active role | client-side active-role state (+ token scope if role-scoped) | Confirm whether JWT is role-scoped |
+The schema is ready; three gaps to build:
 
-**Backward-compat:** additive only — add role-existence flags to the existing me/dashboard payload; do **not** retype the existing role field. See [feedback_backward_compat_endpoints].
+| Gap | Shape | Note |
+|---|---|---|
+| **Set active role** (NEW) | `PATCH /user/active-role {role}` (or similar) → sets `user.active_role_id` | No such endpoint today — `active_role_id` is only set at register/social. This is the core new endpoint. |
+| **Lazy role+profile on switch** (NEW) | if the user lacks the target role: add `user_role` row + create the profile (coach → onboarding's profile-creation path, not a parallel one), then set active | athlete = instant; coach = land in onboarding/in-review |
+| **Expose role existence** (ADDITIVE) | add `has_athlete_profile` / `has_coach_profile` (or both-profile presence) to `GET /user/me` | drives the chip + first-time-drawer gate; `active_role` is already returned |
+
+**Backward-compat:** additive only — `GET /user/me` already returns `active_role`; just add the existence flags. Don't retype/rename the existing role field. See [feedback_backward_compat_endpoints].
 
 ---
 
-## 7. Open questions / to verify
+## 7. Open questions
 
-- **Backend data model (verify first):** does registration create exactly one profile? Is there a single `User` with optional `athlete_profile` + `coach_profile`, or role-scoped accounts? Is the JWT role-scoped (does switching need a token refresh)? This determines the whole backend task.
+- **JWT role scoping:** is the access token role-scoped, or role-agnostic with `active_role` read per request? If scoped, the switch endpoint must return a refreshed token. *(Model resolved; this is the one remaining backend detail to confirm in the auth layer.)*
 - **Coach visibility on athlete→coach:** newly created coach is unlisted until onboarding + admin review complete (per onboarding-wizard) — confirm the switch lands the user in the in-review state correctly.
 - **Cancellation mid-onboarding:** athlete→coach who abandons coach onboarding — is `coach_profile` left as a draft? Can they retry? (Likely: draft persists, chip still switches, onboarding resumes.)
 - **Active-role persistence:** remember last active role across app launches.
