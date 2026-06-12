@@ -61,6 +61,29 @@
   .cp-section { margin-bottom: 28px; }
 
   .cp-identity { display: flex; align-items: center; gap: 16px; padding: 12px 16px 16px; cursor: pointer; }
+
+  /* ---- Role switch: top-left switcher chip + first-time confirmation drawer ---- */
+  .rs-switch { display:inline-flex; align-items:center; gap:7px; padding:8px 14px; border-radius:99px; border:none; background:var(--fit-surface-high); color:var(--fit-text-primary); font-family:var(--fit-font); font-size:14px; font-weight:500; cursor:pointer; }
+  .fit-light .rs-switch { background:var(--fit-white); box-shadow:0 0 12px rgba(0,0,0,0.07); }
+  .rs-switch-swap { width:15px; height:15px; color:var(--fit-text-tertiary); }
+  #role-switch-sheet .rs-dir-coach, #role-switch-sheet .rs-dir-athlete { display:none; }
+  #role-switch-sheet.rs-to-coach .rs-dir-coach { display:inline; }
+  #role-switch-sheet.rs-to-athlete .rs-dir-athlete { display:inline; }
+  .rs-hero { text-align:center; margin-bottom:18px; }
+  .rs-hero-icon { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:2px auto 14px; }
+  #role-switch-sheet.rs-to-coach .rs-hero-icon { background:rgba(3,178,226,0.14); color:var(--fit-blue-500); }
+  #role-switch-sheet.rs-to-athlete .rs-hero-icon { background:rgba(5,224,166,0.14); color:var(--fit-teal-500); }
+  .rs-hero-icon svg { width:28px; height:28px; }
+  .rs-title { font-size:19px; font-weight:600; color:var(--fit-text-primary); margin-bottom:8px; }
+  .rs-body { font-size:14px; color:var(--fit-text-secondary); line-height:1.45; padding:0 6px; }
+  .rs-note { display:flex; align-items:flex-start; gap:8px; padding:12px; border-radius:10px; margin-bottom:22px; font-size:13px; line-height:1.45; color:var(--fit-text-secondary); }
+  #role-switch-sheet.rs-to-coach .rs-note { background:rgba(3,178,226,0.06); }
+  #role-switch-sheet.rs-to-athlete .rs-note { background:rgba(5,224,166,0.07); }
+  .rs-note svg { width:17px; height:17px; flex-shrink:0; margin-top:1px; }
+  #role-switch-sheet.rs-to-coach .rs-note svg { color:var(--fit-blue-500); }
+  #role-switch-sheet.rs-to-athlete .rs-note svg { color:var(--fit-teal-500); }
+  .rs-cancel { width:100%; height:50px; border:none; border-radius:99px; background:var(--fit-surface-high); color:var(--fit-text-primary); font-family:var(--fit-font); font-size:16px; font-weight:500; cursor:pointer; }
+  .fit-light .rs-cancel { background:var(--fit-gray-100); }
   .cp-identity:active { opacity: 0.85; }
   .cp-identity-avatar { position: relative; flex-shrink: 0; }
   .cp-identity-name { font-size: 22px; font-weight: 600; color: var(--fit-text-primary); line-height: 1.2; }
@@ -109,7 +132,11 @@
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
-      <span class="fit-header-title" style="flex:1;">Profile</span>
+      <button class="rs-switch" data-a11y-id="athlete.profile.role-switch.trigger" aria-label="Switch role" onclick="openRoleSwitch()">
+        <span>Athlete</span>
+        <svg class="rs-switch-swap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+      </button>
+      <span style="flex:1;"></span>
       <button class="fit-icon-btn" data-a11y-id="athlete.profile.settings" aria-label="Settings" onclick="window.location.href='settings.html'">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       </button>
@@ -310,6 +337,34 @@
       <div class="fit-navbar-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
     </div>
   </div>
+
+  <!-- Role-switch confirmation drawer — shown on FIRST switch only (target role profile not yet created). Bottom sheet, reuses canonical .fit-sheet pattern. -->
+  <div class="fit-sheet-overlay rs-to-coach" id="role-switch-sheet" onclick="if(event.target===this)closeRoleSwitch()">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+
+      <div class="rs-hero" style="margin-top:6px;">
+        <div class="rs-hero-icon">
+          <span class="rs-dir-coach"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg></span>
+          <span class="rs-dir-athlete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
+        </div>
+        <div class="rs-title"><span class="rs-dir-coach">You're an athlete now</span><span class="rs-dir-athlete">You're a coach now</span></div>
+        <div class="rs-body"><span class="rs-dir-coach">Do you feel experienced enough to become a coach yourself?</span><span class="rs-dir-athlete">Do you also want to train with 321Fit as an athlete?</span></div>
+      </div>
+
+      <div class="rs-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span><span class="rs-dir-coach">Next, a quick setup of your coaching — sports, sessions, location and available hours. Your coach profile is created when you finish.</span><span class="rs-dir-athlete">We'll create your athlete profile so you can book and train. Nothing else to set up.</span></span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="fit-btn fit-btn-primary" data-a11y-id="athlete.profile.role-switch.confirm" style="font-size:16px;" onclick="confirmRoleSwitch()">
+          <span class="rs-dir-coach">Set up coaching</span><span class="rs-dir-athlete">Yes, set me up</span>
+        </button>
+        <button class="rs-cancel" data-a11y-id="athlete.profile.role-switch.cancel" onclick="closeRoleSwitch()">Not now</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ==================== ANNOTATIONS ==================== -->
@@ -332,11 +387,32 @@
     </ul>
     <hr>
     <p class="note">Everything theme-adaptive (light default for athlete). Settings gear → settings.html. Personal Data + Training history screens still TBD (stubbed). Achievements deferred to Phase 2.</p>
+    <hr>
+    <h3 style="margin-top:0;">Role switch — first time</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="previewRole('coach',this)">Preview → Coach</button>
+      <button onclick="previewRole('athlete',this)">Preview → Athlete</button>
+    </div>
+    <p>The <strong>top-left chip</strong> is the role switcher (as in the live app). On the <strong>first</strong> switch to a role whose profile doesn't exist yet, this confirmation <strong>drawer</strong> appears; subsequent switches are instant (no sheet). Copy per <a>Настя</a>.</p>
+    <ul>
+      <li><strong>athlete → coach</strong> (heavy): confirm → create <code>coach_profile</code> → <strong>coach onboarding</strong> (sports · sessions · gym · available hours).</li>
+      <li><strong>coach → athlete</strong> (light): confirm → create <code>athlete_profile</code> → switch instantly.</li>
+      <li><strong>"First time" = the target role's profile doesn't exist yet</strong> — no extra flag; profile existence is the gate.</li>
+      <li><strong>Drawer, not a center modal</strong> — center modals read as destructive in our system; this is additive. Reuses the calendar cross-role sheet pattern.</li>
+      <li><strong>Backend reality:</strong> registration already creates only <code>athlete_profile</code> — the second role is created lazily on confirm (not both-by-default).</li>
+    </ul>
+    <p class="note">Switcher + sheet shown here on the athlete profile (athlete→coach is the meaningful path). Mirror to <code>coach/profile.html</code> for coach→athlete once approved.</p>
   </div>
 </div>
 
 <script src="../../lib/fit-ui.js"></script>
 <script>
+function showRoleSheet(){ document.getElementById('role-switch-sheet').classList.add('visible'); }
+function closeRoleSwitch(){ document.getElementById('role-switch-sheet').classList.remove('visible'); }
+function setRoleDir(dir, btn){ var s=document.getElementById('role-switch-sheet'); s.classList.remove('rs-to-coach','rs-to-athlete'); s.classList.add(dir==='athlete'?'rs-to-athlete':'rs-to-coach'); if(btn){ btn.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active');}); btn.classList.add('active'); } }
+function openRoleSwitch(){ setRoleDir('coach'); showRoleSheet(); }
+function previewRole(dir, btn){ setRoleDir(dir, btn); showRoleSheet(); }
+function confirmRoleSwitch(){ var coach=document.getElementById('role-switch-sheet').classList.contains('rs-to-coach'); closeRoleSwitch(); if(coach){ alert('Confirmed → coach onboarding (shared/onboarding.html, coach steps): sports · sessions · gym · available hours.\ncoach_profile is created on completion.'); } else { alert('Confirmed → athlete profile created · switched to athlete view (lightweight, no onboarding).'); } }
 function switchTheme(theme) {
   document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
   document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";

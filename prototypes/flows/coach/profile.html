@@ -197,6 +197,19 @@
 
   /* Tile group wrapper (vertical stack of fit-stat-tiles with shared margins) */
   .cp-tile-group { display: flex; flex-direction: column; gap: 8px; padding: 0 16px; margin-bottom: 28px; }
+  /* ---- Role switch: top-left switcher chip + first-time confirmation drawer (coach → athlete) ---- */
+  .rs-switch { display:inline-flex; align-items:center; gap:7px; padding:8px 14px; border-radius:99px; border:none; background:var(--fit-surface-high); color:var(--fit-text-primary); font-family:var(--fit-font); font-size:14px; font-weight:500; cursor:pointer; }
+  .fit-light .rs-switch { background:var(--fit-white); box-shadow:0 0 12px rgba(0,0,0,0.07); }
+  .rs-switch-swap { width:15px; height:15px; color:var(--fit-text-tertiary); }
+  .rs-hero { text-align:center; margin-bottom:18px; }
+  .rs-hero-icon { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:8px auto 14px; background:rgba(5,224,166,0.14); color:var(--fit-teal-500); }
+  .rs-hero-icon svg { width:28px; height:28px; }
+  .rs-title { font-size:19px; font-weight:600; color:var(--fit-text-primary); margin-bottom:8px; }
+  .rs-body { font-size:14px; color:var(--fit-text-secondary); line-height:1.45; padding:0 6px; }
+  .rs-note { display:flex; align-items:flex-start; gap:8px; padding:12px; border-radius:10px; margin-bottom:22px; font-size:13px; line-height:1.45; color:var(--fit-text-secondary); background:rgba(5,224,166,0.07); }
+  .rs-note svg { width:17px; height:17px; flex-shrink:0; margin-top:1px; color:var(--fit-teal-500); }
+  .rs-cancel { width:100%; height:50px; border:none; border-radius:99px; background:var(--fit-surface-high); color:var(--fit-text-primary); font-family:var(--fit-font); font-size:16px; font-weight:500; cursor:pointer; }
+  .fit-light .rs-cancel { background:var(--fit-gray-100); }
 </style>
 </head>
 <body>
@@ -226,7 +239,11 @@
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
-      <span class="fit-header-title" style="flex:1;">Profile</span>
+      <button class="rs-switch" data-a11y-id="coach.profile.role-switch.trigger" aria-label="Switch role" onclick="openRoleSwitch()">
+        <span>Coach</span>
+        <svg class="rs-switch-swap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+      </button>
+      <span style="flex:1;"></span>
       <button class="fit-icon-btn" data-a11y-id="coach.profile.share" aria-label="Share profile invite" onclick="document.getElementById('profile-share-sheet').classList.add('visible')" style="margin-right:8px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
       </button>
@@ -527,6 +544,26 @@
       <button class="fit-btn fit-btn-primary" data-a11y-id="coach.profile.share.sheet.done" style="border-radius:99px;" onclick="document.getElementById('profile-share-sheet').classList.remove('visible');">Done</button>
     </div>
   </div>
+
+  <!-- Role-switch confirmation drawer — first switch coach → athlete (athlete_profile not yet created) -->
+  <div class="fit-sheet-overlay" id="role-switch-sheet" onclick="if(event.target===this)closeRoleSwitch()">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="rs-hero" style="margin-top:6px;">
+        <div class="rs-hero-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div class="rs-title">You're a coach now</div>
+        <div class="rs-body">Do you also want to train with 321Fit as an athlete?</div>
+      </div>
+      <div class="rs-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span>We'll create your athlete profile so you can book and train with other coaches. Nothing else to set up.</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="fit-btn fit-btn-primary" data-a11y-id="coach.profile.role-switch.confirm" style="font-size:16px;" onclick="confirmRoleSwitch()">Yes, set me up</button>
+        <button class="rs-cancel" data-a11y-id="coach.profile.role-switch.cancel" onclick="closeRoleSwitch()">Not now</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ==================== ALL REVIEWS (push from profile) ==================== -->
@@ -741,6 +778,9 @@
 
 <script src="../../lib/fit-ui.js"></script>
 <script>
+  function openRoleSwitch(){ document.getElementById('role-switch-sheet').classList.add('visible'); }
+  function closeRoleSwitch(){ document.getElementById('role-switch-sheet').classList.remove('visible'); }
+  function confirmRoleSwitch(){ closeRoleSwitch(); alert('Confirmed → athlete profile created · switched to athlete view (instant, no onboarding).'); }
   function switchTheme(theme) {
     document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
     document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";
