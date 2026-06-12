@@ -76,7 +76,7 @@ Lifecycle: **Requested** (booked, coach to set up) → **Ready** (set up, athlet
 ## 5. Screens (prototype `shared/self-paced.html`)
 
 **Coach:** Offering (catalog entry) · Requests+Review hub (tabbed: Set up / Review / Active) · Setup builder (step list home) · Step editor (focused, with "Step N of M" counter) · Review submission · Client history · Video library.
-**Athlete:** Book offering (with day picker) · My self-paced (list) · Welcome/intro (day + reschedule sheet) · Player (get-ready overlay, voice toggle, progress segments, Next preview) · Complete (structured feedback) + upload · Comments thread.
+**Athlete:** Book (NOT a new screen — a card in the **existing Book training → Personal tab**, same `.v6d-card` as `profile.html#s-book-sessions`, with an Online badge + day picker in the confirm sheet) · My self-paced (list) · Welcome/intro (day + reschedule sheet) · Player (sequenced phases — see §7.1) · Complete (structured feedback, first-time only) + upload · Comments thread.
 **Shared sub-flow:** video source sheet → Trim (optional, skippable) → Uploading (Mux); reused by coach (instruction clips) + athlete (proof clips).
 
 ---
@@ -96,6 +96,18 @@ One **builder-home** screen: workout title + welcome note (outline-card → edit
 
 Rationale (Apple HIG / Baymard / NNG; Apple Shortcuts, Freeletics, Strava): for a variable-length list of "heavy" items, use **master–detail (list + focused editor)**, not one infinite-scroll form and not a rigid linear wizard. Reps and timer are orthogonal (a timed AMRAP-style step has both; a mobility hold has only a timer; a strength set has only reps) → independent toggles, not a one-of segment.
 
+### 7.1 Player (athlete) — sequenced phases
+
+An exercise is **not one screen** — it plays as a Freeletics-style sequence driven by the step's targets:
+
+```
+Get ready (3-2-1, voiced)  →  WORK set  →  Rest (voiced countdown, auto-flow)  →  [repeat per set count]  →  next exercise
+```
+
+- **WORK set** renders by target: **Reps set** = big rep count, athlete taps when done; **Timed set** = countdown ring (Pause / Skip); **Reps + Timer** both on = a timed work set (e.g. max reps in 45s).
+- **Set dots** track sets within one exercise; **progress segments** track exercises within the workout; **structure chips** (`×12 · 4 sets · rest 0:20`) show the plan up front.
+- **Voice cues** read the get-ready and rest countdowns (native TTS, toggle, respects silent mode).
+
 ---
 
 ## 8. Pricing & payment
@@ -112,12 +124,17 @@ Rationale (Apple HIG / Baymard / NNG; Apple Shortcuts, Freeletics, Strava): for 
 - **Comments thread = the session's home.** Review (coach) + Complete (athlete) are one-time **compose** screens that **post into the session's single thread**: the athlete submission (clip + structured feedback) and the coach review (rating + feedback) render as **anchor messages**, then both sides reply freely. Review→Finish lands in the thread; the player has a **Tell your coach** affordance into it. (Rejected: merging the review fully into a chat — rating-in-chat is less structured.)
 - **Day-bound, not time-bound.** Coach setup + athlete booking pick a **day** (date picker, no time). It lands as a **default 1-hour** athlete calendar event, freely reschedulable; **coach notified only on a day change**.
 - **Structured completion feedback** (replaces plain stars on the athlete side): intensity (too easy / just right / too hard, with a helper line on what the coach adjusts) + technique (struggled / OK / solid). Coach review still uses a rating + feedback text.
-- **Targets are independent** (Reps and Timer + Rest, not a one-of segment).
+- **Targets are independent** (Reps and Timer + Rest, not a one-of segment). Player plays them as a sequence (§7.1).
+- **Booking is not a new screen** — self-paced is a personal session **type**; it appears as a card in the existing Book training → Personal tab, body describes it, Online badge, lower price.
+- **A bought session is the athlete's forever** — they can re-do it as practice anytime. But **feedback to the coach is one-time**: a re-do skips the structured report / clip / submit (just "Done"), keeping the coach's review queue to one submission per session.
+- **The coach's Review surfaces the athlete's structured self-report** (intensity + technique) — same data the athlete submits on Complete, shown to the coach before they rate.
+- **Missed day → notify the coach** (athlete didn't do it on the assigned day).
 - **Voice cues** = native TTS for get-ready **and** rest countdowns; speaker toggle; respects silent mode. English only for v1.
 - **Trim is optional** — Skip uploads the full clip; clipping via **Mux SDK clip API**, not native-only.
 
 **Open / deferred:**
-- **Backend data model** — exact `training_session` type + `training_event.delivery` + steps schema (incl. independent reps/timer/rest) + offering as a catalog item + structured-feedback enums. TBD with backend.
+- **Booking window + cancellation/refunds (revisit together):** the coach gets **N days (e.g. 2)** to set up a booked self-paced session → the athlete's day picker is constrained to that window. If the coach never sets it up (or the athlete cancels), define the **refund** path (balance was charged at booking). To design as one block.
+- **Backend data model** — exact `training_session` type + `training_event.delivery` + steps schema (incl. independent reps/timer/rest) + offering as a catalog item + structured-feedback enums + one-submission-per-session constraint. TBD with backend.
 - **Notifications** — new categories: assigned/ready · submitted · feedback/finished · new-comment · day-change · (optional) due reminder. To add to `notifications-catalog.md`.
 - **Coach video library** home — lives near session templates (coach Profile/Sessions); reuse across athletes is the scale lever.
 - **Component extraction** — inbox tabs + `.req-card` are inline-styled; extract to kit before integrating (see `architecture/design-system.md § Pending component extractions`).
