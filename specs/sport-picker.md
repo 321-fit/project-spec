@@ -240,7 +240,7 @@ A `sectionKey` field on `SportTypeResponse` is the minimum required to group spo
 - Backend `POST /coach/sports {isGlobal:false}` already creates the entry (was "left in place for admin/future use" — now the UI exposes it). The athlete-facing discovery/match queries **must filter `isGlobal=true`**.
 - Free-text is still **not** allowed on athlete-facing discovery surfaces — custom only enters them after promotion.
 
-**Custom-sport flow (coach):** "Create custom sport" tile → drawer (name) → chip with placeholder icon + `Pending` badge in a "Your custom sports" section, selected for the coach. Prototype: `flows/coach/sport-types.html`. a11y ids: `coach.sport-types.custom.create-trigger` / `.name` / `.confirm` / `.cancel`.
+**Custom-sport flow (coach):** "Create custom sport" tile → drawer (name only) → chip with a placeholder icon in a "Your custom sports" section, selected for the coach. No "pending" state surfaced to the coach — moderation (approve/merge/reject) is invisible to them and doesn't change how they use the sport. Prototype: `flows/coach/sport-types.html`. a11y ids: `coach.sport-types.custom.create-trigger` / `.name` / `.confirm` / `.cancel`.
 
 **Backend gaps to confirm/build:** the admin (`321-admin`) reads `status` / `suggestedBy` / `suggestedAt` (+ `category` / `sortOrder`) from `/api/v1.0.0/sport-types`; the `sport_type` table today has only `name` / `is_global` / `icon_png` / `icon_svg`. Add the moderation/attribution columns + ensure discovery filters `is_global=true`.
 

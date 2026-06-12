@@ -595,12 +595,6 @@
   /* Custom sport: coach-created, pending admin review (placeholder icon) */
   .sp-card.sp-custom { position: relative; }
   .sp-card.sp-custom svg { stroke-dasharray: 3 3; opacity: 0.8; }
-  .sp-pending-badge {
-    position: absolute; top: 6px; right: 6px;
-    font-size: 9px; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase;
-    padding: 2px 6px; border-radius: 99px;
-    background: var(--fit-amber-500, #f59e0b); color: #1a1a1a;
-  }
   .sp-add-custom {
     width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
     padding: 14px 16px; border-radius: 14px;
@@ -928,7 +922,7 @@
     <div class="fit-sheet">
       <div class="fit-sheet-handle"></div>
       <div class="fit-sheet-title">Create a custom sport</div>
-      <div class="fit-sheet-subtitle" style="text-align:left;">Don&rsquo;t see your sport? Add it and <strong>use it right away</strong> — it&rsquo;s visible <strong>only to you</strong>. We&rsquo;ll review it: if it fits, it joins the shared sport list (proper icon, searchable by athletes). If not, it simply <strong>stays yours</strong> — you keep using it either way.</div>
+      <div class="fit-sheet-subtitle" style="text-align:left;">Not in the list? Add your own — only you can see and use it.</div>
       <div style="margin:16px 0 18px;">
         <label style="display:block;font-size:13px;font-weight:500;color:var(--fit-text-secondary);margin-bottom:6px;">Sport name</label>
         <input id="custom-sport-name" data-a11y-id="coach.sport-types.custom.name" type="text" placeholder="e.g. Kettlebell flow" maxlength="40"
@@ -948,7 +942,7 @@
 <div class="ann-container">
   <div class="ann active" id="ann-s-sport-types"><span class="ann-role coach">Coach</span><h3>Sport types</h3>
     <p>Push screen opened from <strong>Sport types</strong> set-card in Settings. Curated list of 33 sports across 8 sections, <strong>+ coach-created custom sports</strong> (see below).</p>
-    <p><strong>Custom sports (updated — supersedes the old "closed list, no custom" rule).</strong> "Create custom sport" (dashed tile at the end) → drawer with a name → a chip appears in <strong>"Your custom sports"</strong> with a <strong>placeholder icon</strong> + <strong>Pending</strong> badge, selected for this coach. It is sent to the <strong>moderation admin</strong> (321-admin → Content → Sports → <em>Custom/Pending</em> tab; <code>approve</code> / <code>merge</code> / <code>reject</code> + icon upload).</p>
+    <p><strong>Custom sports (updated — supersedes the old "closed list, no custom" rule).</strong> "Create custom sport" (dashed tile at the end) → drawer with a name → a chip appears in <strong>"Your custom sports"</strong> with a placeholder icon, selected for this coach (no "pending" state shown — moderation is invisible to the coach). It is sent to the <strong>moderation admin</strong> (321-admin → Content → Sports → <em>Custom/Pending</em> tab; <code>approve</code> / <code>merge</code> / <code>reject</code> + icon upload).</p>
     <ul>
       <li><strong>Usable immediately:</strong> the coach can label their own sessions with it right away, while it's still pending — no waiting on review.</li>
       <li><strong>Gated:</strong> a custom sport is <code>is_global=false</code> → <strong>NOT shown in athlete search, filters or matching, and not in other coaches' pick list</strong>. Private to the creating coach unless promoted.</li>
@@ -2043,8 +2037,7 @@ function createCustomSport() {
   card.setAttribute('onclick', "pdToggleMulti(this,'sport')");
   card.innerHTML =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4.5M12 16h.01"/></svg>'
-    + '<span class="sp-card-label">' + name + '</span>'
-    + '<span class="sp-pending-badge">Pending</span>';
+    + '<span class="sp-card-label">' + name + '</span>';
   if (grid) grid.appendChild(card);
   closeSheet('custom-sport-sheet');
   if (typeof pdUpdateMultiFooter === 'function') pdUpdateMultiFooter('sport');
