@@ -106,8 +106,9 @@ The primary path for onboarding an offline roster.
    - Last name (optional — a CRM contact may be name-only)
    - Phone (optional; the single contact/match key — **email removed**)
    - Sport (required — from closed 33-sport taxonomy)
-   - Location (optional — city/country picker)
-   - Timezone (optional — picker; helps the coach schedule across timezones, esp. self-paced/online clients)
+   - City (optional — free text)
+   - Country (optional — picker; its own row, ISO 3166-1 alpha-2)
+   - Timezone (optional — picker). **Defaults to the coach's timezone**; when the contact joins 321Fit and links, it switches to the athlete's own `selected_timezone`. Helps schedule online/self-paced clients across zones.
    - Notes (optional, 0–500 chars)
 2. Submit → `POST /coach/crm-clients` → new relationship created with `athlete_account_status: crm`, `relationship_state: active`.
 3. Client appears in list with teal `CRM` pill.
@@ -144,6 +145,7 @@ The primary path for onboarding an offline roster.
 2. Confirmation sheet:
    - Title: "Archive {athlete_name}?"
    - Body: "They'll move to your archived list. History stays intact. You can restore anytime."
+   - **Cash-debt warning (when `owed > 0`):** a red inline block in the sheet — "{name} owes €{X} in cash. Archiving won't clear it — the debt stays on their record and shows in the Archived list."
    - Actions: Cancel (minimal) + Archive (medium destructive)
 3. Confirm → `PATCH /coach/clients/{athlete_id}/relationship` with `{ state: "archived" }`.
 4. Client disappears from active list; snackbar "{name} archived · Undo" (30s).
@@ -156,6 +158,7 @@ The primary path for onboarding an offline roster.
 2. Confirmation sheet:
    - Title: "Block {athlete_name}?"
    - Body: "They won't be able to find you in search or send booking requests. Upcoming sessions remain — cancel them manually if needed. They won't be notified."
+   - **Cash-debt warning (when `owed > 0`):** same red inline block — "{name} owes €{X} in cash. Blocking won't clear it — the debt stays on their record and shows in the Blocked list."
    - Actions: Cancel (minimal) + Block (high destructive)
 3. Confirm → `PATCH /coach/clients/{athlete_id}/relationship` with `{ state: "blocked" }`.
 4. Relationship hidden from Active list; appears in Archived & Blocked screen (Blocked segment).
@@ -167,6 +170,8 @@ The primary path for onboarding an offline roster.
 1. Navigate to Archived & Blocked screen (via row link at bottom of Clients list, only visible when ≥1 archived/blocked item exists).
 2. Blocked segment → row with "Unblock" inline button → `PATCH` relationship → `{ state: "active" }`.
 3. Athlete can book again immediately.
+
+**Cash debt persists across archive/block (rule):** archiving or blocking **never clears** outstanding cash. The `€X owed` badge renders on the client's row in the **Archived/Blocked** list (same badge as the active list), and **Mark paid / Waive** stays available from the client's detail for bookkeeping. Settling the debt is independent of the relationship state.
 
 ### Flow 8: Deleted athlete account
 
@@ -295,7 +300,7 @@ Edit info opens one screen with two modes — **same form scaffolding** (avatar 
 
 | Mode trigger | Editable fields | Endpoint |
 |---|---|---|
-| `athlete_account_status = crm` (**CRM mode**) — coach owns the contact card | First name · Last name (optional) · Phone (single match key) · Sport · **Location** · **Timezone** · Notes · optional Avatar (full Create-Client form; **no Email**) | `PATCH /coach/crm-clients/{id}` |
+| `athlete_account_status = crm` (**CRM mode**) — coach owns the contact card | First name · Last name (optional) · Phone (single match key) · Sport · **City** · **Country** · **Timezone** (default coach's) · Notes · optional Avatar (full Create-Client form; **no Email**) | `PATCH /coach/crm-clients/{id}` |
 | `athlete_account_status ∈ {app, deleted}` (**App mode**) — coach does NOT edit athlete identity | Read-only identity card on top (avatar + name + sport chips, footnote "Managed by athlete · contact athlete to update"). Editable: **Sport-of-coaching** (which sport coach trains them in — different from athlete's own sport list) + **Notes** (coach-private). | `PATCH /coach/clients/{id}/update-profile` (narrowed payload — no identity fields) |
 
 **Why two modes, not two separate screens:** dirty-tracking + validation + save state machinery is identical; only the visible field set differs. Same code path, different `Mode` enum case.
@@ -319,14 +324,17 @@ Create a coach-managed CRM contact (manual, single).
   "lastName":       "string" | null,
   "phone":          "+E164 string" | null,
   "sport":          "sport_id",
-  "location":       "string" | null,        // city/country
-  "timezone":       "IANA tz string" | null, // e.g. "Europe/Berlin"
+  "city":           "string" | null,
+  "country":        "ISO-3166-1 alpha-2" | null,  // athlete_profile.country (default "US")
+  "timezone":       "IANA tz string" | null,      // athlete_profile.selected_timezone; defaults to coach's tz
   "notes":          "string" | null
 }
 ```
 
 > **Changed 2026-06-09 (additive/relaxed):** `email` field **removed** from CRM contacts — phone is the single match key (email-fallback match deprecated, see Flow 9). `lastName` is now **nullable** (contact/import may be first-name-only). `firstName` stays required. Existing stored emails are ignored for matching; not surfaced in the CRM edit form.
-> **Changed 2026-06-11 (additive):** `location` + `timezone` added to CRM create/edit (both optional). Same fields on `PATCH /coach/crm-clients/{id}`. Timezone helps schedule online/self-paced clients across zones.
+> **Changed 2026-06-11 (additive):** `city` + `country` + `timezone` added to CRM create/edit (all optional; same on `PATCH /coach/crm-clients/{id}`). `timezone` **defaults to the coach's** at create, then flips to the athlete's own `selected_timezone` on CRM→app link (Flow 9).
+>
+> ⚠️ **Backend gap (verified 2026-06-11 in `crm_clients.py`):** `CreateCrmClientCommand`/`UpdateCrmClientCommand` don't yet expose `city`/`country`/`timezone` — though `athlete_profile` already has `country` + `selected_timezone` columns (geo work, commit `4bb3af1`). Backend must add them to the CRM command. Also still pending from 2026-06-09: the command still has `email` and still **requires** `last_name` — contradicts "email removed / last name optional" above. Three additive/relaxing backend changes needed.
 
 **Response 200:** new `CoachClientRelationship` with `athlete_account_status: crm`, `relationship_state: active`, `origin: "manual"`.
 
