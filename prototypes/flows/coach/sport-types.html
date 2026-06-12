@@ -592,6 +592,26 @@
   .sp-card-label { font-size: 14px; line-height: 1.2; }
   .sp-card.hidden { display: none; }
   .sp-section.hidden { display: none; }
+  /* Custom sport: coach-created, pending admin review (placeholder icon) */
+  .sp-card.sp-custom { position: relative; }
+  .sp-card.sp-custom svg { stroke-dasharray: 3 3; opacity: 0.8; }
+  .sp-pending-badge {
+    position: absolute; top: 6px; right: 6px;
+    font-size: 9px; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase;
+    padding: 2px 6px; border-radius: 99px;
+    background: var(--fit-amber-500, #f59e0b); color: #1a1a1a;
+  }
+  .sp-add-custom {
+    width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+    padding: 14px 16px; border-radius: 14px;
+    border: 1px dashed var(--fit-gray-600); background: transparent;
+    color: var(--fit-text-primary); font-family: var(--fit-font);
+    font-size: 15px; font-weight: 600; cursor: pointer; text-align: left;
+  }
+  .fit-light .sp-add-custom { border-color: var(--fit-gray-300); }
+  .sp-add-custom span { font-size: 12px; font-weight: 400; color: var(--fit-text-tertiary); }
+  .sp-add-custom:active { transform: scale(0.99); }
+  #custom-sport-create:disabled { opacity: 0.5; pointer-events: none; }
 
   /* ===== SPORT TYPES — flow states (loading / saving / error / network-error / saved) ===== */
   #s-sport-types .sp-fs-skel { display: none; padding: 0 16px; }
@@ -772,6 +792,12 @@
     <!-- Real content wrapper (only one of these renders at a time per fs-* state) -->
     <div class="sp-fs-content">
 
+    <!-- Your custom sports (coach-created, pending review) — hidden until one exists -->
+    <div class="sp-section" id="sp-custom-section" style="display:none;">
+      <div class="sp-section-title">Your custom sports</div>
+      <div class="sp-grid" id="sp-custom-grid"></div>
+    </div>
+
     <!-- Fitness & Strength -->
     <div class="sp-section">
       <div class="sp-section-title">Fitness &amp; Strength</div>
@@ -861,6 +887,14 @@
       </div>
     </div>
 
+    <!-- Create custom sport -->
+    <div class="sp-section">
+      <button class="sp-add-custom" data-a11y-id="coach.sport-types.custom.create-trigger" onclick="openCustomSportSheet()">
+        <span style="display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;color:var(--fit-text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Create custom sport</span>
+        <span>Don&rsquo;t see your sport? Add your own.</span>
+      </button>
+    </div>
+
     </div><!-- /.sp-fs-content -->
 
     <!-- Empty state (search no matches) -->
@@ -888,13 +922,38 @@
       </div>
     </div>
   </div>
+
+  <!-- Create custom sport drawer -->
+  <div class="fit-sheet-overlay" id="custom-sport-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Create a custom sport</div>
+      <div class="fit-sheet-subtitle" style="text-align:left;">Don&rsquo;t see your sport? Add it. It&rsquo;s visible <strong>only to you</strong> and is sent to 321Fit for review — once approved it joins the main list with a proper icon and becomes searchable by athletes.</div>
+      <div style="margin:16px 0 18px;">
+        <label style="display:block;font-size:13px;font-weight:500;color:var(--fit-text-secondary);margin-bottom:6px;">Sport name</label>
+        <input id="custom-sport-name" data-a11y-id="coach.sport-types.custom.name" type="text" placeholder="e.g. Kettlebell flow" maxlength="40"
+          style="width:100%;height:48px;box-sizing:border-box;padding:0 14px;border-radius:12px;border:1px solid var(--fit-divider);background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;outline:none;"
+          oninput="document.getElementById('custom-sport-create').disabled = !this.value.trim();">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button id="custom-sport-create" data-a11y-id="coach.sport-types.custom.confirm" class="fit-btn fit-btn-primary" style="height:50px;font-size:16px;border-radius:99px;opacity:1;" disabled onclick="createCustomSport()">Create</button>
+        <button data-a11y-id="coach.sport-types.custom.cancel" style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="closeSheet('custom-sport-sheet')">Cancel</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
   <div class="ann active" id="ann-s-sport-types"><span class="ann-role coach">Coach</span><h3>Sport types</h3>
-    <p>Push screen opened from <strong>Sport types</strong> set-card in Settings. <strong>Closed list</strong> of 33 sports across 8 sections — no custom sports (discovery, search, filter, matching all depend on canonical sport ID).</p>
+    <p>Push screen opened from <strong>Sport types</strong> set-card in Settings. Curated list of 33 sports across 8 sections, <strong>+ coach-created custom sports</strong> (see below).</p>
+    <p><strong>Custom sports (updated — supersedes the old "closed list, no custom" rule).</strong> "Create custom sport" (dashed tile at the end) → drawer with a name → a chip appears in <strong>"Your custom sports"</strong> with a <strong>placeholder icon</strong> + <strong>Pending</strong> badge, selected for this coach. It is sent to the <strong>moderation admin</strong> (321-admin → Content → Sports → <em>Custom/Pending</em> tab; <code>approve</code> / <code>merge</code> / <code>reject</code> + icon upload).</p>
+    <ul>
+      <li><strong>Gated:</strong> a custom sport is <code>is_global=false</code> → <strong>NOT shown in athlete search, filters or matching, and not in other coaches' pick list</strong>. It only works for the creating coach (label his sessions) until promoted.</li>
+      <li><strong>On approve:</strong> admin sets <code>is_global=true</code> + a real icon → it joins the canonical pool (gets a stable ID), becomes searchable/matchable for everyone. This is why the original "no custom" rule existed — the gate satisfies it (no uncurated ID leaks into discovery).</li>
+      <li><strong>Merge:</strong> if it duplicates an existing sport, admin merges → coach's link points to the canonical one.</li>
+    </ul>
 
     <h4>Flow states</h4>
     <div class="state-toggle">
@@ -1958,6 +2017,36 @@ function pdToggleMulti(row, key) {
   row.classList.toggle('selected');
   pdUpdateMultiFooter(key);
   if (key === 'sport' && typeof spUpdateHints === 'function') spUpdateHints();
+}
+
+// --- Custom sport (coach-created → pending admin review) ---
+function openCustomSportSheet() {
+  var i = document.getElementById('custom-sport-name');
+  if (i) i.value = '';
+  var b = document.getElementById('custom-sport-create');
+  if (b) b.disabled = true;
+  openSheet('custom-sport-sheet');
+}
+
+function createCustomSport() {
+  var i = document.getElementById('custom-sport-name');
+  var name = (i && i.value || '').trim();
+  if (!name) return;
+  var sec = document.getElementById('sp-custom-section');
+  var grid = document.getElementById('sp-custom-grid');
+  if (sec) sec.style.display = '';
+  var card = document.createElement('div');
+  card.className = 'sp-card sp-custom selected';
+  card.setAttribute('data-label', name);
+  card.setAttribute('onclick', "pdToggleMulti(this,'sport')");
+  card.innerHTML =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4.5M12 16h.01"/></svg>'
+    + '<span class="sp-card-label">' + name + '</span>'
+    + '<span class="sp-pending-badge">Pending</span>';
+  if (grid) grid.appendChild(card);
+  closeSheet('custom-sport-sheet');
+  if (typeof pdUpdateMultiFooter === 'function') pdUpdateMultiFooter('sport');
+  if (typeof spUpdateHints === 'function') spUpdateHints();
 }
 
 function pdUpdateMultiFooter(key) {

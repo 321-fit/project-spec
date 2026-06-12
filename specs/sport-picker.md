@@ -3,7 +3,7 @@
 > Status: Draft
 > Prototype: [flows/coach/settings.html#s-sport-types](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html#s-sport-types)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-05-12
+> Last updated: 2026-06-12
 > Implementation:
 > - iOS:     [321fit_ios/docs/sport-picker-ios.md] (to be created)
 > - Backend: [poly-backend/docs/sport-picker-backend.md] (to be created)
@@ -228,9 +228,18 @@ A `sectionKey` field on `SportTypeResponse` is the minimum required to group spo
 - Back with dirty selection → bottom sheet, default safest option (Cancel = stay)
 - Discard reverts to seed, returns to Settings
 
-### Closed list — no custom sports
-- Backend rejects unknown sport IDs at the `PUT` boundary
-- No "Other / custom" free-text option in MVP — explicitly rejected design decision (per memory)
+### Curated list + gated custom sports (updated 2026-06-12)
+> Supersedes the earlier "closed list, no custom" rule. The reason for that rule — uncurated IDs breaking discovery — is preserved by the **gate**: a custom sport never enters discovery until an admin promotes it.
+
+- The 33-sport list is curated; coaches additionally may **create a custom sport** from the sport picker (see Flow below).
+- A custom sport is `isGlobal=false`: **visible only to the creating coach** (to label their own sessions). It is **excluded from athlete search, filters, matching, and other coaches' pick lists** until promoted.
+- It is sent to the **moderation admin** (321-admin → Content → Sports, `custom`/`pending` tab) where staff **approve** (set `isGlobal=true` + assign an icon → joins the canonical pool with a stable ID), **merge** into an existing sport, or **reject**.
+- Backend `POST /coach/sports {isGlobal:false}` already creates the entry (was "left in place for admin/future use" — now the UI exposes it). The athlete-facing discovery/match queries **must filter `isGlobal=true`**.
+- Free-text is still **not** allowed on athlete-facing discovery surfaces — custom only enters them after promotion.
+
+**Custom-sport flow (coach):** "Create custom sport" tile → drawer (name) → chip with placeholder icon + `Pending` badge in a "Your custom sports" section, selected for the coach. Prototype: `flows/coach/sport-types.html`. a11y ids: `coach.sport-types.custom.create-trigger` / `.name` / `.confirm` / `.cancel`.
+
+**Backend gaps to confirm/build:** the admin (`321-admin`) reads `status` / `suggestedBy` / `suggestedAt` (+ `category` / `sortOrder`) from `/api/v1.0.0/sport-types`; the `sport_type` table today has only `name` / `is_global` / `icon_png` / `icon_svg`. Add the moderation/attribution columns + ensure discovery filters `is_global=true`.
 
 ### Sport ID stability
 - Sport IDs are **immutable** after seed — renaming a display name does NOT change the ID
