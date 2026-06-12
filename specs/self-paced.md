@@ -76,7 +76,7 @@ Lifecycle: **Requested** (booked, coach to set up) → **Ready** (set up, athlet
 ## 5. Screens (prototype `shared/self-paced.html`)
 
 **Coach:** Offering (catalog entry) · Requests+Review hub (tabbed: Set up / Review / Active) · Setup builder (step list home) · Step editor (focused, with "Step N of M" counter) · Review submission · Client history · Video library.
-**Athlete:** Book (NOT a new screen — a card in the **existing Book training → Personal tab**, same `.v6d-card` as `profile.html#s-book-sessions`, with an Online badge + day picker in the confirm sheet) · My self-paced (list) · Welcome/intro (day + reschedule sheet) · Player (sequenced phases — see §7.1) · Complete (structured feedback, first-time only) + upload · Comments thread.
+**Athlete:** Book (NOT a new screen — a card in the **existing Book training → Personal tab**, same `.v6d-card` as `profile.html#s-book-sessions`: the **sport icon** of the offering, the card's location-strip slot repurposed as "**Online · do it anytime**", a short slogan body, lower price; full description + day picker live in the Book drawer) · My self-paced (list) · Welcome/intro (day + reschedule sheet) · Player (sequenced phases — see §7.1) · Complete (structured feedback, first-time only) + upload · Comments thread.
 **Shared sub-flow:** video source sheet → Trim (optional, skippable) → Uploading (Mux); reused by coach (instruction clips) + athlete (proof clips).
 
 ---
