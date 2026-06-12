@@ -130,8 +130,13 @@
   .plf-exvis .play { position: relative; width: 46px; height: 46px; opacity: 0.92; }
   #s-player.pl-rest .plf-exvis { display: none; }
   #s-player.pl-rest .plf-media { background: var(--fit-screen-bg); }
-  .plf-bottom { padding: 18px 22px 6px; }
+  .plf-bottom { padding: 18px 22px 6px; min-height: 168px; box-sizing: border-box; }  /* fixed → media stays same size across reps/timed */
   .plf-metric { font-size: 60px; font-weight: 700; line-height: 1; color: var(--fit-text-primary); font-variant-numeric: tabular-nums; }
+  /* Rest = centered ring inside the (blank) media area */
+  .plf-rest-ring { display: none; flex-direction: column; align-items: center; justify-content: center; width: 200px; height: 200px; border-radius: 50%; border: 5px solid var(--fit-divider); }
+  #s-player.pl-rest .plf-rest-ring { display: flex; }
+  .plf-rest-ring .n { font-size: 56px; font-weight: 700; color: var(--fit-text-primary); line-height: 1; font-variant-numeric: tabular-nums; }
+  .plf-rest-ring .l { font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--fit-teal-500); margin-top: 6px; }
   .plf-metric small { font-size: 26px; font-weight: 600; color: var(--fit-text-tertiary); }
   .plf-name { font-size: 20px; font-weight: 600; color: var(--fit-text-primary); margin-top: 8px; }
   .plf-detail { font-size: 14px; color: var(--fit-text-secondary); margin-top: 2px; }
@@ -696,18 +701,16 @@
 
     <!-- ZONE 2 — your review (visually set apart) -->
     <div class="rv-zone">
-      <div class="rv-zone-head">
-        <span class="t">Your review</span>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div class="fit-rating" style="padding:0;gap:2px;">
-            <svg class="filled" onclick="spRate(this,1)" viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
-            <svg class="filled" onclick="spRate(this,2)" viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
-            <svg class="filled" onclick="spRate(this,3)" viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
-            <svg class="filled" onclick="spRate(this,4)" viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
-            <svg onclick="spRate(this,5)" viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
-          </div>
-          <span data-rate-word style="font-size:13px;font-weight:500;color:var(--fit-teal-500);">Great</span>
+      <div class="rv-zone-head"><span class="t">Your review</span></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div class="fit-rating" style="padding:0;gap:3px;">
+          <svg class="filled" onclick="spRate(this,1)" viewBox="0 0 24 24" style="width:24px;height:24px;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+          <svg class="filled" onclick="spRate(this,2)" viewBox="0 0 24 24" style="width:24px;height:24px;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+          <svg class="filled" onclick="spRate(this,3)" viewBox="0 0 24 24" style="width:24px;height:24px;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+          <svg class="filled" onclick="spRate(this,4)" viewBox="0 0 24 24" style="width:24px;height:24px;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+          <svg onclick="spRate(this,5)" viewBox="0 0 24 24" style="width:24px;height:24px;"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
         </div>
+        <span data-rate-word style="font-size:13px;font-weight:500;color:var(--fit-teal-500);">Great</span>
       </div>
       <textarea class="fit-input-ta" maxlength="300" style="margin:0;" placeholder="Leave feedback for Julia…" oninput="document.getElementById('rv-count').textContent=this.value.length+' / 300'">Good depth overall. For the left hip, slow the eccentric and add the band drill before set 3.</textarea>
       <div class="sp-ta-counter" id="rv-count" style="padding-top:4px;">96 / 300</div>
@@ -792,8 +795,8 @@
     <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;">
       <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
         <div style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg></div>
-        <div style="flex:1;"><div style="font-size:16px;font-weight:600;">Tennis Training</div><div style="font-size:12px;opacity:0.7;">1h · in person · cash/card</div></div>
-        <div style="text-align:right;"><div style="font-size:16px;font-weight:600;color:var(--fit-white);">€50</div></div>
+        <div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Tennis Training</div><div style="font-size:12px;color:var(--fit-text-secondary);">1h · in person · cash/card</div></div>
+        <div style="text-align:right;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">€50</div></div>
       </div>
       <div style="padding:12px 16px;">
         <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">Personal training · live session</div>
@@ -805,8 +808,8 @@
     <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;">
       <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
         <div style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M21 8l-4 4 4 4z"/></svg></div>
-        <div style="flex:1;"><div style="font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px;">Online self-paced<span style="background:rgba(255,255,255,0.15);color:var(--fit-white);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:500;">Online</span></div><div style="font-size:12px;opacity:0.7;">do it anytime · pay from balance</div></div>
-        <div style="text-align:right;"><div style="font-size:16px;font-weight:600;color:var(--fit-white);">€12</div></div>
+        <div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);display:flex;align-items:center;gap:8px;">Online self-paced<span style="border:1px solid var(--fit-teal-500);color:var(--fit-teal-500);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;">Online</span></div><div style="font-size:12px;color:var(--fit-text-secondary);">do it anytime · pay from balance</div></div>
+        <div style="text-align:right;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">€12</div></div>
       </div>
       <div style="padding:12px 16px;">
         <div style="font-size:13px;color:var(--fit-text-secondary);margin-bottom:12px;line-height:1.5;">Maria builds a custom workout for you. Do it on your own time, film yourself, get her feedback. No fixed time — cheaper than a live session.</div>
@@ -936,17 +939,19 @@
     <!-- big exercise media (fills) -->
     <div class="plf-media">
       <div class="plf-exvis"><div class="ph" style="background:linear-gradient(135deg,#ef4444,#f59e0b);"></div><svg class="play" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>
+      <!-- rest: centered ring (media is blank during rest) -->
+      <div class="plf-rest-ring"><div class="n">20</div><div class="l">Rest</div></div>
       <!-- get-ready overlay (huge number, caption bottom-left) — tap to begin -->
       <div class="sp-ready" onclick="setPl('reps',null)">
         <div class="sp-ready-num">3</div>
         <div class="sp-ready-foot"><div class="sp-ready-cap">Get ready</div><div class="sp-ready-voice"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 010 7"/></svg>“Three… two… one…”</div></div>
       </div>
     </div>
-    <!-- bottom metric block (one per phase) -->
+    <!-- bottom block (one per phase) -->
     <div class="plf-bottom">
       <div data-pl="reps"><div class="plf-metric">12<small>×</small></div><div class="plf-name">Hip openers</div><div class="plf-detail">Set 3 of 4 · at your pace</div><div class="plf-next">Next: 20s rest</div></div>
       <div data-pl="timed"><div class="plf-metric">00:45</div><div class="plf-name">Hip openers</div><div class="plf-detail">Set 3 of 4 · hold the position</div><div class="plf-next">Next: 20s rest</div><span class="plf-pause" onclick="spToggleTimer(this)">Pause</span></div>
-      <div data-pl="rest"><div class="plf-metric">20<small>s</small></div><div class="plf-name">Rest</div><div class="plf-detail">Nice — get set for set 4 · ×12</div><div class="plf-next"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 010 7"/></svg>“Twenty… get ready for set four”</div></div>
+      <div data-pl="rest" style="text-align:center;"><div class="plf-name">Get ready for set 4</div><div class="plf-detail">×12 · Hip openers</div><div class="plf-next" style="justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 010 7"/></svg>“Twenty… get ready for set four”</div></div>
     </div>
     <!-- whole-session progress (sets + rests across the workout) -->
     <div class="plf-bar"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="cur"></i><i></i><i></i><i></i><i></i><i></i></div>
