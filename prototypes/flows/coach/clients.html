@@ -1096,8 +1096,8 @@
       <span class="fit-input-label">First name</span>
       <div class="fit-input" contenteditable="true" data-placeholder="Enter first name" style="outline:none;cursor:text;"></div>
     </div>
-    <div class="fit-input-group" style="padding:0 16px;">
-      <span class="fit-input-label">Last name <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+    <div class="fit-input-group" style="padding:0 16px;" data-required="lname">
+      <span class="fit-input-label">Last name</span>
       <div class="fit-input" contenteditable="true" data-placeholder="Enter last name" style="outline:none;cursor:text;"></div>
     </div>
     <div class="fit-input-group" style="padding:0 16px;" data-optional-format="phone">
@@ -1295,7 +1295,7 @@
       <button class="active" onclick="setCreateClientState('default',this)">Default</button>
       <button onclick="setCreateClientState('errors',this)">Validation errors</button>
     </div>
-    <p>CRM card for athletes without app account.</p><ul><li><strong>First name</strong> — required. <strong>Last name</strong> — optional (a contact / import may be first-name-only; backend allows a name with no last name).</li><li><strong>Phone number</strong> — optional; if filled validates phone format. <strong>Email removed</strong> — phone is the single match key for auto-linking when they join (email-fallback match deprecated).</li><li><strong>Sport</strong> — dropdown from coach's sports</li><li><strong>Notes</strong> — tap opens full-screen editor (injuries, preferences)</li></ul><hr><p class="note"><strong>Validation:</strong> tap <strong>Create Client</strong> → red border + red label on missing/invalid fields (all at once) + auto-scroll to first error + snackbar «Please fill in required fields» for 2.5s. Error styles auto-clear after 3s so user can retype. Mirrors Create Session pattern.</p><p>Created athlete appears in Clients list with a teal <code>CRM</code> pill. Coach can track sessions/payments.</p></div>
+    <p>CRM card for athletes without app account.</p><ul><li><strong>First name</strong> — required. <strong>Last name</strong> — required.</li><li><strong>Phone number</strong> — optional; if filled validates phone format. <strong>Email removed</strong> — phone is the single match key for auto-linking when they join (email-fallback match deprecated).</li><li><strong>Sport</strong> — dropdown from coach's sports</li><li><strong>Notes</strong> — tap opens full-screen editor (injuries, preferences)</li></ul><hr><p class="note"><strong>Validation:</strong> tap <strong>Create Client</strong> → red border + red label on missing/invalid fields (all at once) + auto-scroll to first error + snackbar «Please fill in required fields» for 2.5s. Error styles auto-clear after 3s so user can retype. Mirrors Create Session pattern.</p><p>Created athlete appears in Clients list with a teal <code>CRM</code> pill. Coach can track sessions/payments.</p></div>
 
   <div class="ann" id="ann-s-import-contacts"><span class="ann-role coach">Coach</span><h3>Import from contacts</h3>
     <div class="state-toggle">
@@ -1391,7 +1391,14 @@ function validateCreateClient() {
     if (!firstError) firstError = fnameGroup;
   }
 
-  // Last name is optional (a CRM contact / import may be first-name-only)
+  // Last name is required
+  var lnameGroup = screen.querySelector('[data-required="lname"]');
+  var lnameEl = lnameGroup && lnameGroup.querySelector('.fit-input');
+  if (!lnameEl || !lnameEl.textContent.trim()) {
+    hasError = true;
+    lnameGroup && lnameGroup.classList.add('error');
+    if (!firstError) firstError = lnameGroup;
+  }
 
   // Phone format (optional, only when filled — email removed from CRM, phone is the match key)
   var contactGroup = screen.querySelector('[data-optional-format="phone"]');
