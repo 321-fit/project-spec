@@ -195,11 +195,21 @@
   .aa-row.destructive .aa-row-title { color: var(--fit-red-400); }
   .aa-row.destructive .aa-row-icon { color: var(--fit-red-400); background: rgba(240,92,91,0.10); }
   .fit-light .aa-row.destructive .aa-row-icon { background: rgba(240,92,91,0.12); }
-  /* Remove-role screen: clean vs blocked state (reuses del-* + aa-* patterns) */
+  /* Your-roles viewer swap on hub (active role depends on which role you're in) */
+  #s-hub [data-vr] { display: none; }
+  #s-hub.vr-athlete [data-vr="athlete"] { display: block; }
+  #s-hub.vr-coach [data-vr="coach"] { display: block; }
+  .rr-active-tag { margin-left: auto; font-size: 12px; font-weight: 500; color: var(--fit-teal-500); }
+  /* Remove-role screen: target role (coach/athlete) × state (clean/blocked) — reuses del-*+aa-* */
+  #s-role-remove [data-tr] { display: none; }
+  #s-role-remove.tr-coach [data-tr="coach"] { display: block; }
+  #s-role-remove.tr-athlete [data-tr="athlete"] { display: block; }
+  #s-role-remove [data-trlabel] { display: none; }
+  #s-role-remove.tr-coach [data-trlabel="coach"] { display: inline; }
+  #s-role-remove.tr-athlete [data-trlabel="athlete"] { display: inline; }
   #s-role-remove [data-rr] { display: none; }
   #s-role-remove.rr-clean [data-rr="clean"] { display: block; }
   #s-role-remove.rr-blocked [data-rr="blocked"] { display: block; }
-  .rr-active-tag { margin-left: auto; font-size: 12px; font-weight: 500; color: var(--fit-teal-500); }
   .del-consequence.kept .del-consequence-icon { color: var(--fit-teal-500); }
 
   /* Footer note */
@@ -775,9 +785,14 @@
   <button onclick="go('s-delete-loading',this)">5 · Loading (transient)</button>
   <button onclick="go('s-delete-done',this)">6 · Account deleted (done)</button>
 
+  <div class="label">Your roles (hub)</div>
+  <button onclick="go('s-hub',this);setViewer('athlete')">Viewer · Athlete (active)</button>
+  <button onclick="go('s-hub',this);setViewer('coach')">Viewer · Coach (active)</button>
   <div class="label">Remove role</div>
-  <button onclick="go('s-role-remove',this);setRrState('clean')">Stop coaching · clean</button>
-  <button onclick="go('s-role-remove',this);setRrState('blocked')">Stop coaching · blockers</button>
+  <button onclick="go('s-role-remove',this);setRrTarget('coach','clean')">Stop coaching · clean</button>
+  <button onclick="go('s-role-remove',this);setRrTarget('coach','blocked')">Stop coaching · blockers</button>
+  <button onclick="go('s-role-remove',this);setRrTarget('athlete','clean')">Stop athlete · clean</button>
+  <button onclick="go('s-role-remove',this);setRrTarget('athlete','blocked')">Stop athlete · blockers</button>
 
   <div class="label">Social flow</div>
   <button onclick="go('s-hub',this);simulateConnect('apple');">Connect Apple (success)</button>
@@ -804,7 +819,7 @@
 <!-- ==================== PHONES ==================== -->
 
 <!-- ===== ACCOUNT ACCESS HUB ===== -->
-<div class="fit-phone fit-dark active hs-full" id="s-hub">
+<div class="fit-phone fit-dark active hs-full vr-athlete" id="s-hub">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -1005,9 +1020,10 @@
       </div>
     </div>
 
-    <!-- SECTION: Your roles -->
+    <!-- SECTION: Your roles — active role depends on which role you're currently in -->
     <div class="aa-section-label">Your roles</div>
-    <div class="aa-group">
+    <!-- Viewer = ATHLETE: athlete active, coach removable -->
+    <div class="aa-group" data-vr="athlete">
       <div class="aa-row">
         <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
         <div class="aa-row-body">
@@ -1016,11 +1032,30 @@
         </div>
         <span class="rr-active-tag">Active</span>
       </div>
-      <div class="aa-row" data-a11y-id="account.roles.coach" onclick="go('s-role-remove',null)">
+      <div class="aa-row" data-a11y-id="account.roles.coach" onclick="go('s-role-remove',null);setRrTarget('coach','clean')">
         <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg></div>
         <div class="aa-row-body">
           <div class="aa-row-title">Coach</div>
           <div class="aa-row-sub muted">Offering sessions &middot; manage or stop</div>
+        </div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+    </div>
+    <!-- Viewer = COACH: coach active, athlete removable -->
+    <div class="aa-group" data-vr="coach">
+      <div class="aa-row">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg></div>
+        <div class="aa-row-body">
+          <div class="aa-row-title">Coach</div>
+          <div class="aa-row-sub muted">Offering sessions</div>
+        </div>
+        <span class="rr-active-tag">Active</span>
+      </div>
+      <div class="aa-row" data-a11y-id="account.roles.athlete" onclick="go('s-role-remove',null);setRrTarget('athlete','clean')">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div class="aa-row-body">
+          <div class="aa-row-title">Athlete</div>
+          <div class="aa-row-sub muted">Booking &amp; training &middot; manage or stop</div>
         </div>
         <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
       </div>
@@ -2036,100 +2071,102 @@
 </div>
 
 <!-- ===== REMOVE / DEACTIVATE ROLE ===== -->
-<div class="fit-phone fit-dark rr-clean" id="s-role-remove">
+<div class="fit-phone fit-dark tr-coach rr-clean" id="s-role-remove">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
       <button class="fit-header-back" data-a11y-id="account.role-remove.back" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Coach role</span>
+      <span class="fit-header-title"><span data-trlabel="coach">Coach role</span><span data-trlabel="athlete">Athlete role</span></span>
     </div>
   </div>
   <div class="fit-phone-content" style="padding-bottom:24px;">
 
-    <div class="del-head">
-      <div class="del-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/><path d="M2 2l20 20"/></svg></div>
-      <div class="del-title">Stop being a coach?</div>
-      <div class="del-sub">Your account and athlete side stay — only your coaching is turned off.</div>
+    <!-- ============ TARGET: COACH (you're on athlete, removing coach) ============ -->
+    <div data-tr="coach">
+      <div class="del-head">
+        <div class="del-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/><path d="M2 2l20 20"/></svg></div>
+        <div class="del-title">Stop being a coach?</div>
+        <div class="del-sub">Your account and athlete side stay — only your coaching is turned off.</div>
+      </div>
+
+      <div data-rr="clean">
+        <div class="aa-section-label">What happens</div>
+        <div class="del-consequences">
+          <div class="del-consequence kept"><span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span>Your earnings history &amp; past reviews are kept</span></div>
+          <div class="del-consequence kept"><span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span>You can turn coaching back on anytime &mdash; setup stays</span></div>
+          <div class="del-consequence"><span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20C5 20 1 12 1 12a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M1 1l22 22"/></svg></span><span>You disappear from search &mdash; no new bookings</span></div>
+          <div class="del-consequence"><span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20C5 20 1 12 1 12a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M1 1l22 22"/></svg></span><span>Your sessions, availability &amp; locations are hidden</span></div>
+        </div>
+        <div class="del-note">Payout details stay so any final payouts still land. Some data may be retained for legal / financial reasons.</div>
+        <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+          <button class="fit-btn fit-btn-destructive" data-a11y-id="account.role-remove.stop" onclick="document.getElementById('rr-confirm-sheet').classList.add('visible')">Stop coaching</button>
+          <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))">Keep coaching</button>
+        </div>
+      </div>
+
+      <div data-rr="blocked">
+        <div class="aa-section-label">Resolve these first</div>
+        <div class="del-blocker-list">
+          <div class="del-blocker-item"><div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg></div><div class="del-blocker-item-body"><div class="del-blocker-item-title">&euro;120.00 pending payout</div><div class="del-blocker-item-sub">Withdraw, or wait for Monday's payout &middot; Earnings</div></div><div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div></div>
+          <div class="del-blocker-item"><div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><div class="del-blocker-item-body"><div class="del-blocker-item-title">2 upcoming sessions</div><div class="del-blocker-item-sub">Cancel or finish them &middot; Calendar</div></div><div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div></div>
+          <div class="del-blocker-item"><div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="del-blocker-item-body"><div class="del-blocker-item-title">&euro;40 cash owed by 2 athletes</div><div class="del-blocker-item-sub">Mark paid or waive &middot; Clients</div></div><div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div></div>
+        </div>
+        <div class="del-note">Once these are settled, you can stop coaching. This keeps your athletes and your books clean.</div>
+        <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+          <button class="fit-btn fit-btn-destructive" disabled style="opacity:0.5;pointer-events:none;">Stop coaching</button>
+          <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))">Keep coaching</button>
+        </div>
+      </div>
     </div>
 
-    <!-- CLEAN: no blockers → can stop now -->
-    <div data-rr="clean">
-      <div class="aa-section-label">What happens</div>
-      <div class="del-consequences">
-        <div class="del-consequence kept">
-          <span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-          <span>Your earnings history &amp; past reviews are kept</span>
+    <!-- ============ TARGET: ATHLETE (you're on coach, removing athlete) — mirror ============ -->
+    <div data-tr="athlete">
+      <div class="del-head">
+        <div class="del-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/><path d="M2 2l20 20"/></svg></div>
+        <div class="del-title">Stop training as an athlete?</div>
+        <div class="del-sub">Your account and coaching side stay — only your athlete side is turned off.</div>
+      </div>
+
+      <div data-rr="clean">
+        <div class="aa-section-label">What happens</div>
+        <div class="del-consequences">
+          <div class="del-consequence kept"><span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span>Your training history &amp; reviews you left are kept</span></div>
+          <div class="del-consequence kept"><span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span>You can turn it back on anytime &mdash; nothing to set up</span></div>
+          <div class="del-consequence"><span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20C5 20 1 12 1 12a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M1 1l22 22"/></svg></span><span>You can't book or join sessions</span></div>
+          <div class="del-consequence"><span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20C5 20 1 12 1 12a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M1 1l22 22"/></svg></span><span>You're removed from your coaches' active client lists</span></div>
         </div>
-        <div class="del-consequence kept">
-          <span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-          <span>You can turn coaching back on anytime &mdash; setup stays</span>
-        </div>
-        <div class="del-consequence">
-          <span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20C5 20 1 12 1 12a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M1 1l22 22"/></svg></span>
-          <span>You disappear from search &mdash; no new bookings</span>
-        </div>
-        <div class="del-consequence">
-          <span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20C5 20 1 12 1 12a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M1 1l22 22"/></svg></span>
-          <span>Your sessions, availability &amp; locations are hidden</span>
+        <div class="del-note">Any remaining balance stays on your account for when you return. Some data may be retained for legal / financial reasons.</div>
+        <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+          <button class="fit-btn fit-btn-destructive" onclick="document.getElementById('rr-confirm-sheet').classList.add('visible')">Stop training as an athlete</button>
+          <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))">Keep my athlete side</button>
         </div>
       </div>
 
-      <div class="del-note">Payout details stay so any final payouts still land. Some data may be retained for legal / financial reasons.</div>
-
-      <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
-        <button class="fit-btn fit-btn-destructive" data-a11y-id="account.role-remove.stop" onclick="document.getElementById('rr-confirm-sheet').classList.add('visible')">Stop coaching</button>
-        <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))">Keep coaching</button>
-      </div>
-    </div>
-
-    <!-- BLOCKED: money / sessions to resolve first (reuses del-blocker-list) -->
-    <div data-rr="blocked">
-      <div class="aa-section-label">Resolve these first</div>
-      <div class="del-blocker-list">
-        <div class="del-blocker-item">
-          <div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg></div>
-          <div class="del-blocker-item-body">
-            <div class="del-blocker-item-title">&euro;120.00 pending payout</div>
-            <div class="del-blocker-item-sub">Withdraw, or wait for Monday's payout &middot; Earnings</div>
-          </div>
-          <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div data-rr="blocked">
+        <div class="aa-section-label">Resolve these first</div>
+        <div class="del-blocker-list">
+          <div class="del-blocker-item"><div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/></svg></div><div class="del-blocker-item-body"><div class="del-blocker-item-title">&euro;240.00 balance</div><div class="del-blocker-item-sub">Use it on a session or request a refund &middot; Balance</div></div><div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div></div>
+          <div class="del-blocker-item"><div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><div class="del-blocker-item-body"><div class="del-blocker-item-title">2 upcoming bookings</div><div class="del-blocker-item-sub">Cancel them &middot; My schedule</div></div><div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div></div>
+          <div class="del-blocker-item"><div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="del-blocker-item-body"><div class="del-blocker-item-title">&euro;30 cash owed to a coach</div><div class="del-blocker-item-sub">Settle it with your coach &middot; My coaches</div></div><div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div></div>
         </div>
-        <div class="del-blocker-item">
-          <div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
-          <div class="del-blocker-item-body">
-            <div class="del-blocker-item-title">2 upcoming sessions</div>
-            <div class="del-blocker-item-sub">Cancel or finish them &middot; Calendar</div>
-          </div>
-          <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        <div class="del-note">Once these are settled, you can stop training as an athlete.</div>
+        <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+          <button class="fit-btn fit-btn-destructive" disabled style="opacity:0.5;pointer-events:none;">Stop training as an athlete</button>
+          <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))">Keep my athlete side</button>
         </div>
-        <div class="del-blocker-item">
-          <div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
-          <div class="del-blocker-item-body">
-            <div class="del-blocker-item-title">&euro;40 cash owed by 2 athletes</div>
-            <div class="del-blocker-item-sub">Mark paid or waive &middot; Clients</div>
-          </div>
-          <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
-        </div>
-      </div>
-
-      <div class="del-note">Once these are settled, you can stop coaching. This keeps your athletes and your books clean.</div>
-
-      <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
-        <button class="fit-btn fit-btn-destructive" disabled style="opacity:0.5;pointer-events:none;">Stop coaching</button>
-        <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))">Keep coaching</button>
       </div>
     </div>
 
   </div>
 
-  <!-- Confirm sheet (reversible → single confirm, no re-auth) -->
+  <!-- Confirm sheet (reversible → single confirm, no re-auth) — role-agnostic copy -->
   <div class="fit-sheet-overlay" id="rr-confirm-sheet">
     <div class="fit-sheet">
       <div class="fit-sheet-handle"></div>
-      <div class="fit-sheet-title">Stop coaching?</div>
-      <div class="fit-sheet-subtitle">You'll be switched to your athlete view. Turn coaching back on anytime from your profile.</div>
+      <div class="fit-sheet-title">Turn this role off?</div>
+      <div class="fit-sheet-subtitle">You'll switch to your other role. Turn it back on anytime from your profile.</div>
       <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
-        <button class="fit-btn fit-btn-destructive" data-a11y-id="account.role-remove.confirm" onclick="document.getElementById('rr-confirm-sheet').classList.remove('visible');go('s-hub',document.querySelector('[onclick*=s-hub]'));">Stop coaching</button>
+        <button class="fit-btn fit-btn-destructive" data-a11y-id="account.role-remove.confirm" onclick="document.getElementById('rr-confirm-sheet').classList.remove('visible');go('s-hub',document.querySelector('[onclick*=s-hub]'));">Turn off</button>
         <button class="fit-btn fit-btn-secondary" onclick="document.getElementById('rr-confirm-sheet').classList.remove('visible')">Cancel</button>
       </div>
     </div>
@@ -2495,7 +2532,7 @@
       <button onclick="setRrState('blocked',this)">Blocked (resolve first)</button>
     </div>
     <h3>Stop / deactivate a role</h3>
-    <p>Reached from <strong>Account Access → Your roles</strong> (the secondary role row). Removing the <em>second</em> role a user added — modelled here as <strong>Coach</strong>; the athlete side mirrors (swap copy + blockers = balance / upcoming bookings).</p>
+    <p>Reached from <strong>Account Access → Your roles</strong> (the secondary role row). <strong>Mirror-symmetric</strong> — the removable role is whichever one is <em>not</em> active: on athlete you remove Coach, on coach you remove Athlete. The hub's "Your roles" swaps the Active tag + removable row by viewer (sidebar: <em>Viewer · Athlete/Coach</em>); this screen swaps target (sidebar: <em>Stop coaching / Stop athlete</em>).</p>
     <ul>
       <li><strong>Soft deactivate, not hard-delete</strong> — coaching is turned off (hidden from search, no new bookings) but earnings history / reviews / payout details are <strong>kept</strong>; reversible via the role switch anytime. True deletion = Delete account.</li>
       <li><strong>Reuses the delete-flow grammar</strong> — <code>.del-head</code> / <code>.del-consequences</code> (kept ✓ vs hidden 👁) / <code>.del-blocker-list</code> / <code>.del-note</code>; rows = <code>.aa-row</code>; CTA = <code>.fit-btn-destructive</code>. No new components.</li>
@@ -2810,6 +2847,21 @@
     annBtns.forEach(b => b.classList.remove('active'));
     const idx = state === 'clean' ? 0 : 1;
     if (annBtns[idx]) annBtns[idx].classList.add('active');
+  }
+
+  // Which role is being removed (coach when you're on athlete, athlete when you're on coach)
+  function setRrTarget(role, state) {
+    const p = document.getElementById('s-role-remove');
+    if (!p) return;
+    p.classList.remove('tr-coach', 'tr-athlete');
+    p.classList.add('tr-' + role);
+    setRrState(state || 'clean');
+  }
+
+  // Which role you're currently in → drives the hub "Your roles" active/removable swap
+  function setViewer(role) {
+    const h = document.getElementById('s-hub');
+    if (h) { h.classList.remove('vr-athlete', 'vr-coach'); h.classList.add('vr-' + role); }
   }
 
   function setBlocker(kind, btn) {
