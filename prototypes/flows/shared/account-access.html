@@ -200,6 +200,14 @@
   #s-hub.vr-athlete [data-vr="athlete"] { display: block; }
   #s-hub.vr-coach [data-vr="coach"] { display: block; }
   .rr-active-tag { margin-left: auto; font-size: 12px; font-weight: 500; color: var(--fit-teal-500); }
+  .rr-off-tag { margin-left: auto; font-size: 12px; font-weight: 500; color: var(--fit-text-tertiary); }
+  /* Second-role status: dual (exists, manage/stop) · single (never added → add CTA) · off (deactivated → resume) */
+  #s-hub [data-rs] { display: none; }
+  #s-hub.rs-dual   [data-rs="dual"]   { display: flex; }
+  #s-hub.rs-single [data-rs="single"] { display: flex; }
+  #s-hub.rs-off    [data-rs="off"]    { display: flex; }
+  .aa-row-icon.add { color: var(--fit-teal-500); background: rgba(5,224,166,0.12); }
+  .fit-light .aa-row-icon.add { background: rgba(5,224,166,0.12); }
   /* Remove-role screen: target role (coach/athlete) × state (clean/blocked) — reuses del-*+aa-* */
   #s-role-remove [data-tr] { display: none; }
   #s-role-remove.tr-coach [data-tr="coach"] { display: block; }
@@ -788,6 +796,9 @@
   <div class="label">Your roles (hub)</div>
   <button onclick="go('s-hub',this);setViewer('athlete')">Viewer · Athlete (active)</button>
   <button onclick="go('s-hub',this);setViewer('coach')">Viewer · Coach (active)</button>
+  <button onclick="go('s-hub',this);setRoleState('dual')">2nd role · dual (on)</button>
+  <button onclick="go('s-hub',this);setRoleState('single')">2nd role · not added</button>
+  <button onclick="go('s-hub',this);setRoleState('off')">2nd role · deactivated</button>
   <div class="label">Remove role</div>
   <button onclick="go('s-role-remove',this);setRrTarget('coach','clean')">Stop coaching · clean</button>
   <button onclick="go('s-role-remove',this);setRrTarget('coach','blocked')">Stop coaching · blockers</button>
@@ -819,7 +830,7 @@
 <!-- ==================== PHONES ==================== -->
 
 <!-- ===== ACCOUNT ACCESS HUB ===== -->
-<div class="fit-phone fit-dark active hs-full vr-athlete" id="s-hub">
+<div class="fit-phone fit-dark active hs-full vr-athlete rs-dual" id="s-hub">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -1022,42 +1033,56 @@
 
     <!-- SECTION: Your roles — active role depends on which role you're currently in -->
     <div class="aa-section-label">Your roles</div>
-    <!-- Viewer = ATHLETE: athlete active, coach removable -->
+    <!-- Viewer = ATHLETE: athlete active; the Coach (second) row changes by status -->
     <div class="aa-group" data-vr="athlete">
       <div class="aa-row">
         <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-        <div class="aa-row-body">
-          <div class="aa-row-title">Athlete</div>
-          <div class="aa-row-sub muted">Book &amp; train with coaches</div>
-        </div>
+        <div class="aa-row-body"><div class="aa-row-title">Athlete</div><div class="aa-row-sub muted">Book &amp; train with coaches</div></div>
         <span class="rr-active-tag">Active</span>
       </div>
-      <div class="aa-row" data-a11y-id="account.roles.coach" onclick="go('s-role-remove',null);setRrTarget('coach','clean')">
+      <!-- dual: coach exists & on → manage/stop -->
+      <div class="aa-row" data-rs="dual" data-a11y-id="account.roles.coach" onclick="go('s-role-remove',null);setRrTarget('coach','clean')">
         <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg></div>
-        <div class="aa-row-body">
-          <div class="aa-row-title">Coach</div>
-          <div class="aa-row-sub muted">Offering sessions &middot; manage or stop</div>
-        </div>
+        <div class="aa-row-body"><div class="aa-row-title">Coach</div><div class="aa-row-sub muted">Offering sessions &middot; manage or stop</div></div>
         <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
       </div>
+      <!-- single: never added → add CTA (→ role switch + coach onboarding) -->
+      <div class="aa-row" data-rs="single" data-a11y-id="account.roles.add-coach" onclick="alert('Become a coach → role switch + coach onboarding (sports / sessions / location / hours)')">
+        <div class="aa-row-icon add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="aa-row-body"><div class="aa-row-title">Become a coach</div><div class="aa-row-sub muted">Start offering your own sessions</div></div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <!-- off: deactivated → turn back on (instant, profile retained) -->
+      <div class="aa-row" data-rs="off" data-a11y-id="account.roles.resume-coach" onclick="alert('Turn coaching back on → re-listed instantly (profile kept), switch to coach')">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg></div>
+        <div class="aa-row-body"><div class="aa-row-title">Coach</div><div class="aa-row-sub muted">Turned off &middot; tap to turn back on</div></div>
+        <span class="rr-off-tag">Off</span>
+      </div>
     </div>
-    <!-- Viewer = COACH: coach active, athlete removable -->
+    <!-- Viewer = COACH: coach active; the Athlete (second) row changes by status -->
     <div class="aa-group" data-vr="coach">
       <div class="aa-row">
         <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg></div>
-        <div class="aa-row-body">
-          <div class="aa-row-title">Coach</div>
-          <div class="aa-row-sub muted">Offering sessions</div>
-        </div>
+        <div class="aa-row-body"><div class="aa-row-title">Coach</div><div class="aa-row-sub muted">Offering sessions</div></div>
         <span class="rr-active-tag">Active</span>
       </div>
-      <div class="aa-row" data-a11y-id="account.roles.athlete" onclick="go('s-role-remove',null);setRrTarget('athlete','clean')">
+      <!-- dual -->
+      <div class="aa-row" data-rs="dual" data-a11y-id="account.roles.athlete" onclick="go('s-role-remove',null);setRrTarget('athlete','clean')">
         <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-        <div class="aa-row-body">
-          <div class="aa-row-title">Athlete</div>
-          <div class="aa-row-sub muted">Booking &amp; training &middot; manage or stop</div>
-        </div>
+        <div class="aa-row-body"><div class="aa-row-title">Athlete</div><div class="aa-row-sub muted">Booking &amp; training &middot; manage or stop</div></div>
         <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <!-- single: never added → add athlete side (instant) -->
+      <div class="aa-row" data-rs="single" data-a11y-id="account.roles.add-athlete" onclick="alert('Train as an athlete → creates athlete profile instantly, no setup')">
+        <div class="aa-row-icon add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="aa-row-body"><div class="aa-row-title">Train as an athlete</div><div class="aa-row-sub muted">Book &amp; train with other coaches</div></div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <!-- off -->
+      <div class="aa-row" data-rs="off" data-a11y-id="account.roles.resume-athlete" onclick="alert('Turn athlete side back on → instant (profile kept), switch to athlete')">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div class="aa-row-body"><div class="aa-row-title">Athlete</div><div class="aa-row-sub muted">Turned off &middot; tap to turn back on</div></div>
+        <span class="rr-off-tag">Off</span>
       </div>
     </div>
 
@@ -2862,6 +2887,12 @@
   function setViewer(role) {
     const h = document.getElementById('s-hub');
     if (h) { h.classList.remove('vr-athlete', 'vr-coach'); h.classList.add('vr-' + role); }
+  }
+
+  // Second-role status: dual (exists & on) · single (never added) · off (deactivated)
+  function setRoleState(state) {
+    const h = document.getElementById('s-hub');
+    if (h) { h.classList.remove('rs-dual', 'rs-single', 'rs-off'); h.classList.add('rs-' + state); }
   }
 
   function setBlocker(kind, btn) {

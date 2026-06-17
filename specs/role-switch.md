@@ -77,7 +77,11 @@ Copy is placeholder pending **Настя**.
 A user who added a second role can turn it off. Prototype: `shared/account-access.html` — **Account Access → Your roles** section + `s-role-remove` screen.
 
 - **Deactivate, not hard-delete** (v1). Coaching is turned off (unlisted from search, no new bookings) but **earnings history, reviews-received and payout details are kept** — and it's **reversible**: re-enable anytime via the role switch (profile rows are retained). True profile deletion = Delete account.
-- **Home:** Account Access (shared account screen) → **Your roles** (`.aa-row` per role, active one tagged) → tap the secondary role → `s-role-remove`. The switch chip *adds*; Account Access *manages/removes* (clean split).
+- **Home:** Account Access (shared account screen) → **Your roles**. The active role row is tagged **Active** (driven by the session's active role — coach view vs athlete view, mirror-symmetric). The **second-role row has three states**:
+  - **dual** (role exists & on) → "manage or stop" → `s-role-remove`.
+  - **single** (never added) → an **add CTA** ("Become a coach" / "Train as an athlete", teal + icon) → the role-switch add flow (coach → onboarding; athlete → instant).
+  - **off** (deactivated) → **"Turned off · tap to turn back on"** + `Off` tag → reactivate (instant, profile retained — re-lists the coach / re-enables the athlete side).
+- The switch chip *adds/switches*; Account Access *manages/removes/resumes* (clean split).
 - **`s-role-remove`** — two states (reuses the delete-flow grammar; no new components):
   - **clean** (`rr-clean`) — `.del-consequences` (kept ✓ teal / hidden 👁) + `.del-note` + **Stop coaching** (`.fit-btn-destructive`) → confirm sheet → switch to the kept role. **Reversible ⇒ single confirm, no re-auth** (unlike Delete account, which re-auths).
   - **blocked** (`rr-blocked`) — `.del-blocker-list`: unsettled money / sessions must be resolved first (pending payout · upcoming sessions · cash owed for coach; balance · upcoming bookings for athlete), each deep-links to resolve; Stop button disabled.
