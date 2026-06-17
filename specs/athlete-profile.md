@@ -3,7 +3,7 @@
 > Status: Draft
 > Prototype: [flows/athlete/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/profile.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-05
+> Last updated: 2026-06-17
 > Implementation:
 > - iOS:     [321fit_ios/docs/athlete-profile-ios.md] (to be created)
 > - Android: [321fit_android/docs/athlete-profile-android.md] (to be created)
@@ -18,7 +18,7 @@
 |---|---|---|
 | Header media (video / cover / initials hero) | ✅ | ❌ **removed** (no intro video / cover for athletes) |
 | Identity row (avatar + name + location → Personal Data) | ✅ | ✅ (avatar has camera pip → edit) |
-| Stat strip (`.fit-stat-strip`) | Rating · Reviews · Sessions · Price from | **Sessions · Hours · Streak** (athlete has no public rating/price) |
+| Stat strip (`.fit-stat-strip`) | Rating · Reviews · Sessions · Price from | **Sessions · Hours · This month** (athlete has no public rating/price) |
 | Maturity progress (new→established) | ✅ | ❌ **removed** (coach-only growth model) |
 | My sports (chips + edit → sport-types) | ✅ | ✅ (same green chips + sport icon set) |
 | About me (bio + edit → personal-data) | ✅ | ✅ (short bio / training goal) |
@@ -31,7 +31,7 @@ The trim follows the role asymmetry: the athlete is the **demand** side — no p
 
 ## 2. User stories
 
-- As an athlete, I want a private hub that shows my training progress (sessions, hours, streak) so the app feels motivating.
+- As an athlete, I want a private hub that shows my training progress (sessions, hours, this-month activity) so the app feels motivating.
 - As an athlete, I want to manage my sports and personal info from my profile, the same way a coach does.
 - As an athlete, I want quick links to my training history, my coaches, calendar sync and balance without digging through Settings.
 - As an athlete, I want to see and edit the reviews I left to my coaches.
@@ -46,7 +46,7 @@ The trim follows the role asymmetry: the athlete is the **demand** side — no p
 Layout, top → bottom:
 1. **Header** — title "Profile" + ⚙️ Settings gear (top-right) → `settings.html`. (No share — the athlete profile is private.)
 2. **Identity** (`.cp-identity`, always visible across states) — `.fit-avatar-lg` brand avatar + camera **pip**, name, location → Personal Data (TBD editor).
-3. **Stat strip** (`.fit-stat-strip`, 3 cols) — Sessions · Hours · Streak. Streak value uses `--accent`.
+3. **Stat strip** (`.fit-stat-strip`, 3 cols) — Sessions · Hours · **This month**. First two are **lifetime** aggregates (across all coaches); the third is **momentum** = completed sessions in the current calendar month, and uses `--accent`. New-state shows `0`. (Chosen over a "streak" — see Decisions log + §7.)
 4. **My sports** (`.cp-section` + `.cp-section-head--tap` pencil) → Sport Types; green `.fit-sport-chip`s with the canonical sport icon set.
 5. **About me** (`.cp-section` + pencil) → Personal Data; `.fit-profile-bio` + "See more".
 6. **Management tiles** (`.cp-tile-group` of `.fit-stat-tile`):
@@ -99,13 +99,13 @@ Aggregate stats + content are composed from existing endpoints (verify against l
 | Need | Endpoint |
 |---|---|
 | Identity / sports / bio / metrics | `GET /me`, `GET /athlete/sports` ([profile-settings.md](./profile-settings.md)) |
-| Aggregate stats (sessions / hours / streak) | derived from training-events history (endpoint TBD — may need a `GET /athlete/profile-stats`) |
+| Aggregate stats (sessions / hours / this-month) | derived from training-events history (endpoint TBD — may need a `GET /athlete/profile-stats`). `sessions`/`hours` = lifetime; `sessionsThisMonth` = completed sessions where `start` is in the current calendar month (athlete's timezone) |
 | My coaches count | [clients-coaches.md](./clients-coaches.md) athlete relationships |
 | Balance figure on tile | `GET /athlete/balance` ([payments.md](./payments.md)) |
 | Calendar sync status | [calendar-sync.md](./calendar-sync.md) |
 | My reviews | `GET /athlete/coaches/{id}/review` per coach ([reviews.md](./reviews.md)) |
 
-The **streak** metric is new and may need backend support; flagged as an open question.
+The **This month** metric is a simple count over training-events (no streak state to track) — cheap to derive; still confirm/extend the stats endpoint before issues.
 
 ---
 
@@ -120,7 +120,7 @@ The **streak** metric is new and may need backend support; flagged as an open qu
 
 ## 8. Edge cases / open questions
 
-- [ ] **Streak definition** — consecutive weeks with ≥1 completed session? Needs a backend rule + endpoint.
+- [x] **Streak replaced by "This month"** (resolved 2026-06-17) — a streak read ambiguously ("3 wk"?) and is demotivating for a paid 1–3×/week format (one missed week → 0). "This month" = completed sessions in the current calendar month: self-explanatory, momentum without punishment. A streak (calendar **heatmap**) may return on the **Training history** screen in Phase 2, where it explains itself visually.
 - [ ] **Athlete Personal Data editor** — athlete variant (avatar, name, gender, DOB, height, weight, languages; **no** intro video/cover). Currently stubbed; see [personal-data.md § 10](./personal-data.md).
 - [ ] **Training history screen** — full list (all coaches) reusing the history-row pattern; currently a stub tile.
 - [ ] **Achievements / badges** — deferred to Phase 2.
@@ -131,6 +131,7 @@ The **streak** metric is new and may need backend support; flagged as an open qu
 
 - **2026-06-05** — Athlete Profile built as a **trimmed mirror** of the coach Profile (`.cp-*` grammar reused), dropping video hero, maturity, reviews-received and price. Stat strip = Sessions/Hours/Streak. Tiles repurposed to history/coaches/calendar-sync/balance (links into content + Settings). Memory: `project_athlete_profile_plan`, `project_athlete_prototype_status`.
 - **2026-06-05** — Sport chips use the canonical **sport icon set** (not emoji). Everything theme-adaptive.
+- **2026-06-17** — Stat strip third slot **Streak → "This month"**. Streak was ambiguous + fragile for our paid 1–3×/week cadence; "This month" (completed sessions this calendar month) is obvious and motivating without the reset penalty. Streak-as-heatmap deferred to Training history (Phase 2). Prototype + spec updated.
 
 ---
 
