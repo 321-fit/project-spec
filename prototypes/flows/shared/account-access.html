@@ -2268,7 +2268,18 @@
       <button onclick="setHubState('social',this)">Social only</button>
       <button onclick="setHubState('one',this)">Just one</button>
     </div>
-    <p><strong>Account Access</strong> is the single hub for everything related to identity, sign-in methods, and account lifecycle. Entered from Settings.</p>
+    <p style="margin:2px 0 6px;"><strong>Your roles</strong> — which role you're in:</p>
+    <div class="state-toggle">
+      <button class="active" onclick="setViewer('athlete');annTog(this)">In: Athlete</button>
+      <button onclick="setViewer('coach');annTog(this)">In: Coach</button>
+    </div>
+    <p style="margin:2px 0 6px;">Second role status:</p>
+    <div class="state-toggle">
+      <button class="active" onclick="setRoleState('dual');annTog(this)">On (manage/stop)</button>
+      <button onclick="setRoleState('single');annTog(this)">Not added (＋add)</button>
+      <button onclick="setRoleState('off');annTog(this)">Deactivated (resume)</button>
+    </div>
+    <p><strong>Account Access</strong> is the single hub for everything related to identity, sign-in methods, and account lifecycle. Entered from Settings. <strong>Your roles</strong> lists the role(s) on the account: active one tagged, the second role shows <em>manage/stop</em> (on), <em>＋ Become a…</em> (never added), or <em>Turned off · turn back on</em> (deactivated).</p>
     <ul>
       <li><strong>Sign-in methods</strong> &mdash; phone, email&amp;password, Apple, Google</li>
       <li><strong>Security</strong> &mdash; Sessions + 2FA (V2, disabled with <em>Soon</em> badge)</li>
@@ -2893,6 +2904,11 @@
   function setRoleState(state) {
     const h = document.getElementById('s-hub');
     if (h) { h.classList.remove('rs-dual', 'rs-single', 'rs-off'); h.classList.add('rs-' + state); }
+  }
+
+  // small active-sync for annotation toggle groups
+  function annTog(btn) {
+    if (btn) { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
   }
 
   function setBlocker(kind, btn) {
