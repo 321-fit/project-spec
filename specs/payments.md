@@ -4,7 +4,7 @@
 > Prototype (coach earnings): [flows/coach/balance.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/balance.html)
 > Prototype (athlete balance): [flows/athlete/balance.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/balance.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-05 (athlete Balance screen prototyped — spending ledger, mirror of coach Earnings)
+> Last updated: 2026-06-17 (txn ledger unified to canonical fit-ui kit across coach + athlete; athlete txn-detail screens added)
 > Implementation:
 > - iOS:     [321fit_ios/docs/payments-ios.md] (to be created)
 > - Backend: [poly-backend/docs/payments-backend.md] (to be created — includes earnings ledger migration)
@@ -105,14 +105,14 @@ This spec consolidates the previous "Payment User Flow" + "Revisited Payment Flo
 
 The athlete-side mirror of the coach **Earnings** screen, flipped from income to **spend**. Reached from **Settings → Payments → Balance** and the **Dashboard balance card** (card tap / "Top up" / "Transactions").
 
-Layout (`s-balance`):
-1. **Hero** (brand gradient) — "Available balance" + amount (e.g. €240.00) + **Top up** pill (vs coach's *Withdraw*) + "Auto top-up off" note.
-2. **This-month summary** — Spent · Topped up · Sessions count.
-3. **Transactions** — filter chips **All / Top-ups / Spent / Refunds** (client-side filter on `data-txn`) + date-grouped `.bal-txn` rows:
-   - **top-up** — teal **+** (money in) — "Top-up · Visa •• 4242"
-   - **spend** — gray **−** (money out) — "Tennis with {coach}" (session payment from balance)
-   - **refund** — blue icon, teal **+** — "Refund · {session} cancelled"
-4. Row tap → transaction detail (**TBD**).
+Layout (`s-balance`) — built on the **canonical ledger kit** shared with coach Earnings (`.fit-txn*` / `.fit-filter-chip` / `.fit-stat-strip` / `.fit-empty-state` in `fit-ui.css`; extracted 2026-06-17 — see architecture/design-system.md):
+1. **Hero** (brand gradient, role-specific `.bal-hero`) — "Available balance" + amount (e.g. €240.00) + **Top up** pill (vs coach's *Withdraw*) + "Auto top-up off" note.
+2. **This-month summary** — canonical `.fit-stat-strip`: Spent · Topped up · Sessions count.
+3. **Transactions** — `.fit-filter-chip` **All / Top-ups / Spent / Refunds** (client-side filter on `data-txn`) + date-grouped `.fit-txn` rows with intent icons:
+   - **top-up** — `--in` teal **+** (money in) — "Top-up · Visa •• 4242"
+   - **spend** — `--out` gray **−** (money out) — "Tennis with {coach}" (session payment from balance)
+   - **refund** — `--info` blue icon, teal **+** — "Refund · {session} cancelled"
+4. **Row tap → transaction detail** (`s-txn-spend` / `s-txn-topup` / `s-txn-refund`): `.fit-detail-hero` (amount + date + status badge) + `.fit-kv-group` rows — same detail grammar as the coach earning detail. Top-up detail offers **Get receipt** (PDF — TBD).
 
 **Top up** opens the Stripe PaymentSheet (Flow A). No payouts, no Stripe Connect — the athlete only ever pays in.
 
