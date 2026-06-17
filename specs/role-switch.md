@@ -72,6 +72,20 @@ PROFILE (either role) → tap role-switch chip (top-left)
 
 Copy is placeholder pending **Настя**.
 
+### 5.1 Remove / deactivate a role
+
+A user who added a second role can turn it off. Prototype: `shared/account-access.html` — **Account Access → Your roles** section + `s-role-remove` screen.
+
+- **Deactivate, not hard-delete** (v1). Coaching is turned off (unlisted from search, no new bookings) but **earnings history, reviews-received and payout details are kept** — and it's **reversible**: re-enable anytime via the role switch (profile rows are retained). True profile deletion = Delete account.
+- **Home:** Account Access (shared account screen) → **Your roles** (`.aa-row` per role, active one tagged) → tap the secondary role → `s-role-remove`. The switch chip *adds*; Account Access *manages/removes* (clean split).
+- **`s-role-remove`** — two states (reuses the delete-flow grammar; no new components):
+  - **clean** (`rr-clean`) — `.del-consequences` (kept ✓ teal / hidden 👁) + `.del-note` + **Stop coaching** (`.fit-btn-destructive`) → confirm sheet → switch to the kept role. **Reversible ⇒ single confirm, no re-auth** (unlike Delete account, which re-auths).
+  - **blocked** (`rr-blocked`) — `.del-blocker-list`: unsettled money / sessions must be resolved first (pending payout · upcoming sessions · cash owed for coach; balance · upcoming bookings for athlete), each deep-links to resolve; Stop button disabled.
+- **Edge cases:** can't remove the **last/only** role (→ Delete account); removing the **active** role auto-switches to the kept one.
+- a11y: `account.roles.<role>` (Your-roles row) + `account.role-remove.*` (back / stop / confirm).
+
+Copy is placeholder pending **Настя**.
+
 ---
 
 ## 6. Endpoints (overview)
@@ -85,6 +99,7 @@ The schema is ready; three gaps to build:
 | **Set active role** (NEW) | `PATCH /user/active-role {role}` (or similar) → sets `user.active_role_id` | No such endpoint today — `active_role_id` is only set at register/social. This is the core new endpoint. |
 | **Lazy role+profile on switch** (NEW) | if the user lacks the target role: add `user_role` row + create the profile (coach → onboarding's profile-creation path, not a parallel one), then set active | athlete = instant; coach = land in onboarding/in-review |
 | **Expose role existence** (ADDITIVE) | add `has_athlete_profile` / `has_coach_profile` (or both-profile presence) to `GET /user/me` | drives the chip + first-time-drawer gate; `active_role` is already returned |
+| **Deactivate a role** (NEW) | `DELETE /user/roles/{role}` (or `PATCH` deactivate) → drop the `user_role` row, retain the profile, auto-set `active_role_id` to the kept role | must be **gated** server-side on unsettled state (pending payout / upcoming sessions / cash owed / positive balance / upcoming bookings) → 409 with the blockers; reactivation = the lazy-add path reuses the existing profile |
 
 **Backward-compat:** additive only — `GET /user/me` already returns `active_role`; just add the existence flags. Don't retype/rename the existing role field. See [feedback_backward_compat_endpoints].
 
@@ -97,6 +112,7 @@ The schema is ready; three gaps to build:
 - **Cancellation mid-onboarding:** athlete→coach who abandons coach onboarding — is `coach_profile` left as a draft? Can they retry? (Likely: draft persists, chip still switches, onboarding resumes.)
 - **Active-role persistence:** remember last active role across app launches.
 - **Notifications/Stripe:** does a fresh coach need Stripe Connect before earning? (Yes — gate earning, not the switch.)
+- **Deactivate vs hard-delete:** v1 = soft deactivate (reversible, data kept). Decide if/when a true per-role data wipe is offered (likely only via Delete account / Support). Define exact blocker set per role for the deactivate gate.
 
 ---
 

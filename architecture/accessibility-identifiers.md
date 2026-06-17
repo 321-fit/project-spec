@@ -376,12 +376,16 @@ Has its own `coach.calsync.*` scope since it's a distinct subsystem (connects Go
 | ~~`coach.calsync.detail.make-default`~~ | ~~"Make default destination" action row~~ | ~~s-cal-detail~~ | **REMOVED 2026-06-01** — default destination is per-calendar global selector now |
 | ~~`coach.calsync.hidden-events.row` / `.unhide`~~ | ~~hidden event row + Unhide btn~~ | ~~s-cal-detail Hidden events section~~ | **REMOVED 2026-06-03** — Hidden events management section dropped (over-complex) |
 
-### `account-access` — re-auth / change-password / delete-account
+### `account-access` — re-auth / change-password / delete-account / role removal
 
 Prototype: `shared/account-access.html`
 
 | ID | Element | Screen | Notes |
 |---|---|---|---|
+| `account.roles.coach` | "Your roles" → Coach row | `s-hub` | → `s-role-remove` (manage/stop the secondary role; active role row is non-tappable) |
+| `account.role-remove.back` | back chevron | `s-role-remove` | → Account Access hub |
+| `account.role-remove.stop` | "Stop coaching" (clean state) | `s-role-remove` | opens confirm sheet (reversible deactivate — no re-auth) |
+| `account.role-remove.confirm` | "Stop coaching" in confirm sheet | `s-role-remove` | deactivates role, switches to kept role |
 
 ### `earnings` — coach balance / earnings / transactions
 
