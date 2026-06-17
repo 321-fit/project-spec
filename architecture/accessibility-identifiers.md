@@ -685,7 +685,10 @@ Spending ledger (mirror of coach Earnings). Spec: `payments.md` Flow C1.
 | `athlete.balance.back` | back chevron | `s-balance` | → settings.html |
 | `athlete.balance.topup` | "Top up" pill (hero) | `s-balance` | → Stripe top-up sheet (TBD) |
 | `athlete.balance.filters` | filter chip row | `s-balance` | All / Top-ups / Spent / Refunds |
-| `athlete.balance.txn` | a transaction row (generic) | `s-balance` | → transaction detail (TBD) |
+| `athlete.balance.txn` | a transaction row (generic) | `s-balance` | → detail by type (spend/topup/refund) |
+| `athlete.balance.txn-spend.back` | back chevron | `s-txn-spend` | session-payment detail → balance |
+| `athlete.balance.txn-topup.back` | back chevron | `s-txn-topup` | top-up detail → balance |
+| `athlete.balance.txn-refund.back` | back chevron | `s-txn-refund` | refund detail → balance |
 
 ### `search` (athlete, partial) — `athlete/search.html`
 

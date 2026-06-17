@@ -260,6 +260,7 @@ Some recurring prototype patterns are still **inline-styled per file** instead o
 
 - **Unified Inbox tabs** — the 3-way segmented tab row (Activity / To reply / Waiting) in `coach/dashboard.html#s-notifications` is inline-styled (wrapper `surface-high` `padding:3px` `radius:10px`; buttons `8px/radius:8px/13px/500`; active = `--fit-brand-gradient`; `(N)` count span). Surfaced 2026-06-11 when the self-paced Inbox mock diverged. → a `.fit-segmented-tabs` component.
 - **`.req-card`** — the inbox request-card shell (44px neutral avatar + name + sub + chevron · title · meta · action row) is inline-styled in `coach/dashboard.html`. Reused ad-hoc by self-paced (`.spq` lookalike). → a `FitRequestCard` / `.fit-request-card` component.
+- ✅ **Transaction ledger — DONE (2026-06-17).** The coach Earnings ledger (`.earn-txn*`) and athlete Balance ledger (`.bal-txn*`) were duplicate copies; extracted to canonical **`.fit-txn*`** (rows + intent icon/amt modifiers `--in/--out/--info/--danger` / `--plus/--minus`), **`.fit-filter-chip`** + **`.fit-filter-row`**, **`.fit-kv*`** + **`.fit-detail-hero`** in `fit-ui.css`. Both `coach/balance.html` and `athlete/balance.html` migrated; coach's internal `earn-filter` vs `earn-filter-chip` dupe resolved (one tint-active chip, works in both themes). Empty/section/summary also moved to existing kit (`.fit-empty-state` / `.fit-section-title--md` / `.fit-stat-strip`).
 
 ### Greenfield isolation — new modules go in new files
 
