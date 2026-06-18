@@ -95,6 +95,25 @@
   .cp-avatar-pip svg { width: 11px; height: 11px; }
 
   .cp-tile-group { display: flex; flex-direction: column; gap: 8px; padding: 0 16px; margin-bottom: 28px; }
+
+  /* Training history (aggregate across all coaches) — mirrors the coach-detail history row + adds the coach */
+  .th-month { padding: 18px 16px 6px; font-size: 13px; font-weight: 500; color: var(--fit-text-tertiary); }
+  .th-row { display: flex; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--fit-divider); }
+  .th-row:last-child { border-bottom: none; }
+  .th-body { flex: 1; min-width: 0; }
+  .th-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 3px; }
+  .th-name { font-size: 14px; font-weight: 500; color: var(--fit-text-primary); }
+  .th-price { font-size: 14px; font-weight: 500; flex-shrink: 0; color: var(--fit-teal-500); }
+  .th-price.owed { color: var(--fit-yellow-600); }
+  .th-price.refunded { color: var(--fit-text-tertiary); text-decoration: line-through; }
+  .th-meta { font-size: 12px; color: var(--fit-text-tertiary); }
+  .th-meta strong { color: var(--fit-text-secondary); font-weight: 500; }
+  .th-status { font-size: 12px; margin-top: 4px; display: inline-flex; align-items: center; gap: 4px; }
+  .th-status.rated { color: var(--fit-yellow-400); }
+  .th-status.owed { color: var(--fit-yellow-600); }
+  .th-status.cancelled { color: var(--fit-red-400); }
+  .th-status.none { color: var(--fit-text-tertiary); }
+  .th-status .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 </style>
 </head>
 <body>
@@ -109,6 +128,7 @@
     
   <div class="label">Profile</div>
   <button class="active" onclick="go('s-profile',this);setPfState('default')">Profile</button>
+  <button onclick="go('s-training-history',this)">Training history</button>
   <div class="label">States</div>
   <button onclick="go('s-profile',this);setPfState('default',this)">Default</button>
   <button onclick="go('s-profile',this);setPfState('new',this)">New (no sessions)</button>
@@ -204,7 +224,7 @@
 
       <!-- ============ MANAGEMENT TILES — links to profile content + settings sub-modules ============ -->
       <div class="cp-tile-group">
-        <button class="fit-stat-tile" data-a11y-id="athlete.profile.tile.history" onclick="alert('Training history — TBD (all coaches, history-row pattern)')">
+        <button class="fit-stat-tile" data-a11y-id="athlete.profile.tile.history" onclick="go('s-training-history',null)">
           <span class="fit-icon-plate fit-icon-plate--neutral fit-icon-plate--md" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
           </span>
@@ -367,6 +387,79 @@
   </div>
 </div>
 
+<!-- ==================== TRAINING HISTORY (all coaches) ==================== -->
+<div class="fit-phone fit-light" id="s-training-history">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="athlete.training-history.back" onclick="go('s-profile',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Training history</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+    <!-- aggregate summary (canonical stat strip, mirrors Profile) -->
+    <div class="fit-stat-strip" style="margin-top:8px;">
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">28</div><div class="fit-stat-strip-label">Sessions</div></div>
+      <div class="fit-stat-strip-divider"></div>
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">31h</div><div class="fit-stat-strip-label">Hours</div></div>
+      <div class="fit-stat-strip-divider"></div>
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value fit-stat-strip-value--accent">9</div><div class="fit-stat-strip-label">This month</div></div>
+    </div>
+
+    <div class="th-month">April 2026</div>
+    <div class="th-row">
+      <div class="fit-avatar fit-avatar-sm">MR</div>
+      <div class="th-body">
+        <div class="th-top"><span class="th-name">Tennis Training</span><span class="th-price">&euro;25</span></div>
+        <div class="th-meta"><strong>Maria Rodriguez</strong> &middot; Mon, Apr 21 &middot; TNT Studio</div>
+        <span class="th-status rated"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>You rated 5.0</span>
+      </div>
+    </div>
+    <div class="th-row">
+      <div class="fit-avatar fit-avatar-sm">PS</div>
+      <div class="th-body">
+        <div class="th-top"><span class="th-name">Boxing</span><span class="th-price owed">&euro;30</span></div>
+        <div class="th-meta"><strong>Pavel S.</strong> &middot; Sun, Apr 20 &middot; GYM Bro</div>
+        <span class="th-status owed"><span class="dot"></span>Owed &middot; cash &middot; pay in person</span>
+      </div>
+    </div>
+    <div class="th-row">
+      <div class="fit-avatar fit-avatar-sm">AK</div>
+      <div class="th-body">
+        <div class="th-top"><span class="th-name">Yoga</span><span class="th-price refunded">&euro;20</span></div>
+        <div class="th-meta"><strong>Anna K.</strong> &middot; Thu, Apr 17 &middot; Online</div>
+        <span class="th-status cancelled">Cancelled &middot; refunded</span>
+      </div>
+    </div>
+
+    <div class="th-month">March 2026</div>
+    <div class="th-row">
+      <div class="fit-avatar fit-avatar-sm">MR</div>
+      <div class="th-body">
+        <div class="th-top"><span class="th-name">Tennis Training</span><span class="th-price">&euro;25</span></div>
+        <div class="th-meta"><strong>Maria Rodriguez</strong> &middot; Fri, Mar 14 &middot; TNT Studio</div>
+        <span class="th-status none">Not rated</span>
+      </div>
+    </div>
+    <div class="th-row">
+      <div class="fit-avatar fit-avatar-sm">PS</div>
+      <div class="th-body">
+        <div class="th-top"><span class="th-name">Boxing</span><span class="th-price">&euro;30</span></div>
+        <div class="th-meta"><strong>Pavel S.</strong> &middot; Sat, Mar 8 &middot; GYM Bro</div>
+        <span class="th-status rated"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>You rated 4.0</span>
+      </div>
+    </div>
+    <div class="th-row">
+      <div class="fit-avatar fit-avatar-sm">MR</div>
+      <div class="th-body">
+        <div class="th-top"><span class="th-name">Padel Training</span><span class="th-price">&euro;25</span></div>
+        <div class="th-meta"><strong>Maria Rodriguez</strong> &middot; Sun, Mar 2 &middot; Padel Arena</div>
+        <span class="th-status rated"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>You rated 5.0</span>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
   <div class="ann active" id="ann-s-profile"><span class="ann-role athlete">Athlete</span><h3>Profile (tab 5)</h3>
@@ -386,7 +479,7 @@
       <li><strong>My reviews</strong> — reviews the athlete left to coaches (coach name + stars + text).</li>
     </ul>
     <hr>
-    <p class="note">Everything theme-adaptive (light default for athlete). Settings gear → settings.html. Personal Data + Training history screens still TBD (stubbed). Achievements deferred to Phase 2.</p>
+    <p class="note">Everything theme-adaptive (light default for athlete). Settings gear → settings.html. <strong>Training history</strong> tile → <code>s-training-history</code> (built). Personal Data screen still TBD (stubbed). Achievements deferred to Phase 2.</p>
     <hr>
     <h3 style="margin-top:0;">Role switch — first time</h3>
     <div class="state-toggle">
@@ -402,6 +495,16 @@
       <li><strong>Backend reality:</strong> registration already creates only <code>athlete_profile</code> — the second role is created lazily on confirm (not both-by-default).</li>
     </ul>
     <p class="note">Switcher + sheet shown here on the athlete profile (athlete→coach is the meaningful path). Mirror to <code>coach/profile.html</code> for coach→athlete once approved.</p>
+  </div>
+
+  <div class="ann" id="ann-s-training-history"><span class="ann-role athlete">Athlete</span><h3>Training history (all coaches)</h3>
+    <p>Pushed from the Profile <strong>Training history</strong> tile. The athlete's full chronological log across <strong>all</strong> coaches — same row grammar as the per-coach history in Coach detail (<code>my-coaches.html#s-coach-history</code>), <strong>plus the coach</strong> on every row (avatar + name) since this aggregates everyone.</p>
+    <ul>
+      <li>Top: canonical <code>.fit-stat-strip</code> (Sessions · Hours · This month) — mirrors the Profile strip.</li>
+      <li>Grouped by month; each row = coach avatar + training name + price + <strong>coach · date · location</strong> + status.</li>
+      <li>Status / price colour reuse the coach-history semantics: <span style="color:var(--fit-yellow-400)">rated</span>, <span style="color:var(--fit-yellow-600)">owed (cash)</span>, <span style="color:var(--fit-red-400)">cancelled · refunded</span>, paid (teal), Not rated (muted).</li>
+    </ul>
+    <p class="note">Per-coach history still lives in Coach detail (My coaches); this is the aggregate "my training" view. Reuses <code>.fit-avatar-sm</code> + <code>.fit-stat-strip</code>; rows are local <code>.th-*</code> (mirror of the inline coach-history rows).</p>
   </div>
 </div>
 

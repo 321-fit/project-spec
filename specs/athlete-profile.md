@@ -3,7 +3,7 @@
 > Status: Draft
 > Prototype: [flows/athlete/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/profile.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-17
+> Last updated: 2026-06-18
 > Implementation:
 > - iOS:     [321fit_ios/docs/athlete-profile-ios.md] (to be created)
 > - Android: [321fit_android/docs/athlete-profile-android.md] (to be created)
@@ -50,7 +50,7 @@ Layout, top → bottom:
 4. **My sports** (`.cp-section` + `.cp-section-head--tap` pencil) → Sport Types; green `.fit-sport-chip`s with the canonical sport icon set.
 5. **About me** (`.cp-section` + pencil) → Personal Data; `.fit-profile-bio` + "See more".
 6. **Management tiles** (`.cp-tile-group` of `.fit-stat-tile`):
-   - Training history (`28 sessions · 31h`) → history screen (TBD)
+   - Training history (`28 sessions · 31h`) → **`s-training-history`** (aggregate across all coaches)
    - My coaches (`4 active`) → [my-coaches.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/my-coaches.html)
    - Calendar sync (`Google connected`) → [calendar-sync.md](./calendar-sync.md)
    - Balance (`€240.00 available`) → [athlete Balance](./payments.md) (`balance.html`)
@@ -72,7 +72,7 @@ Identity stays visible in every state; only the content below swaps.
 - Gear → `settings.html` (push; no navbar on Settings per `feedback_navbar_visibility`).
 - Identity / About pencil → Personal Data editor (athlete variant — body metrics, no video; **TBD**, currently stubbed).
 - My sports pencil → Sport Types (shared `sport-types.html`).
-- Tiles → respective screens (history TBD, my-coaches, calendar-sync, balance).
+- Tiles → respective screens (training-history, my-coaches, calendar-sync, balance).
 - Tab bar → the 5 athlete tabs (Dashboard / My Coaches / ✨Assistant / Calendar / Profile). See [navigation.md](./navigation.md), memory `project_athlete_tabs`.
 
 ---
@@ -122,7 +122,7 @@ The **This month** metric is a simple count over training-events (no streak stat
 
 - [x] **Streak replaced by "This month"** (resolved 2026-06-17) — a streak read ambiguously ("3 wk"?) and is demotivating for a paid 1–3×/week format (one missed week → 0). "This month" = completed sessions in the current calendar month: self-explanatory, momentum without punishment. A streak (calendar **heatmap**) may return on the **Training history** screen in Phase 2, where it explains itself visually.
 - [ ] **Athlete Personal Data editor** — athlete variant (avatar, name, gender, DOB, height, weight, languages; **no** intro video/cover). Currently stubbed; see [personal-data.md § 10](./personal-data.md).
-- [ ] **Training history screen** — full list (all coaches) reusing the history-row pattern; currently a stub tile.
+- [x] **Training history screen** (built 2026-06-18) — `s-training-history`: aggregate log across **all** coaches, month-grouped, each row shows the **coach** (avatar + name) + training + price + date/location + status. Same row grammar as the per-coach history in Coach detail (`my-coaches.html#s-coach-history`) + the coach. Tops with the canonical `.fit-stat-strip`. Backend: feeds from the same training-events history as the aggregate stats (§6) — needs coach name/avatar + per-session status/price/rating; confirm fields before tasking.
 - [ ] **Achievements / badges** — deferred to Phase 2.
 
 ---
@@ -131,6 +131,7 @@ The **This month** metric is a simple count over training-events (no streak stat
 
 - **2026-06-05** — Athlete Profile built as a **trimmed mirror** of the coach Profile (`.cp-*` grammar reused), dropping video hero, maturity, reviews-received and price. Stat strip = Sessions/Hours/Streak. Tiles repurposed to history/coaches/calendar-sync/balance (links into content + Settings). Memory: `project_athlete_profile_plan`, `project_athlete_prototype_status`.
 - **2026-06-05** — Sport chips use the canonical **sport icon set** (not emoji). Everything theme-adaptive.
+- **2026-06-18** — **Training history screen built** (`s-training-history`) — aggregate across all coaches, coach shown per row; mirrors coach-detail history grammar + `.fit-stat-strip` + `.fit-avatar-sm`. Tile no longer a stub.
 - **2026-06-17** — Stat strip third slot **Streak → "This month"**. Streak was ambiguous + fragile for our paid 1–3×/week cadence; "This month" (completed sessions this calendar month) is obvious and motivating without the reset penalty. Streak-as-heatmap deferred to Training history (Phase 2). Prototype + spec updated.
 
 ---

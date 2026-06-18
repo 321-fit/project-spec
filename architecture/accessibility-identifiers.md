@@ -647,7 +647,8 @@ Trimmed mirror of coach Profile (`.cp-*` grammar; no video hero). Spec: `athlete
 | `athlete.profile.identity` | identity row (avatar + name + location) | `s-profile` | → Personal Data (TBD) |
 | `athlete.profile.sports.edit` | "My sports" head + pencil | `s-profile` | → sport-types.html |
 | `athlete.profile.about.edit` | "About me" head + pencil | `s-profile` | → Personal Data (TBD) |
-| `athlete.profile.tile.history` | Training-history tile | `s-profile` | aggregate across all coaches (TBD) |
+| `athlete.profile.tile.history` | Training-history tile | `s-profile` | → `s-training-history` (aggregate, all coaches) |
+| `athlete.training-history.back` | back chevron | `s-training-history` | → profile |
 | `athlete.profile.tile.coaches` | My-coaches tile | `s-profile` | → my-coaches.html |
 | `athlete.profile.tile.calendar-sync` | Calendar-sync tile | `s-profile` | → calendar-sync.html |
 | `athlete.profile.tile.balance` | Balance tile | `s-profile` | → balance.html |
