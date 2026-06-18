@@ -154,13 +154,11 @@ Agent sends speech-to-text for both user and agent to the iOS app:
 
 Prototype: `flows/shared/voice-assistant.html`. The assistant screen is a **chat canvas**: transcript bubbles + inline **rich blocks** rendered from the agent's data-channel messages, all **reusing existing components**. The user can act by **voice OR by tapping** a block.
 
-Rich blocks (each maps to a data-channel `type`, see contract below):
-- **Coach cards** carousel (reuse Search `coach-card`) — from search results.
-- **Slot chips** — tap a time instead of dictating it.
-- **Follow-up options** (selection rows / chips) — when the agent needs a decision (pay cash vs balance, which sport, which coach).
-- **Booking confirm** card (reuse the booking-confirm card) with Confirm / Edit.
-- **Reschedule preview** + **success** card ("View in calendar").
-- **Nav hint** — agent points to a screen (it has `app_ui_map.md`).
+**Two perspectives** (viewer toggle; placed in each role's **Core Modules** in the hub — athlete = center ✨ tab, coach = its own tab; athlete default light, coach dark):
+- **Athlete view** — books with coaches: **coach cards** carousel (reuse Search `coach-card`) · **slot chips** · **follow-up options** (pay cash/balance, which sport) · **booking confirm** card (reuse) · reschedule preview · success · nav hint.
+- **Coach view** — manages: **pending requests** (athlete + session + Accept/Decline) · **athlete cards** (his clients) · **create-for-athlete confirm** (`training_event_preview`, also emitted coach-side) · success · nav hint.
+
+Shared across both: booking/create confirm, success, typing, control bar.
 
 Control bar states: **idle** (tap to talk) · **listening** (waveform, barge-in) · **thinking** (spinner) · **speaking** (tap to interrupt — RPC `interrupt`) · **text** (typed input). Welcome/idle (example prompts) + connection-error screen states.
 
@@ -177,7 +175,9 @@ Typed JSON over the LiveKit data channel (`{ "type": ..., "data": ... }`).
 | `training_event_update_preview` | ✅ emitted | reschedule confirm card |
 | `training_event_created` / `_updated` | ✅ emitted | success card |
 | `lk.transcription` | ✅ emitted | chat bubbles (both sides) |
-| `coach_results` | ⏳ **to add** (voice_control) | coach-card carousel |
+| `coach_results` | ⏳ **to add** (voice_control) | coach-card carousel (athlete view) |
+| `athlete_results` | ⏳ **to add** | athlete-card carousel (coach view — his clients) |
+| `pending_events` | ⏳ **to add** | pending-request cards w/ Accept/Decline (coach view) |
 | `slots` | ⏳ **to add** | slot chips |
 | `followup_options` | ⏳ **to add** | options rows / chips |
 | `navigate` | ⏳ optional | nav hint (uses `app_ui_map.md`) |
