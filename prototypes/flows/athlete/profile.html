@@ -114,6 +114,15 @@
   .th-status.cancelled { color: var(--fit-red-400); }
   .th-status.none { color: var(--fit-text-tertiary); }
   .th-status .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  /* Training-history states: default (data) / year (reveals older months) / empty / loading */
+  #s-training-history [data-ths] { display: none; }
+  #s-training-history.ths-default [data-ths="data"],
+  #s-training-history.ths-year [data-ths="data"] { display: block; }
+  #s-training-history.ths-year [data-ths="older"] { display: block; }
+  #s-training-history.ths-empty [data-ths="empty"] { display: block; }
+  #s-training-history.ths-loading [data-ths="loading"] { display: block; }
+  .th-year { padding: 22px 16px 2px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--fit-text-tertiary); }
+  .th-loadmore { display: block; width: calc(100% - 32px); margin: 16px; padding: 11px; border-radius: 99px; border: 1px solid var(--fit-divider); background: transparent; color: var(--fit-text-secondary); font-family: var(--fit-font); font-size: 14px; font-weight: 500; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -129,6 +138,9 @@
   <div class="label">Profile</div>
   <button class="active" onclick="go('s-profile',this);setPfState('default')">Profile</button>
   <button onclick="go('s-training-history',this)">Training history</button>
+  <button onclick="go('s-training-history',this);setThState('year')">· Full year (lots)</button>
+  <button onclick="go('s-training-history',this);setThState('empty')">· History empty</button>
+  <button onclick="go('s-training-history',this);setThState('loading')">· History loading</button>
   <div class="label">States</div>
   <button onclick="go('s-profile',this);setPfState('default',this)">Default</button>
   <button onclick="go('s-profile',this);setPfState('new',this)">New (no sessions)</button>
@@ -388,7 +400,7 @@
 </div>
 
 <!-- ==================== TRAINING HISTORY (all coaches) ==================== -->
-<div class="fit-phone fit-light" id="s-training-history">
+<div class="fit-phone fit-light ths-default" id="s-training-history">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -397,66 +409,112 @@
     </div>
   </div>
   <div class="fit-phone-content" style="padding-bottom:24px;">
-    <!-- aggregate summary (canonical stat strip, mirrors Profile) -->
-    <div class="fit-stat-strip" style="margin-top:8px;">
-      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">28</div><div class="fit-stat-strip-label">Sessions</div></div>
-      <div class="fit-stat-strip-divider"></div>
-      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">31h</div><div class="fit-stat-strip-label">Hours</div></div>
-      <div class="fit-stat-strip-divider"></div>
-      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value fit-stat-strip-value--accent">9</div><div class="fit-stat-strip-label">This month</div></div>
+
+    <!-- ============ DATA (default + year share this; 'year' reveals older months) ============ -->
+    <div data-ths="data">
+      <div class="fit-stat-strip" style="margin-top:8px;">
+        <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">28</div><div class="fit-stat-strip-label">Sessions</div></div>
+        <div class="fit-stat-strip-divider"></div>
+        <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">31h</div><div class="fit-stat-strip-label">Hours</div></div>
+        <div class="fit-stat-strip-divider"></div>
+        <div class="fit-stat-strip-col"><div class="fit-stat-strip-value fit-stat-strip-value--accent">9</div><div class="fit-stat-strip-label">This month</div></div>
+      </div>
+
+      <div class="th-month">April 2026</div>
+      <div class="th-row">
+        <div class="fit-avatar fit-avatar-sm">MR</div>
+        <div class="th-body">
+          <div class="th-top"><span class="th-name">Tennis Training</span><span class="th-price">&euro;25</span></div>
+          <div class="th-meta"><strong>Maria Rodriguez</strong> &middot; Mon, Apr 21 &middot; TNT Studio</div>
+          <span class="th-status rated"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>You rated 5.0</span>
+        </div>
+      </div>
+      <div class="th-row">
+        <div class="fit-avatar fit-avatar-sm">PS</div>
+        <div class="th-body">
+          <div class="th-top"><span class="th-name">Boxing</span><span class="th-price owed">&euro;30</span></div>
+          <div class="th-meta"><strong>Pavel S.</strong> &middot; Sun, Apr 20 &middot; GYM Bro</div>
+          <span class="th-status owed"><span class="dot"></span>Owed &middot; cash &middot; pay in person</span>
+        </div>
+      </div>
+      <div class="th-row">
+        <div class="fit-avatar fit-avatar-sm">AK</div>
+        <div class="th-body">
+          <div class="th-top"><span class="th-name">Yoga</span><span class="th-price refunded">&euro;20</span></div>
+          <div class="th-meta"><strong>Anna K.</strong> &middot; Thu, Apr 17 &middot; Online</div>
+          <span class="th-status cancelled">Cancelled &middot; refunded</span>
+        </div>
+      </div>
+
+      <div class="th-month">March 2026</div>
+      <div class="th-row">
+        <div class="fit-avatar fit-avatar-sm">MR</div>
+        <div class="th-body">
+          <div class="th-top"><span class="th-name">Tennis Training</span><span class="th-price">&euro;25</span></div>
+          <div class="th-meta"><strong>Maria Rodriguez</strong> &middot; Fri, Mar 14 &middot; TNT Studio</div>
+          <span class="th-status none">Not rated</span>
+        </div>
+      </div>
+      <div class="th-row">
+        <div class="fit-avatar fit-avatar-sm">PS</div>
+        <div class="th-body">
+          <div class="th-top"><span class="th-name">Boxing</span><span class="th-price">&euro;30</span></div>
+          <div class="th-meta"><strong>Pavel S.</strong> &middot; Sat, Mar 8 &middot; GYM Bro</div>
+          <span class="th-status rated"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>You rated 4.0</span>
+        </div>
+      </div>
+      <div class="th-row">
+        <div class="fit-avatar fit-avatar-sm">MR</div>
+        <div class="th-body">
+          <div class="th-top"><span class="th-name">Padel Training</span><span class="th-price">&euro;25</span></div>
+          <div class="th-meta"><strong>Maria Rodriguez</strong> &middot; Sun, Mar 2 &middot; Padel Arena</div>
+          <span class="th-status rated"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>You rated 5.0</span>
+        </div>
+      </div>
+
+      <!-- older months — revealed in the 'year / lots of data' state; months hold across the year, year divider on cross -->
+      <div data-ths="older">
+        <div class="th-month">February 2026</div>
+        <div class="th-row"><div class="fit-avatar fit-avatar-sm">MR</div><div class="th-body"><div class="th-top"><span class="th-name">Tennis Training</span><span class="th-price">&euro;25</span></div><div class="th-meta"><strong>Maria Rodriguez</strong> &middot; Wed, Feb 19 &middot; TNT Studio</div><span class="th-status rated"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>You rated 5.0</span></div></div>
+        <div class="th-row"><div class="fit-avatar fit-avatar-sm">AK</div><div class="th-body"><div class="th-top"><span class="th-name">Yoga</span><span class="th-price">&euro;20</span></div><div class="th-meta"><strong>Anna K.</strong> &middot; Mon, Feb 3 &middot; Online</div><span class="th-status none">Not rated</span></div></div>
+        <div class="th-month">January 2026</div>
+        <div class="th-row"><div class="fit-avatar fit-avatar-sm">PS</div><div class="th-body"><div class="th-top"><span class="th-name">Boxing</span><span class="th-price">&euro;30</span></div><div class="th-meta"><strong>Pavel S.</strong> &middot; Tue, Jan 21 &middot; GYM Bro</div><span class="th-status rated"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>You rated 4.0</span></div></div>
+        <div class="th-row"><div class="fit-avatar fit-avatar-sm">MR</div><div class="th-body"><div class="th-top"><span class="th-name">Tennis Training</span><span class="th-price">&euro;25</span></div><div class="th-meta"><strong>Maria Rodriguez</strong> &middot; Thu, Jan 9 &middot; TNT Studio</div><span class="th-status rated"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>You rated 5.0</span></div></div>
+        <div class="th-year">2025</div>
+        <div class="th-month">December 2025</div>
+        <div class="th-row"><div class="fit-avatar fit-avatar-sm">PS</div><div class="th-body"><div class="th-top"><span class="th-name">Boxing</span><span class="th-price">&euro;30</span></div><div class="th-meta"><strong>Pavel S.</strong> &middot; Sat, Dec 13 &middot; GYM Bro</div><span class="th-status rated"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>You rated 5.0</span></div></div>
+        <div class="th-row"><div class="fit-avatar fit-avatar-sm">MR</div><div class="th-body"><div class="th-top"><span class="th-name">Padel Training</span><span class="th-price">&euro;25</span></div><div class="th-meta"><strong>Maria Rodriguez</strong> &middot; Mon, Dec 1 &middot; Padel Arena</div><span class="th-status rated"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>You rated 4.0</span></div></div>
+        <!-- pagination: backend paginates; client lazy-loads (or Load more) -->
+        <button class="th-loadmore" onclick="alert('Load older sessions (pagination / lazy-load on scroll)')">Load older sessions</button>
+      </div>
     </div>
 
-    <div class="th-month">April 2026</div>
-    <div class="th-row">
-      <div class="fit-avatar fit-avatar-sm">MR</div>
-      <div class="th-body">
-        <div class="th-top"><span class="th-name">Tennis Training</span><span class="th-price">&euro;25</span></div>
-        <div class="th-meta"><strong>Maria Rodriguez</strong> &middot; Mon, Apr 21 &middot; TNT Studio</div>
-        <span class="th-status rated"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>You rated 5.0</span>
+    <!-- ============ EMPTY (no completed sessions yet) ============ -->
+    <div data-ths="empty">
+      <div class="fit-stat-strip" style="margin-top:8px;">
+        <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">0</div><div class="fit-stat-strip-label">Sessions</div></div>
+        <div class="fit-stat-strip-divider"></div>
+        <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">0h</div><div class="fit-stat-strip-label">Hours</div></div>
+        <div class="fit-stat-strip-divider"></div>
+        <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">0</div><div class="fit-stat-strip-label">This month</div></div>
       </div>
-    </div>
-    <div class="th-row">
-      <div class="fit-avatar fit-avatar-sm">PS</div>
-      <div class="th-body">
-        <div class="th-top"><span class="th-name">Boxing</span><span class="th-price owed">&euro;30</span></div>
-        <div class="th-meta"><strong>Pavel S.</strong> &middot; Sun, Apr 20 &middot; GYM Bro</div>
-        <span class="th-status owed"><span class="dot"></span>Owed &middot; cash &middot; pay in person</span>
-      </div>
-    </div>
-    <div class="th-row">
-      <div class="fit-avatar fit-avatar-sm">AK</div>
-      <div class="th-body">
-        <div class="th-top"><span class="th-name">Yoga</span><span class="th-price refunded">&euro;20</span></div>
-        <div class="th-meta"><strong>Anna K.</strong> &middot; Thu, Apr 17 &middot; Online</div>
-        <span class="th-status cancelled">Cancelled &middot; refunded</span>
+      <div class="fit-empty-state" style="display:block;padding-top:40px;text-align:center;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:52px;height:52px;color:var(--fit-gray-400);margin-bottom:14px;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        <div class="fit-empty-state-title">No sessions yet</div>
+        <div class="fit-empty-state-sub">Completed trainings with your coaches<br>will show up here.</div>
+        <button class="fit-btn fit-btn-primary" style="margin:18px auto 0;width:auto;padding:0 22px;height:44px;" onclick="window.location.href='my-coaches.html'">Find a coach</button>
       </div>
     </div>
 
-    <div class="th-month">March 2026</div>
-    <div class="th-row">
-      <div class="fit-avatar fit-avatar-sm">MR</div>
-      <div class="th-body">
-        <div class="th-top"><span class="th-name">Tennis Training</span><span class="th-price">&euro;25</span></div>
-        <div class="th-meta"><strong>Maria Rodriguez</strong> &middot; Fri, Mar 14 &middot; TNT Studio</div>
-        <span class="th-status none">Not rated</span>
-      </div>
+    <!-- ============ LOADING ============ -->
+    <div data-ths="loading">
+      <div style="margin:8px 16px 4px;"><div class="sk-card sk-shimmer" style="height:64px;border-radius:12px;"></div></div>
+      <div style="padding:18px 16px 8px;"><div class="sk-card sk-shimmer" style="width:100px;height:14px;border-radius:7px;"></div></div>
+      <div class="th-row"><div class="sk-card sk-shimmer" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div><div class="th-body"><div class="sk-card sk-shimmer" style="width:60%;height:14px;border-radius:7px;margin-bottom:7px;"></div><div class="sk-card sk-shimmer" style="width:80%;height:11px;border-radius:6px;"></div></div></div>
+      <div class="th-row"><div class="sk-card sk-shimmer" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div><div class="th-body"><div class="sk-card sk-shimmer" style="width:50%;height:14px;border-radius:7px;margin-bottom:7px;"></div><div class="sk-card sk-shimmer" style="width:72%;height:11px;border-radius:6px;"></div></div></div>
+      <div class="th-row"><div class="sk-card sk-shimmer" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div><div class="th-body"><div class="sk-card sk-shimmer" style="width:65%;height:14px;border-radius:7px;margin-bottom:7px;"></div><div class="sk-card sk-shimmer" style="width:68%;height:11px;border-radius:6px;"></div></div></div>
     </div>
-    <div class="th-row">
-      <div class="fit-avatar fit-avatar-sm">PS</div>
-      <div class="th-body">
-        <div class="th-top"><span class="th-name">Boxing</span><span class="th-price">&euro;30</span></div>
-        <div class="th-meta"><strong>Pavel S.</strong> &middot; Sat, Mar 8 &middot; GYM Bro</div>
-        <span class="th-status rated"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>You rated 4.0</span>
-      </div>
-    </div>
-    <div class="th-row">
-      <div class="fit-avatar fit-avatar-sm">MR</div>
-      <div class="th-body">
-        <div class="th-top"><span class="th-name">Padel Training</span><span class="th-price">&euro;25</span></div>
-        <div class="th-meta"><strong>Maria Rodriguez</strong> &middot; Sun, Mar 2 &middot; Padel Arena</div>
-        <span class="th-status rated"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>You rated 5.0</span>
-      </div>
-    </div>
+
   </div>
 </div>
 
@@ -497,14 +555,22 @@
     <p class="note">Switcher + sheet shown here on the athlete profile (athlete→coach is the meaningful path). Mirror to <code>coach/profile.html</code> for coach→athlete once approved.</p>
   </div>
 
-  <div class="ann" id="ann-s-training-history"><span class="ann-role athlete">Athlete</span><h3>Training history (all coaches)</h3>
+  <div class="ann" id="ann-s-training-history"><span class="ann-role athlete">Athlete</span>
+    <div class="state-toggle">
+      <button class="active" onclick="setThState('default',this)">Default</button>
+      <button onclick="setThState('year',this)">Full year</button>
+      <button onclick="setThState('empty',this)">Empty</button>
+      <button onclick="setThState('loading',this)">Loading</button>
+    </div>
+    <h3>Training history (all coaches)</h3>
     <p>Pushed from the Profile <strong>Training history</strong> tile. The athlete's full chronological log across <strong>all</strong> coaches — same row grammar as the per-coach history in Coach detail (<code>my-coaches.html#s-coach-history</code>), <strong>plus the coach</strong> on every row (avatar + name) since this aggregates everyone.</p>
     <ul>
       <li>Top: canonical <code>.fit-stat-strip</code> (Sessions · Hours · This month) — mirrors the Profile strip.</li>
       <li>Grouped by month; each row = coach avatar + training name + price + <strong>coach · date · location</strong> + status.</li>
       <li>Status / price colour reuse the coach-history semantics: <span style="color:var(--fit-yellow-400)">rated</span>, <span style="color:var(--fit-yellow-600)">owed (cash)</span>, <span style="color:var(--fit-red-400)">cancelled · refunded</span>, paid (teal), Not rated (muted).</li>
     </ul>
-    <p class="note">Per-coach history still lives in Coach detail (My coaches); this is the aggregate "my training" view. Reuses <code>.fit-avatar-sm</code> + <code>.fit-stat-strip</code>; rows are local <code>.th-*</code> (mirror of the inline coach-history rows).</p>
+    <p><strong>States:</strong> Default (recent) · <strong>Full year</strong> (reveals older months — months hold across the year, a <code>.th-year</code> divider on year cross, ends with a <strong>Load older</strong> button = pagination/lazy-load) · <strong>Empty</strong> (zeroed strip + <code>.fit-empty-state</code> + "Find a coach" → My coaches) · <strong>Loading</strong> (<code>.sk-card.sk-shimmer</code> strip + rows).</p>
+    <p class="note">Per-coach history still lives in Coach detail (My coaches); this is the aggregate "my training" view. Reuses <code>.fit-avatar-sm</code> / <code>.fit-stat-strip</code> / <code>.fit-empty-state</code> / <code>.sk-*</code>; rows local <code>.th-*</code>. Backend paginates (long histories load on scroll / Load more).</p>
   </div>
 </div>
 
@@ -535,6 +601,14 @@ function go(id, btn) {
   const ann = document.getElementById('ann-' + id);
   if (ann) ann.classList.add('active');
   if (window.FitUI) FitUI.initAll(document.getElementById(id));
+}
+
+function setThState(state, btn) {
+  var el = document.getElementById('s-training-history');
+  if (!el) return;
+  el.classList.remove('ths-default', 'ths-year', 'ths-empty', 'ths-loading');
+  el.classList.add('ths-' + state);
+  if (btn) { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
 }
 function setPfState(s, btn) {
   var el = document.getElementById('s-profile');
