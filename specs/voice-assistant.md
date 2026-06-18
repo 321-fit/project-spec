@@ -1,6 +1,7 @@
 # Voice Assistant
 
-> Last updated: 2026-04-02
+> Last updated: 2026-06-18
+> Prototype (Phase 4 redesign): [flows/shared/voice-assistant.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/voice-assistant.html)
 
 ## Overview
 AI-powered voice interface integrated into the iOS app via LiveKit WebRTC. Users can manage training sessions, schedules, and bookings by voice. The assistant understands context (user role, history, connections) and has 40 function tools to interact with the backend.
@@ -148,6 +149,40 @@ Agent sends speech-to-text for both user and agent to the iOS app:
 - Topic: `lk.transcription` via LiveKit data messages
 - Displayed in chat UI as message bubbles
 - Enables text transcript of voice conversation
+
+## UI — conversational canvas (Phase 4 redesign)
+
+Prototype: `flows/shared/voice-assistant.html`. The assistant screen is a **chat canvas**: transcript bubbles + inline **rich blocks** rendered from the agent's data-channel messages, all **reusing existing components**. The user can act by **voice OR by tapping** a block.
+
+Rich blocks (each maps to a data-channel `type`, see contract below):
+- **Coach cards** carousel (reuse Search `coach-card`) — from search results.
+- **Slot chips** — tap a time instead of dictating it.
+- **Follow-up options** (selection rows / chips) — when the agent needs a decision (pay cash vs balance, which sport, which coach).
+- **Booking confirm** card (reuse the booking-confirm card) with Confirm / Edit.
+- **Reschedule preview** + **success** card ("View in calendar").
+- **Nav hint** — agent points to a screen (it has `app_ui_map.md`).
+
+Control bar states: **idle** (tap to talk) · **listening** (waveform, barge-in) · **thinking** (spinner) · **speaking** (tap to interrupt — RPC `interrupt`) · **text** (typed input). Welcome/idle (example prompts) + connection-error screen states.
+
+> **Tap → confirm — open decision.** Today the iOS preview card is **read-only**; confirmation is **voice-driven** (user says "confirm" → `athlete_confirm_training` → backend). The redesign adds a tap **Confirm**; route it either via an **agent RPC** (keeps the conversation coherent; agent owns the child-JWT session) or **app→backend direct** (the preview already carries all IDs). To decide.
+
+## Data-channel message contract (agent → app)
+
+Typed JSON over the LiveKit data channel (`{ "type": ..., "data": ... }`).
+
+| `type` | Status | Renders |
+|---|---|---|
+| `agent_status` | ✅ emitted | typing / idle indicator |
+| `training_event_preview` | ✅ emitted | booking confirm card |
+| `training_event_update_preview` | ✅ emitted | reschedule confirm card |
+| `training_event_created` / `_updated` | ✅ emitted | success card |
+| `lk.transcription` | ✅ emitted | chat bubbles (both sides) |
+| `coach_results` | ⏳ **to add** (voice_control) | coach-card carousel |
+| `slots` | ⏳ **to add** | slot chips |
+| `followup_options` | ⏳ **to add** | options rows / chips |
+| `navigate` | ⏳ optional | nav hint (uses `app_ui_map.md`) |
+
+Booking / reschedule / success / typing are already pushed server-side — the app just needs to **render** them. The three NEW types (`coach_results` / `slots` / `followup_options`) need adding in `voice_control` (agent `send_data`) + rendering on iOS/Android.
 
 ## Agent Context
 

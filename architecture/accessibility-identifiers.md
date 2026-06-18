@@ -720,12 +720,17 @@ Prototype: not yet (dev-only feature in iOS app)
 | ID | Element | Screen | Notes |
 |---|---|---|---|
 
-### `voice` — voice assistant FAB + sheet
+### `assistant` — voice assistant (conversational canvas)
 
-Prototype: not yet built (deferred per `project_voice_assistant`)
+Prototype: `shared/voice-assistant.html` (Phase 4 redesign). Spec: `voice-assistant.md`.
 
 | ID | Element | Screen | Notes |
 |---|---|---|---|
+| `assistant.close` | close icon-btn (header) | `s-assistant` | dismiss the assistant |
+| `assistant.mic` | mic button (control bar) | `s-assistant` | start/stop voice; states idle/listening/thinking/speaking |
+| `assistant.booking.confirm` | "Confirm booking" on the preview card | `s-assistant` | confirm `training_event_preview` (routing TBD — agent RPC vs app→backend) |
+
+> Earlier `voice.*` (FAB + sheet overlay) is still deferred — the contextual FAB overlay is a later layer on top of this canvas.
 
 ---
 
