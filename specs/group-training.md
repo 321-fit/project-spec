@@ -1,8 +1,8 @@
 # Group Training
 
-> Status: Draft
-> Prototype: [group-training.html](https://321-fit.github.io/project-spec/prototypes/flows/group-training.html)
-> Last updated: 2026-04-10
+> Status: Approved
+> Prototypes (Phase 4 redesign): coach create/manage [coach/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html) + [coach/settings.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html) · athlete discover/join [shared/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/profile.html) · athlete schedule [athlete/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/calendar.html). Group event detail: [group-event-detail.md](group-event-detail.md).
+> Last updated: 2026-06-19
 
 ## Overview
 
@@ -440,6 +440,7 @@ All bottom sheets in the app follow these spacing and interaction rules:
 - **Network failure:** Toast (top): "Connection error. Please try again." — auto-dismiss 3s
 - **Training became full:** Toast (top): "Sorry, this training is now full." → button changes to disabled "Training is Full"
 - **Insufficient balance (card):** On Group Detail screen, instead of "Join Training · €25" show "Top Up Balance · €25" (secondary button style). Tap → opens balance top-up flow (separate spec, referenced)
+- **Time conflict (athlete already booked at this slot):** On Group Detail screen, show a blocking inline-error banner above the ticket ("You already have *<event> · <time>* at this time. Cancel it first, or pick another session date.") and disable the Join CTA → "Time conflict". Availability check is the same as personal booking. Prototype: `shared/profile.html#s-group` (`.gj-conflict` state).
 
 ### General Errors
 - **Save failed (Create/Edit Session):** Snackbar (bottom): "Failed to save. Check connection and try again."
