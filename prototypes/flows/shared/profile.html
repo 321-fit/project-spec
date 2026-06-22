@@ -619,6 +619,8 @@
 
       <!-- CTA — turns into "Top up balance" when paying from balance with insufficient funds -->
       <button class="fit-btn fit-btn-primary" id="bpm-cta" onclick="bkBookingCta()" style="border-radius:99px;">Send Request &middot; &euro;50</button>
+      <!-- Contextual auto top-up offer — only when balance is short -->
+      <button id="bpm-autotopup" data-a11y-id="athlete.booking.setup-auto-topup" style="display:none;width:100%;margin-top:12px;background:none;border:none;color:var(--fit-teal-500);font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;" onclick="location.href='../athlete/balance.html'">Set up auto top-up so this doesn&rsquo;t happen again</button>
     </div>
   </div>
 
@@ -1654,6 +1656,8 @@ function bkSetPay(method) {
     if (cta) cta.textContent = 'Send Request · €' + BK_PRICE;
     bkCtaMode = 'send';
   }
+  var atl = document.getElementById('bpm-autotopup');
+  if (atl) atl.style.display = (bkCtaMode === 'topup') ? 'block' : 'none';
 }
 var bkCtaMode = 'send';
 function bkBookingCta() {

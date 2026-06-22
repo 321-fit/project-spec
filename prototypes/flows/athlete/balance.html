@@ -51,17 +51,17 @@
   .bal-hero-label { font-size: 14px; opacity: 0.85; display: flex; align-items: center; gap: 6px; }
   .bal-hero-label svg { width: 14px; height: 14px; }
   .bal-hero-value { font-size: 34px; font-weight: 600; margin-top: 4px; letter-spacing: -0.5px; }
-  .bal-hero-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.18); }
-  .bal-hero-note { font-size: 13px; opacity: 0.85; display: flex; align-items: center; gap: 6px; }
-  .bal-hero-note svg { width: 14px; height: 14px; opacity: 0.9; }
-  .bal-topup { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 99px; border: none; cursor: pointer; background: rgba(255,255,255,0.22); color: var(--fit-white); font-family: var(--fit-font); font-size: 14px; font-weight: 500; }
+  .bal-hero-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.18); }
+  .bal-hero-note { font-size: 13px; opacity: 0.85; display: flex; align-items: center; gap: 6px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bal-hero-note svg { width: 14px; height: 14px; opacity: 0.9; flex-shrink: 0; }
+  .bal-hero-note--btn { background: none; border: none; font-family: var(--fit-font); cursor: pointer; color: inherit; padding: 0; }
+  .bal-topup { flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 99px; border: none; cursor: pointer; background: rgba(255,255,255,0.22); color: var(--fit-white); font-family: var(--fit-font); font-size: 14px; font-weight: 500; }
   .bal-topup:hover { background: rgba(255,255,255,0.30); }
   .bal-topup svg { width: 14px; height: 14px; }
 
-  /* Ledger (rows/filters/section/summary/empty) now canonical in fit-ui.css:
-     .fit-txn* · .fit-filter-* · .fit-section-title--md · .fit-stat-strip · .fit-empty-state */
+  /* Ledger (rows/filters/section/summary/empty) canonical in fit-ui.css */
 
-  /* Empty / loading / error state switching */
+  /* Balance state switching */
   #s-balance [data-bs-state] { display: none; }
   #s-balance.bs-default [data-bs-state="default"] { display: block; }
   #s-balance.bs-empty   [data-bs-state="empty"]   { display: block; }
@@ -70,6 +70,71 @@
   .sk-row { display: flex; gap: 12px; align-items: center; padding: 14px 16px; }
   .sk-box { width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0; }
   .sk-ln { height: 14px; border-radius: 7px; }
+
+  /* Consistent section rhythm on money screens */
+  #s-balance .fit-section-title--md,
+  #s-top-up .fit-section-title--md { margin-top: 22px; }
+  #s-balance .bal-hero { margin-bottom: 0; }
+  #s-balance .fit-stat-strip { margin-bottom: 0; }
+  /* Card brand glyph */
+  .pm-card-icon { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--fit-gray-100); color: var(--fit-text-primary); }
+
+  /* ===== Top up screen: One-time vs Automatic panes ===== */
+  #s-top-up .tu-once-pane, #s-top-up .tu-auto-pane { display: none; }
+  #s-top-up.tm-once .tu-once-pane { display: block; }
+  #s-top-up.tm-auto .tu-auto-pane { display: block; }
+  #s-top-up .tu-turnoff { display: none; background: none; border: none; font-family: var(--fit-font); font-size: 15px; font-weight: 500; color: var(--fit-red-400); cursor: pointer; margin: 24px auto 0; }
+  #s-top-up.tm-auto.at-on .tu-turnoff { display: block; }
+  #s-top-up .at-warn-declined, #s-top-up .at-warn-auth { display: none; }
+  #s-top-up.tm-auto.at-on.at-warn.aw-declined .at-warn-declined { display: flex; }
+  #s-top-up.tm-auto.at-on.at-warn.aw-auth .at-warn-auth { display: flex; }
+  /* Authentication-required banner — info/blue (action needed, NOT a dead card) */
+  .at-warn-auth { margin: 8px 16px 0; padding: 12px 14px; border-radius: 12px; align-items: center; gap: 10px; background: rgba(3,178,226,0.08); border: 1px solid rgba(3,178,226,0.2); font-size: 14px; line-height: 1.4; }
+  .at-warn-auth svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--fit-blue-500); }
+  .at-warn-auth .aw-body { flex: 1; color: var(--fit-text-secondary); }
+  .at-warn-auth .aw-action { font-family: var(--fit-font); font-size: 13px; font-weight: 500; color: var(--fit-blue-500); background: transparent; border: none; cursor: pointer; padding: 4px 8px; margin: -4px -8px; }
+  #s-top-up [data-tu-load] { display: none; }
+  #s-top-up.at-loading .tu-once-pane,
+  #s-top-up.at-loading .tu-auto-pane,
+  #s-top-up.at-loading .fit-phone-footer { display: none; }
+  #s-top-up.at-loading [data-tu-load] { display: block; }
+  /* First-time / no saved card: auto-topup needs a card before it can run.
+     Canonical dashed "Add" card (same pattern as locations / calendar-sync). */
+  #s-top-up .at-card-empty { display: none; align-items: center; justify-content: center; gap: 8px; padding: 16px; border: 1.5px dashed var(--fit-divider); border-radius: 16px; cursor: pointer; }
+  #s-top-up .at-card-empty svg { width: 18px; height: 18px; }
+  #s-top-up .at-card-empty span { font-size: 14px; font-weight: 500; color: var(--fit-teal-500); }
+  #s-top-up.tu-nocard .at-card-saved { display: none; }
+  #s-top-up.tu-nocard .at-card-empty { display: flex; }
+  #s-top-up.tu-nocard .at-preview { display: none; }
+
+  /* Balance hero — auto top-up status note (off default / on variant) */
+  .bal-at-on-text { display: none; }
+  #s-balance.bal-auto-on .bal-at-off-text { display: none; }
+  #s-balance.bal-auto-on .bal-at-on-text { display: inline; }
+
+  /* Amount chip rows (shared by manual + auto) + custom inputs */
+  .at-chip-row { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 16px; }
+  .at-custom { display: none; margin: 10px 16px 0; height: 48px; border-radius: 12px; border: 1px solid var(--fit-gray-200); background: var(--fit-white); padding: 0 16px; font-family: var(--fit-font); font-size: 16px; color: var(--fit-text-primary); width: calc(100% - 32px); }
+  .at-chip-row.custom-on + .at-custom { display: block; }
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+
+  .tu-secured { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: var(--fit-text-tertiary); padding: 14px 16px 0; }
+  .tu-secured svg { width: 13px; height: 13px; }
+
+  .at-card-wrap { padding: 0 16px; }
+  .tu-paywith-change { font-size: 14px; font-weight: 500; color: var(--fit-teal-500); flex-shrink: 0; }
+  .at-preview { display: flex; align-items: flex-start; gap: 8px; margin: 8px 16px 0; padding: 12px 14px; border-radius: 12px; background: rgba(3,178,226,0.06); border: 1px solid rgba(3,178,226,0.18); }
+  .at-preview svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--fit-blue-500); margin-top: 1px; }
+  .at-preview-text { font-size: 13px; color: var(--fit-text-secondary); line-height: 1.45; }
+
+  /* ===== Stripe sheets (representation of native PaymentSheet / CustomerSheet) ===== */
+  .ac-note { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--fit-text-tertiary); margin-bottom: 16px; }
+  .ac-field { height: 50px; border-radius: 10px; border: 1px solid var(--fit-gray-200); background: var(--fit-white); display: flex; align-items: center; padding: 0 14px; font-size: 15px; color: var(--fit-text-tertiary); margin-bottom: 10px; }
+  .ac-field svg { width: 18px; height: 18px; margin-left: auto; color: var(--fit-text-tertiary); }
+  .ac-row { display: flex; gap: 10px; }
+  .ac-row .ac-field { flex: 1; }
 </style>
 </head>
 <body>
@@ -81,14 +146,22 @@
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       All modules
     </button>
-    
+
   <div class="label">Balance</div>
   <button class="active" onclick="go('s-balance',this)">Balance</button>
-  <div class="label">States</div>
+  <div class="label">Balance states</div>
   <button onclick="go('s-balance',this);setBalState('default')">Default</button>
   <button onclick="go('s-balance',this);setBalState('empty')">Empty (no history)</button>
   <button onclick="go('s-balance',this);setBalState('loading')">Loading</button>
   <button onclick="go('s-balance',this);setBalState('error')">Error</button>
+  <div class="label">Top up</div>
+  <button onclick="go('s-top-up',this);setTuNoCard(false);setTuMode('once');setAtOn(false)">One-time</button>
+  <button onclick="go('s-top-up',this);setTuNoCard(false);setTuMode('auto');setAtOn(false)">Auto · set up</button>
+  <button onclick="go('s-top-up',this);setTuNoCard(false);setTuMode('auto');setAtOn(true);setAtWarn(false)">Auto · enabled</button>
+  <button onclick="go('s-top-up',this);setTuNoCard(false);setTuMode('auto');setAtOn(true);setAtWarn(true,'declined')">Auto · declined</button>
+  <button onclick="go('s-top-up',this);setTuNoCard(false);setTuMode('auto');setAtOn(true);setAtWarn(true,'auth')">Auto · needs auth</button>
+  <button onclick="go('s-top-up',this);setTuMode('auto');setTuNoCard(true);setAtOn(false)">Auto · first-time (no card)</button>
+  <button onclick="go('s-top-up',this);setTuMode('once');setTuLoading()">Loading</button>
   <div class="label">Transaction detail</div>
   <button onclick="go('s-txn-spend',this)">Session payment</button>
   <button onclick="go('s-txn-topup',this)">Top-up</button>
@@ -122,12 +195,12 @@
         <div class="bal-hero-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20M17 15h2"/></svg>Available balance</div>
         <div class="bal-hero-value">&euro;240.00</div>
         <div class="bal-hero-footer">
-          <span class="bal-hero-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6M3 12a9 9 0 0115.36-6.36L21 8"/></svg>Auto top-up off</span>
-          <button class="bal-topup" data-a11y-id="athlete.balance.topup" onclick="alert('Top up — Stripe sheet (TBD)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Top up</button>
+          <button class="bal-hero-note bal-hero-note--btn" data-a11y-id="athlete.balance.auto-topup-status" onclick="go('s-top-up',null);setTuMode('auto');setAtOn(document.getElementById('s-balance').classList.contains('bal-auto-on'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6M3 12a9 9 0 0115.36-6.36L21 8"/></svg><span class="bal-at-off-text">Auto top-up off</span><span class="bal-at-on-text">Auto top-up on</span></button>
+          <button class="bal-topup" data-a11y-id="athlete.balance.topup" onclick="go('s-top-up',null);setTuMode('once')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Top up</button>
         </div>
       </div>
 
-      <!-- This-month summary (canonical .fit-stat-strip) — "This month" as block title -->
+      <!-- This-month summary -->
       <div class="fit-section-title--md">This month</div>
       <div class="fit-stat-strip">
         <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">&euro;175</div><div class="fit-stat-strip-label">Spent</div></div>
@@ -198,7 +271,7 @@
         <div class="bal-hero-value">&euro;0.00</div>
         <div class="bal-hero-footer">
           <span class="bal-hero-note">Top up to book your first session</span>
-          <button class="bal-topup" onclick="alert('Top up — Stripe sheet (TBD)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Top up</button>
+          <button class="bal-topup" onclick="go('s-top-up',null);setTuMode('once')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Top up</button>
         </div>
       </div>
       <div class="fit-empty-state" style="padding-top:48px;">
@@ -229,6 +302,183 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- ==================== SCREEN: TOP UP (manual + embedded auto top-up) ==================== -->
+<div class="fit-phone fit-light tm-once" id="s-top-up">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="athlete.topup.back" onclick="go('s-balance',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Top up</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- Mode switch — one-time vs automatic (mutually exclusive) -->
+    <div class="fit-segmented" id="tu-seg" style="margin-top:8px;">
+      <button class="fit-segmented-tab selected" data-mode="once" data-a11y-id="athlete.topup.mode-once" onclick="setTuMode('once')">One-time</button>
+      <button class="fit-segmented-tab" data-mode="auto" data-a11y-id="athlete.topup.mode-auto" onclick="setTuMode('auto')">Automatic</button>
+    </div>
+
+    <!-- ===== ONE-TIME ===== -->
+    <div class="tu-once-pane">
+      <div class="fit-section-title--md" style="margin-top:4px;">Amount</div>
+      <div class="at-chip-row" data-a11y-id="athlete.topup.amount">
+        <button class="fit-selection-chip selected" onclick="pickManualAmount(this,50)">&euro;50</button>
+        <button class="fit-selection-chip" onclick="pickManualAmount(this,100)">&euro;100</button>
+        <button class="fit-selection-chip" onclick="pickManualCustom(this)">Custom</button>
+      </div>
+      <input class="at-custom" id="tu-custom" type="text" inputmode="decimal" placeholder="Enter amount (&euro;)" oninput="manualCustomInput(this)">
+      <div class="tu-secured">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        Card entered securely in Stripe checkout
+      </div>
+    </div>
+
+    <!-- ===== AUTOMATIC ===== -->
+    <div class="tu-auto-pane">
+      <!-- Charge failed — DECLINED / expired card → change card -->
+      <div class="fit-inline-error at-warn-declined" style="margin:8px 16px 0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span class="fit-inline-error-body">Last auto top-up failed &mdash; card declined. Update the card to keep it working.</span>
+        <button class="fit-inline-error-retry" data-a11y-id="athlete.auto-topup.warn.update-card" onclick="openSheet('cardpick-at')">Update</button>
+      </div>
+      <!-- Charge needs AUTHENTICATION (3-D Secure) → confirm, NOT a dead card -->
+      <div class="at-warn-auth" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        <span class="aw-body">Your bank needs to verify this top-up. Confirm once and auto top-up keeps working.</span>
+        <button class="aw-action" data-a11y-id="athlete.auto-topup.warn.confirm" onclick="openSheet('auth-sheet')">Confirm</button>
+      </div>
+
+      <div class="fit-section-title--md" style="margin-top:4px;">When balance falls below</div>
+      <div class="at-chip-row" data-a11y-id="athlete.auto-topup.threshold">
+        <button class="fit-selection-chip selected" onclick="pickAtChip(this)">&euro;25</button>
+        <button class="fit-selection-chip" onclick="pickAtChip(this)">&euro;50</button>
+        <button class="fit-selection-chip" onclick="pickAtChip(this)">Custom</button>
+      </div>
+      <input class="at-custom" type="text" inputmode="decimal" placeholder="Custom limit (&euro;)" oninput="updateAtPreview()">
+
+      <div class="fit-section-title--md">Top up by</div>
+      <div class="at-chip-row" data-a11y-id="athlete.auto-topup.amount">
+        <button class="fit-selection-chip selected" onclick="pickAtChip(this)">&euro;50</button>
+        <button class="fit-selection-chip" onclick="pickAtChip(this)">&euro;100</button>
+        <button class="fit-selection-chip" onclick="pickAtChip(this)">Custom</button>
+      </div>
+      <input class="at-custom" type="text" inputmode="decimal" placeholder="Custom amount (&euro;)" oninput="updateAtPreview()">
+
+      <div class="fit-section-title--md">Charge card</div>
+      <div class="at-card-wrap">
+        <!-- Saved card -->
+        <div class="set-card at-card-saved" data-a11y-id="athlete.auto-topup.card" style="cursor:pointer;" onclick="openSheet('cardpick-at')">
+          <div class="pm-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+          <div class="set-info"><div class="set-title" id="at-card-label">Visa &bull;&bull;&bull;&bull; 4242</div><div class="set-sub">Expires 12/27</div></div>
+          <span class="tu-paywith-change">Change</span>
+        </div>
+        <!-- First-time: no saved card yet — canonical dashed "Add" card -->
+        <div class="at-card-empty" data-a11y-id="athlete.auto-topup.add-card" onclick="openSheet('addcard')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+          <span>Add a card for automatic charges</span>
+        </div>
+        <p style="font-size:13px;color:var(--fit-text-tertiary);line-height:1.5;padding:10px 4px 0;">Apple&nbsp;Pay / Google&nbsp;Pay can&rsquo;t be charged automatically &mdash; use a saved card.</p>
+      </div>
+
+      <div class="at-preview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span class="at-preview-text">We&rsquo;ll add <strong>&euro;50</strong> to your balance whenever it drops below <strong>&euro;25</strong>, charging your Visa &bull;&bull;&bull;&bull; 4242.</span>
+      </div>
+
+      <button class="tu-turnoff" data-a11y-id="athlete.auto-topup.turn-off" onclick="turnOffAuto()">Turn off auto top-up</button>
+    </div>
+
+    <!-- ===== LOADING ===== -->
+    <div data-tu-load style="padding-top:8px;">
+      <div class="at-chip-row" style="margin-top:8px;"><div class="sk-card sk-shimmer" style="width:120px;height:36px;border-radius:8px;"></div><div class="sk-card sk-shimmer" style="width:120px;height:36px;border-radius:8px;"></div></div>
+      <div class="fit-section-title--md" style="margin-top:20px;"><div class="sk-card sk-shimmer" style="width:140px;height:16px;border-radius:8px;"></div></div>
+      <div class="at-chip-row"><div class="sk-card sk-shimmer" style="width:64px;height:38px;border-radius:99px;"></div><div class="sk-card sk-shimmer" style="width:64px;height:38px;border-radius:99px;"></div><div class="sk-card sk-shimmer" style="width:64px;height:38px;border-radius:99px;"></div></div>
+    </div>
+
+  </div>
+
+  <!-- Single footer CTA — label + action follow mode/state -->
+  <div class="fit-phone-footer fit-footer-btn">
+    <button class="fit-btn fit-btn-primary" id="tu-cta" data-a11y-id="athlete.topup.cta" onclick="tuCtaClick()">Top up &euro;50</button>
+  </div>
+
+  <div class="fit-snackbar" id="tu-snack"></div>
+
+  <!-- Stripe checkout — native PaymentSheet (representation) for the manual top-up -->
+  <div class="fit-sheet-overlay" id="checkout-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title" id="co-title" style="margin-bottom:6px;">Pay &euro;50</div>
+      <div class="ac-note"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Native Stripe PaymentSheet &mdash; pick a card, Apple Pay, or add new</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px;">
+        <div class="cal-select-row selected" onclick="selRow(this)">
+          <div class="pm-card-icon" style="background:var(--fit-white);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+          <div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Visa &bull;&bull;&bull;&bull; 4242</div><div style="font-size:13px;color:var(--fit-text-tertiary);">Default &middot; expires 12/27</div></div>
+          <span class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+        </div>
+        <div class="cal-select-row" onclick="selRow(this)">
+          <div class="pm-card-icon" style="background:var(--fit-white);"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M16.3 12.5c0-1.8 1.5-2.7 1.6-2.7-.9-1.3-2.2-1.5-2.7-1.5-1.1-.1-2.2.7-2.8.7-.6 0-1.5-.7-2.4-.6-1.2 0-2.4.7-3 1.8-1.3 2.2-.3 5.5.9 7.3.6.9 1.3 1.9 2.2 1.8.9 0 1.2-.6 2.3-.6 1.1 0 1.3.6 2.3.6 1 0 1.6-.9 2.2-1.8.7-1 1-2 1-2-.1 0-1.9-.8-1.9-2.8zM14.7 6.8c.5-.6.8-1.4.7-2.3-.7 0-1.6.5-2.1 1.1-.5.5-.9 1.4-.8 2.2.8.1 1.6-.4 2.2-1z"/></svg></div>
+          <div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Apple Pay</div><div style="font-size:13px;color:var(--fit-text-tertiary);">Mastercard &bull;&bull;&bull;&bull; 1234</div></div>
+          <span class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+        </div>
+      </div>
+      <div class="fit-sheet-item" onclick="closeSheet('checkout-sheet');openSheet('addcard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg> Add new card
+      </div>
+      <button class="fit-btn fit-btn-primary" id="co-pay" data-a11y-id="athlete.topup.pay" style="border-radius:99px;margin-top:8px;" onclick="closeSheet('checkout-sheet')">Pay &euro;50</button>
+    </div>
+  </div>
+
+  <!-- Card picker (auto top-up — saved cards only, no wallets) -->
+  <div class="fit-sheet-overlay" id="cardpick-at">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title" style="margin-bottom:16px;">Charge card</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px;">
+        <div class="cal-select-row selected" data-a11y-id="athlete.card-picker.card" onclick="pickCard(this,'Visa &bull;&bull;&bull;&bull; 4242')">
+          <div class="pm-card-icon" style="background:var(--fit-white);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+          <div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Visa &bull;&bull;&bull;&bull; 4242</div><div style="font-size:13px;color:var(--fit-text-tertiary);">Default &middot; expires 12/27</div></div>
+          <span class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+        </div>
+        <div class="cal-select-row" data-a11y-id="athlete.card-picker.card" onclick="pickCard(this,'Mastercard &bull;&bull;&bull;&bull; 1234')">
+          <div class="pm-card-icon" style="background:var(--fit-white);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+          <div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Mastercard &bull;&bull;&bull;&bull; 1234</div><div style="font-size:13px;color:var(--fit-text-tertiary);">Expires 08/26</div></div>
+          <span class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.45;margin:0 2px 10px;">Apple&nbsp;Pay / Google&nbsp;Pay aren&rsquo;t shown &mdash; they can&rsquo;t be charged automatically.</p>
+      <div class="fit-sheet-item" data-a11y-id="athlete.card-picker.add-card" onclick="closeSheet('cardpick-at');openSheet('addcard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg> Add new card
+      </div>
+    </div>
+  </div>
+
+  <!-- Add card — native Stripe PaymentSheet setup (representation) -->
+  <div class="fit-sheet-overlay" id="addcard">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title" style="margin-bottom:6px;">Add card</div>
+      <div class="ac-note"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Native Stripe PaymentSheet &mdash; we never see card data</div>
+      <div class="ac-field">Card number<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+      <div class="ac-row"><div class="ac-field">MM / YY</div><div class="ac-field">CVC</div></div>
+      <div class="ac-field">Country &middot; ZIP</div>
+      <button class="fit-btn fit-btn-primary" style="border-radius:99px;margin-top:8px;" onclick="saveAddedCard()">Save card</button>
+    </div>
+  </div>
+
+  <!-- 3-D Secure / authentication — native bank verification (representation) -->
+  <div class="fit-sheet-overlay" id="auth-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title" style="margin-bottom:6px;">Confirm top-up</div>
+      <div class="ac-note"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>3-D Secure &mdash; your bank, in Stripe&rsquo;s native flow</div>
+      <div class="ac-field" style="justify-content:space-between;color:var(--fit-text-primary);">Verify &euro;50 top-up<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      <button class="fit-btn fit-btn-primary" data-a11y-id="athlete.auto-topup.auth.confirm" style="border-radius:99px;margin-top:8px;" onclick="confirmAuth()">Confirm with bank</button>
+    </div>
   </div>
 </div>
 
@@ -323,21 +573,50 @@
       <button onclick="setBalState('loading',this)">Loading</button>
       <button onclick="setBalState('error',this)">Error</button>
     </div>
-    <p>The athlete <strong>spending mirror</strong> of the coach Earnings screen — now built on the <strong>same canonical ledger kit</strong> (<code>.fit-txn*</code> / <code>.fit-filter-chip</code> / <code>.fit-stat-strip</code> / <code>.fit-empty-state</code> in <code>fit-ui.css</code>), flipped: athlete <em>spends</em> (out) and <em>tops up</em> (in), no payouts.</p>
+    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin:8px 0 6px;">Auto top-up status (hero note)</div>
+    <div class="state-toggle">
+      <button class="active" onclick="setBalAuto(false,this)">Off</button>
+      <button onclick="setBalAuto(true,this)">On</button>
+    </div>
+    <p>The athlete <strong>spending mirror</strong> of the coach Earnings screen — same <strong>canonical ledger kit</strong> (<code>.fit-txn*</code> / <code>.fit-filter-chip</code> / <code>.fit-stat-strip</code> / <code>.fit-empty-state</code>), flipped to spend (out) + top-up (in).</p>
     <ul>
-      <li><strong>Hero</strong> — available balance + <strong>Top up</strong> (vs coach&rsquo;s Withdraw). Filled brand-gradient (&ldquo;money lives here&rdquo;). Role-specific, kept custom (<code>.bal-hero</code>).</li>
-      <li><strong>This-month summary</strong> — canonical <code>.fit-stat-strip</code>: Spent / Topped up / Sessions.</li>
-      <li><strong>Filter chips</strong> — All / Top-ups / Spent / Refunds (canonical <code>.fit-filter-chip</code>, client-side filter on <code>data-txn</code>).</li>
-      <li><strong>Rows</strong> — <code>.fit-txn</code> with intent icons: spend <code>--out</code> (gray minus), top-up <code>--in</code> (teal plus), refund <code>--info</code> (blue, teal plus). Tap → detail.</li>
+      <li><strong>Hero</strong> — balance + <strong>Top up</strong> → the Top up screen; the auto top-up status note is tappable → same screen.</li>
+      <li><strong>No "Payment methods" entry</strong> — cards are saved during Stripe checkout and picked in auto top-up; remove/default is handled inside Stripe's own PaymentSheet. No custom card-list screen.</li>
+      <li><strong>This month</strong> — <code>.fit-stat-strip</code>: Spent / Topped up / Sessions.</li>
+      <li><strong>Filter chips</strong> + date-grouped <code>.fit-txn</code> rows → detail.</li>
     </ul>
     <hr>
-    <p><strong>Reached from</strong>: Settings → Payments → Balance, and the Dashboard balance card.</p>
-    <p class="note">Top-up opens the Stripe top-up sheet (payment-backend). Auto-top-up config TBD. Money wire = minor units (memory: money-serialization).</p>
+    <p class="note">Reached from Settings → Payments → Balance + Dashboard balance card. Backed by shipped endpoints (PR #541–#543). Money wire = minor units.</p>
+  </div>
+
+  <div class="ann" id="ann-s-top-up"><span class="ann-role athlete">Athlete</span><h3>Top up</h3>
+    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Mode / state</div>
+    <div class="state-toggle">
+      <button class="active" onclick="setTuMode('once');annTog(this)">One-time</button>
+      <button onclick="setTuMode('auto');setAtOn(false);annTog(this)">Auto · set up</button>
+      <button onclick="setTuMode('auto');setAtOn(true);setAtWarn(false);annTog(this)">Auto · enabled</button>
+      <button onclick="setTuMode('auto');setAtOn(true);setAtWarn(true,'declined');annTog(this)">Auto · declined</button>
+      <button onclick="setTuMode('auto');setAtOn(true);setAtWarn(true,'auth');annTog(this)">Auto · needs auth</button>
+      <button onclick="setTuMode('once');setTuLoading();annTog(this)">Loading</button>
+    </div>
+    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin:8px 0 6px;">Saved card (first-time)</div>
+    <div class="state-toggle">
+      <button class="active" onclick="setTuNoCard(false);annTog(this)">Has card</button>
+      <button onclick="setTuMode('auto');setTuNoCard(true);annTog(this)">No card yet</button>
+    </div>
+    <p><strong>One screen, two modes</strong> via a <code>.fit-segmented</code> switch at top — <strong>One-time</strong> and <strong>Automatic</strong> are mutually exclusive. No sheet-on-sheet, no inline toggle mess; a single footer CTA drives the action.</p>
+    <ul>
+      <li><strong>One-time</strong> — amount chips €50 / €100 / Custom. Footer <strong>Top up €X</strong> → native Stripe <strong>PaymentSheet</strong> (checkout: saved cards + Apple Pay + add + save). We don't build a card selector for manual — Stripe owns it.</li>
+      <li><strong>Automatic</strong> — threshold (€25/€50/Custom) + amount (€50/€100/Custom) + <strong>Charge card</strong> (saved cards only, wallets excluded — off-session) + live preview. Footer = <strong>Turn on auto top-up</strong> → once on, becomes <strong>Save changes</strong> + a <strong>Turn off</strong> link. Explicit commit, no silent auto-save.</li>
+      <li><strong>Off-session charge fails — two cases (Stripe MIT):</strong> <em>declined / expired</em> → red <code>.fit-inline-error</code> + <strong>Update</strong> (→ change card); <em>authentication_required (3-D Secure)</em> → blue info banner + <strong>Confirm</strong> (→ 3DS sheet) — NOT a dead card, one-tap re-auth. Both need a new push category.</li>
+      <li><strong>Card unification</strong> — the auto-topup <code>paymentMethodId</code> comes from <code>/athlete/payment-methods</code> (one source of truth).</li>
+    </ul>
+    <hr>
+    <p class="note">Stripe sheets are <em>native</em> (PaymentSheet for checkout) — represented here as mocks (<code>checkout-sheet</code> / <code>addcard</code>). Auto card picker = <code>cardpick-at</code>. Footer CTA label/action follow mode + state. Backend PR #541–#543.</p>
   </div>
 
   <div class="ann" id="ann-s-txn-spend"><span class="ann-role athlete">Athlete</span><h3>Session payment (detail)</h3>
-    <p>Tap a <em>spend</em> row → this detail. Canonical <code>.fit-detail-hero</code> (amount + date + status badge) + <code>.fit-kv-group</code> rows — the <strong>same detail grammar</strong> as the coach earning detail (<code>s-txn-earning</code>).</p>
-    <ul><li>Session block: coach · training · duration · location.</li><li>Payment block: price · paid from Balance · balance after.</li></ul>
+    <p>Tap a <em>spend</em> row → this detail. Canonical <code>.fit-detail-hero</code> + <code>.fit-kv-group</code> — same grammar as coach earning detail.</p>
   </div>
 
   <div class="ann" id="ann-s-txn-topup"><span class="ann-role athlete">Athlete</span><h3>Top-up (detail)</h3>
@@ -388,7 +667,6 @@ function balFilter(type, btn) {
     r.style.display = show ? '' : 'none';
     if (show) anyVisible = true;
   });
-  // Hide date headers + groups that ended up empty
   document.querySelectorAll('#s-balance [data-bs-state="default"] .fit-txn-group').forEach(function(g) {
     var visible = Array.from(g.querySelectorAll('.fit-txn')).some(r => r.style.display !== 'none');
     g.style.display = visible ? '' : 'none';
@@ -397,6 +675,165 @@ function balFilter(type, btn) {
   });
   var noMatch = document.getElementById('bal-no-match');
   if (noMatch) noMatch.style.display = anyVisible ? 'none' : 'block';
+}
+
+/* ===== Sheets ===== */
+function openSheet(id) { var el = document.getElementById(id); if (el) el.classList.add('visible'); }
+function closeSheet(id) { var el = document.getElementById(id); if (el) el.classList.remove('visible'); }
+document.addEventListener('click', function (e) {
+  if (e.target.classList && e.target.classList.contains('fit-sheet-overlay')) e.target.classList.remove('visible');
+});
+
+/* ===== Top up: mode (one-time / automatic) + footer CTA ===== */
+function setTuMode(mode) {
+  var el = document.getElementById('s-top-up');
+  if (!el) return;
+  el.classList.remove('tm-once', 'tm-auto', 'at-loading');
+  el.classList.add('tm-' + mode);
+  var seg = document.getElementById('tu-seg');
+  if (seg) seg.querySelectorAll('.fit-segmented-tab').forEach(function (t) { t.classList.toggle('selected', t.dataset.mode === mode); });
+  updateFooter();
+}
+function setAtOn(on) {
+  var el = document.getElementById('s-top-up');
+  if (!el) return;
+  el.classList.toggle('at-on', on);
+  if (!on) el.classList.remove('at-warn', 'aw-declined', 'aw-auth');
+  updateFooter();
+}
+function setAtWarn(on, type) {
+  var el = document.getElementById('s-top-up');
+  el.classList.toggle('at-warn', on);
+  el.classList.remove('aw-declined', 'aw-auth');
+  if (on) el.classList.add(type === 'auth' ? 'aw-auth' : 'aw-declined');
+}
+function confirmAuth() {
+  closeSheet('auth-sheet');
+  setAtWarn(false);
+  showToast('Top-up confirmed — auto top-up active');
+}
+function setTuLoading() {
+  document.getElementById('s-top-up').classList.add('at-loading');
+}
+function updateFooter() {
+  var el = document.getElementById('s-top-up'), cta = document.getElementById('tu-cta');
+  if (!el || !cta) return;
+  if (el.classList.contains('tm-auto')) {
+    if (el.classList.contains('tu-nocard') && !el.classList.contains('at-on')) cta.textContent = 'Add a card';
+    else cta.textContent = el.classList.contains('at-on') ? 'Save changes' : 'Turn on auto top-up';
+  } else {
+    cta.textContent = tuAmt ? 'Top up €' + tuAmt : 'Top up';
+  }
+}
+function tuCtaClick() {
+  var el = document.getElementById('s-top-up');
+  if (el.classList.contains('tm-auto')) {
+    if (el.classList.contains('tu-nocard') && !el.classList.contains('at-on')) { openSheet('addcard'); return; }
+    if (el.classList.contains('at-on')) { showToast('Auto top-up saved'); }
+    else { setAtOn(true); showToast('Auto top-up is on'); }
+  } else {
+    submitTopup();
+  }
+}
+function setTuNoCard(on) {
+  document.getElementById('s-top-up').classList.toggle('tu-nocard', on);
+  updateFooter();
+}
+function saveAddedCard() {
+  closeSheet('addcard');
+  var el = document.getElementById('s-top-up');
+  if (el && el.classList.contains('tu-nocard')) { el.classList.remove('tu-nocard'); updateFooter(); }
+}
+function setBalAuto(on, btn) {
+  document.getElementById('s-balance').classList.toggle('bal-auto-on', on);
+  if (btn) annTog(btn);
+}
+function turnOffAuto() {
+  setAtOn(false);
+  showToast('Auto top-up turned off');
+}
+function showToast(msg) {
+  var s = document.getElementById('tu-snack');
+  if (!s) return;
+  s.textContent = msg; s.classList.add('show');
+  setTimeout(function () { s.classList.remove('show'); }, 1800);
+}
+function annTog(btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+/* ===== Auto top-up config (chips + preview) ===== */
+function pickAtChip(btn) {
+  var row = btn.parentElement;
+  row.querySelectorAll('.fit-selection-chip').forEach(c => c.classList.remove('selected'));
+  btn.classList.add('selected');
+  row.classList.toggle('custom-on', btn.textContent.trim() === 'Custom');
+  updateAtPreview();
+}
+function atChipVal(row) {
+  var sel = row.querySelector('.selected');
+  if (!sel) return '';
+  if (sel.textContent.trim() === 'Custom') {
+    var inp = row.nextElementSibling; // .at-custom
+    var v = inp && inp.value ? parseFloat(inp.value) : 0;
+    return v > 0 ? '€' + v : 'your amount';
+  }
+  return sel.textContent.trim();
+}
+function updateAtPreview() {
+  var rows = document.querySelectorAll('#s-top-up .tu-auto-pane .at-chip-row');
+  if (rows.length < 2) return;
+  var t = atChipVal(rows[0]), a = atChipVal(rows[1]);
+  var el = document.querySelector('#s-top-up .at-preview-text');
+  var card = document.getElementById('at-card-label');
+  if (el && a && t) el.innerHTML = 'We&rsquo;ll add <strong>' + a + '</strong> to your balance whenever it drops below <strong>' + t + '</strong>, charging your ' + (card ? card.textContent : 'card') + '.';
+}
+
+/* ===== One-time top-up amount → Stripe checkout ===== */
+var tuAmt = 50;
+function pickManualAmount(btn, amt) {
+  var row = btn.parentElement;
+  row.classList.remove('custom-on');
+  row.querySelectorAll('.fit-selection-chip').forEach(c => c.classList.remove('selected'));
+  btn.classList.add('selected');
+  tuAmt = amt;
+  updateFooter();
+}
+function pickManualCustom(btn) {
+  var row = btn.parentElement;
+  row.querySelectorAll('.fit-selection-chip').forEach(c => c.classList.remove('selected'));
+  btn.classList.add('selected');
+  row.classList.add('custom-on');
+  var inp = document.getElementById('tu-custom');
+  if (inp) inp.focus();
+  tuAmt = 0;
+  updateFooter();
+}
+function manualCustomInput(el) {
+  var v = parseFloat(el.value || '0');
+  tuAmt = v > 0 ? v : 0;
+  updateFooter();
+}
+function submitTopup() {
+  if (!tuAmt) return;
+  document.getElementById('co-title').textContent = 'Pay €' + tuAmt;
+  document.getElementById('co-pay').textContent = 'Pay €' + tuAmt;
+  openSheet('checkout-sheet');
+}
+
+/* ===== Card selection ===== */
+function selRow(row) {
+  row.parentElement.querySelectorAll('.cal-select-row').forEach(r => r.classList.remove('selected'));
+  row.classList.add('selected');
+}
+function pickCard(row, label) {
+  row.parentElement.querySelectorAll('.cal-select-row').forEach(r => r.classList.remove('selected'));
+  row.classList.add('selected');
+  var at = document.getElementById('at-card-label');
+  if (at) at.innerHTML = label;
+  updateAtPreview();
+  setTimeout(function () { closeSheet('cardpick-at'); }, 120);
 }
 </script>
 </body>

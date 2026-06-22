@@ -696,6 +696,25 @@ Spending ledger (mirror of coach Earnings). Spec: `payments.md` Flow C1.
 | `athlete.balance.txn-spend.back` | back chevron | `s-txn-spend` | session-payment detail → balance |
 | `athlete.balance.txn-topup.back` | back chevron | `s-txn-topup` | top-up detail → balance |
 | `athlete.balance.txn-refund.back` | back chevron | `s-txn-refund` | refund detail → balance |
+| `athlete.balance.auto-topup-status` | hero auto-topup note (tappable) | `s-balance` | → `s-top-up` (auto mode) |
+| `athlete.balance.topup` | hero "Top up" pill | `s-balance` | → `s-top-up` (one-time) |
+| `athlete.topup.back` | back chevron | `s-top-up` | → balance |
+| `athlete.topup.mode-once` | "One-time" segment | `s-top-up` | manual top-up mode |
+| `athlete.topup.mode-auto` | "Automatic" segment | `s-top-up` | auto top-up mode |
+| `athlete.topup.amount` | one-time amount chip | `s-top-up` | €50 / €100 / Custom |
+| `athlete.topup.cta` | footer CTA (label per mode/state) | `s-top-up` | Top up €X / Turn on / Save |
+| `athlete.topup.pay` | "Pay €X" in checkout | `checkout-sheet` | native Stripe PaymentSheet repr. |
+| `athlete.auto-topup.threshold` | "When below" chip row | `s-top-up` | threshold preset/custom |
+| `athlete.auto-topup.amount` | "Top up by" chip row | `s-top-up` | amount preset/custom |
+| `athlete.auto-topup.card` | charge-card row (saved) | `s-top-up` | → card picker (no wallets) |
+| `athlete.auto-topup.add-card` | "Add a card" row (first-time, no saved card) | `s-top-up` | → Stripe PaymentSheet (setup) |
+| `athlete.auto-topup.turn-off` | "Turn off auto top-up" | `s-top-up` | when enabled |
+| `athlete.auto-topup.warn.update-card` | "Update" on declined/expired banner | `s-top-up` | → card picker |
+| `athlete.auto-topup.warn.confirm` | "Confirm" on authentication-required banner | `s-top-up` | → 3DS sheet |
+| `athlete.auto-topup.auth.confirm` | "Confirm with bank" in 3DS sheet | `auth-sheet` | native 3-D Secure repr. |
+| `athlete.card-picker.card` | a card option (auto top-up) | `cardpick-at` | select saved card |
+| `athlete.card-picker.add-card` | "Add new card" | `cardpick-at` | → Stripe PaymentSheet (setup) |
+| `athlete.booking.setup-auto-topup` | contextual "set up auto top-up" | `booking-confirm-sheet` | shown when balance short → balance |
 
 ### `search` (athlete, partial) — `athlete/search.html`
 

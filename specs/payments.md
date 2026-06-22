@@ -4,7 +4,7 @@
 > Prototype (coach earnings): [flows/coach/balance.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/balance.html)
 > Prototype (athlete balance): [flows/athlete/balance.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/balance.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-17 (txn ledger unified to canonical fit-ui kit across coach + athlete; athlete txn-detail screens added)
+> Last updated: 2026-06-22 (athlete top-up sheet + payment methods wallet + auto top-up — Flows C2/C3/C4; backend shipped PR #541–#543)
 > Implementation:
 > - iOS:     [321fit_ios/docs/payments-ios.md] (to be created)
 > - Backend: [poly-backend/docs/payments-backend.md] (to be created — includes earnings ledger migration)
@@ -114,7 +114,38 @@ Layout (`s-balance`) — built on the **canonical ledger kit** shared with coach
    - **refund** — `--info` blue icon, teal **+** — "Refund · {session} cancelled"
 4. **Row tap → transaction detail** (`s-txn-spend` / `s-txn-topup` / `s-txn-refund`): `.fit-detail-hero` (amount + date + status badge) + `.fit-kv-group` rows — same detail grammar as the coach earning detail. Top-up detail offers **Get receipt** (PDF — TBD).
 
-**Top up** opens the Stripe PaymentSheet (Flow A). No payouts, no Stripe Connect — the athlete only ever pays in.
+**Top up** → the **Top up screen** (Flow C2). No payouts, no Stripe Connect — the athlete only ever pays in.
+
+Balance is the **money hub**: the hero **Top up** (and the tappable **Auto top-up** note) → the Top up screen. There is **no "Payment methods" entry** — see Flow C3.
+
+> **Native-Stripe decision (2026-06-22).** We do **not** build a custom card UI. Stripe's SDK provides it natively: **PaymentSheet** (checkout — lists saved cards, Apple/Google Pay, "save card" toggle, add new, and manage/remove saved cards inline) and **SetupIntent** (save a card off-session). We surface thin entry points; Stripe owns the card UI + PCI. The local card mirror (PR #543) stays — it powers status labels ("Visa •••• 4242") and expiry warnings, **not** a custom list/screen.
+
+### Flow C2 — Athlete: Top up — One-time & Automatic (single screen) — 2026-06-22
+
+One screen (`s-top-up`) with a **`.fit-segmented` switch** at the top — **One-time** and **Automatic** are mutually exclusive modes. A single footer CTA drives the action (no sheet-on-sheet, no inline toggle clutter). Backend: `POST /athlete/balance/replenish`.
+
+**One-time tab:**
+1. **Amount** — `.fit-selection-chip` €50 / €100 + **Custom** (`type=text inputmode=decimal`, no spinners). Footer **Top up €X**.
+2. Footer → native Stripe **PaymentSheet** (checkout: saved cards + Apple/Google Pay + add-new + "save card"). No custom card selector — Stripe owns it. → `payment_intent.succeeded` → `balance_replenishment` + credit (Flow A).
+
+**Automatic tab:**
+3. **When balance falls below** — €25 / €50 + Custom. **Top up by** — €50 / €100 + Custom. (Sized to real session prices ~€30+.)
+4. **Charge card** — row → native Stripe card picker (SetupIntent / saved cards), **saved cards only** (wallets excluded — off-session limitation), with a note. **Live preview** of the rule.
+5. **Footer CTA** = **Turn on auto top-up** (off) → once enabled becomes **Save changes**, plus a **Turn off auto top-up** link. Explicit commit — no silent auto-save.
+6. **Failed charge / expired card** — blocking `.fit-inline-error` + **Update** → card picker. New push category (auto top-up failed). See §7.
+7. **First-time (no saved card)** — the Charge-card row becomes an **"Add a card"** row → Stripe PaymentSheet (setup); the footer CTA becomes **"Add a card"** and auto top-up can't be enabled until a card exists (off-session requires a saved card). One-time mode has no first-time variant — the first card is added at Stripe checkout.
+
+On the **Balance hero**, the auto-topup status note reflects state: **"Auto top-up off"** or **"Auto top-up on"** (kept short so it never crowds the Top up pill; the rule details live on the Top up screen). Tappable → Top up, Automatic tab.
+
+**Contextual entry:** when a balance-paid booking is short of funds, the booking-confirm sheet shows "Set up auto top-up so this doesn't happen again" → Top up (group-training booking flow, `bpm-autotopup`).
+
+### Flow C3 — Athlete: Card management (no dedicated screen) — 2026-06-22
+
+Backend: `GET /athlete/payment-methods`, `POST .../setup`, `PUT .../{id}/default`, `DELETE .../{id}` (PR #543) — cards mirror locally from Stripe via webhooks.
+
+**No dedicated Payment-methods screen/button.** Cards are **saved during one-time checkout** (Stripe PaymentSheet "save card") and **picked in auto top-up**. Add / remove / set-default happen **inside Stripe's own native sheets** (PaymentSheet manage mode during checkout; the card picker for auto top-up). Our webhooks keep the local mirror in sync for status labels + expiry warnings. If a standalone "manage cards" surface is wanted later, it's a thin launcher to Stripe's CustomerSheet — not a custom list. (Rationale: a separate screen duplicated what Stripe already provides.)
+
+**Card unification (backend align):** auto-topup currently stores its own `stripe_payment_method_id`. Target: `PUT /auto-topup` accepts a `paymentMethodId` from `/athlete/payment-methods` so there's one source of truth and one (native) add-card flow.
 
 ### Flow D — Coach: Onboard Stripe Connect
 
@@ -382,7 +413,19 @@ Covered in detail in [stripe-connect-onboarding.md § 3.2](./stripe-connect-onbo
 - `GET /athlete/balance/can-afford?sessionId=...` → `{ canAfford: bool }`
 - `POST /balance-replenishment` → initiates Stripe PaymentSheet intent
 - `GET /athlete/transactions-history?page=&size=` → paginated list
-- `GET /athlete/payment-details` / `PUT /athlete/payment-details` → saved cards
+- `GET /athlete/payment-details` / `PUT /athlete/payment-details` → saved cards (legacy)
+
+**Payment methods (PR #543, shipped 2026-06-21):**
+- `GET /athlete/payment-methods` → list saved cards `[{ id, cardBrand, cardLast4, cardExpMonth, cardExpYear, walletType, isDefault, isExpired, label }]`
+- `POST /athlete/payment-methods/setup` → `{ setupIntentSecret, ephemeralKeySecret, customerId, publishableKey }` (PaymentSheet setup mode)
+- `PUT /athlete/payment-methods/{id}/default` → set default
+- `DELETE /athlete/payment-methods/{id}` → detach from Stripe + soft-delete
+
+**Auto top-up (PR #542, shipped 2026-06-21):**
+- `GET /athlete/auto-topup` → `{ enabled, thresholdAmount, topupAmount, currency, cardBrand, cardLast4 }`
+- `PUT /athlete/auto-topup` → update `{ enabled, thresholdAmount, topupAmount, currency }`
+- `POST /athlete/auto-topup/setup` → SetupIntent (save card for off-session). *Target: replace with a `paymentMethodId` reference to a wallet card — see Flow C4 unification note.*
+- `DELETE /athlete/auto-topup` → disable + soft-delete
 
 ### Coach endpoints (updated — rewrite from prior auto-payout model)
 
@@ -540,6 +583,18 @@ Disconnect a provider (Stripe or future). Only allowed if not default or another
 - **Max balance cap:** €2000 to reduce fraud surface. Top-ups beyond → reject.
 - **Held (blocked) funds are non-withdrawable** — only released via session cancellation or completion.
 - **Withdrawal:** not supported in v1 (no pathway for athlete to withdraw from in-app balance). Balance is for booking only.
+
+### Auto top-up
+
+- **Stripe model — NOT a subscription.** Auto top-up is a **merchant-initiated transaction (MIT) / off-session payment**, not a Stripe Subscription. No Product / Price / Subscription is created. Subscriptions are only for fixed-interval recurring billing; auto top-up is threshold-triggered with variable timing/amount. Confirmed against Stripe docs (save-during-payment / off-session). **Already implemented this way on the backend** (PR #542): `SetupIntent { usage: "off_session" }` saves the card + captures consent when the athlete is present; the trigger charges a `PaymentIntent { off_session: true, confirm: true }` against the saved PM. Nothing new to create in Stripe.
+- **Trigger:** evaluated **after** a balance deduction (booking) — if `balance < thresholdAmount`, enqueue an off-session charge of `topupAmount`. Not a polling job; event-driven on `deduct_funds()` → Celery `auto_topup.check_and_charge`.
+- **Card constraint:** the charge card must be **off-session capable** — a saved card, **not** an Apple/Google Pay wallet token. The card picker excludes wallets; the wallet may still be used for **manual** top-ups (on-session).
+- **Idempotency / loop guard:** at most one auto top-up in flight per athlete; don't re-trigger while a charge is pending. A single booking must not cascade multiple top-ups.
+- **Failed off-session charge — two distinct cases** (don't lump them): 
+  - **`authentication_required` (3-D Secure / SCA)** — the card is fine; the bank wants a one-time verification. Surface a **blue/info** banner ("Your bank needs to verify this top-up") + **Confirm** → open the PaymentIntent's `client_secret` for 3DS in-app. Do **not** tell the athlete to change the card. *(Backend currently lumps this into the generic failure `except` → must branch on `error.code == "authentication_required"` and persist the PaymentIntent id so the app can re-confirm.)*
+  - **Declined / expired / generic** — red blocking `.fit-inline-error` + **Update** → card picker.
+  - Both: disable nothing automatically; send a **push notification** (new category — *auto top-up failed*, still a TODO on the backend). The booking that triggered it follows the normal insufficient-balance path.
+- **Card unification:** auto-topup references a card from `/athlete/payment-methods` (one source of truth) rather than its own SetupIntent — see Flow C2.
 
 ### Legal consent
 
