@@ -103,7 +103,7 @@ This spec consolidates the previous "Payment User Flow" + "Revisited Payment Flo
 
 ### Flow C1 — Athlete: Balance screen (spending ledger) — 2026-06-05 (new)
 
-The athlete-side mirror of the coach **Earnings** screen, flipped from income to **spend**. Reached from **Settings → Payments → Balance** and the **Dashboard balance card** (card tap / "Top up" / "Transactions").
+The athlete-side mirror of the coach **Earnings** screen, flipped from income to **spend**. Reached from **Settings → Payments → Balance** and the **Dashboard balance card**. Dashboard routing (hash deep-links into `balance.html`): card tap / **Transactions** → Balance hub (`#s-balance`); **Top up** (balance widget, low-balance "Top up now", and the setup-widget "Top up your balance" step) → the **Top up screen** (`#s-top-up`, one-time mode).
 
 Layout (`s-balance`) — built on the **canonical ledger kit** shared with coach Earnings (`.fit-txn*` / `.fit-filter-chip` / `.fit-stat-strip` / `.fit-empty-state` in `fit-ui.css`; extracted 2026-06-17 — see architecture/design-system.md):
 1. **Hero** (brand gradient, role-specific `.bal-hero`) — "Available balance" + amount (e.g. €240.00) + **Top up** pill (vs coach's *Withdraw*) + "Auto top-up off" note.
