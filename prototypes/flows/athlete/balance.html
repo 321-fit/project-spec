@@ -835,6 +835,18 @@ function pickCard(row, label) {
   updateAtPreview();
   setTimeout(function () { closeSheet('cardpick-at'); }, 120);
 }
+
+/* Deep-link: open a specific screen from the URL hash
+   (e.g. Dashboard balance widget "Top up" → balance.html#s-top-up). */
+(function initFromHash() {
+  var h = (location.hash || '').replace('#', '');
+  if (!h) return;
+  var el = document.getElementById(h);
+  if (el && el.classList.contains('fit-phone')) {
+    go(h, null);
+    if (h === 's-top-up') setTuMode('once');
+  }
+})();
 </script>
 </body>
 </html>

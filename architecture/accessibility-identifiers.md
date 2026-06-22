@@ -666,6 +666,9 @@ Trimmed mirror of coach Profile (`.cp-*` grammar; no video hero). Spec: `athlete
 | `athlete.inbox.toreply.decline` / `.accept` | buttons on a `.req-card` | `s-notifications` (To reply) | coach invite / reschedule |
 | `athlete.inbox.waiting.cancel` | "Cancel request" on a `.req-card` | `s-notifications` (Waiting) | withdraw sent request |
 | `athlete.dashboard.balance` | balance card | `s-dashboard` | → balance.html |
+| `athlete.dashboard.balance.topup` | "Top up" on balance widget | `s-dashboard` | → `balance.html#s-top-up` (deep-link) |
+| `athlete.dashboard.balance.transactions` | "Transactions" on balance widget | `s-dashboard` | → `balance.html#s-balance` |
+| `athlete.dashboard.low-balance.topup` | "Top up now" (low-balance state) | `s-dashboard` | → `balance.html#s-top-up` |
 | `athlete.dashboard.attention.awaiting` | "requests awaiting confirmation" row | `s-dashboard` | → Inbox Waiting tab |
 
 ### `settings` (athlete) — `athlete/settings.html`
