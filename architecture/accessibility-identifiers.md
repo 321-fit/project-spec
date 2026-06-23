@@ -748,6 +748,7 @@ Spending ledger (mirror of coach Earnings). Spec: `payments.md` Flow C1.
 | `messages.group.input` / `.send` | composer | `s-group-thread` | |
 | `messages.group-settings.back` | back chevron | `s-group-settings` | → group thread |
 | `messages.group-settings.add` | "Add people" row | `s-group-settings` | → multi-select picker (add to group) |
+| `messages.group-settings.remove-member` | remove "−" on a member row | `s-group-settings` | admin/creator only → confirm |
 | `messages.group-settings.mute` | Mute toggle | `s-group-settings` | |
 | `messages.group-settings.leave` | Leave conversation (destructive) | `s-group-settings` | → confirm sheet |
 | `messages.thread.back` | back chevron | `s-thread` | → list |

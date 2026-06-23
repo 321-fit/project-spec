@@ -63,6 +63,9 @@
   .dm-pick-av img { width: 100%; height: 100%; object-fit: cover; }
   .dm-pick-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 1px; }
   .dm-pick-chev { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  /* admin: remove a member */
+  .dm-remove { width: 30px; height: 30px; border: none; background: transparent; color: var(--fit-red-400); cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .dm-remove svg { width: 20px; height: 20px; }
   /* multi-select checkbox (Strava-style) — pick people → group chat */
   .dm-check { width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--fit-gray-600); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
   .fit-light .dm-check { border-color: var(--fit-gray-300); }
@@ -435,9 +438,9 @@
       <div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-teal-500);">Add people</div></div>
     </div>
     <div class="dm-pick"><div class="dm-pick-av" style="background:rgba(5,224,166,0.16);color:var(--fit-teal-500);">You</div><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">You</div><div class="dm-pick-sub">Admin</div></div></div>
-    <div class="dm-pick"><div class="dm-pick-av" style="background:rgba(176,97,47,0.18);color:#d98a4f;">MR</div><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Marco Rossi</div></div></div>
-    <div class="dm-pick"><div class="dm-pick-av" style="background:rgba(139,92,246,0.18);color:#a78bfa;">JD</div><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Julia Dent</div></div></div>
-    <div class="dm-pick"><div class="dm-pick-av" style="background:rgba(14,165,233,0.18);color:#38bdf8;">SK</div><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Sara Kim</div></div></div>
+    <div class="dm-pick"><div class="dm-pick-av" style="background:rgba(176,97,47,0.18);color:#d98a4f;">MR</div><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Marco Rossi</div></div><button class="dm-remove" data-a11y-id="messages.group-settings.remove-member" aria-label="Remove from group" onclick="alert('Remove Marco from group — confirm (admin only)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg></button></div>
+    <div class="dm-pick"><div class="dm-pick-av" style="background:rgba(139,92,246,0.18);color:#a78bfa;">JD</div><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Julia Dent</div></div><button class="dm-remove" data-a11y-id="messages.group-settings.remove-member" aria-label="Remove from group" onclick="alert('Remove Julia from group — confirm (admin only)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg></button></div>
+    <div class="dm-pick"><div class="dm-pick-av" style="background:rgba(14,165,233,0.18);color:#38bdf8;">SK</div><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Sara Kim</div></div><button class="dm-remove" data-a11y-id="messages.group-settings.remove-member" aria-label="Remove from group" onclick="alert('Remove Sara from group — confirm (admin only)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg></button></div>
   </div>
   <div class="fit-phone-footer fit-footer-btn">
     <button class="fit-btn fit-btn-destructive" data-a11y-id="messages.group-settings.leave" onclick="alert('Leave group — confirm sheet (destructive)')">Leave conversation</button>
@@ -475,7 +478,7 @@
     <h3>Conversation</h3><p>Bubbles reuse the assistant grammar (mine = faint brand tint, theirs = neutral surface). Date + unread separators. Composer = text / send (attach «+» hidden — share-a-session flow TBD).</p></div>
   <div class="ann" id="ann-s-thread-settings"><span class="ann-role">Shared</span><h3>Conversation settings</h3><p>Mute toggle (keeps the chat, stops notifications) + Delete conversation (destructive → confirm sheet).</p></div>
   <div class="ann" id="ann-s-group-thread"><span class="ann-role">Shared</span><h3>Group chat</h3><p>Created by multi-selecting people in New message. Stacked-avatar header + member count → tap → group settings. Bubbles are <strong>sender-attributed</strong> (name + avatar) so you know who's talking; mine plain on the right. Composer = text + send.</p></div>
-  <div class="ann" id="ann-s-group-settings"><span class="ann-role">Shared</span><h3>Group settings</h3><p>Stacked avatars + name + member count · Mute · <strong>Members list</strong> (creator = Admin) · <strong>Add people</strong> (→ the same multi-select picker, in "add to group" mode) · <strong>Leave conversation</strong> (destructive — group uses Leave, not Delete). Remove-member / rename = later.</p></div>
+  <div class="ann" id="ann-s-group-settings"><span class="ann-role">Shared</span><h3>Group settings</h3><p>Stacked avatars + name + member count · Mute · <strong>Members list</strong> (creator = Admin) · <strong>Add people</strong> (→ the same multi-select picker) · <strong>remove a member</strong> (the red "−" on each member row — <strong>admin/creator only</strong>; confirm sheet) · <strong>Leave conversation</strong> (destructive — group uses Leave, not Delete). Rename group = later.</p></div>
 </div>
 
 <script src="../../lib/fit-ui.js"></script>
