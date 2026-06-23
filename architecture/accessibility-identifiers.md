@@ -741,7 +741,14 @@ Spending ledger (mirror of coach Earnings). Spec: `payments.md` Flow C1.
 | `messages.conversation` | a conversation row | `s-messages` | → thread |
 | `messages.empty.new` | "New message" (empty state) | `s-messages` | → New message |
 | `messages.new.close` | "Close" | `s-new-message` | → list |
-| `messages.new.person` | a connected person row | `s-new-message` | → thread (1:1) |
+| `messages.new.person` | a connected person row (checkbox, multi-select) | `s-new-message` | toggle select |
+| `messages.new.create` | "Create" (enables on first pick) | `s-new-message` | 1 → 1:1, 2+ → group |
+| `messages.group.back` | back chevron | `s-group-thread` | → list |
+| `messages.group.settings` | header ⚙ / name tap | `s-group-thread` | → group settings |
+| `messages.group.input` / `.send` | composer | `s-group-thread` | |
+| `messages.group-settings.back` | back chevron | `s-group-settings` | → group thread |
+| `messages.group-settings.mute` | Mute toggle | `s-group-settings` | |
+| `messages.group-settings.leave` | Leave conversation (destructive) | `s-group-settings` | → confirm sheet |
 | `messages.thread.back` | back chevron | `s-thread` | → list |
 | `messages.thread.settings` | header ⚙ / name tap | `s-thread` | → conversation settings |
 | `messages.thread.attach` | attach + (share a session — later) | `s-thread` | composer |

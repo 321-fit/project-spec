@@ -63,6 +63,23 @@
   .dm-pick-av img { width: 100%; height: 100%; object-fit: cover; }
   .dm-pick-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 1px; }
   .dm-pick-chev { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  /* multi-select checkbox (Strava-style) — pick people → group chat */
+  .dm-check { width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--fit-gray-600); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .fit-light .dm-check { border-color: var(--fit-gray-300); }
+  .dm-check svg { width: 14px; height: 14px; color: #fff; opacity: 0; }
+  .dm-pick.sel .dm-check { background: var(--fit-brand-primary); border-color: var(--fit-brand-primary); }
+  .dm-pick.sel .dm-check svg { opacity: 1; }
+  .dm-create { background: none; border: none; font-family: var(--fit-font); font-size: 16px; font-weight: 600; cursor: pointer; color: var(--fit-text-tertiary); }
+  .dm-create.on { color: var(--fit-brand-primary); }
+
+  /* group thread — sender-attributed bubbles + stacked-avatar header */
+  .dm-grp-avs { display: flex; }
+  .dm-grp-avs .dm-grp-ic { width: 28px; height: 28px; border-radius: 50%; font-size: 11px; font-weight: 600; color: #fff; display: flex; align-items: center; justify-content: center; border: 2px solid var(--fit-screen-bg); }
+  .dm-grp-avs .dm-grp-ic:not(:first-child) { margin-left: -10px; }
+  .chat-grp { display: flex; gap: 8px; max-width: 82%; align-self: flex-start; }
+  .chat-grp-ic { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; align-self: flex-end; font-size: 11px; font-weight: 600; color: #fff; display: flex; align-items: center; justify-content: center; }
+  .chat-grp-name { font-size: 11px; color: var(--fit-text-tertiary); margin: 0 0 2px 12px; }
+  .chat-grp .chat-msg.them { align-self: flex-start; }
 
   /* ===== Thread ===== */
   .chat-body { flex: 1; display: flex; flex-direction: column; gap: 7px; padding: 12px 16px 8px; overflow-y: auto; }
@@ -128,6 +145,8 @@
   <button onclick="go('s-thread',this);setTs('default')">Conversation</button>
   <button onclick="go('s-thread',this);setTs('empty')">Conversation · new</button>
   <button onclick="go('s-thread-settings',this)">Conversation settings</button>
+  <button onclick="go('s-group-thread',this)">Group chat</button>
+  <button onclick="go('s-group-settings',this)">Group settings</button>
   <div class="label">Viewer (role / theme)</div>
   <button onclick="setViewer('athlete')">Athlete (light)</button>
   <button onclick="setViewer('coach')">Coach (dark)</button>
@@ -171,7 +190,19 @@
         <div class="dm-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Mon</div>
       </div>
 
+      <!-- ATHLETE — a group chat (e.g. a group-training cohort) -->
+      <div class="dm-row" data-vr="athlete" data-a11y-id="messages.conversation" onclick="go('s-group-thread',null)">
+        <div class="dm-av" style="background:rgba(5,224,166,0.16);color:var(--fit-teal-500);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><circle cx="9" cy="8" r="3"/><path d="M2 20v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16 14h1.5a4 4 0 014 4v1"/></svg></div>
+        <div class="dm-body"><div class="dm-name">Tue HIIT group</div><div class="dm-prev">John: warm-up starts 18:00 sharp 🔥</div></div>
+        <div class="dm-meta">3h</div>
+      </div>
+
       <!-- COACH view — conversations with your athletes -->
+      <div class="dm-row" data-vr="coach" data-a11y-id="messages.conversation" onclick="go('s-group-thread',null)">
+        <div class="dm-av" style="background:rgba(5,224,166,0.16);color:var(--fit-teal-500);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><circle cx="9" cy="8" r="3"/><path d="M2 20v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16 14h1.5a4 4 0 014 4v1"/></svg></div>
+        <div class="dm-body"><div class="dm-name">Sat tennis squad</div><div class="dm-prev">You: see you all Saturday 🎾</div></div>
+        <div class="dm-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>2d</div>
+      </div>
       <div class="dm-row unread" data-vr="coach" data-a11y-id="messages.conversation" onclick="go('s-thread',null);setTs('default')">
         <div class="dm-av" style="background:#b0612f;">MR</div>
         <div class="dm-body"><div class="dm-name">Marco Rossi</div><div class="dm-prev">Thanks coach! Felt strong today 🔥</div></div>
@@ -209,43 +240,43 @@
     <div class="fit-header" style="justify-content:space-between;">
       <button style="background:none;border:none;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);cursor:pointer;" data-a11y-id="messages.new.close" onclick="go('s-messages',null)">Close</button>
       <span class="fit-header-title">New message</span>
-      <span style="width:44px;"></span>
+      <button class="dm-create" id="dm-create-btn" data-a11y-id="messages.new.create" onclick="createConv()">Create</button>
     </div>
   </div>
   <div class="fit-phone-content" style="padding-bottom:24px;">
     <div class="dm-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Search people you train with</div>
-    <p style="font-size:12px;color:var(--fit-text-tertiary);padding:8px 16px 2px;">You can message coaches and athletes you're connected with.</p>
+    <p style="font-size:12px;color:var(--fit-text-tertiary);padding:8px 16px 2px;">Pick one person, or several to start a group chat.</p>
     <!-- ATHLETE — your coaches -->
-    <div class="dm-pick" data-vr="athlete" data-a11y-id="messages.new.person" onclick="go('s-thread',null);setTs('empty')">
+    <div class="dm-pick" data-vr="athlete" data-a11y-id="messages.new.person" onclick="togglePick(this)">
       <div class="dm-pick-av">JM</div>
       <div style="flex:1;min-width:0;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">John Miller</div><div class="dm-pick-sub">Coach · Tennis</div></div>
-      <svg class="dm-pick-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      <span class="dm-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
     </div>
-    <div class="dm-pick" data-vr="athlete" data-a11y-id="messages.new.person" onclick="go('s-thread',null);setTs('empty')">
+    <div class="dm-pick" data-vr="athlete" data-a11y-id="messages.new.person" onclick="togglePick(this)">
       <div class="dm-pick-av" style="background:rgba(91,63,166,0.18);color:#9a7fe0;">AK</div>
       <div style="flex:1;min-width:0;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Anna K.</div><div class="dm-pick-sub">Coach · Yoga</div></div>
-      <svg class="dm-pick-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      <span class="dm-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
     </div>
-    <div class="dm-pick" data-vr="athlete" data-a11y-id="messages.new.person" onclick="go('s-thread',null);setTs('empty')">
+    <div class="dm-pick" data-vr="athlete" data-a11y-id="messages.new.person" onclick="togglePick(this)">
       <div class="dm-pick-av" style="background:rgba(176,97,47,0.18);color:#d98a4f;">MR</div>
       <div style="flex:1;min-width:0;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Maria Rodriguez</div><div class="dm-pick-sub">Coach · Tennis</div></div>
-      <svg class="dm-pick-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      <span class="dm-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
     </div>
     <!-- COACH — your athletes -->
-    <div class="dm-pick" data-vr="coach" data-a11y-id="messages.new.person" onclick="go('s-thread',null);setTs('empty')">
+    <div class="dm-pick" data-vr="coach" data-a11y-id="messages.new.person" onclick="togglePick(this)">
       <div class="dm-pick-av" style="background:rgba(176,97,47,0.18);color:#d98a4f;">MR</div>
       <div style="flex:1;min-width:0;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Marco Rossi</div><div class="dm-pick-sub">Athlete · 12 sessions</div></div>
-      <svg class="dm-pick-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      <span class="dm-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
     </div>
-    <div class="dm-pick" data-vr="coach" data-a11y-id="messages.new.person" onclick="go('s-thread',null);setTs('empty')">
+    <div class="dm-pick" data-vr="coach" data-a11y-id="messages.new.person" onclick="togglePick(this)">
       <div class="dm-pick-av" style="background:rgba(139,92,246,0.18);color:#a78bfa;">JD</div>
       <div style="flex:1;min-width:0;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Julia Dent</div><div class="dm-pick-sub">Athlete · 4 sessions</div></div>
-      <svg class="dm-pick-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      <span class="dm-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
     </div>
-    <div class="dm-pick" data-vr="coach" data-a11y-id="messages.new.person" onclick="go('s-thread',null);setTs('empty')">
+    <div class="dm-pick" data-vr="coach" data-a11y-id="messages.new.person" onclick="togglePick(this)">
       <div class="dm-pick-av" style="background:rgba(14,165,233,0.18);color:#38bdf8;">SK</div>
       <div style="flex:1;min-width:0;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Sara Kim</div><div class="dm-pick-sub">Athlete · 8 sessions</div></div>
-      <svg class="dm-pick-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      <span class="dm-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
     </div>
   </div>
 </div>
@@ -346,6 +377,69 @@
   </div>
 </div>
 
+<!-- ==================== SCREEN: GROUP THREAD ==================== -->
+<div class="fit-phone fit-light vr-athlete" id="s-group-thread">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header" style="justify-content:space-between;">
+      <button class="fit-header-back" data-a11y-id="messages.group.back" onclick="go('s-messages',null);setMs('default')" style="position:static;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div style="display:flex;flex-direction:column;align-items:center;cursor:pointer;" onclick="go('s-group-settings',null)">
+        <div class="dm-grp-avs" style="margin-bottom:2px;"><span class="dm-grp-ic" style="background:#b0612f;">MR</span><span class="dm-grp-ic" style="background:#8b5cf6;">JD</span><span class="dm-grp-ic" style="background:#0ea5e9;">SK</span></div>
+        <div class="fit-header-title" style="position:static;font-size:15px;">Sat tennis squad</div>
+        <div class="dm-presence">You, Marco, Julia +1 · 4 members</div>
+      </div>
+      <button class="fit-icon-btn" data-a11y-id="messages.group.settings" aria-label="Group settings" onclick="go('s-group-settings',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+    </div>
+  </div>
+  <div class="chat-body">
+    <div class="chat-sep">Yesterday</div>
+    <div class="chat-grp"><span class="chat-grp-ic" style="background:#b0612f;">MR</span><div><div class="chat-grp-name">Marco</div><div class="chat-msg them">Anyone up for Saturday 9am? 🎾</div></div></div>
+    <div class="chat-msg me">I'm in 🙌</div>
+    <div class="chat-grp"><span class="chat-grp-ic" style="background:#8b5cf6;">JD</span><div><div class="chat-grp-name">Julia</div><div class="chat-msg them">Same, see you there</div></div></div>
+    <div class="chat-unread">UNREAD MESSAGES</div>
+    <div class="chat-grp"><span class="chat-grp-ic" style="background:#0ea5e9;">SK</span><div><div class="chat-grp-name">Sara</div><div class="chat-msg them">Bringing extra balls 🎾🎾</div></div></div>
+    <div class="chat-msg me">Legend. See you all Sat</div>
+    <div class="chat-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Read</div>
+  </div>
+  <div class="fit-phone-footer chat-bar">
+    <input class="chat-field" data-a11y-id="messages.group.input" placeholder="Message the group">
+    <button class="chat-send" data-a11y-id="messages.group.send" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+  </div>
+</div>
+
+<!-- ==================== SCREEN: GROUP SETTINGS ==================== -->
+<div class="fit-phone fit-light vr-athlete" id="s-group-settings">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="messages.group-settings.back" onclick="go('s-group-thread',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Group</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+    <div class="dm-set-hero">
+      <div class="dm-grp-avs" style="margin-bottom:8px;"><span class="dm-grp-ic" style="width:48px;height:48px;font-size:16px;background:#b0612f;">MR</span><span class="dm-grp-ic" style="width:48px;height:48px;font-size:16px;background:#8b5cf6;margin-left:-16px;">JD</span><span class="dm-grp-ic" style="width:48px;height:48px;font-size:16px;background:#0ea5e9;margin-left:-16px;">SK</span></div>
+      <div class="dm-set-t">Sat tennis squad</div>
+      <div class="dm-set-s">4 members · you created this group</div>
+    </div>
+    <div class="dm-set-rows">
+      <div class="set-card" style="cursor:pointer;" onclick="var t=this.querySelector('.fit-toggle');t.classList.toggle('on');">
+        <svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg>
+        <div class="set-info"><div class="set-title">Mute conversation</div></div>
+        <span class="fit-toggle" data-a11y-id="messages.group-settings.mute"></span>
+      </div>
+    </div>
+    <div class="dm-sectitle" style="font-size:13px;color:var(--fit-text-tertiary);font-weight:600;text-transform:uppercase;letter-spacing:.4px;padding:16px 16px 4px;">Members · 4</div>
+    <div class="dm-pick"><div class="dm-pick-av" style="background:rgba(5,224,166,0.16);color:var(--fit-teal-500);">You</div><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">You</div><div class="dm-pick-sub">Admin</div></div></div>
+    <div class="dm-pick"><div class="dm-pick-av" style="background:rgba(176,97,47,0.18);color:#d98a4f;">MR</div><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Marco Rossi</div></div></div>
+    <div class="dm-pick"><div class="dm-pick-av" style="background:rgba(139,92,246,0.18);color:#a78bfa;">JD</div><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Julia Dent</div></div></div>
+    <div class="dm-pick"><div class="dm-pick-av" style="background:rgba(14,165,233,0.18);color:#38bdf8;">SK</div><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Sara Kim</div></div></div>
+  </div>
+  <div class="fit-phone-footer fit-footer-btn">
+    <button class="fit-btn fit-btn-destructive" data-a11y-id="messages.group-settings.leave" onclick="alert('Leave group — confirm sheet (destructive)')">Leave conversation</button>
+  </div>
+</div>
+
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
   <div class="ann active" id="ann-s-messages"><span class="ann-role">Shared · Athlete + Coach</span>
@@ -358,10 +452,11 @@
       <button onclick="setViewer('coach',this)">Coach (dark)</button>
     </div>
     <h3>Messages — simple 1:1 DM</h3>
-    <p>A <strong>lightweight direct-message</strong> module (Strava-style), <strong>separate from the notification Inbox</strong>. 1:1 only in v1 — athlete ↔ coach, between connected users.</p>
+    <p>A <strong>lightweight direct-message</strong> module (Strava-style), <strong>separate from the notification Inbox</strong>. Between connected users (athlete ↔ coach). <strong>1:1 and group</strong> — group is created by multi-selecting people in New message (super simple, no separate "create group" flow).</p>
     <ul>
       <li><strong>List</strong> — conversations: avatar + name + last-message preview + time. Unread = bold preview + brand dot; read = grey check + time. <strong>Compose</strong> icon (top-right) → New message. Empty state → "New message" CTA.</li>
-      <li><strong>New message</strong> — search + people <strong>you're connected with</strong> (your coaches / your athletes). Tap a person → opens the thread (single 1:1; group chat is out of v1). Closes back to list.</li>
+      <li><strong>New message</strong> — search + people <strong>you're connected with</strong> (your coaches / your athletes), each with a <strong>checkbox (multi-select)</strong>. <strong>Create</strong> (top-right, enables on first pick): <strong>1 selected → 1:1</strong>, <strong>2+ → group chat</strong>. Strava-style, minimal effort.</li>
+      <li><strong>Group thread</strong> — stacked-avatar header + "You, Marco, Julia +1 · N members"; bubbles show <strong>sender name + avatar</strong> (mine plain right). <strong>Group settings</strong>: members list + Mute + <strong>Leave conversation</strong> (vs Delete for 1:1).</li>
       <li><strong>Thread</strong> — date separators + <strong>UNREAD MESSAGES</strong> divider; bubbles (mine = faint brand tint right, theirs = surface left), read tick. Header = name + presence ("last seen…") → tap → settings. Composer: text field · send. <em>(Attach / share-a-session "+" is hidden for now — flow to be designed later.)</em></li>
       <li><strong>New thread (empty)</strong> — person header + "Say hi to start". </li>
       <li><strong>Conversation settings</strong> — paired avatars · "You and X" · <strong>Mute</strong> toggle · <strong>Delete conversation</strong> (destructive, confirm sheet).</li>
@@ -375,6 +470,8 @@
     <div class="state-toggle"><button class="active" onclick="setTs('default',this)">Has messages</button><button onclick="setTs('empty',this)">New (empty)</button></div>
     <h3>Conversation</h3><p>Bubbles reuse the assistant grammar (mine = faint brand tint, theirs = neutral surface). Date + unread separators. Composer = text / send (attach «+» hidden — share-a-session flow TBD).</p></div>
   <div class="ann" id="ann-s-thread-settings"><span class="ann-role">Shared</span><h3>Conversation settings</h3><p>Mute toggle (keeps the chat, stops notifications) + Delete conversation (destructive → confirm sheet).</p></div>
+  <div class="ann" id="ann-s-group-thread"><span class="ann-role">Shared</span><h3>Group chat</h3><p>Created by multi-selecting people in New message. Stacked-avatar header + member count → tap → group settings. Bubbles are <strong>sender-attributed</strong> (name + avatar) so you know who's talking; mine plain on the right. Composer = text + send.</p></div>
+  <div class="ann" id="ann-s-group-settings"><span class="ann-role">Shared</span><h3>Group settings</h3><p>Stacked avatars + name + member count · Mute · <strong>Members list</strong> (creator = Admin) · <strong>Leave conversation</strong> (destructive — group uses Leave, not Delete). Add-members / rename = later.</p></div>
 </div>
 
 <script src="../../lib/fit-ui.js"></script>
@@ -404,9 +501,26 @@ function setViewer(role, btn) {
   document.querySelectorAll('.fit-phone').forEach(function (p) {
     p.classList.remove('vr-athlete', 'vr-coach'); p.classList.add('vr-' + role);
   });
+  clearPicks();
   if (btn) annTog(btn);
 }
 function annTog(btn) { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+/* New message multi-select → 1 person = 1:1, 2+ = group chat */
+function togglePick(el) { el.classList.toggle('sel'); updateCreate(); }
+function updateCreate() {
+  var n = document.querySelectorAll('#s-new-message .dm-pick.sel').length;
+  var btn = document.getElementById('dm-create-btn');
+  if (!btn) return;
+  btn.classList.toggle('on', n > 0);
+  btn.textContent = n > 1 ? 'Create (' + n + ')' : 'Create';
+}
+function clearPicks() { document.querySelectorAll('#s-new-message .dm-pick.sel').forEach(p => p.classList.remove('sel')); updateCreate(); }
+function createConv() {
+  var n = document.querySelectorAll('#s-new-message .dm-pick.sel').length;
+  if (n === 0) return;
+  if (n >= 2) go('s-group-thread', null); else { go('s-thread', null); setTs('empty'); }
+  clearPicks();
+}
 // entry context: ?role=coach|athlete (from the dashboard Messages icon)
 (function initRole() {
   var r = new URLSearchParams(location.search).get('role');
