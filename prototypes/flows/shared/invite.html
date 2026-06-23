@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invite to 321Fit — 321Fit</title>
+<link rel="stylesheet" href="../../fit-ui.css">
+<style>
+  /* ===== Invite shell ===== */
+  .inv-seg-wrap { padding: 8px 16px 4px; }
+
+  /* tab panel show/hide driven by state class on the phone */
+  #s-invite .inv-panel { display: none; }
+  #s-invite.tab-qr       .inv-panel-qr       { display: block; }
+  #s-invite.tab-contacts .inv-panel-contacts { display: block; }
+  #s-invite.tab-invited  .inv-panel-invited  { display: block; }
+
+  /* ===== QR tab (reused from my-coaches s-invite) ===== */
+  .inv-wrap { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 12px 24px 24px; }
+  .inv-av { width: 56px; height: 56px; border-radius: 50%; background: var(--fit-brand-gradient); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 600; margin-bottom: 10px; }
+  .inv-name { font-size: 20px; font-weight: 600; color: var(--fit-text-primary); }
+  .inv-sub { font-size: 14px; color: var(--fit-text-secondary); line-height: 1.5; max-width: 290px; margin-top: 4px; }
+  .inv-qr { width: 232px; height: 232px; background: #fff; border-radius: 20px; margin: 22px 0 6px; padding: 18px; box-shadow: 0 4px 24px rgba(0,0,0,0.18); }
+  .inv-qr svg { width: 100%; height: 100%; display: block; }
+  .inv-actions { display: flex; gap: 10px; width: 100%; max-width: 320px; margin-top: 16px; }
+  .inv-actions .fit-btn { flex: 1; }
+  .inv-or { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 320px; margin: 18px 0 4px; color: var(--fit-text-tertiary); font-size: 12px; }
+  .inv-or::before, .inv-or::after { content: ""; flex: 1; height: 1px; background: var(--fit-divider); }
+  .inv-scan { width: 100%; max-width: 320px; height: 48px; border-radius: 99px; border: 1px solid var(--fit-divider); background: transparent; color: var(--fit-text-primary); font-family: var(--fit-font); font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .inv-scan svg { width: 18px; height: 18px; }
+  .inv-foot { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 16px; max-width: 300px; }
+
+  /* ===== Contacts tab (reused from clients imp-) ===== */
+  .inv-contacts [data-cn-state] { display: none; }
+  #s-invite.cn-prompt  .cn-prompt  { display: flex; }
+  #s-invite.cn-granted .cn-granted { display: block; }
+
+  .cn-prompt { flex-direction: column; align-items: center; text-align: center; padding: 40px 32px; }
+  .cn-prompt-ic { width: 64px; height: 64px; border-radius: 50%; background: var(--fit-surface-high); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+  .cn-prompt-ic svg { width: 28px; height: 28px; color: var(--fit-text-secondary); }
+  .cn-prompt-t { font-size: 17px; font-weight: 600; color: var(--fit-text-primary); }
+  .cn-prompt-s { font-size: 14px; color: var(--fit-text-secondary); line-height: 1.5; margin: 6px 0 18px; max-width: 280px; }
+
+  .imp-search { display: flex; align-items: center; gap: 8px; margin: 4px 16px 8px; padding: 10px 12px; border-radius: 12px; background: var(--fit-surface-high); }
+  .imp-search svg { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .imp-search input { flex: 1; border: none; outline: none; background: transparent; font-family: var(--fit-font); font-size: 15px; color: var(--fit-text-primary); }
+  .imp-search input::placeholder { color: var(--fit-text-placeholder); }
+  .imp-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; }
+  .imp-av { width: 40px; height: 40px; border-radius: 50%; background: var(--fit-gray-600); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; color: var(--fit-white); flex-shrink: 0; }
+  .imp-body { flex: 1; min-width: 0; }
+  .imp-name { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .imp-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 1px; }
+  .imp-onapp { font-size: 11px; font-weight: 500; color: var(--fit-teal-500); background: rgba(5,224,166,0.08); border: 1px solid rgba(5,224,166,0.3); padding: 4px 10px; border-radius: 99px; flex-shrink: 0; }
+  .imp-invite-btn { font-size: 14px; font-weight: 600; color: var(--fit-brand-primary); background: none; border: none; cursor: pointer; font-family: var(--fit-font); padding: 6px 8px; flex-shrink: 0; }
+  .imp-invite-btn.sent { color: var(--fit-text-tertiary); font-weight: 500; }
+
+  /* ===== Invited tab (reused from invite-coach ic-) ===== */
+  .ic-count-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 16px 8px; }
+  .ic-count { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--fit-text-tertiary); }
+  .ic-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; }
+  .ic-av { width: 42px; height: 42px; border-radius: 50%; background: var(--fit-brand-gradient); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; flex-shrink: 0; }
+  .ic-body { flex: 1; min-width: 0; }
+  .ic-name { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
+  .ic-when { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 1px; }
+
+  /* ===== Scan screen ===== */
+  .scan-view { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #0a0a0a; }
+  .scan-frame { position: relative; width: 220px; height: 220px; margin-top: 40px; }
+  .scan-frame span { position: absolute; width: 36px; height: 36px; border: 3px solid #fff; }
+  .scan-frame .tl { top: 0; left: 0; border-right: none; border-bottom: none; border-radius: 12px 0 0 0; }
+  .scan-frame .tr { top: 0; right: 0; border-left: none; border-bottom: none; border-radius: 0 12px 0 0; }
+  .scan-frame .bl { bottom: 0; left: 0; border-right: none; border-top: none; border-radius: 0 0 0 12px; }
+  .scan-frame .br { bottom: 0; right: 0; border-left: none; border-top: none; border-radius: 0 0 12px 0; }
+  .scan-hint { color: rgba(255,255,255,0.8); font-size: 14px; margin-top: 24px; text-align: center; }
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<div class="sidebar">
+  <div class="sidebar-title">Invite to 321Fit</div>
+  <div class="sidebar-group">Viewer</div>
+  <button class="active" onclick="setViewer('athlete',this)">Athlete (light)</button>
+  <button onclick="setViewer('coach',this)">Coach (dark)</button>
+  <div class="sidebar-group">Screens</div>
+  <button onclick="go('s-invite',this)">Invite (QR / Contacts / Invited)</button>
+  <button onclick="go('s-invite-scan',this)">Scan a code</button>
+</div>
+
+<!-- ==================== SCREEN: INVITE ==================== -->
+<div class="fit-phone fit-light active tab-qr cn-prompt" id="s-invite">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="invite.back" onclick="alert('Back — returns to the entry point (Settings / My Coaches / Clients)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Invite to 321Fit</span>
+    </div>
+  </div>
+
+  <div class="inv-seg-wrap">
+    <div class="fit-segmented">
+      <button class="fit-segmented-tab active" data-a11y-id="invite.tab.qr" onclick="setInvTab('qr',this)">QR code</button>
+      <button class="fit-segmented-tab" data-a11y-id="invite.tab.contacts" onclick="setInvTab('contacts',this)">Contacts</button>
+      <button class="fit-segmented-tab" data-a11y-id="invite.tab.invited" onclick="setInvTab('invited',this)">Invited</button>
+    </div>
+  </div>
+
+  <div class="fit-phone-content">
+
+    <!-- ---------- TAB: QR ---------- -->
+    <div class="inv-panel inv-panel-qr">
+      <div class="inv-wrap">
+        <div class="inv-av" id="inv-av">NC</div>
+        <div class="inv-name" id="inv-name">Natallia C.</div>
+        <div class="inv-sub" id="inv-sub">Show this code or share your link — anyone you invite joins 321Fit through you. Coaches &amp; athletes both welcome.</div>
+
+        <!-- QR encodes your unique 321Fit invite link (AppsFlyer OneLink) -->
+        <div class="inv-qr" data-a11y-id="invite.qr">
+          <svg viewBox="0 0 116 116" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:var(--fit-teal-600);">
+            <g fill="currentColor">
+              <rect x="0" y="0" width="28" height="28" rx="5"/><rect x="6" y="6" width="16" height="16" rx="3" fill="#fff"/><rect x="10" y="10" width="8" height="8" rx="1"/>
+              <rect x="88" y="0" width="28" height="28" rx="5"/><rect x="94" y="6" width="16" height="16" rx="3" fill="#fff"/><rect x="98" y="10" width="8" height="8" rx="1"/>
+              <rect x="0" y="88" width="28" height="28" rx="5"/><rect x="6" y="94" width="16" height="16" rx="3" fill="#fff"/><rect x="10" y="98" width="8" height="8" rx="1"/>
+              <rect x="36" y="4" width="4" height="4"/><rect x="44" y="4" width="4" height="4"/><rect x="56" y="8" width="4" height="4"/><rect x="64" y="4" width="4" height="4"/><rect x="76" y="8" width="4" height="4"/>
+              <rect x="32" y="12" width="4" height="4"/><rect x="48" y="12" width="4" height="4"/><rect x="60" y="16" width="4" height="4"/><rect x="72" y="12" width="4" height="4"/><rect x="80" y="16" width="4" height="4"/>
+              <rect x="4" y="36" width="4" height="4"/><rect x="12" y="40" width="4" height="4"/><rect x="20" y="36" width="4" height="4"/><rect x="36" y="36" width="8" height="8"/><rect x="52" y="40" width="4" height="4"/><rect x="64" y="36" width="4" height="4"/><rect x="76" y="40" width="4" height="4"/><rect x="88" y="36" width="4" height="4"/><rect x="100" y="40" width="4" height="4"/><rect x="108" y="36" width="4" height="4"/>
+              <rect x="8" y="48" width="4" height="4"/><rect x="24" y="52" width="4" height="4"/><rect x="48" y="48" width="4" height="4"/><rect x="56" y="52" width="4" height="4"/><rect x="84" y="48" width="4" height="4"/><rect x="96" y="52" width="4" height="4"/><rect x="108" y="48" width="4" height="4"/>
+              <rect x="4" y="60" width="4" height="4"/><rect x="16" y="64" width="4" height="4"/><rect x="36" y="60" width="4" height="4"/><rect x="68" y="64" width="4" height="4"/><rect x="80" y="60" width="4" height="4"/><rect x="92" y="64" width="4" height="4"/><rect x="104" y="60" width="4" height="4"/>
+              <rect x="12" y="76" width="4" height="4"/><rect x="36" y="80" width="4" height="4"/><rect x="48" y="76" width="8" height="8"/><rect x="64" y="80" width="4" height="4"/><rect x="76" y="76" width="4" height="4"/><rect x="88" y="80" width="4" height="4"/><rect x="100" y="76" width="4" height="4"/>
+              <rect x="36" y="92" width="4" height="4"/><rect x="44" y="96" width="4" height="4"/><rect x="56" y="92" width="4" height="4"/><rect x="68" y="96" width="4" height="4"/><rect x="80" y="92" width="4" height="4"/><rect x="92" y="96" width="4" height="4"/><rect x="104" y="92" width="4" height="4"/>
+              <rect x="40" y="104" width="4" height="4"/><rect x="52" y="108" width="4" height="4"/><rect x="64" y="104" width="4" height="4"/><rect x="84" y="108" width="4" height="4"/><rect x="100" y="104" width="4" height="4"/>
+            </g>
+            <rect x="46" y="46" width="24" height="24" rx="6" fill="#fff"/>
+            <path d="M58 50l1.6 4.6L64 56l-4.4 1.4L58 62l-1.6-4.6L52 56l4.4-1.4z" fill="var(--fit-teal-600)"/>
+          </svg>
+        </div>
+
+        <div class="inv-actions">
+          <button class="fit-btn fit-btn-secondary" data-a11y-id="invite.copy" onclick="showInvSnack('Link copied')">Copy link</button>
+          <button class="fit-btn fit-btn-primary" data-a11y-id="invite.share" onclick="alert('Share sheet — native (OneLink invite URL)')">Share</button>
+        </div>
+
+        <div class="inv-or">or</div>
+        <button class="inv-scan" data-a11y-id="invite.scan" onclick="go('s-invite-scan',null)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><path d="M3 12h18"/></svg>
+          Scan a code
+        </button>
+        <div class="inv-foot">Your invite link is unique to you (321Fit / AppsFlyer OneLink).</div>
+      </div>
+    </div>
+
+    <!-- ---------- TAB: CONTACTS ---------- -->
+    <div class="inv-panel inv-panel-contacts inv-contacts">
+      <!-- permission prompt (default) -->
+      <div data-cn-state class="cn-prompt">
+        <div class="cn-prompt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+        <div class="cn-prompt-t">Find people you know</div>
+        <div class="cn-prompt-s">Connect your contacts to see who's already on 321Fit and invite the rest. We never message anyone without you.</div>
+        <button class="fit-btn fit-btn-primary" style="width:auto;padding:0 28px;" data-a11y-id="invite.contacts.connect" onclick="grantContacts()">Connect contacts</button>
+      </div>
+
+      <!-- granted: searchable contact list -->
+      <div data-cn-state class="cn-granted">
+        <div class="imp-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+          <input type="text" placeholder="Search contacts" data-a11y-id="invite.contacts.search">
+        </div>
+
+        <div class="ic-count-row"><span class="ic-count">On 321Fit</span></div>
+        <div class="imp-row">
+          <div class="imp-av">AM</div>
+          <div class="imp-body"><div class="imp-name">Anna M.</div><div class="imp-sub">+357 99 123 456</div></div>
+          <span class="imp-onapp">On 321Fit</span>
+        </div>
+        <div class="imp-row">
+          <div class="imp-av">DK</div>
+          <div class="imp-body"><div class="imp-name">Dmitri K.</div><div class="imp-sub">+357 96 884 220</div></div>
+          <span class="imp-onapp">On 321Fit</span>
+        </div>
+
+        <div class="ic-count-row" style="margin-top:6px;"><span class="ic-count">From your contacts</span></div>
+        <div class="imp-row">
+          <div class="imp-av">SP</div>
+          <div class="imp-body"><div class="imp-name">Sergey P.</div><div class="imp-sub">+357 99 776 100</div></div>
+          <button class="imp-invite-btn" data-a11y-id="invite.contacts.invite" onclick="sendInvite(this)">Invite</button>
+        </div>
+        <div class="imp-row">
+          <div class="imp-av">EL</div>
+          <div class="imp-body"><div class="imp-name">Elena L.</div><div class="imp-sub">+357 95 220 884</div></div>
+          <button class="imp-invite-btn" data-a11y-id="invite.contacts.invite" onclick="sendInvite(this)">Invite</button>
+        </div>
+        <div class="imp-row">
+          <div class="imp-av">MV</div>
+          <div class="imp-body"><div class="imp-name">Maria V.</div><div class="imp-sub">+357 97 010 332</div></div>
+          <button class="imp-invite-btn" data-a11y-id="invite.contacts.invite" onclick="sendInvite(this)">Invite</button>
+        </div>
+        <div class="inv-foot" style="margin:16px auto;text-align:center;">Tapping Invite opens a prefilled SMS with your OneLink — nothing is sent automatically.</div>
+      </div>
+    </div>
+
+    <!-- ---------- TAB: INVITED ---------- -->
+    <div class="inv-panel inv-panel-invited">
+      <div class="ic-count-row"><span class="ic-count" id="inv-joined-count">3 joined through you</span></div>
+      <div class="ic-row">
+        <div class="ic-av">RK</div>
+        <div class="ic-body"><div class="ic-name">Roman K.</div><div class="ic-when">Joined 2 days ago</div></div>
+      </div>
+      <div class="ic-row">
+        <div class="ic-av">YT</div>
+        <div class="ic-body"><div class="ic-name">Yana T.</div><div class="ic-when">Joined 1 week ago</div></div>
+      </div>
+      <div class="ic-row">
+        <div class="ic-av">PB</div>
+        <div class="ic-body"><div class="ic-name">Pavel B.</div><div class="ic-when">Joined 3 weeks ago</div></div>
+      </div>
+      <div class="inv-foot" style="margin:16px auto;text-align:center;">We track who joins through you for future rewards. People who only opened the link aren't shown.</div>
+    </div>
+
+  </div>
+  <div class="fit-snackbar" id="inv-snackbar"><span class="snack-dot"></span><span class="snack-text" id="inv-snack-text">Link copied</span></div>
+</div>
+
+<!-- ==================== SCREEN: SCAN A CODE ==================== -->
+<div class="fit-phone fit-dark" id="s-invite-scan">
+  <div class="fit-phone-header" style="background:#0a0a0a;">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="invite.scan.back" onclick="go('s-invite',null)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title" style="color:#fff;">Scan code</span>
+    </div>
+  </div>
+  <div class="fit-phone-content scan-view">
+    <div class="scan-frame"><span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span></div>
+    <div class="scan-hint">Point at someone's 321Fit QR code</div>
+  </div>
+</div>
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+  <div class="ann active" id="ann-s-invite"><span class="ann-role athlete">Shared</span><h3>Invite to 321Fit (global)</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setInvTab('qr',null);annTab(this)">QR</button>
+      <button onclick="setInvTab('contacts',null);annTab(this)">Contacts</button>
+      <button onclick="setInvTab('invited',null);annTab(this)">Invited</button>
+    </div>
+    <p><strong>One global invite screen</strong>, reused from every entry point — Settings (Invite a coach / Invite a friend), My Coaches, Clients. The entry label adapts ("Invite a coach", "Invite clients"); the destination is always this screen. Role-agnostic: athlete = light, coach = dark (toggle in sidebar).</p>
+    <p><strong>Why unified:</strong> invite-to-the-app is one relationship. The OneLink encodes who's inviting (attribution) so a single screen serves both "bring a coach onto 321Fit" and "bring clients/athletes onto 321Fit". Replaces 4 divergent invite surfaces (coach/invite-coach.html, athlete s-invite, settings placeholders, CRM import).</p>
+    <p><strong>QR tab</strong> — your avatar + name + QR (AppsFlyer OneLink) + Copy link / Share (native sheet) + Scan a code (in-person connect, either side can show or scan).</p>
+    <p><strong>Contacts tab</strong> — permission prompt → connect → contacts split into "On 321Fit" (already members) and "From your contacts" (per-row <code>Invite</code> → prefilled SMS with your OneLink, nothing sent automatically). Reuses the CRM contact-import primitive from Clients.</p>
+    <p><strong>Invited tab</strong> — people who joined through your link (the old coach→coach "recent joined" list, generalised). Most-recent-first. Only <code>joined</code> shown; link-opens aren't trackable to a person. Pills/rewards deferred to Phase 2 per <code>project_invite_a_coach</code>.</p>
+    <p><strong>Backend:</strong> <code>GET /me/referral-link</code> → {url, token}; <code>GET /me/invites</code> → joined list; contacts match endpoint (hash phone → on-app flag) for the Contacts tab; signup accepts <code>referral_token</code>. All additive.</p>
+  </div>
+  <div class="ann" id="ann-s-invite-scan"><span class="ann-role athlete">Shared</span><h3>Scan a code</h3><p>Camera viewport + framing corners (native camera + permission). Point at someone's 321Fit QR → resolves the OneLink → connect. Symmetric with the QR tab — either side shows or scans.</p></div>
+</div>
+
+<script src="../../fit-ui.js"></script>
+<script>
+function go(id, btn) {
+  document.querySelectorAll('.fit-phone').forEach(p => p.classList.remove('active'));
+  var el = document.getElementById(id);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+  var ann = document.getElementById('ann-' + id);
+  if (ann) ann.classList.add('active');
+  if (btn) {
+    document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+
+function setInvTab(tab, btn) {
+  var s = document.getElementById('s-invite');
+  s.classList.remove('tab-qr', 'tab-contacts', 'tab-invited');
+  s.classList.add('tab-' + tab);
+  if (btn) {
+    btn.parentElement.querySelectorAll('.fit-segmented-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  } else {
+    // sync the segmented control when toggled from the annotation panel
+    var map = { qr: 0, contacts: 1, invited: 2 };
+    var tabs = s.querySelectorAll('.fit-segmented-tab');
+    tabs.forEach(t => t.classList.remove('active'));
+    if (tabs[map[tab]]) tabs[map[tab]].classList.add('active');
+  }
+}
+
+function annTab(btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function grantContacts() {
+  var s = document.getElementById('s-invite');
+  s.classList.remove('cn-prompt');
+  s.classList.add('cn-granted');
+}
+
+function sendInvite(btn) {
+  btn.textContent = 'Invited';
+  btn.classList.add('sent');
+  btn.disabled = true;
+  showInvSnack('Invite SMS opened');
+}
+
+var _snackTimer;
+function showInvSnack(msg) {
+  var sn = document.getElementById('inv-snackbar'), t = document.getElementById('inv-snack-text');
+  t.textContent = msg;
+  sn.classList.add('show');
+  clearTimeout(_snackTimer);
+  _snackTimer = setTimeout(function () { sn.classList.remove('show'); }, 1800);
+}
+
+function setViewer(role, btn) {
+  var s = document.getElementById('s-invite');
+  if (role === 'coach') {
+    s.classList.remove('fit-light'); s.classList.add('fit-dark');
+    document.getElementById('inv-av').textContent = 'AT';
+    document.getElementById('inv-name').textContent = 'Andrei T.';
+    document.getElementById('inv-sub').textContent = "Show this code or share your link — invite clients and fellow coaches to 321Fit. Everyone joins through you.";
+    document.getElementById('inv-joined-count').textContent = '3 joined through you';
+    document.querySelectorAll('.ann-role').forEach(r => { r.className = 'ann-role coach'; r.textContent = 'Coach'; });
+  } else {
+    s.classList.remove('fit-dark'); s.classList.add('fit-light');
+    document.getElementById('inv-av').textContent = 'NC';
+    document.getElementById('inv-name').textContent = 'Natallia C.';
+    document.getElementById('inv-sub').textContent = "Show this code or share your link — anyone you invite joins 321Fit through you. Coaches & athletes both welcome.";
+    document.getElementById('inv-joined-count').textContent = '3 joined through you';
+    document.querySelectorAll('.ann-role').forEach(r => { r.className = 'ann-role athlete'; r.textContent = 'Athlete'; });
+  }
+  if (btn) {
+    document.querySelectorAll('.sidebar button[onclick*="setViewer"]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+</script>
+</body>
+</html>

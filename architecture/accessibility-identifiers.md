@@ -644,6 +644,23 @@ Tab 2. List + per-coach relationship detail + history + private note + review co
 | `athlete.review.stars` | star rating row | `s-coach-review` | tap to set 1–5 |
 | `athlete.review.post` | sticky CTA | `s-coach-review` | Post / Update review |
 
+### `invite` — global invite screen (`shared/invite.html`)
+
+One screen reused from every entry point (Settings "Invite a coach" / "Invite a friend", My Coaches, Clients). Role-agnostic (athlete light / coach dark). Supersedes the per-file `athlete.invite.*` ids and the coach `s-invite-coach` referral screen. 3 tabs: QR · Contacts · Invited.
+
+| ID | Element | Screen | Notes |
+|---|---|---|---|
+| `invite.back` | back chevron | `s-invite` | → entry point |
+| `invite.tab.qr` / `.contacts` / `.invited` | segmented control tabs | `s-invite` | switch tab panels |
+| `invite.qr` | your QR code | `s-invite` (QR tab) | OneLink-encoded (AppsFlyer) |
+| `invite.copy` | "Copy link" | `s-invite` (QR tab) | copies OneLink |
+| `invite.share` | "Share" | `s-invite` (QR tab) | native share sheet |
+| `invite.scan` | "Scan a code" | `s-invite` (QR tab) | → `s-invite-scan` |
+| `invite.contacts.connect` | "Connect contacts" CTA | `s-invite` (Contacts tab, prompt) | contacts permission |
+| `invite.contacts.search` | search field | `s-invite` (Contacts tab) | filter contacts |
+| `invite.contacts.invite` | per-row "Invite" | `s-invite` (Contacts tab) | prefilled SMS w/ OneLink |
+| `invite.scan.back` | back chevron | `s-invite-scan` | → invite |
+
 ### `profile` (athlete) — `athlete/profile.html` (tab 5)
 
 Trimmed mirror of coach Profile (`.cp-*` grammar; no video hero). Spec: `athlete-profile.md`.
