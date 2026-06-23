@@ -7,8 +7,6 @@
 <link rel="stylesheet" href="../../lib/fit-ui.css">
 <style>
   /* ===== Invite shell ===== */
-  .inv-seg-wrap { padding: 8px 16px 4px; }
-
   /* tab panel show/hide driven by state class on the phone */
   #s-invite .inv-panel { display: none; }
   #s-invite.tab-qr       .inv-panel-qr       { display: block; }
@@ -91,21 +89,20 @@
 <div class="fit-phone fit-light active tab-qr cn-prompt" id="s-invite">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header">
-      <button class="fit-header-back" data-a11y-id="invite.back" onclick="alert('Back — returns to the entry point (Settings / My Coaches / Clients)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="fit-header" style="justify-content:space-between;">
+      <button class="fit-header-back" data-a11y-id="invite.back" style="position:static;" onclick="alert('Back — returns to the entry point (Settings / My Coaches / Clients)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
       <span class="fit-header-title">Invite to 321Fit</span>
-    </div>
-  </div>
-
-  <div class="inv-seg-wrap">
-    <div class="fit-segmented">
-      <button class="fit-segmented-tab active" data-a11y-id="invite.tab.qr" onclick="setInvTab('qr',this)">QR code</button>
-      <button class="fit-segmented-tab" data-a11y-id="invite.tab.contacts" onclick="setInvTab('contacts',this)">Contacts</button>
-      <button class="fit-segmented-tab" data-a11y-id="invite.tab.invited" onclick="setInvTab('invited',this)">Invited</button>
+      <span style="width:32px;"></span>
     </div>
   </div>
 
   <div class="fit-phone-content">
+
+    <div class="fit-segmented" style="margin:8px 16px 4px;">
+      <button class="fit-segmented-tab selected" data-a11y-id="invite.tab.qr" onclick="setInvTab('qr',this)">QR code</button>
+      <button class="fit-segmented-tab" data-a11y-id="invite.tab.contacts" onclick="setInvTab('contacts',this)">Contacts</button>
+      <button class="fit-segmented-tab" data-a11y-id="invite.tab.invited" onclick="setInvTab('invited',this)">Invited</button>
+    </div>
 
     <!-- ---------- TAB: QR ---------- -->
     <div class="inv-panel inv-panel-qr">
@@ -273,14 +270,14 @@ function setInvTab(tab, btn) {
   s.classList.remove('tab-qr', 'tab-contacts', 'tab-invited');
   s.classList.add('tab-' + tab);
   if (btn) {
-    btn.parentElement.querySelectorAll('.fit-segmented-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    btn.parentElement.querySelectorAll('.fit-segmented-tab').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
   } else {
     // sync the segmented control when toggled from the annotation panel
     var map = { qr: 0, contacts: 1, invited: 2 };
     var tabs = s.querySelectorAll('.fit-segmented-tab');
-    tabs.forEach(t => t.classList.remove('active'));
-    if (tabs[map[tab]]) tabs[map[tab]].classList.add('active');
+    tabs.forEach(t => t.classList.remove('selected'));
+    if (tabs[map[tab]]) tabs[map[tab]].classList.add('selected');
   }
 }
 
