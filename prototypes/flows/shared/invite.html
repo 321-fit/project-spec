@@ -6,6 +6,34 @@
 <title>Invite to 321Fit — 321Fit</title>
 <link rel="stylesheet" href="../../lib/fit-ui.css">
 <style>
+  /* ===== Layout boilerplate (sidebar + annotations + phone show/hide) ===== */
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: var(--fit-font); background: #0a0a0a; display: flex; justify-content: center; align-items: flex-start; padding: 24px; min-height: 100vh; min-width: 900px; }
+  .sidebar { position: fixed; left: 24px; top: 24px; bottom: 24px; width: 200px; display: flex; flex-direction: column; }
+  .sidebar-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--fit-gray-600); padding: 0 8px; margin: 16px 0 8px; }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button { font-family: var(--fit-font); font-size: 14px; font-weight: 400; padding: 10px 12px; border-radius: 10px; border: none; background: transparent; color: var(--fit-gray-400); cursor: pointer; text-align: left; width: 100%; transition: all 0.15s; }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active { background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500; }
+  .ann-container { position: fixed; left: calc(50% + 195px + 48px); right: 24px; top: 24px; bottom: 24px; width: auto; overflow-y: auto; }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; } .ann.active { display: block; }
+  .ann-role { display: inline-block; font-size: 14px; font-weight: 500; padding: 4px 12px; border-radius: 8px; margin-bottom: 16px; background: rgba(5,224,166,0.15); color: var(--fit-teal-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann code { font-size: 13px; background: var(--fit-gray-900); padding: 1px 6px; border-radius: 5px; color: var(--fit-gray-300); }
+  .state-toggle { display: inline-flex; gap: 0; border-radius: 6px; overflow: hidden; border: 1px solid var(--fit-gray-700); margin-bottom: 8px; flex-wrap: wrap; }
+  .state-toggle button { font-family: var(--fit-font); font-size: 12px; font-weight: 500; padding: 4px 10px; border: none; cursor: pointer; background: transparent; color: var(--fit-gray-400); transition: all 0.15s; }
+  .state-toggle button.active { background: var(--fit-gray-700); color: var(--fit-white); }
+  .fit-phone { display: none; } .fit-phone.active { display: flex; }
+  .fit-dark .fit-phone-header, .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-dark .fit-phone-footer, .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+
   /* ===== Invite shell ===== */
   /* tab panel show/hide driven by state class on the phone */
   #s-invite .inv-panel { display: none; }
@@ -30,8 +58,8 @@
 
   /* ===== Contacts tab (reused from clients imp-) ===== */
   .inv-contacts [data-cn-state] { display: none; }
-  #s-invite.cn-prompt  .cn-prompt  { display: flex; }
-  #s-invite.cn-granted .cn-granted { display: block; }
+  #s-invite.cnp .cn-prompt  { display: flex; }
+  #s-invite.cng .cn-granted { display: block; }
 
   .cn-prompt { flex-direction: column; align-items: center; text-align: center; padding: 40px 32px; }
   .cn-prompt-ic { width: 64px; height: 64px; border-radius: 50%; background: var(--fit-surface-high); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
@@ -75,24 +103,25 @@
 <body>
 
 <!-- ==================== SIDEBAR ==================== -->
-<div class="sidebar">
-  <div class="sidebar-title">Invite to 321Fit</div>
-  <div class="sidebar-group">Viewer</div>
-  <button class="active" onclick="setViewer('athlete',this)">Athlete (light)</button>
-  <button onclick="setViewer('coach',this)">Coach (dark)</button>
-  <div class="sidebar-group">Screens</div>
-  <button onclick="go('s-invite',this)">Invite (QR / Contacts / Invited)</button>
-  <button onclick="go('s-invite-scan',this)">Scan a code</button>
-</div>
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+    <div class="label">Invite to 321Fit</div>
+    <div class="label">Viewer</div>
+    <button class="active" onclick="setViewer('athlete',this)">Athlete (light)</button>
+    <button onclick="setViewer('coach',this)">Coach (dark)</button>
+    <div class="label">Screens</div>
+    <button onclick="go('s-invite',this)">Invite (QR / Contacts / Invited)</button>
+    <button onclick="go('s-invite-scan',this)">Scan a code</button>
+  </div>
+</nav>
 
 <!-- ==================== SCREEN: INVITE ==================== -->
-<div class="fit-phone fit-light active tab-qr cn-prompt" id="s-invite">
+<div class="fit-phone fit-light active tab-qr cnp" id="s-invite">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header" style="justify-content:space-between;">
-      <button class="fit-header-back" data-a11y-id="invite.back" style="position:static;" onclick="alert('Back — returns to the entry point (Settings / My Coaches / Clients)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="invite.back" onclick="alert('Back — returns to the entry point (Settings / My Coaches / Clients)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
       <span class="fit-header-title">Invite to 321Fit</span>
-      <span style="width:32px;"></span>
     </div>
   </div>
 
@@ -288,8 +317,8 @@ function annTab(btn) {
 
 function grantContacts() {
   var s = document.getElementById('s-invite');
-  s.classList.remove('cn-prompt');
-  s.classList.add('cn-granted');
+  s.classList.remove('cnp');
+  s.classList.add('cng');
 }
 
 function sendInvite(btn) {
