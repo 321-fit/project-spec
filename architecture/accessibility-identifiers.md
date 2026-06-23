@@ -359,19 +359,20 @@ Prototypes: `coach/settings.html` + every sub-screen (personal-data, calendar-sy
 | ID | Element | Screen | Notes |
 |---|---|---|---|
 | `coach.settings.invite` | "Invite to 321Fit" row | s-settings (Profile) | → `shared/invite.html?role=coach` |
-| `coach.settings.avail-hours` | "Available hours" row | s-settings (Availability) | → `available-hours.html` |
-| `coach.settings.time-off` | "Time off" row | s-settings (Availability) | → `available-hours.html#timeoff` |
-| `coach.settings.booking-rules` | "Booking rules" row | s-settings (Availability) | → `available-hours.html#rules` (WIP) |
-| `coach.settings.timezone` | "Time zone" row | s-settings (Availability) | → `personal-data.html` (TZ picker); duplicate of Personal Data TZ |
+| `coach.settings.availability` | "Availability" row (Scheduling) | s-settings | → `availability.html` (hub) |
 
-#### `availability` — Available hours / Time off / Booking rules (`coach/available-hours.html`)
+#### `availability` — hub + sub-screens (`coach/availability.html` + `coach/available-hours.html`)
 
-Settings → Availability is a hub-of-cards (Calendly/Cal.com pattern); the 3 screens live in `available-hours.html`, deep-linked by hash (`#timeoff`, `#rules`).
+Settings → one **Availability** card → `availability.html` hub (Calendly/Cal.com hub-of-cards): sections Hours / Booking / Region. Weekly editor, Time off, Booking rules live in `available-hours.html` (deep-linked `#timeoff` / `#rules`); the **Time zone field/picker is embedded in the hub** (not a redirect to Personal Data, value mirrored there).
 
 | ID | Element | Screen | Notes |
 |---|---|---|---|
-| `coach.availability.timeoff` | (removed) | — | Time off row no longer on the weekly screen; now a Settings row |
-| `coach.booking-rules.back` | back chevron | s-booking-rules | → s-availability |
+| `coach.availability.back` | back chevron | s-availability-hub | → settings.html |
+| `coach.availability.hours` | "Available hours" row | s-availability-hub | → `available-hours.html` |
+| `coach.availability.timeoff` | "Time off" row | s-availability-hub | → `available-hours.html#timeoff` |
+| `coach.availability.rules` | "Booking rules" row | s-availability-hub | → `available-hours.html#rules` (WIP) |
+| `coach.availability.timezone` | "Time zone" row | s-availability-hub | → embedded `s-tz-select` picker |
+| `coach.booking-rules.back` | back chevron | s-booking-rules | history-back → hub, else s-availability |
 | `coach.booking-rules.notice` / `.window` / `.buffer` / `.maxday` | rule rows | s-booking-rules (WIP) | native pickers TBD |
 
 #### `calsync` — Calendar Sync sub-module (`coach/calendar-sync.html`)
