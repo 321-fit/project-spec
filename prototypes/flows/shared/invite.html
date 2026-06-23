@@ -44,6 +44,10 @@
   #s-invite.tab-qr .inv-panel-qr { display: block; }
   #s-invite.tab-contacts .inv-panel-contacts { display: block; }
   #s-invite.tab-invited .inv-panel-invited { display: block; }
+  /* Invited: populated vs zero state */
+  #s-invite .inv-panel-invited .iv-empty { display: none; }
+  #s-invite.iv0 .inv-panel-invited .iv-list { display: none; }
+  #s-invite.iv0 .inv-panel-invited .iv-empty { display: block; }
   /* Invite CTA footer only on Contacts tab once contacts are connected */
   #s-invite .fit-phone-footer { display: none; }
   #s-invite.tab-contacts.cng .fit-phone-footer { display: block; }
@@ -202,11 +206,22 @@
 
     <!-- TAB: INVITED -->
     <div class="inv-panel inv-panel-invited">
+     <div class="iv-list">
       <div class="ic-count-row"><span class="ic-count" id="inv-joined-count">3 joined through you</span></div>
       <div class="ic-row"><div class="ic-av">RK</div><div class="ic-body"><div class="ic-name">Roman K.</div><div class="ic-when">Joined as coach · 2 days ago</div></div><button class="ic-msg" data-a11y-id="invite.invited.message" aria-label="Message" onclick="window.location.href='messages.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></button></div>
       <div class="ic-row"><div class="ic-av">YT</div><div class="ic-body"><div class="ic-name">Yana T.</div><div class="ic-when">Joined as athlete · 1 week ago</div></div><button class="ic-msg" data-a11y-id="invite.invited.message" aria-label="Message" onclick="window.location.href='messages.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></button></div>
       <div class="ic-row"><div class="ic-av">PB</div><div class="ic-body"><div class="ic-name">Pavel B.</div><div class="ic-when">Joined as athlete · 3 weeks ago</div></div><button class="ic-msg" data-a11y-id="invite.invited.message" aria-label="Message" onclick="window.location.href='messages.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></button></div>
       <div class="ic-foot">We track who joins through you for future rewards. People who only opened the link aren&rsquo;t shown.</div>
+     </div>
+     <!-- ZERO STATE -->
+     <div class="iv-empty">
+       <div class="fit-empty-state" style="padding-top:64px;">
+         <svg class="fes-illus" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M44 50v-3a7 7 0 00-7-7H21a7 7 0 00-7 7v3"/><circle cx="29" cy="24" r="8"/><path d="M50 22v10M55 27H45"/></svg>
+         <div class="fit-empty-state-title">No one&rsquo;s joined yet</div>
+         <div class="fit-empty-state-sub">Share your link — anyone who joins 321Fit<br>through you will show up here.</div>
+         <button class="fit-btn fit-btn-primary" style="display:inline-flex;width:auto;height:44px;padding:0 24px;font-size:16px;margin-top:4px;" data-a11y-id="invite.invited.share" onclick="openInviteShare()">Share your link</button>
+       </div>
+     </div>
     </div>
 
   </div>
@@ -258,6 +273,10 @@
     <div class="state-toggle">
       <button class="active" onclick="setCn('cnp',this)">Contacts: prompt</button>
       <button onclick="setCn('cng',this)">Contacts: granted</button>
+    </div>
+    <div class="state-toggle">
+      <button class="active" onclick="setIv('joined',this)">Invited: has joined</button>
+      <button onclick="setIv('empty',this)">Invited: empty</button>
     </div>
     <p><strong>One global invite screen</strong>, reused from every entry point — Settings (Invite a coach / Invite a friend), My Coaches, Clients. The entry label adapts; the destination is always this screen. Role-agnostic: athlete = light, coach = dark.</p>
     <p><strong>QR tab</strong> — avatar + name + QR (AppsFlyer OneLink) + Copy link / Share (native sheet).</p>
@@ -324,6 +343,7 @@ function finishShare(channel) {
   showInvSnack(channel === 'copy' ? 'Link copied' : 'Opening ' + (channel === 'share' ? 'share sheet' : channel) + '…');
 }
 function setCn(state, btn) { var s = document.getElementById('s-invite'); s.classList.remove('cnp', 'cng'); s.classList.add(state); if (btn) annTog(btn); }
+function setIv(state, btn) { var s = document.getElementById('s-invite'); s.classList.toggle('iv0', state === 'empty'); if (btn) annTog(btn); }
 var _snackTimer;
 function showInvSnack(msg) {
   var sn = document.getElementById('inv-snackbar'), t = document.getElementById('inv-snack-text');

@@ -661,6 +661,7 @@ One screen reused from every entry point (Settings "Invite a coach" / "Invite a 
 | `invite.contacts.send` | footer "Invite N" CTA | `s-invite` (Contacts tab) | opens native share drawer |
 | `invite.share.whatsapp` / `.messages` / `.copy` / `.more` | channels in share drawer | `s-invite` (share drawer) | OneLink via native share |
 | `invite.invited.message` | per-row Message button | `s-invite` (Invited tab) | → chat (`messages.html`) |
+| `invite.invited.share` | "Share your link" CTA | `s-invite` (Invited zero-state) | opens native share drawer |
 
 ### `profile` (athlete) — `athlete/profile.html` (tab 5)
 
