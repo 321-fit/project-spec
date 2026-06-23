@@ -33,7 +33,7 @@ Prototype: `shared/messages.html` (role-aware — athlete light = chats with coa
 4. **New thread (empty)** — person header + "Say hi to start the conversation."
 5. **1:1 settings** (`s-thread-settings`) — paired avatars · "You and X" · **Mute** toggle · **Delete conversation** (destructive → confirm sheet).
 6. **Group thread** (`s-group-thread`) — stacked-avatar header + name + "You, Marco, Julia +1 · N members" → tap → group settings. Bubbles are **sender-attributed** (name + avatar for others; mine plain right). Composer = text + send.
-7. **Group settings** (`s-group-settings`) — stacked avatars + name + member count · Mute · **Members list** (creator = Admin) · **Add people** (dashed row → multi-select picker) · **remove a member** (red "−" per member row — **admin/creator only**, confirm) · **Leave conversation** (group uses Leave, not Delete).
+7. **Group settings** (`s-group-settings`) — hero (stacked avatars + name + member count) then canonical `.fit-section-title` sections: **Notifications** (Mute) · **Members · N** (Add people dashed row → multi-select picker; each member row has a red "−" remove — **admin/creator only**, confirm) · footer **Leave conversation** (group uses Leave, not Delete). 1:1 settings use the same grammar (hero · Notifications · Delete).
 
 **Entry points:** the **Messages icon** in the Dashboard/Home header (left of the notification bell), on both athlete and coach. Individual threads also open from existing "Send Message" actions on coach/athlete profiles + participant sheets.
 
