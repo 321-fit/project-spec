@@ -747,8 +747,10 @@ Spending ledger (mirror of coach Earnings). Spec: `payments.md` Flow C1.
 | `messages.group.settings` | header ⚙ / name tap | `s-group-thread` | → group settings |
 | `messages.group.input` / `.send` | composer | `s-group-thread` | |
 | `messages.group-settings.back` | back chevron | `s-group-settings` | → group thread |
-| `messages.group-settings.rename` | "Change name" row | `s-group-settings` | → rename sheet (admin) |
-| `messages.group-settings.rename-input` | name field in rename sheet | `rename-sheet` | `PATCH .../{id}` title |
+| `messages.group-settings.rename` | "Change name" row | `s-group-settings` | → `s-group-rename` (admin) |
+| `messages.group-rename.cancel` | "Cancel" | `s-group-rename` | → group settings |
+| `messages.group-rename.save` | "Save" | `s-group-rename` | `PATCH .../{id}` title → settings |
+| `messages.group-rename.input` | group-name field | `s-group-rename` | 40-char max |
 | `messages.group-settings.participants` | "Participants" row (count) | `s-group-settings` | → `s-group-participants` |
 | `messages.group-settings.add` | "Add participants" row | `s-group-settings` | → multi-select picker |
 | `messages.group-settings.mute` | Mute toggle | `s-group-settings` | |
