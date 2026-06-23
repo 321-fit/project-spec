@@ -151,15 +151,15 @@
           <div class="intg-logo health"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.35-9.5-8.5C1 9.5 2.5 6 6 6c2 0 3.2 1.2 4 2.3C10.8 7.2 12 6 14 6c3.5 0 5 3.5 3.5 6.5C19 16.65 12 21 12 21z"/></svg></div>
           <div class="intg-info">
             <div class="intg-name">Apple Health</div>
-            <div class="intg-sub">Read heart rate from your workouts</div>
+            <div class="intg-sub">Read your workout metrics (heart rate, calories…)</div>
           </div>
           <span class="intg-status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Reading</span>
         </div>
-        <div class="intg-desc">After each session, 321Fit reads your heart rate from Health and adds it to your training record.</div>
+        <div class="intg-desc">After each session, 321Fit reads your workout metrics from Health — heart rate, active energy, distance &amp; pace — and adds them to your training record.</div>
         <div class="intg-action">
           <button class="intg-connect" data-a11y-id="athlete.integrations.health.enable" onclick="openSheet('hk-sheet')">Enable</button>
         </div>
-        <div class="intg-manage">Access is managed in <strong style="color:var(--fit-text-secondary);">iOS Settings → Privacy → Health → 321Fit</strong>. Turn off Heart Rate there to stop sharing.</div>
+        <div class="intg-manage">Access is managed in <strong style="color:var(--fit-text-secondary);">iOS Settings → Privacy → Health → 321Fit</strong>. Turn off the metrics there to stop sharing.</div>
       </div>
 
     </div>
@@ -167,7 +167,7 @@
     <!-- how they combine -->
     <div class="intg-note">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
-      <span class="intg-note-text">Use either or both. <strong style="color:var(--fit-text-primary);">Strava</strong> posts the activity; <strong style="color:var(--fit-text-primary);">Apple Health</strong> adds your heart rate. With both on, sessions upload to Strava <strong style="color:var(--fit-text-primary);">with your heart-rate trace</strong>.</span>
+      <span class="intg-note-text">Use either or both. <strong style="color:var(--fit-text-primary);">Strava</strong> posts the activity; <strong style="color:var(--fit-text-primary);">Apple Health</strong> adds your metrics (heart rate, calories, distance…). With both on, sessions upload to Strava <strong style="color:var(--fit-text-primary);">with your full metrics</strong>.</span>
     </div>
 
   </div>
@@ -178,10 +178,10 @@
       <div class="fit-sheet-handle"></div>
       <div style="display:flex;align-items:center;gap:6px;justify-content:center;font-size:12px;color:var(--fit-text-tertiary);margin-bottom:10px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Native iOS Health permission</div>
       <div class="fit-sheet-title" style="text-align:center;margin-bottom:4px;">&ldquo;321Fit&rdquo; would like to read your Health data</div>
-      <div style="font-size:13px;color:var(--fit-text-secondary);text-align:center;line-height:1.5;margin-bottom:18px;">Heart Rate &middot; Workouts</div>
+      <div style="font-size:13px;color:var(--fit-text-secondary);text-align:center;line-height:1.5;margin-bottom:18px;">Heart Rate &middot; Active Energy &middot; Distance &middot; Workouts</div>
       <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--fit-surface-high);margin-bottom:18px;">
         <span class="intg-logo health" style="width:34px;height:34px;border-radius:9px;"><svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M12 21s-7-4.35-9.5-8.5C1 9.5 2.5 6 6 6c2 0 3.2 1.2 4 2.3C10.8 7.2 12 6 14 6c3.5 0 5 3.5 3.5 6.5C19 16.65 12 21 12 21z"/></svg></span>
-        <span style="font-size:14px;color:var(--fit-text-secondary);">Turn on <strong style="color:var(--fit-text-primary);">Heart Rate</strong> to share workout data</span>
+        <span style="font-size:14px;color:var(--fit-text-secondary);">Turn on <strong style="color:var(--fit-text-primary);">these metrics</strong> to share workout data</span>
       </div>
       <button class="fit-btn fit-btn-primary" style="border-radius:99px;" data-a11y-id="athlete.integrations.health.allow" onclick="closeSheet('hk-sheet');setHealth(true)">Allow</button>
       <button class="fit-btn" style="width:100%;height:44px;margin-top:8px;background:transparent;border:none;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:15px;font-weight:500;cursor:pointer;" onclick="closeSheet('hk-sheet')">Don't Allow</button>
@@ -207,17 +207,17 @@
     <p>Two <strong>independent</strong> connections (Settings → Integrations). Each is its own card with its own state — neither depends on the other.</p>
     <ul>
       <li><strong>Strava</strong> — <strong>Connect</strong> → <strong>OAuth</strong> (opens the Strava app / Safari). Connected → shows <code>@username</code> + <strong>Disconnect</strong>. Backend: <code>strava_connection</code> table already shipped (2026-06-22). Posts a finished session to Strava (Upload API).</li>
-      <li><strong>Apple Health</strong> — <strong>Enable</strong> → the <strong>native iOS</strong> Health permission dialog (<code>HKHealthStore.requestAuthorization()</code>, <em>not</em> OAuth — represented here as a mock). After each session the app reads Heart Rate and sends it to the backend. There's no in-app disconnect — access is revoked in <strong>iOS Settings → Privacy → Health</strong>; we show that hint.</li>
+      <li><strong>Apple Health</strong> — <strong>Enable</strong> → the <strong>native iOS</strong> Health permission dialog (<code>HKHealthStore.requestAuthorization()</code>, <em>not</em> OAuth — represented here as a mock). After each session the app reads the workout metrics (heart rate, active energy, distance, pace) and sends them to the backend. There's no in-app disconnect — access is revoked in <strong>iOS Settings → Privacy → Health</strong>; we show that hint.</li>
     </ul>
     <p><strong>How they combine</strong> (info card at the bottom):</p>
     <ul>
-      <li>Strava only → posts a manual activity (no heart rate).</li>
-      <li>Health only → collects heart rate, stored with us, nothing posted out.</li>
-      <li>Both → posts to Strava via Upload API <strong>with heart rate</strong> (TCX file).</li>
+      <li>Strava only → posts a manual activity (no metrics).</li>
+      <li>Health only → collects your metrics, stored with us, nothing posted out.</li>
+      <li>Both → posts to Strava via Upload API <strong>with your metrics</strong> — heart rate, calories, distance (TCX file).</li>
     </ul>
     <hr>
-    <p class="note"><strong>Cross-platform:</strong> Apple Health is iOS-only — Android uses <strong>Health Connect</strong> (same card, same Enable → system permission flow, reads Heart Rate). Strava is identical on both.</p>
-    <p class="note">Where the sensor data lands on the backend (heart-rate ingest endpoint + storage) — <strong>open, to design next</strong> per Yuri.</p>
+    <p class="note"><strong>Cross-platform:</strong> Apple Health is iOS-only — Android uses <strong>Health Connect</strong> (same card, same Enable → system permission flow, reads the same metrics). Strava is identical on both.</p>
+    <p class="note">Where the sensor data lands on the backend (workout-metrics ingest endpoint + storage) — <strong>open, to design next</strong> per Yuri.</p>
   </div>
 </div>
 
