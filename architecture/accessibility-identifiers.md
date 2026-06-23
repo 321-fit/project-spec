@@ -358,6 +358,21 @@ Prototypes: `coach/settings.html` + every sub-screen (personal-data, calendar-sy
 
 | ID | Element | Screen | Notes |
 |---|---|---|---|
+| `coach.settings.invite` | "Invite to 321Fit" row | s-settings (Profile) | → `shared/invite.html?role=coach` |
+| `coach.settings.avail-hours` | "Available hours" row | s-settings (Availability) | → `available-hours.html` |
+| `coach.settings.time-off` | "Time off" row | s-settings (Availability) | → `available-hours.html#timeoff` |
+| `coach.settings.booking-rules` | "Booking rules" row | s-settings (Availability) | → `available-hours.html#rules` (WIP) |
+| `coach.settings.timezone` | "Time zone" row | s-settings (Availability) | → `personal-data.html` (TZ picker); duplicate of Personal Data TZ |
+
+#### `availability` — Available hours / Time off / Booking rules (`coach/available-hours.html`)
+
+Settings → Availability is a hub-of-cards (Calendly/Cal.com pattern); the 3 screens live in `available-hours.html`, deep-linked by hash (`#timeoff`, `#rules`).
+
+| ID | Element | Screen | Notes |
+|---|---|---|---|
+| `coach.availability.timeoff` | (removed) | — | Time off row no longer on the weekly screen; now a Settings row |
+| `coach.booking-rules.back` | back chevron | s-booking-rules | → s-availability |
+| `coach.booking-rules.notice` / `.window` / `.buffer` / `.maxday` | rule rows | s-booking-rules (WIP) | native pickers TBD |
 
 #### `calsync` — Calendar Sync sub-module (`coach/calendar-sync.html`)
 
