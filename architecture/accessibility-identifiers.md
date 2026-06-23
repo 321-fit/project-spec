@@ -658,7 +658,9 @@ One screen reused from every entry point (Settings "Invite a coach" / "Invite a 
 | `invite.contacts.connect` | "Connect contacts" CTA | `s-invite` (Contacts tab, prompt) | contacts permission |
 | `invite.contacts.search` | search field | `s-invite` (Contacts tab) | filter contacts |
 | `invite.contacts.select-all` | "Select all / Deselect all" | `s-invite` (Contacts tab) | toggle all rows |
-| `invite.contacts.send` | footer "Invite N" CTA | `s-invite` (Contacts tab) | prefilled SMS w/ OneLink |
+| `invite.contacts.send` | footer "Invite N" CTA | `s-invite` (Contacts tab) | opens native share drawer |
+| `invite.share.whatsapp` / `.messages` / `.copy` / `.more` | channels in share drawer | `s-invite` (share drawer) | OneLink via native share |
+| `invite.invited.message` | per-row Message button | `s-invite` (Invited tab) | → chat (`messages.html`) |
 
 ### `profile` (athlete) — `athlete/profile.html` (tab 5)
 
