@@ -27,7 +27,8 @@ Notes / Coaching subsection (Sport Types, Training Sessions, Available Hours, GY
 | Section | Items | Destination |
 |---|---|---|
 | Profile | Edit personal info | [personal-data.md](./personal-data.md) |
-| Profile | Invite a Coach | [invite-coach.md](./invite-coach.md) |
+| Profile | Invite to 321Fit | global invite, see [invite-coach.md](./invite-coach.md) § unified |
+| Scheduling | Availability | hub — see below |
 | Calendar | Calendar Sync | [calendar-sync.md](./calendar-sync.md) |
 | Payments | Balance | (existing) |
 | Payments | Stripe Connect | (existing) |
@@ -36,11 +37,21 @@ Notes / Coaching subsection (Sport Types, Training Sessions, Available Hours, GY
 | Account | Log out | inline action |
 | Account | Delete account | (re-auth flow) |
 
+#### Availability section (added 2026-06-23)
+
+A single **Availability** card (Scheduling group) → opens the **Availability hub** (`flows/coach/availability.html`, Calendly/Cal.com hub-of-cards). The hub holds, as sections:
+- **Available hours** → weekly editor (`available-hours.html`)
+- **Time off** → manage screen with none/scheduled/active states + end-early ([vacation-mode.md](./vacation-mode.md))
+- **Booking rules** → WIP (minimum notice / booking window / buffer / max per day — pending spec)
+- **Time zone** → embedded TZ field + picker (NOT a redirect to Personal Data; value mirrored there, since it drives scheduling)
+
+This partly reverses the 2026-05-25 "availability moved to Profile inline only" decision — availability is back in Settings as its own hub, **in addition to** the Profile inline entry (double entry, intended). "Invite a Coach" was also renamed **Invite to 321Fit** and repointed to the unified global invite screen.
+
 **Removed from this menu** (now lives inline on Profile tab):
 - Sport types → tap "My Sports" header on Profile → [sport-picker.md](./sport-picker.md)
 - Training sessions → tap "Training Sessions" tile on Profile → session-creation.md
-- Available hours → tap "Available Hours" tile on Profile → available-hours screen
 - GYM locations → tap "Locations" tile on Profile → [location-picker.md](./location-picker.md)
+- (Available hours returned to Settings via the Availability hub above — also still inline on Profile)
 
 ### Athlete Settings (landed 2026-06-05)
 

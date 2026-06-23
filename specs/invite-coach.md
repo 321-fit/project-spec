@@ -13,6 +13,18 @@
 
 ---
 
+## UNIFIED into one global Invite screen — 2026-06-23
+
+All invite surfaces (coach "Invite a Coach", athlete "Invite a friend" placeholder, athlete My-Coaches "Invite a coach", and contact-import-as-invite) are now **one canonical screen**: **`flows/shared/invite.html`** ("Invite to 321Fit"), role-adaptive (athlete light / coach dark), reached from every entry point (Settings + My Coaches). Three tabs:
+
+- **QR** — avatar + name + OneLink QR + Copy link / Share (native sheet).
+- **Contacts** — same primitive as the coach Clients import (search · Select all · `On 321Fit` tags · multi-select); footer "Invite N" opens the **native share drawer** (WhatsApp / Messages / Copy / More) with your OneLink — nothing sent automatically.
+- **Invited** — people who joined through your link (generalises the "joined coaches" list of the old `s-invite-coach` below). Each row: "Joined as coach/athlete · when" + a **Message** action → chat. Has a zero state. Joined-only; pills/rewards still deferred to Phase 2.
+
+The old `s-invite-coach` / `s-invite-coach-list` screens below are **superseded** by the Invited tab; `coach/invite-coach.html` is orphaned (kept for now). The `referrals` data model + endpoints below are **unchanged** and still apply. a11y scope is now global `invite.*`.
+
+---
+
 ## 1. Overview
 
 A coach shares a referral link via the OS-native share sheet. Backend tracks who joined through whom by token. The MVP intentionally **does not capture invitee contact** (no email/phone form) — coach just shares the link, anyone who signs up with that token becomes a tracked referral.

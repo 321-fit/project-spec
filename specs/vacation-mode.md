@@ -1,13 +1,28 @@
 # Vacation Mode / Time Off
 
-> Status: Draft (v1 scope intentionally narrow)
-> Prototype: not yet prototyped — prototype pass comes after this spec is approved
+> Status: Draft (v1 scope intentionally narrow) — prototyped 2026-06-23
+> Prototype: [flows/coach/availability.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/availability.html) → Time off · also `flows/coach/available-hours.html#timeoff`
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-04-24
+> Last updated: 2026-06-23
 > Implementation:
 > - iOS:     [321fit_ios/docs/vacation-mode-ios.md] (to be created)
 > - Backend: [poly-backend/docs/vacation-mode-backend.md] (to be created)
 > - Android: (future)
+
+---
+
+## Update — 2026-06-23 (prototyped)
+
+**Entry point (changed):** Settings → **Availability** (single hub card) → **Time off**. (Earlier draft assumed Settings → Coaching → Time Off; the coach Availability hub is the home now — see [settings.md](./settings.md).) Time off is a peer card inside the Availability hub, no longer buried at the bottom of the weekly Available Hours screen.
+
+**Manage screen — 3 states** (`s-time-off`):
+- **None** — empty state (umbrella) + "Schedule time off" CTA → setup form.
+- **Scheduled** — outline period card ("Scheduled · Aug 12–19") + message preview + **Edit dates & message** + **Cancel time off** (confirm sheet → None).
+- **Active** — amber tinted card ("On time off · Paused until Aug 19 · Started Aug 12") + **End time off now** (confirm sheet → reopens bookings immediately → None) + **Edit end date**.
+
+**Setup form** (`s-vacation-start`): Starts/Ends date fields (native pickers) + optional 160-char message to clients → confirm sheet → **Scheduled**. Scheduled auto-promotes to Active when the start date arrives (backend).
+
+**Still to prototype:** coach Dashboard banner ("You're on time off until Aug 19 · End early") + athlete-side "Paused until" badge + disabled Book on the coach's public profile (`shared/profile.html` → `s-coach-v2`).
 
 ---
 
