@@ -620,14 +620,8 @@ Tab 2. List + per-coach relationship detail + history + private note + review co
 | `athlete.my-coaches.fav` | ❤️ on a row | `s-my-coaches` | toggle saved |
 | `athlete.my-coaches.rebook` | Rebook on a row | `s-my-coaches` | → `s-book-sessions` grid |
 | `athlete.my-coaches.cancel-request` | Cancel on a pending row | `s-my-coaches` | cancel sent request (confirm TBD) |
-| `athlete.my-coaches.invite` | "Invite a coach" dashed row | `s-my-coaches` | → `s-invite` |
-| `athlete.my-coaches.invite-empty` | "Invite a coach" (empty state) | `s-my-coaches` | → `s-invite` |
-| `athlete.invite.back` | back chevron | `s-invite` | → my coaches |
-| `athlete.invite.qr` | your QR code | `s-invite` | OneLink-encoded (AppsFlyer) |
-| `athlete.invite.copy` | "Copy link" | `s-invite` | copies OneLink |
-| `athlete.invite.share` | "Share" | `s-invite` | native share sheet |
-| `athlete.invite.scan` | "Scan a code" | `s-invite` | → `s-invite-scan` |
-| `athlete.invite.scan.back` | back chevron | `s-invite-scan` | → invite |
+| `athlete.my-coaches.invite` | "Invite a coach" dashed row | `s-my-coaches` | → `shared/invite.html` (global) |
+| `athlete.my-coaches.invite-empty` | "Invite a coach" (empty state) | `s-my-coaches` | → `shared/invite.html` (global) |
 | `athlete.coach-detail.back` | back chevron | `s-coach-detail` | → `s-my-coaches` |
 | `athlete.coach-detail.view-profile` | identity row | `s-coach-detail` | → public coach profile `s-coach-v2` |
 | `athlete.coach-detail.owed` | Cash-owed scroll list | `s-coach-detail` | per-session cash debts; hidden in no-debt state |
@@ -708,7 +702,7 @@ Trimmed analog of coach Settings. Spec: `settings.md` (Athlete section).
 |---|---|---|---|
 | `athlete.settings.back` | back chevron | `s-settings` | → profile.html |
 | `athlete.settings.personal-info` | Edit personal info card | `s-settings` | → Personal Data (TBD) |
-| `athlete.settings.invite-friend` | Invite a friend card | `s-settings` | placeholder (referral on hold) |
+| `athlete.settings.invite` | Invite a friend card | `s-settings` | placeholder (referral on hold) |
 | `athlete.settings.sport` | Choose a sport card | `s-settings` | → sport-types.html |
 | `athlete.settings.calendar-sync` | Calendar Sync card | `s-settings` | → calendar-sync.html |
 | `athlete.settings.integrations` | Integrations card | `s-settings` | → integrations.html |
