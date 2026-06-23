@@ -633,6 +633,19 @@
   .vac-msg { width: 100%; min-height: 84px; border: 1px solid var(--fit-divider); border-radius: 12px; padding: 12px 14px; font-family: var(--fit-font); font-size: 15px; line-height: 1.5; color: var(--fit-text-primary); background: var(--fit-surface-high); outline: none; resize: none; }
   #s-vacation-start .vac-endrow { display: none; }
   #s-vacation-start.vac-on .vac-endrow { display: flex; }
+  /* time off — management states (none / scheduled / active) */
+  #s-time-off .to-block { display: none; }
+  #s-time-off.to-none .to-none-block { display: block; }
+  #s-time-off.to-scheduled .to-scheduled-block { display: block; }
+  #s-time-off.to-active .to-active-block { display: block; }
+  .to-status { margin: 12px 16px; padding: 18px; border-radius: 16px; }
+  .to-status.sched { border: 1px solid var(--fit-divider); }
+  .to-status.act { background: rgba(247,201,72,0.12); border: 1px solid rgba(247,201,72,0.32); }
+  .to-status-pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 99px; background: rgba(247,201,72,0.18); color: var(--fit-yellow-400); margin-bottom: 10px; }
+  .to-dates { font-size: 20px; font-weight: 600; color: var(--fit-text-primary); }
+  .to-substatus { font-size: 14px; color: var(--fit-text-secondary); line-height: 1.5; margin-top: 6px; }
+  .to-msg-preview { margin: 0 16px 14px; padding: 12px 14px; border: 1px solid var(--fit-divider); border-radius: 12px; font-size: 14px; color: var(--fit-text-secondary); line-height: 1.5; font-style: italic; }
+  .to-actions { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
 </style>
 </head>
 <body>
@@ -648,7 +661,8 @@
   <div class="label">Available Hours</div>
   <button class="active" onclick="go('s-availability',this)">Available Hours</button>
   <div class="label">Time off</div>
-  <button onclick="go('s-vacation-start',this)">Start time off</button>
+  <button onclick="go('s-time-off',this)">Time off</button>
+  <button onclick="go('s-vacation-start',this)">Time off · edit form</button>
   <div class="label">Booking rules</div>
   <button onclick="go('s-booking-rules',this)">Booking rules (WIP)</button>
   <div class="label">Other modules</div>
@@ -950,22 +964,98 @@
     </div>
   </div>
   <div class="fit-phone-footer" style="padding:12px 16px 40px;">
-    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" data-a11y-id="coach.vacation.start" onclick="document.getElementById('vac-confirm-sheet').classList.add('visible')">Start time off</button>
+    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" data-a11y-id="coach.vacation.start" onclick="document.getElementById('vac-confirm-sheet').classList.add('visible')">Schedule time off</button>
   </div>
 
   <!-- Confirm sheet -->
   <div class="fit-sheet-overlay" id="vac-confirm-sheet">
     <div class="fit-sheet">
       <div class="fit-sheet-handle"></div>
-      <div class="fit-sheet-title">Start time off?</div>
+      <div class="fit-sheet-title">Schedule time off?</div>
       <p style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;margin:6px 0 20px;">From <strong style="color:var(--fit-text-primary);">Aug 12</strong> to <strong style="color:var(--fit-text-primary);">Aug 19</strong>, no new bookings will be accepted. Existing sessions remain.</p>
-      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" data-a11y-id="coach.vacation.confirm" onclick="document.getElementById('vac-confirm-sheet').classList.remove('visible');setVacState('active');go('s-availability',null);">Start time off</button>
+      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" data-a11y-id="coach.vacation.confirm" onclick="document.getElementById('vac-confirm-sheet').classList.remove('visible');setToState('scheduled');go('s-time-off',null);">Schedule</button>
       <button class="fit-btn" style="width:100%;height:46px;margin-top:8px;background:transparent;border:none;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:15px;font-weight:500;cursor:pointer;" onclick="document.getElementById('vac-confirm-sheet').classList.remove('visible')">Cancel</button>
     </div>
   </div>
 </div>
 
 
+
+<!-- ==================== SCREEN: TIME OFF (manage / states) ==================== -->
+<div class="fit-phone fit-dark to-scheduled" id="s-time-off">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.timeoff.back" onclick="history.length>1?history.back():go('s-availability',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Time off</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <!-- NONE -->
+    <div class="to-block to-none-block">
+      <div class="fit-empty-state" style="padding-top:56px;">
+        <svg class="fes-illus" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 34h52"/><path d="M10 34a22 22 0 0144 0"/><path d="M32 34v18a6 6 0 0012 0"/><path d="M32 12V8"/></svg>
+        <div class="fit-empty-state-title">No time off scheduled</div>
+        <div class="fit-empty-state-sub">Pause new bookings while you&rsquo;re away.<br>Existing sessions stay.</div>
+        <button class="fit-btn fit-btn-primary" style="display:inline-flex;width:auto;height:44px;padding:0 24px;font-size:16px;margin-top:4px;" data-a11y-id="coach.timeoff.schedule" onclick="go('s-vacation-start',null)">Schedule time off</button>
+      </div>
+    </div>
+
+    <!-- SCHEDULED (set, not started yet) -->
+    <div class="to-block to-scheduled-block">
+      <div class="to-status sched">
+        <span class="to-status-pill">Scheduled</span>
+        <div class="to-dates">Aug 12 &ndash; Aug 19</div>
+        <div class="to-substatus">New bookings are paused for these dates. Existing sessions stay &mdash; cancel them yourself if needed.</div>
+      </div>
+      <div class="to-msg-preview">&ldquo;On vacation until Aug 19 &mdash; back then!&rdquo;</div>
+      <div class="to-actions">
+        <button class="fit-btn fit-btn-secondary" data-a11y-id="coach.timeoff.edit" onclick="go('s-vacation-start',null)">Edit dates &amp; message</button>
+        <button class="fit-btn fit-btn-destructive" data-a11y-id="coach.timeoff.cancel" onclick="document.getElementById('to-cancel-sheet').classList.add('visible')">Cancel time off</button>
+      </div>
+    </div>
+
+    <!-- ACTIVE (currently away) -->
+    <div class="to-block to-active-block">
+      <div class="to-status act">
+        <span class="to-status-pill">On time off</span>
+        <div class="to-dates">Paused until Aug 19</div>
+        <div class="to-substatus">Started Aug 12 &middot; new bookings are paused. Clients see you&rsquo;re away.</div>
+      </div>
+      <div class="to-msg-preview">&ldquo;On vacation until Aug 19 &mdash; back then!&rdquo;</div>
+      <div class="to-actions">
+        <button class="fit-btn fit-btn-primary" data-a11y-id="coach.timeoff.end" onclick="document.getElementById('to-end-sheet').classList.add('visible')">End time off now</button>
+        <button class="fit-btn fit-btn-secondary" data-a11y-id="coach.timeoff.edit-end" onclick="go('s-vacation-start',null)">Edit end date</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- cancel scheduled -->
+  <div class="fit-sheet-overlay" id="to-cancel-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Cancel time off?</div>
+      <p style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;margin:6px 0 20px;">Your scheduled dates will be removed and bookings reopen for Aug 12&ndash;19.</p>
+      <button class="fit-btn fit-btn-destructive" data-a11y-id="coach.timeoff.cancel-confirm" onclick="document.getElementById('to-cancel-sheet').classList.remove('visible');setToState('none');showToSnack('Time off cancelled');">Cancel time off</button>
+      <button class="fit-btn" style="width:100%;height:46px;margin-top:8px;background:transparent;border:none;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:15px;font-weight:500;cursor:pointer;" onclick="document.getElementById('to-cancel-sheet').classList.remove('visible')">Keep it</button>
+    </div>
+  </div>
+
+  <!-- end early -->
+  <div class="fit-sheet-overlay" id="to-end-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">End time off now?</div>
+      <p style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;margin:6px 0 20px;">Bookings reopen immediately &mdash; clients can book you again from today.</p>
+      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" data-a11y-id="coach.timeoff.end-confirm" onclick="document.getElementById('to-end-sheet').classList.remove('visible');setToState('none');showToSnack('Time off ended');">End now</button>
+      <button class="fit-btn" style="width:100%;height:46px;margin-top:8px;background:transparent;border:none;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:15px;font-weight:500;cursor:pointer;" onclick="document.getElementById('to-end-sheet').classList.remove('visible')">Not yet</button>
+    </div>
+  </div>
+
+  <div class="fit-snackbar" id="to-snackbar"><span class="snack-dot"></span><span class="snack-text" id="to-snack-text">Done</span></div>
+</div>
 
 <!-- ==================== SCREEN: BOOKING RULES (WIP) ==================== -->
 <div class="fit-phone fit-dark" id="s-booking-rules">
@@ -1065,6 +1155,15 @@
       <button onclick="setVacState('active')">Active</button>
     </div>
   </div>
+  <div class="ann" id="ann-s-time-off"><span class="ann-role coach">Coach</span><h3>Time off &mdash; states</h3>
+    <div class="state-toggle">
+      <button onclick="setToState('none',this)">None</button>
+      <button class="active" onclick="setToState('scheduled',this)">Scheduled</button>
+      <button onclick="setToState('active',this)">Active</button>
+    </div>
+    <p>Manage screen (Settings &rarr; Availability &rarr; Time off). <strong>None</strong>: empty + Schedule CTA &rarr; form. <strong>Scheduled</strong>: future period card + Edit + Cancel. <strong>Active</strong>: currently away + <strong>End time off now</strong> (reopens bookings immediately) + Edit end date.</p>
+    <p>Set/edit via <code>s-vacation-start</code> (dates + 160-char message). End early / Cancel &rarr; confirm sheet &rarr; back to None. Scheduled becomes Active automatically when the start date arrives (backend).</p>
+  </div>
   <div class="ann" id="ann-s-booking-rules"><span class="ann-role coach">Coach</span><h3>Booking rules (WIP)</h3>
     <p>Reached from <strong>Settings → Availability → Booking rules</strong> (deep-link <code>available-hours.html#rules</code>). Standard scheduling controls (Calendly/Cal.com/Acuity): minimum notice, booking window, buffer, max/day.</p>
     <p class="note"><strong>WIP</strong> — values are placeholders; native pickers + the product rules (and which of these we ship for v1) are TBD. Backend deltas to be specced.</p>
@@ -1099,6 +1198,19 @@ function go(id, btn) {
   FitUI.initAll(document.getElementById(id));
 }
 // Time-off (vacation) state on the Available Hours Time Off row
+function setToState(st, btn) {
+  var e = document.getElementById('s-time-off');
+  e.classList.remove('to-none','to-scheduled','to-active');
+  e.classList.add('to-' + st);
+  if (btn) { btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); }
+}
+var _toSnackTimer;
+function showToSnack(msg) {
+  var sn = document.getElementById('to-snackbar'), t = document.getElementById('to-snack-text');
+  if (t) t.textContent = msg; if (!sn) return;
+  sn.classList.add('show'); clearTimeout(_toSnackTimer);
+  _toSnackTimer = setTimeout(function(){ sn.classList.remove('show'); }, 1800);
+}
 function setVacState(s) {
   var el = document.getElementById('s-availability');
   if (!el) return;
@@ -2277,6 +2389,6 @@ function doLogout() {
   setTimeout(function(){ t.classList.remove('show'); }, 2200);
 }
 </script>
-<script>(function(){var h=location.hash;if(h==='#timeoff')go('s-vacation-start',null);else if(h==='#rules')go('s-booking-rules',null);})();</script>
+<script>(function(){var h=location.hash;if(h==='#timeoff')go('s-time-off',null);else if(h==='#rules')go('s-booking-rules',null);})();</script>
 </body>
 </html>

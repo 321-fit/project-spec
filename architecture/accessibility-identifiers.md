@@ -372,6 +372,11 @@ Settings → one **Availability** card → `availability.html` hub (Calendly/Cal
 | `coach.availability.timeoff` | "Time off" row | s-availability-hub | → `available-hours.html#timeoff` |
 | `coach.availability.rules` | "Booking rules" row | s-availability-hub | → `available-hours.html#rules` (WIP) |
 | `coach.availability.timezone` | "Time zone" row | s-availability-hub | → embedded `s-tz-select` picker |
+| `coach.timeoff.back` | back chevron | s-time-off | → hub |
+| `coach.timeoff.schedule` | "Schedule time off" CTA | s-time-off (none) | → s-vacation-start |
+| `coach.timeoff.edit` / `.edit-end` | Edit row | s-time-off (scheduled/active) | → s-vacation-start |
+| `coach.timeoff.cancel` + `.cancel-confirm` | Cancel time off (+ sheet) | s-time-off (scheduled) | → none |
+| `coach.timeoff.end` + `.end-confirm` | End time off now (+ sheet) | s-time-off (active) | reopens bookings → none |
 | `coach.booking-rules.back` | back chevron | s-booking-rules | history-back → hub, else s-availability |
 | `coach.booking-rules.notice` / `.window` / `.buffer` / `.maxday` | rule rows | s-booking-rules (WIP) | native pickers TBD |
 
