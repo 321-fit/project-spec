@@ -655,11 +655,10 @@ One screen reused from every entry point (Settings "Invite a coach" / "Invite a 
 | `invite.qr` | your QR code | `s-invite` (QR tab) | OneLink-encoded (AppsFlyer) |
 | `invite.copy` | "Copy link" | `s-invite` (QR tab) | copies OneLink |
 | `invite.share` | "Share" | `s-invite` (QR tab) | native share sheet |
-| `invite.scan` | "Scan a code" | `s-invite` (QR tab) | → `s-invite-scan` |
 | `invite.contacts.connect` | "Connect contacts" CTA | `s-invite` (Contacts tab, prompt) | contacts permission |
 | `invite.contacts.search` | search field | `s-invite` (Contacts tab) | filter contacts |
-| `invite.contacts.invite` | per-row "Invite" | `s-invite` (Contacts tab) | prefilled SMS w/ OneLink |
-| `invite.scan.back` | back chevron | `s-invite-scan` | → invite |
+| `invite.contacts.select-all` | "Select all / Deselect all" | `s-invite` (Contacts tab) | toggle all rows |
+| `invite.contacts.send` | footer "Invite N" CTA | `s-invite` (Contacts tab) | prefilled SMS w/ OneLink |
 
 ### `profile` (athlete) — `athlete/profile.html` (tab 5)
 
