@@ -83,6 +83,39 @@
   .coach-meta-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--fit-text-tertiary); flex-wrap: wrap; }
   .coach-meta-row .dot { width: 2px; height: 2px; border-radius: 50%; background: var(--fit-text-tertiary); }
   .coach-langs { display: inline-flex; gap: 2px; font-size: 11px; }
+  .coach-loc { display: inline-flex; align-items: center; gap: 3px; }
+  .coach-loc svg { width: 11px; height: 11px; }
+
+  /* ===== Invite-a-coach (dashed entry) ===== */
+  .mc-invite { display: flex; align-items: center; gap: 12px; margin: 0 16px; padding: 14px; border-radius: 16px; border: 1.5px dashed var(--fit-divider); cursor: pointer; }
+  .mc-invite-ic { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: rgba(5,224,166,0.16); color: var(--fit-teal-500); }
+  .mc-invite-ic svg { width: 20px; height: 20px; }
+  .mc-invite-t { font-size: 15px; font-weight: 600; color: var(--fit-text-primary); }
+  .mc-invite-s { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 1px; }
+
+  /* ===== Invite screen (QR + share + scan) ===== */
+  .inv-wrap { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 16px 24px 24px; }
+  .inv-av { width: 56px; height: 56px; border-radius: 50%; background: var(--fit-brand-gradient); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 600; margin-bottom: 10px; }
+  .inv-name { font-size: 20px; font-weight: 600; color: var(--fit-text-primary); }
+  .inv-sub { font-size: 14px; color: var(--fit-text-secondary); line-height: 1.5; max-width: 290px; margin-top: 4px; }
+  .inv-qr { width: 240px; height: 240px; background: #fff; border-radius: 20px; margin: 22px 0 6px; padding: 18px; box-shadow: 0 4px 24px rgba(0,0,0,0.18); }
+  .inv-qr svg { width: 100%; height: 100%; display: block; }
+  .inv-actions { display: flex; gap: 10px; width: 100%; max-width: 320px; margin-top: 16px; }
+  .inv-actions .fit-btn { flex: 1; }
+  .inv-or { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 320px; margin: 18px 0 4px; color: var(--fit-text-tertiary); font-size: 12px; }
+  .inv-or::before, .inv-or::after { content: ""; flex: 1; height: 1px; background: var(--fit-divider); }
+  .inv-scan { width: 100%; max-width: 320px; height: 48px; border-radius: 99px; border: 1px solid var(--fit-divider); background: transparent; color: var(--fit-text-primary); font-family: var(--fit-font); font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .inv-scan svg { width: 18px; height: 18px; }
+  .inv-foot { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 16px; }
+  /* scanner */
+  .scan-view { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #0a0a0a; gap: 18px; }
+  .scan-frame { width: 230px; height: 230px; border-radius: 24px; position: relative; }
+  .scan-frame span { position: absolute; width: 36px; height: 36px; border: 3px solid var(--fit-teal-500); }
+  .scan-frame .tl { top: 0; left: 0; border-right: none; border-bottom: none; border-radius: 24px 0 0 0; }
+  .scan-frame .tr { top: 0; right: 0; border-left: none; border-bottom: none; border-radius: 0 24px 0 0; }
+  .scan-frame .bl { bottom: 0; left: 0; border-right: none; border-top: none; border-radius: 0 0 0 24px; }
+  .scan-frame .br { bottom: 0; right: 0; border-left: none; border-top: none; border-radius: 0 0 24px 0; }
+  .scan-hint { color: rgba(255,255,255,0.8); font-size: 14px; }
 
   /* ===== My Coaches relationship row — relationship + CTA sits full-width below coach-top (where Search shows bio) ===== */
   .mc-list { display: flex; flex-direction: column; gap: 10px; padding: 0 16px; }
@@ -147,6 +180,8 @@
   <button onclick="setCrMode('write');go('s-coach-review',this)">Review · write</button>
   <button onclick="setCrMode('edit');go('s-coach-review',this)">Review · edit</button>
   <button onclick="setDetailReview('none');go('s-coach-detail',this)">Coach detail · no review</button>
+  <button onclick="go('s-invite',this)">Invite (QR)</button>
+  <button onclick="go('s-invite-scan',this)">Invite · scan</button>
   <div class="label">States</div>
   <button onclick="go('s-my-coaches',this);setMcState('default')">Default (list)</button>
   <button onclick="go('s-my-coaches',this);setMcState('empty')">Empty</button>
@@ -196,7 +231,7 @@
                 <span class="coach-price">&euro;40 <span class="coach-price-from">from</span></span>
               </div>
               <div class="coach-meta-row">
-                <span>Tennis · Padel</span><span class="dot"></span><span class="coach-langs">🇪🇸 🇬🇧</span>
+                <span>Tennis · Padel</span><span class="dot"></span><span class="coach-langs">🇪🇸 🇬🇧</span><span class="dot"></span><span class="coach-loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>Limassol, Cyprus</span>
               </div>
             </div>
           </div>
@@ -217,7 +252,7 @@
                 <span class="coach-price">&euro;35 <span class="coach-price-from">from</span></span>
               </div>
               <div class="coach-meta-row">
-                <span>Boxing</span><span class="dot"></span><span class="coach-langs">🇬🇧</span>
+                <span>Boxing</span><span class="dot"></span><span class="coach-langs">🇬🇧</span><span class="dot"></span><span class="coach-loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>Larnaca, Cyprus</span>
               </div>
             </div>
           </div>
@@ -238,7 +273,7 @@
                 <span class="coach-price">&euro;55 <span class="coach-price-from">from</span></span>
               </div>
               <div class="coach-meta-row">
-                <span>Strength</span><span class="dot"></span><span class="coach-langs">🇩🇪 🇬🇧</span>
+                <span>Strength</span><span class="dot"></span><span class="coach-langs">🇩🇪 🇬🇧</span><span class="dot"></span><span class="coach-loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>Nicosia, Cyprus</span>
               </div>
             </div>
           </div>
@@ -263,12 +298,18 @@
                 <span class="coach-price">&euro;45 <span class="coach-price-from">from</span></span>
               </div>
               <div class="coach-meta-row">
-                <span>Yoga · Pilates</span><span class="dot"></span><span class="coach-langs">🇬🇧</span>
+                <span>Yoga · Pilates</span><span class="dot"></span><span class="coach-langs">🇬🇧</span><span class="dot"></span><span class="coach-loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>Paphos, Cyprus</span>
               </div>
             </div>
           </div>
           <div class="mc-foot"><span class="mc-rel mc-rel-muted">Saved · not booked yet</span><button class="fit-btn fit-btn-secondary fit-btn-xs" onclick="event.stopPropagation();window.location.href='../shared/profile.html'">Book</button></div>
         </div>
+      </div>
+
+      <div class="mc-invite" data-a11y-id="athlete.my-coaches.invite" onclick="go('s-invite',null)" style="margin-bottom:16px;">
+        <span class="mc-invite-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg></span>
+        <div style="flex:1;min-width:0;"><div class="mc-invite-t">Invite a coach</div><div class="mc-invite-s">Share your code or scan theirs to connect</div></div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     </div>
 
@@ -284,6 +325,7 @@
         <div class="fit-empty-state-title">No coaches yet</div>
         <div class="fit-empty-state-sub">Find a coach and book your first session —<br>they'll show up here for quick rebooking.</div>
         <button class="fit-btn fit-btn-primary" data-a11y-id="athlete.my-coaches.find" style="display:inline-flex;width:auto;height:44px;padding:0 24px;font-size:16px;" onclick="window.location.href='search.html'">Find a coach</button>
+        <button class="fit-btn fit-btn-secondary" data-a11y-id="athlete.my-coaches.invite-empty" style="display:inline-flex;width:auto;height:44px;padding:0 24px;font-size:16px;margin-top:10px;" onclick="go('s-invite',null)">Invite a coach</button>
       </div>
     </div>
 
@@ -629,6 +671,78 @@
 <!-- Snackbar (review posted / updated / deleted) -->
 <div class="fit-snackbar" id="cr-snackbar"><span class="snack-dot"></span><span class="snack-text" id="cr-snack-text">Review posted</span></div>
 
+<!-- ==================== SCREEN: INVITE (QR + share + scan) ==================== -->
+<div class="fit-phone fit-light" id="s-invite">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="athlete.invite.back" onclick="go('s-my-coaches',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Invite a coach</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="inv-wrap">
+      <div class="inv-av">NC</div>
+      <div class="inv-name">Natallia C.</div>
+      <div class="inv-sub">Show this to a coach — they scan it (or open your link) and you're connected. Then book &amp; chat right away.</div>
+
+      <!-- QR (encodes your 321Fit invite link — generated via OneLink / AppsFlyer SDK) -->
+      <div class="inv-qr" data-a11y-id="athlete.invite.qr">
+        <svg viewBox="0 0 116 116" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:var(--fit-teal-600);">
+          <g fill="currentColor">
+            <!-- finder: top-left -->
+            <rect x="0" y="0" width="28" height="28" rx="5"/><rect x="6" y="6" width="16" height="16" rx="3" fill="#fff"/><rect x="10" y="10" width="8" height="8" rx="1"/>
+            <!-- finder: top-right -->
+            <rect x="88" y="0" width="28" height="28" rx="5"/><rect x="94" y="6" width="16" height="16" rx="3" fill="#fff"/><rect x="98" y="10" width="8" height="8" rx="1"/>
+            <!-- finder: bottom-left -->
+            <rect x="0" y="88" width="28" height="28" rx="5"/><rect x="6" y="94" width="16" height="16" rx="3" fill="#fff"/><rect x="10" y="98" width="8" height="8" rx="1"/>
+            <!-- modules (mock pattern) -->
+            <rect x="36" y="4" width="4" height="4"/><rect x="44" y="4" width="4" height="4"/><rect x="56" y="8" width="4" height="4"/><rect x="64" y="4" width="4" height="4"/><rect x="76" y="8" width="4" height="4"/>
+            <rect x="32" y="12" width="4" height="4"/><rect x="48" y="12" width="4" height="4"/><rect x="60" y="16" width="4" height="4"/><rect x="72" y="12" width="4" height="4"/><rect x="80" y="16" width="4" height="4"/>
+            <rect x="4" y="36" width="4" height="4"/><rect x="12" y="40" width="4" height="4"/><rect x="20" y="36" width="4" height="4"/><rect x="36" y="36" width="8" height="8"/><rect x="52" y="40" width="4" height="4"/><rect x="64" y="36" width="4" height="4"/><rect x="76" y="40" width="4" height="4"/><rect x="88" y="36" width="4" height="4"/><rect x="100" y="40" width="4" height="4"/><rect x="108" y="36" width="4" height="4"/>
+            <rect x="8" y="48" width="4" height="4"/><rect x="24" y="52" width="4" height="4"/><rect x="48" y="48" width="4" height="4"/><rect x="56" y="52" width="4" height="4"/><rect x="84" y="48" width="4" height="4"/><rect x="96" y="52" width="4" height="4"/><rect x="108" y="48" width="4" height="4"/>
+            <rect x="4" y="60" width="4" height="4"/><rect x="16" y="64" width="4" height="4"/><rect x="36" y="60" width="4" height="4"/><rect x="68" y="64" width="4" height="4"/><rect x="80" y="60" width="4" height="4"/><rect x="92" y="64" width="4" height="4"/><rect x="104" y="60" width="4" height="4"/>
+            <rect x="12" y="76" width="4" height="4"/><rect x="36" y="80" width="4" height="4"/><rect x="48" y="76" width="8" height="8"/><rect x="64" y="80" width="4" height="4"/><rect x="76" y="76" width="4" height="4"/><rect x="88" y="80" width="4" height="4"/><rect x="100" y="76" width="4" height="4"/>
+            <rect x="36" y="92" width="4" height="4"/><rect x="44" y="96" width="4" height="4"/><rect x="56" y="92" width="4" height="4"/><rect x="68" y="96" width="4" height="4"/><rect x="80" y="92" width="4" height="4"/><rect x="92" y="96" width="4" height="4"/><rect x="104" y="92" width="4" height="4"/>
+            <rect x="40" y="104" width="4" height="4"/><rect x="52" y="108" width="4" height="4"/><rect x="64" y="104" width="4" height="4"/><rect x="84" y="108" width="4" height="4"/><rect x="100" y="104" width="4" height="4"/>
+          </g>
+          <!-- center brand mark -->
+          <rect x="46" y="46" width="24" height="24" rx="6" fill="#fff"/>
+          <path d="M58 50l1.6 4.6L64 56l-4.4 1.4L58 62l-1.6-4.6L52 56l4.4-1.4z" fill="var(--fit-teal-600)"/>
+        </svg>
+      </div>
+
+      <div class="inv-actions">
+        <button class="fit-btn fit-btn-secondary" data-a11y-id="athlete.invite.copy" onclick="showInvSnack('Link copied')">Copy link</button>
+        <button class="fit-btn fit-btn-primary" data-a11y-id="athlete.invite.share" onclick="alert('Share sheet — native (OneLink invite URL)')">Share</button>
+      </div>
+
+      <div class="inv-or">or</div>
+      <button class="inv-scan" data-a11y-id="athlete.invite.scan" onclick="go('s-invite-scan',null)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><path d="M3 12h18"/></svg>
+        Scan a coach's code
+      </button>
+      <div class="inv-foot">Your invite link is unique to you (321Fit / AppsFlyer OneLink).</div>
+    </div>
+  </div>
+  <div class="fit-snackbar" id="inv-snackbar"><span class="snack-dot"></span><span class="snack-text" id="inv-snack-text">Link copied</span></div>
+</div>
+
+<!-- ==================== SCREEN: SCAN A CODE ==================== -->
+<div class="fit-phone fit-dark" id="s-invite-scan">
+  <div class="fit-phone-header" style="background:#0a0a0a;">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="athlete.invite.scan.back" onclick="go('s-invite',null)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title" style="color:#fff;">Scan code</span>
+    </div>
+  </div>
+  <div class="fit-phone-content scan-view">
+    <div class="scan-frame"><span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span></div>
+    <div class="scan-hint">Point at a coach's 321Fit QR code</div>
+  </div>
+</div>
+
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
   <div class="ann active" id="ann-s-my-coaches"><span class="ann-role athlete">Athlete</span>
@@ -699,6 +813,18 @@
     <hr>
     <p class="note">Entry points: push next-day after 1st completed session ("How was training with Maria?") → composer; or the "Write a review" CTA on Coach detail.</p>
   </div>
+
+  <div class="ann" id="ann-s-invite"><span class="ann-role athlete">Athlete</span><h3>Invite a coach (QR)</h3>
+    <p>Reached from <strong>My Coaches → Invite a coach</strong> (row + empty-state). For when you're physically together — open this, the coach scans it and you're connected.</p>
+    <ul>
+      <li><strong>Your QR</strong> — encodes your unique <strong>321Fit invite link</strong> (generated via the <strong>AppsFlyer OneLink</strong> SDK; QR mock here). Center brand mark.</li>
+      <li><strong>Copy link / Share</strong> — same OneLink (native share sheet). <strong>Scan a code</strong> → camera to scan the coach's QR (symmetric — either side can scan).</li>
+      <li>On open/scan the OneLink deep-links + attributes (install or in-app), landing on the coach connect/profile.</li>
+    </ul>
+    <hr>
+    <p class="note">Reuses the existing OneLink/AppsFlyer generation ([[reference_appsflyer]], [[project_crm_import_invite]]). Same screen pattern works coach-side (invite athletes). Reverses the earlier "invite-a-coach = placeholder" deferral.</p>
+  </div>
+  <div class="ann" id="ann-s-invite-scan"><span class="ann-role athlete">Athlete</span><h3>Scan code</h3><p>Camera viewport + framing corners. Point at a coach's 321Fit QR → resolves the OneLink → connect. Native camera + permission.</p></div>
 </div>
 
 <script src="../../lib/fit-ui.js"></script>
@@ -776,6 +902,13 @@ function crCount() {
 function openReview(mode) { setCrMode(mode); go('s-coach-review', null); }
 function crSnack(msg) {
   var sn = document.getElementById('cr-snackbar'), t = document.getElementById('cr-snack-text');
+  if (t) t.textContent = msg;
+  if (!sn) return;
+  sn.classList.add('show');
+  setTimeout(function () { sn.classList.remove('show'); }, 1600);
+}
+function showInvSnack(msg) {
+  var sn = document.getElementById('inv-snackbar'), t = document.getElementById('inv-snack-text');
   if (t) t.textContent = msg;
   if (!sn) return;
   sn.classList.add('show');
