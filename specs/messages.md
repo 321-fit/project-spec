@@ -33,7 +33,7 @@ Prototype: `shared/messages.html` (role-aware — athlete light = chats with coa
 4. **New thread (empty)** — person header + "Say hi to start the conversation."
 5. **1:1 settings** (`s-thread-settings`) — paired avatars · "You and X" · **Mute** toggle · **Delete conversation** (destructive → confirm sheet).
 6. **Group thread** (`s-group-thread`) — stacked-avatar header + name + "You, Marco, Julia +1 · N members" → tap → group settings. Bubbles are **sender-attributed** (name + avatar for others; mine plain right). Composer = text + send.
-7. **Group settings** (`s-group-settings`) — stacked avatars + name + member count · Mute · **Members list** (creator = Admin) · **Leave conversation** (group uses Leave, not Delete).
+7. **Group settings** (`s-group-settings`) — stacked avatars + name + member count · Mute · **Members list** (creator = Admin) · **Add people** (dashed row → the multi-select picker in "add to group" mode) · **Leave conversation** (group uses Leave, not Delete).
 
 **Entry points:** the **Messages icon** in the Dashboard/Home header (left of the notification bell), on both athlete and coach. Individual threads also open from existing "Send Message" actions on coach/athlete profiles + participant sheets.
 
@@ -55,6 +55,7 @@ Unread count per user = messages after their `last_read_message_id` (cross-conve
 | POST | `/messages/conversations/{id}/messages` | Send a message |
 | POST | `/messages/conversations/{id}/read` | Advance read cursor (`last_read_message_id`) |
 | PUT | `/messages/conversations/{id}/mute` | Mute / unmute |
+| POST | `/messages/conversations/{id}/participants` | **Add people to a group** (`participantIds[]`, all must be connections) |
 | DELETE | `/messages/conversations/{id}` | 1:1 → delete; group → **leave** (per-user soft delete either way) |
 | GET | `/messages/unread-count` | Header badge (DM unread total — separate from notifications) |
 | GET | `/messages/recipients?q=` | Connected users you can message (coaches / athletes) |
@@ -79,7 +80,7 @@ Mobile sockets die when the app is backgrounded/closed → **never the delivery 
 - Unread badge on the Messages icon is **DM-only**, separate from the notification bell count.
 
 ## Not in V1
-- Group admin extras: rename group, add/remove members after creation (v1 = create with the picked set; members can Leave). Add later.
+- Group admin extras beyond **Add people**: **rename group** and **remove a member** after creation (v1 = create + add + Leave). Add later.
 - Attachments / share-a-session in the composer (the "+" is hidden — flow TBD).
 - Typing indicators, read receipts, presence ("last seen") — Phase 2 (needs the realtime WS/SSE layer).
 - Realtime websocket transport (poll-on-open is enough for launch).
