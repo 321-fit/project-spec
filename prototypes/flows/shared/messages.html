@@ -150,6 +150,7 @@
   <button onclick="go('s-thread-settings',this)">Conversation settings</button>
   <button onclick="go('s-group-thread',this)">Group chat</button>
   <button onclick="go('s-group-settings',this)">Group settings</button>
+  <button onclick="go('s-group-participants',this)">Group participants</button>
   <div class="label">Viewer (role / theme)</div>
   <button onclick="setViewer('athlete')">Athlete (light)</button>
   <button onclick="setViewer('coach')">Coach (dark)</button>
@@ -422,29 +423,40 @@
   <div class="fit-phone-content" style="padding-bottom:24px;">
     <div class="dm-set-hero">
       <div class="dm-grp-avs" style="margin-bottom:8px;"><span class="dm-grp-ic" style="width:48px;height:48px;font-size:16px;background:#b0612f;">MR</span><span class="dm-grp-ic" style="width:48px;height:48px;font-size:16px;background:#8b5cf6;margin-left:-16px;">JD</span><span class="dm-grp-ic" style="width:48px;height:48px;font-size:16px;background:#0ea5e9;margin-left:-16px;">SK</span></div>
-      <div class="dm-set-t" data-a11y-id="messages.group-settings.rename" style="display:flex;align-items:center;gap:7px;cursor:pointer;" onclick="openSheet('rename-sheet')">Sat tennis squad <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></div>
-      <div class="dm-set-s">4 members · you created this group</div>
+      <div class="dm-set-t">Sat tennis squad</div>
+      <div class="dm-set-s">You started this conversation</div>
     </div>
-    <div class="fit-section-title" style="margin-top:18px;">Notifications</div>
-    <div class="dm-set-rows">
+    <div style="display:flex;flex-direction:column;gap:10px;padding:8px 16px 0;">
+      <div class="set-card" data-a11y-id="messages.group-settings.rename" style="cursor:pointer;" onclick="openSheet('rename-sheet')">
+        <svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
+        <div class="set-info"><div class="set-title">Change name</div></div>
+        <svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="set-card" data-a11y-id="messages.group-settings.participants" style="cursor:pointer;" onclick="go('s-group-participants',null)">
+        <svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg>
+        <div class="set-info"><div class="set-title">Participants</div></div>
+        <span style="font-size:15px;color:var(--fit-text-tertiary);margin-right:2px;">4</span>
+        <svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="set-card" data-a11y-id="messages.group-settings.add" style="cursor:pointer;" onclick="go('s-new-message',null)">
+        <svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-1a6 6 0 0112 0v1"/><path d="M19 8v6M22 11h-6"/></svg>
+        <div class="set-info"><div class="set-title">Add participants</div></div>
+        <svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
       <div class="set-card" style="cursor:pointer;" onclick="var t=this.querySelector('.fit-toggle');t.classList.toggle('on');">
         <svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg>
         <div class="set-info"><div class="set-title">Mute conversation</div></div>
         <span class="fit-toggle" data-a11y-id="messages.group-settings.mute"></span>
       </div>
+      <div class="set-card" style="cursor:pointer;" onclick="var t=this.querySelector('.fit-toggle');t.classList.toggle('on');">
+        <svg class="set-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <div class="set-info"><div class="set-title">Participants can invite</div></div>
+        <span class="fit-toggle" data-a11y-id="messages.group-settings.members-invite"></span>
+      </div>
     </div>
-    <div class="fit-section-title" style="margin-top:22px;">Members &middot; 4</div>
-    <div class="dm-pick" data-a11y-id="messages.group-settings.add" onclick="go('s-new-message',null)">
-      <div class="dm-pick-av" style="background:transparent;border:1.5px dashed var(--fit-divider);color:var(--fit-teal-500);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M12 5v14M5 12h14"/></svg></div>
-      <div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-teal-500);">Add people</div></div>
-    </div>
-    <div class="dm-pick"><div class="dm-pick-av" style="background:rgba(5,224,166,0.16);color:var(--fit-teal-500);">You</div><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">You</div><div class="dm-pick-sub">Admin</div></div></div>
-    <div class="dm-pick"><div class="dm-pick-av" style="background:rgba(176,97,47,0.18);color:#d98a4f;">MR</div><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Marco Rossi</div></div><button class="dm-remove" data-a11y-id="messages.group-settings.remove-member" aria-label="Remove from group" onclick="alert('Remove Marco from group — confirm (admin only)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg></button></div>
-    <div class="dm-pick"><div class="dm-pick-av" style="background:rgba(139,92,246,0.18);color:#a78bfa;">JD</div><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Julia Dent</div></div><button class="dm-remove" data-a11y-id="messages.group-settings.remove-member" aria-label="Remove from group" onclick="alert('Remove Julia from group — confirm (admin only)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg></button></div>
-    <div class="dm-pick"><div class="dm-pick-av" style="background:rgba(14,165,233,0.18);color:#38bdf8;">SK</div><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Sara Kim</div></div><button class="dm-remove" data-a11y-id="messages.group-settings.remove-member" aria-label="Remove from group" onclick="alert('Remove Sara from group — confirm (admin only)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg></button></div>
   </div>
   <div class="fit-phone-footer fit-footer-btn">
-    <button class="fit-btn fit-btn-destructive" data-a11y-id="messages.group-settings.leave" onclick="alert('Leave group — confirm sheet (destructive)')">Leave conversation</button>
+    <button class="fit-btn fit-btn-destructive" data-a11y-id="messages.group-settings.delete" onclick="alert('Delete conversation — confirm sheet (destructive)')">Delete conversation</button>
   </div>
 
   <!-- Rename group (admin) -->
@@ -455,6 +467,28 @@
       <input id="rename-input" data-a11y-id="messages.group-settings.rename-input" value="Sat tennis squad" style="width:100%;height:48px;border-radius:12px;border:1px solid var(--fit-divider);background:var(--fit-surface-high);padding:0 14px;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);outline:none;margin-bottom:14px;">
       <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="closeSheet('rename-sheet')">Save</button>
     </div>
+  </div>
+</div>
+
+<!-- ==================== SCREEN: GROUP PARTICIPANTS ==================== -->
+<div class="fit-phone fit-light vr-athlete" id="s-group-participants">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="messages.participants.back" onclick="go('s-group-settings',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Participants</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+    <div class="dm-pick" data-a11y-id="messages.participants.add" onclick="go('s-new-message',null)">
+      <div class="dm-pick-av" style="background:transparent;border:1.5px dashed var(--fit-divider);color:var(--fit-teal-500);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M12 5v14M5 12h14"/></svg></div>
+      <div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-teal-500);">Add participants</div></div>
+    </div>
+    <div class="fit-section-title" style="margin-top:14px;">In this group &middot; 4</div>
+    <div class="dm-pick"><div class="dm-pick-av" style="background:rgba(5,224,166,0.16);color:var(--fit-teal-500);">You</div><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">You</div><div class="dm-pick-sub">Admin</div></div></div>
+    <div class="dm-pick"><div class="dm-pick-av" style="background:rgba(176,97,47,0.18);color:#d98a4f;">MR</div><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Marco Rossi</div></div><button class="dm-remove" data-a11y-id="messages.participants.remove" aria-label="Remove from group" onclick="alert('Remove Marco from group — confirm (admin only)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg></button></div>
+    <div class="dm-pick"><div class="dm-pick-av" style="background:rgba(139,92,246,0.18);color:#a78bfa;">JD</div><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Julia Dent</div></div><button class="dm-remove" data-a11y-id="messages.participants.remove" aria-label="Remove from group" onclick="alert('Remove Julia from group — confirm (admin only)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg></button></div>
+    <div class="dm-pick"><div class="dm-pick-av" style="background:rgba(14,165,233,0.18);color:#38bdf8;">SK</div><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Sara Kim</div></div><button class="dm-remove" data-a11y-id="messages.participants.remove" aria-label="Remove from group" onclick="alert('Remove Sara from group — confirm (admin only)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg></button></div>
   </div>
 </div>
 
@@ -489,7 +523,8 @@
     <h3>Conversation</h3><p>Bubbles reuse the assistant grammar (mine = faint brand tint, theirs = neutral surface). Date + unread separators. Composer = text / send (attach «+» hidden — share-a-session flow TBD).</p></div>
   <div class="ann" id="ann-s-thread-settings"><span class="ann-role">Shared</span><h3>Conversation settings</h3><p>Mute toggle (keeps the chat, stops notifications) + Delete conversation (destructive → confirm sheet).</p></div>
   <div class="ann" id="ann-s-group-thread"><span class="ann-role">Shared</span><h3>Group chat</h3><p>Created by multi-selecting people in New message. Stacked-avatar header + member count → tap → group settings. Bubbles are <strong>sender-attributed</strong> (name + avatar) so you know who's talking; mine plain on the right. Composer = text + send.</p></div>
-  <div class="ann" id="ann-s-group-settings"><span class="ann-role">Shared</span><h3>Group settings</h3><p>Stacked avatars + name + member count · Mute · <strong>Members list</strong> (creator = Admin) · <strong>Add people</strong> (→ the same multi-select picker) · <strong>remove a member</strong> (the red "−" on each member row — <strong>admin/creator only</strong>; confirm sheet) · <strong>Leave conversation</strong> (destructive — group uses Leave, not Delete). <strong>Rename</strong> — tap the group name (pencil) → rename sheet (admin).</p></div>
+  <div class="ann" id="ann-s-group-settings"><span class="ann-role">Shared</span><h3>Group settings</h3><p>Strava-style — hero (stacked avatars + name + "You started this conversation") then plain <code>.set-card</code> rows: <strong>Change name</strong> (→ rename sheet) · <strong>Participants</strong> (count → list screen) · <strong>Add participants</strong> (→ multi-select picker) · <strong>Mute conversation</strong> (toggle) · <strong>Participants can invite</strong> (toggle — admin lets members add others) · footer <strong>Delete conversation</strong>. Admin sees Delete + rename + remove; a non-admin member sees <em>Leave</em> instead and no admin toggles.</p></div>
+  <div class="ann" id="ann-s-group-participants"><span class="ann-role">Shared</span><h3>Participants</h3><p>Member list (reached from the Participants row). <strong>Add participants</strong> at top · each member row (creator = Admin) has a red "−" <strong>remove</strong> (admin/creator only → confirm).</p></div>
 </div>
 
 <script src="../../lib/fit-ui.js"></script>

@@ -747,12 +747,16 @@ Spending ledger (mirror of coach Earnings). Spec: `payments.md` Flow C1.
 | `messages.group.settings` | header ⚙ / name tap | `s-group-thread` | → group settings |
 | `messages.group.input` / `.send` | composer | `s-group-thread` | |
 | `messages.group-settings.back` | back chevron | `s-group-settings` | → group thread |
-| `messages.group-settings.rename` | group name (pencil) | `s-group-settings` | → rename sheet (admin) |
+| `messages.group-settings.rename` | "Change name" row | `s-group-settings` | → rename sheet (admin) |
 | `messages.group-settings.rename-input` | name field in rename sheet | `rename-sheet` | `PATCH .../{id}` title |
-| `messages.group-settings.add` | "Add people" row | `s-group-settings` | → multi-select picker (add to group) |
-| `messages.group-settings.remove-member` | remove "−" on a member row | `s-group-settings` | admin/creator only → confirm |
+| `messages.group-settings.participants` | "Participants" row (count) | `s-group-settings` | → `s-group-participants` |
+| `messages.group-settings.add` | "Add participants" row | `s-group-settings` | → multi-select picker |
 | `messages.group-settings.mute` | Mute toggle | `s-group-settings` | |
-| `messages.group-settings.leave` | Leave conversation (destructive) | `s-group-settings` | → confirm sheet |
+| `messages.group-settings.members-invite` | "Participants can invite" toggle | `s-group-settings` | admin only; `members_can_invite` |
+| `messages.group-settings.delete` | Delete conversation (destructive) | `s-group-settings` | admin (member sees Leave) |
+| `messages.participants.back` | back chevron | `s-group-participants` | → group settings |
+| `messages.participants.add` | "Add participants" row | `s-group-participants` | → multi-select picker |
+| `messages.participants.remove` | remove "−" on a member row | `s-group-participants` | admin/creator only → confirm |
 | `messages.thread.back` | back chevron | `s-thread` | → list |
 | `messages.thread.settings` | header ⚙ / name tap | `s-thread` | → conversation settings |
 | `messages.thread.attach` | attach + (share a session — later) | `s-thread` | composer |

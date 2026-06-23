@@ -33,13 +33,14 @@ Prototype: `shared/messages.html` (role-aware — athlete light = chats with coa
 4. **New thread (empty)** — person header + "Say hi to start the conversation."
 5. **1:1 settings** (`s-thread-settings`) — paired avatars · "You and X" · **Mute** toggle · **Delete conversation** (destructive → confirm sheet).
 6. **Group thread** (`s-group-thread`) — stacked-avatar header + name + "You, Marco, Julia +1 · N members" → tap → group settings. Bubbles are **sender-attributed** (name + avatar for others; mine plain right). Composer = text + send.
-7. **Group settings** (`s-group-settings`) — hero (stacked avatars + **editable group name with pencil → Rename sheet** + member count) then canonical `.fit-section-title` sections: **Notifications** (Mute) · **Members · N** (Add people dashed row → multi-select picker; each member row has a red "−" remove — **admin/creator only**, confirm) · footer **Leave conversation** (group uses Leave, not Delete). 1:1 settings use the same grammar (hero · Notifications · Delete). **Rename** is admin-only.
+7. **Group settings** (`s-group-settings`) — Strava-style: hero (stacked avatars + name + "You started this conversation") then plain `.set-card` rows: **Change name** (→ rename sheet) · **Participants** (count → list screen) · **Add participants** (→ multi-select picker) · **Mute conversation** (toggle) · **Participants can invite** (toggle — admin lets members add others) · footer **Delete conversation**. Admin sees Delete + Change name + member removal; a non-admin member sees **Leave** and no admin-only toggles.
+8. **Participants** (`s-group-participants`) — reached from the Participants row: **Add participants** at top + member list (creator = Admin); each member has a red "−" **remove** (admin/creator only, confirm).
 
 **Entry points:** the **Messages icon** in the Dashboard/Home header (left of the notification bell), on both athlete and coach. Individual threads also open from existing "Send Message" actions on coach/athlete profiles + participant sheets.
 
 ## Data Model (new)
 
-**`conversation`** — `id`, `created_by` (profile id), `is_group` (bool), `title` (nullable — group name; 1:1 derives the title from the other party), `created_at`, `updated_at`, `last_message_at`. **2 participants = 1:1, 3+ = group.**
+**`conversation`** — `id`, `created_by` (profile id), `is_group` (bool), `title` (nullable — group name; 1:1 derives the title from the other party), `members_can_invite` (bool, default false — group only; if false only admin adds), `created_at`, `updated_at`, `last_message_at`. **2 participants = 1:1, 3+ = group.**
 **`conversation_participant`** — `conversation_id`, `profile_id`, `role` (`admin` for the creator / `member`), `muted` (bool), `last_read_message_id` (read cursor), `deleted_at` (per-user soft delete / **leave**).
 **`message`** — `id`, `conversation_id`, `sender_profile_id`, `body` (text), `created_at`, `deleted_at`. (Group bubbles are sender-attributed via `sender_profile_id`.)
 
@@ -57,7 +58,7 @@ Unread count per user = messages after their `last_read_message_id` (cross-conve
 | PUT | `/messages/conversations/{id}/mute` | Mute / unmute |
 | POST | `/messages/conversations/{id}/participants` | **Add people to a group** (`participantIds[]`, all must be connections) |
 | DELETE | `/messages/conversations/{id}/participants/{pid}` | **Remove a member** (admin/creator only) |
-| PATCH | `/messages/conversations/{id}` | **Rename group** (`title`, admin/creator only) |
+| PATCH | `/messages/conversations/{id}` | **Group settings** — `title` (rename) + `members_can_invite` (bool); admin/creator only |
 | DELETE | `/messages/conversations/{id}` | 1:1 → delete; group → **leave** (per-user soft delete either way) |
 | GET | `/messages/unread-count` | Header badge (DM unread total — separate from notifications) |
 | GET | `/messages/recipients?q=` | Connected users you can message (coaches / athletes) |
@@ -78,7 +79,7 @@ Mobile sockets die when the app is backgrounded/closed → **never the delivery 
 - Only between connected users; eligibility enforced server-side (every group member must be a connection of the creator).
 - Mute = stop push notifications, conversation stays in the list.
 - **1:1 → Delete** (per-user soft delete; other party keeps their copy). **Group → Leave** (you exit; group continues for the rest).
-- Group bubbles are **sender-attributed**; 1:1 are not. Creator = `admin`; **admin can rename the group, add and remove members** (rename + remove = admin only; any member can Leave).
+- Group bubbles are **sender-attributed**; 1:1 are not. Creator = `admin`; **admin can rename, add/remove members, and toggle `members_can_invite`** (rename + remove + toggle = admin only). When `members_can_invite` is on, non-admins may also add. **Admin → Delete conversation; non-admin member → Leave.** Any member can Leave.
 - Unread badge on the Messages icon is **DM-only**, separate from the notification bell count.
 
 ## Not in V1
