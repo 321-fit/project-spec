@@ -33,7 +33,7 @@ Prototype: `shared/messages.html` (role-aware — athlete light = chats with coa
 4. **New thread (empty)** — person header + "Say hi to start the conversation."
 5. **1:1 settings** (`s-thread-settings`) — paired avatars · "You and X" · **Mute** toggle · **Delete conversation** (destructive → confirm sheet).
 6. **Group thread** (`s-group-thread`) — stacked-avatar header + name + "You, Marco, Julia +1 · N members" → tap → group settings. Bubbles are **sender-attributed** (name + avatar for others; mine plain right). Composer = text + send.
-7. **Group settings** (`s-group-settings`) — hero (stacked avatars + name + member count) then canonical `.fit-section-title` sections: **Notifications** (Mute) · **Members · N** (Add people dashed row → multi-select picker; each member row has a red "−" remove — **admin/creator only**, confirm) · footer **Leave conversation** (group uses Leave, not Delete). 1:1 settings use the same grammar (hero · Notifications · Delete).
+7. **Group settings** (`s-group-settings`) — hero (stacked avatars + **editable group name with pencil → Rename sheet** + member count) then canonical `.fit-section-title` sections: **Notifications** (Mute) · **Members · N** (Add people dashed row → multi-select picker; each member row has a red "−" remove — **admin/creator only**, confirm) · footer **Leave conversation** (group uses Leave, not Delete). 1:1 settings use the same grammar (hero · Notifications · Delete). **Rename** is admin-only.
 
 **Entry points:** the **Messages icon** in the Dashboard/Home header (left of the notification bell), on both athlete and coach. Individual threads also open from existing "Send Message" actions on coach/athlete profiles + participant sheets.
 
@@ -57,6 +57,7 @@ Unread count per user = messages after their `last_read_message_id` (cross-conve
 | PUT | `/messages/conversations/{id}/mute` | Mute / unmute |
 | POST | `/messages/conversations/{id}/participants` | **Add people to a group** (`participantIds[]`, all must be connections) |
 | DELETE | `/messages/conversations/{id}/participants/{pid}` | **Remove a member** (admin/creator only) |
+| PATCH | `/messages/conversations/{id}` | **Rename group** (`title`, admin/creator only) |
 | DELETE | `/messages/conversations/{id}` | 1:1 → delete; group → **leave** (per-user soft delete either way) |
 | GET | `/messages/unread-count` | Header badge (DM unread total — separate from notifications) |
 | GET | `/messages/recipients?q=` | Connected users you can message (coaches / athletes) |
@@ -77,11 +78,11 @@ Mobile sockets die when the app is backgrounded/closed → **never the delivery 
 - Only between connected users; eligibility enforced server-side (every group member must be a connection of the creator).
 - Mute = stop push notifications, conversation stays in the list.
 - **1:1 → Delete** (per-user soft delete; other party keeps their copy). **Group → Leave** (you exit; group continues for the rest).
-- Group bubbles are **sender-attributed**; 1:1 are not. Creator = `admin`; **admin can add and remove members** (remove = admin only; any member can Leave).
+- Group bubbles are **sender-attributed**; 1:1 are not. Creator = `admin`; **admin can rename the group, add and remove members** (rename + remove = admin only; any member can Leave).
 - Unread badge on the Messages icon is **DM-only**, separate from the notification bell count.
 
 ## Not in V1
-- **Rename group** (v1 has create / add member / remove member / Leave; rename comes later).
+- Group avatar/photo (v1 = stacked member initials only).
 - Attachments / share-a-session in the composer (the "+" is hidden — flow TBD).
 - Typing indicators, read receipts, presence ("last seen") — Phase 2 (needs the realtime WS/SSE layer).
 - Realtime websocket transport (poll-on-open is enough for launch).

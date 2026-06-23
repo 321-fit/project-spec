@@ -747,6 +747,8 @@ Spending ledger (mirror of coach Earnings). Spec: `payments.md` Flow C1.
 | `messages.group.settings` | header ⚙ / name tap | `s-group-thread` | → group settings |
 | `messages.group.input` / `.send` | composer | `s-group-thread` | |
 | `messages.group-settings.back` | back chevron | `s-group-settings` | → group thread |
+| `messages.group-settings.rename` | group name (pencil) | `s-group-settings` | → rename sheet (admin) |
+| `messages.group-settings.rename-input` | name field in rename sheet | `rename-sheet` | `PATCH .../{id}` title |
 | `messages.group-settings.add` | "Add people" row | `s-group-settings` | → multi-select picker (add to group) |
 | `messages.group-settings.remove-member` | remove "−" on a member row | `s-group-settings` | admin/creator only → confirm |
 | `messages.group-settings.mute` | Mute toggle | `s-group-settings` | |
