@@ -665,6 +665,8 @@ Trimmed mirror of coach Profile (`.cp-*` grammar; no video hero). Spec: `athlete
 | `athlete.inbox.tab.activity` / `.toreply` / `.waiting` | segmented tabs | `s-notifications` | switch panel |
 | `athlete.inbox.toreply.decline` / `.accept` | buttons on a `.req-card` | `s-notifications` (To reply) | coach invite / reschedule |
 | `athlete.inbox.waiting.cancel` | "Cancel request" on a `.req-card` | `s-notifications` (Waiting) | withdraw sent request |
+| `athlete.dashboard.messages` | Messages icon (header, left of bell) | `s-dashboard` | → messages.html |
+| `coach.dashboard.messages` | Messages icon (header, left of bell) | `s-dashboard` (coach) | → messages.html?role=coach |
 | `athlete.dashboard.balance` | balance card | `s-dashboard` | → balance.html |
 | `athlete.dashboard.balance.topup` | "Top up" on balance widget | `s-dashboard` | → `balance.html#s-top-up` (deep-link) |
 | `athlete.dashboard.balance.transactions` | "Transactions" on balance widget | `s-dashboard` | → `balance.html#s-balance` |
@@ -682,9 +684,20 @@ Trimmed analog of coach Settings. Spec: `settings.md` (Athlete section).
 | `athlete.settings.invite-friend` | Invite a friend card | `s-settings` | placeholder (referral on hold) |
 | `athlete.settings.sport` | Choose a sport card | `s-settings` | → sport-types.html |
 | `athlete.settings.calendar-sync` | Calendar Sync card | `s-settings` | → calendar-sync.html |
+| `athlete.settings.integrations` | Integrations card | `s-settings` | → integrations.html |
 | `athlete.settings.balance` | Balance card | `s-settings` | → balance.html |
 | `athlete.settings.account-access` | Account Access card | `s-settings` | → account-access.html |
 | `athlete.settings.logout` | Log out row | `s-settings` | "Signed out" toast |
+
+### `integrations` (athlete) — `athlete/integrations.html`
+
+| ID | Element | Screen | Notes |
+|---|---|---|---|
+| `athlete.integrations.back` | back chevron | `s-integrations` | → settings.html |
+| `athlete.integrations.strava.connect` | "Connect" (Strava) | `s-integrations` | → Strava OAuth (app/Safari) |
+| `athlete.integrations.strava.disconnect` | "Disconnect" (Strava) | `s-integrations` | revokes `strava_connection` |
+| `athlete.integrations.health.enable` | "Enable" (Apple Health) | `s-integrations` | → native HealthKit permission dialog |
+| `athlete.integrations.health.allow` | "Allow" in HK permission sheet | `hk-sheet` | native iOS dialog (repr.) |
 
 ### `balance` (athlete) — `athlete/balance.html`
 
@@ -718,6 +731,25 @@ Spending ledger (mirror of coach Earnings). Spec: `payments.md` Flow C1.
 | `athlete.card-picker.card` | a card option (auto top-up) | `cardpick-at` | select saved card |
 | `athlete.card-picker.add-card` | "Add new card" | `cardpick-at` | → Stripe PaymentSheet (setup) |
 | `athlete.booking.setup-auto-topup` | contextual "set up auto top-up" | `booking-confirm-sheet` | shown when balance short → balance |
+
+### `messages` (shared, athlete + coach) — `shared/messages.html`
+
+| ID | Element | Screen | Notes |
+|---|---|---|---|
+| `messages.back` | back chevron | `s-messages` | → previous screen |
+| `messages.compose` | compose ✎ (header) | `s-messages` | → New message |
+| `messages.conversation` | a conversation row | `s-messages` | → thread |
+| `messages.empty.new` | "New message" (empty state) | `s-messages` | → New message |
+| `messages.new.close` | "Close" | `s-new-message` | → list |
+| `messages.new.person` | a connected person row | `s-new-message` | → thread (1:1) |
+| `messages.thread.back` | back chevron | `s-thread` | → list |
+| `messages.thread.settings` | header ⚙ / name tap | `s-thread` | → conversation settings |
+| `messages.thread.attach` | attach + (share a session — later) | `s-thread` | composer |
+| `messages.thread.input` | message field | `s-thread` | composer |
+| `messages.thread.send` | send | `s-thread` | composer |
+| `messages.settings.back` | back chevron | `s-thread-settings` | → thread |
+| `messages.settings.mute` | Mute conversation toggle | `s-thread-settings` | |
+| `messages.settings.delete` | Delete conversation (destructive) | `s-thread-settings` | → confirm sheet |
 
 ### `search` (athlete, partial) — `athlete/search.html`
 

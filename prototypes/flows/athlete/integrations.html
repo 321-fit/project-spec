@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Athlete · Integrations</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: var(--fit-font); background: #0a0a0a; display: flex; justify-content: center; align-items: flex-start; padding: 24px; min-height: 100vh; min-width: 900px; }
+  .sidebar { position: fixed; left: 24px; top: 24px; bottom: 24px; width: 200px; display: flex; flex-direction: column; }
+  .sidebar-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--fit-gray-600); padding: 0 8px; margin: 16px 0 8px; }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button { font-family: var(--fit-font); font-size: 14px; font-weight: 400; padding: 10px 12px; border-radius: 10px; border: none; background: transparent; color: var(--fit-gray-400); cursor: pointer; text-align: left; width: 100%; transition: all 0.15s; }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active { background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500; }
+  .ann-container { position: fixed; left: calc(50% + 195px + 48px); right: 24px; top: 24px; bottom: 24px; width: auto; overflow-y: auto; }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; }
+  .ann.active { display: block; }
+  .ann-role { display: inline-block; font-size: 14px; font-weight: 500; padding: 4px 12px; border-radius: 8px; margin-bottom: 16px; background: rgba(5,224,166,0.15); color: var(--fit-teal-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 14px; padding-left: 18px; font-size: 16px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 6px; }
+  .ann code { font-size: 13px; background: var(--fit-gray-900); padding: 1px 6px; border-radius: 5px; color: var(--fit-gray-300); }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  .state-toggle { display: inline-flex; gap: 0; border-radius: 6px; overflow: hidden; border: 1px solid var(--fit-gray-700); margin-bottom: 8px; flex-wrap: wrap; }
+  .state-toggle button { font-family: var(--fit-font); font-size: 12px; font-weight: 500; padding: 4px 10px; border: none; cursor: pointer; background: transparent; color: var(--fit-gray-400); transition: all 0.15s; }
+  .state-toggle button.active { background: var(--fit-gray-700); color: var(--fit-white); }
+
+  .fit-phone { display: none; }
+  .fit-phone.active { display: flex; }
+  .fit-dark .fit-phone-header, .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+
+  /* ===== Integration card ===== */
+  .intg-intro { font-size: 14px; color: var(--fit-text-secondary); line-height: 1.5; padding: 4px 16px 4px; }
+  .intg-list { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px 0; }
+  .intg-card { background: var(--fit-surface-high); border-radius: 16px; padding: 16px; }
+  .fit-light .intg-card { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+  .intg-head { display: flex; align-items: center; gap: 12px; }
+  .intg-logo { width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .intg-logo.strava { background: #FC4C02; color: #fff; }
+  .intg-logo.health { background: rgba(240,92,91,0.14); color: var(--fit-red-400); }
+  .fit-light .intg-logo.health { background: rgba(240,92,91,0.10); }
+  .intg-logo svg { width: 24px; height: 24px; }
+  .intg-info { flex: 1; min-width: 0; }
+  .intg-name { font-size: 16px; font-weight: 600; color: var(--fit-text-primary); }
+  .intg-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .intg-desc { font-size: 13px; color: var(--fit-text-secondary); line-height: 1.5; margin-top: 12px; }
+  /* connected status chip (right of head) */
+  .intg-status { display: none; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; color: var(--fit-green-500); flex-shrink: 0; }
+  .intg-status svg { width: 13px; height: 13px; }
+  .intg-action { margin-top: 14px; }
+  .intg-connect { width: 100%; height: 44px; border: none; border-radius: 99px; background: var(--fit-brand-gradient); color: #fff; font-family: var(--fit-font); font-size: 15px; font-weight: 500; cursor: pointer; }
+  /* connected row: account line + disconnect */
+  .intg-account { display: none; align-items: center; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--fit-divider); }
+  .intg-account-ic { width: 28px; height: 28px; border-radius: 50%; background: var(--fit-surface-higher); display: flex; align-items: center; justify-content: center; color: var(--fit-text-secondary); flex-shrink: 0; }
+  .fit-light .intg-account-ic { background: var(--fit-gray-100); }
+  .intg-account-name { flex: 1; font-size: 14px; color: var(--fit-text-primary); font-weight: 500; }
+  .intg-disconnect { background: none; border: none; font-family: var(--fit-font); font-size: 14px; font-weight: 500; color: var(--fit-red-400); cursor: pointer; }
+  .intg-manage { display: none; font-size: 12px; color: var(--fit-text-tertiary); line-height: 1.45; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--fit-divider); }
+
+  /* State switching — Strava */
+  #strava-card.on .intg-action { display: none; }
+  #strava-card.on .intg-status { display: inline-flex; }
+  #strava-card.on .intg-account { display: flex; }
+  /* State switching — Apple Health */
+  #health-card.on .intg-action { display: none; }
+  #health-card.on .intg-status { display: inline-flex; }
+  #health-card.on .intg-manage { display: block; }
+
+  /* footnote about how they combine */
+  .intg-note { display: flex; gap: 8px; align-items: flex-start; margin: 18px 16px 0; padding: 12px 14px; border-radius: 12px; background: rgba(3,178,226,0.06); border: 1px solid rgba(3,178,226,0.18); }
+  .intg-note svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--fit-blue-500); margin-top: 1px; }
+  .intg-note-text { font-size: 13px; color: var(--fit-text-secondary); line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+    <button onclick="window.location.href='../../index.html'" style="display:flex;align-items:center;gap:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;padding:8px 12px;border-radius:10px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-gray-300);cursor:pointer;width:100%;margin-bottom:8px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      All modules
+    </button>
+  <div class="label">Integrations</div>
+  <button class="active" onclick="go('s-integrations',this)">Integrations</button>
+  <div class="label">Strava state</div>
+  <button onclick="go('s-integrations',this);setStrava(false)">Disconnected</button>
+  <button onclick="go('s-integrations',this);setStrava(true)">Connected</button>
+  <div class="label">Apple Health state</div>
+  <button onclick="go('s-integrations',this);setHealth(false)">Off</button>
+  <button onclick="go('s-integrations',this);setHealth(true)">Enabled</button>
+  <button onclick="go('s-integrations',this);openSheet('hk-sheet')">HealthKit permission</button>
+  <div class="label">Other modules</div>
+  <button onclick="window.location.href='settings.html'">Settings</button>
+  </div>
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ==================== SCREEN: INTEGRATIONS ==================== -->
+<div class="fit-phone fit-light active" id="s-integrations">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="athlete.integrations.back" onclick="window.location.href='settings.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Integrations</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+    <div class="intg-intro">Connect your training tools. Each one works on its own.</div>
+
+    <div class="intg-list">
+
+      <!-- ===== STRAVA ===== -->
+      <div class="intg-card off" id="strava-card">
+        <div class="intg-head">
+          <div class="intg-logo strava"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.4 13.1L12.5 7.4 9.6 13.1h1.7l1.2-2.4 1.2 2.4h1.7zM12.5 16.6l-1.6-3.1H9.2l3.3 6.4 3.3-6.4h-1.7l-1.6 3.1z"/></svg></div>
+          <div class="intg-info">
+            <div class="intg-name">Strava</div>
+            <div class="intg-sub">Auto-post your trainings</div>
+          </div>
+          <span class="intg-status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Connected</span>
+        </div>
+        <div class="intg-desc">When a session is finished, 321Fit posts it to your Strava as an activity.</div>
+        <div class="intg-action">
+          <button class="intg-connect" data-a11y-id="athlete.integrations.strava.connect" onclick="alert('Strava OAuth — opens the Strava app or Safari to authorize')">Connect</button>
+        </div>
+        <div class="intg-account">
+          <span class="intg-account-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></span>
+          <span class="intg-account-name">@yuri_k</span>
+          <button class="intg-disconnect" data-a11y-id="athlete.integrations.strava.disconnect" onclick="setStrava(false)">Disconnect</button>
+        </div>
+      </div>
+
+      <!-- ===== APPLE HEALTH ===== -->
+      <div class="intg-card off" id="health-card">
+        <div class="intg-head">
+          <div class="intg-logo health"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.35-9.5-8.5C1 9.5 2.5 6 6 6c2 0 3.2 1.2 4 2.3C10.8 7.2 12 6 14 6c3.5 0 5 3.5 3.5 6.5C19 16.65 12 21 12 21z"/></svg></div>
+          <div class="intg-info">
+            <div class="intg-name">Apple Health</div>
+            <div class="intg-sub">Read heart rate from your workouts</div>
+          </div>
+          <span class="intg-status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Reading</span>
+        </div>
+        <div class="intg-desc">After each session, 321Fit reads your heart rate from Health and adds it to your training record.</div>
+        <div class="intg-action">
+          <button class="intg-connect" data-a11y-id="athlete.integrations.health.enable" onclick="openSheet('hk-sheet')">Enable</button>
+        </div>
+        <div class="intg-manage">Access is managed in <strong style="color:var(--fit-text-secondary);">iOS Settings → Privacy → Health → 321Fit</strong>. Turn off Heart Rate there to stop sharing.</div>
+      </div>
+
+    </div>
+
+    <!-- how they combine -->
+    <div class="intg-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+      <span class="intg-note-text">Use either or both. <strong style="color:var(--fit-text-primary);">Strava</strong> posts the activity; <strong style="color:var(--fit-text-primary);">Apple Health</strong> adds your heart rate. With both on, sessions upload to Strava <strong style="color:var(--fit-text-primary);">with your heart-rate trace</strong>.</span>
+    </div>
+
+  </div>
+
+  <!-- HealthKit permission — native iOS dialog (representation) -->
+  <div class="fit-sheet-overlay" id="hk-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="display:flex;align-items:center;gap:6px;justify-content:center;font-size:12px;color:var(--fit-text-tertiary);margin-bottom:10px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Native iOS Health permission</div>
+      <div class="fit-sheet-title" style="text-align:center;margin-bottom:4px;">&ldquo;321Fit&rdquo; would like to read your Health data</div>
+      <div style="font-size:13px;color:var(--fit-text-secondary);text-align:center;line-height:1.5;margin-bottom:18px;">Heart Rate &middot; Workouts</div>
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--fit-surface-high);margin-bottom:18px;">
+        <span class="intg-logo health" style="width:34px;height:34px;border-radius:9px;"><svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M12 21s-7-4.35-9.5-8.5C1 9.5 2.5 6 6 6c2 0 3.2 1.2 4 2.3C10.8 7.2 12 6 14 6c3.5 0 5 3.5 3.5 6.5C19 16.65 12 21 12 21z"/></svg></span>
+        <span style="font-size:14px;color:var(--fit-text-secondary);">Turn on <strong style="color:var(--fit-text-primary);">Heart Rate</strong> to share workout data</span>
+      </div>
+      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" data-a11y-id="athlete.integrations.health.allow" onclick="closeSheet('hk-sheet');setHealth(true)">Allow</button>
+      <button class="fit-btn" style="width:100%;height:44px;margin-top:8px;background:transparent;border:none;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:15px;font-weight:500;cursor:pointer;" onclick="closeSheet('hk-sheet')">Don't Allow</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+  <div class="ann active" id="ann-s-integrations"><span class="ann-role">Athlete</span>
+    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Strava</div>
+    <div class="state-toggle">
+      <button class="active" onclick="setStrava(false);annTog(this)">Disconnected</button>
+      <button onclick="setStrava(true);annTog(this)">Connected</button>
+    </div>
+    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin:8px 0 6px;">Apple Health</div>
+    <div class="state-toggle">
+      <button class="active" onclick="setHealth(false);annTog(this)">Off</button>
+      <button onclick="setHealth(true);annTog(this)">Enabled</button>
+      <button onclick="openSheet('hk-sheet');annTog(this)">Permission dialog</button>
+    </div>
+    <h3>Integrations</h3>
+    <p>Two <strong>independent</strong> connections (Settings → Integrations). Each is its own card with its own state — neither depends on the other.</p>
+    <ul>
+      <li><strong>Strava</strong> — <strong>Connect</strong> → <strong>OAuth</strong> (opens the Strava app / Safari). Connected → shows <code>@username</code> + <strong>Disconnect</strong>. Backend: <code>strava_connection</code> table already shipped (2026-06-22). Posts a finished session to Strava (Upload API).</li>
+      <li><strong>Apple Health</strong> — <strong>Enable</strong> → the <strong>native iOS</strong> Health permission dialog (<code>HKHealthStore.requestAuthorization()</code>, <em>not</em> OAuth — represented here as a mock). After each session the app reads Heart Rate and sends it to the backend. There's no in-app disconnect — access is revoked in <strong>iOS Settings → Privacy → Health</strong>; we show that hint.</li>
+    </ul>
+    <p><strong>How they combine</strong> (info card at the bottom):</p>
+    <ul>
+      <li>Strava only → posts a manual activity (no heart rate).</li>
+      <li>Health only → collects heart rate, stored with us, nothing posted out.</li>
+      <li>Both → posts to Strava via Upload API <strong>with heart rate</strong> (TCX file).</li>
+    </ul>
+    <hr>
+    <p class="note"><strong>Cross-platform:</strong> Apple Health is iOS-only — Android uses <strong>Health Connect</strong> (same card, same Enable → system permission flow, reads Heart Rate). Strava is identical on both.</p>
+    <p class="note">Where the sensor data lands on the backend (heart-rate ingest endpoint + storage) — <strong>open, to design next</strong> per Yuri.</p>
+  </div>
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+function switchTheme(theme) {
+  document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.getElementById("theme-light").style.background = theme === "light" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-light").style.color = theme === "light" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.querySelectorAll(".fit-phone").forEach(function (p) {
+    if (theme === "light") { p.classList.remove("fit-dark"); p.classList.add("fit-light"); }
+    else { p.classList.remove("fit-light"); p.classList.add("fit-dark"); }
+  });
+}
+function go(id, btn) {
+  document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+function openSheet(id) { var el = document.getElementById(id); if (el) el.classList.add('visible'); }
+function closeSheet(id) { var el = document.getElementById(id); if (el) el.classList.remove('visible'); }
+document.addEventListener('click', function (e) { if (e.target.classList && e.target.classList.contains('fit-sheet-overlay')) e.target.classList.remove('visible'); });
+function setStrava(on) { document.getElementById('strava-card').classList.toggle('on', on); }
+function setHealth(on) { document.getElementById('health-card').classList.toggle('on', on); }
+function annTog(btn) { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+</script>
+</body>
+</html>
