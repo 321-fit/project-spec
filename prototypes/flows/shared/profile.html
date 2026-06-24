@@ -173,6 +173,12 @@
 
   /* V6d card themes */
   .v6d-card { background: var(--fit-surface-high); }
+  /* home-visit booking confirm */
+  #booking-confirm-sheet:not(.is-hv) .bk-hv-only { display: none !important; }
+  #booking-confirm-sheet.is-hv .bk-hv-studio { display: none !important; }
+  #booking-confirm-sheet.is-hv:not(.hv-noaddr) .bk-addr-pick { display: none !important; }
+  #booking-confirm-sheet.is-hv.hv-noaddr .bk-addr-set { display: none !important; }
+  #booking-confirm-sheet.is-hv.hv-noaddr #bpm-cta { opacity: 0.45; pointer-events: none; }
   .fit-light .v6d-card { background: var(--fit-white) !important; box-shadow: 0 1px 12px rgba(0,0,0,0.12); }
   .fit-light .v6d-card { box-shadow: 0 0 12px rgba(0,0,0,0.07); }
   .fit-light .v6d-icon-box { background: rgba(0,0,0,0.06) !important; }
@@ -579,7 +585,22 @@
         </div>
         <div style="font-size:14px;color:var(--fit-text-tertiary);display:flex;flex-direction:column;gap:4px;">
           <span>Tue, Apr 7 &middot; 10:00 &ndash; 11:00 (1h)</span>
-          <span>TNT Studio</span>
+          <span class="bk-hv-studio">TNT Studio</span>
+          <span class="bk-hv-only" style="display:flex;align-items:center;gap:5px;color:var(--fit-brand-primary);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home visit &middot; coach travels to you</span>
+        </div>
+      </div>
+
+      <!-- Home-visit only: your address (default if saved; else select + block confirm) -->
+      <div class="bk-hv-only" style="margin-bottom:16px;">
+        <div class="bk-addr-set" style="display:flex;align-items:center;gap:10px;padding:14px;border-radius:12px;background:var(--fit-surface-high);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <div style="flex:1;min-width:0;"><div style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--fit-text-tertiary);font-weight:500;">Your address</div><div style="font-size:15px;color:var(--fit-text-primary);" id="bk-hv-addr">12 Palm St, Larnaca</div></div>
+          <button onclick="openHvPicker()" style="background:none;border:none;color:var(--fit-brand-primary);font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;flex-shrink:0;">Change</button>
+        </div>
+        <div class="bk-addr-pick" onclick="openHvPicker()" style="display:flex;align-items:center;gap:10px;padding:14px;border-radius:12px;border:1px dashed var(--fit-yellow-600);cursor:pointer;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fit-yellow-600)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          <div style="flex:1;"><div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Select your address</div><div style="font-size:12px;color:var(--fit-text-tertiary);">The coach needs to know where to come</div></div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
         </div>
       </div>
 
@@ -1388,7 +1409,7 @@
         </div>
         <div style="padding:12px 16px;">
           <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">Personal training</div>
-          <button data-a11y-id="athlete.booking.catalog.book" onclick="go('s-booking', null);setBookingState('personal')" style="width:100%;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Book &middot; &euro;50</button>
+          <button data-a11y-id="athlete.booking.catalog.book" onclick="go('s-booking', null);setBookingState('personal');setHV(false)" style="width:100%;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Book &middot; &euro;50</button>
         </div>
       </div>
 
@@ -1406,14 +1427,13 @@
             <div class="v6d-price" style="font-size:16px;font-weight:600;color:var(--fit-white);">&euro;70</div>
           </div>
         </div>
-        <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;cursor:pointer;border-bottom:1px solid var(--fit-gray-700);">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-          <span style="flex:1;font-size:14px;color:var(--fit-brand-primary);text-decoration:underline;text-underline-offset:2px;">Padel Arena, Warsaw</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5;"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+        <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--fit-gray-700);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">Home visit &middot; coach travels to you</span>
         </div>
         <div style="padding:12px 16px;">
           <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">Personal training</div>
-          <button data-a11y-id="athlete.booking.catalog.book" onclick="go('s-booking', null);setBookingState('personal')" style="width:100%;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Book &middot; &euro;70</button>
+          <button data-a11y-id="athlete.booking.catalog.book" onclick="go('s-booking', null);setBookingState('personal');setHV(true)" style="width:100%;height:44px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Book &middot; &euro;70</button>
         </div>
       </div>
 
@@ -1423,8 +1443,34 @@
 </div>
 
 
+<!-- ===== ATHLETE: HOME-VISIT ADDRESS PICKER (reached from booking confirm; cloned from locations s-loc-map) ===== -->
+<div class="fit-phone fit-light" id="s-hv-address">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header"><button class="fit-header-back" onclick="reopenBookingConfirm()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button><span class="fit-header-title">Your address</span></div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="fit-input-group" style="padding:12px 16px 0;"><div class="fit-input" style="display:flex;align-items:center;gap:8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><input type="text" placeholder="Search your address" style="border:none;outline:none;background:transparent;flex:1;font-family:var(--fit-font);font-size:15px;color:var(--fit-text-primary);"></div></div>
+    <div style="font-size:14px;font-weight:500;color:var(--fit-text-secondary);padding:16px 16px 4px;">Saved</div>
+    <div style="padding:0 16px;">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--fit-divider);cursor:pointer;" onclick="pickHvAddr('12 Palm St, Larnaca')"><span style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--fit-brand-primary);width:36px;"><span style="width:16px;height:16px;display:block;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span></span><div style="flex:1;min-width:0;"><div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Home</div><div style="font-size:12px;color:var(--fit-text-tertiary);">12 Palm St, Larnaca</div></div></div>
+    </div>
+    <div style="height:1px;background:var(--fit-divider);margin:8px 16px;"></div>
+    <div style="padding:0 16px;">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer;" onclick="pickHvAddr('Current location · Larnaca')"><span style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></span><span style="font-size:16px;color:var(--fit-text-primary);">Use current location</span></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer;" onclick="pickHvAddr('Pinned on map')"><span style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 3v18"/></svg></span><span style="font-size:16px;color:var(--fit-text-primary);">Pick on map</span></div>
+    </div>
+  </div>
+</div>
+
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
+  <div class="ann" id="ann-s-hv-address"><span class="ann-role athlete">Athlete</span><h3>Home-visit address</h3>
+    <p>Reached from the booking confirm sheet when the session is a <strong>home visit</strong> (coach set location = home when creating the session). Cloned from <code>locations.html → s-loc-map</code>. Pick → back to confirm with the address filled and the CTA unblocked.</p>
+    <div class="state-toggle"><button class="active" onclick="setHvAddrState('set',this);openBookingConfirmHV()">Confirm: address saved</button><button onclick="setHvAddrState('none',this);openBookingConfirmHV()">Confirm: needs address</button></div>
+    <p class="note">Default = athlete's saved home address pre-filled. If none saved → "Select your address" + Send blocked until chosen.</p>
+  </div>
+
   <div class="ann active" id="ann-s-coach"><span class="ann-role athlete">Athlete</span><h3>Coach Profile</h3><p>Two-level layout: <strong>Group Trainings first</strong> (templates with schedule), Personal Sessions below, About last.</p><ul><li>Group templates show recurring schedule ("Tue & Thu, 18:00")</li><li>"Next: Thu Apr 10 · 3/10 spots" — quick preview</li><li>One-off events get <strong>"Special" badge</strong> + highlighted border</li><li>Chevron ">" on all cards — tappable</li><li>Tap group template → <strong>booking calendar</strong></li><li>Tap personal template → existing booking flow</li></ul><hr><p class="note">Group first = lower barrier to entry (no approval needed)</p></div>
   <div class="ann" id="ann-s-booking"><span class="ann-role athlete">Athlete</span>
     <div class="state-toggle">
@@ -1841,6 +1887,14 @@ switchTheme('light');
   if (ann) ann.classList.add('active');
   if (window.FitUI && FitUI.initAll) FitUI.initAll(el);
 })();
+</script>
+<script>
+function setHV(v){ var s=document.getElementById('booking-confirm-sheet'); if(s) s.classList.toggle('is-hv', !!v); }
+function setHvAddrState(state, btn){ var s=document.getElementById('booking-confirm-sheet'); if(s) s.classList.toggle('hv-noaddr', state==='none'); if(typeof annHighlight==='function' && btn) annHighlight(btn); }
+function openHvPicker(){ var s=document.getElementById('booking-confirm-sheet'); if(s) s.classList.remove('visible'); go('s-hv-address', null); }
+function reopenBookingConfirm(){ go('s-booking', null); setTimeout(function(){ document.getElementById('booking-confirm-sheet').classList.add('visible'); }, 60); }
+function pickHvAddr(addr){ var t=document.getElementById('bk-hv-addr'); if(t) t.textContent=addr; var s=document.getElementById('booking-confirm-sheet'); if(s) s.classList.remove('hv-noaddr'); reopenBookingConfirm(); }
+function openBookingConfirmHV(){ setHV(true); go('s-booking', null); setTimeout(function(){ document.getElementById('booking-confirm-sheet').classList.add('visible'); }, 60); }
 </script>
 </body>
 </html>
