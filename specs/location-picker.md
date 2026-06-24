@@ -175,7 +175,7 @@ Client surfaces this in the warning sheet; delete blocked until templates reassi
 
 ### Athlete Home Addresses
 
-> **Implementation status (2026-06-24):** CRUD done in [poly-backend PR #604](https://github.com/321-fit/poly-backend/pull/604). Separate `athlete_address` table. Dead legacy endpoint `/athlete/addresses/` (which used the shared coach `address` table) removed in the same PR.
+> **Implementation status (2026-06-24):** CRUD done in [poly-backend PR #604](https://github.com/321-fit/poly-backend/pull/604) (merged). Separate `athlete_address` table with dual-owner support (athlete + CRM). Dead legacy endpoint `/athlete/addresses/` removed. CRM client management via [PR #605](https://github.com/321-fit/poly-backend/pull/605).
 
 #### `GET /athlete/home-addresses`
 Returns the athlete's saved home addresses.
@@ -198,6 +198,34 @@ Returns a single address.
 Partial update. All fields optional.
 
 #### `DELETE /athlete/home-addresses/{id}`
+**Response 204:** soft-deleted.
+
+### CRM Client Addresses (coach-managed)
+
+> **Implementation status (2026-06-24):** CRUD done in [poly-backend PR #605](https://github.com/321-fit/poly-backend/pull/605). Coach manages home addresses for CRM clients who have no app login.
+
+Coach ownership verified on every request: the CRM client must belong to the requesting coach.
+
+#### `GET /coach/crm-clients/{crm_client_id}/addresses`
+Returns saved addresses for the CRM client.
+**Auth:** JWT (coach role).
+**Response 200:**
+```json
+{ "addresses": [AthleteAddress], "total": 2 }
+```
+
+#### `POST /coach/crm-clients/{crm_client_id}/addresses`
+Creates a new address for the CRM client.
+**Body:** `lat`, `lon`, `addressLine`, `locationName` (required); `isDefault`, `city`, `countryCode`, `description` (optional).
+**Response 200:** created `AthleteAddress`.
+
+#### `GET /coach/crm-clients/{crm_client_id}/addresses/{id}`
+Returns a single address.
+
+#### `PATCH /coach/crm-clients/{crm_client_id}/addresses/{id}`
+Partial update. All fields optional.
+
+#### `DELETE /coach/crm-clients/{crm_client_id}/addresses/{id}`
 **Response 204:** soft-deleted.
 
 ### Models
@@ -260,7 +288,8 @@ Separate from coach `address` — clean ownership, no shared table.
 
 **DB schema (`athlete_address` table):**
 ```
-athlete_profile_id  INTEGER NOT NULL REFERENCES athlete_profile(id)
+athlete_profile_id  INTEGER REFERENCES athlete_profile(id)   -- nullable, for app athletes
+crm_client_id       INTEGER REFERENCES crm_client(id)        -- nullable, for CRM clients
 lat                 NUMERIC(9,6) NOT NULL
 lon                 NUMERIC(9,6) NOT NULL
 address_line        VARCHAR(256) NOT NULL
@@ -269,11 +298,16 @@ is_default          BOOLEAN NOT NULL DEFAULT false
 city                VARCHAR(256)
 country_code        VARCHAR(2)
 description         TEXT
--- Unique index: one name per athlete
-UNIQUE (athlete_profile_id, location_name) WHERE deleted_at IS NULL
+-- Exactly one owner per record (athlete_profile_id XOR crm_client_id), enforced in app layer
+-- Unique indexes per owner type:
+UNIQUE (athlete_profile_id, location_name) WHERE deleted_at IS NULL AND athlete_profile_id IS NOT NULL
+UNIQUE (crm_client_id, location_name) WHERE deleted_at IS NULL AND crm_client_id IS NOT NULL
 ```
 
-**Ownership:** athlete manages their own addresses. Coach can also manage addresses for CRM clients (future: `/coach/athletes/{id}/home-addresses/`).
+**Ownership:** dual-owner model.
+- **App athletes** manage their own addresses via `/athlete/home-addresses/` (`athlete_profile_id` set).
+- **CRM clients** (no app login) — coach manages their addresses via `/coach/crm-clients/{id}/addresses/` (`crm_client_id` set).
+- Each record has exactly one owner: `athlete_profile_id` OR `crm_client_id` (never both, never neither).
 
 ---
 
