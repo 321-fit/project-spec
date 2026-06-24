@@ -10,7 +10,7 @@
 > - Voice:   not applicable
 > - Android: [321fit_android/docs/location-picker-android.md] (when available)
 
-**Scope note:** this spec covers the **coach side** of locations — defining where training takes place. Athletes interact with locations only as read-only data in session detail. The "athlete provides home address at booking" piece belongs to the athlete-side booking spec, not here.
+**Scope note:** this spec covers both coach-side locations (where training takes place) and athlete home addresses (where the coach travels for home visits). The booking flow itself (selecting an address at booking time) belongs to the athlete-side booking spec.
 
 ---
 
@@ -35,6 +35,8 @@ A coach can have many in-person locations with one default; one or more online l
 ### Athlete
 - As an athlete browsing a session, I want to see the location type and details so that I know where it takes place.
 - As an athlete who booked an online session, I want the meeting URL delivered to my phone before the session so that I don't miss it.
+- As an athlete, I want to save my home addresses (home, office, etc.) so that I can quickly select one when booking a home-visit session.
+- As an athlete, I want to mark one address as default so that it's pre-selected during booking.
 
 ---
 
@@ -171,6 +173,33 @@ Partial update. For `type: "in_person"` — `lat`/`lon`/`addressLine` immutable 
 ```
 Client surfaces this in the warning sheet; delete blocked until templates reassigned.
 
+### Athlete Home Addresses
+
+> **Implementation status (2026-06-24):** CRUD done in [poly-backend PR #604](https://github.com/321-fit/poly-backend/pull/604). Separate `athlete_address` table. Dead legacy endpoint `/athlete/addresses/` (which used the shared coach `address` table) removed in the same PR.
+
+#### `GET /athlete/home-addresses`
+Returns the athlete's saved home addresses.
+**Auth:** JWT (athlete role).
+**Response 200:**
+```json
+{ "addresses": [AthleteAddress], "total": 3 }
+```
+
+#### `POST /athlete/home-addresses`
+Creates a new home address.
+**Body:** `lat`, `lon`, `addressLine`, `locationName` (required); `isDefault`, `city`, `countryCode`, `description` (optional).
+**Response 200:** created `AthleteAddress`.
+If `isDefault: true` → server atomically clears previous default.
+
+#### `GET /athlete/home-addresses/{id}`
+Returns a single address.
+
+#### `PATCH /athlete/home-addresses/{id}`
+Partial update. All fields optional.
+
+#### `DELETE /athlete/home-addresses/{id}`
+**Response 204:** soft-deleted.
+
 ### Models
 
 #### `Address` (extended `AddressResponse` from baseline)
@@ -213,6 +242,41 @@ UNIQUE (profile_id) WHERE deleted_at IS NULL AND is_home_visit = true
 
 ---
 
+#### `AthleteAddress` (new table, added 2026-06-24)
+
+Separate from coach `address` — clean ownership, no shared table.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | integer | |
+| `lat` | number | required |
+| `lon` | number | required |
+| `addressLine` | string | required |
+| `locationName` | string | display name ("Home", "Office") |
+| `isDefault` | bool | default address for home-visit booking |
+| `city` | string? | optional |
+| `countryCode` | string? | optional |
+| `description` | string? | optional |
+
+**DB schema (`athlete_address` table):**
+```
+athlete_profile_id  INTEGER NOT NULL REFERENCES athlete_profile(id)
+lat                 NUMERIC(9,6) NOT NULL
+lon                 NUMERIC(9,6) NOT NULL
+address_line        VARCHAR(256) NOT NULL
+location_name       VARCHAR(256) NOT NULL
+is_default          BOOLEAN NOT NULL DEFAULT false
+city                VARCHAR(256)
+country_code        VARCHAR(2)
+description         TEXT
+-- Unique index: one name per athlete
+UNIQUE (athlete_profile_id, location_name) WHERE deleted_at IS NULL
+```
+
+**Ownership:** athlete manages their own addresses. Coach can also manage addresses for CRM clients (future: `/coach/athletes/{id}/home-addresses/`).
+
+---
+
 ## 7. Business rules
 
 - **Default in-person:** zero or one in-person locations marked default. Online and home-visit cannot be marked default.
@@ -223,7 +287,7 @@ UNIQUE (profile_id) WHERE deleted_at IS NULL AND is_home_visit = true
 - **Online URL athlete delivery:** push notification 15 min before session start (per `notifications` spec). URL also visible in event detail drawer at all times post-booking.
 - **Online URL change after bookings:** updated URL takes effect for all booked sessions. Server re-emits push with the new URL to affected athletes.
 - **Home visit (MVP scope):** travel buffer minutes + service area radius (km). **Per-km fee is out of MVP** — to be added in a future iteration. Service area is optional; when set, athletes outside the radius won't see the home visit option in search.
-- **Athlete address for home visit:** captured at booking time (athlete-side flow). Not stored on coach side.
+- **Athlete home addresses:** stored in a dedicated `athlete_address` table (separate from coach `address`). Athletes manage their own addresses; coaches can also manage addresses for their CRM clients. At booking time, athlete selects from their saved addresses (or adds a new one). Address is then linked to the training event.
 - **Travel buffer enforcement:** calendar scheduling rejects sessions whose buffer overlaps with another session's slot.
 - **Travel buffer display (decided 2026-06-24, prototyped):** **coach calendar only** — rendered as a Google-Calendar-style attached commute block (hatched/dashed tile, car icon, "Travel · N min") immediately **before and after** the home-visit event (`.cal-travel-buffer` in `coach/calendar.html`). Stateless, not draggable, not tappable. **Athlete side: invisible** — the buffer only filters which slots the booking grid offers (server already excludes slots that would overlap the buffer); the athlete sees no buffer UI at all. (Coach event-detail line "🚗 N min travel buffer" + directions = follow-up.)
 - **Delete blocking:** location used in ≥ 1 active session template → 409 Conflict with template list. Client must reassign before retrying.
