@@ -226,6 +226,7 @@ Partial coverage — populated for screens added in the 2026-05-20/21 session (S
 | `coach.calendar.cross-role.close` | Close btn | cal-cross-role-sheet | |
 | `coach.calendar.cross-role.switch-role` | "Switch to athlete" CTA | cal-cross-role-sheet | role switch |
 | `coach.calendar.custom.tile` | custom event tile | s-calendar timeline | tap → custom drawer |
+| `coach.calendar.homevisit.tile` | home-visit event tile | s-calendar timeline | tap → event drawer; flanked by non-interactive `.cal-travel-buffer` commute tiles |
 | `coach.calendar.custom.edit` | Edit | cal-custom-sheet | opens s-block-time-off prefilled |
 | `coach.calendar.custom.delete` | Delete | cal-custom-sheet | DELETE /events/{id} |
 | `coach.calendar.external.close` | Close | cal-external-sheet | |

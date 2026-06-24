@@ -114,7 +114,7 @@ References to screen IDs are from `flows/coach/settings.html`.
 2. Location shown by type:
    - **In-person:** name + address + map preview (tap → opens Maps app)
    - **Online:** provider icon + name; URL revealed 15 min before session start (push) + always visible in drawer post-booking time
-   - **Home visit:** "Coach will visit you" + athlete's chosen address + travel buffer note ("Coach arrives X min before, departs X min after")
+   - **Home visit:** "Coach will visit you" + athlete's chosen address. **No travel-buffer mention to the athlete** — the buffer is the coach's commute, coach-side calendar only; the athlete's session is simply the booked time at their address (e.g. 21:00–22:00). (Corrected 2026-06-24: earlier "Coach arrives X min before" copy was wrong — buffer is travel time, not early arrival.)
 
 ---
 
@@ -216,6 +216,7 @@ Existing fields (preserved from current poly-backend `AddressResponse`):
 - **Home visit (MVP scope):** travel buffer minutes only. **Service radius and per-km fee are out of MVP** — UI hidden, backend ignores. To be added in a future iteration.
 - **Athlete address for home visit:** captured at booking time (athlete-side flow). Not stored on coach side.
 - **Travel buffer enforcement:** calendar scheduling rejects sessions whose buffer overlaps with another session's slot.
+- **Travel buffer display (decided 2026-06-24, prototyped):** **coach calendar only** — rendered as a Google-Calendar-style attached commute block (hatched/dashed tile, car icon, "Travel · N min") immediately **before and after** the home-visit event (`.cal-travel-buffer` in `coach/calendar.html`). Stateless, not draggable, not tappable. **Athlete side: invisible** — the buffer only filters which slots the booking grid offers (server already excludes slots that would overlap the buffer); the athlete sees no buffer UI at all. (Coach event-detail line "🚗 N min travel buffer" + directions = follow-up.)
 - **Delete blocking:** location used in ≥ 1 active session template → 409 Conflict with template list. Client must reassign before retrying.
 - **Cross-type sessions:** one session = one location. No "online OR in-person" hybrid in MVP.
 - **Default promotion on delete:** when default in-person is deleted, the **oldest-by-creation** remaining in-person becomes default automatically.
