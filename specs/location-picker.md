@@ -35,6 +35,9 @@ A coach can have many in-person locations with one default; one or more online l
 ### Athlete
 - As an athlete browsing a session, I want to see the location type and details so that I know where it takes place.
 - As an athlete who booked an online session, I want the meeting URL delivered to my phone before the session so that I don't miss it.
+- As an athlete booking a **home-visit** session, I want to provide my address during checkout so that the coach knows where to come — without a separate "format" choice (the session already is a home visit).
+- As an athlete with a **saved home address**, I want it pre-filled in the booking confirm sheet so that I don't re-type it every time.
+- As an athlete **without a saved address**, I want to be required to add one before I can confirm, so that a home-visit booking is never sent without a destination.
 
 ---
 
@@ -45,6 +48,8 @@ A coach can have many in-person locations with one default; one or more online l
 - As the backend, the home-visit travel buffer must be applied to calendar scheduling automatically — preventing back-to-back home visit and studio sessions when the buffer would overlap.
 - As the backend, online location URLs must be re-emittable in push so that updated links reach athletes whose sessions are already booked.
 - As any client, default-flag changes must be atomic — at most one in-person location has `isDefault: true` at all times.
+- As the booking client, for a **home-visit** session the confirm CTA must stay disabled until the athlete has selected an address (pre-filled from a saved address when available).
+- As the backend, the athlete's chosen home-visit address is attached to the **training_event** at booking time — it is not written to the coach's location records.
 
 ---
 
