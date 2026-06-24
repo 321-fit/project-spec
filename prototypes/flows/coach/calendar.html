@@ -239,6 +239,11 @@
   }
   .cal-travel-buffer svg { width: 13px; height: 13px; flex-shrink: 0; }
 
+  /* Event-detail drawer: home-visit-only bits (buffer line, Home-visit badge, directions) */
+  .ev-hv-only { display: none; }
+  #cal-event-sheet-body.is-homevisit div.ev-hv-only { display: flex !important; }
+  #cal-event-sheet-body.is-homevisit span.ev-hv-only { display: inline-flex !important; }
+
   /* Context menu CSS now lives in fit-ui.css (extracted 2026-04-22, 2nd application) */
 
   /* Participant row is tappable (→ athlete profile) */
@@ -543,7 +548,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.6-1.5-1.9C18.7 10.5 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 002 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
           Travel · 30 min
         </div>
-        <div class="fit-cal-event fit-cal-event-personal" data-a11y-id="coach.calendar.homevisit.tile" onclick="openEventSheet('planned')" style="top:1440px;height:96px;cursor:pointer;">
+        <div class="fit-cal-event fit-cal-event-personal" data-a11y-id="coach.calendar.homevisit.tile" onclick="openEventSheet('planned', {homeVisit:1})" style="top:1440px;height:96px;cursor:pointer;">
           <div class="fit-cal-event-title">Strength Training</div>
           <div class="fit-cal-event-meta">Anna M. · 21:00 – 22:00</div>
           <div class="fit-cal-event-loc">
@@ -624,22 +629,27 @@
       </div>
       <!-- Avatar + name (tap → profile) -->
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;cursor:pointer;">
-        <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">AK</div>
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;" id="cal-ev-av">AK</div>
         <div style="flex:1;">
-          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Anna K.</div>
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);" id="cal-ev-athlete">Anna K.</div>
         </div>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
       </div>
       <!-- Event info -->
-      <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);margin-bottom:12px;">Basketball Training</div>
+      <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);margin-bottom:12px;display:flex;align-items:center;gap:8px;"><span id="cal-ev-title">Basketball Training</span><span class="ev-hv-only fit-badge fit-badge-neutral" style="display:none;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:3px;"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home visit</span></div>
       <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-        08:00 – 09:00
+        <span id="cal-ev-time">08:00 – 09:00</span>
+      </div>
+      <!-- Home-visit only: travel buffer + directions -->
+      <div class="ev-hv-only" style="display:none;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.6-1.5-1.9C18.7 10.5 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 002 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+        30 min travel buffer · before &amp; after
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;">
-        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);cursor:pointer;" onclick="if(document.getElementById('cal-event-sheet-body').classList.contains('is-homevisit'))alert('Open in Maps — athlete address')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-          TNT Studio
+          <span id="cal-ev-loc">TNT Studio</span><span class="ev-hv-only" style="display:none;"> · Get directions</span>
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
           <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;50</span>
@@ -1971,8 +1981,19 @@ function setEventSheetState(state) {
     pill.style.display = 'none';
   }
 }
-function openEventSheet(state) {
+function openEventSheet(state, opts) {
   setEventSheetState(state);
+  var body = document.getElementById('cal-event-sheet-body');
+  var hv = !!(opts && opts.homeVisit);
+  if (body) body.classList.toggle('is-homevisit', hv);
+  var set = function(id, v){ var e=document.getElementById(id); if(e) e.textContent=v; };
+  if (hv) {
+    set('cal-ev-av','AM'); set('cal-ev-athlete','Anna M.'); set('cal-ev-title','Strength Training');
+    set('cal-ev-time','21:00 – 22:00'); set('cal-ev-loc','Home visit · Larnaca');
+  } else {
+    set('cal-ev-av','AK'); set('cal-ev-athlete','Anna K.'); set('cal-ev-title','Basketball Training');
+    set('cal-ev-time','08:00 – 09:00'); set('cal-ev-loc','TNT Studio');
+  }
   openSheet('cal-event-sheet');
 }
 
