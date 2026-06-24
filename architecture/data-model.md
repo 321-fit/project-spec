@@ -120,7 +120,7 @@ coach_profile ──┐
 
 | Table | Key Fields | Description |
 |---|---|---|
-| `address` | profile_id, lat, lon, address_line, location_name, city, country_code, is_default | Training locations |
+| `address` | profile_id, lat, lon, address_line, location_name, city, country_code, is_default, is_online, is_home_visit, travel_buffer_minutes, service_area_km, meeting_link, platform | Training locations (in-person, online, home visit) |
 | `coach_working_hours` | coach_id, day_of_week (0-6), start_time, end_time | Weekly availability |
 
 ### Calendar Integration

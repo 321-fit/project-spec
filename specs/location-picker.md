@@ -136,7 +136,9 @@ References to screen IDs are from `flows/coach/settings.html`.
 
 ## 6. API
 
-> **Backend mapping note.** Existing poly-backend endpoint `/api/v1.0.0/coach/addresses` already handles in-person locations. Phase 4 **extends** this resource with a `type` discriminator (`"in_person"` / `"online"` / `"home_visit"`) and new optional fields per type, rather than introducing parallel endpoints. Existing rows are backfilled with `type: "in_person"`. No URL renames; iOS keeps using `coach/addresses`.
+> **Backend mapping note.** Existing poly-backend endpoint `/api/v1.0.0/coach/addresses` already handles in-person and online locations. Home visit extends this resource with boolean flag `isHomeVisit` (same pattern as `isOnline`) and new optional fields, rather than introducing a `type` enum discriminator or parallel endpoints. No URL renames; iOS keeps using `coach/addresses`.
+>
+> **Implementation status (2026-06-24):** Alembic migration + CRUD done in [poly-backend PR #603](https://github.com/321-fit/poly-backend/pull/603). Coach can create/update/delete a home visit address. Booking-side integration (athlete address, overlap checks with buffer) is next.
 
 ### Endpoints
 
@@ -173,34 +175,41 @@ Client surfaces this in the warning sheet; delete blocked until templates reassi
 
 #### `Address` (extended `AddressResponse` from baseline)
 
-Existing fields (preserved from current poly-backend `AddressResponse`):
+> **Implementation note:** The address type is determined by boolean flags (`isOnline`, `isHomeVisit`) rather than a `type` enum. This follows the existing pattern and avoids a breaking migration. All flags default to `false`; exactly one should be `true` for online/home-visit, or all `false` for in-person. Server validates mutual exclusivity.
+
+All fields (current poly-backend `AddressResponse`):
 
 | Field | Type | Notes |
 |---|---|---|
 | `id` | integer | |
-| `lat` | number | nullable when `type ≠ "in_person"` |
-| `lon` | number | nullable when `type ≠ "in_person"` |
-| `addressLine` | string | nullable when `type ≠ "in_person"` |
-| `locationName` | string | display name, all types ("TNT Studio", "My Zoom Room", "Home Visit") |
-| `isDefault` | bool | meaningful for `type: "in_person"` only |
-| `city` | string? | optional |
-| `countryCode` | string? | optional |
+| `lat` | number? | required for in-person; null for online/home-visit |
+| `lon` | number? | required for in-person; null for online/home-visit |
+| `addressLine` | string? | required for in-person; null for online/home-visit |
+| `locationName` | string | display name, all types ("TNT Studio", "My Zoom Room", "Home visit") |
+| `isDefault` | bool | meaningful for in-person only |
+| `isOnline` | bool | `true` → online location |
+| `isHomeVisit` | bool | `true` → home visit location. **Added 2026-06-24.** |
+| `city` | string? | optional, in-person only |
+| `countryCode` | string? | optional, in-person only |
 | `description` | string? | optional |
+| `meetingLink` | string? | online only (HTTPS URL) |
+| `platform` | string? | online only: `"zoom"` / `"google_meet"` / `"teams"` / `"custom"` |
+| `travelBufferMinutes` | int? | home-visit only (15/30/45/60). Applied before AND after each session. **Added 2026-06-24.** |
+| `serviceAreaKm` | int? | home-visit only. Max distance coach will travel. Athletes outside radius won't see home visit option. **Added 2026-06-24.** |
 
-**New fields (Phase 4 extension):**
+**Type rules (mutually exclusive):**
+- **In-person** (`isOnline=false, isHomeVisit=false`) — `lat`, `lon`, `addressLine` required; `meetingLink`/`platform`/`travelBufferMinutes`/`serviceAreaKm` ignored
+- **Online** (`isOnline=true, isHomeVisit=false`) — `meetingLink` required, `platform` recommended; `lat`/`lon`/`addressLine` null
+- **Home visit** (`isOnline=false, isHomeVisit=true`) — `travelBufferMinutes` optional (default null = no buffer); `serviceAreaKm` optional; `lat`/`lon`/`addressLine` null. **Singleton per coach** — only one active home-visit address allowed (unique DB index; server returns 400 on attempted second)
 
-| Field | Type | Notes |
-|---|---|---|
-| `type` | enum | `"in_person"` / `"online"` / `"home_visit"`. Backfill defaults existing rows to `"in_person"`. |
-| `provider` | enum? | `"zoom"` / `"meet"` / `"custom"` — only for `type: "online"` |
-| `url` | string? | HTTPS only; provider-domain validated for `zoom`/`meet`. Only for `type: "online"` |
-| `travelBufferMinutes` | int? | Only for `type: "home_visit"`. Applied before AND after each home-visit session |
-| `templateUsageCount` | int | derived; for delete warning |
-
-**Discriminator behavior:**
-- `type: "in_person"` — `lat`, `lon`, `addressLine` required; `provider`/`url`/`travelBufferMinutes` ignored
-- `type: "online"` — `provider`, `url` required; `lat`/`lon`/`addressLine` null
-- `type: "home_visit"` — `travelBufferMinutes` required; `lat`/`lon`/`addressLine` null. **Singleton per coach** — only one home-visit address allowed (server enforces 409 on attempted second).
+**DB schema (address table):**
+```
+is_home_visit       BOOLEAN NOT NULL DEFAULT false
+travel_buffer_minutes INTEGER NULL
+service_area_km     INTEGER NULL
+-- Unique index: one active home visit per profile
+UNIQUE (profile_id) WHERE deleted_at IS NULL AND is_home_visit = true
+```
 
 ---
 
@@ -213,7 +222,7 @@ Existing fields (preserved from current poly-backend `AddressResponse`):
 - **Online link strategy (MVP):** **single permanent link per location**, not auto-generated per session. Per-session OAuth link generation is V2.
 - **Online URL athlete delivery:** push notification 15 min before session start (per `notifications` spec). URL also visible in event detail drawer at all times post-booking.
 - **Online URL change after bookings:** updated URL takes effect for all booked sessions. Server re-emits push with the new URL to affected athletes.
-- **Home visit (MVP scope):** travel buffer minutes only. **Service radius and per-km fee are out of MVP** — UI hidden, backend ignores. To be added in a future iteration.
+- **Home visit (MVP scope):** travel buffer minutes + service area radius (km). **Per-km fee is out of MVP** — to be added in a future iteration. Service area is optional; when set, athletes outside the radius won't see the home visit option in search.
 - **Athlete address for home visit:** captured at booking time (athlete-side flow). Not stored on coach side.
 - **Travel buffer enforcement:** calendar scheduling rejects sessions whose buffer overlaps with another session's slot.
 - **Travel buffer display (decided 2026-06-24, prototyped):** **coach calendar only** — rendered as a Google-Calendar-style attached commute block (hatched/dashed tile, car icon, "Travel · N min") immediately **before and after** the home-visit event (`.cal-travel-buffer` in `coach/calendar.html`). Stateless, not draggable, not tappable. **Athlete side: invisible** — the buffer only filters which slots the booking grid offers (server already excludes slots that would overlap the buffer); the athlete sees no buffer UI at all. (Coach event-detail line "🚗 N min travel buffer" + directions = follow-up.)
