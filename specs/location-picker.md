@@ -254,7 +254,41 @@ Existing fields (preserved from current poly-backend `AddressResponse`):
 
 ---
 
+## 9b. Home visit — end-to-end (prototyped 2026-06-25)
+
+Consolidated view of the full home-visit feature across roles. A home-visit training is a **normal personal session** whose location the coach set to "home visit" — there is no separate "format" the athlete picks.
+
+**Coach setup**
+- `coach/locations.html#s-loc-homevisit` — enable home visit + travel buffer (default 30 min; singleton config). Reached from the Availability hub / Locations.
+- Session creation attaches `home_visit` as the session's location.
+
+**Athlete booking** (`shared/profile.html`)
+- `s-book-sessions` → home-visit session card shows location "Home visit · coach travels to you".
+- `s-booking` (slot grid) → **booking confirm sheet** (`#book-hv`): location row shows the athlete's home-visit address — **pre-filled from a saved address**; if none saved → "Select your address" and **Send is blocked** until chosen.
+- Address picker (clone of coach Locations flow): `s-hv-address` (search + saved + use current + pick on map) → `s-hv-addr-pick` (map pin, "Use this address") → `s-hv-addr-form` (address + **Name** input + note, "Save address").
+- `s-my-addresses` — manage saved addresses (Settings → Training → My addresses); list + Add + empty + loading states. Multiple addresses supported.
+
+**Coach → athlete invite** (`athlete/dashboard.html` Inbox → To reply)
+- Home-visit invite card shows the location: default saved address + **Change** (chooser sheet); if none → "Select your address" + **Accept blocked**.
+
+**Coach calendar** (`coach/calendar.html`)
+- Home-visit event flanked by hatched **travel-buffer** tiles (before/after) — coach-side only; athlete never sees the buffer (it only filters bookable slots).
+- Event-detail drawer: "Home visit" badge + "N min travel buffer · before & after" + athlete address + **Get directions** (maps).
+
+**CRM** (`coach/clients.html`)
+- New-client form: "Home address" field. Client detail: **Home visit addresses** list (multiple) + Add — coach can set a client's home locations for coach-created bookings (esp. CRM/cash clients without the app).
+
+**Backend deltas (additive)**
+- `training_event` gains the athlete's **home-visit address** (selected at booking; lat/lon + formatted address; NOT written to coach location records).
+- New athlete **saved addresses** resource (`/athlete/addresses` — list/create/update/delete; label + note + geo; multiple).
+- CRM client gains **multiple home addresses** (coach-set, per client).
+- Availability slot computation must **exclude slots whose travel buffer overlaps** another session (before & after the home-visit event).
+
+**Known gap (to build):** the athlete's own **event detail** (`athlete/calendar.html#ath-event-sheet`) does not yet surface "Home visit · your address" after booking — athlete sets it at booking but can't review/change it from the event. Tracked in Open questions.
+
 ## 10. Open questions
+
+- **Athlete event-detail home-visit address (gap):** surface "Home visit · your address" + change-before-session in `ath-event-sheet`. Decide: read-only vs editable up to X hours before. **Owner:** product. (Prototype enhancement pending.)
 
 - [ ] Online URL push delivery timing — 15 min hardcoded or per-coach configurable? **Owner:** product. Reco: hardcoded 15 min in MVP, revisit if customers ask.
 - [ ] Custom URL provider — show warning when URL doesn't match known patterns (`whereby.com`, `daily.co`)? **Owner:** product, low priority.
