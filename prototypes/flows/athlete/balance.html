@@ -59,6 +59,41 @@
   .bal-topup:hover { background: rgba(255,255,255,0.30); }
   .bal-topup svg { width: 14px; height: 14px; }
 
+  /* ===== Swipeable money cards — Balance (wallet) + Spending — mirrors coach Earnings ===== */
+  .earn-swiper { position: relative; }
+  .earn-swiper-track {
+    display: flex; gap: 12px; padding: 4px 16px 0;
+    scroll-padding-inline: 16px; overflow-x: auto;
+    scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .earn-swiper-track::-webkit-scrollbar { display: none; }
+  .earn-card {
+    flex: 0 0 calc(100% - 24px); scroll-snap-align: start; scroll-snap-stop: always;
+    border-radius: 18px; padding: 20px; color: var(--fit-white);
+    position: relative; overflow: hidden; display: flex; flex-direction: column; min-height: 156px;
+  }
+  .earn-card.balance { background: var(--fit-brand-gradient); }
+  .earn-card.spending { background: linear-gradient(135deg, #3a4049, #23272e); }
+  .earn-card::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 90% 0%, rgba(255,255,255,0.15), transparent 40%); pointer-events: none; }
+  .earn-card > * { position: relative; z-index: 1; }
+  .earn-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .earn-card-header-icon { width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(255,255,255,0.18); color: var(--fit-white); }
+  .earn-card-header-icon svg { width: 14px; height: 14px; }
+  .earn-card-header-title { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.9); text-transform: uppercase; letter-spacing: 0.5px; }
+  .earn-card-label { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: inline-flex; align-items: center; gap: 4px; }
+  .earn-card-label-chev { width: 11px; height: 11px; opacity: 0.7; }
+  .earn-card-tap { display: flex; flex-direction: column; flex: 1; }
+  .earn-card-value { font-size: 30px; font-weight: 600; color: var(--fit-white); letter-spacing: -0.5px; line-height: 1.1; }
+  .earn-card-sub { font-size: 13px; color: rgba(255,255,255,0.82); margin-top: 8px; }
+  .earn-card-row { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.18); font-size: 13px; color: rgba(255,255,255,0.92); gap: 10px; }
+  .earn-card-row.tappable { cursor: pointer; }
+  .earn-card-row-chev { width: 14px; height: 14px; color: rgba(255,255,255,0.7); flex-shrink: 0; }
+  /* footer pieces from .bal-hero reused inside the Balance card row */
+  .earn-card .bal-hero-note, .earn-card .bal-topup { /* inherit existing styling */ }
+  .earn-swiper-dots { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
+  .earn-swiper-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--fit-text-tertiary); opacity: 0.35; cursor: pointer; transition: opacity 0.15s, transform 0.15s; }
+  .earn-swiper-dots span.active { opacity: 1; transform: scale(1.25); }
+
   /* Ledger (rows/filters/section/summary/empty) canonical in fit-ui.css */
 
   /* Balance state switching */
@@ -195,24 +230,49 @@
     <!-- ===== DEFAULT ===== -->
     <div data-bs-state="default">
 
-      <!-- Hero -->
-      <div class="bal-hero">
-        <div class="bal-hero-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20M17 15h2"/></svg>Available balance</div>
-        <div class="bal-hero-value">&euro;240.00</div>
-        <div class="bal-hero-footer">
-          <button class="bal-hero-note bal-hero-note--btn" data-a11y-id="athlete.balance.auto-topup-status" onclick="go('s-top-up',null);setTuMode('auto');setAtOn(document.getElementById('s-balance').classList.contains('bal-auto-on'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6M3 12a9 9 0 0115.36-6.36L21 8"/></svg><span class="bal-at-off-text">Auto top-up off</span><span class="bal-at-on-text">Auto top-up on</span></button>
-          <button class="bal-topup" data-a11y-id="athlete.balance.topup" onclick="go('s-top-up',null);setTuMode('once')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Top up</button>
-        </div>
-      </div>
+      <!-- Swipeable money cards: Balance (wallet) + Spending (this month + owed) -->
+      <div class="earn-swiper">
+        <div class="earn-swiper-track" id="bal-swiper-track">
 
-      <!-- This-month summary -->
-      <div class="fit-section-title--md">This month</div>
-      <div class="fit-stat-strip">
-        <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">&euro;175</div><div class="fit-stat-strip-label">Spent</div></div>
-        <div class="fit-stat-strip-divider"></div>
-        <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">&euro;200</div><div class="fit-stat-strip-label">Topped up</div></div>
-        <div class="fit-stat-strip-divider"></div>
-        <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">6</div><div class="fit-stat-strip-label">Sessions</div></div>
+          <!-- BALANCE CARD — prepaid wallet -->
+          <div class="earn-card balance">
+            <div class="earn-card-header">
+              <div class="earn-card-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20M17 15h2"/></svg></div>
+              <span class="earn-card-header-title">Balance</span>
+            </div>
+            <div class="earn-card-tap">
+              <div class="earn-card-label">Available</div>
+              <div class="earn-card-value">&euro;240.00</div>
+            </div>
+            <div class="earn-card-row">
+              <button class="bal-hero-note bal-hero-note--btn" data-a11y-id="athlete.balance.auto-topup-status" onclick="go('s-top-up',null);setTuMode('auto');setAtOn(document.getElementById('s-balance').classList.contains('bal-auto-on'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6M3 12a9 9 0 0115.36-6.36L21 8"/></svg><span class="bal-at-off-text">Auto top-up off</span><span class="bal-at-on-text">Auto top-up on</span></button>
+              <button class="bal-topup" data-a11y-id="athlete.balance.topup" onclick="go('s-top-up',null);setTuMode('once')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Top up</button>
+            </div>
+          </div>
+
+          <!-- SPENDING CARD — total spent this month (all methods) + owed -->
+          <div class="earn-card spending">
+            <div class="earn-card-header">
+              <div class="earn-card-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 4-6"/></svg></div>
+              <span class="earn-card-header-title">Spending</span>
+            </div>
+            <div class="earn-card-tap" data-a11y-id="athlete.balance.spending.tap-zone">
+              <div class="earn-card-label">This month</div>
+              <div class="earn-card-value">&euro;245.00</div>
+              <div class="earn-card-sub">&euro;175 from balance &middot; &euro;70 cash</div>
+            </div>
+            <!-- Owed row — only the actionable bit gets prominence; hidden when nothing owed -->
+            <div class="earn-card-row tappable" data-a11y-id="athlete.balance.owed-row" onclick="window.location.href='my-coaches.html'">
+              <span style="display:inline-flex;align-items:center;gap:7px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>&euro;70 owed &middot; 2 sessions</span>
+              <svg class="earn-card-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+          </div>
+
+        </div>
+        <div class="earn-swiper-dots" id="bal-swiper-dots">
+          <span class="active" data-a11y-id="athlete.balance.swiper.dot" data-idx="0" onclick="scrollBalCard(0)"></span>
+          <span data-a11y-id="athlete.balance.swiper.dot" data-idx="1" onclick="scrollBalCard(1)"></span>
+        </div>
       </div>
 
       <!-- Transactions -->
@@ -583,12 +643,14 @@
       <button class="active" onclick="setBalAuto(false,this)">Off</button>
       <button onclick="setBalAuto(true,this)">On</button>
     </div>
-    <p>The athlete <strong>spending mirror</strong> of the coach Earnings screen — same <strong>canonical ledger kit</strong> (<code>.fit-txn*</code> / <code>.fit-filter-chip</code> / <code>.fit-stat-strip</code> / <code>.fit-empty-state</code>), flipped to spend (out) + top-up (in).</p>
+    <p>The athlete <strong>spending mirror</strong> of the coach Earnings screen — same <strong>swipeable two-card kit</strong> (<code>.earn-swiper</code>/<code>.earn-card</code>) + canonical ledger (<code>.fit-txn*</code> / <code>.fit-filter-chip</code>).</p>
     <ul>
-      <li><strong>Hero</strong> — balance + <strong>Top up</strong> → the Top up screen; the auto top-up status note is tappable → same screen.</li>
-      <li><strong>No "Payment methods" entry</strong> — cards are saved during Stripe checkout and picked in auto top-up; remove/default is handled inside Stripe's own PaymentSheet. No custom card-list screen.</li>
-      <li><strong>This month</strong> — <code>.fit-stat-strip</code>: Spent / Topped up / Sessions.</li>
-      <li><strong>Filter chips</strong> + date-grouped <code>.fit-txn</code> rows → detail.</li>
+      <li><strong>Card 1 — Balance</strong> (teal): prepaid wallet — Available + auto-top-up note + <strong>Top up</strong> pill. The "money I have."</li>
+      <li><strong>Card 2 — Spending</strong> (graphite): <em>This month</em> total across all methods (€245) + method split "€175 from balance · €70 cash" + a tappable <strong>owed</strong> row ("€70 owed · 2 sessions" → <code>my-coaches.html</code>, where per-coach cash-owed lives). The "where my money went."</li>
+      <li><strong>Why split this way</strong> — coach <em>separates</em> cash (unsettled income to collect); athlete <em>unifies</em> spend and only the <strong>owed</strong> bit gets prominence (actionable). Total spent lives here, not jammed onto a "Cash" label (would double-count balance spend).</li>
+      <li>Peek + dots signal the swipe; dots sync on scroll (<code>initBalSwiper</code>).</li>
+      <li><strong>No "Payment methods" entry</strong> — cards saved during Stripe checkout, managed inside Stripe's PaymentSheet.</li>
+      <li><strong>Filter chips</strong> + date-grouped 3-line <code>.fit-txn</code> rows → detail. <em>Follow-up:</em> add a <strong>Cash</strong> filter + cash-session rows (status Owed/Paid) so the 2 owed sessions are tappable from the list too.</li>
     </ul>
     <hr>
     <p class="note">Reached from Settings → Payments → Balance + Dashboard balance card. Backed by shipped endpoints (PR #541–#543). Money wire = minor units.</p>
@@ -645,6 +707,24 @@ function switchTheme(theme) {
     else { phone.classList.remove("fit-light"); phone.classList.add("fit-dark"); }
   });
 }
+// ===== Balance/Spending swiper =====
+function scrollBalCard(idx) {
+  var t = document.getElementById('bal-swiper-track');
+  if (!t) return;
+  var c = t.children[idx];
+  if (c) t.scrollTo({ left: c.offsetLeft - t.offsetLeft, behavior: 'smooth' });
+}
+(function initBalSwiper() {
+  var t = document.getElementById('bal-swiper-track');
+  var dots = document.querySelectorAll('#bal-swiper-dots span');
+  if (!t || !dots.length) return;
+  t.addEventListener('scroll', function () {
+    var idx = Math.round(t.scrollLeft / (t.clientWidth - 28));
+    idx = Math.max(0, Math.min(dots.length - 1, idx));
+    dots.forEach(function (d, i) { d.classList.toggle('active', i === idx); });
+  }, { passive: true });
+})();
+
 function go(id, btn) {
   document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
