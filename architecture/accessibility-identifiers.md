@@ -687,6 +687,8 @@ One screen reused from every entry point (Settings "Invite a coach" / "Invite a 
 | (athlete picker) | s-hv-address → s-hv-addr-pick → s-hv-addr-form → s-my-addresses | `shared/profile.html` | clone of coach Locations; light theme |
 | `coach.new-client.home-address` | "Home address" field | `s-create-client` | → `s-crm-addr-pick` |
 | `coach.client-detail.home-address` | "Home visit address" row | `s-client-detail` | → `s-crm-addr-pick` |
+| `coach.client-detail.home-address.add` | "Add address" (multiple) | `s-client-detail` | CRM client supports multiple home addresses |
+| `athlete.inbox.toreply` home-visit card | location row + Change / Select your address | `s-notifications` (To reply) | default saved address / blocked until chosen |
 
 
 ### `profile` (athlete) — `athlete/profile.html` (tab 5)
