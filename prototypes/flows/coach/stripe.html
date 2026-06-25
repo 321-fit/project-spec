@@ -374,6 +374,14 @@
   }
   .stripe-onb-progress-bar.done { background: var(--fit-teal-500); }
 
+  /* ===== Payout schedule sheet — fixed 4-option radio list (on .fit-sheet-item) ===== */
+  .psched-opt-label { flex: 1; }
+  .psched-opt.selected .psched-opt-label { color: var(--fit-teal-500); font-weight: 500; }
+  .psched-opt-hint { font-size: 14px; color: var(--fit-text-tertiary); }
+  .psched-opt-check { display: none; }
+  .psched-opt.selected .psched-opt-check { display: block; }
+  .psched-opt.selected .psched-opt-hint { display: none; } /* hint gives way to check when selected */
+
   /* Theme switcher */
   #theme-switcher {
     position: fixed; left: 24px; bottom: 24px;
@@ -570,22 +578,23 @@
         </div>
       </div>
 
-      <div class="stripe-kv-group" style="margin-top:12px;" data-payout-mode-visible="auto">
-        <div class="stripe-kv"><span class="stripe-kv-label">Schedule</span><span class="stripe-kv-value">Weekly &middot; Monday</span></div>
-      </div>
-
-      <!-- Manual mode toggle -->
-      <div class="stripe-toggle-row" data-a11y-id="coach.stripe.manual-toggle" onclick="toggleManualMode()">
-        <div class="stripe-toggle-info">
-          <div class="stripe-toggle-title">Manual payouts</div>
-          <div class="stripe-toggle-sub" data-payout-mode-visible="auto">Stripe pays out automatically on schedule</div>
-          <div class="stripe-toggle-sub" data-payout-mode-visible="manual" style="display:none;color:var(--fit-yellow-400);">Money stays in Stripe until you tap Withdraw</div>
+      <!-- PAYOUT SCHEDULE — tappable row → opens schedule picker (manual / daily / weekly+day / monthly+date) -->
+      <div class="stripe-row-group" style="margin-top:12px;">
+        <div class="stripe-row" data-a11y-id="coach.stripe.schedule.row" onclick="openScheduleSheet()">
+          <div class="stripe-row-text">
+            <span class="stripe-row-label">Payout schedule</span>
+            <span class="stripe-row-value" id="sched-row-value">Weekly &middot; Monday</span>
+          </div>
+          <svg class="stripe-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
         </div>
-        <div class="fit-switch" id="manual-mode-switch"><div class="fit-switch-knob"></div></div>
       </div>
 
-      <!-- Withdraw block — manual mode only -->
-      <div data-payout-mode-visible="manual" style="display:none;padding:0 16px 12px;">
+      <!-- Manual-mode warning + Withdraw — only when schedule = manual -->
+      <div data-payout-mode-visible="manual" style="display:none;padding:12px 16px 4px;">
+        <div class="stripe-banner warn" style="margin:0 0 12px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <div class="stripe-banner-body">Money stays in Stripe until you withdraw it.</div>
+        </div>
         <button class="fit-btn fit-btn-primary" data-a11y-id="coach.stripe.withdraw" onclick="go('s-stripe-withdraw',document.querySelector('[onclick*=s-stripe-withdraw]'))">Withdraw &euro;240</button>
       </div>
 
@@ -623,6 +632,45 @@
 
     <!-- Footer CTA — only for none state -->
     <div style="padding:16px;" data-stripe-state="none"><button class="fit-btn fit-btn-primary fit-btn-disabled" id="stripe-start-setup-btn" data-a11y-id="coach.stripe.start-setup" disabled onclick="go('s-stripe-onb-confirm',document.querySelector('[onclick*=s-stripe-onb-confirm]'))">Start setup</button></div>
+  </div>
+
+  <!-- ===== PAYOUT SCHEDULE SHEET ===== -->
+  <!-- Maps to PATCH /stripe-onboarding/payout-schedule {schedule}:
+       manual | daily | weekly_<weekday> | monthly_<1-31>.
+       Frequency = canonical .fit-selection-chip group; weekday = day circles;
+       monthly day = number grid. Sub-pickers reveal per frequency. -->
+  <div class="fit-sheet-overlay" id="payout-schedule-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Payout schedule</div>
+      <div class="fit-sheet-subtitle">How often Stripe sends your available balance to your bank.</div>
+
+      <!-- Fixed 4-option radio list. Anchor (Mondays / 1st) is Stripe's default, shown
+           as a muted hint, not editable. Tap a row = apply + dismiss (no Save button,
+           no sub-pickers → sheet height never changes). -->
+      <div id="psched-list">
+        <div class="fit-sheet-item psched-opt" data-a11y-id="coach.stripe.schedule.opt" data-freq="manual" onclick="pickSchedule(this)">
+          <span class="psched-opt-label">Manual</span>
+          <span class="psched-opt-hint">On demand</span>
+          <svg class="psched-opt-check" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="fit-sheet-item psched-opt" data-a11y-id="coach.stripe.schedule.opt" data-freq="daily" onclick="pickSchedule(this)">
+          <span class="psched-opt-label">Daily</span>
+          <span class="psched-opt-hint">Every business day</span>
+          <svg class="psched-opt-check" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="fit-sheet-item psched-opt selected" data-a11y-id="coach.stripe.schedule.opt" data-freq="weekly" onclick="pickSchedule(this)">
+          <span class="psched-opt-label">Weekly</span>
+          <span class="psched-opt-hint">Mondays</span>
+          <svg class="psched-opt-check" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="fit-sheet-item psched-opt" data-a11y-id="coach.stripe.schedule.opt" data-freq="monthly" onclick="pickSchedule(this)">
+          <span class="psched-opt-label">Monthly</span>
+          <span class="psched-opt-hint">1st of the month</span>
+          <svg class="psched-opt-check" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ===== STRIPE DISCONNECT SHEET ===== -->
@@ -1413,6 +1461,7 @@
 </div>
 
 
+
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
 
@@ -1431,12 +1480,18 @@
     <p><strong>2 lifecycle states only:</strong> Not set up vs Connected. "Verifying" and "Action needed" are <em>sub-modes inside Connected</em>, not separate lifecycle states — Stripe lets the account exist (and accept card payments) even while payouts are paused, so it's misleading to model them as a different lifecycle.</p>
     <ul>
       <li><strong>Not set up</strong> — intro + what-you'll-set-up list + consent → <code>Start setup</code> pushes to onb-confirm (step 1 of 3).</li>
-      <li><strong>Connected · clean</strong> — green pill "Payouts active". Full control center: Payout methods list (bank + card, mixed) → payout block (Available + Next payout always visible) → manual mode toggle → activity preview (incl. in-transit) → Disconnect. Account ID + Country meta removed (low-value).</li>
+      <li><strong>Connected · clean</strong> — green pill "Payouts active". Full control center: Payout methods list (bank + card, mixed) → payout block (Available + Next payout always visible) → Payout schedule row → activity preview (incl. in-transit) → Disconnect. Account ID + Country meta removed (low-value).</li>
       <li><strong>Connected · verifying</strong> — blue info banner up top ("Verifying your details — usually within a few hours"). Hero pill turns blue "Payouts pending verification". Bank list + payout block stay visible (informational).</li>
       <li><strong>Connected · action</strong> — yellow warn banner up top ("Identity document needed — card payments work, payouts are paused"). <code>Upload ID now</code> CTA inside banner deep-links to <code>s-stripe-onb-id</code>. Hero pill yellow "Payouts paused".</li>
     </ul>
-    <h4>Manual mode</h4>
-    <p>Toggle switches Stripe <code>payouts.schedule</code> between automatic (weekly Monday) and manual. Manual hides Schedule row, shows yellow warning ("Money stays in Stripe until you tap Withdraw"), reveals Withdraw button.</p>
+    <h4>Payout schedule</h4>
+    <p>Tappable <code>Payout schedule</code> row → opens the <strong>payout-schedule bottom sheet</strong> (replaces the old binary "Manual payouts" toggle — manual is now just one frequency). Row value reflects the choice: <em>Manual</em> / <em>Daily</em> / <em>Weekly · Monday</em> / <em>Monthly · 1st</em>.</p>
+    <button onclick="openScheduleSheet()" style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:7px 12px;border-radius:8px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-gray-300);cursor:pointer;margin:2px 0 10px;">▸ Open payout-schedule sheet</button>
+    <p>Sheet = <strong>fixed 4-option radio list</strong> on canonical <code>.fit-sheet-item</code> rows (Manual / Daily / Weekly / Monthly). <strong>No day/date sub-picker</strong> — the anchor (Mondays / 1st) is Stripe's default, shown as a muted hint only. Tap a row = apply + dismiss; sheet height never changes (no calendar, no resize).</p>
+    <p><strong>Why no day/date:</strong> picking the exact weekday/date is a dashboard-grade micro-setting with near-zero value for an in-app coach; trimming it keeps the sheet native (no growing drawer) and dodges the backend anchor gap. Add later only if coaches ask. The default anchor stays server-side.</p>
+    <p>When <strong>Manual</strong>: yellow warning ("Money stays in Stripe until you withdraw it") + <code>Withdraw</code> button appear on the control screen, Next payout reads "Manual · on demand".</p>
+    <h4>Backend mapping</h4>
+    <p><code>PATCH /stripe-onboarding/payout-schedule</code> body <code>{schedule}</code>: <code>manual</code> · <code>daily</code> · <code>weekly</code> · <code>monthly</code> (no anchor suffix sent from app — backend defaults it). <code>account-status</code> returns <code>payoutsSchedule</code> + <code>nextPayoutAt</code>. <strong>Backend fix needed:</strong> service currently always sends <code>weekly_anchor</code> → Stripe rejects it for non-weekly intervals; send the anchor only for <code>weekly</code>.</p>
     <h4>Disconnect</h4>
     <p>3 sheet variants — <em>clean</em> (default), <em>pending-balance</em> (positive balance → suggest Withdraw first), <em>active-events</em> (future card-paid sessions → refund warn). Use JS console to preview: <code>setStripeDisconnectVariant('pending-balance')</code> / <code>setStripeDisconnectVariant('active-events')</code>.</p>
     <h4>Deep-links from balance.html</h4>
@@ -1936,17 +1991,33 @@
     }, 1500);
   }
 
-  // ===== Manual mode + control center =====
-  function toggleManualMode() {
-    var sw = document.getElementById('manual-mode-switch');
-    if (!sw) return;
-    var on = sw.classList.toggle('on');
+  // ===== Payout schedule sheet (#payout-schedule-sheet) =====
+  // Fixed 4-option radio list. Tap a row → apply + dismiss. Anchor (Mondays / 1st)
+  // is Stripe's default, shown as a hint only — not editable in-app.
+  function openScheduleSheet() {
+    document.getElementById('payout-schedule-sheet').classList.add('visible');
+  }
+
+  // Row label shown on s-stripe per frequency (includes the default anchor for clarity).
+  var SCHED_LABEL = { manual: 'Manual', daily: 'Daily', weekly: 'Weekly · Monday', monthly: 'Monthly · 1st' };
+
+  function pickSchedule(el) {
+    document.querySelectorAll('#psched-list .psched-opt').forEach(function(o) { o.classList.remove('selected'); });
+    el.classList.add('selected');
+
+    var freq = el.getAttribute('data-freq');
+    var mode = freq === 'manual' ? 'manual' : 'auto';
+
+    var valEl = document.getElementById('sched-row-value');
+    if (valEl) valEl.textContent = SCHED_LABEL[freq];
+
     var stripe = document.getElementById('s-stripe');
-    if (stripe) stripe.setAttribute('data-payout-mode', on ? 'manual' : 'auto');
-    document.querySelectorAll('[data-payout-mode-visible]').forEach(function(el) {
-      var mode = el.getAttribute('data-payout-mode-visible');
-      el.style.display = mode === (on ? 'manual' : 'auto') ? '' : 'none';
+    if (stripe) stripe.setAttribute('data-payout-mode', mode);
+    document.querySelectorAll('[data-payout-mode-visible]').forEach(function(el2) {
+      el2.style.display = el2.getAttribute('data-payout-mode-visible') === mode ? '' : 'none';
     });
+
+    closeSheet('payout-schedule-sheet');
   }
 
   function setBankDetail(name, last4, isDefault, isLast) {

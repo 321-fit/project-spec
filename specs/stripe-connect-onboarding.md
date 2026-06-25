@@ -5,7 +5,7 @@
 > Parent spec: [payments.md](./payments.md) — ledger, balance, cancellation policy
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
 > API reference: [poly-backend/docs/stripe-onboarding-frontend-guide.md](https://github.com/321-fit/poly-backend/blob/main/docs/stripe-onboarding-frontend-guide.md)
-> Last updated: 2026-06-02
+> Last updated: 2026-06-25
 > Implementation:
 > - iOS:     [321fit_ios/docs/stripe-ios.md] (to be created)
 > - Backend: [poly-backend/docs/stripe-connect-backend.md] (to be created)
@@ -45,7 +45,8 @@ This spec covers **everything Stripe-Connect-related** for the coach: connecting
 - **As a coach who took a few photos**, I want to upload my passport once and have Stripe verify me — I don't want to learn what an "MCC" is or what "1099" means.
 - **As a coach who wants money fast**, I want the option to send payouts to a debit card (under 30 min) instead of waiting 1–2 days for a bank transfer.
 - **As a coach**, I want to see when my next payout arrives and how much is available — directly inside the app, not by logging into Stripe Dashboard.
-- **As a coach with a balance**, I want to push a Withdraw button and get my money now (manual mode), bypassing the weekly schedule.
+- **As a coach**, I want to choose how often I get paid (daily, weekly on a day I pick, monthly on a date I pick, or manual) so payouts match my cash-flow rhythm.
+- **As a coach with a balance**, I want to push a Withdraw button and get my money now (manual mode), bypassing the automatic schedule.
 - **As a coach disconnecting Stripe**, I want a warning if I have a pending balance or upcoming card-paid sessions so I don't accidentally lose money or trigger refunds.
 
 ### System
@@ -217,18 +218,26 @@ Always visible (both auto + manual modes):
 | Available | €240 | €240 |
 | Next payout | Mon, Apr 27 | "Manual · on demand" (dim) |
 
-Plus a Schedule KV row "Weekly · Monday" (auto only).
+`Next payout` reads from `account-status.next_payout_at` (server-computed, ISO-8601 → formatted; `null` in manual mode).
 
-### 5.5 Manual mode toggle
+### 5.5 Payout schedule (bottom sheet)
 
-`FitToggle` row. Off = auto (default), on = manual.
+A tappable **Payout schedule** row (2-line label/value + chevron, same `stripe-row` pattern as the onboarding Confirm rows) shows the current cadence (`Weekly · Monday` / `Daily` / `Monthly · 1st` / `Manual`) and opens a **bottom sheet**. This **replaces the old binary "Manual payouts" toggle** — manual is now just one of four frequencies, so there is a single source of truth for payout cadence.
 
-When ON:
-- Schedule row hides
-- Yellow sub-text: "Money stays in Stripe until you tap Withdraw"
-- "Withdraw €240" primary CTA appears below → push `s-stripe-withdraw`
+**Sheet `payout-schedule-sheet`** — a **fixed 4-option radio list** on canonical `FitSheet` rows (`.fit-sheet-item`): handle + `fit-sheet-title` + `fit-sheet-subtitle`, then the four rows. **No day/date sub-picker, no Save button** — tapping a row applies + dismisses, so the sheet height never changes (no growing drawer, fully native).
 
-Backend: `PATCH /coach/stripe-onboarding/payouts-schedule` body `{ schedule: "manual" | "weekly_monday" }` → Stripe `account.update.settings.payouts.schedule`.
+| Option | Hint (muted, right) | `schedule` sent |
+|---|---|---|
+| Manual | "On demand" | `manual` |
+| Daily | "Every business day" | `daily` |
+| Weekly | "Mondays" | `weekly` |
+| Monthly | "1st of the month" | `monthly` |
+
+**No anchor selection in-app (v1 scope decision).** Picking the exact weekday/day-of-month is a dashboard-grade micro-setting with near-zero value for an in-app coach; it's cut to keep the sheet native and avoid a backend anchor gap. The anchor stays Stripe's default (Monday / 1st), shown as the muted hint and reflected in the row label. Revisit only if coaches ask.
+
+**Manual behaviour** — when Manual is selected: yellow warn banner "Money stays in Stripe until you withdraw it" + "Withdraw €240" primary CTA appear in the Payouts block → push `s-stripe-withdraw`; Next payout reads "Manual · on demand".
+
+Backend: `PATCH /coach/stripe-onboarding/payout-schedule` body `{ schedule }` where `schedule` ∈ `manual` · `daily` · `weekly` · `monthly` (no anchor suffix from the app). Endpoint live on `main`, but the service has a **bug to fix**: it always passes `weekly_anchor` to Stripe, which Stripe rejects for non-weekly intervals — send the anchor only when `interval == weekly`, omit it otherwise (Stripe defaults daily/monthly/manual). The accepted `monthly_<n>` form is validated but its anchor is never forwarded — moot once the app stops sending anchors.
 
 ### 5.6 Activity preview
 
@@ -259,7 +268,7 @@ Confirm → `DELETE /coach/stripe-onboarding/account` → clears `stripe_account
 
 ## 6. Withdraw (Manual mode only)
 
-Screen `s-stripe-withdraw`. Reachable only when manual toggle is ON.
+Screen `s-stripe-withdraw`. Reachable only when payout schedule = Manual.
 
 - Large amount input (€ + numeric)
 - 3 quick chips: €50 / €100 / All
@@ -296,11 +305,11 @@ See **[poly-backend/docs/stripe-onboarding-frontend-guide.md](https://github.com
 | `POST /id-document` | Upload front/back | Multipart; backend forwards to Stripe Verification |
 | `POST /external-account` | Add bank or card | Body type-discriminated: `{type: "bank_account", iban, …}` or `{type: "card", number, exp_month, exp_year, cvc}` |
 | `POST /accept-tos` | Record T&C consent | Required after `/external-account` |
-| `GET /account-status` | Refresh sub-mode | Returns `{ payouts_enabled, charges_enabled, requirements_currently_due, details_submitted }` |
+| `GET /account-status` | Refresh sub-mode | Returns `{ payoutsEnabled, chargesEnabled, requirements, … , available, pending, payoutsSchedule, nextPayoutAt }` (`payoutsSchedule` e.g. `"weekly_monday"`/`"manual"`; `nextPayoutAt` ISO-8601 or `null`) |
 | `POST /consent` | Record legal consent | Records `{accepted_at, ip, consent_version}`. Required before `/account` |
 | `PATCH /external-account/{id}` | Set as default | Body `{default_for_currency: true}` |
 | `DELETE /external-account/{id}` | Remove | Backend blocks when last + returns `409 last_external_account` |
-| `PATCH /payouts-schedule` | Toggle manual mode | Body `{schedule: "manual"\|"weekly_monday"}` |
+| `PATCH /payout-schedule` | Set payout cadence | Body `{schedule}` ∈ `manual` · `daily` · `weekly` · `monthly` (app sends no anchor). Live on `main`; needs anchor-handling fix (see §5.5) |
 | `POST /payout` | Manual Withdraw | Body `{amount, currency}`; min €20 enforced server side |
 | `GET /payouts` | History list | Query `?limit=20&before=<cursor>`; returns `{items, next_cursor, lifetime_total}` |
 | `DELETE /account` | Disconnect | Clears `stripe_account_id`; cancels future card events with refund (if disconnect-anyway from `active-events` variant) |
@@ -342,7 +351,13 @@ stripe_consent: {
     ip: str,
     consent_version: str
 } | None
-payouts_schedule: Literal["weekly_monday", "manual"] = "weekly_monday"
+# Payout cadence is delegated to Stripe's native account payout schedule
+# (settings.payouts.schedule), NOT a local column. App sets interval only
+# (manual|daily|weekly|monthly); the anchor stays Stripe's default. Read back
+# via account-status:
+#   payoutsSchedule: e.g. "weekly_monday" | "daily" | "monthly_1" | "manual"
+#   nextPayoutAt:    ISO-8601 | null  (null when manual)
+# Default on account creation: "weekly_monday".
 ```
 
 ### Existing fields read
@@ -356,7 +371,7 @@ payouts_schedule: Literal["weekly_monday", "manual"] = "weekly_monday"
 Reuse from existing FitUI:
 
 - `FitSegmented` — Bank ↔ Card, Passport ↔ ID switchers
-- `FitToggle` — Manual mode switch
+- `FitSheet` + `FitSheetItem` (`.fit-sheet-item`) — Payout schedule sheet: handle + title + subtitle + 4 radio rows (label + muted hint + checkmark on selected). No new component needed.
 - `FitPaymentMethodCard` — bank + card rows (subtitle composite extension needed)
 - `FitSettingsCard` — Confirm screen rows (2-line label/value variant needed)
 - `FitSheet` — DOB picker, Disconnect 3-variant sheet, Remove method sheet

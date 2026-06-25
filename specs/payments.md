@@ -18,7 +18,7 @@
 Two distinct money flows:
 
 - **Athlete side:** prepaid **balance** model. Top up via Stripe → funds held when a session is booked → released on completion or refunded on cancel per policy. Cash as alternative (no balance involvement).
-- **Coach side:** **earnings** accumulate from completed card sessions; paid out via **weekly batch** (free, default) or **manual Withdraw** (free for bank, 1% Stripe fee for debit card via Instant Payouts). Stripe Connect (Custom accounts, native UI only) is the payout provider. Architecture supports additional providers (Revolut Merchant planned) behind a `PayoutAccount` abstraction. Onboarding + in-app control are covered in a focused spec: see [stripe-connect-onboarding.md](./stripe-connect-onboarding.md).
+- **Coach side:** **earnings** accumulate from completed card sessions; paid out on a **coach-chosen schedule** (manual / daily / weekly / monthly — frequency only, default weekly Monday, free) or **manual Withdraw** (free for bank, 1% Stripe fee for debit card via Instant Payouts). The cadence is Stripe's **native account payout schedule**, set in-app — see [stripe-connect-onboarding.md § 5.5](./stripe-connect-onboarding.md). Stripe Connect (Custom accounts, native UI only) is the payout provider. Architecture supports additional providers (Revolut Merchant planned) behind a `PayoutAccount` abstraction. Onboarding + in-app control are covered in a focused spec: see [stripe-connect-onboarding.md](./stripe-connect-onboarding.md).
 
 Currency: **EUR** only in v1.
 
@@ -57,7 +57,7 @@ This spec consolidates the previous "Payment User Flow" + "Revisited Payment Flo
 
 - As the backend, `coach_balance` is a **derived table** maintained via append-only transactions. Every mutation goes through `coach_transactions` first; cached balance updates are idempotent.
 - As the backend, every completed card session creates an `earning` transaction that enters a **24h hold** window. A scheduled `hold_release` transaction moves it to `available` after 24h.
-- As the backend, a weekly sweep job runs Mondays 00:00 UTC: takes all `available` funds per coach ≥ threshold (€20 default), creates `payout_initiated` transaction, calls Stripe Connect, updates to `payout_completed` on success or `payout_failed` on error.
+- As the backend, a per-minute sweep (`sweep_due_stripe_transfers_to_coach`) moves earnings whose 24h hold has cleared into the coach's Stripe **connected-account balance** via Stripe `transfers.create`. The subsequent **payout** (connected balance → coach bank) is executed by **Stripe on the coach's configured native payout schedule** (`settings.payouts.schedule`) — not by a 321Fit batch. Coach sets the frequency in-app (manual / daily / weekly / monthly; anchor stays Stripe default); `next_payout_at` is read back from Stripe via `account-status`.
 - As the backend, Instant payout is a user-initiated call: same ledger flow, higher fee, same-day settlement (Stripe Instant Payouts).
 - As the client, the coach Earnings screen renders entirely from snapshot fields (`available`, `pending`, `payoutSchedule`, etc.) — no direct ledger queries in v1.
 - As the backend, the aggregated `pending` snapshot field is paired with a list endpoint `GET /coach/earnings/pending` returning the individual sessions contributing to that sum (event_id, title, athlete_name, completed_at, amount, clears_at). The list endpoint is required by the s-pending breakdown screen — the snapshot total alone is not enough.
@@ -151,15 +151,13 @@ Backend: `GET /athlete/payment-methods`, `POST .../setup`, `PUT .../{id}/default
 
 Covered in detail in [stripe-connect-onboarding.md § 4](./stripe-connect-onboarding.md#4-flow). Outcome relevant to this spec: on successful completion, `coach.stripeConnected = true` and `charges_enabled = true`, making the coach eligible for weekly payouts (Flow E).
 
-### Flow E — Coach: Weekly batch payout
+### Flow E — Coach: Scheduled payout
 
-1. Monday 00:00 UTC — Celery beat fires sweep task.
-2. For each coach with `available >= 20 EUR`:
-   - Create `payout_initiated` transaction (amount, provider, providerRef)
-   - Call Stripe Connect `transfers.create`
-   - On success: `payout_completed` transaction, `available -= amount`
-   - On failure: `payout_failed` transaction, `available` unchanged, alert coach
-3. Push notification: "€480 is on its way to your bank. Typical arrival: 2 days."
+Two-stage model (transfer is ours, payout is Stripe's):
+
+1. **Transfer (continuous, ours):** the per-minute `sweep_due_stripe_transfers_to_coach` task picks up earnings whose 24h hold cleared and calls Stripe `transfers.create` → funds land in the coach's connected-account balance.
+2. **Payout (scheduled, Stripe's):** Stripe pays the connected balance out to the coach's bank on the coach's **native payout schedule** (`settings.payouts.schedule`), set in-app — default weekly Monday. Coach can change the frequency to daily, weekly, monthly, or manual (anchor stays Stripe default) (see [stripe-connect-onboarding.md § 5.5](./stripe-connect-onboarding.md)).
+3. `next_payout_at` (read from `account-status`) drives the "Next payout · {date}" line. Push notification on payout: "€480 is on its way to your bank. Typical arrival: 2 days."
 
 ### Flow F — Coach: Instant payout
 
@@ -673,7 +671,7 @@ Onboarding requires explicit consent capture before opening the Stripe SDK — s
 - [x] ~~**Missed session refund:**~~ RESOLVED in Tier 1 Q2: 0% refund / 100% to coach (strict no-show forfeit). Disputes via Support per Q10.
 - [x] ~~**Coach-configurable cancellation window:**~~ RESOLVED in Tier 1 Q3: fixed 24h platform-wide in v1. Configurable per-coach deferred until product data demands.
 - [x] ~~**Dispute / chargeback flow:**~~ RESOLVED in Tier 1 Q10: balance-based internal ledger resolution + Stripe-native top-up chargebacks. Admin tool surfaces from Support tickets. v2: structured Resolution Center.
-- [ ] **Weekly sweep day:** Monday vs. Friday vs. coach-choice? Some coaches prefer weekend arrival. **Owner:** product.
+- [x] ~~**Weekly sweep day:** Monday vs. Friday vs. coach-choice?~~ RESOLVED 2026-06-25: **coach-choice** of frequency (manual / daily / weekly / monthly) via Stripe native payout schedule, set in-app. Exact day/date deferred (dashboard-grade, low value). See [stripe-connect-onboarding.md § 5.5](./stripe-connect-onboarding.md).
 - [ ] **Instant payout fee structure:** flat 1% + €0.50 or tiered? Align with Stripe pass-through. **Owner:** finance.
 - [ ] **Multi-currency support:** EUR only v1. When to add USD / GBP etc.? Depends on international rollout. **Owner:** growth.
 - [ ] **Third-party payment** ("pay for a friend"): mentioned in legacy spec, not implemented. Scope? **Owner:** product.
