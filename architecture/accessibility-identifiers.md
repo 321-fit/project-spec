@@ -679,6 +679,16 @@ One screen reused from every entry point (Settings "Invite a coach" / "Invite a 
 | `invite.invited.message` | per-row Message button | `s-invite` (Invited tab) | → chat (`messages.html`) |
 | `invite.invited.share` | "Share your link" CTA | `s-invite` (Invited zero-state) | opens native share drawer |
 
+#### `home-visit address` — athlete add-flow + coach CRM field (2026-06-25)
+
+| ID | Element | Screen | Notes |
+|---|---|---|---|
+| `athlete.settings.addresses` | "My addresses" row | athlete s-settings (Training) | → `profile.html#s-my-addresses` |
+| (athlete picker) | s-hv-address → s-hv-addr-pick → s-hv-addr-form → s-my-addresses | `shared/profile.html` | clone of coach Locations; light theme |
+| `coach.new-client.home-address` | "Home address" field | `s-create-client` | → `s-crm-addr-pick` |
+| `coach.client-detail.home-address` | "Home visit address" row | `s-client-detail` | → `s-crm-addr-pick` |
+
+
 ### `profile` (athlete) — `athlete/profile.html` (tab 5)
 
 Trimmed mirror of coach Profile (`.cp-*` grammar; no video hero). Spec: `athlete-profile.md`.
