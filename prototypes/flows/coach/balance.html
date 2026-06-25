@@ -206,6 +206,11 @@
 
   /* Section */
   .earn-section { padding: 24px 16px 0; }
+  /* .earn-section already supplies 16px side padding — strip the inner group's
+     own side margin so rows align with the section header + neighbouring cards
+     (otherwise double inset = 32px, the "transactions block padding" drift). */
+  .earn-section .fit-txn-group,
+  .earn-section .fit-kv-group { margin-left: 0; margin-right: 0; }
   .earn-section-head {
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 12px;
@@ -733,6 +738,11 @@
 
   /* Key-value rows (.fit-kv*) now canonical in fit-ui.css */
 
+  /* 3-line txn cells (title / context / date) — keep each line on one row */
+  #s-transactions .fit-txn-sub,
+  #s-earnings-history .fit-txn-sub,
+  #s-earnings .fit-txn-sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
   /* Section head above an fit-kv-group (e.g. "Session", "Payment", "Summary") */
   .earn-section-head { padding: 24px 16px 8px; }
   .earn-section-label {
@@ -1103,7 +1113,8 @@
                 Card
               </span>
             </div>
-            <div class="fit-txn-sub">Tennis training &middot; Tue, Apr 21 &middot; 18:00</div>
+            <div class="fit-txn-sub">Tennis training</div>
+            <div class="fit-txn-meta">Tue, Apr 21 &middot; 18:00</div>
           </div>
           <div class="fit-txn-amt fit-txn-amt--plus">+&euro;25.00</div>
         </div>
@@ -1119,7 +1130,8 @@
                 Cash
               </span>
             </div>
-            <div class="fit-txn-sub">Yoga &middot; Mon, Apr 20 &middot; 09:00</div>
+            <div class="fit-txn-sub">Yoga</div>
+            <div class="fit-txn-meta">Mon, Apr 20 &middot; 09:00</div>
           </div>
           <div class="fit-txn-amt fit-txn-amt--plus">+&euro;30.00</div>
         </div>
@@ -1135,7 +1147,8 @@
                 Card
               </span>
             </div>
-            <div class="fit-txn-sub">4 athletes &middot; Mon, Apr 20 &middot; 19:00</div>
+            <div class="fit-txn-sub">4 athletes</div>
+            <div class="fit-txn-meta">Mon, Apr 20 &middot; 19:00</div>
           </div>
           <div class="fit-txn-amt fit-txn-amt--plus">+&euro;60.00</div>
         </div>
@@ -1146,7 +1159,8 @@
           </div>
           <div class="fit-txn-body">
             <div class="fit-txn-title">Payout to Stripe</div>
-            <div class="fit-txn-sub">Weekly batch &middot; Mon, Apr 20</div>
+            <div class="fit-txn-sub">Weekly batch</div>
+            <div class="fit-txn-meta">Mon, Apr 20</div>
           </div>
           <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;275.00</div>
         </div>
@@ -1352,7 +1366,8 @@
           </div>
           <div class="fit-txn-body">
             <div class="fit-txn-title">Marco Rossi</div>
-            <div class="fit-txn-sub">Tennis training &middot; Tue, Apr 21 &middot; 18:00</div>
+            <div class="fit-txn-sub">Tennis training</div>
+            <div class="fit-txn-meta">Tue, Apr 21 &middot; 18:00</div>
           </div>
           <div class="fit-txn-amt fit-txn-amt--plus">+&euro;25.00</div>
         </div>
@@ -1362,7 +1377,8 @@
           </div>
           <div class="fit-txn-body">
             <div class="fit-txn-title">Group &middot; Padel</div>
-            <div class="fit-txn-sub">4 athletes &middot; Mon, Apr 20 &middot; 19:00</div>
+            <div class="fit-txn-sub">4 athletes</div>
+            <div class="fit-txn-meta">Mon, Apr 20 &middot; 19:00</div>
           </div>
           <div class="fit-txn-amt fit-txn-amt--plus">+&euro;60.00</div>
         </div>
@@ -1372,7 +1388,8 @@
           </div>
           <div class="fit-txn-body">
             <div class="fit-txn-title">Payout to Stripe</div>
-            <div class="fit-txn-sub">Weekly batch &middot; Mon, Apr 20</div>
+            <div class="fit-txn-sub">Weekly batch</div>
+            <div class="fit-txn-meta">Mon, Apr 20</div>
           </div>
           <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;275.00</div>
         </div>
@@ -1382,7 +1399,8 @@
           </div>
           <div class="fit-txn-body">
             <div class="fit-txn-title">Sarah Chen</div>
-            <div class="fit-txn-sub">Padel training &middot; Sun, Apr 19 &middot; 10:00</div>
+            <div class="fit-txn-sub">Padel training</div>
+            <div class="fit-txn-meta">Sun, Apr 19 &middot; 10:00</div>
           </div>
           <div class="fit-txn-amt fit-txn-amt--plus">+&euro;30.00</div>
         </div>
@@ -1392,7 +1410,8 @@
           </div>
           <div class="fit-txn-body">
             <div class="fit-txn-title">Refund &middot; Luis Garcia</div>
-            <div class="fit-txn-sub">Cancelled &lt; 24h &middot; Fri, Apr 17</div>
+            <div class="fit-txn-sub">Cancelled &lt; 24h</div>
+            <div class="fit-txn-meta">Fri, Apr 17</div>
           </div>
           <div class="fit-txn-amt" style="color:var(--fit-red-400);">&minus;&euro;12.50</div>
         </div>
@@ -1406,7 +1425,8 @@
           </div>
           <div class="fit-txn-body">
             <div class="fit-txn-title">Payout to Stripe</div>
-            <div class="fit-txn-sub">Weekly batch &middot; Mon, Mar 30</div>
+            <div class="fit-txn-sub">Weekly batch</div>
+            <div class="fit-txn-meta">Mon, Mar 30</div>
           </div>
           <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;405.00</div>
         </div>
