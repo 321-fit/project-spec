@@ -799,6 +799,11 @@
   #s-notifications.nfn-empty [data-nfn-state="empty"] { display: block; }
   #s-notifications.nfn-loading [data-nfn-state="loading"] { display: block; }
   #s-notifications.nfn-error [data-nfn-state="error"] { display: block; }
+  /* home-visit invite card: address set vs needs-selection */
+  .req-card.hv .hv-pick { display: none; }
+  .req-card.hv.hv-noaddr .hv-set { display: none !important; }
+  .req-card.hv.hv-noaddr .hv-pick { display: flex !important; }
+  .req-card.hv.hv-noaddr .hv-accept { opacity: 0.45; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -1386,7 +1391,7 @@
     <!-- 3-way segmented tabs: Activity (history) | To reply (athlete action) | Waiting (sent, awaiting coach) -->
     <div style="display:flex;margin:0 16px 12px;border-radius:10px;overflow:hidden;background:var(--fit-surface-high);padding:3px;">
       <button id="anotif-tab-activity" data-a11y-id="athlete.inbox.tab.activity" onclick="switchNotifTab('activity')" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;background:var(--fit-brand-gradient);color:var(--fit-white);">Activity</button>
-      <button id="anotif-tab-toreply" data-a11y-id="athlete.inbox.tab.toreply" onclick="switchNotifTab('toreply')" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--fit-text-secondary);">To reply <span id="anotif-tab-toreply-count" style="opacity:0.7;">(2)</span></button>
+      <button id="anotif-tab-toreply" data-a11y-id="athlete.inbox.tab.toreply" onclick="switchNotifTab('toreply')" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--fit-text-secondary);">To reply <span id="anotif-tab-toreply-count" style="opacity:0.7;">(3)</span></button>
       <button id="anotif-tab-waiting" data-a11y-id="athlete.inbox.tab.waiting" onclick="switchNotifTab('waiting')" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--fit-text-secondary);">Waiting <span id="anotif-tab-waiting-count" style="opacity:0.7;">(1)</span></button>
     </div>
   </div>
@@ -1509,6 +1514,33 @@
           </div>
         </div>
 
+        <!-- Coach invited athlete to a HOME-VISIT session — location chosen athlete-side -->
+        <div class="req-card hv" data-name="John Miller" id="hv-invite-card" style="margin:0 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
+            <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-text-secondary);flex-shrink:0;">JM</div>
+            <div style="flex:1;"><div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">John Miller</div><div style="font-size:12px;color:var(--fit-text-tertiary);">invited you to a home visit &middot; 1h ago</div></div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);margin-bottom:8px;">Strength Training</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:8px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            Fri, Apr 25 &middot; 21:00 &ndash; 22:00
+          </div>
+          <!-- Home-visit location: default to your saved home; tap Change to switch; or required if none -->
+          <div style="margin-bottom:12px;">
+            <div class="hv-set" style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span style="flex:1;">Home visit &middot; <span id="hv-invite-addr">12 Palm St, Larnaca</span></span><span style="font-weight:500;cursor:pointer;" onclick="hvInviteChange()">Change</span></div>
+            <div class="hv-pick" style="display:none;align-items:center;gap:6px;font-size:14px;color:var(--fit-yellow-600);cursor:pointer;" onclick="hvInviteChange()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg><span style="flex:1;">Home visit &middot; <strong>Select your address</strong></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div></div>
+            <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;50</span><span style="font-size:12px;color:var(--fit-text-secondary);background:var(--fit-surface-higher);padding:2px 6px;border-radius:4px;">Card</span></div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="fit-btn fit-btn-destructive" data-a11y-id="athlete.inbox.toreply.decline" style="flex:1;height:44px;font-size:16px;" onclick="aiReqAct('decline',this)">Decline</button>
+            <button class="fit-btn hv-accept" data-a11y-id="athlete.inbox.toreply.accept" style="flex:1;height:44px;font-size:16px;background:var(--fit-brand-gradient);color:var(--fit-white);" onclick="aiReqAct('accept',this)">Accept</button>
+          </div>
+        </div>
+
         <!-- Coach proposed a new time for an existing event (reschedule — accept/decline) -->
         <div class="req-card" data-name="Pavel S." style="margin:0 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
@@ -1549,6 +1581,18 @@
 
       <!-- ===== WAITING PANEL — athlete's sent booking requests, awaiting coach reply.
            Same .req-card grammar; yellow "Awaiting reply" pill + Cancel request. ===== -->
+      <!-- Home-visit invite: choose which saved address (athlete-side) -->
+      <div class="fit-sheet-overlay" id="hv-addr-sheet">
+        <div class="fit-sheet">
+          <div class="fit-sheet-handle"></div>
+          <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);margin-bottom:4px;">Where should the coach come?</div>
+          <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:16px;">Pick a saved address for this home visit.</div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer;border-bottom:1px solid var(--fit-divider);" onclick="hvInvitePick('12 Palm St, Larnaca')"><span style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--fit-teal-500);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><div style="flex:1;"><div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Home</div><div style="font-size:12px;color:var(--fit-text-tertiary);">12 Palm St, Larnaca</div></div></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:14px 0;cursor:pointer;" onclick="window.location.href='../shared/profile.html#s-my-addresses'"><span style="width:36px;height:36px;border-radius:10px;background:rgba(5,224,166,0.16);color:var(--fit-teal-500);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span><span style="font-size:16px;color:var(--fit-text-primary);">Add a new address</span></div>
+          <button style="width:100%;height:46px;margin-top:12px;background:transparent;border:none;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:15px;font-weight:500;cursor:pointer;" onclick="document.getElementById('hv-addr-sheet').classList.remove('visible')">Cancel</button>
+        </div>
+      </div>
+
       <div id="notif-panel-waiting" style="display:none;">
 
         <div class="req-card" data-name="Anna K." style="margin:16px 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
@@ -1729,6 +1773,7 @@
       <li><strong>To reply</strong> — coach-initiated items needing the athlete&rsquo;s answer: <em>coach invited you</em> to a session, <em>coach proposed a new time</em> (reschedule). Cards with [Decline] [Accept].</li>
       <li><strong>Waiting</strong> — the athlete&rsquo;s own sent booking requests, awaiting the coach&rsquo;s reply. Yellow &ldquo;Awaiting reply&rdquo; pill + sent/expires meta + [Cancel request].</li>
     </ul>
+    <div class="state-toggle" style="margin:8px 0;"><span style="font-size:12px;color:var(--fit-gray-500);margin-right:8px;">Home-visit invite:</span><button class="active" onclick="switchNotifTab('toreply');setHvInviteState('set',this)">Address set</button><button onclick="switchNotifTab('toreply');setHvInviteState('none',this)">Needs address</button></div>
     <p><strong>Bell badge</strong> = unread Activity + To reply count. Waiting is NOT counted — the bell signals &ldquo;action needed by you&rdquo;; waiting on a coach is monitoring, surfaced via the tab counter + Home &ldquo;Needs your attention&rdquo; row.</p>
     <hr>
     <p><strong>Activity notification types</strong>:</p>
@@ -1896,5 +1941,10 @@ function switchTheme(theme) {
 switchTheme('light');
 </script>
 
+<script>
+function hvInviteChange(){ document.getElementById('hv-addr-sheet').classList.add('visible'); }
+function hvInvitePick(addr){ var a=document.getElementById('hv-invite-addr'); if(a) a.textContent=addr; var c=document.getElementById('hv-invite-card'); if(c) c.classList.remove('hv-noaddr'); document.getElementById('hv-addr-sheet').classList.remove('visible'); }
+function setHvInviteState(state, btn){ var c=document.getElementById('hv-invite-card'); if(c) c.classList.toggle('hv-noaddr', state==='none'); if(btn){ btn.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active');}); btn.classList.add('active'); } }
+</script>
 </body>
 </html>
