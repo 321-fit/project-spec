@@ -346,22 +346,17 @@
   }
   .earn-card > * { position: relative; z-index: 1; }
 
-  /* ===== v2: single (non-swiper) Stripe card + analytics widgets ===== */
-  .earn-single { padding: 0 16px; }
-  .earn-single .earn-card { flex: none; width: 100%; }
-  /* widgets — Revolut-style 2x2, mirror athlete balance-v2 .bal-widget */
-  .earn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px; margin-top: 16px; }
-  .earn-widget {
-    background: var(--fit-surface-high); border-radius: 16px; padding: 16px;
-    display: flex; flex-direction: column; gap: 4px; min-height: 96px;
-    text-align: left; font-family: var(--fit-font); border: none; cursor: pointer;
+  /* Swipeable cards container + dots (restored — Cash + Card) */
+  .earn-swiper { position: relative; }
+  .earn-swiper-track {
+    display: flex; gap: 12px; padding: 0 16px;
+    scroll-padding-inline: 16px; overflow-x: auto;
+    scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch;
   }
-  .fit-light .earn-widget { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
-  .earn-widget-label { font-size: 12px; font-weight: 500; color: var(--fit-text-tertiary); text-transform: uppercase; letter-spacing: 0.4px; display: inline-flex; align-items: center; gap: 5px; }
-  .earn-widget-label svg { width: 13px; height: 13px; }
-  .earn-widget-value { font-size: 22px; font-weight: 600; color: var(--fit-text-primary); letter-spacing: -0.3px; line-height: 1.15; }
-  .earn-widget-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .earn-widget.warn .earn-widget-value, .earn-widget.warn .earn-widget-label { color: var(--fit-red-400); }
+  .earn-swiper-track::-webkit-scrollbar { display: none; }
+  .earn-swiper-dots { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
+  .earn-swiper-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--fit-text-tertiary); opacity: 0.35; cursor: pointer; transition: opacity 0.15s, transform 0.15s; }
+  .earn-swiper-dots span.active { opacity: 1; transform: scale(1.25); }
   /* Recent header — canonical .fit-section-title--md-row + See all link,
      unified with the athlete balance-v2 (same font / size / colour / wording).
      16px gap above; reset the row's own 16px side padding since .earn-section
@@ -916,8 +911,42 @@
   </div>
   <div class="fit-phone-content" style="padding-bottom:24px;">
 
-    <!-- ===== v2: single Card/Stripe account card (Cash moved to widgets below) ===== -->
-    <div class="earn-single">
+    <!-- ===== SWIPEABLE BALANCE CARDS — Cash (default) + Card ===== -->
+    <div class="earn-swiper">
+      <div class="earn-swiper-track" id="earn-swiper-track">
+
+        <!-- CASH CARD -->
+        <div class="earn-card cash">
+          <div class="earn-card-header">
+            <div class="earn-card-header-icon cash">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <span class="earn-card-header-title">Cash</span>
+          </div>
+
+          <!-- Cash: ACTIVE -->
+          <div data-cash-state="active" style="flex-direction:column;flex:1;">
+            <div class="earn-card-tap" data-a11y-id="coach.earnings.cash.tap-zone" onclick="openEarningsHistory('cash')">
+              <div class="earn-card-label">
+                This month
+                <svg class="earn-card-label-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+              </div>
+              <div class="earn-card-value">&euro;120.00</div>
+            </div>
+            <div class="earn-card-row tappable" data-a11y-id="coach.earnings.cash.owed-row" onclick="event.stopPropagation();window.location.href='clients.html'">
+              <span>&euro;40 owed by 2 athletes</span>
+              <svg class="earn-card-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+          </div>
+
+          <!-- Cash: ZERO -->
+          <div data-cash-state="zero" style="flex-direction:column;flex:1;">
+            <div class="earn-card-empty">
+              <div class="earn-card-empty-title">No cash collected yet</div>
+              <div class="earn-card-empty-sub">Mark sessions paid in Clients to track cash income here.</div>
+            </div>
+          </div>
+        </div>
 
         <!-- CARD/STRIPE CARD -->
         <div class="earn-card stripe">
@@ -1022,30 +1051,14 @@
             </div>
           </div>
         </div>
-    </div><!-- /.earn-single -->
 
-    <!-- Analytics widgets (2x2) — Cash moved here; do NOT duplicate Available/Pending/Next payout (already on the Stripe card) -->
-    <div class="earn-grid">
-      <button class="earn-widget" data-a11y-id="coach.earnings.widget.month" onclick="openEarningsHistory('all')">
-        <div class="earn-widget-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 4-6"/></svg>This month</div>
-        <div class="earn-widget-value">&euro;450.00</div>
-        <div class="earn-widget-sub">card + cash</div>
-      </button>
-      <button class="earn-widget" data-a11y-id="coach.earnings.widget.cash" onclick="openEarningsHistory('cash')">
-        <div class="earn-widget-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</div>
-        <div class="earn-widget-value">&euro;120.00</div>
-        <div class="earn-widget-sub">this month</div>
-      </button>
-      <button class="earn-widget warn" data-a11y-id="coach.earnings.widget.owed" onclick="window.location.href='clients.html'">
-        <div class="earn-widget-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Owed</div>
-        <div class="earn-widget-value">&euro;40.00</div>
-        <div class="earn-widget-sub">2 athletes &middot; cash</div>
-      </button>
-      <button class="earn-widget" data-a11y-id="coach.earnings.widget.total" onclick="openEarningsHistory('all')">
-        <div class="earn-widget-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Total earned</div>
-        <div class="earn-widget-value">&euro;8,240</div>
-        <div class="earn-widget-sub">lifetime</div>
-      </button>
+      </div>
+
+      <!-- Dot indicator -->
+      <div class="earn-swiper-dots" id="earn-swiper-dots">
+        <span class="active" data-a11y-id="coach.earnings.swiper.dot" data-idx="0" onclick="scrollEarnCard(0)"></span>
+        <span data-a11y-id="coach.earnings.swiper.dot" data-idx="1" onclick="scrollEarnCard(1)"></span>
+      </div>
     </div>
 
     <!-- Premium-only notice (shown when Instant Payout toggled on) -->
@@ -1993,7 +2006,12 @@
 
   <div class="ann active" id="ann-s-earnings"><span class="ann-role coach">Coach</span><h3>Earnings</h3>
 
-    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Card / Stripe state</div>
+    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Cash state</div>
+    <div class="state-toggle" data-toggle-row="cash">
+      <button class="active" onclick="setCashState('active',this)">Active</button>
+      <button onclick="setCashState('zero',this)">Zero</button>
+    </div>
+    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin:14px 0 6px;">Card / Stripe state</div>
     <div class="state-toggle" data-toggle-row="card">
       <button onclick="setCardState('lock',this)">Lock</button>
       <button onclick="setCardState('verifying',this)">Verifying</button>
@@ -2003,13 +2021,12 @@
       <button onclick="setCardState('premium',this)">+ Instant</button>
     </div>
 
-    <p><strong>v2 — Revolut-style dashboard.</strong> Variant of <code>balance.html</code> (kept for rollback). Parallel to the athlete <code>balance-v2.html</code>. The two swipe cards are replaced by <strong>one account card + analytics widgets + unified Recent</strong>.</p>
+    <p><strong>v2 of <code>balance.html</code></strong> (kept for rollback). Keeps the original <strong>two swipe cards</strong> (Cash + Card) &mdash; the analytics-widget experiment was reverted. What v2 changes vs the original: <strong>unified Recent</strong>, <strong>sticky</strong> history search/chips, canonical <strong>See all</strong> header, and the card <strong>Next payout</strong> row deep-links to Stripe. Lifetime footer removed.</p>
 
     <ul>
-      <li><strong>Card / Stripe card</strong> (single, full-width) &mdash; the live account: Available + Pending + Next payout + Withdraw, and all 6 Stripe lifecycle substates (Lock / Verifying / Action / Zero / Active / + Instant). Kept as a card because it carries <em>state + actions</em>, not just a number.</li>
-      <li><strong>Why Cash isn't a card anymore</strong> &mdash; Cash had no balance/states/actions (just a number + owed row), so &mdash; like the athlete's Spending card &mdash; it moves into widgets. Direct parallel to the athlete fork-B decision.</li>
-      <li><strong>Analytics widgets (2×2)</strong> &mdash; <em>This month</em> (card + cash), <em>Cash</em> (collected this month), <em>Owed</em> (red, cash debt → Clients), <em>Total earned</em> (lifetime). They don't duplicate Available/Pending/Next payout (already on the card). Each tile deep-links to filtered history.</li>
-      <li><strong>Recent (unified)</strong> &mdash; all methods + payouts in one list, <code>data-method</code> badge per row. No per-card swap. <strong>View all →</strong> Transactions.</li>
+      <li><strong>Cash card</strong> (default, teal) &mdash; <em>This month</em> collected + a tappable <em>owed by N athletes</em> row → Clients. Active / Zero states.</li>
+      <li><strong>Card / Stripe card</strong> &mdash; the live account: Available + Pending + Next payout (row → <code>stripe.html</code>) + Withdraw, with all 6 Stripe lifecycle substates (Lock / Verifying / Action / Zero / Active / + Instant).</li>
+      <li><strong>Recent (unified)</strong> &mdash; all methods + payouts in one list (3 rows), <code>data-method</code> badge per row. No per-card swap. <strong>See all →</strong> Transactions.</li>
       <li><strong>History screens (Transactions / Earnings history)</strong> &mdash; search + filter chips are <strong>sticky</strong> (<code>.hist-sticky</code>, <code>position: sticky; top: 0</code>); the list scrolls underneath. Search composes with the chip filter.</li>
     </ul>
 
@@ -2245,8 +2262,26 @@
     }
   }
 
-  // v2: swiper removed (single Stripe card + widgets). Swiper/dot/per-card-Recent
-  // helpers deleted; Recent is now unified and shows all methods.
+  // Swipeable cards — dot sync + click-to-scroll. (Recent stays UNIFIED — no
+  // per-card swap, so the scroll listener only moves the dots.)
+  function scrollEarnCard(idx) {
+    var track = document.getElementById('earn-swiper-track');
+    if (!track) return;
+    var card = track.children[idx];
+    if (!card) return;
+    track.scrollTo({ left: card.offsetLeft - track.offsetLeft, behavior: 'smooth' });
+  }
+  function initEarningsSwiper() {
+    var track = document.getElementById('earn-swiper-track');
+    var dots = document.querySelectorAll('#earn-swiper-dots span');
+    if (!track || !dots.length || track.__inited) return;
+    track.__inited = true;
+    track.addEventListener('scroll', function() {
+      var idx = Math.round(track.scrollLeft / (track.clientWidth - 28));
+      idx = Math.max(0, Math.min(dots.length - 1, idx));
+      dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+    }, { passive: true });
+  }
 
   function openTransactionsForCurrentCard() {
     var screen = document.getElementById('s-earnings');
@@ -2539,7 +2574,8 @@
     });
   });
 
-
+  // Initialize Earnings swiper dot-sync (s-earnings is active on load)
+  initEarningsSwiper();
 </script>
 </body>
 </html>
