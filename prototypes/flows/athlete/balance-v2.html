@@ -106,12 +106,14 @@
   .sk-box { width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0; }
   .sk-ln { height: 14px; border-radius: 7px; }
 
-  /* Single (non-swiper) Balance card */
+  /* Single (non-swiper) Balance card — tighter than the swiper variant */
   .bal-single { padding: 0 16px; }
   .bal-single .earn-card { flex: none; width: 100%; min-height: 0; }
+  .bal-single .earn-card-tap { flex: none; }      /* no flex-grow → no gap above footer */
+  .bal-single .earn-card-row { padding-top: 12px; } /* match earnings footer rhythm */
 
   /* ===== Analytics widgets (Revolut-style 2x2) ===== */
-  .bal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px; margin-top: 14px; }
+  .bal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px; margin-top: 16px; }
   .bal-widget {
     background: var(--fit-surface-high); border-radius: 16px; padding: 16px;
     display: flex; flex-direction: column; gap: 4px; min-height: 96px;
@@ -124,19 +126,15 @@
   .bal-widget-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .bal-widget.warn .bal-widget-value, .bal-widget.warn .bal-widget-label { color: var(--fit-red-400); }
 
-  /* Recent header with "See all" */
-  .bal-recent-head { display: flex; align-items: center; justify-content: space-between; margin: 22px 16px 8px; }
-  .bal-recent-head .fit-section-title--md { margin: 0; }
-  .bal-seeall { display: inline-flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 500; color: var(--fit-teal-500); background: none; border: none; cursor: pointer; font-family: var(--fit-font); padding: 4px; }
+  /* Recent header — canonical .fit-section-title--md-row + See all link */
+  .bal-seeall { display: inline-flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 500; color: var(--fit-teal-500); background: none; border: none; cursor: pointer; font-family: var(--fit-font); padding: 0; }
   .bal-seeall svg { width: 14px; height: 14px; }
-
-  /* "All transactions" entry button */
-  .bal-allbtn { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 12px 16px 4px; height: 46px; border-radius: 14px; background: var(--fit-surface-high); border: none; cursor: pointer; font-family: var(--fit-font); font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
-  .fit-light .bal-allbtn { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
-  .bal-allbtn svg { width: 16px; height: 16px; color: var(--fit-text-tertiary); }
+  /* Beat the id-scoped section-title margin so title + See all sit on one baseline */
+  #s-balance .fit-section-title--md-row { margin-top: 16px; }
+  #s-balance .fit-section-title--md-row .fit-section-title--md { margin: 0; }
 
   /* ===== History screen — sticky search ===== */
-  .bal-search { display: flex; align-items: center; gap: 8px; margin: 6px 16px 10px; padding: 0 12px; height: 42px; background: var(--fit-surface-high); border-radius: 12px; }
+  .bal-search { display: flex; align-items: center; gap: 8px; margin: 8px 16px 12px; padding: 0 12px; height: 42px; background: var(--fit-surface-high); border-radius: 12px; }
   .fit-light .bal-search { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
   .bal-search svg { width: 17px; height: 17px; color: var(--fit-text-tertiary); flex-shrink: 0; }
   .bal-search input { flex: 1; border: none; background: transparent; outline: none; font-family: var(--fit-font); font-size: 15px; color: var(--fit-text-primary); }
@@ -309,10 +307,10 @@
         </button>
       </div>
 
-      <!-- Recent — 3-row preview + See all -->
-      <div class="bal-recent-head">
+      <!-- Recent — 3-row preview + See all (canonical section-title row) -->
+      <div class="fit-section-title--md-row tap" data-a11y-id="athlete.balance.see-all" onclick="go('s-history',null)">
         <div class="fit-section-title--md">Recent</div>
-        <button class="bal-seeall" data-a11y-id="athlete.balance.see-all" onclick="go('s-history',null)">See all<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+        <button class="bal-seeall">See all<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
       </div>
       <div class="fit-txn-group">
         <div class="fit-txn" data-a11y-id="athlete.balance.txn" onclick="go('s-txn-spend',null)">
@@ -331,21 +329,28 @@
           <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;30.00</div>
         </div>
       </div>
-
-      <button class="bal-allbtn" data-a11y-id="athlete.balance.all-txns" onclick="go('s-history',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>All transactions</button>
     </div>
 
     <!-- ===== EMPTY (no history) ===== -->
     <div data-bs-state="empty">
-      <div class="bal-hero">
-        <div class="bal-hero-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20M17 15h2"/></svg>Available balance</div>
-        <div class="bal-hero-value">&euro;0.00</div>
-        <div class="bal-hero-footer">
-          <span class="bal-hero-note">Top up to book your first session</span>
-          <button class="bal-topup" onclick="go('s-top-up',null);setTuMode('once')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Top up</button>
+      <!-- Same Balance card format as default, just €0 + first-time note -->
+      <div class="bal-single">
+        <div class="earn-card balance">
+          <div class="earn-card-header">
+            <div class="earn-card-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20M17 15h2"/></svg></div>
+            <span class="earn-card-header-title">Balance</span>
+          </div>
+          <div class="earn-card-tap">
+            <div class="earn-card-label">Available</div>
+            <div class="earn-card-value">&euro;0.00</div>
+          </div>
+          <div class="earn-card-row">
+            <span class="bal-hero-note">Top up to book your first session</span>
+            <button class="bal-topup" onclick="go('s-top-up',null);setTuMode('once')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Top up</button>
+          </div>
         </div>
       </div>
-      <div class="fit-empty-state" style="padding-top:48px;">
+      <div class="fit-empty-state" style="padding-top:40px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:52px;height:52px;color:var(--fit-gray-400);margin-bottom:14px;"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>
         <div class="fit-empty-state-title">No transactions yet</div>
         <div class="fit-empty-state-sub">Top-ups, session payments and refunds<br>will show up here.</div>
