@@ -1,0 +1,2564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Coach Earnings v2 (Revolut)</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--fit-font);
+    background: #0a0a0a;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 24px; min-height: 100vh;
+    min-width: 900px;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    left: 24px;
+    top: 24px; bottom: 24px; width: 200px;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-scroll {
+    flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+  }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--fit-gray-600);
+    padding: 0 8px; margin: 16px 0 8px;
+  }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button {
+    font-family: var(--fit-font); font-size: 14px; font-weight: 400;
+    padding: 10px 12px; border-radius: 10px; border: none;
+    background: transparent; color: var(--fit-gray-400);
+    cursor: pointer; text-align: left; width: 100%; transition: all 0.15s;
+  }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active {
+    background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500;
+  }
+
+  /* Annotations */
+  .ann-container {
+    position: fixed;
+    left: calc(50% + 195px + 48px); right: 24px;
+    top: 24px; bottom: 24px; width: auto;
+    overflow-y: auto;
+  }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; }
+  .ann.active { display: block; }
+  .ann-role {
+    display: inline-block; font-size: 14px; font-weight: 500;
+    padding: 4px 12px; border-radius: 8px; margin-bottom: 16px;
+  }
+  .ann-role.coach { background: rgba(3,178,226,0.15); color: var(--fit-blue-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 14px; padding-left: 18px; font-size: 16px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 6px; }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  .ann-detail {
+    margin-top: 8px; padding: 4px 0 4px 16px;
+    border-left: 2px solid var(--fit-brand-primary);
+    display: none;
+  }
+  .ann-detail.open { display: block; }
+  .ann-detail-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; color: var(--fit-blue-500); cursor: pointer;
+    margin-top: 12px; font-weight: 500;
+  }
+  .ann-detail-toggle svg { width: 14px; height: 14px; transition: transform 0.2s; }
+  .ann-detail-toggle.open svg { transform: rotate(90deg); }
+  .ann-detail h4 { font-size: 14px; font-weight: 500; color: var(--fit-gray-300); margin-bottom: 6px; }
+  .ann-detail h4 + p { margin-bottom: 12px; }
+  .ann-detail p { font-size: 14px; line-height: 1.5; color: var(--fit-gray-500); margin-bottom: 8px; }
+  .ann-detail code { font-size: 12px; background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 3px; color: var(--fit-gray-400); }
+
+  /* Screen visibility */
+  .fit-phone { display: none; }
+  .fit-phone.active { display: flex; }
+
+  svg.i { width: 16px; height: 16px; vertical-align: middle; }
+
+  .fit-dark .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-dark .fit-phone-footer { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+
+  /* State toggle (sidebar-driven) */
+  .state-toggle {
+    display: inline-flex; gap: 0; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--fit-gray-700); margin-bottom: 12px;
+  }
+  .state-toggle button {
+    font-family: var(--fit-font); font-size: 12px; font-weight: 500;
+    padding: 4px 10px; border: none; cursor: pointer;
+    background: transparent; color: var(--fit-gray-400);
+    transition: all 0.15s;
+  }
+  .state-toggle button.active { background: var(--fit-gray-700); color: var(--fit-white); }
+
+  /* ===== EARNINGS HERO ===== */
+  .earn-hero {
+    margin: 0 16px;
+    border-radius: 20px;
+    padding: 20px;
+    background: var(--fit-brand-gradient);
+    color: var(--fit-white);
+    position: relative;
+    overflow: hidden;
+  }
+  .earn-hero::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 90% 0%, rgba(255,255,255,0.15), transparent 40%);
+    pointer-events: none;
+  }
+  .earn-hero-row {
+    display: flex; gap: 20px; align-items: flex-start;
+    position: relative; z-index: 1;
+  }
+  .earn-hero-col { flex: 1; min-width: 0; }
+  .earn-hero-label {
+    font-size: 12px; font-weight: 500; opacity: 0.85;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .earn-hero-label svg {
+    width: 12px; height: 12px; opacity: 0.7; cursor: pointer;
+  }
+  .earn-hero-value {
+    font-size: 32px; font-weight: 600; line-height: 1.1;
+    letter-spacing: -0.5px;
+  }
+  .earn-hero-value.pending { opacity: 0.8; font-size: 24px; padding-top: 6px; }
+  .earn-hero-divider {
+    width: 1px; background: rgba(255,255,255,0.2); align-self: stretch;
+    margin: 4px 0;
+  }
+  .earn-hero-footer {
+    margin-top: 16px; padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,0.18);
+    display: flex; justify-content: space-between; align-items: center;
+    position: relative; z-index: 1;
+  }
+  .earn-hero-next {
+    font-size: 13px; opacity: 0.9;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .earn-hero-next svg { width: 14px; height: 14px; opacity: 0.85; }
+  .earn-hero-withdraw {
+    font-size: 13px; font-weight: 500; color: var(--fit-white);
+    text-decoration: none; cursor: pointer;
+    padding: 6px 10px; border-radius: 99px;
+    background: rgba(255,255,255,0.18);
+    transition: background 0.15s;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .earn-hero-withdraw:hover { background: rgba(255,255,255,0.28); }
+  .earn-hero-withdraw svg { width: 12px; height: 12px; }
+
+  /* Hero variant: empty / no bank */
+  .earn-hero.zero { background: var(--fit-surface-high); color: var(--fit-text-primary); }
+  .earn-hero.zero .earn-hero-label { opacity: 0.7; }
+  .earn-hero.zero .earn-hero-divider { background: var(--fit-divider); }
+  .earn-hero.zero .earn-hero-footer { border-top-color: var(--fit-divider); }
+  .earn-hero.zero .earn-hero-withdraw {
+    background: var(--fit-surface-higher);
+    color: var(--fit-text-secondary);
+    pointer-events: none; opacity: 0.5;
+  }
+  .fit-light .earn-hero.zero { background: var(--fit-white); box-shadow: 0 1px 12px rgba(0,0,0,0.06); }
+
+  /* Locked CTA plate (needs connection) */
+  .earn-lock {
+    margin: 16px;
+    border-radius: 16px;
+    background: var(--fit-surface-high);
+    border: 1px dashed var(--fit-divider);
+    padding: 24px 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    text-align: center;
+  }
+  .fit-light .earn-lock { background: var(--fit-white); border-color: var(--fit-gray-200); }
+  .earn-lock-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: var(--fit-selection-gradient);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-text-primary);
+  }
+  .earn-lock-title { font-size: 17px; font-weight: 500; color: var(--fit-text-primary); }
+  .earn-lock-sub { font-size: 14px; color: var(--fit-text-tertiary); line-height: 1.5; max-width: 280px; }
+
+  /* Section */
+  .earn-section { padding: 24px 16px 0; }
+  /* .earn-section already supplies 16px side padding — strip the inner group's
+     own side margin so rows align with the section header + neighbouring cards
+     (otherwise double inset = 32px, the "transactions block padding" drift). */
+  .earn-section .fit-txn-group,
+  .earn-section .fit-kv-group { margin-left: 0; margin-right: 0; }
+  .earn-section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .earn-section-title { font-size: 16px; color: var(--fit-text-secondary); }
+  .earn-section-action {
+    font-size: 13px; color: var(--fit-brand-primary); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 2px;
+  }
+  .earn-section-action svg { width: 12px; height: 12px; }
+
+  /* Payout method card */
+  .earn-method-card {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    background: var(--fit-surface-high);
+    border-radius: 14px;
+    cursor: pointer;
+  }
+  .fit-light .earn-method-card { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+  .earn-method-card + .earn-method-card { margin-top: 8px; }
+  .earn-method-card.disabled { opacity: 0.6; cursor: not-allowed; }
+  .earn-method-logo {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--fit-surface-higher);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 15px;
+    flex-shrink: 0;
+  }
+  .earn-method-logo.stripe { color: #635BFF; }
+  .earn-method-logo.revolut { color: #0075EB; }
+  .earn-method-info { flex: 1; min-width: 0; }
+  .earn-method-title { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .earn-method-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .earn-method-sub.connected { color: var(--fit-teal-500); }
+  .earn-method-sub.warn { color: var(--fit-yellow-400); }
+  .earn-method-chev { color: var(--fit-text-tertiary); }
+
+  /* Transaction ledger (.fit-txn*) now canonical in fit-ui.css */
+
+  /* Lifetime strip */
+  .earn-lifetime {
+    margin: 32px 16px 16px;
+    padding: 16px;
+    border-radius: 14px;
+    background: var(--fit-surface-low);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: 14px; color: var(--fit-text-secondary);
+  }
+  .fit-light .earn-lifetime { background: var(--fit-gray-100); }
+  .earn-lifetime strong { color: var(--fit-text-primary); font-weight: 600; }
+
+  /* Skeleton for txn loading */
+  .earn-sk {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    background: var(--fit-surface-high);
+  }
+  .earn-sk + .earn-sk { border-top: 1px solid var(--fit-divider); }
+  .earn-sk-group { border-radius: 14px; overflow: hidden; margin: 0 16px; }
+  .earn-sk-circle {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--fit-gray-800);
+    animation: sk-pulse 1.4s ease-in-out infinite;
+  }
+  .fit-light .earn-sk-circle { background: var(--fit-gray-200); }
+  .earn-sk-lines { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .earn-sk-line {
+    height: 10px; border-radius: 6px;
+    background: var(--fit-gray-800);
+    animation: sk-pulse 1.4s ease-in-out infinite;
+  }
+  .earn-sk-line.short { width: 40%; height: 8px; }
+  .fit-light .earn-sk-line { background: var(--fit-gray-200); }
+  @keyframes sk-pulse { 0%,100%{opacity:0.5;} 50%{opacity:1;} }
+
+  /* Withdraw sheet */
+  .wd-amount-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 14px 0;
+  }
+  .wd-amount-row + .wd-amount-row { border-top: 1px solid var(--fit-divider); }
+  .wd-amount-label { font-size: 14px; color: var(--fit-text-secondary); }
+  .wd-amount-value { font-size: 17px; font-weight: 500; color: var(--fit-text-primary); }
+  .wd-amount-value.final { color: var(--fit-teal-500); }
+  .wd-amount-value.fee { color: var(--fit-text-tertiary); font-weight: 400; }
+
+  /* State switchers for #s-earnings — two independent axes:
+     data-cash: active | zero
+     data-card: lock | verifying | action | zero | active | premium */
+  #s-earnings [data-cash-state] { display: none; }
+  #s-earnings[data-cash="active"] [data-cash-state="active"] { display: block; }
+  #s-earnings[data-cash="zero"]   [data-cash-state="zero"]   { display: block; }
+
+  #s-earnings [data-card-state] { display: none; }
+  #s-earnings[data-card="lock"]      [data-card-state="lock"]      { display: flex; }
+  #s-earnings[data-card="verifying"] [data-card-state="verifying"] { display: flex; }
+  #s-earnings[data-card="action"]    [data-card-state="action"]    { display: flex; }
+  #s-earnings[data-card="zero"]      [data-card-state="zero"]      { display: flex; }
+  #s-earnings[data-card="active"]    [data-card-state="active"]    { display: flex; }
+  #s-earnings[data-card="premium"]   [data-card-state="active"]    { display: flex; }
+
+  /* Instant payout (Withdraw now) — premium only, not in MVP */
+  .earn-hero-withdraw { display: none; }
+  #s-earnings[data-card="premium"] .earn-hero-withdraw { display: inline-flex; }
+  #s-earnings [data-premium-notice] { display: none; }
+  #s-earnings[data-card="premium"] [data-premium-notice] { display: flex; }
+  .earn-premium-tag {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.3px;
+    padding: 2px 6px; border-radius: 99px;
+    background: rgba(255,255,255,0.25);
+    text-transform: uppercase;
+    margin-left: 4px;
+  }
+
+  /* ============================================================
+     Swipeable balance cards (Cash default, swipe right → Card)
+     Peek = 14px of next card visible to signal swipe affordance.
+     Each card is a brand-tinted gradient (matches original earn-hero
+     pattern). Cash = teal, Card = brand. White text + radial highlight.
+     ============================================================ */
+  .earn-card {
+    flex: 0 0 calc(100% - 24px); /* 12px gap + 12px peek of next card on right */
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    border-radius: 20px;
+    padding: 20px;
+    color: var(--fit-white);
+    position: relative;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    min-height: 168px;
+  }
+  .earn-card.cash {
+    background: var(--fit-brand-gradient);
+  }
+  .earn-card.stripe {
+    background: linear-gradient(135deg, #635BFF, #4F46E5);
+  }
+  .earn-card::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 90% 0%, rgba(255,255,255,0.15), transparent 40%);
+    pointer-events: none;
+  }
+  .earn-card > * { position: relative; z-index: 1; }
+
+  /* ===== v2: single (non-swiper) Stripe card + analytics widgets ===== */
+  .earn-single { padding: 0 16px; }
+  .earn-single .earn-card { flex: none; width: 100%; }
+  /* widgets — Revolut-style 2x2, mirror athlete balance-v2 .bal-widget */
+  .earn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px; margin-top: 16px; }
+  .earn-widget {
+    background: var(--fit-surface-high); border-radius: 16px; padding: 16px;
+    display: flex; flex-direction: column; gap: 4px; min-height: 96px;
+    text-align: left; font-family: var(--fit-font); border: none; cursor: pointer;
+  }
+  .fit-light .earn-widget { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+  .earn-widget-label { font-size: 12px; font-weight: 500; color: var(--fit-text-tertiary); text-transform: uppercase; letter-spacing: 0.4px; display: inline-flex; align-items: center; gap: 5px; }
+  .earn-widget-label svg { width: 13px; height: 13px; }
+  .earn-widget-value { font-size: 22px; font-weight: 600; color: var(--fit-text-primary); letter-spacing: -0.3px; line-height: 1.15; }
+  .earn-widget-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .earn-widget.warn .earn-widget-value, .earn-widget.warn .earn-widget-label { color: var(--fit-red-400); }
+
+  /* v2: sticky search + filter chips on history screens (list scrolls under) */
+  .hist-sticky { position: sticky; top: 0; z-index: 5; background: var(--fit-screen-bg); padding-top: 2px; }
+  .earn-search { display: flex; align-items: center; gap: 8px; margin: 8px 16px 12px; padding: 0 12px; height: 42px; background: var(--fit-surface-high); border-radius: 12px; }
+  .fit-light .earn-search { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+  .earn-search svg { width: 17px; height: 17px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .earn-search input { flex: 1; border: none; background: transparent; outline: none; font-family: var(--fit-font); font-size: 15px; color: var(--fit-text-primary); }
+
+  /* Outline variant — used for Card Lock / Verifying / Action states.
+     Transparent bg + colored border. Inner content uses normal theme tokens
+     (not white-on-gradient). Header (icon + label) hidden because the inner
+     title/banner already identifies the card. */
+  #s-earnings[data-card="lock"] .earn-card.stripe,
+  #s-earnings[data-card="verifying"] .earn-card.stripe,
+  #s-earnings[data-card="action"] .earn-card.stripe {
+    background: transparent;
+    border: 1.5px solid rgba(99,91,255,0.4);
+    color: var(--fit-text-primary);
+  }
+  #s-earnings[data-card="action"] .earn-card.stripe {
+    border-color: rgba(247,201,72,0.5);
+  }
+  #s-earnings[data-card="lock"] .earn-card.stripe::after,
+  #s-earnings[data-card="verifying"] .earn-card.stripe::after,
+  #s-earnings[data-card="action"] .earn-card.stripe::after {
+    display: none; /* no radial highlight on outline */
+  }
+  #s-earnings[data-card="lock"] .earn-card.stripe .earn-card-header,
+  #s-earnings[data-card="verifying"] .earn-card.stripe .earn-card-header,
+  #s-earnings[data-card="action"] .earn-card.stripe .earn-card-header {
+    display: none;
+  }
+  /* Outline-mode inner content uses theme tokens, not white-on-gradient */
+  #s-earnings[data-card="lock"] .earn-card.stripe .earn-card-empty-title,
+  #s-earnings[data-card="verifying"] .earn-card.stripe .earn-card-empty-title,
+  #s-earnings[data-card="action"] .earn-card.stripe .earn-card-empty-title {
+    color: var(--fit-text-primary);
+  }
+  #s-earnings[data-card="lock"] .earn-card.stripe .earn-card-empty-sub,
+  #s-earnings[data-card="verifying"] .earn-card.stripe .earn-card-empty-sub,
+  #s-earnings[data-card="action"] .earn-card.stripe .earn-card-empty-sub {
+    color: var(--fit-text-tertiary);
+  }
+  /* Banners inside outline cards revert to standard tinted style */
+  #s-earnings[data-card="verifying"] .earn-card.stripe .earn-card-banner {
+    background: rgba(3,178,226,0.1);
+    border: 1px solid rgba(3,178,226,0.28);
+    color: var(--fit-text-primary);
+  }
+  #s-earnings[data-card="verifying"] .earn-card.stripe .earn-card-banner svg { color: #03B2E2; }
+  #s-earnings[data-card="verifying"] .earn-card.stripe .earn-card-banner-title { color: var(--fit-text-primary); }
+  #s-earnings[data-card="verifying"] .earn-card.stripe .earn-card-banner-sub { color: var(--fit-text-secondary); }
+  #s-earnings[data-card="action"] .earn-card.stripe .earn-card-banner {
+    background: rgba(247,201,72,0.1);
+    border: 1px solid rgba(247,201,72,0.32);
+    color: var(--fit-text-primary);
+  }
+  #s-earnings[data-card="action"] .earn-card.stripe .earn-card-banner svg { color: #F7C948; }
+  #s-earnings[data-card="action"] .earn-card.stripe .earn-card-banner-title { color: var(--fit-text-primary); }
+  #s-earnings[data-card="action"] .earn-card.stripe .earn-card-banner-sub { color: var(--fit-text-secondary); }
+  /* Tappable "View details" row in Verifying — themed */
+  #s-earnings[data-card="verifying"] .earn-card.stripe .earn-card-row {
+    border-top-color: var(--fit-divider);
+    color: var(--fit-text-secondary);
+  }
+  #s-earnings[data-card="verifying"] .earn-card.stripe .earn-card-row-link {
+    color: var(--fit-teal-500);
+  }
+  #s-earnings[data-card="verifying"] .earn-card.stripe .earn-card-row-chev {
+    color: var(--fit-text-tertiary);
+  }
+  /* CTA on outline = filled brand gradient (high contrast) */
+  #s-earnings[data-card="lock"] .earn-card.stripe .earn-card-cta,
+  #s-earnings[data-card="action"] .earn-card.stripe .earn-card-cta {
+    background: var(--fit-brand-gradient-h);
+    color: var(--fit-white);
+  }
+
+  .earn-card-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .earn-card-header-icon {
+    width: 26px; height: 26px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.18);
+    color: var(--fit-white);
+  }
+  .earn-card-header-icon svg { width: 14px; height: 14px; }
+  .earn-card-header-title {
+    font-size: 12px; font-weight: 500;
+    color: rgba(255,255,255,0.9);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .earn-card-label {
+    font-size: 12px; font-weight: 500;
+    color: rgba(255,255,255,0.85);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .earn-card-label-chev {
+    width: 11px; height: 11px;
+    opacity: 0.7;
+    margin-left: -1px;
+  }
+  /* Tappable top area of a card (opens Earnings history with appropriate filter).
+     Inner tap targets (owed row, Withdraw pill, Pending info) must stopPropagation. */
+  .earn-card-tap {
+    cursor: pointer;
+    display: flex; flex-direction: column;
+    flex: 1;
+  }
+  .earn-card-value {
+    font-size: 28px; font-weight: 600;
+    color: var(--fit-white);
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+  .earn-card-value.muted { color: rgba(255,255,255,0.55); }
+  .earn-card-value.pending { font-size: 22px; opacity: 0.85; padding-top: 6px; }
+
+  .earn-card-split { display: flex; gap: 0; align-items: flex-start; }
+  .earn-card-split .earn-card-col { flex: 1; min-width: 0; }
+  .earn-card-split .earn-card-divider {
+    width: 1px; align-self: stretch;
+    background: rgba(255,255,255,0.18);
+    margin: 4px 16px;
+  }
+
+  .earn-card-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,0.18);
+    font-size: 13px;
+    color: rgba(255,255,255,0.92);
+    gap: 10px;
+  }
+  .earn-card-row.tappable { cursor: pointer; }
+  .earn-card-row-link {
+    color: var(--fit-white);
+    display: inline-flex; align-items: center; gap: 4px;
+    font-weight: 500;
+  }
+  .earn-card-row-chev {
+    width: 14px; height: 14px;
+    color: rgba(255,255,255,0.7);
+    flex-shrink: 0;
+  }
+
+  /* Empty / CTA states inside a card */
+  .earn-card-empty {
+    display: flex; flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+  .earn-card-empty-title {
+    font-size: 17px; font-weight: 600;
+    color: var(--fit-white);
+    line-height: 1.25;
+  }
+  .earn-card-empty-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.78);
+    line-height: 1.45;
+  }
+  .earn-card-cta {
+    margin-top: auto;
+    background: rgba(255,255,255,0.98);
+    color: var(--fit-text-primary);
+    border: none; border-radius: 12px;
+    padding: 11px 16px;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    width: 100%;
+    transition: opacity 0.15s;
+  }
+  .earn-card-cta:active { opacity: 0.85; }
+
+  /* Inline banner inside Card swipe (Verifying / Action) — translucent on gradient */
+  .earn-card-banner {
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 13px; line-height: 1.45;
+    display: flex; gap: 10px; align-items: flex-start;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--fit-white);
+  }
+  .earn-card-banner svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; color: var(--fit-white); }
+  .earn-card-banner-title { font-weight: 600; color: var(--fit-white); margin-bottom: 2px; }
+  .earn-card-banner-sub { color: rgba(255,255,255,0.78); }
+
+  /* Method badges (Cash / Card) on history rows */
+  .earn-method-tag {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.3px;
+    padding: 2px 5px; border-radius: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+    text-transform: uppercase;
+  }
+  .earn-method-tag svg { width: 10px; height: 10px; }
+  .earn-method-tag.cash {
+    background: rgba(75,191,127,0.14); color: var(--fit-teal-500);
+  }
+  .earn-method-tag.card {
+    background: rgba(99,91,255,0.14); color: #635BFF;
+  }
+
+  /* Filter chips (.fit-filter-row / .fit-filter-chip) now canonical in fit-ui.css */
+
+  /* Filter visibility — driven by data-filter on parent group */
+  #s-earnings .fit-txn-group[data-filter="cash"]   .fit-txn:not([data-method="cash"])   { display: none; }
+  #s-earnings .fit-txn-group[data-filter="card"]   .fit-txn:not([data-method="card"])   { display: none; }
+  #s-earnings .fit-txn-group[data-filter="payouts"].fit-txn-group .fit-txn:not([data-method="payout"]) { display: none; }
+  #s-earnings .fit-txn-group[data-filter="payouts"] .fit-txn:not([data-method="payout"]) { display: none; }
+
+  /* State switcher for #s-transactions */
+  #s-transactions [data-txn-state] { display: none; }
+  #s-transactions.ts-filled  [data-txn-state="filled"]  { display: block; }
+  #s-transactions.ts-empty   [data-txn-state="empty"]   { display: block; }
+  #s-transactions.ts-loading [data-txn-state="loading"] { display: block; }
+
+  /* State switcher for #s-txn-cash (Cash Earning Detail) — 3 terminal states */
+  #s-txn-cash [data-cash-status] { display: none; }
+  #s-txn-cash[data-cash-status="received"] [data-cash-status="received"] { display: block; }
+  #s-txn-cash[data-cash-status="pending"]  [data-cash-status="pending"]  { display: block; }
+  #s-txn-cash[data-cash-status="waived"]   [data-cash-status="waived"]   { display: block; }
+
+  /* Cash detail status pill — themed by status, inline pill in hero */
+  .cash-detail-pill {
+    margin-top: 6px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 12px; font-weight: 500;
+    align-items: center; gap: 5px;
+  }
+  #s-txn-cash[data-cash-status="received"] .cash-detail-pill--received,
+  #s-txn-cash[data-cash-status="pending"] .cash-detail-pill--unpaid,
+  #s-txn-cash[data-cash-status="waived"] .cash-detail-pill--waived {
+    display: inline-flex;
+  }
+  .cash-detail-pill--received {
+    background: rgba(5,224,166,0.12); color: var(--fit-teal-500);
+  }
+  .cash-detail-pill--unpaid {
+    background: rgba(247,201,72,0.14); color: #F7C948;
+  }
+  .cash-detail-pill--waived {
+    background: var(--fit-gray-700); color: var(--fit-text-secondary);
+  }
+
+  /* Cash actions drawer rows */
+  .cash-action-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px;
+    background: var(--fit-surface-high);
+    border-radius: 14px;
+    cursor: pointer;
+    text-align: left;
+    width: 100%; border: none;
+    font-family: var(--fit-font);
+  }
+  .cash-action-row + .cash-action-row { margin-top: 8px; }
+  .cash-action-row.destructive .cash-action-icon {
+    background: rgba(240,92,91,0.14); color: var(--fit-red-400);
+  }
+  .cash-action-row.primary .cash-action-icon {
+    background: rgba(5,224,166,0.12); color: var(--fit-teal-500);
+  }
+  .cash-action-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--fit-surface-higher); color: var(--fit-text-secondary);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .cash-action-body { flex: 1; min-width: 0; }
+  .cash-action-title { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
+  .cash-action-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; line-height: 1.4; }
+
+  /* Earnings history filter (All / Card / Cash) — toggles which numbers/sublines show */
+  #s-earnings-history [data-show] { display: none; }
+  #s-earnings-history[data-history-filter="all"]  [data-show="all"]       { display: inline; }
+  #s-earnings-history[data-history-filter="all"]  [data-show="all-sub"]   { display: block; }
+  #s-earnings-history[data-history-filter="cash"] [data-show="cash"]      { display: inline; }
+  #s-earnings-history[data-history-filter="cash"] [data-show="cash-sub"]  { display: block; }
+  #s-earnings-history[data-history-filter="card"] [data-show="card"]      { display: inline; }
+  #s-earnings-history[data-history-filter="card"] [data-show="card-sub"]  { display: block; }
+  /* Hero padding tuned for this screen (only amount + sub, no third element) */
+  #s-earnings-history .fit-detail-hero {
+    padding: 20px 24px;
+    gap: 4px;
+    margin: 16px 16px 0;
+  }
+  /* Filter chips — override default margins for this screen to match its rhythm */
+  #s-earnings-history .fit-filter-row {
+    margin: 20px 0 0;
+  }
+  /* Year separator — small caps, tightly bound to the group below.
+     First year (right after filter chips) gets less top padding; subsequent years get more. */
+  #s-earnings-history .hist-year {
+    padding: 24px 16px 6px;
+    font-size: 11px; font-weight: 600;
+    color: var(--fit-text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+  #s-earnings-history .fit-filter-row + .hist-year { padding-top: 20px; }
+  /* Month-row label uses fit-kv with stacked label/sub. Sub-line only on "all". */
+  #s-earnings-history .hist-kv-label-stack { display: flex; flex-direction: column; gap: 2px; }
+  #s-earnings-history .hist-kv-label-stack .name {
+    font-size: 14px; color: var(--fit-text-primary); font-weight: 500;
+  }
+  #s-earnings-history .hist-kv-label-stack .name.current { color: var(--fit-teal-500); }
+  #s-earnings-history .hist-kv-label-stack .breakdown {
+    font-size: 12px; color: var(--fit-text-tertiary);
+  }
+
+  /* State switcher for #s-stripe */
+  #s-stripe [data-stripe-state] { display: none; }
+  #s-stripe.ss-none     [data-stripe-state="none"]     { display: block; }
+  #s-stripe.ss-pending  [data-stripe-state="pending"]  { display: block; }
+  #s-stripe.ss-done     [data-stripe-state="done"]     { display: block; }
+  #s-stripe.ss-action   [data-stripe-state="action"]   { display: block; }
+
+  /* Inline banner (blocking / warn) */
+  .earn-banner {
+    margin: 0 16px 16px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    display: flex; gap: 12px; align-items: flex-start;
+    font-size: 14px; line-height: 1.4;
+  }
+  .earn-banner svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+  .earn-banner.warn {
+    background: rgba(247,201,72,0.08);
+    border: 1px solid rgba(247,201,72,0.3);
+    color: var(--fit-text-primary);
+  }
+  .earn-banner.warn svg { color: #F7C948; }
+  .earn-banner.info {
+    background: rgba(3,178,226,0.08);
+    border: 1px solid rgba(3,178,226,0.22);
+    color: var(--fit-text-primary);
+  }
+  .earn-banner.info svg { color: var(--fit-blue-500); }
+  .earn-banner-body { flex: 1; }
+  .earn-banner-title { font-weight: 500; margin-bottom: 2px; }
+  .earn-banner-link { color: inherit; text-decoration: underline; font-weight: 500; cursor: pointer; }
+
+  /* Key-value rows (.fit-kv*) now canonical in fit-ui.css */
+
+  /* 3-line txn cells (title / context / date) — keep each line on one row */
+  #s-transactions .fit-txn-sub,
+  #s-earnings-history .fit-txn-sub,
+  #s-earnings .fit-txn-sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* Section head above an fit-kv-group (e.g. "Session", "Payment", "Summary") */
+  .earn-section-head { padding: 24px 16px 8px; }
+  .earn-section-label {
+    font-size: 14px;
+    color: var(--fit-text-tertiary);
+    margin-bottom: 8px;
+  }
+
+  /* Info paragraph under a header (e.g. state explanations, Stripe notes) */
+  .earn-info-para {
+    padding: 8px 16px 16px;
+    font-size: 13px;
+    color: var(--fit-text-tertiary);
+    line-height: 1.5;
+  }
+
+  /* Method radio indicator (iOS-style) */
+  .earn-method-radio {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 1.5px solid var(--fit-gray-600);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .fit-light .earn-method-radio { border-color: var(--fit-gray-300); }
+  .earn-method-radio-inner {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: transparent;
+    transition: background 0.15s;
+  }
+  .earn-method-radio.checked { border-color: var(--fit-teal-600); }
+  .earn-method-radio.checked .earn-method-radio-inner { background: var(--fit-teal-500); }
+
+  /* ⋯ button on method card */
+  .earn-method-more {
+    width: 32px; height: 32px; flex-shrink: 0;
+    border-radius: 50%; background: transparent; border: none;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-text-tertiary); cursor: pointer;
+    position: relative;
+  }
+  .earn-method-more:hover { background: rgba(255,255,255,0.06); }
+  .fit-light .earn-method-more:hover { background: rgba(0,0,0,0.05); }
+  .earn-method-more::before {
+    content: ""; position: absolute; inset: -6px;
+  }
+  .earn-method-more svg { width: 18px; height: 18px; }
+
+  /* Payout methods state visibility */
+  #s-methods [data-mm-state] { display: none; }
+  #s-methods.mm-empty [data-mm-state="empty"] { display: block; }
+  #s-methods.mm-single [data-mm-state="single"] { display: block; }
+  #s-methods.mm-multi [data-mm-state="multi"] { display: block; }
+
+  /* Inline Connect CTA on empty state */
+  .earn-method-connect {
+    flex-shrink: 0;
+    padding: 6px 14px; border-radius: 99px;
+    background: var(--fit-brand-gradient);
+    color: var(--fit-white); font-size: 13px; font-weight: 500;
+    border: none; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .earn-method-connect svg { width: 12px; height: 12px; }
+  .earn-method-soon {
+    flex-shrink: 0;
+    padding: 6px 12px; border-radius: 99px;
+    background: var(--fit-surface-higher);
+    color: var(--fit-text-tertiary); font-size: 12px; font-weight: 500;
+  }
+  .fit-light .earn-method-soon { background: var(--fit-gray-100); }
+
+  /* Disconnect sheet variant visibility */
+  #disconnect-sheet [data-dc-variant] { display: none; }
+  #disconnect-sheet.dc-only [data-dc-variant="only"] { display: block; }
+  #disconnect-sheet.dc-backup [data-dc-variant="backup"] { display: block; }
+
+  /* Context menu: hide Set-as-default when already default */
+  #mm-menu.ctx-is-default [data-ctx-set-default] { display: none; }
+
+  /* Context menu */
+  .earn-ctx {
+    position: absolute; z-index: 60;
+    background: var(--fit-surface-higher);
+    border-radius: 12px; padding: 6px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+    display: none; min-width: 180px;
+  }
+  .fit-light .earn-ctx {
+    background: var(--fit-white);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+  }
+  .earn-ctx.open { display: block; }
+  .earn-ctx-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 8px;
+    font-size: 14px; color: var(--fit-text-primary);
+    cursor: pointer;
+  }
+  .earn-ctx-item:hover { background: rgba(255,255,255,0.04); }
+  .fit-light .earn-ctx-item:hover { background: var(--fit-gray-100); }
+  .earn-ctx-item.danger { color: var(--fit-red-400); }
+  .earn-ctx-item svg { width: 16px; height: 16px; }
+
+  .earn-success-dot {
+    display: inline-flex; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--fit-teal-500); margin-right: 6px;
+  }
+  .earn-warn-dot {
+    display: inline-flex; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--fit-yellow-400); margin-right: 6px;
+  }
+
+  /* Empty state (.fit-empty-state*) now canonical in fit-ui.css */
+
+  /* Snackbar (error / validation) */
+  .earn-snackbar {
+    position: absolute; left: 16px; right: 16px; bottom: 24px;
+    padding: 12px 16px; border-radius: 12px;
+    background: rgba(240,92,91,0.12);
+    border: 1px solid rgba(240,92,91,0.35);
+    color: var(--fit-text-primary);
+    font-size: 14px;
+    display: flex; align-items: center; gap: 10px;
+    opacity: 0; transform: translateY(8px); pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .earn-snackbar.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .earn-snackbar svg { width: 18px; height: 18px; color: var(--fit-red-400); flex-shrink: 0; }
+  .earn-snackbar-retry { margin-left: auto; color: var(--fit-blue-500); font-weight: 500; cursor: pointer; }
+
+  /* Transactions filter chips + detail hero (.fit-filter-*, .fit-detail-hero*) now canonical in fit-ui.css */
+
+  /* v2: unified Recent — all methods (card / cash / payout) shown, no per-card swap */
+
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+    <button onclick="window.location.href='../../index.html'" style="display:flex;align-items:center;gap:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;padding:8px 12px;border-radius:10px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-gray-300);cursor:pointer;width:100%;margin-bottom:8px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      All modules
+    </button>
+    
+  <div class="label">Overview</div>
+  <button class="active" onclick="go('s-earnings',this)">Earnings</button>
+  <div class="label">Flows</div>
+  <button onclick="go('s-transactions',this)">Transactions</button>
+  <button onclick="go('s-earnings-history',this)">Earnings History</button>
+  <button onclick="go('s-pending',this)">Pending breakdown</button>
+  <button onclick="go('s-txn-earning',this)">Earning Detail</button>
+  <button onclick="go('s-txn-cash',this)">Cash Detail</button>
+  <button onclick="go('s-txn-payout',this)">Payout Detail</button>
+  <button onclick="go('s-methods',this)">Payout Methods</button>
+
+  <div class="label">Stripe (separate flow)</div>
+  <a href="stripe.html" style="display:block;padding:8px 10px;font-size:13px;color:var(--fit-blue-500);text-decoration:none;">→ Open Stripe flow</a>
+  </div>
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ==================== PHONES ==================== -->
+
+<!-- ===== EARNINGS (main) ===== -->
+<div class="fit-phone fit-dark active" id="s-earnings" data-cash="active" data-card="active">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.earnings.back" onclick="window.location.href='settings.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Earnings</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- ===== v2: single Card/Stripe account card (Cash moved to widgets below) ===== -->
+    <div class="earn-single">
+
+        <!-- CARD/STRIPE CARD -->
+        <div class="earn-card stripe">
+          <div class="earn-card-header">
+            <div class="earn-card-header-icon stripe">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            </div>
+            <span class="earn-card-header-title">Card</span>
+          </div>
+
+          <!-- Card: LOCK (no Stripe) -->
+          <div data-card-state="lock" style="flex-direction:column;flex:1;">
+            <div class="earn-card-empty">
+              <div class="earn-card-empty-title">Accept card payments</div>
+              <div class="earn-card-empty-sub">Connect Stripe to receive money instantly when athletes book online.</div>
+            </div>
+            <button class="earn-card-cta" data-a11y-id="coach.earnings.card.connect-stripe" onclick="window.location.href='stripe.html#none'">Connect Stripe</button>
+          </div>
+
+          <!-- Card: VERIFYING -->
+          <div data-card-state="verifying" style="flex-direction:column;flex:1;">
+            <div class="earn-card-banner info">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+              <div>
+                <div class="earn-card-banner-title">Stripe is verifying</div>
+                <div class="earn-card-banner-sub">Payouts start once verification is complete. Usually a few minutes.</div>
+              </div>
+            </div>
+            <div class="earn-card-row tappable" data-a11y-id="coach.earnings.card.verifying-details" onclick="window.location.href='stripe.html#verifying'">
+              <span class="earn-card-row-link">View details</span>
+              <svg class="earn-card-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+          </div>
+
+          <!-- Card: ACTION REQUIRED -->
+          <div data-card-state="action" style="flex-direction:column;flex:1;">
+            <div class="earn-card-banner warn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <div>
+                <div class="earn-card-banner-title">Action needed</div>
+                <div class="earn-card-banner-sub">Missing: Proof of address. Payouts paused.</div>
+              </div>
+            </div>
+            <button class="earn-card-cta" data-a11y-id="coach.earnings.card.resolve" onclick="window.location.href='stripe.html#action'">Resolve now</button>
+          </div>
+
+          <!-- Card: ZERO (connected, no balance yet) -->
+          <div data-card-state="zero" style="flex-direction:column;flex:1;">
+            <div class="earn-card-split">
+              <div class="earn-card-col">
+                <div class="earn-card-label">Available</div>
+                <div class="earn-card-value muted">&euro;0.00</div>
+              </div>
+              <div class="earn-card-divider"></div>
+              <div class="earn-card-col">
+                <div class="earn-card-label">Pending</div>
+                <div class="earn-card-value muted">&euro;0.00</div>
+              </div>
+            </div>
+            <div class="earn-card-row">
+              <span>Finish your first card session to start earning</span>
+            </div>
+          </div>
+
+          <!-- Card: ACTIVE (default) / PREMIUM -->
+          <div data-card-state="active" style="flex-direction:column;flex:1;">
+            <div class="earn-card-tap" data-a11y-id="coach.earnings.card.tap-zone" onclick="openEarningsHistory('card')">
+              <div class="earn-card-split">
+                <div class="earn-card-col">
+                  <div class="earn-card-label">
+                    Available
+                    <svg class="earn-card-label-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                  </div>
+                  <div class="earn-card-value">&euro;340.50</div>
+                </div>
+                <div class="earn-card-divider"></div>
+                <!-- Pending col — entire col is tappable (mobile-friendly hit area).
+                     Visual cue: chevron after label + value, replaces tiny ⓘ icon
+                     that was unreachable on touch. Tap → s-pending breakdown. -->
+                <div class="earn-card-col earn-card-col-tap" data-a11y-id="coach.earnings.card.pending.tap-zone" onclick="event.stopPropagation();go('s-pending',document.querySelector('[onclick*=s-pending]'));" style="cursor:pointer;">
+                  <div class="earn-card-label">
+                    Pending
+                    <svg class="earn-card-label-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                  </div>
+                  <div class="earn-card-value pending">&euro;75.00</div>
+                </div>
+              </div>
+            </div>
+            <div class="earn-card-row">
+              <span style="display:inline-flex;align-items:center;gap:6px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                Next payout &middot; Mon, Apr 27
+              </span>
+              <span class="earn-hero-withdraw" data-a11y-id="coach.earnings.card.withdraw" onclick="event.stopPropagation();openWithdrawSheet();">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                Withdraw
+                <span class="earn-premium-tag">Premium</span>
+              </span>
+            </div>
+          </div>
+        </div>
+    </div><!-- /.earn-single -->
+
+    <!-- Analytics widgets — Cash moved here; do NOT duplicate Available/Pending/Next payout (already on the Stripe card) -->
+    <div class="earn-grid">
+      <button class="earn-widget" data-a11y-id="coach.earnings.widget.month" onclick="openEarningsHistory('all')">
+        <div class="earn-widget-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 4-6"/></svg>This month</div>
+        <div class="earn-widget-value">&euro;450.00</div>
+        <div class="earn-widget-sub">card + cash</div>
+      </button>
+      <button class="earn-widget" data-a11y-id="coach.earnings.widget.cash" onclick="openEarningsHistory('cash')">
+        <div class="earn-widget-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</div>
+        <div class="earn-widget-value">&euro;120.00</div>
+        <div class="earn-widget-sub">this month</div>
+      </button>
+      <button class="earn-widget warn" data-a11y-id="coach.earnings.widget.owed" onclick="window.location.href='clients.html'">
+        <div class="earn-widget-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Owed</div>
+        <div class="earn-widget-value">&euro;40.00</div>
+        <div class="earn-widget-sub">2 athletes &middot; cash</div>
+      </button>
+      <button class="earn-widget" data-a11y-id="coach.earnings.widget.total" onclick="openEarningsHistory('all')">
+        <div class="earn-widget-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Total earned</div>
+        <div class="earn-widget-value">&euro;8,240</div>
+        <div class="earn-widget-sub">lifetime</div>
+      </button>
+    </div>
+
+    <!-- Premium-only notice (shown when Instant Payout toggled on) -->
+    <div class="earn-banner info" data-premium-notice style="margin:16px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4 2 7-6.5-4-6.5 4 2-7L2 9h7z"/></svg>
+      <div class="earn-banner-body">
+        <div class="earn-banner-title">Instant Payout &middot; Premium (post-MVP)</div>
+        <div style="font-size:13px;line-height:1.45;">Not in v1. Weekly batch is the only payout path for MVP. This state previews the future paid add-on &mdash; keep it in spec but don't ship the "Withdraw" pill yet.</div>
+      </div>
+    </div>
+
+    <!-- Recent activity (v2: unified — all methods + payouts in one list, no per-card swap).
+         View all → Transactions (defaults to the 'all' prefilter). -->
+    <div class="earn-section" data-section="recent-activity" data-limit="4">
+      <div class="earn-section-head">
+        <span class="earn-section-title earn-activity-title">Recent</span>
+        <span class="earn-section-action" data-a11y-id="coach.earnings.activity.view-all" onclick="openTransactionsForCurrentCard()">View all
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </span>
+      </div>
+      <div class="fit-txn-group">
+        <div class="fit-txn" data-a11y-id="coach.earnings.activity.row" data-method="card" onclick="go('s-txn-earning',document.querySelector('[onclick*=s-txn-earning]'))">
+          <div class="fit-txn-icon fit-txn-icon--in">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg>
+          </div>
+          <div class="fit-txn-body">
+            <div class="fit-txn-title">Marco Rossi
+              <span class="earn-method-tag card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                Card
+              </span>
+            </div>
+            <div class="fit-txn-sub">Tennis training</div>
+            <div class="fit-txn-meta">Tue, Apr 21 &middot; 18:00</div>
+          </div>
+          <div class="fit-txn-amt fit-txn-amt--plus">+&euro;25.00</div>
+        </div>
+
+        <div class="fit-txn" data-a11y-id="coach.earnings.activity.row" data-method="cash" onclick="go('s-txn-cash',document.querySelector('[onclick*=s-txn-cash]'))">
+          <div class="fit-txn-icon fit-txn-icon--in">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg>
+          </div>
+          <div class="fit-txn-body">
+            <div class="fit-txn-title">Anna M&uuml;ller
+              <span class="earn-method-tag cash">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
+                Cash
+              </span>
+            </div>
+            <div class="fit-txn-sub">Yoga</div>
+            <div class="fit-txn-meta">Mon, Apr 20 &middot; 09:00</div>
+          </div>
+          <div class="fit-txn-amt fit-txn-amt--plus">+&euro;30.00</div>
+        </div>
+
+        <div class="fit-txn" data-a11y-id="coach.earnings.activity.row" data-method="card">
+          <div class="fit-txn-icon fit-txn-icon--in">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg>
+          </div>
+          <div class="fit-txn-body">
+            <div class="fit-txn-title">Group training &middot; Padel
+              <span class="earn-method-tag card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                Card
+              </span>
+            </div>
+            <div class="fit-txn-sub">4 athletes</div>
+            <div class="fit-txn-meta">Mon, Apr 20 &middot; 19:00</div>
+          </div>
+          <div class="fit-txn-amt fit-txn-amt--plus">+&euro;60.00</div>
+        </div>
+
+        <div class="fit-txn" data-a11y-id="coach.earnings.activity.row" data-method="payout" onclick="go('s-txn-payout',document.querySelector('[onclick*=s-txn-payout]'))">
+          <div class="fit-txn-icon fit-txn-icon--info">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+          </div>
+          <div class="fit-txn-body">
+            <div class="fit-txn-title">Payout to Stripe</div>
+            <div class="fit-txn-sub">Weekly batch</div>
+            <div class="fit-txn-meta">Mon, Apr 20</div>
+          </div>
+          <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;275.00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lifetime + month summary footer (tappable → Earnings history, All filter) -->
+    <div class="earn-lifetime" data-a11y-id="coach.earnings.lifetime-footer" style="cursor:pointer;" onclick="openEarningsHistory('all')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-teal-500);"><path d="M12 2l2.39 4.85L20 7.72l-4 3.9.94 5.5L12 14.77 7.06 17.12 8 11.62l-4-3.9 5.61-.87z"/></svg>
+      <span>This month <strong>&euro;600</strong> &middot; <strong>&euro;2,840</strong> lifetime with 321Fit</span>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);margin-left:2px;"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+
+  </div>
+
+  <!-- ===== WITHDRAW SHEET ===== -->
+  <div class="fit-sheet-overlay" id="withdraw-sheet">
+    <div class="fit-sheet compact">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin:8px 0 4px;">Withdraw now</div>
+      <div style="font-size:14px;color:var(--fit-text-tertiary);margin-bottom:20px;line-height:1.5;">
+        Instant transfer to your default Stripe account. Arrives within 30 minutes.
+      </div>
+
+      <div style="background:var(--fit-surface-low);border-radius:14px;padding:0 16px;margin-bottom:16px;">
+        <div class="wd-amount-row">
+          <span class="wd-amount-label">Available</span>
+          <span class="wd-amount-value">&euro;340.50</span>
+        </div>
+        <div class="wd-amount-row">
+          <span class="wd-amount-label">Instant payout fee (1%)</span>
+          <span class="wd-amount-value fee">&minus;&euro;3.41</span>
+        </div>
+        <div class="wd-amount-row">
+          <span class="wd-amount-label" style="color:var(--fit-text-primary);font-weight:500;">You receive</span>
+          <span class="wd-amount-value final">&euro;337.09</span>
+        </div>
+      </div>
+
+      <div class="earn-banner info" style="margin:0 0 20px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        <div class="earn-banner-body">
+          <div style="font-size:13px;line-height:1.45;">Prefer free payouts? Your next weekly payout of <strong>&euro;340.50</strong> arrives <strong>Mon, Apr 27</strong> with no fee.</div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-primary" data-a11y-id="coach.earnings.withdraw.confirm" onclick="confirmInstant()">Confirm instant payout</button>
+        <button class="fit-btn fit-btn-secondary" data-a11y-id="coach.earnings.withdraw.cancel" onclick="closeWithdrawSheet()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending info-sheet was here — removed 2026-05-20. Replaced by full
+       screen `s-pending` with list breakdown. The "Why pending?" copy + 24h
+       timeline live inside that screen as an inline info banner. -->
+
+  <!-- ===== SUCCESS TOAST (bottom right corner) ===== -->
+  <div class="fit-toast" id="payout-success-toast" style="border-left:3px solid var(--fit-teal-500);">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>
+    <span style="font-size:14px;">Instant payout on the way</span>
+  </div>
+
+  <!-- ===== ERROR SNACKBAR ===== -->
+  <div class="earn-snackbar" id="payout-error-snackbar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+    <span>Payout couldn't go through</span>
+    <span class="earn-snackbar-retry" data-a11y-id="coach.earnings.snackbar.retry" onclick="openWithdrawSheet();hideSnackbar();">Retry</span>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     SCREEN: PENDING (breakdown of Card "Pending" total)
+     Reached by tapping the Pending col on Card hero. Simple list of
+     individual sessions whose payouts are still in Stripe's 24h hold,
+     plus inline "Why pending?" info banner (replaces the old info-sheet).
+     Reuses canonical .fit-detail-hero / .earn-banner.info / .fit-txn
+     patterns — no new page-local CSS.
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-pending">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.earnings.pending.back" onclick="go('s-earnings',document.querySelector('[onclick*=s-earnings]'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="fit-header-title">Pending</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- Hero — total + count + clearance window -->
+    <div class="fit-detail-hero" style="margin:0 16px 16px;">
+      <div class="fit-detail-hero-amt plus">&euro;75.00</div>
+      <div class="fit-detail-hero-sub">3 sessions · clears Apr 11–13</div>
+    </div>
+
+    <!-- Inline "Why pending?" — replaces the old info-sheet -->
+    <div class="earn-banner info" style="margin:0 16px 16px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      <div class="earn-banner-body">
+        <div style="font-weight:500;color:var(--fit-text-primary);margin-bottom:2px;">Funds wait 24h before becoming available</div>
+        <div style="font-size:13px;color:var(--fit-text-secondary);line-height:1.4;">This window covers cancellations and no-shows — so what moves into your balance is final.</div>
+      </div>
+    </div>
+
+    <!-- Sessions list — same row layout as Recent activity on s-earnings:
+         arrow icon + body (athlete + Card badge / session sub) + amount.
+         Clearance time added as a second sub line in teal — extra meta
+         only this screen needs; row shape stays canonical. -->
+    <div style="font-size:13px;font-weight:500;color:var(--fit-text-secondary);padding:0 16px 8px;text-transform:uppercase;letter-spacing:0.4px;">Sessions in hold</div>
+    <div class="fit-txn-group" style="margin:0 16px;">
+
+      <div class="fit-txn" data-method="card" data-a11y-id="coach.earnings.pending.row" onclick="go('s-txn-earning',document.querySelector('[onclick*=s-txn-earning]'))">
+        <div class="fit-txn-icon fit-txn-icon--in">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg>
+        </div>
+        <div class="fit-txn-body">
+          <div class="fit-txn-title">Anna K.
+            <span class="earn-method-tag card">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              Card
+            </span>
+          </div>
+          <div class="fit-txn-sub">Basketball Training &middot; Today, 12:00</div>
+          <div class="fit-txn-sub" style="color:var(--fit-teal-500);margin-top:2px;">Clears tomorrow 12:00</div>
+        </div>
+        <div class="fit-txn-amt fit-txn-amt--plus">+&euro;50.00</div>
+      </div>
+
+      <div class="fit-txn" data-method="card" data-a11y-id="coach.earnings.pending.row" onclick="go('s-txn-earning',document.querySelector('[onclick*=s-txn-earning]'))">
+        <div class="fit-txn-icon fit-txn-icon--in">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg>
+        </div>
+        <div class="fit-txn-body">
+          <div class="fit-txn-title">Maya P.
+            <span class="earn-method-tag card">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              Card
+            </span>
+          </div>
+          <div class="fit-txn-sub">Yoga Private &middot; Today, 14:00</div>
+          <div class="fit-txn-sub" style="color:var(--fit-teal-500);margin-top:2px;">Clears tomorrow 14:00</div>
+        </div>
+        <div class="fit-txn-amt fit-txn-amt--plus">+&euro;25.00</div>
+      </div>
+
+      <div class="fit-txn" data-method="card" data-a11y-id="coach.earnings.pending.row" onclick="go('s-txn-earning',document.querySelector('[onclick*=s-txn-earning]'))">
+        <div class="fit-txn-icon fit-txn-icon--in">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg>
+        </div>
+        <div class="fit-txn-body">
+          <div class="fit-txn-title">Tom N.
+            <span class="earn-method-tag card">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              Card
+            </span>
+          </div>
+          <div class="fit-txn-sub">Morning Run &middot; Yesterday, 08:00</div>
+          <div class="fit-txn-sub" style="color:var(--fit-teal-500);margin-top:2px;">Clears today 08:00</div>
+        </div>
+        <div class="fit-txn-amt fit-txn-amt--plus">+&euro;0.00</div>
+      </div>
+
+    </div>
+
+    <!-- Footer info — next payout summary -->
+    <div style="margin:16px;padding:14px;border-radius:12px;background:var(--fit-surface-low);font-size:13px;color:var(--fit-text-secondary);line-height:1.5;text-align:center;">
+      Once cleared, funds move to <strong style="color:var(--fit-text-primary);">Available</strong>.<br>
+      Next payout: <strong style="color:var(--fit-text-primary);">Mon, Apr 27</strong>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== TRANSACTIONS (full list) ===== -->
+<div class="fit-phone fit-dark ts-filled" id="s-transactions">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.earnings.transactions.back" onclick="go('s-earnings',document.querySelector('[onclick*=s-earnings]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Transactions</span>
+    </div>
+  </div>
+
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+    <!-- Sticky: search + filter chips pinned; the list scrolls underneath -->
+    <div class="hist-sticky">
+    <div class="earn-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search athlete, session, amount…" data-a11y-id="coach.earnings.transactions.search" oninput="earnSearch('s-transactions', this.value)">
+    </div>
+    <!-- Filter chips -->
+    <div class="fit-filter-row">
+      <div class="fit-filter-chip active" data-a11y-id="coach.earnings.transactions.filter-chip" data-filter="all" onclick="setFilter(this)">All</div>
+      <div class="fit-filter-chip" data-a11y-id="coach.earnings.transactions.filter-chip" data-filter="earnings" onclick="setFilter(this)">Earnings</div>
+      <div class="fit-filter-chip" data-a11y-id="coach.earnings.transactions.filter-chip" data-filter="payouts" onclick="setFilter(this)">Payouts</div>
+      <div class="fit-filter-chip" data-a11y-id="coach.earnings.transactions.filter-chip" data-filter="refunds" onclick="setFilter(this)">Refunds</div>
+    </div>
+    </div><!-- /.hist-sticky -->
+
+    <!-- FILLED -->
+    <div data-txn-state="filled">
+      <div class="fit-txn-date">April 2026</div>
+      <div class="fit-txn-group">
+        <div class="fit-txn" data-a11y-id="coach.earnings.transactions.row" data-kind="earning" onclick="go('s-txn-earning',document.querySelector('[onclick*=s-txn-earning]'))">
+          <div class="fit-txn-icon fit-txn-icon--in">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg>
+          </div>
+          <div class="fit-txn-body">
+            <div class="fit-txn-title">Marco Rossi</div>
+            <div class="fit-txn-sub">Tennis training</div>
+            <div class="fit-txn-meta">Tue, Apr 21 &middot; 18:00</div>
+          </div>
+          <div class="fit-txn-amt fit-txn-amt--plus">+&euro;25.00</div>
+        </div>
+        <div class="fit-txn" data-a11y-id="coach.earnings.transactions.row" data-kind="earning">
+          <div class="fit-txn-icon fit-txn-icon--in">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg>
+          </div>
+          <div class="fit-txn-body">
+            <div class="fit-txn-title">Group &middot; Padel</div>
+            <div class="fit-txn-sub">4 athletes</div>
+            <div class="fit-txn-meta">Mon, Apr 20 &middot; 19:00</div>
+          </div>
+          <div class="fit-txn-amt fit-txn-amt--plus">+&euro;60.00</div>
+        </div>
+        <div class="fit-txn" data-a11y-id="coach.earnings.transactions.row" data-kind="payout" onclick="go('s-txn-payout',document.querySelector('[onclick*=s-txn-payout]'))">
+          <div class="fit-txn-icon fit-txn-icon--info">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+          </div>
+          <div class="fit-txn-body">
+            <div class="fit-txn-title">Payout to Stripe</div>
+            <div class="fit-txn-sub">Weekly batch</div>
+            <div class="fit-txn-meta">Mon, Apr 20</div>
+          </div>
+          <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;275.00</div>
+        </div>
+        <div class="fit-txn" data-a11y-id="coach.earnings.transactions.row" data-kind="earning">
+          <div class="fit-txn-icon fit-txn-icon--in">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg>
+          </div>
+          <div class="fit-txn-body">
+            <div class="fit-txn-title">Sarah Chen</div>
+            <div class="fit-txn-sub">Padel training</div>
+            <div class="fit-txn-meta">Sun, Apr 19 &middot; 10:00</div>
+          </div>
+          <div class="fit-txn-amt fit-txn-amt--plus">+&euro;30.00</div>
+        </div>
+        <div class="fit-txn" data-a11y-id="coach.earnings.transactions.row" data-kind="refund">
+          <div class="fit-txn-icon fit-txn-icon--danger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l3-3 3 3M3 4v10a3 3 0 003 3h10M21 17l-3 3-3-3M21 20V10a3 3 0 00-3-3H8"/></svg>
+          </div>
+          <div class="fit-txn-body">
+            <div class="fit-txn-title">Refund &middot; Luis Garcia</div>
+            <div class="fit-txn-sub">Cancelled &lt; 24h</div>
+            <div class="fit-txn-meta">Fri, Apr 17</div>
+          </div>
+          <div class="fit-txn-amt" style="color:var(--fit-red-400);">&minus;&euro;12.50</div>
+        </div>
+      </div>
+
+      <div class="fit-txn-date">March 2026</div>
+      <div class="fit-txn-group">
+        <div class="fit-txn">
+          <div class="fit-txn-icon fit-txn-icon--info">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+          </div>
+          <div class="fit-txn-body">
+            <div class="fit-txn-title">Payout to Stripe</div>
+            <div class="fit-txn-sub">Weekly batch</div>
+            <div class="fit-txn-meta">Mon, Mar 30</div>
+          </div>
+          <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;405.00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMPTY -->
+    <div data-txn-state="empty">
+      <div class="fit-empty-state" style="padding-top:48px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
+        <div class="fit-empty-state-title">No transactions yet</div>
+        <div class="fit-empty-state-sub">Earnings and payouts will appear here as sessions complete.</div>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div data-txn-state="loading">
+      <div class="earn-sk-group" style="margin-top:12px;">
+        <div class="earn-sk">
+          <div class="earn-sk-circle"></div>
+          <div class="earn-sk-lines">
+            <div class="earn-sk-line" style="width:60%;"></div>
+            <div class="earn-sk-line short"></div>
+          </div>
+        </div>
+        <div class="earn-sk">
+          <div class="earn-sk-circle"></div>
+          <div class="earn-sk-lines">
+            <div class="earn-sk-line" style="width:50%;"></div>
+            <div class="earn-sk-line short"></div>
+          </div>
+        </div>
+        <div class="earn-sk">
+          <div class="earn-sk-circle"></div>
+          <div class="earn-sk-lines">
+            <div class="earn-sk-line" style="width:70%;"></div>
+            <div class="earn-sk-line short"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== EARNING DETAIL ===== -->
+<div class="fit-phone fit-dark" id="s-txn-earning">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.earnings.txn-earning.back" onclick="go('s-transactions',document.querySelector('[onclick*=s-transactions]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Earning</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+    <div class="fit-detail-hero">
+      <div class="fit-detail-hero-amt plus">+&euro;25.00</div>
+      <div class="fit-detail-hero-sub">Tue, Apr 21 &middot; 18:00</div>
+      <span class="fit-badge fit-badge-accent" style="margin-top:4px;">Available</span>
+    </div>
+
+    <div class="earn-section-head">
+      <div class="earn-section-label">Session</div>
+    </div>
+    <div class="fit-kv-group">
+      <div class="fit-kv">
+        <span class="fit-kv-label">Athlete</span>
+        <span class="fit-kv-value">Marco Rossi</span>
+      </div>
+      <div class="fit-kv">
+        <span class="fit-kv-label">Training</span>
+        <span class="fit-kv-value">Tennis 1:1</span>
+      </div>
+      <div class="fit-kv">
+        <span class="fit-kv-label">Duration</span>
+        <span class="fit-kv-value">60 min</span>
+      </div>
+      <div class="fit-kv">
+        <span class="fit-kv-label">Location</span>
+        <span class="fit-kv-value">TNT Studio</span>
+      </div>
+    </div>
+
+    <div class="earn-section-head">
+      <div class="earn-section-label">Payment</div>
+    </div>
+    <div class="fit-kv-group">
+      <div class="fit-kv">
+        <span class="fit-kv-label">Session price</span>
+        <span class="fit-kv-value">&euro;25.00</span>
+      </div>
+      <div class="fit-kv">
+        <span class="fit-kv-label">Platform fee</span>
+        <span class="fit-kv-value muted">&euro;0.00</span>
+      </div>
+      <div class="fit-kv">
+        <span class="fit-kv-label">You earned</span>
+        <span class="fit-kv-value" style="color:var(--fit-teal-500);">&euro;25.00</span>
+      </div>
+      <div class="fit-kv">
+        <span class="fit-kv-label">Released</span>
+        <span class="fit-kv-value">Wed, Apr 22 &middot; 18:00</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== CASH EARNING DETAIL ===== -->
+<div class="fit-phone fit-dark" id="s-txn-cash" data-cash-status="pending">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.earnings.txn-cash.back" onclick="go('s-transactions',document.querySelector('[onclick*=s-transactions]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Cash earning</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div class="fit-detail-hero">
+      <div class="fit-detail-hero-amt plus">+&euro;30.00</div>
+      <div class="fit-detail-hero-sub">Mon, Apr 20 &middot; 09:00</div>
+      <div data-cash-status="received" class="cash-detail-pill cash-detail-pill--received">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Received
+      </div>
+      <div data-cash-status="pending" class="cash-detail-pill cash-detail-pill--unpaid">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        Unpaid
+      </div>
+      <div data-cash-status="waived" class="cash-detail-pill cash-detail-pill--waived">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Payment waived
+      </div>
+    </div>
+
+    <div class="earn-section-head">
+      <div class="earn-section-label">Session</div>
+    </div>
+    <div class="fit-kv-group">
+      <div class="fit-kv">
+        <span class="fit-kv-label">Athlete</span>
+        <span class="fit-kv-value">Anna M&uuml;ller</span>
+      </div>
+      <div class="fit-kv">
+        <span class="fit-kv-label">Training</span>
+        <span class="fit-kv-value">Yoga 1:1</span>
+      </div>
+      <div class="fit-kv">
+        <span class="fit-kv-label">Duration</span>
+        <span class="fit-kv-value">60 min</span>
+      </div>
+      <div class="fit-kv">
+        <span class="fit-kv-label">Location</span>
+        <span class="fit-kv-value">Studio A</span>
+      </div>
+    </div>
+
+    <div class="earn-section-head">
+      <div class="earn-section-label">Payment</div>
+    </div>
+    <div class="fit-kv-group">
+      <div class="fit-kv">
+        <span class="fit-kv-label">Session price</span>
+        <span class="fit-kv-value">&euro;30.00</span>
+      </div>
+      <div class="fit-kv">
+        <span class="fit-kv-label">Method</span>
+        <span class="fit-kv-value" style="display:inline-flex;align-items:center;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
+          Cash
+        </span>
+      </div>
+      <div class="fit-kv" data-cash-status="received">
+        <span class="fit-kv-label">Marked paid</span>
+        <span class="fit-kv-value">Mon, Apr 20 &middot; 09:30</span>
+      </div>
+      <div class="fit-kv" data-cash-status="pending">
+        <span class="fit-kv-label">Status</span>
+        <span class="fit-kv-value" style="color:#F7C948;">Unpaid</span>
+      </div>
+      <div class="fit-kv" data-cash-status="waived">
+        <span class="fit-kv-label">Waived</span>
+        <span class="fit-kv-value">Mon, Apr 20 &middot; 11:42</span>
+      </div>
+    </div>
+
+    <!-- Action area — only shown in pending state. Drawer with 2 options replaces single Mark-as-paid button. -->
+    <div style="padding:24px 16px 0;display:flex;flex-direction:column;gap:8px;" data-cash-status="pending">
+      <div class="earn-banner info" style="margin:0 0 12px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        <div class="earn-banner-body">
+          <div style="font-size:13px;line-height:1.45;">Cash sessions don't auto-track. Mark how this one settles &mdash; paid or waived &mdash; so your ledger stays clean.</div>
+        </div>
+      </div>
+      <button class="fit-btn fit-btn-primary" data-a11y-id="coach.earnings.txn-cash.manage" onclick="openCashActionsSheet()">Manage payment</button>
+    </div>
+
+  </div>
+
+  <!-- ===== Cash actions drawer (triggered by "Manage payment" CTA) ===== -->
+  <div class="fit-sheet-overlay" id="cash-actions-sheet">
+    <div class="fit-sheet compact">
+      <div class="fit-sheet-handle"></div>
+      <div style="margin:6px 0 18px;text-align:center;">
+        <div style="font-size:18px;font-weight:500;color:var(--fit-text-primary);">Mark Anna's payment</div>
+        <div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:4px;">Yoga 1:1 &middot; &euro;30 &middot; Mon, Apr 20</div>
+      </div>
+
+      <button class="cash-action-row primary" data-a11y-id="coach.earnings.txn-cash.mark-paid" onclick="markCashPaid()">
+        <div class="cash-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="cash-action-body">
+          <div class="cash-action-title">Mark as paid</div>
+          <div class="cash-action-sub">Anna handed you &euro;30 in cash &mdash; counts as income.</div>
+        </div>
+      </button>
+
+      <button class="cash-action-row destructive" data-a11y-id="coach.earnings.txn-cash.waive" onclick="markCashWaived()">
+        <div class="cash-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+        <div class="cash-action-body">
+          <div class="cash-action-title">Waive payment</div>
+          <div class="cash-action-sub">No charge to Anna &mdash; debt cleared. Session still counts toward your stats, &euro;0 income.</div>
+        </div>
+      </button>
+
+      <button style="width:100%;height:50px;margin-top:14px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" data-a11y-id="coach.earnings.txn-cash.actions.close" onclick="closeCashActionsSheet()">Close</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== EARNINGS HISTORY (unified, filter All / Card / Cash) ===== -->
+<div class="fit-phone fit-dark" id="s-earnings-history" data-history-filter="all">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.earnings.history.back" onclick="go('s-earnings',document.querySelector('[onclick*=s-earnings]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Earnings history</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- Lifetime hero — same .fit-detail-hero used by Earning / Cash / Payout details -->
+    <div class="fit-detail-hero">
+      <div class="fit-detail-hero-amt minus">
+        <span data-show="all">&euro;2,840</span>
+        <span data-show="card">&euro;2,100</span>
+        <span data-show="cash">&euro;740</span>
+      </div>
+      <div class="fit-detail-hero-sub">
+        <span data-show="all">Lifetime &middot; all sources</span>
+        <span data-show="card">Lifetime &middot; Card via Stripe</span>
+        <span data-show="cash">Lifetime &middot; Cash</span>
+      </div>
+    </div>
+
+    <!-- Sticky: search + filter chips pinned; the breakdown scrolls underneath -->
+    <div class="hist-sticky">
+    <div class="earn-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search period, source, amount…" data-a11y-id="coach.earnings.history.search" oninput="earnSearch('s-earnings-history', this.value)">
+    </div>
+    <!-- Filter chips -->
+    <div class="fit-filter-row">
+      <button class="fit-filter-chip active" data-a11y-id="coach.earnings.history.filter-chip" data-filter="all" onclick="setHistoryFilter('all',this)">All</button>
+      <button class="fit-filter-chip" data-a11y-id="coach.earnings.history.filter-chip" data-filter="card" onclick="setHistoryFilter('card',this)">Card</button>
+      <button class="fit-filter-chip" data-a11y-id="coach.earnings.history.filter-chip" data-filter="cash" onclick="setHistoryFilter('cash',this)">Cash</button>
+    </div>
+    </div><!-- /.hist-sticky -->
+
+    <!-- 2026 -->
+    <div class="hist-year">2026</div>
+    <div class="fit-kv-group">
+      <div class="fit-kv">
+        <div class="hist-kv-label-stack">
+          <span class="name current">April &middot; current</span>
+          <span class="breakdown" data-show="all-sub">&euro;480 Card &middot; &euro;120 Cash</span>
+          <span class="breakdown" data-show="card-sub">8 sessions</span>
+          <span class="breakdown" data-show="cash-sub">4 sessions</span>
+        </div>
+        <span class="fit-kv-value">
+          <span data-show="all">&euro;600</span>
+          <span data-show="card">&euro;480</span>
+          <span data-show="cash">&euro;120</span>
+        </span>
+      </div>
+      <div class="fit-kv">
+        <div class="hist-kv-label-stack">
+          <span class="name">March</span>
+          <span class="breakdown" data-show="all-sub">&euro;450 Card &middot; &euro;130 Cash</span>
+          <span class="breakdown" data-show="card-sub">9 sessions</span>
+          <span class="breakdown" data-show="cash-sub">5 sessions</span>
+        </div>
+        <span class="fit-kv-value">
+          <span data-show="all">&euro;580</span>
+          <span data-show="card">&euro;450</span>
+          <span data-show="cash">&euro;130</span>
+        </span>
+      </div>
+      <div class="fit-kv">
+        <div class="hist-kv-label-stack">
+          <span class="name">February</span>
+          <span class="breakdown" data-show="all-sub">&euro;290 Card &middot; &euro;130 Cash</span>
+          <span class="breakdown" data-show="card-sub">6 sessions</span>
+          <span class="breakdown" data-show="cash-sub">4 sessions</span>
+        </div>
+        <span class="fit-kv-value">
+          <span data-show="all">&euro;420</span>
+          <span data-show="card">&euro;290</span>
+          <span data-show="cash">&euro;130</span>
+        </span>
+      </div>
+      <div class="fit-kv">
+        <div class="hist-kv-label-stack">
+          <span class="name">January</span>
+          <span class="breakdown" data-show="all-sub">&euro;380 Card &middot; &euro;130 Cash</span>
+          <span class="breakdown" data-show="card-sub">7 sessions</span>
+          <span class="breakdown" data-show="cash-sub">5 sessions</span>
+        </div>
+        <span class="fit-kv-value">
+          <span data-show="all">&euro;510</span>
+          <span data-show="card">&euro;380</span>
+          <span data-show="cash">&euro;130</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- 2025 -->
+    <div class="hist-year">2025</div>
+    <div class="fit-kv-group">
+      <div class="fit-kv">
+        <div class="hist-kv-label-stack">
+          <span class="name">December</span>
+          <span class="breakdown" data-show="all-sub">&euro;320 Card &middot; &euro;110 Cash</span>
+          <span class="breakdown" data-show="card-sub">7 sessions</span>
+          <span class="breakdown" data-show="cash-sub">4 sessions</span>
+        </div>
+        <span class="fit-kv-value">
+          <span data-show="all">&euro;430</span>
+          <span data-show="card">&euro;320</span>
+          <span data-show="cash">&euro;110</span>
+        </span>
+      </div>
+      <div class="fit-kv">
+        <div class="hist-kv-label-stack">
+          <span class="name">November</span>
+          <span class="breakdown" data-show="all-sub">&euro;180 Card &middot; &euro;120 Cash</span>
+          <span class="breakdown" data-show="card-sub">5 sessions</span>
+          <span class="breakdown" data-show="cash-sub">4 sessions</span>
+        </div>
+        <span class="fit-kv-value">
+          <span data-show="all">&euro;300</span>
+          <span data-show="card">&euro;180</span>
+          <span data-show="cash">&euro;120</span>
+        </span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ===== PAYOUT DETAIL ===== -->
+<div class="fit-phone fit-dark" id="s-txn-payout">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.earnings.txn-payout.back" onclick="go('s-transactions',document.querySelector('[onclick*=s-transactions]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Payout</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+    <div class="fit-detail-hero">
+      <div class="fit-detail-hero-amt minus">&euro;275.00</div>
+      <div class="fit-detail-hero-sub">Weekly batch &middot; Mon, Apr 20</div>
+      <span class="fit-badge fit-badge-info" style="margin-top:4px;">Completed</span>
+    </div>
+
+    <div class="earn-section-head">
+      <div class="earn-section-label">Payout</div>
+    </div>
+    <div class="fit-kv-group">
+      <div class="fit-kv">
+        <span class="fit-kv-label">Destination</span>
+        <span class="fit-kv-value">Stripe &middot; &bull;&bull;&bull;&bull; 4821</span>
+      </div>
+      <div class="fit-kv">
+        <span class="fit-kv-label">Initiated</span>
+        <span class="fit-kv-value">Mon, Apr 20 &middot; 09:00</span>
+      </div>
+      <div class="fit-kv">
+        <span class="fit-kv-label">Arrived</span>
+        <span class="fit-kv-value">Tue, Apr 21 &middot; 11:24</span>
+      </div>
+      <div class="fit-kv">
+        <span class="fit-kv-label">Fee</span>
+        <span class="fit-kv-value muted">&euro;0.00</span>
+      </div>
+    </div>
+
+    <div class="earn-section-head">
+      <div class="earn-section-label">Included earnings (8)</div>
+    </div>
+    <div class="fit-txn-group">
+      <div class="fit-txn">
+        <div class="fit-txn-icon fit-txn-icon--in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg></div>
+        <div class="fit-txn-body"><div class="fit-txn-title">Luis Garcia</div><div class="fit-txn-sub">Tennis &middot; Sun, Apr 19</div></div>
+        <div class="fit-txn-amt fit-txn-amt--plus">+&euro;25.00</div>
+      </div>
+      <div class="fit-txn">
+        <div class="fit-txn-icon fit-txn-icon--in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg></div>
+        <div class="fit-txn-body"><div class="fit-txn-title">Group &middot; Padel</div><div class="fit-txn-sub">4 athletes &middot; Sat, Apr 18</div></div>
+        <div class="fit-txn-amt fit-txn-amt--plus">+&euro;60.00</div>
+      </div>
+      <div class="fit-txn">
+        <div class="fit-txn-icon fit-txn-icon--in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg></div>
+        <div class="fit-txn-body"><div class="fit-txn-title">Sarah Chen</div><div class="fit-txn-sub">Padel &middot; Fri, Apr 17</div></div>
+        <div class="fit-txn-amt fit-txn-amt--plus">+&euro;30.00</div>
+      </div>
+      <div class="fit-txn" style="justify-content:center;color:var(--fit-text-tertiary);font-size:13px;cursor:default;">+5 more</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== PAYOUT METHODS ===== -->
+<div class="fit-phone fit-dark mm-single" id="s-methods">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.earnings.methods.back" onclick="go('s-earnings',document.querySelector('[onclick*=s-earnings]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Payout methods</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;position:relative;">
+
+    <!-- ===== STATE: EMPTY (no methods connected) ===== -->
+    <div data-mm-state="empty">
+      <div class="earn-info-para">
+        Choose how you'll receive payouts. You can add more methods later.
+      </div>
+
+      <div style="padding:0 16px;">
+        <div class="earn-method-card" data-a11y-id="coach.earnings.methods.row" data-provider="stripe" onclick="startStripeOnboarding()">
+          <div class="earn-method-logo stripe">S</div>
+          <div class="earn-method-info">
+            <div class="earn-method-title">Stripe</div>
+            <div class="earn-method-sub">Fast setup &middot; 2&ndash;5 minutes</div>
+          </div>
+          <button class="earn-method-connect" data-a11y-id="coach.earnings.methods.connect" data-provider="stripe" onclick="event.stopPropagation();startStripeOnboarding();">
+            Connect
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+
+        <div class="earn-method-card disabled" style="margin-top:8px;">
+          <div class="earn-method-logo revolut">R</div>
+          <div class="earn-method-info">
+            <div class="earn-method-title">Revolut Business</div>
+            <div class="earn-method-sub">Coming soon</div>
+          </div>
+          <span class="earn-method-soon">Soon</span>
+        </div>
+      </div>
+
+      <div style="padding:24px 16px;">
+        <div style="font-size:13px;color:var(--fit-text-tertiary);line-height:1.5;">
+          We never hold your banking details &mdash; Stripe handles verification and transfers securely.
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STATE: SINGLE (MVP — 1 method connected) ===== -->
+    <div data-mm-state="single">
+      <div class="earn-info-para">
+        Your payouts go to the default method. Add more to keep backups.
+      </div>
+
+      <div style="padding:0 16px;">
+        <div class="earn-method-card" data-a11y-id="coach.earnings.methods.row" data-provider="stripe" onclick="window.location.href='stripe.html#done'">
+          <div class="earn-method-logo stripe">S</div>
+          <div class="earn-method-info">
+            <div class="earn-method-title">Stripe &middot; &bull;&bull;&bull;&bull; 4821</div>
+            <div class="earn-method-sub connected"><span class="earn-success-dot"></span>Connected &middot; Default</div>
+          </div>
+          <button class="earn-method-more" data-a11y-id="coach.earnings.methods.more-menu" data-provider="stripe" onclick="event.stopPropagation();openMethodMenu(this,'stripe','single');">
+            <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+          </button>
+        </div>
+
+        <div class="earn-method-card disabled" style="margin-top:8px;">
+          <div class="earn-method-logo revolut">R</div>
+          <div class="earn-method-info">
+            <div class="earn-method-title">Revolut Business</div>
+            <div class="earn-method-sub">Coming soon</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STATE: MULTI (future — 2+ methods connected) ===== -->
+    <div data-mm-state="multi">
+      <div class="earn-info-para">
+        Tap the circle to change your default payout method.
+      </div>
+
+      <div style="padding:0 16px;">
+        <div class="earn-method-card" data-a11y-id="coach.earnings.methods.row" data-provider="stripe" onclick="window.location.href='stripe.html#done'">
+          <div class="earn-method-radio checked" data-a11y-id="coach.earnings.methods.radio" data-provider="stripe" onclick="event.stopPropagation();setDefault(this,'stripe');">
+            <div class="earn-method-radio-inner"></div>
+          </div>
+          <div class="earn-method-logo stripe">S</div>
+          <div class="earn-method-info">
+            <div class="earn-method-title">Stripe &middot; &bull;&bull;&bull;&bull; 4821</div>
+            <div class="earn-method-sub connected"><span class="earn-success-dot"></span>Default</div>
+          </div>
+          <button class="earn-method-more" data-a11y-id="coach.earnings.methods.more-menu" data-provider="stripe" onclick="event.stopPropagation();openMethodMenu(this,'stripe','multi-default');">
+            <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+          </button>
+        </div>
+
+        <div class="earn-method-card" data-a11y-id="coach.earnings.methods.row" data-provider="revolut" style="margin-top:8px;">
+          <div class="earn-method-radio" data-a11y-id="coach.earnings.methods.radio" data-provider="revolut" onclick="event.stopPropagation();setDefault(this,'revolut');">
+            <div class="earn-method-radio-inner"></div>
+          </div>
+          <div class="earn-method-logo revolut">R</div>
+          <div class="earn-method-info">
+            <div class="earn-method-title">Revolut &middot; &bull;&bull;&bull;&bull; 2198</div>
+            <div class="earn-method-sub connected"><span class="earn-success-dot"></span>Connected</div>
+          </div>
+          <button class="earn-method-more" data-a11y-id="coach.earnings.methods.more-menu" data-provider="revolut" onclick="event.stopPropagation();openMethodMenu(this,'revolut','multi-backup');">
+            <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:24px 16px;">
+      <div style="font-size:13px;color:var(--fit-text-tertiary);line-height:1.5;">
+        More providers will be available soon. If you need a specific one, let us know.
+      </div>
+    </div>
+
+    <!-- Context menu + backdrop -->
+    <div class="fit-context-menu-backdrop" id="mm-menu-backdrop" onclick="closeMethodMenu()"></div>
+    <div class="earn-ctx" id="mm-menu">
+      <div class="earn-ctx-item" data-a11y-id="coach.earnings.methods.context-menu.set-default" data-ctx-set-default onclick="setDefaultFromMenu()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Set as default
+      </div>
+      <div class="earn-ctx-item danger" data-a11y-id="coach.earnings.methods.context-menu.disconnect" onclick="openDisconnectSheet()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 11-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+        Disconnect
+      </div>
+    </div>
+
+    <!-- Toast for "set as default" -->
+    <div class="fit-toast" id="mm-default-toast" style="border-left:3px solid var(--fit-teal-500);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>
+      <span style="font-size:14px;" id="mm-default-toast-text">Stripe is now your default</span>
+    </div>
+  </div>
+
+  <!-- ===== DISCONNECT WARNING SHEET ===== -->
+  <div class="fit-sheet-overlay" id="disconnect-sheet">
+    <div class="fit-sheet compact">
+      <div class="fit-sheet-handle"></div>
+
+      <!-- ONLY method variant (warning — payouts will pause) -->
+      <div data-dc-variant="only">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin:12px 0 20px;text-align:center;">
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(247,201,72,0.12);display:flex;align-items:center;justify-content:center;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F7C948" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div style="font-size:18px;font-weight:500;">Disconnect your only payout method?</div>
+          <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:300px;">
+            Payouts will be paused until you add another method &mdash; your earnings will stay on hold, but completed sessions still bank correctly.
+          </div>
+        </div>
+      </div>
+
+      <!-- BACKUP-exists variant (soft confirm — payouts re-route) -->
+      <div data-dc-variant="backup">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin:12px 0 20px;text-align:center;">
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(240,92,91,0.12);display:flex;align-items:center;justify-content:center;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 11-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+          </div>
+          <div style="font-size:18px;font-weight:500;">Disconnect <span data-dc-provider-name>Stripe</span>?</div>
+          <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:300px;">
+            Your next payout will go to <strong data-dc-fallback-name>Revolut</strong>. You can reconnect anytime.
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-destructive" data-a11y-id="coach.earnings.methods.disconnect.confirm" onclick="confirmDisconnect()">Disconnect</button>
+        <button class="fit-btn fit-btn-secondary" data-a11y-id="coach.earnings.methods.disconnect.cancel" onclick="closeDisconnectSheet()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Stripe screens moved to coach/stripe.html (separate flow) on 2026-06-02. -->
+<!-- Cross-flow entry points: earnings card CTAs + s-methods Stripe row -> stripe.html#<state> -->
+
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+
+  <div class="ann active" id="ann-s-earnings"><span class="ann-role coach">Coach</span><h3>Earnings</h3>
+
+    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Card / Stripe state</div>
+    <div class="state-toggle" data-toggle-row="card">
+      <button onclick="setCardState('lock',this)">Lock</button>
+      <button onclick="setCardState('verifying',this)">Verifying</button>
+      <button onclick="setCardState('action',this)">Action</button>
+      <button onclick="setCardState('zero',this)">Zero</button>
+      <button class="active" onclick="setCardState('active',this)">Active (MVP)</button>
+      <button onclick="setCardState('premium',this)">+ Instant</button>
+    </div>
+
+    <p><strong>v2 — Revolut-style dashboard.</strong> Variant of <code>balance.html</code> (kept for rollback). Parallel to the athlete <code>balance-v2.html</code>. The two swipe cards are replaced by <strong>one account card + analytics widgets + unified Recent</strong>.</p>
+
+    <ul>
+      <li><strong>Card / Stripe card</strong> (single, full-width) &mdash; the live account: Available + Pending + Next payout + Withdraw, and all 6 Stripe lifecycle substates (Lock / Verifying / Action / Zero / Active / + Instant). Kept as a card because it carries <em>state + actions</em>, not just a number.</li>
+      <li><strong>Why Cash isn't a card anymore</strong> &mdash; Cash had no balance/states/actions (just a number + owed row), so &mdash; like the athlete's Spending card &mdash; it moves into widgets. Direct parallel to the athlete fork-B decision.</li>
+      <li><strong>Analytics widgets (2×2)</strong> &mdash; <em>This month</em> (card + cash), <em>Cash</em> (collected this month), <em>Owed</em> (red, cash debt → Clients), <em>Total earned</em> (lifetime). They don't duplicate Available/Pending/Next payout (already on the card). Each tile deep-links to filtered history.</li>
+      <li><strong>Recent (unified)</strong> &mdash; all methods + payouts in one list, <code>data-method</code> badge per row. No per-card swap. <strong>View all →</strong> Transactions.</li>
+      <li><strong>History screens (Transactions / Earnings history)</strong> &mdash; search + filter chips are <strong>sticky</strong> (<code>.hist-sticky</code>, <code>position: sticky; top: 0</code>); the list scrolls underneath. Search composes with the chip filter.</li>
+    </ul>
+
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Full behavior spec</span>
+    <div class="ann-detail">
+      <h4>Why Cash default</h4>
+      <p>Cash works for every coach from day 1 (no Stripe setup, no KYC). Defaulting to Cash inverts the empty-state problem &mdash; new coaches see something useful immediately rather than a "Connect Stripe to see your money" wall. Stripe is positioned as the upgrade ("Accept card payments too"), not the gate. Coaches with active Stripe lose one swipe gesture.</p>
+
+      <h4>Swiper mechanics</h4>
+      <p>CSS scroll-snap on the track (<code>scroll-snap-type: x mandatory</code>), each card is <code>flex: 0 0 calc(100% - 40px)</code> &mdash; leaves 12px peek of the next card. Scroll listener updates dot indicator on idle; dots are tappable to programmatically scroll. Native momentum on iOS via <code>-webkit-overflow-scrolling: touch</code>.</p>
+
+      <h4>Cash card states</h4>
+      <p><strong>Active:</strong> "Received this month &euro;120" + "&euro;40 owed by 2 athletes &rarr;" link. <strong>Zero:</strong> empty-state copy "No cash collected yet &mdash; mark sessions paid in Clients to track here". No CTA on the card itself &mdash; entry to Mark Paid lives in Clients / Session detail.</p>
+
+      <h4>Card / Stripe card states (6)</h4>
+      <p>
+        <strong>Lock:</strong> empty + primary CTA "Connect Stripe" &rarr; pushes to <code>#s-stripe</code> in Not set up state.<br>
+        <strong>Verifying:</strong> info banner "Stripe is verifying" + tappable row "View details" &rarr; <code>#s-stripe</code> Verifying.<br>
+        <strong>Action:</strong> warn banner "Action needed: Proof of address" + primary CTA "Resolve now" &rarr; <code>#s-stripe</code> Action required (reopens SDK to the missing requirement).<br>
+        <strong>Zero:</strong> Available / Pending = &euro;0.00 muted + "Finish your first card session to start earning".<br>
+        <strong>Active (MVP):</strong> Available / Pending split + "Next payout &middot; Mon, Apr 27".<br>
+        <strong>+ Instant:</strong> same + "Withdraw" pill with Premium tag + post-MVP notice banner below the swiper.
+      </p>
+
+      <h4>Method badges + filter chips</h4>
+      <p>Each <code>.fit-txn</code> carries <code>data-method="cash|card|payout"</code>. Filter chips set <code>data-filter</code> on the txn group; CSS hides rows not matching. Cash/Card badges visible inline next to txn title for at-a-glance scanning when filter is "All". Payouts row has no inline badge &mdash; identifies itself via icon + title.</p>
+
+      <h4>Hold period (unchanged)</h4>
+      <p>Card earnings enter <strong>Pending</strong> on session complete. After <strong>24h</strong> (no refund/no-show), they move to <strong>Available</strong>. Tap on Pending label &rarr; existing pending-info sheet explains the timeline.</p>
+
+      <h4>Minimum payout threshold (unchanged)</h4>
+      <p>Auto-payout fires only when Available &geq; <strong>&euro;20</strong>. Below &mdash; rolls to next Monday.</p>
+
+      <h4>Lifetime footer</h4>
+      <p>"This month &euro;600 &middot; &euro;2,840 lifetime with 321Fit" &mdash; sums Card available + Cash received (this month) + lifetime equivalent for lifetime. Hidden when both are 0 (brand-new coach has nothing motivational to show yet).</p>
+
+      <h4>API (extended)</h4>
+      <p>
+        <code>GET /coach/earnings/</code> &mdash; new shape: <code>&#123; available, pending, currency, payoutSchedule, defaultProvider, cashOwed: &#123; count, total &#125;, cashReceivedThisMonth, totalIncomeThisMonth, lifetimeTotal &#125;</code><br>
+        <code>GET /coach/transactions/?limit=4&amp;method=cash|card|payout</code> &mdash; preview for Recent activity, optional method filter<br>
+        <code>POST /coach/payout/instant/</code> &mdash; triggers Stripe Instant Payout (post-MVP, premium)<br>
+        Stripe Connect onboarding: see <em>stripe-connect-onboarding.md</em>
+      </p>
+
+      <h4>Backend gap</h4>
+      <p>Currently coach balance is computed on-the-fly from completed events. Needs real <code>coach_balance</code> table + append-only <code>coach_transactions</code> ledger with explicit <code>method</code> column. See <em>project_coach_balance_decisions.md</em>.</p>
+    </div>
+  </div>
+
+  <div class="ann" id="ann-s-pending"><span class="ann-role coach">Coach</span><h3>Pending breakdown</h3>
+    <p>Tap-target replacement for the old <code>pending-info-sheet</code> (the 10×10 ⓘ icon was effectively unreachable on touch).</p>
+    <ul>
+      <li><strong>Entry:</strong> tap anywhere in the Pending col on Card hero (full col is now the hit area; chevron after the label signals tappability — same pattern as Available col)</li>
+      <li><strong>Hero:</strong> total amount + session count + clearance window using canonical <code>.fit-detail-hero</code></li>
+      <li><strong>Inline info banner</strong> replaces the popup sheet — explains the 24h hold rationale</li>
+      <li><strong>Session rows</strong> use canonical <code>.fit-txn</code> + <code>.fit-txn-group</code> — same as Recent activity. Each row → drills into <code>s-txn-earning</code> for that session's full detail.</li>
+      <li><strong>Footer</strong> reminds when funds move to Available + next payout date</li>
+    </ul>
+    <p class="note"><strong>Scope:</strong> Stripe 24h-hold breakdown only. "Upcoming sessions forecast" (cash + card future bookings) is a separate, deferred screen — see <code>project_earnings_open_questions</code> memory.</p>
+  </div>
+
+  <div class="ann" id="ann-s-transactions"><span class="ann-role coach">Coach</span><h3>Transactions</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setTxnState('filled',this)">Filled</button>
+      <button onclick="setTxnState('empty',this)">Empty</button>
+      <button onclick="setTxnState('loading',this)">Loading</button>
+    </div>
+    <p>Full chronological ledger: earnings, payouts, refunds. Grouped by month. Filter chips at top.</p>
+    <ul>
+      <li>Earning rows &mdash; athlete + session + date &middot; green + amount</li>
+      <li>Payout rows &mdash; destination + batch label &middot; neutral &minus; amount</li>
+      <li>Refund rows &mdash; red, cancellation reason in subtitle</li>
+      <li>Tap any row &rarr; detail screen</li>
+    </ul>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Filter + pagination</span>
+    <div class="ann-detail">
+      <h4>Filters</h4>
+      <p>Chips: All / Earnings / Payouts / Refunds. Single-select. Default = All.</p>
+      <h4>Pagination</h4>
+      <p>Infinite scroll by month. First fetch = current + previous month. Scrolling to bottom loads older months.</p>
+      <h4>Empty</h4>
+      <p>Shown when <code>/coach/transactions/</code> returns 0 items AND filter = All. With filter active, empty copy should adapt: <em>"No payouts yet"</em>, etc.</p>
+      <h4>Loading</h4>
+      <p>Skeleton rows during first fetch. For infinite scroll &mdash; inline spinner at the bottom of the list (not skeleton).</p>
+    </div>
+  </div>
+
+  <div class="ann" id="ann-s-txn-earning"><span class="ann-role coach">Coach</span><h3>Earning detail</h3>
+    <p>Drill-down on a single earning. Amount up top with status pill (Pending / Available / Paid out).</p>
+    <ul>
+      <li>Session section &mdash; athlete, training, duration, location</li>
+      <li>Payment section &mdash; price, platform fee (0 today), net, release date</li>
+      <li>From here &rarr; tap athlete &rarr; Client Detail (cross-flow)</li>
+    </ul>
+    <hr>
+    <p class="note"><strong>Status pill:</strong> Pending (gray) &rarr; Available (teal) &rarr; Paid out (blue). When included in a payout batch, shows link to that payout.</p>
+  </div>
+
+  <div class="ann" id="ann-s-txn-cash"><span class="ann-role coach">Coach</span><h3>Cash earning detail</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setCashTxnStatus('pending',this)">Unpaid (default)</button>
+      <button onclick="setCashTxnStatus('received',this)">Received</button>
+      <button onclick="setCashTxnStatus('waived',this)">Waived</button>
+    </div>
+    <p>Per-session detail for a <strong>cash</strong> earning. Same scaffolding as the Card variant (hero + session + payment) but with cash-specific semantics: no 24h hold, no payout reference, no platform fee &mdash; just &laquo;has the athlete handed over the money yet, or did the coach waive the debt?&raquo;</p>
+
+    <p><strong>State machine:</strong> after the cash session is marked Finished, the txn starts as <strong>Unpaid</strong>. Coach taps <em>Manage payment</em> &rarr; bottom drawer with 2 terminal options: <strong>Mark as paid</strong> (&rarr; <strong>Received</strong>) or <strong>Waive payment</strong> (&rarr; <strong>Waived</strong>). Both terminal &mdash; no reverse action (mistakes go through Support; keeps the audit trail clean).</p>
+
+    <ul>
+      <li><strong>Unpaid</strong> &mdash; session done, athlete hasn't handed over the money yet. Hero pill is yellow ("Unpaid"). Info banner explains why we can't auto-track. Primary CTA <em>Manage payment</em> opens the actions drawer.</li>
+      <li><strong>Received</strong> &mdash; coach marked the cash received. Hero pill is teal ("Received"). "Marked paid" timestamp shown in Payment section. No bottom action &mdash; terminal state.</li>
+      <li><strong>Waived</strong> &mdash; coach waived the debt (e.g. athlete had an emergency or no-show with goodwill exception). Hero pill is grey ("Payment waived"). "Waived" timestamp shown in Payment section. Counts toward training-done count in lifetime stats but contributes &euro;0 to income. <strong>Backend status:</strong> <code>payment_waived</code> on the transaction. Athlete receives <strong>no push</strong> (silent goodwill gesture). Terminal &mdash; no reverse.</li>
+    </ul>
+    <hr>
+    <p class="note"><strong>Entry points:</strong> tap any <code>data-method="cash"</code> txn in Recent activity, or tap an athlete in Clients &rarr; Cash owed list (filter on Clients screen, future spec). Both routes land here.</p>
+    <p class="note"><strong>Mark as paid flow:</strong> in prototype the button directly toggles state for demo. In production: bottom sheet confirm ("Confirm Anna paid &euro;30 in cash?") &rarr; backend creates <code>cash_paid</code> ledger row &rarr; toast "Marked as paid" &rarr; screen re-renders in Received state.</p>
+  </div>
+
+  <div class="ann" id="ann-s-earnings-history"><span class="ann-role coach">Coach</span><h3>Earnings history</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setHistoryFilter('all',this)">All</button>
+      <button onclick="setHistoryFilter('card',this)">Card</button>
+      <button onclick="setHistoryFilter('cash',this)">Cash</button>
+    </div>
+    <p><strong>Unified earnings history</strong> &mdash; one screen for "how much did I earn each month" across Cash + Card (+ future providers). Built on existing patterns: <code>.fit-detail-hero</code> for lifetime, <code>.earn-section</code> per year, <code>.fit-kv-group</code> for month rows.</p>
+    <ul>
+      <li><strong>Entry points (3):</strong> tap Cash card top (filter = Cash), tap Card card top (filter = Card), tap lifetime footer (filter = All).</li>
+      <li><strong>Filter chips</strong> mirror the entry: pre-selected based on which card opened it; user can re-filter without leaving.</li>
+      <li><strong>Month rows</strong> show one total (right) + (on All filter) breakdown subline below the month name. Currently <strong>read-only</strong> &mdash; see "Month drill-down" note below.</li>
+      <li><strong>Current month</strong> highlighted in teal with "&middot; current" suffix; signals "this is what's still accumulating".</li>
+      <li><strong>Year separators</strong> (2026 / 2025) using <code>.earn-section-head</code> + <code>.earn-section-title</code>.</li>
+    </ul>
+    <hr>
+    <p class="note"><strong>Why a separate screen vs Transactions?</strong> Transactions is a <em>flat ledger</em> (individual events). This screen is an <em>aggregated summary</em> (per-month totals). Different purposes &mdash; the coach asks "how much did I make in March?" not "show me every transaction in March".</p>
+    <p class="note"><strong>Month drill-down (deferred decision):</strong> Transactions screen has no month filter today. Two paths to enable drill-down:
+      <br>&nbsp;&nbsp;<strong>A.</strong> Add a month filter chip to Transactions (small change &mdash; chip appears at top with "April 2026 &times;" when arriving from here). Cheapest.
+      <br>&nbsp;&nbsp;<strong>B.</strong> New <em>Month Detail</em> screen showing all transactions for that month + summary card at top. More work, more focused UX.
+      <br>Until decision &mdash; month rows are <strong>read-only</strong> (no chevron, no tap). Annotation lists this as the open item.
+    </p>
+    <p class="note"><strong>Lifetime calculation:</strong> shows <strong>net</strong> earnings (gross minus refunds, disputes, fees). What landed in pocket / bank, not what was originally invoiced. Backend computes from <code>coach_transactions</code> ledger filtering on <code>net</code>-affecting types.</p>
+    <p class="note"><strong>Future:</strong> small bar chart at top above filter chips (last 6 months as bars, current highlighted) once we have enough data to make it meaningful.</p>
+    <h4>API</h4>
+    <p><code>GET /coach/earnings/history/?from=YYYY-MM&amp;to=YYYY-MM&amp;method=all|cash|card</code> &mdash; returns <code>&#123; lifetime: &#123;total, card, cash&#125;, months: [&#123;year, month, total, card, cash, sessionCount&#125;...] &#125;</code></p>
+  </div>
+
+  <div class="ann" id="ann-s-txn-payout"><span class="ann-role coach">Coach</span><h3>Payout detail</h3>
+    <p>Batched payout &mdash; shows all included earnings. Amount neutral (not minus red; payout isn't "bad").</p>
+    <ul>
+      <li>Hero with pill: Completed / In transit / Failed</li>
+      <li>Payout metadata: destination, initiated, arrived, fee</li>
+      <li>Included earnings list (grouped, expandable to full list)</li>
+    </ul>
+    <hr>
+    <p class="note"><strong>For Instant payouts:</strong> fee row shows 1% deduction. For weekly batch &mdash; fee = &euro;0.</p>
+  </div>
+
+  <div class="ann" id="ann-s-methods"><span class="ann-role coach">Coach</span><h3>Payout methods</h3>
+    <div class="state-toggle">
+      <button onclick="setMethodsState('empty',this)">Empty</button>
+      <button class="active" onclick="setMethodsState('single',this)">Single (MVP)</button>
+      <button onclick="setMethodsState('multi',this)">Multi (future)</button>
+    </div>
+    <p>Managing connected payout providers. <strong>Default</strong> receives weekly batch (and future Instant) payouts. Others are backup.</p>
+    <ul>
+      <li><strong>Radio on the left</strong> (shown only in Multi) &mdash; primary way to switch default. Instant with toast.</li>
+      <li><strong>&#8943; menu on the right</strong> &mdash; secondary actions: Set as default, Disconnect</li>
+      <li>Tap rest of card &rarr; provider detail (Stripe Connect screen)</li>
+    </ul>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Interaction details</span>
+    <div class="ann-detail">
+      <h4>Empty state</h4>
+      <p>Coach has no payout accounts connected yet &mdash; reached from Earnings <em>Needs payout method</em> CTA. Each provider shows inline "Connect" action. Tapping <strong>Connect</strong> on Stripe launches the <strong>StripeConnect embedded component</strong> (native iOS SDK, <em>not</em> WebView) &mdash; form lives in-app, validation + doc upload + selfie verification all native.</p>
+      <p>After Stripe webhook fires <code>account.updated</code> with <code>charges_enabled &amp; payouts_enabled</code> &rarr; backend creates <code>PayoutAccount</code> with <code>is_default=true</code> &rarr; user returns to <strong>Single (MVP)</strong> state. If webhook reports <code>requirements.currently_due</code> non-empty &rarr; Stripe screen shows <em>Action required</em>.</p>
+      <h4>Single state (MVP)</h4>
+      <p>Only Stripe connected, no radio (default is implicit), &#8943; menu has only Disconnect. Revolut is a "Coming soon" placeholder to show provider abstraction intent.</p>
+      <h4>Multi state (future)</h4>
+      <p>2+ methods connected. Each card has an iOS-style radio on the left. Tapping empty radio = instant switch (toast "X is now your default"). Tapping filled radio does nothing. "Set as default" in &#8943; menu is hidden when the method is already default.</p>
+      <h4>Disconnect behavior</h4>
+      <p><strong>Backup exists:</strong> soft confirm sheet &mdash; "Your next payout will go to &#123;fallback&#125;". Destructive red CTA.</p>
+      <p><strong>Only method:</strong> warning sheet &mdash; yellow triangle + "Payouts will be paused until you add another method &mdash; your earnings will stay on hold". Explicit tradeoff. User can still proceed (not blocked). On confirm &rarr; falls to Needs-payout-method state on Earnings screen.</p>
+      <h4>API</h4>
+      <p><code>GET /coach/payout-methods/</code> &mdash; list (returns &#123;&#125; for empty state)<br><code>POST /coach/payout-methods/stripe/session/</code> &mdash; returns &#123;client_secret&#125; for embedded onboarding component<br><code>PATCH /coach/payout-methods/&#123;id&#125;/ &#123;is_default: true&#125;</code> &mdash; switch default<br><code>DELETE /coach/payout-methods/&#123;id&#125;/</code> &mdash; disconnect (backend must re-route default to next available; pause payouts if none left)</p>
+    </div>
+  </div>
+
+
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+  function switchTheme(theme) {
+    document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
+    document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";
+    document.getElementById("theme-light").style.background = theme === "light" ? "var(--fit-gray-700)" : "transparent";
+    document.getElementById("theme-light").style.color = theme === "light" ? "var(--fit-white)" : "var(--fit-gray-400)";
+    document.querySelectorAll(".fit-phone").forEach(function(phone) {
+      if (theme === "light") { phone.classList.remove("fit-dark"); phone.classList.add("fit-light"); }
+      else { phone.classList.remove("fit-light"); phone.classList.add("fit-dark"); }
+    });
+  }
+
+  function go(id, btn) {
+    document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+    const ann = document.getElementById('ann-' + id);
+    if (ann) ann.classList.add('active');
+    if (window.FitUI && FitUI.initAll) FitUI.initAll(document.getElementById(id));
+  }
+
+  // Earnings state toggles — two independent axes (Cash + Card)
+  function setCashState(state, btn) {
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('s-earnings').setAttribute('data-cash', state);
+  }
+  function setCardState(state, btn) {
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('s-earnings').setAttribute('data-card', state);
+  }
+  // Mirror prior `forcePremiumState` for Stripe Connect "Manage" flow that toggles Instant
+  function forcePremiumState() {
+    document.getElementById('s-earnings').setAttribute('data-card', 'premium');
+    var toggle = document.querySelector('#ann-s-earnings [data-toggle-row="card"]');
+    if (toggle) {
+      toggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      var btns = toggle.querySelectorAll('button');
+      // "Premium" is the last toggle button on the Card axis (index 5)
+      if (btns.length) btns[btns.length - 1].classList.add('active');
+    }
+  }
+
+  // v2: swiper removed (single Stripe card + widgets). Swiper/dot/per-card-Recent
+  // helpers deleted; Recent is now unified and shows all methods.
+
+  function openTransactionsForCurrentCard() {
+    var screen = document.getElementById('s-earnings');
+    var which = screen ? screen.getAttribute('data-recent') : 'cash';
+    var tx = document.getElementById('s-transactions');
+    if (tx) tx.setAttribute('data-prefilter', which || 'all');
+    go('s-transactions', document.querySelector('[onclick*=s-transactions]'));
+  }
+
+  // Earnings history — open from tap on card top / lifetime footer / annotation toggle
+  function openEarningsHistory(filter) {
+    var hist = document.getElementById('s-earnings-history');
+    hist.setAttribute('data-history-filter', filter);
+    // mirror to annotation toggle
+    var ann = document.querySelector('#ann-s-earnings-history .state-toggle');
+    if (ann) {
+      ann.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
+      var map = { all: 0, card: 1, cash: 2 };
+      var idx = map[filter];
+      if (idx != null && ann.querySelectorAll('button')[idx]) ann.querySelectorAll('button')[idx].classList.add('active');
+    }
+    go('s-earnings-history', document.querySelector('[onclick*=s-earnings-history]'));
+  }
+  function setHistoryFilter(filter, btn) {
+    btn.parentElement.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('s-earnings-history').setAttribute('data-history-filter', filter);
+    // mirror to annotation
+    var ann = document.querySelector('#ann-s-earnings-history .state-toggle');
+    if (ann) {
+      ann.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
+      var map = { all: 0, card: 1, cash: 2 };
+      var idx = map[filter];
+      if (idx != null && ann.querySelectorAll('button')[idx]) ann.querySelectorAll('button')[idx].classList.add('active');
+    }
+  }
+
+  // v2: sticky-search on history screens. Composes with the chip filters —
+  // sets inline display:none for non-matching rows; '' lets the chip CSS govern.
+  function earnSearch(scopeId, q) {
+    q = (q || '').trim().toLowerCase();
+    document.querySelectorAll('#' + scopeId + ' .fit-txn, #' + scopeId + ' .fit-kv').forEach(function(r) {
+      r.style.display = (!q || r.textContent.toLowerCase().indexOf(q) !== -1) ? '' : 'none';
+    });
+  }
+
+  // Cash earning detail — status toggle + Mark paid/unpaid (prototype only)
+  function setCashTxnStatus(status, btn) {
+    if (btn) {
+      btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+    document.getElementById('s-txn-cash').setAttribute('data-cash-status', status);
+  }
+  function openCashActionsSheet() {
+    var sheet = document.getElementById('cash-actions-sheet');
+    if (sheet) sheet.classList.add('visible');
+  }
+  function closeCashActionsSheet() {
+    var sheet = document.getElementById('cash-actions-sheet');
+    if (sheet) sheet.classList.remove('visible');
+  }
+  function markCashPaid() {
+    closeCashActionsSheet();
+    // Sync annotation state toggle if present
+    var toggleBtns = document.querySelectorAll('#ann-s-txn-cash .state-toggle button');
+    setCashTxnStatus('received', toggleBtns[0] || null);
+    // Also sync to "Received" toggle button explicitly (index 1 in 3-button toggle)
+    if (toggleBtns.length >= 2) {
+      toggleBtns.forEach(function(b) { b.classList.remove('active'); });
+      toggleBtns[1].classList.add('active');
+    }
+  }
+  function markCashWaived() {
+    closeCashActionsSheet();
+    var toggleBtns = document.querySelectorAll('#ann-s-txn-cash .state-toggle button');
+    setCashTxnStatus('waived', null);
+    // Sync to "Waived" toggle button (index 2 in 3-button toggle)
+    if (toggleBtns.length >= 3) {
+      toggleBtns.forEach(function(b) { b.classList.remove('active'); });
+      toggleBtns[2].classList.add('active');
+    }
+  }
+
+  // Filter chips above Recent activity
+  function setEarnFilter(filter, btn) {
+    btn.parentElement.querySelectorAll('.fit-filter-chip').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    var group = document.querySelector('#s-earnings .fit-txn-group');
+    if (group) group.setAttribute('data-filter', filter);
+  }
+  function setTxnState(state, btn) {
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    var el = document.getElementById('s-transactions');
+    el.classList.remove('ts-filled','ts-empty','ts-loading');
+    el.classList.add('ts-' + state);
+  }
+
+  // Transaction filter chips
+  function setFilter(btn) {
+    btn.parentElement.querySelectorAll('.fit-filter-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  // Payout methods state
+  function setMethodsState(state, btn) {
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    var el = document.getElementById('s-methods');
+    el.classList.remove('mm-empty','mm-single','mm-multi');
+    el.classList.add('mm-' + state);
+    closeMethodMenu();
+  }
+  function setMethodsEmpty() {
+    var el = document.getElementById('s-methods');
+    el.classList.remove('mm-single','mm-multi');
+    el.classList.add('mm-empty');
+    var toggle = document.querySelector('#ann-s-methods .state-toggle');
+    if (toggle) {
+      toggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      var btns = toggle.querySelectorAll('button');
+      if (btns[0]) btns[0].classList.add('active');
+    }
+  }
+  // From empty Methods → start Stripe Connect onboarding (cross-flow to stripe.html).
+  // In iOS: presents StripeConnect embedded component (native, not WebView).
+  function startStripeOnboarding() {
+    window.location.href = 'stripe.html#none';
+  }
+
+  // Context menu for method cards
+  var _mmCurrent = { providerId: null, providerKind: null, isDefault: false };
+  function openMethodMenu(btn, providerId, kind) {
+    _mmCurrent = {
+      providerId: providerId,
+      providerKind: kind,
+      isDefault: kind === 'single' || kind === 'multi-default'
+    };
+    var menu = document.getElementById('mm-menu');
+    var backdrop = document.getElementById('mm-menu-backdrop');
+    // Position menu near the more-button (below + right-aligned)
+    var rect = btn.getBoundingClientRect();
+    var parentRect = btn.closest('.fit-phone-content').getBoundingClientRect();
+    menu.style.top = (rect.bottom - parentRect.top + 4) + 'px';
+    menu.style.right = (parentRect.right - rect.right) + 'px';
+    menu.style.left = 'auto';
+    // Toggle "Set as default" visibility via class
+    menu.classList.toggle('ctx-is-default', _mmCurrent.isDefault);
+    menu.classList.add('open');
+    backdrop.classList.add('visible');
+  }
+  function closeMethodMenu() {
+    var menu = document.getElementById('mm-menu');
+    var backdrop = document.getElementById('mm-menu-backdrop');
+    if (menu) menu.classList.remove('open','ctx-is-default');
+    if (backdrop) backdrop.classList.remove('visible');
+  }
+  function setDefaultFromMenu() {
+    closeMethodMenu();
+    // Flip radio state if in multi mode
+    var sec = document.querySelector('#s-methods [data-mm-state="multi"]');
+    if (sec) {
+      sec.querySelectorAll('.earn-method-radio').forEach(r => r.classList.remove('checked'));
+      var card = sec.querySelector('.earn-method-card:nth-child(' + (_mmCurrent.providerId === 'stripe' ? 1 : 2) + ')');
+      // Simpler: mark by provider logo color (stripe vs revolut)
+      sec.querySelectorAll('.earn-method-card').forEach(function(c) {
+        var logo = c.querySelector('.earn-method-logo');
+        if (logo && logo.classList.contains(_mmCurrent.providerId)) {
+          var radio = c.querySelector('.earn-method-radio');
+          if (radio) radio.classList.add('checked');
+          var sub = c.querySelector('.earn-method-sub');
+          if (sub) sub.innerHTML = '<span class="earn-success-dot"></span>Default';
+        } else {
+          var sub = c.querySelector('.earn-method-sub');
+          if (sub) sub.innerHTML = '<span class="earn-success-dot"></span>Connected';
+        }
+      });
+    }
+    showDefaultToast(_mmCurrent.providerId === 'stripe' ? 'Stripe' : 'Revolut');
+  }
+  function setDefault(radio, providerId) {
+    _mmCurrent.providerId = providerId;
+    setDefaultFromMenu();
+  }
+  function showDefaultToast(name) {
+    var toast = document.getElementById('mm-default-toast');
+    document.getElementById('mm-default-toast-text').textContent = name + ' is now your default';
+    toast.classList.add('show');
+    setTimeout(function(){ toast.classList.remove('show'); }, 2400);
+  }
+
+  // Disconnect sheet
+  function openDisconnectSheet() {
+    closeMethodMenu();
+    var sheet = document.getElementById('disconnect-sheet');
+    sheet.classList.remove('dc-only','dc-backup');
+    var isOnly = _mmCurrent.providerKind === 'single';
+    sheet.classList.add(isOnly ? 'dc-only' : 'dc-backup');
+    // Fill provider names for backup variant
+    if (!isOnly) {
+      var providerName = _mmCurrent.providerId === 'stripe' ? 'Stripe' : 'Revolut';
+      var fallbackName = _mmCurrent.providerId === 'stripe' ? 'Revolut' : 'Stripe';
+      sheet.querySelectorAll('[data-dc-provider-name]').forEach(el => el.textContent = providerName);
+      sheet.querySelectorAll('[data-dc-fallback-name]').forEach(el => el.textContent = fallbackName);
+    }
+    sheet.classList.add('visible');
+  }
+  function closeDisconnectSheet() {
+    document.getElementById('disconnect-sheet').classList.remove('visible');
+  }
+  function confirmDisconnect() {
+    closeDisconnectSheet();
+    // Prototype: just show a success toast (no real DOM mutation)
+    var toast = document.getElementById('mm-default-toast');
+    document.getElementById('mm-default-toast-text').textContent =
+      (_mmCurrent.providerId === 'stripe' ? 'Stripe' : 'Revolut') + ' disconnected';
+    toast.classList.add('show');
+    setTimeout(function(){ toast.classList.remove('show'); }, 2400);
+  }
+
+  // Sidebar shortcuts
+  function forceMethodsMulti() {
+    var el = document.getElementById('s-methods');
+    el.classList.remove('mm-single');
+    el.classList.add('mm-multi');
+    var toggle = document.querySelector('#ann-s-methods .state-toggle');
+    if (toggle) {
+      toggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      var btns = toggle.querySelectorAll('button');
+      if (btns[1]) btns[1].classList.add('active');
+    }
+  }
+  function openDisconnectFromShortcut(kind, providerId) {
+    _mmCurrent = {
+      providerId: providerId,
+      providerKind: kind,
+      isDefault: kind === 'single' || kind === 'multi-default'
+    };
+    openDisconnectSheet();
+  }
+
+  // Withdraw sheet
+  function openWithdrawSheet() {
+    document.getElementById('withdraw-sheet').classList.add('visible');
+  }
+  function closeWithdrawSheet() {
+    document.getElementById('withdraw-sheet').classList.remove('visible');
+  }
+  function confirmInstant() {
+    closeWithdrawSheet();
+    var toast = document.getElementById('payout-success-toast');
+    toast.classList.add('show');
+    setTimeout(function(){ toast.classList.remove('show'); }, 2600);
+  }
+
+  // Error snackbar
+  function showPayoutError() {
+    document.getElementById('payout-error-snackbar').classList.add('show');
+  }
+
+  // Why-pending info sheet
+  function openPendingInfo() {
+    document.getElementById('pending-info-sheet').classList.add('visible');
+  }
+  function closePendingInfo() {
+    document.getElementById('pending-info-sheet').classList.remove('visible');
+  }
+
+  // Demo shortcut — set Card card to Action required and stay on Earnings.
+  // (Stripe screen state is no longer here — it lives in stripe.html since 2026-06-02.)
+  function showStripeActionOnEarnings(btn) {
+    document.getElementById('s-earnings').setAttribute('data-card', 'action');
+    var toggle = document.querySelector('#ann-s-earnings [data-toggle-row="card"]');
+    if (toggle) {
+      toggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      var actionBtn = toggle.querySelectorAll('button')[2];
+      if (actionBtn) actionBtn.classList.add('active');
+    }
+    go('s-earnings', document.querySelector('[onclick*=s-earnings]'));
+  }
+  function hideSnackbar() {
+    document.getElementById('payout-error-snackbar').classList.remove('show');
+  }
+
+  // Close sheet on backdrop click
+  document.querySelectorAll('.fit-sheet-overlay').forEach(function(ov) {
+    ov.addEventListener('click', function(e) {
+      if (e.target === ov) ov.classList.remove('visible');
+    });
+  });
+
+
+</script>
+</body>
+</html>
