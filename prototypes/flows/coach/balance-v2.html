@@ -362,11 +362,15 @@
   .earn-widget-value { font-size: 22px; font-weight: 600; color: var(--fit-text-primary); letter-spacing: -0.3px; line-height: 1.15; }
   .earn-widget-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .earn-widget.warn .earn-widget-value, .earn-widget.warn .earn-widget-label { color: var(--fit-red-400); }
-  /* match athlete balance-v2 rhythm: widget block → Recent gap = 16px.
-     (.earn-section-head carries a global 24px top padding for history year heads;
-     neutralize it here so the Recent title isn't pushed 24px extra.) */
+  /* Recent header — canonical .fit-section-title--md-row + See all link,
+     unified with the athlete balance-v2 (same font / size / colour / wording).
+     16px gap above; reset the row's own 16px side padding since .earn-section
+     already supplies it. */
   #s-earnings .earn-section[data-section="recent-activity"] { padding-top: 16px; }
-  #s-earnings .earn-section[data-section="recent-activity"] .earn-section-head { padding: 0; margin-bottom: 10px; }
+  #s-earnings .earn-section[data-section="recent-activity"] .fit-section-title--md-row { padding: 0; margin: 0 0 10px; }
+  #s-earnings .earn-section[data-section="recent-activity"] .fit-section-title--md { margin: 0; }
+  .earn-seeall { display: inline-flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 500; color: var(--fit-teal-500); background: none; border: none; cursor: pointer; font-family: var(--fit-font); padding: 0; }
+  .earn-seeall svg { width: 14px; height: 14px; }
 
   /* v2: sticky search + filter chips on history screens (list scrolls under) */
   .hist-sticky { position: sticky; top: 0; z-index: 5; background: var(--fit-screen-bg); padding-top: 2px; }
@@ -1056,11 +1060,9 @@
     <!-- Recent activity (v2: unified — all methods + payouts in one list, no per-card swap).
          View all → Transactions (defaults to the 'all' prefilter). -->
     <div class="earn-section" data-section="recent-activity" data-limit="3">
-      <div class="earn-section-head">
-        <span class="earn-section-title earn-activity-title">Recent</span>
-        <span class="earn-section-action" data-a11y-id="coach.earnings.activity.view-all" onclick="openTransactionsForCurrentCard()">View all
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </span>
+      <div class="fit-section-title--md-row tap" data-a11y-id="coach.earnings.activity.view-all" onclick="openTransactionsForCurrentCard()">
+        <div class="fit-section-title--md">Recent</div>
+        <button class="earn-seeall">See all<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
       </div>
       <div class="fit-txn-group">
         <div class="fit-txn" data-a11y-id="coach.earnings.activity.row" data-method="card" onclick="go('s-txn-earning',document.querySelector('[onclick*=s-txn-earning]'))">
