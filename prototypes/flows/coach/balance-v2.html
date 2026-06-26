@@ -362,9 +362,11 @@
   .earn-widget-value { font-size: 22px; font-weight: 600; color: var(--fit-text-primary); letter-spacing: -0.3px; line-height: 1.15; }
   .earn-widget-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .earn-widget.warn .earn-widget-value, .earn-widget.warn .earn-widget-label { color: var(--fit-red-400); }
-  .earn-widget--wide { grid-column: 1 / -1; }
-  /* match athlete balance-v2 rhythm: tighten widget block → Recent gap (was 24px) */
+  /* match athlete balance-v2 rhythm: widget block → Recent gap = 16px.
+     (.earn-section-head carries a global 24px top padding for history year heads;
+     neutralize it here so the Recent title isn't pushed 24px extra.) */
   #s-earnings .earn-section[data-section="recent-activity"] { padding-top: 16px; }
+  #s-earnings .earn-section[data-section="recent-activity"] .earn-section-head { padding: 0; margin-bottom: 10px; }
 
   /* v2: sticky search + filter chips on history screens (list scrolls under) */
   .hist-sticky { position: sticky; top: 0; z-index: 5; background: var(--fit-screen-bg); padding-top: 2px; }
@@ -1018,12 +1020,17 @@
         </div>
     </div><!-- /.earn-single -->
 
-    <!-- Analytics widgets (3) — This month spans full width (hero); Cash folded into its "card + cash" sub. Replaces the old lifetime footer. -->
+    <!-- Analytics widgets (2x2) — Cash moved here; do NOT duplicate Available/Pending/Next payout (already on the Stripe card) -->
     <div class="earn-grid">
-      <button class="earn-widget earn-widget--wide" data-a11y-id="coach.earnings.widget.month" onclick="openEarningsHistory('all')">
+      <button class="earn-widget" data-a11y-id="coach.earnings.widget.month" onclick="openEarningsHistory('all')">
         <div class="earn-widget-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 4-6"/></svg>This month</div>
         <div class="earn-widget-value">&euro;450.00</div>
-        <div class="earn-widget-sub">&euro;330 card &middot; &euro;120 cash</div>
+        <div class="earn-widget-sub">card + cash</div>
+      </button>
+      <button class="earn-widget" data-a11y-id="coach.earnings.widget.cash" onclick="openEarningsHistory('cash')">
+        <div class="earn-widget-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</div>
+        <div class="earn-widget-value">&euro;120.00</div>
+        <div class="earn-widget-sub">this month</div>
       </button>
       <button class="earn-widget warn" data-a11y-id="coach.earnings.widget.owed" onclick="window.location.href='clients.html'">
         <div class="earn-widget-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Owed</div>
@@ -1048,7 +1055,7 @@
 
     <!-- Recent activity (v2: unified — all methods + payouts in one list, no per-card swap).
          View all → Transactions (defaults to the 'all' prefilter). -->
-    <div class="earn-section" data-section="recent-activity" data-limit="4">
+    <div class="earn-section" data-section="recent-activity" data-limit="3">
       <div class="earn-section-head">
         <span class="earn-section-title earn-activity-title">Recent</span>
         <span class="earn-section-action" data-a11y-id="coach.earnings.activity.view-all" onclick="openTransactionsForCurrentCard()">View all
@@ -1105,18 +1112,6 @@
             <div class="fit-txn-meta">Mon, Apr 20 &middot; 19:00</div>
           </div>
           <div class="fit-txn-amt fit-txn-amt--plus">+&euro;60.00</div>
-        </div>
-
-        <div class="fit-txn" data-a11y-id="coach.earnings.activity.row" data-method="payout" onclick="go('s-txn-payout',document.querySelector('[onclick*=s-txn-payout]'))">
-          <div class="fit-txn-icon fit-txn-icon--info">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
-          </div>
-          <div class="fit-txn-body">
-            <div class="fit-txn-title">Payout to Stripe</div>
-            <div class="fit-txn-sub">Weekly batch</div>
-            <div class="fit-txn-meta">Mon, Apr 20</div>
-          </div>
-          <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;275.00</div>
         </div>
       </div>
     </div>
