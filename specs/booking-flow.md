@@ -127,8 +127,8 @@ Content:
 6. **Payment method** — segmented chips (`.fit-selection-group` / `.fit-selection-chip`, same component as the coach's Personal/Group toggle), shown **only when the session accepts both methods**. Options **Cash | Balance**, **Cash preselected** by default. There is **no card hold** — the athlete prepays into a 321Fit **balance**; the online option ("Balance") reserves from that balance, it does not charge a card at booking time.
    - When the coach offers a **single method** the chips are hidden and a static "Payment" line shows the one method (`Cash · in person` or `Balance`).
 7. Info line — copy follows the selected method:
-   - **Cash** → "You'll pay €50 to the coach in person. Nothing is reserved now — the coach confirms the payment after the session. Coach has 24h to approve."
-   - **Balance** (sufficient) → "€50 reserved from your €80 balance · refunded if the coach declines. Coach has 24h to approve."
+   - **Cash** → "You'll pay €50 to the coach in person. Nothing is reserved now — the coach confirms the payment after the session. Coach has 48h to approve."
+   - **Balance** (sufficient) → "€50 reserved from your €80 balance · refunded if the coach declines. Coach has 48h to approve."
    - **Balance** (insufficient) → shortfall copy: "Your balance is €30 — €20 short for this session. Top up to pay from balance."
 8. CTA — `.fit-btn.fit-btn-primary`. "Send Request · €50" for Cash / sufficient Balance; **flips to "Top up balance"** when Balance is selected with insufficient funds (routes to `athlete/balance.html`, no request sent).
 
@@ -210,7 +210,7 @@ Sheet content:
 
 | Flow | Snackbar | Redirect |
 |---|---|---|
-| Athlete · Personal | "Request sent · coach has 24h to approve" | `athlete/calendar.html` |
+| Athlete · Personal | "Request sent · coach has 48h to approve" | `athlete/calendar.html` |
 | Athlete · Group | (none, snackbar implicit) | `athlete/calendar.html` |
 | Coach · Invite link | "Invite link ready" | **none (stay)** — Native Share Sheet opens with link |
 | Coach · Schedule | "Request sent to Anna" | `coach/calendar.html` |
@@ -241,7 +241,7 @@ Detailed payloads + response shapes go to `poly-backend/docs/booking-flow-api.md
 
 ## 8. Business rules
 
-- **24h response window** — both athlete-requested and coach-scheduled requests auto-expire if not actioned within 24h. Configurable per coach in future.
+- **48h response window** — both athlete-requested and coach-scheduled requests auto-expire if not actioned within 48h (auto-declined → refund). Matches `event-statuses.md` (48h auto-cancel). Configurable per coach in future. *(Updated from 24h → 48h, 2026-06-26.)*
 - **Payment method** — a session inherits the methods the coach enabled (cash and/or card). Athlete-facing the two options are **Cash** (pay coach in person) and **Balance** (reserved from prepaid 321Fit balance — the coach-side "card" option). When both are enabled the confirm sheet shows a chip picker with **Cash preselected**; with one enabled there's no choice.
 - **No card hold** — there is **no card charge/hold at booking**. Online payment is funded by the athlete's prepaid balance (topped up via Stripe, see `payments.md`). "Balance" reserves from that balance on Send; released to coach after the session completes (24h post-end); refunded if the coach declines or cancels.
 - **Cancellation policy** — athlete: free cancel up to 24h before session; coach: must cancel via Calendar (different flow). Cash sessions: no reservation, no refund logic; coach marks paid post-session.
