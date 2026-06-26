@@ -55,6 +55,10 @@
   .bal-hero-note { font-size: 13px; opacity: 0.85; display: flex; align-items: center; gap: 6px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .bal-hero-note svg { width: 14px; height: 14px; opacity: 0.9; flex-shrink: 0; }
   .bal-hero-note--btn { background: none; border: none; font-family: var(--fit-font); cursor: pointer; color: inherit; padding: 0; }
+  /* auto top-up indicator chip — top-right of the Balance card header, only when ON */
+  .bal-auto-chip { display: none; margin-left: auto; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 99px; background: rgba(255,255,255,0.20); color: var(--fit-white); font-family: var(--fit-font); font-size: 11px; font-weight: 600; border: none; cursor: pointer; flex-shrink: 0; }
+  .bal-auto-chip svg { width: 12px; height: 12px; }
+  #s-balance.bal-auto-on .bal-auto-chip { display: inline-flex; }
   .bal-topup { flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 99px; border: none; cursor: pointer; background: rgba(255,255,255,0.22); color: var(--fit-white); font-family: var(--fit-font); font-size: 14px; font-weight: 500; }
   .bal-topup:hover { background: rgba(255,255,255,0.30); }
   .bal-topup svg { width: 14px; height: 14px; }
@@ -157,6 +161,16 @@
   .txn-method-tag svg { width: 10px; height: 10px; }
   .txn-method-tag.cash { background: rgba(75,191,127,0.14); color: var(--fit-teal-500); }
   .txn-method-tag.card { background: rgba(99,91,255,0.14); color: #635BFF; }
+  /* method pill pinned to the top-right of a transaction detail hero card */
+  #s-txn-spend .fit-detail-hero, #s-txn-topup .fit-detail-hero, #s-txn-refund .fit-detail-hero { position: relative; }
+  .txn-hero-pill { position: absolute; top: 14px; right: 14px; margin-left: 0; }
+  /* outline note card (per feedback_note_block — transparent + border, not a colored banner) */
+  .txn-note { padding: 12px 14px; border: 1px solid var(--fit-divider); border-radius: 12px; font-size: 13px; color: var(--fit-text-secondary); line-height: 1.5; }
+  /* refund reason — 3 variants toggled by phone class rf-coach / rf-athlete / rf-auto */
+  #s-txn-refund .rf-reason { display: none; }
+  #s-txn-refund.rf-coach .rf-reason-coach { display: inline; }
+  #s-txn-refund.rf-athlete .rf-reason-athlete { display: inline; }
+  #s-txn-refund.rf-auto .rf-reason-auto { display: inline; }
   /* Card brand glyph */
   .pm-card-icon { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--fit-gray-100); color: var(--fit-text-primary); }
 
@@ -278,13 +292,14 @@
           <div class="earn-card-header">
             <div class="earn-card-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20M17 15h2"/></svg></div>
             <span class="earn-card-header-title">Balance</span>
+            <button class="bal-auto-chip" data-a11y-id="athlete.balance.auto-chip" onclick="go('s-top-up',null);setTuMode('auto');setAtOn(true)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6M3 12a9 9 0 0115.36-6.36L21 8"/></svg>Auto &euro;50</button>
           </div>
           <div class="earn-card-tap">
             <div class="earn-card-label">Available</div>
             <div class="earn-card-value">&euro;240.00</div>
           </div>
           <div class="earn-card-row">
-            <button class="bal-hero-note bal-hero-note--btn" data-a11y-id="athlete.balance.auto-topup-status" onclick="go('s-top-up',null);setTuMode('auto');setAtOn(document.getElementById('s-balance').classList.contains('bal-auto-on'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6M3 12a9 9 0 0115.36-6.36L21 8"/></svg><span class="bal-at-off-text">Auto top-up off</span><span class="bal-at-on-text">Auto top-up on</span></button>
+            <button class="bal-hero-note bal-hero-note--btn" data-a11y-id="athlete.balance.auto-topup-status" onclick="go('s-top-up',null);setTuMode('auto');setAtOn(document.getElementById('s-balance').classList.contains('bal-auto-on'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6M3 12a9 9 0 0115.36-6.36L21 8"/></svg><span class="bal-at-off-text">Auto top-up off</span><span class="bal-at-on-text">Tops up below &euro;10</span></button>
             <button class="bal-topup" data-a11y-id="athlete.balance.topup" onclick="go('s-top-up',null);setTuMode('once')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Top up</button>
           </div>
         </div>
@@ -322,17 +337,17 @@
       <div class="fit-txn-group">
         <div class="fit-txn" data-a11y-id="athlete.balance.txn" onclick="go('s-txn-spend',null)">
           <div class="fit-txn-icon fit-txn-icon--out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/></svg></div>
-          <div class="fit-txn-body"><div class="fit-txn-title">Maria Rodriguez<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">Tennis</div><div class="fit-txn-meta">Mon, Apr 21 &middot; 18:00</div></div>
+          <div class="fit-txn-body"><div class="fit-txn-title">Maria Rodriguez<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">1:1 Tennis</div><div class="fit-txn-meta">Mon, Apr 21 &middot; 18:00</div></div>
           <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;25.00</div>
         </div>
         <div class="fit-txn" data-a11y-id="athlete.balance.txn" onclick="go('s-txn-topup',null)">
           <div class="fit-txn-icon fit-txn-icon--in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
-          <div class="fit-txn-body"><div class="fit-txn-title">Top-up<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">Visa &bull;&bull; 4242</div><div class="fit-txn-meta">Mon, Apr 21</div></div>
+          <div class="fit-txn-body"><div class="fit-txn-title">Top-up<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">Visa &bull;&bull; 4242</div><div class="fit-txn-meta">Mon, Apr 21 &middot; 14:32</div></div>
           <div class="fit-txn-amt fit-txn-amt--plus">+&euro;100.00</div>
         </div>
         <div class="fit-txn" data-a11y-id="athlete.balance.txn" onclick="go('s-txn-spend',null)">
           <div class="fit-txn-icon fit-txn-icon--out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10v5a3 3 0 003 3h5a3 3 0 003-3v-2"/><path d="M9 10h7a2 2 0 002-2 3 3 0 00-3-3H9a3 3 0 00-3 3v2"/></svg></div>
-          <div class="fit-txn-body"><div class="fit-txn-title">Pavel S.<span class="txn-method-tag cash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</span></div><div class="fit-txn-sub">Boxing</div><div class="fit-txn-meta">Sun, Apr 20 &middot; 09:00</div></div>
+          <div class="fit-txn-body"><div class="fit-txn-title">Pavel S.<span class="txn-method-tag cash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</span></div><div class="fit-txn-sub">1:1 Boxing</div><div class="fit-txn-meta">Sun, Apr 20 &middot; 09:00</div></div>
           <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;30.00</div>
         </div>
       </div>
@@ -421,17 +436,17 @@
     <div class="fit-txn-group">
       <div class="fit-txn" data-txn="spend" data-method="card" data-a11y-id="athlete.history.txn" onclick="go('s-txn-spend',null)">
         <div class="fit-txn-icon fit-txn-icon--out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/></svg></div>
-        <div class="fit-txn-body"><div class="fit-txn-title">Maria Rodriguez<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">Tennis</div><div class="fit-txn-meta">Mon, Apr 21 &middot; 18:00</div></div>
+        <div class="fit-txn-body"><div class="fit-txn-title">Maria Rodriguez<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">1:1 Tennis</div><div class="fit-txn-meta">Mon, Apr 21 &middot; 18:00</div></div>
         <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;25.00</div>
       </div>
       <div class="fit-txn" data-txn="topup" data-method="card" data-a11y-id="athlete.history.txn" onclick="go('s-txn-topup',null)">
         <div class="fit-txn-icon fit-txn-icon--in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
-        <div class="fit-txn-body"><div class="fit-txn-title">Top-up<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">Visa &bull;&bull; 4242</div><div class="fit-txn-meta">Mon, Apr 21</div></div>
+        <div class="fit-txn-body"><div class="fit-txn-title">Top-up<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">Visa &bull;&bull; 4242</div><div class="fit-txn-meta">Mon, Apr 21 &middot; 14:32</div></div>
         <div class="fit-txn-amt fit-txn-amt--plus">+&euro;100.00</div>
       </div>
       <div class="fit-txn" data-txn="spend" data-method="cash" data-a11y-id="athlete.history.txn" onclick="go('s-txn-spend',null)">
         <div class="fit-txn-icon fit-txn-icon--out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10v5a3 3 0 003 3h5a3 3 0 003-3v-2"/><path d="M9 10h7a2 2 0 002-2 3 3 0 00-3-3H9a3 3 0 00-3 3v2"/></svg></div>
-        <div class="fit-txn-body"><div class="fit-txn-title">Pavel S.<span class="txn-method-tag cash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</span></div><div class="fit-txn-sub">Boxing</div><div class="fit-txn-meta">Sun, Apr 20 &middot; 09:00</div></div>
+        <div class="fit-txn-body"><div class="fit-txn-title">Pavel S.<span class="txn-method-tag cash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</span></div><div class="fit-txn-sub">1:1 Boxing</div><div class="fit-txn-meta">Sun, Apr 20 &middot; 09:00</div></div>
         <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;30.00</div>
       </div>
     </div>
@@ -440,17 +455,17 @@
     <div class="fit-txn-group">
       <div class="fit-txn" data-txn="refund" data-method="card" data-a11y-id="athlete.history.txn" onclick="go('s-txn-refund',null)">
         <div class="fit-txn-icon fit-txn-icon--info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 015 5v1"/></svg></div>
-        <div class="fit-txn-body"><div class="fit-txn-title">Anna K.<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">Refund &middot; Yoga</div><div class="fit-txn-meta">Thu, Apr 17</div></div>
+        <div class="fit-txn-body"><div class="fit-txn-title">Anna K.<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">Refund &middot; 1:1 Yoga</div><div class="fit-txn-meta">Thu, Apr 17</div></div>
         <div class="fit-txn-amt fit-txn-amt--plus">+&euro;20.00</div>
       </div>
       <div class="fit-txn" data-txn="spend" data-method="cash" data-a11y-id="athlete.history.txn" onclick="go('s-txn-spend',null)">
         <div class="fit-txn-icon fit-txn-icon--out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/></svg></div>
-        <div class="fit-txn-body"><div class="fit-txn-title">Maria Rodriguez<span class="txn-method-tag cash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</span></div><div class="fit-txn-sub">Padel</div><div class="fit-txn-meta">Wed, Apr 16 &middot; 18:00</div></div>
+        <div class="fit-txn-body"><div class="fit-txn-title">Maria Rodriguez<span class="txn-method-tag cash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</span></div><div class="fit-txn-sub">1:1 Padel</div><div class="fit-txn-meta">Wed, Apr 16 &middot; 18:00</div></div>
         <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;40.00</div>
       </div>
       <div class="fit-txn" data-txn="topup" data-method="card" data-a11y-id="athlete.history.txn" onclick="go('s-txn-topup',null)">
         <div class="fit-txn-icon fit-txn-icon--in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
-        <div class="fit-txn-body"><div class="fit-txn-title">Top-up<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">Apple&nbsp;Pay</div><div class="fit-txn-meta">Mon, Apr 14</div></div>
+        <div class="fit-txn-body"><div class="fit-txn-title">Top-up<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">Apple&nbsp;Pay</div><div class="fit-txn-meta">Mon, Apr 14 &middot; 09:10</div></div>
         <div class="fit-txn-amt fit-txn-amt--plus">+&euro;100.00</div>
       </div>
     </div>
@@ -652,14 +667,16 @@
   </div>
   <div class="fit-phone-content" style="padding-bottom:24px;">
     <div class="fit-detail-hero">
+      <span class="txn-method-tag card txn-hero-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span>
       <div class="fit-detail-hero-amt minus">&minus;&euro;25.00</div>
-      <div class="fit-detail-hero-sub">Mon, Apr 21 &middot; 18:00</div>
+      <div class="fit-detail-hero-sub">Charged Mon, Apr 21 &middot; 19:05</div>
       <span class="fit-badge fit-badge-accent" style="margin-top:4px;">Paid</span>
     </div>
     <div class="fit-section-title--md">Session</div>
     <div class="fit-kv-group">
+      <div class="fit-kv"><span class="fit-kv-label">Training</span><span class="fit-kv-value">1:1 Tennis</span></div>
       <div class="fit-kv"><span class="fit-kv-label">Coach</span><span class="fit-kv-value">Maria Rodriguez</span></div>
-      <div class="fit-kv"><span class="fit-kv-label">Training</span><span class="fit-kv-value">Tennis 1:1</span></div>
+      <div class="fit-kv"><span class="fit-kv-label">When</span><span class="fit-kv-value">Mon, Apr 21 &middot; 18:00</span></div>
       <div class="fit-kv"><span class="fit-kv-label">Duration</span><span class="fit-kv-value">60 min</span></div>
       <div class="fit-kv"><span class="fit-kv-label">Location</span><span class="fit-kv-value">TNT Studio, Riga</span></div>
     </div>
@@ -683,8 +700,9 @@
   </div>
   <div class="fit-phone-content" style="padding-bottom:24px;">
     <div class="fit-detail-hero">
+      <span class="txn-method-tag card txn-hero-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span>
       <div class="fit-detail-hero-amt plus">+&euro;100.00</div>
-      <div class="fit-detail-hero-sub">Mon, Apr 21 &middot; 14:32</div>
+      <div class="fit-detail-hero-sub">Charged Mon, Apr 21 &middot; 14:32</div>
       <span class="fit-badge fit-badge-accent" style="margin-top:4px;">Completed</span>
     </div>
     <div class="fit-section-title--md">Payment</div>
@@ -699,7 +717,7 @@
 </div>
 
 <!-- ==================== TXN DETAIL: REFUND ==================== -->
-<div class="fit-phone fit-light" id="s-txn-refund">
+<div class="fit-phone fit-light rf-coach" id="s-txn-refund">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -709,16 +727,23 @@
   </div>
   <div class="fit-phone-content" style="padding-bottom:24px;">
     <div class="fit-detail-hero">
+      <span class="txn-method-tag card txn-hero-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span>
       <div class="fit-detail-hero-amt plus">+&euro;20.00</div>
-      <div class="fit-detail-hero-sub">Thu, Apr 17</div>
+      <div class="fit-detail-hero-sub">Refunded Thu, Apr 17 &middot; 11:20</div>
       <span class="fit-badge fit-badge-info" style="margin-top:4px;">Refunded to balance</span>
     </div>
     <div class="fit-section-title--md">Refund</div>
     <div class="fit-kv-group">
-      <div class="fit-kv"><span class="fit-kv-label">Reason</span><span class="fit-kv-value">Session cancelled</span></div>
+      <div class="fit-kv"><span class="fit-kv-label">Reason</span><span class="fit-kv-value"><span class="rf-reason rf-reason-coach">Cancelled by coach</span><span class="rf-reason rf-reason-athlete">You cancelled</span><span class="rf-reason rf-reason-auto">Request expired</span></span></div>
       <div class="fit-kv"><span class="fit-kv-label">Coach</span><span class="fit-kv-value">Anna K.</span></div>
-      <div class="fit-kv"><span class="fit-kv-label">Original session</span><span class="fit-kv-value">Yoga &middot; Apr 16</span></div>
+      <div class="fit-kv"><span class="fit-kv-label">Original session</span><span class="fit-kv-value">1:1 Yoga &middot; Apr 16</span></div>
       <div class="fit-kv"><span class="fit-kv-label">Refunded to</span><span class="fit-kv-value">Balance</span></div>
+    </div>
+    <!-- contextual note — varies by reason -->
+    <div class="txn-note" style="margin:14px 16px 0;">
+      <span class="rf-reason rf-reason-coach">Anna&nbsp;K. cancelled this session, so your payment was returned in full.</span>
+      <span class="rf-reason rf-reason-athlete">You cancelled in time, so your payment was returned in full per the cancellation policy.</span>
+      <span class="rf-reason rf-reason-auto">The coach didn&rsquo;t confirm your request within <strong>48&nbsp;hours</strong>, so it was auto-declined and refunded.</span>
     </div>
   </div>
 </div>
@@ -795,7 +820,14 @@
   </div>
 
   <div class="ann" id="ann-s-txn-refund"><span class="ann-role athlete">Athlete</span><h3>Refund (detail)</h3>
-    <p>Money <em>back in</em> (to balance). <code>.fit-detail-hero</code> (teal +amount, info badge) + <code>.fit-kv-group</code>: reason · coach · original session · refunded-to.</p>
+    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Refund reason</div>
+    <div class="state-toggle">
+      <button class="active" onclick="setRfReason('coach',this)">Coach cancelled</button>
+      <button onclick="setRfReason('athlete',this)">You cancelled</button>
+      <button onclick="setRfReason('auto',this)">Auto-declined</button>
+    </div>
+    <p>Money <em>back in</em> (to balance). <code>.fit-detail-hero</code> (teal +amount, info badge, method pill top-right) + <code>.fit-kv-group</code>: reason · coach · original session · refunded-to + an outline <code>.txn-note</code> that explains the reason.</p>
+    <p><strong>3 refund reasons:</strong> <em>Coach cancelled</em> (coach drops the session) · <em>You cancelled</em> (athlete cancels within the allowed window) · <em>Auto-declined</em> (coach doesn&rsquo;t confirm the request within <strong>48h</strong> → request expires, auto-refund).</p>
   </div>
 </div>
 
@@ -844,6 +876,14 @@ function setBalState(s, btn) {
   if (!el) return;
   el.classList.remove('bs-default', 'bs-empty', 'bs-loading', 'bs-error');
   el.classList.add('bs-' + s);
+  if (btn) { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+}
+// Refund detail — switch the reason variant (coach / athlete / auto-declined).
+function setRfReason(r, btn) {
+  var el = document.getElementById('s-txn-refund');
+  if (!el) return;
+  el.classList.remove('rf-coach', 'rf-athlete', 'rf-auto');
+  el.classList.add('rf-' + r);
   if (btn) { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
 }
 // History filter — chips match by type (data-txn) OR payment method (data-method).
