@@ -4,7 +4,7 @@
 > Prototype (coach earnings): [flows/coach/balance.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/balance.html)
 > Prototype (athlete balance): [flows/athlete/balance.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/balance.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-22 (athlete top-up sheet + payment methods wallet + auto top-up — Flows C2/C3/C4; backend shipped PR #541–#543)
+> Last updated: 2026-06-26 (Revolut-style v2 explorations — `balance-v2.html` athlete + coach: see notes in Flow C1 / Flow H. Earlier: 2026-06-22 athlete top-up + auto top-up — Flows C2/C3/C4, PR #541–#543)
 > Implementation:
 > - iOS:     [321fit_ios/docs/payments-ios.md] (to be created)
 > - Backend: [poly-backend/docs/payments-backend.md] (to be created — includes earnings ledger migration)
@@ -114,6 +114,8 @@ Layout (`s-balance`) — built on the **canonical ledger kit** shared with coach
    - **refund** — `--info` blue icon, teal **+** — "Refund · {session} cancelled"
 4. **Row tap → transaction detail** (`s-txn-spend` / `s-txn-topup` / `s-txn-refund`): `.fit-detail-hero` (amount + date + status badge) + `.fit-kv-group` rows — same detail grammar as the coach earning detail. Top-up detail offers **Get receipt** (PDF — TBD).
 
+> **v2 redesign exploration (2026-06-26) — `athlete/balance-v2.html` (parallel module, original `balance.html` kept for rollback).** Revolut-style "money dashboard": (1) a single **Balance card** on top (no Spending swipe-card); (2) a 2×2 **analytics widget** grid — *This month* (with card/cash split), *Total spent* (lifetime), *Booked* (planned spend = upcoming sessions), *Owed* (red, cash debt → My Coaches); (3) a **Recent** 3-row preview + **See all**; (4) the full ledger moves to its own **History screen** (`s-history`) with a **sticky** search + filter chips by *type* (Spent / Top-ups / Refunds) **and payment method (Card / Cash)** — the list scrolls underneath. Transaction rows read **coach name** as the title + a Card/Cash method pill + session name as the subtitle (matches the coach ledger). Not yet promoted to canonical — pending review.
+
 **Top up** → the **Top up screen** (Flow C2). No payouts, no Stripe Connect — the athlete only ever pays in.
 
 Balance is the **money hub**: the hero **Top up** (and the tappable **Auto top-up** note) → the Top up screen. There is **no "Payment methods" entry** — see Flow C3.
@@ -209,6 +211,8 @@ Coach lands on a **two-card swiper** that separates cash from card income — ea
 |---|---|
 | Active | "This month €X received" + tappable "€Y owed by N athletes" row |
 | Zero | "No cash collected yet — mark sessions paid in Clients to track here" |
+
+> **v2 exploration (2026-06-26) — `coach/balance-v2.html` (parallel module, original kept for rollback).** Keeps the **Cash + Card swiper** (an analytics-widget variant was tried, then reverted — the two cards already carry the numbers). What v2 changes vs the original: **Recent** is unified to 3 rows + a canonical **See all** header (teal, matching the athlete Balance v2); the **History** screens (Transactions / Earnings history) get a **sticky** search + filter-chip header (list scrolls underneath); the Card card's **Next payout** row deep-links to `stripe.html`; the **Lifetime footer is removed**. Not yet promoted to canonical — pending review.
 
 **Visual rule:** filled gradient = "money lives here right now"; outline = "frame waiting / needs action" (Stripe Lock / Verifying / Action only).
 

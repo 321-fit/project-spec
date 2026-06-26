@@ -3,7 +3,7 @@
 > Status: Draft
 > Prototype: [flows/athlete/search.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/search.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-11
+> Last updated: 2026-06-26 (coach-card refinements: languages off cards, country flag in location, search shows city, My Coaches cash-owed badge — see §11)
 > Implementation:
 > - iOS:     [321fit_ios/docs/athlete-search-ios.md] (to be created)
 > - Android: [321fit_android/docs/athlete-search-android.md] (to be created)
@@ -261,6 +261,7 @@ Detailed request/response shapes live in `poly-backend/docs/athlete-search-api.m
 - **2026-05-12** — Reviews / rating chips on Coach Profile (downstream) all deep-link to All Reviews screen (`s-reviews`): "Show all reviews" carousel card, "4.8 · 42 reviews" header chevron, Stats strip Rating + Reviews columns, individual "Show more" links inside each review card.
 - **2026-05-12** — About bio uses inline 4-line clamp + "See more" / "See less" toggle. No push to separate screen.
 - **2026-05-12** — Inline Sessions preview was added then removed from Coach Profile — redundant with Book Training CTA flow that takes user to full session catalog (`s-book-sessions`).
+- **2026-06-26** — **Coach-card refinements (Search + My Coaches).** Languages no longer shown on the result/relationship cards — they live only on the full Coach Profile. The location line now leads with a **country flag** in place of the map-pin icon (the flag doubles as the country cue). On **Search**, cards show the training **location** (`City, Country` — e.g. *Vilnius, Lithuania*) in place of the old "Available today · HH:MM" line (availability surfaces later in booking; on a city-filtered list, location is the more useful at-a-glance signal). On **My Coaches**, a coach with an unpaid cash balance shows a red `fit-badge-danger` "€X owed" chip next to the name (mirrors the coach Clients list); tap → Coach Detail "Cash owed". Prototypes: `athlete/search.html`, `athlete/my-coaches.html`.
 
 ---
 
