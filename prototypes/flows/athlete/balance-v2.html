@@ -133,7 +133,9 @@
   #s-balance .fit-section-title--md-row { margin-top: 16px; }
   #s-balance .fit-section-title--md-row .fit-section-title--md { margin: 0; }
 
-  /* ===== History screen — sticky search ===== */
+  /* ===== History screen — sticky search + filters ===== */
+  /* search + chips pin to the top; the ledger scrolls underneath */
+  .hist-sticky { position: sticky; top: 0; z-index: 5; background: var(--fit-screen-bg); padding-top: 2px; }
   .bal-search { display: flex; align-items: center; gap: 8px; margin: 8px 16px 12px; padding: 0 12px; height: 42px; background: var(--fit-surface-high); border-radius: 12px; }
   .fit-light .bal-search { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
   .bal-search svg { width: 17px; height: 17px; color: var(--fit-text-tertiary); flex-shrink: 0; }
@@ -392,7 +394,8 @@
   </div>
   <div class="fit-phone-content" style="padding-bottom:24px;">
 
-    <!-- Sticky search -->
+    <!-- Sticky header: search + filters pinned; the ledger scrolls underneath -->
+    <div class="hist-sticky">
     <div class="bal-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
       <input type="text" placeholder="Search coach, session, amount…" data-a11y-id="athlete.history.search" oninput="searchTxns(this.value)">
@@ -407,6 +410,7 @@
       <button class="fit-filter-chip" data-filter="card" onclick="balFilter('card',this)">Card</button>
       <button class="fit-filter-chip" data-filter="cash" onclick="balFilter('cash',this)">Cash</button>
     </div>
+    </div><!-- /.hist-sticky -->
 
     <div class="fit-txn-date">This week</div>
     <div class="fit-txn-group">
@@ -741,9 +745,10 @@
   </div>
 
   <div class="ann" id="ann-s-history"><span class="ann-role athlete">Athlete</span><h3>Transactions (History)</h3>
-    <p>Full ledger, pushed from Balance (See all / All transactions / any widget). Canonical <code>.fit-txn*</code> rows, date-grouped.</p>
+    <p>Full ledger, pushed from Balance (See all / any widget). Canonical <code>.fit-txn*</code> rows, date-grouped.</p>
     <ul>
-      <li><strong>Sticky search</strong> — narrows the current chip filter by free text (coach, session, amount).</li>
+      <li><strong>Sticky header (<code>.hist-sticky</code>)</strong> — the search field + filter chips are <strong>pinned</strong> (CSS <code>position: sticky; top: 0</code>); the transaction list scrolls <em>underneath</em> them. Native: pin search + chips to the top of the scroll view (iOS <code>UICollectionView</code> pinned supplementary / Android sticky header) so filters stay reachable while scrolling.</li>
+      <li><strong>Search</strong> — narrows the current chip filter by free text (coach, session, amount).</li>
       <li><strong>Filter chips — two dimensions in one row:</strong> by <em>type</em> (All / Spent / Top-ups / Refunds) and by <em>payment method</em> (Card / Cash). Single-select; method chips read <code>data-method</code>, type chips read <code>data-txn</code>.</li>
       <li>Widgets deep-link with a pre-applied filter (e.g. <em>This month</em> → Spent).</li>
       <li>Empty result → "Nothing here" no-match state.</li>
