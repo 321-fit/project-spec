@@ -1,0 +1,2646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Personal Data</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--fit-font);
+    background: #0a0a0a;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 24px; min-height: 100vh;
+    min-width: 900px;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    left: 24px;
+    top: 24px; bottom: 24px; width: 200px;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-scroll {
+    flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+  }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--fit-gray-600);
+    padding: 0 8px; margin: 16px 0 8px;
+  }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button {
+    font-family: var(--fit-font); font-size: 14px; font-weight: 400;
+    padding: 10px 12px; border-radius: 10px; border: none;
+    background: transparent; color: var(--fit-gray-400);
+    cursor: pointer; text-align: left; width: 100%; transition: all 0.15s;
+  }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active {
+    background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500;
+  }
+
+  /* Annotations */
+  .ann-container {
+    position: fixed;
+    left: calc(50% + 195px + 48px); right: 24px;
+    top: 24px; bottom: 24px; width: auto;
+    overflow-y: auto;
+  }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; }
+  .ann.active { display: block; }
+  .ann-role {
+    display: inline-block; font-size: 14px; font-weight: 500;
+    padding: 4px 12px; border-radius: 8px; margin-bottom: 16px;
+  }
+  .ann-role.coach { background: rgba(3,178,226,0.15); color: var(--fit-blue-500); }
+  .ann-role.athlete { background: rgba(5,224,166,0.15); color: var(--fit-teal-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 14px; padding-left: 18px; font-size: 16px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 6px; }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  /* Expandable details (subtle — left accent, no bordered card) */
+  .ann-detail {
+    margin-top: 8px; padding: 4px 0 4px 16px;
+    border-left: 2px solid var(--fit-brand-primary);
+    display: none;
+  }
+  .ann-detail.open { display: block; }
+  .ann-detail h4:first-child { margin-top: 0; }
+  .ann-detail h4 + p { margin-bottom: 12px; }
+  .ann-detail-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; color: var(--fit-blue-500); cursor: pointer;
+    margin-top: 12px; font-weight: 500;
+  }
+  .ann-detail-toggle svg { width: 14px; height: 14px; transition: transform 0.2s; }
+  .ann-detail-toggle.open svg { transform: rotate(90deg); }
+  .ann-detail h4 { font-size: 14px; font-weight: 500; color: var(--fit-gray-300); margin-bottom: 6px; }
+  .ann-detail p { font-size: 14px; line-height: 1.5; color: var(--fit-gray-500); margin-bottom: 8px; }
+  .ann-detail code { font-size: 12px; background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 3px; color: var(--fit-gray-400); }
+
+  /* Screen visibility */
+  .fit-phone { display: none; }
+  .fit-phone.active { display: flex; }
+
+  /* SVG icon defaults */
+  svg.i { width: 16px; height: 16px; vertical-align: middle; }
+  svg.i-sm { width: 14px; height: 14px; vertical-align: middle; margin-right: 4px; }
+
+  /* Dark header/footer bg */
+  .fit-dark .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-dark .fit-phone-footer { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+
+  /* Prototype-specific */
+  .detail-participants { padding: 0 var(--fit-sp-4); }
+  #tp-slot-list::-webkit-scrollbar { display: none; }
+
+  /* Contenteditable placeholder */
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: var(--fit-text-placeholder);
+    pointer-events: none;
+  }
+
+  /* State toggle (filled/empty) */
+  .state-toggle {
+    display: inline-flex; gap: 0; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--fit-gray-700); margin-bottom: 12px;
+  }
+  .state-toggle button {
+    font-family: var(--fit-font); font-size: 12px; font-weight: 500;
+    padding: 4px 10px; border: none; cursor: pointer;
+    background: transparent; color: var(--fit-gray-400);
+    transition: all 0.15s;
+  }
+  .state-toggle button.active {
+    background: var(--fit-gray-700); color: var(--fit-white);
+  }
+  /* Empty state placeholder */
+  .fit-empty-state {
+    text-align: center; padding: 48px 24px;
+    color: var(--fit-text-tertiary); font-size: 14px; line-height: 1.5;
+  }
+  .fit-empty-state svg.fes-illus { width: 56px; height: 56px; margin-bottom: 16px; color: var(--fit-gray-600); }
+  .fit-empty-state-title { font-size: 17px; font-weight: 500; color: var(--fit-text-secondary); margin-bottom: 6px; }
+  .fit-empty-state-sub { font-size: 14px; color: var(--fit-text-tertiary); margin-bottom: 20px; line-height: 1.5; }
+  .fit-light .fit-empty-state svg.fes-illus { color: var(--fit-gray-400); }
+
+  /* List state switcher (default/empty/loading) */
+  #s-list [data-list-state] { display: none; }
+  #s-list.ls-default [data-list-state="default"] { display: block; }
+  #s-list.ls-empty [data-list-state="empty"] { display: block; }
+  #s-list.ls-loading [data-list-state="loading"] { display: block; }
+
+  /* Skeleton classes migrated to fit-ui.css (Phase 2) */
+
+  /* Conditional fields animation */
+  #group-fields, #schedule-fields, #recurring-fields, #oneoff-fields {
+    will-change: max-height, opacity;
+  }
+
+  /* Light theme overrides for group training */
+  .fit-light .set-card { background: var(--fit-white); }
+  .fit-light .fit-card { background: var(--fit-white); }
+  .fit-light .fit-ticket { background: var(--fit-white); }
+  .fit-light .fit-participants-card { background: var(--fit-white); }
+  .fit-light .fit-spots { background: var(--fit-gray-100); }
+  .fit-light .fit-spots-fill { background: var(--fit-gray-200); }
+  .fit-light .fit-input { background: var(--fit-gray-100); }
+  .fit-light .fit-navbar { background: rgba(255,255,255,0.75); box-shadow: 0 0 24px rgba(0,0,0,0.15); }
+  .fit-light .fit-navbar-item { color: var(--fit-gray-400); }
+  .fit-light .fit-navbar-item.active { color: var(--fit-text-primary); }
+
+  /* Month grid day with event dot */
+  .mg-day { display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;cursor:pointer; }
+  .mg-day-num { font-size:14px;color:var(--fit-text-secondary);width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%; }
+  .mg-day.today .mg-day-num { color:var(--fit-brand-primary);font-weight:600; }
+  .mg-day.selected .mg-day-num { background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);color:var(--fit-text-primary);font-weight:500; }
+  .mg-dots { display:flex;gap:2px;height:4px; }
+  .mg-dot { width:4px;height:4px;border-radius:50%; }
+  .mg-dot.p { background:var(--fit-teal-500); }
+  .mg-dot.g { background:var(--fit-brand-primary); }
+  .mg-dot.e { background:var(--fit-text-tertiary); }
+
+  /* Calendar header component (reusable) */
+  .fit-cal-header {
+    display: flex; align-items: center; gap: 4px; cursor: pointer;
+  }
+  .fit-cal-header-month { font-size: 16px; font-weight: 600; color: var(--fit-text-primary); }
+  .fit-cal-header-year { font-size: 16px; font-weight: 400; color: var(--fit-text-secondary); }
+  .fit-cal-chevron { transition: transform 0.2s; flex-shrink: 0; }
+
+  /* V6d card themes */
+  .v6d-card { background: var(--fit-surface-high); }
+  .fit-light .v6d-card { background: var(--fit-white) !important; box-shadow: 0 1px 12px rgba(0,0,0,0.12); }
+  .fit-light .v6d-card { box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+  .fit-light .v6d-icon-box { background: rgba(0,0,0,0.06) !important; }
+  .fit-light .v6d-icon-box svg { stroke: var(--fit-gray-900) !important; }
+  .fit-light .v6d-price { color: var(--fit-text-primary) !important; }
+  .fit-light .v6d-loc-strip { border-bottom-color: var(--fit-gray-200) !important; }
+  .fit-light .v6d-special-badge { background: rgba(0,0,0,0.08) !important; color: var(--fit-text-primary) !important; }
+  /* Alt 1 header: light theme */
+  .fit-light .v6d-header-neutral { background: var(--fit-gray-200) !important; }
+  .fit-light .v6d-header-neutral .v6d-icon-box { background: rgba(0,0,0,0.08) !important; }
+  /* Alt 2 header: light theme */
+  .fit-light .v6d-header-dense { background: linear-gradient(to right, rgba(10,147,189,0.25), rgba(5,224,166,0.25)) !important; }
+
+  /* CalDAV howto expandable */
+  #caldav-howto.open { max-height: 300px; }
+
+  /* Light theme for calendar screens */
+  .fit-light .cal-select-row { background: var(--fit-white); }
+  .fit-light .cal-select-row.selected { background: linear-gradient(to right, rgba(10,147,189,0.1), rgba(5,224,166,0.1)); }
+  .fit-light .fit-input-label { color: var(--fit-text-secondary); }
+
+  /* Light theme settings overrides */
+  .fit-light .set-title { color: var(--fit-text-primary); }
+  .fit-light .set-sub { color: var(--fit-text-secondary); }
+  .fit-light .set-icon { color: var(--fit-text-primary); }
+  .fit-light .set-chev { color: var(--fit-text-tertiary); }
+
+  /* Paid dimming + validation errors: in fit-ui.css */
+
+  /* ===== AVAILABILITY ===== */
+  .avail-tz {
+    display: flex; align-items: center; gap: 6px;
+    padding: 0 16px 16px;
+    font-size: 13px; color: var(--fit-text-tertiary); line-height: 1.4;
+  }
+  .avail-tz svg { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.8; }
+  .avail-days {
+    display: flex; flex-direction: column; gap: 16px;
+    padding: 0 16px 16px;
+  }
+  .avail-day { display: flex; flex-direction: column; gap: 12px; }
+  .avail-day-header {
+    display: flex; align-items: center; gap: 12px;
+    min-height: 44px; cursor: pointer;
+  }
+  .avail-checkbox {
+    width: 24px; height: 24px; flex-shrink: 0;
+    border-radius: 6px; border: 1px solid rgba(246,247,248,0.5);
+    background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .fit-light .avail-checkbox { border-color: var(--fit-gray-400); }
+  .avail-checkbox svg { width: 14px; height: 14px; stroke: var(--fit-white); display: none; }
+  .avail-day.active .avail-checkbox {
+    background: var(--fit-brand-gradient);
+    border-color: transparent;
+  }
+  .avail-day.active .avail-checkbox svg { display: block; }
+  .avail-day-name { font-size: 16px; color: var(--fit-text-primary); font-weight: 400; }
+  .avail-day:not(.active) .avail-day-name { color: var(--fit-text-secondary); }
+  .avail-intervals { display: flex; flex-direction: column; gap: 8px; }
+  .avail-day:not(.active) .avail-intervals { display: none; }
+  .avail-interval { display: flex; align-items: center; gap: 12px; }
+  .avail-time-input {
+    flex: 1 0 0; min-width: 0; height: 56px;
+    background: var(--fit-surface-low);
+    border: none; border-radius: var(--fit-radius-md);
+    padding: 0 12px;
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--fit-font); font-size: 16px;
+    color: var(--fit-text-primary); cursor: pointer;
+  }
+  .fit-dark .avail-time-input { background: var(--fit-black); }
+  .avail-time-input.active { outline: 1px solid var(--fit-divider); }
+  .avail-time-input .avail-time-value { flex: 1; }
+  .avail-time-input svg { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .avail-interval-sep { font-size: 14px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .avail-interval-btn {
+    width: 32px; height: 32px; flex-shrink: 0;
+    border-radius: 99px; border: none;
+    background: rgba(117,126,135,0.3);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background 0.15s;
+    position: relative;
+  }
+  /* Invisible hit-area expansion → 44x44 effective (HIG) */
+  .avail-interval-btn::before {
+    content: "";
+    position: absolute;
+    top: -6px; right: -6px; bottom: -6px; left: -6px;
+  }
+  .avail-interval-btn:hover { background: rgba(117,126,135,0.45); }
+  .avail-interval-btn svg { width: 16px; height: 16px; stroke: var(--fit-text-primary); }
+  .fit-light .avail-interval-btn { background: rgba(0,0,0,0.08); }
+  .fit-light .avail-interval-btn:hover { background: rgba(0,0,0,0.14); }
+
+  /* Time picker bottom sheet — iOS-style wheel (prototype; platform-native in dev) */
+  .avail-tp-wheels {
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+    padding: 12px 16px 4px;
+    position: relative;
+  }
+  .avail-tp-wheel {
+    flex: 0 1 96px; max-width: 96px;
+    height: 180px;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+    mask-image: linear-gradient(to bottom,
+      transparent 0%, rgba(0,0,0,0.3) 12%, rgba(0,0,0,1) 35%,
+      rgba(0,0,0,1) 65%, rgba(0,0,0,0.3) 88%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom,
+      transparent 0%, rgba(0,0,0,0.3) 12%, rgba(0,0,0,1) 35%,
+      rgba(0,0,0,1) 65%, rgba(0,0,0,0.3) 88%, transparent 100%);
+  }
+  .avail-tp-wheel::-webkit-scrollbar { display: none; }
+  .avail-tp-wheel-pad { height: 72px; scroll-snap-align: none; }
+  .avail-tp-wheel-item {
+    height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    scroll-snap-align: center;
+    font-size: 22px; color: var(--fit-text-primary);
+    font-family: var(--fit-font);
+    user-select: none;
+  }
+  .avail-tp-sep {
+    font-size: 22px; color: var(--fit-text-primary);
+    line-height: 1; margin-top: -4px;
+  }
+  /* Validation errors (per-interval) */
+  .avail-time-input.error { outline: 1px solid var(--fit-red-400); }
+  .avail-interval-error {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: -2px;
+    font-size: 13px; color: var(--fit-red-400); line-height: 1.4;
+  }
+  .avail-interval-error svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  /* Inline banners (non-blocking warnings) */
+  .avail-banner {
+    margin: 0 16px 16px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    display: flex; gap: 12px; align-items: flex-start;
+    font-size: 14px; line-height: 1.4;
+    color: var(--fit-text-primary);
+  }
+  .avail-banner svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+  .avail-banner .avail-banner-body { flex: 1; }
+  .avail-banner .avail-banner-title { font-weight: 500; margin-bottom: 2px; }
+  .avail-banner .avail-banner-link {
+    color: inherit; text-decoration: underline; cursor: pointer; font-weight: 500;
+  }
+  /* Info — existing bookings affected */
+  .avail-banner.info {
+    background: rgba(3,178,226,0.08);
+    border: 1px solid rgba(3,178,226,0.22);
+  }
+  .avail-banner.info svg { color: var(--fit-blue-500); }
+  /* Warning — all days off */
+  .avail-banner.warn {
+    background: rgba(247,201,72,0.08);
+    border: 1px solid rgba(247,201,72,0.3);
+  }
+  .avail-banner.warn svg { color: #F7C948; }
+
+  /* Existing bookings sheet — event row */
+  .avail-ev-row {
+    display: flex; gap: 12px; align-items: center;
+    padding: 12px 14px; border-radius: 12px;
+    background: var(--fit-surface-low);
+    margin-bottom: 8px;
+  }
+  .fit-dark .avail-ev-row { background: var(--fit-black); }
+  .avail-ev-row .avail-ev-icon {
+    width: 36px; height: 36px; flex-shrink: 0;
+    border-radius: 10px;
+    background: var(--fit-selection-gradient);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-white);
+  }
+  .avail-ev-row .avail-ev-icon svg { width: 18px; height: 18px; }
+  .avail-ev-row .avail-ev-body { flex: 1; min-width: 0; }
+  .avail-ev-row .avail-ev-title { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .avail-ev-row .avail-ev-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+
+  /* Disabled Save button */
+  .fit-phone-footer > button:disabled {
+    opacity: 0.45; cursor: not-allowed;
+  }
+
+  /* ===== AVAILABILITY FLOW STATES ===== */
+  /* Loading skeleton shown in place of content */
+  #s-availability .avail-fs-skel { display: none; padding: 0 16px; }
+  #s-availability.fs-loading .avail-fs-content { display: none; }
+  #s-availability.fs-loading .avail-fs-skel { display: flex; flex-direction: column; gap: 20px; }
+  #s-availability.fs-loading .fit-phone-footer { display: none; }
+  .avail-sk-day { display: flex; flex-direction: column; gap: 12px; }
+  .avail-sk-head { display: flex; align-items: center; gap: 12px; }
+  .avail-sk-box { width: 24px; height: 24px; border-radius: 6px; flex-shrink: 0; }
+  .avail-sk-label { height: 14px; border-radius: 7px; width: 38%; }
+  .avail-sk-row { display: flex; gap: 12px; align-items: center; }
+  .avail-sk-input { flex: 1 0 0; height: 56px; border-radius: var(--fit-radius-md); }
+  .avail-sk-sep { width: 14px; height: 14px; border-radius: 7px; flex-shrink: 0; }
+  .avail-sk-btn { width: 32px; height: 32px; border-radius: 99px; flex-shrink: 0; }
+
+  /* Saving: inline spinner inside Save button */
+  .avail-save-spinner {
+    display: none;
+    width: 16px; height: 16px; vertical-align: -3px; margin-right: 8px;
+    border: 2px solid rgba(255,255,255,0.35);
+    border-top-color: var(--fit-white);
+    border-radius: 50%;
+    animation: avail-spin 0.9s linear infinite;
+  }
+  #s-availability.fs-saving .avail-save-spinner { display: inline-block; }
+  #s-availability.fs-saving #avail-save-btn { cursor: wait; opacity: 0.85; }
+  @keyframes avail-spin { to { transform: rotate(360deg); } }
+
+  /* Save error banner (above footer) */
+  .avail-save-error {
+    display: none;
+    align-items: center; gap: 10px;
+    margin: 0 16px 12px; padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(240,92,91,0.08);
+    border: 1px solid rgba(240,92,91,0.22);
+    font-size: 14px; color: var(--fit-red-400); line-height: 1.4;
+  }
+  #s-availability.fs-error .avail-save-error { display: flex; }
+  .avail-save-error svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .avail-save-error-body { flex: 1; color: var(--fit-text-primary); }
+  .avail-save-error-body strong { color: var(--fit-red-400); font-weight: 500; }
+  .avail-save-error-retry {
+    font-family: var(--fit-font); font-size: 13px; font-weight: 500;
+    color: var(--fit-red-400); background: transparent; border: none;
+    cursor: pointer; padding: 4px 8px; margin: -4px -8px;
+  }
+
+  /* Selection band (centered 36px highlight) */
+  .avail-tp-wheels::before {
+    content: "";
+    position: absolute; left: 16px; right: 16px;
+    top: 50%; transform: translateY(-50%);
+    height: 36px; pointer-events: none;
+    background: var(--fit-surface-low);
+    border-radius: var(--fit-radius-md);
+    z-index: 0;
+  }
+  .fit-dark .avail-tp-wheels::before { background: var(--fit-black); }
+  .avail-tp-wheels > * { position: relative; z-index: 1; }
+
+  /* ===== PD SELECTOR (TZ / Country / Languages) — push screen ===== */
+  .pd-search-wrap { padding: 0 16px 16px; }
+  .pd-search {
+    display: flex; align-items: center; gap: 8px;
+    height: 44px; padding: 0 12px; border-radius: 12px;
+    background: var(--fit-surface-high); color: var(--fit-text-primary);
+  }
+  .fit-light .pd-search { background: var(--fit-gray-100); }
+  .pd-search svg { width: 18px; height: 18px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .pd-search input {
+    flex: 1; border: none; outline: none; background: transparent;
+    font-family: var(--fit-font); font-size: 16px; color: var(--fit-text-primary);
+    padding: 0;
+  }
+  .pd-search input::placeholder { color: var(--fit-text-placeholder); }
+  .pd-search-clear {
+    width: 20px; height: 20px; border: none; background: var(--fit-gray-600);
+    color: var(--fit-white); border-radius: 50%;
+    display: none; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0; padding: 0;
+  }
+  .pd-search.has-value .pd-search-clear { display: flex; }
+  .pd-search-clear svg { width: 10px; height: 10px; color: var(--fit-white); }
+
+  .pd-list { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .pd-list .cal-select-row { padding: 16px 12px; min-height: 56px; }
+  .pd-list .cal-select-row span { font-size: 16px; line-height: 1.25; }
+  .pd-list .cal-flag {
+    width: 24px; height: 18px; border-radius: 3px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; line-height: 1;
+  }
+  .pd-list .cal-select-row.hidden { display: none; }
+
+  .pd-empty {
+    display: none; flex-direction: column; align-items: center;
+    text-align: center; padding: 48px 20px;
+    color: var(--fit-text-tertiary); gap: 8px;
+  }
+  .pd-empty.show { display: flex; }
+  .pd-empty svg { width: 40px; height: 40px; color: var(--fit-gray-600); margin-bottom: 4px; }
+  .pd-empty-title { font-size: 16px; font-weight: 500; color: var(--fit-text-secondary); }
+  .pd-empty-sub { font-size: 14px; }
+
+  /* Multi-select footer count */
+  .pd-save-count { opacity: 0.7; margin-left: 6px; font-weight: 400; }
+
+  /* ===== PD INTRO VIDEO (Mux direct-upload, 6 states) =====
+     Card visuals + state machine live in fit-ui.css as canonical FitVideoUploadCard
+     (.fit-vuc + slot classes). Only the gradient placeholder for the ready state's
+     thumbnail demo + help-text state mapping stay local (page-specific). */
+  .pd-vuc-thumb-demo {
+    background-image: linear-gradient(135deg, #4F46E5 0%, #0891B2 100%);
+  }
+  .pd-video-help {
+    font-size: 13px; line-height: 1.4; margin-top: 6px;
+    color: var(--fit-text-tertiary);
+  }
+  .fit-vuc[data-fvuc-state="idle"]       ~ .pd-video-help .pd-video-help-idle,
+  .fit-vuc[data-fvuc-state="uploading"]  ~ .pd-video-help .pd-video-help-uploading,
+  .fit-vuc[data-fvuc-state="processing"] ~ .pd-video-help .pd-video-help-processing,
+  .fit-vuc[data-fvuc-state="ready"]      ~ .pd-video-help .pd-video-help-ready,
+  .fit-vuc[data-fvuc-state="errored"]    ~ .pd-video-help .pd-video-help-errored,
+  .fit-vuc[data-fvuc-state="pending"]    ~ .pd-video-help .pd-video-help-pending { display: inline; }
+  .pd-video-help span { display: none; }
+  .pd-video-help-ready { color: var(--fit-teal-500); }
+  .pd-video-help-errored { color: var(--fit-red-400); }
+  .pd-video-help-uploading,
+  .pd-video-help-processing,
+  .pd-video-help-pending { color: var(--fit-yellow-400); }
+
+  /* ===== PD VIDEO ACTION MENU (floating UIMenu — Preview/Replace/Remove) ===== */
+  /* Anchored to the ⋯ button on Ready state. Production: native UIMenu (iOS) / PopupMenu (Android). */
+  .pd-video-menu {
+    position: absolute; top: 44px; right: 8px; z-index: 20;
+    min-width: 200px; padding: 6px;
+    background: var(--fit-surface-high); border: 1px solid var(--fit-divider);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    opacity: 0; transform: translateY(-4px) scale(0.96);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    pointer-events: none;
+  }
+  .pd-video-menu.show {
+    opacity: 1; transform: translateY(0) scale(1); pointer-events: auto;
+  }
+  .pd-video-menu-item {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 10px 12px; border: none; background: transparent;
+    font-family: var(--fit-font); font-size: 15px; color: var(--fit-text-primary);
+    border-radius: 8px; cursor: pointer; text-align: left;
+  }
+  .pd-video-menu-item:hover { background: var(--fit-surface-higher); }
+  .pd-video-menu-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .pd-video-menu-item.destructive { color: var(--fit-red-400); }
+  .pd-video-menu-divider {
+    height: 1px; background: var(--fit-divider); margin: 4px 0;
+  }
+  /* Backdrop swallows outside-taps for the menu */
+  .pd-video-menu-backdrop {
+    position: absolute; inset: 0; z-index: 19;
+    background: transparent;
+    display: none;
+  }
+  .pd-video-menu-backdrop.show { display: block; }
+
+  /* (canonical .fit-toast-action lives in fit-ui.css — see FitToast extension) */
+
+  /* ===== PD COVER IMAGE (16:9 upload, fallback to default) ===== */
+  .pd-cover-wrap {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 12px; min-height: 64px;
+    background: var(--fit-surface-high); border-radius: 12px;
+    cursor: pointer;
+  }
+  .pd-cover-wrap:active { transform: scale(0.99); }
+  .pd-cover-thumb {
+    width: 80px; aspect-ratio: 16/9;
+    border-radius: 8px; flex-shrink: 0;
+    background: var(--fit-brand-gradient);
+    background-size: cover; background-position: center;
+  }
+  .pd-cover-info { flex: 1; min-width: 0; }
+  .pd-cover-title {
+    font-size: 15px; font-weight: 500; color: var(--fit-text-primary);
+    line-height: 1.3;
+  }
+  .pd-cover-sub {
+    font-size: 13px; color: var(--fit-text-tertiary);
+    line-height: 1.35; margin-top: 2px;
+  }
+  .pd-cover-chev { flex-shrink: 0; color: var(--fit-text-tertiary); }
+  .pd-cover-chev svg { width: 16px; height: 16px; }
+
+  /* ===== PD AVATAR ACTION ROWS ===== */
+  .pd-avatar-action {
+    display: flex; align-items: center; gap: 14px;
+    width: 100%; min-height: 56px; padding: 0 16px;
+    background: var(--fit-surface-high); color: var(--fit-text-primary);
+    border: none; border-radius: 12px;
+    font-family: var(--fit-font); font-size: 16px; font-weight: 400;
+    cursor: pointer; text-align: left;
+    transition: background 0.15s;
+  }
+  .fit-light .pd-avatar-action { background: var(--fit-white); }
+  .pd-avatar-action:active { transform: scale(0.98); }
+  .pd-avatar-action svg { width: 22px; height: 22px; flex-shrink: 0; color: var(--fit-text-secondary); }
+  .pd-avatar-action.pd-avatar-destructive {
+    background: rgba(240,92,91,0.12); color: var(--fit-red-400);
+  }
+  .pd-avatar-action.pd-avatar-destructive svg { color: var(--fit-red-400); }
+  .pd-avatar-wrap.no-photo .pd-avatar-destructive { display: none; }
+
+  /* ===== PD FLOW STATES (loading / saving / error / saved) ===== */
+  #s-personal-data .pd-fs-skel { display: none; padding: 0 16px; }
+  #s-personal-data.fs-loading .pd-fs-content { display: none; }
+  #s-personal-data.fs-loading .pd-fs-skel { display: flex; flex-direction: column; gap: 20px; }
+  #s-personal-data.fs-loading .fit-phone-footer { display: none; }
+
+  .pd-sk-avatar { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; }
+  .pd-sk-group { display: flex; flex-direction: column; gap: 8px; }
+  .pd-sk-label { height: 12px; width: 30%; border-radius: 6px; }
+  .pd-sk-input { height: 56px; border-radius: var(--fit-radius-md); }
+  .pd-sk-row { display: flex; gap: 12px; }
+  .pd-sk-row .pd-sk-col { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+
+  /* Saving spinner inside Save button */
+  .pd-save-spinner {
+    display: none;
+    width: 16px; height: 16px; vertical-align: -3px; margin-right: 8px;
+    border: 2px solid rgba(255,255,255,0.35);
+    border-top-color: var(--fit-white);
+    border-radius: 50%;
+    animation: pd-spin 0.9s linear infinite;
+  }
+  #s-personal-data.fs-saving .pd-save-spinner { display: inline-block; }
+  #s-personal-data.fs-saving #pd-save-btn { cursor: wait; opacity: 0.85; pointer-events: none; }
+  @keyframes pd-spin { to { transform: rotate(360deg); } }
+
+  /* Save gate: disabled when client validation fails (DOB <13 or invalid video URL).
+     Pointer-events stay on so tap can scroll to first error. */
+  #pd-save-btn.is-disabled { opacity: 0.5; cursor: not-allowed; }
+  @keyframes pd-field-flash {
+    0%, 100% { background-color: transparent; }
+    30%      { background-color: rgba(240,92,91,0.15); }
+  }
+  .pd-field-flash { animation: pd-field-flash 0.6s ease 2; }
+
+  /* Network error: initial GET failed — centered retry block. Hides skeleton + content + footer. */
+  .pd-network-error {
+    display: none; flex-direction: column; align-items: center;
+    padding: 60px 24px; text-align: center; gap: 12px;
+  }
+  .pd-network-error svg.pd-ne-illus {
+    width: 56px; height: 56px; color: var(--fit-text-tertiary);
+    margin-bottom: 4px;
+  }
+  .pd-network-error-title {
+    font-size: 17px; font-weight: 500; color: var(--fit-text-primary);
+  }
+  .pd-network-error-sub {
+    font-size: 14px; color: var(--fit-text-tertiary); line-height: 1.5;
+    max-width: 280px;
+  }
+  .pd-network-error-retry {
+    margin-top: 8px;
+    padding: 10px 24px;
+    border: none; border-radius: 99px;
+    background: var(--fit-brand-gradient); color: var(--fit-white);
+    font-family: var(--fit-font); font-size: 15px; font-weight: 500;
+    cursor: pointer;
+  }
+  #s-personal-data.fs-network-error .pd-fs-content { display: none; }
+  #s-personal-data.fs-network-error .pd-fs-skel { display: none; }
+  #s-personal-data.fs-network-error .fit-phone-footer { display: none; }
+  #s-personal-data.fs-network-error .pd-network-error { display: flex; }
+
+  /* Save error banner */
+  .pd-save-error {
+    display: none;
+    align-items: center; gap: 10px;
+    margin: 0 16px 12px; padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(240,92,91,0.08);
+    border: 1px solid rgba(240,92,91,0.22);
+    font-size: 14px; line-height: 1.4;
+  }
+  #s-personal-data.fs-error .pd-save-error { display: flex; }
+  .pd-save-error svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--fit-red-400); }
+  .pd-save-error-body { flex: 1; color: var(--fit-text-primary); }
+  .pd-save-error-body strong { color: var(--fit-red-400); font-weight: 500; }
+  .pd-save-error-retry {
+    font-family: var(--fit-font); font-size: 13px; font-weight: 500;
+    color: var(--fit-red-400); background: transparent; border: none;
+    cursor: pointer; padding: 4px 8px; margin: -4px -8px;
+  }
+
+  /* ===== SPORT TYPES SELECT (grid, multi, sectioned) ===== */
+  #s-sport-types .fit-phone-content { padding-bottom: 16px; }
+  .sp-section { padding: 0 16px; margin-bottom: 20px; }
+  .sp-section-title {
+    font-size: 14px; font-weight: 500;
+    color: var(--fit-text-secondary);
+    margin: 4px 0 12px;
+  }
+  .sp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .sp-card {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px; min-height: 56px;
+    border-radius: 14px;
+    background: var(--fit-surface-high);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.12s;
+    color: var(--fit-text-primary);
+    user-select: none;
+  }
+  .fit-light .sp-card { background: var(--fit-white); border-color: var(--fit-gray-200); }
+  .sp-card:active { transform: scale(0.98); }
+  .sp-card.selected {
+    background: var(--fit-selection-gradient);
+    border-color: var(--fit-teal-600);
+  }
+  .sp-card svg { width: 22px; height: 22px; flex-shrink: 0; color: var(--fit-text-secondary); stroke-width: 1.8; }
+  .sp-card.selected svg { color: var(--fit-text-primary); }
+  .sp-card-label { font-size: 14px; line-height: 1.2; }
+  .sp-card.hidden { display: none; }
+  .sp-section.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+    <button onclick="window.location.href='../../index.html'" style="display:flex;align-items:center;gap:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;padding:8px 12px;border-radius:10px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-gray-300);cursor:pointer;width:100%;margin-bottom:8px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      All modules
+    </button>
+    
+  <div class="label">Personal Data</div>
+  <button class="active" onclick="go('s-personal-data',this)">Personal Data</button>
+  <button onclick="go('s-notes-editor',this)">About Me Editor</button>
+  <button onclick="go('s-tz-select',this)">Time Zone</button>
+  <button onclick="go('s-country-select',this)">Home Country</button>
+  <button onclick="go('s-city-select',this)">Home City</button>
+  <button onclick="go('s-lang-select',this)">Languages</button>
+  <button onclick="go('s-personal-data',this);setTimeout(openDobPicker,100);">DOB Picker</button>
+  <div class="label">Other modules</div>
+  <button onclick="window.location.href='./settings.html'">← Back to Settings</button>
+  </div>
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ==================== PHONE ==================== -->
+<!-- ===== SETTINGS: PERSONAL DATA ===== -->
+<div class="fit-phone fit-dark active" id="s-personal-data">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="handlePdBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Personal data</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <!-- Network error — shown while PD.fs-network-error (initial GET failed) -->
+    <div class="pd-network-error">
+      <svg class="pd-ne-illus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12.5a11 11 0 0122 0M5 16.5a7 7 0 0114 0M9 20.5a3 3 0 016 0"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+      <div class="pd-network-error-title">Couldn&rsquo;t load your data</div>
+      <div class="pd-network-error-sub">Check your connection and try again. Nothing is lost &mdash; your data stays on the server.</div>
+      <button class="pd-network-error-retry" onclick="handlePdNetworkRetry()">Retry</button>
+    </div>
+
+    <!-- Loading skeleton — shown while PD.fs-loading -->
+    <div class="pd-fs-skel">
+      <div class="pd-sk-avatar sk-shimmer"></div>
+      <div class="pd-sk-group"><div class="pd-sk-label sk-shimmer"></div><div class="pd-sk-input sk-shimmer"></div></div>
+      <div class="pd-sk-group"><div class="pd-sk-label sk-shimmer"></div><div class="pd-sk-input sk-shimmer"></div></div>
+      <div class="pd-sk-group"><div class="pd-sk-label sk-shimmer" style="width:22%;"></div><div class="pd-sk-input sk-shimmer" style="height:80px;"></div></div>
+      <div class="pd-sk-group"><div class="pd-sk-label sk-shimmer" style="width:26%;"></div><div class="pd-sk-input sk-shimmer"></div></div>
+      <div class="pd-sk-row">
+        <div class="pd-sk-col"><div class="pd-sk-label sk-shimmer"></div><div class="pd-sk-input sk-shimmer"></div></div>
+        <div class="pd-sk-col"><div class="pd-sk-label sk-shimmer"></div><div class="pd-sk-input sk-shimmer"></div></div>
+      </div>
+    </div>
+
+  <div class="pd-fs-content">
+    <div style="display:flex;justify-content:center;padding:0 0 20px;">
+      <div id="pd-avatar-wrap" style="position:relative;cursor:pointer;" onclick="openSheet('pd-avatar-sheet')">
+        <div id="pd-avatar-img" style="width:80px;height:80px;border-radius:50%;background:var(--fit-brand-gradient);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:600;color:var(--fit-white);overflow:hidden;background-size:cover;background-position:center;">JM</div>
+        <div style="position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;border:2px solid var(--fit-screen-bg);">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">First name</span>
+      <div class="fit-input" style="color:var(--fit-text-primary);">John</div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Last name</span>
+      <div class="fit-input" style="color:var(--fit-text-primary);">Miller</div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">About me</span>
+      <div class="fit-input" style="min-height:80px;align-items:flex-start;padding-top:14px;cursor:pointer;" onclick="go('s-notes-editor',document.querySelector('[onclick*=s-notes-editor]'))">
+        <span style="color:var(--fit-text-secondary);font-size:14px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">Certified fitness & yoga coach with 8 years of experience. Multi-sport coach working with tennis, padel, and basketball players.</span>
+      </div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Time Zone</span>
+      <div class="fit-input" style="cursor:pointer;" onclick="go('s-tz-select',document.querySelector('[onclick*=s-tz-select]'))"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span> <span id="pd-tz-value">Warsaw, Europe (GMT+1)</span><span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Home country</span>
+      <div class="fit-input" style="cursor:pointer;" onclick="go('s-country-select',document.querySelector('[onclick*=s-country-select]'))"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:14px;"><rect x="1" y="5" width="22" height="14" rx="2"/></svg></span> <span id="pd-country-value">Poland</span><span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Home city</span>
+      <div class="fit-input" style="cursor:pointer;" onclick="go('s-city-select',document.querySelector('[onclick*=s-city-select]'))"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span> <span id="pd-city-value">Warsaw</span><span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Languages</span>
+      <div class="fit-input" style="cursor:pointer;" onclick="go('s-lang-select',document.querySelector('[onclick*=s-lang-select]'))"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg></span> <span id="pd-lang-value">Polski</span><span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    </div>
+    <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);padding:0 16px;margin:8px 0 8px;">Gender</div>
+    <div class="fit-selection-group">
+      <div class="fit-selection-chip" style="gap:6px;">Woman</div>
+      <div class="fit-selection-chip selected" style="gap:6px;">Man</div>
+    </div>
+    <div class="fit-input-group" id="pd-dob-group" style="padding:0 16px;">
+      <span class="fit-input-label">Date of birth</span>
+      <div class="fit-input" style="cursor:pointer;" onclick="openDobPicker()"><span id="pd-dob-value" style="color:var(--fit-text-placeholder);">Select your date of birth</span><span class="fit-input-chevron" style="margin-left:auto;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+      <div class="fit-input-error-text" id="pd-dob-error" style="display:none;margin-top:6px;color:var(--fit-red-400);font-size:13px;line-height:1.4;">Must be 13 or older</div>
+    </div>
+  </div><!-- /.pd-fs-content -->
+  </div>
+
+  <!-- Save error banner (above footer) -->
+  <div class="pd-save-error">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12" y2="16.5"/></svg>
+    <div class="pd-save-error-body"><strong>Couldn't save changes.</strong> Check your connection and try again.</div>
+    <button class="pd-save-error-retry" onclick="handlePdSave()">Retry</button>
+  </div>
+
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;">
+    <button id="pd-save-btn" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" onclick="handlePdSave()"><span class="pd-save-spinner"></span>Save</button>
+  </div>
+
+  <!-- Saved snackbar -->
+  <div class="fit-snackbar" id="pd-saved-snack">Personal data updated</div>
+
+  <!-- Intro video toast (foreground push surface) — canonical .fit-toast with border-left variant + action button.
+       Single element, content/variant swapped per event by pdShowVideoToast(). -->
+  <div class="fit-toast" id="pd-video-toast" style="border-left:3px solid var(--fit-teal-500);">
+    <svg id="pd-video-toast-icon" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>
+    <span id="pd-video-toast-text" style="font-size:14px;flex:1;">Your intro video is live</span>
+    <button class="fit-toast-action" id="pd-video-toast-action" onclick="pdHideVideoToast()">View</button>
+  </div>
+  <div class="fit-snackbar" id="pd-validation-snack" style="background:#3B1F1F;border-color:rgba(240,92,91,0.35);">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12" y2="16.5"/></svg>
+    Fix the highlighted fields
+  </div>
+  <div class="fit-snackbar" id="pd-upload-error-snack" style="background:#3B1F1F;border-color:rgba(240,92,91,0.35);">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12" y2="16.5"/></svg>
+    <span id="pd-upload-error-text">Couldn&rsquo;t upload &mdash; try again</span>
+  </div>
+
+  <!-- Discard changes confirm sheet -->
+  <div class="fit-sheet-overlay" id="pd-discard-sheet">
+    <div class="fit-sheet" >
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Discard changes?</div>
+      <div class="fit-sheet-subtitle">Your profile changes will be lost.</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
+        <button class="fit-btn fit-btn-destructive" style="height:50px;font-size:16px;" onclick="pdDiscardConfirm()">Discard</button>
+        <button style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="closeSheet('pd-discard-sheet')">Keep editing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Avatar action sheet (Take photo / Choose from library / Remove) -->
+  <div class="fit-sheet-overlay" id="pd-avatar-sheet">
+    <div class="fit-sheet" >
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Profile photo</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+        <button class="pd-avatar-action" onclick="pdAvatarAction('camera')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <span>Take photo</span>
+        </button>
+        <button class="pd-avatar-action" onclick="pdAvatarAction('library')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span>Choose from library</span>
+        </button>
+        <button class="pd-avatar-action pd-avatar-destructive" id="pd-avatar-remove" style="display:none;" onclick="pdAvatarAction('remove')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+          <span>Remove photo</span>
+        </button>
+      </div>
+      <button style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;margin-top:16px;" onclick="closeSheet('pd-avatar-sheet')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Cover image action sheet (Take photo / Choose from library / Remove) -->
+  <div class="fit-sheet-overlay" id="pd-cover-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Cover image</div>
+      <div class="fit-sheet-subtitle">Used as fallback when you have no intro video. 16:9, up to 10 MB.</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+        <button class="pd-avatar-action" onclick="pdCoverAction('camera')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <span>Take photo</span>
+        </button>
+        <button class="pd-avatar-action" onclick="pdCoverAction('library')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span>Choose from library</span>
+        </button>
+        <button class="pd-avatar-action pd-avatar-destructive" id="pd-cover-remove" style="display:none;" onclick="pdCoverAction('remove')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+          <span>Remove cover</span>
+        </button>
+      </div>
+      <button style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;margin-top:16px;" onclick="closeSheet('pd-cover-sheet')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Intro video — Remove confirmation sheet (Medium destructive per feedback_destructive_actions) -->
+  <div class="fit-sheet-overlay" id="pd-video-remove-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Remove your intro video?</div>
+      <div class="fit-sheet-subtitle">Athletes will see your cover image instead. You can upload a new video any time.</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
+        <button class="fit-btn fit-btn-destructive" style="height:50px;font-size:16px;" onclick="pdVideoConfirmRemove()">Remove</button>
+        <button style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="closeSheet('pd-video-remove-sheet')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOB picker sheet (3-wheel: Day / Month / Year) — mounted inside Personal Data so it renders on top of this screen -->
+  <div class="fit-sheet-overlay" id="dob-picker-sheet">
+    <div class="fit-sheet" >
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Date of birth</div>
+      <div class="fit-sheet-subtitle">You must be at least 13 years old</div>
+      <div class="avail-tp-wheels" style="gap:12px;">
+        <div class="avail-tp-wheel" id="dob-wheel-day" style="flex:0 1 72px;max-width:72px;"></div>
+        <div class="avail-tp-wheel" id="dob-wheel-month" style="flex:0 1 110px;max-width:110px;"></div>
+        <div class="avail-tp-wheel" id="dob-wheel-year" style="flex:0 1 96px;max-width:96px;"></div>
+      </div>
+      <div id="dob-sheet-error" style="display:none;margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(240,92,91,0.12);color:var(--fit-red-400);font-size:13px;line-height:1.4;text-align:center;">Must be 13 or older on today's date</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
+        <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="confirmDobPicker()">Set</button>
+        <button style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="closeSheet('dob-picker-sheet')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ABOUT ME EDITOR ===== -->
+<div class="fit-phone fit-dark" id="s-notes-editor">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;">
+      <button style="border:none;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;cursor:pointer;">Cancel</button>
+      <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">About Me</span>
+      <button style="border:none;background:transparent;color:var(--fit-brand-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Save</button>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding:0;">
+    <div style="padding:16px;height:100%;">
+      <div contenteditable="true" style="width:100%;min-height:300px;font-family:var(--fit-font);font-size:16px;line-height:1.6;color:var(--fit-text-primary);outline:none;background:transparent;">Certified fitness & yoga coach with 8 years of experience. Multi-sport coach working with tennis, padel, and basketball players. Focused on improving technique, coordination, and game understanding.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== TIME ZONE SELECT — push screen ===== -->
+<div class="fit-phone fit-dark" id="s-tz-select">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-personal-data',document.querySelector('[onclick*=s-personal-data]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Time zone</span>
+    </div>
+    <div class="pd-search-wrap">
+      <div class="pd-search" id="tz-search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="search" id="tz-search-input" placeholder="Search" autocomplete="off" oninput="filterPdList(this,'tz')"/>
+        <button class="pd-search-clear" onclick="clearPdSearch('tz')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="pd-list" id="tz-list" data-pd-list="tz" data-pd-mode="single">
+      <div class="cal-select-row" data-label="Honolulu, Pacific (GMT-10)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Honolulu, Pacific (GMT-10)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Anchorage, America (GMT-9)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Anchorage, America (GMT-9)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Los Angeles, America (GMT-8)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Los Angeles, America (GMT-8)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Denver, America (GMT-7)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Denver, America (GMT-7)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Chicago, America (GMT-6)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Chicago, America (GMT-6)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="New York, America (GMT-5)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">New York, America (GMT-5)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Halifax, America (GMT-4)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Halifax, America (GMT-4)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="São Paulo, America (GMT-3)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">São Paulo, America (GMT-3)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Azores, Atlantic (GMT-1)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Azores, Atlantic (GMT-1)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="London, Europe (GMT+0)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">London, Europe (GMT+0)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row selected" data-label="Warsaw, Europe (GMT+1)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Warsaw, Europe (GMT+1)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Cairo, Africa (GMT+2)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Cairo, Africa (GMT+2)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Moscow, Europe (GMT+3)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Moscow, Europe (GMT+3)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Dubai, Asia (GMT+4)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Dubai, Asia (GMT+4)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Karachi, Asia (GMT+5)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Karachi, Asia (GMT+5)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Bangkok, Asia (GMT+7)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Bangkok, Asia (GMT+7)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Singapore, Asia (GMT+8)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Singapore, Asia (GMT+8)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Tokyo, Asia (GMT+9)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Tokyo, Asia (GMT+9)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Sydney, Australia (GMT+10)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Sydney, Australia (GMT+10)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Auckland, Pacific (GMT+12)" onclick="pdPickSingle(this,'tz','pd-tz-value')"><span style="flex:1;">Auckland, Pacific (GMT+12)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+    </div>
+    <div class="pd-empty" id="tz-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      <div class="pd-empty-title">No matches</div>
+      <div class="pd-empty-sub">Try a different city or region</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HOME COUNTRY SELECT — push screen ===== -->
+<div class="fit-phone fit-dark" id="s-country-select">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-personal-data',document.querySelector('[onclick*=s-personal-data]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Home country</span>
+    </div>
+    <div class="pd-search-wrap">
+      <div class="pd-search" id="country-search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="search" id="country-search-input" placeholder="Search" autocomplete="off" oninput="filterPdList(this,'country')"/>
+        <button class="pd-search-clear" onclick="clearPdSearch('country')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="pd-list" data-pd-list="country" data-pd-mode="single">
+      <div class="cal-select-row" data-label="Argentina" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇦🇷</div><span style="flex:1;">Argentina</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Australia" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇦🇺</div><span style="flex:1;">Australia</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Brazil" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇧🇷</div><span style="flex:1;">Brazil</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Canada" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇨🇦</div><span style="flex:1;">Canada</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="China" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇨🇳</div><span style="flex:1;">China</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Czech Republic" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇨🇿</div><span style="flex:1;">Czech Republic</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Denmark" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇩🇰</div><span style="flex:1;">Denmark</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Egypt" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇪🇬</div><span style="flex:1;">Egypt</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Finland" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇫🇮</div><span style="flex:1;">Finland</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="France" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇫🇷</div><span style="flex:1;">France</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Germany" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇩🇪</div><span style="flex:1;">Germany</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="India" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇮🇳</div><span style="flex:1;">India</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Indonesia" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇮🇩</div><span style="flex:1;">Indonesia</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Ireland" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇮🇪</div><span style="flex:1;">Ireland</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Israel" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇮🇱</div><span style="flex:1;">Israel</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Italy" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇮🇹</div><span style="flex:1;">Italy</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Japan" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇯🇵</div><span style="flex:1;">Japan</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Mexico" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇲🇽</div><span style="flex:1;">Mexico</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Netherlands" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇳🇱</div><span style="flex:1;">Netherlands</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="New Zealand" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇳🇿</div><span style="flex:1;">New Zealand</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Norway" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇳🇴</div><span style="flex:1;">Norway</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row selected" data-label="Poland" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇵🇱</div><span style="flex:1;">Poland</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Portugal" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇵🇹</div><span style="flex:1;">Portugal</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Romania" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇷🇴</div><span style="flex:1;">Romania</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Singapore" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇸🇬</div><span style="flex:1;">Singapore</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="South Africa" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇿🇦</div><span style="flex:1;">South Africa</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Spain" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇪🇸</div><span style="flex:1;">Spain</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Sweden" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇸🇪</div><span style="flex:1;">Sweden</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Switzerland" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇨🇭</div><span style="flex:1;">Switzerland</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Turkey" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇹🇷</div><span style="flex:1;">Turkey</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Ukraine" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇺🇦</div><span style="flex:1;">Ukraine</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="United Arab Emirates" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇦🇪</div><span style="flex:1;">United Arab Emirates</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="United Kingdom" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇬🇧</div><span style="flex:1;">United Kingdom</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="United States" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇺🇸</div><span style="flex:1;">United States</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Vietnam" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇻🇳</div><span style="flex:1;">Vietnam</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+    </div>
+    <div class="pd-empty" id="country-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      <div class="pd-empty-title">No matches</div>
+      <div class="pd-empty-sub">Try a different country name</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HOME CITY SELECT — push screen, single, scoped to selected country ===== -->
+<div class="fit-phone fit-dark" id="s-city-select">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-personal-data',document.querySelector('[onclick*=s-personal-data]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Home city</span>
+    </div>
+    <div class="pd-search-wrap">
+      <div class="pd-search" id="city-search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="search" id="city-search-input" placeholder="Search" autocomplete="off" oninput="filterPdList(this,'city')"/>
+        <button class="pd-search-clear" onclick="clearPdSearch('city')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div style="padding:8px 16px 0;color:var(--fit-text-tertiary);font-size:13px;">Cities in <strong style="color:var(--fit-text-primary);">Poland</strong></div>
+    <div class="pd-list" data-pd-list="city" data-pd-mode="single">
+      <div class="cal-select-row" data-label="Bydgoszcz" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Bydgoszcz</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Gdańsk" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Gdańsk</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Katowice" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Katowice</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Kraków" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Kraków</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Lublin" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Lublin</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Łódź" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Łódź</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Poznań" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Poznań</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Szczecin" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Szczecin</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row selected" data-label="Warsaw" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Warsaw</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Wrocław" onclick="pdPickSingle(this,'city','pd-city-value')"><span style="flex:1;">Wrocław</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+    </div>
+    <div class="pd-empty" id="city-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      <div class="pd-empty-title">No matches</div>
+      <div class="pd-empty-sub">Try a different city name</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LANGUAGES SELECT — push screen, multi ===== -->
+<div class="fit-phone fit-dark" id="s-lang-select">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="pdLangBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Languages</span>
+    </div>
+    <div class="pd-search-wrap">
+      <div class="pd-search" id="lang-search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="search" id="lang-search-input" placeholder="Search" autocomplete="off" oninput="filterPdList(this,'lang')"/>
+        <button class="pd-search-clear" onclick="clearPdSearch('lang')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="pd-list" data-pd-list="lang" data-pd-mode="multi">
+      <div class="cal-select-row" data-label="العربية · Arabic" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">العربية · Arabic</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="বাংলা · Bengali" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">বাংলা · Bengali</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="中文 · Chinese (Simplified)" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">中文 · Chinese (Simplified)</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Čeština · Czech" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Čeština · Czech</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Dansk · Danish" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Dansk · Danish</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Nederlands · Dutch" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Nederlands · Dutch</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="English · English" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">English · English</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Suomi · Finnish" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Suomi · Finnish</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Français · French" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Français · French</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Deutsch · German" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Deutsch · German</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Ελληνικά · Greek" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Ελληνικά · Greek</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="עברית · Hebrew" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">עברית · Hebrew</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="हिन्दी · Hindi" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">हिन्दी · Hindi</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Magyar · Hungarian" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Magyar · Hungarian</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Indonesia · Indonesian" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Indonesia · Indonesian</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Italiano · Italian" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Italiano · Italian</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="日本語 · Japanese" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">日本語 · Japanese</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="한국어 · Korean" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">한국어 · Korean</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Norsk · Norwegian" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Norsk · Norwegian</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="فارسی · Persian" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">فارسی · Persian</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row selected" data-label="Polski · Polish" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Polski · Polish</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Português · Portuguese" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Português · Portuguese</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Română · Romanian" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Română · Romanian</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Русский · Russian" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Русский · Russian</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Español · Spanish" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Español · Spanish</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Svenska · Swedish" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Svenska · Swedish</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="ไทย · Thai" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">ไทย · Thai</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Türkçe · Turkish" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Türkçe · Turkish</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Українська · Ukrainian" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Українська · Ukrainian</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="Tiếng Việt · Vietnamese" onclick="pdToggleMulti(this,'lang')"><span style="flex:1;">Tiếng Việt · Vietnamese</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+    </div>
+    <div class="pd-empty" id="lang-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      <div class="pd-empty-title">No matches</div>
+      <div class="pd-empty-sub">Try the native name or English</div>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;">
+    <button id="lang-save-btn" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;opacity:0.5;pointer-events:none;" onclick="pdLangSave()">Save<span class="pd-save-count" id="lang-save-count">(1 selected)</span></button>
+  </div>
+
+  <!-- Discard changes confirm sheet -->
+  <div class="fit-sheet-overlay" id="lang-discard-sheet">
+    <div class="fit-sheet" >
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Discard changes?</div>
+      <div class="fit-sheet-subtitle">Your language selection will not be saved.</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
+        <button class="fit-btn fit-btn-destructive" style="height:50px;font-size:16px;" onclick="pdLangDiscardConfirm()">Discard</button>
+        <button style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="closeSheet('lang-discard-sheet')">Keep editing</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+  <div class="ann active" id="ann-s-personal-data"><span class="ann-role athlete">Athlete</span><h3>Personal Data</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setPdFlow('default',this)">Default</button>
+      <button onclick="setPdFlow('loading',this)">Loading</button>
+      <button onclick="setPdFlow('network-error',this)">Network error (initial)</button>
+      <button onclick="setPdFlow('saving',this)">Saving</button>
+      <button onclick="setPdFlow('error',this)">Save error</button>
+      <button onclick="setPdFlow('saved',this)">Saved</button>
+      <button onclick="pdSimulateInvalid('dob')">DOB invalid (&lt;13)</button>
+      <button onclick="pdSimulateUploadError('avatar')">Avatar upload error</button>
+    </div>
+    <p><strong>Athlete personal data</strong>, edited from Settings. Cloned from the coach screen but <strong>without the intro video + cover image</strong> (those are coach public-profile media). Avatar + text fields + selectors are identical. <em>Per <code>project_personal_data_selectors</code> athletes also have Height/Weight (kg/cm) — not added here yet.</em></p>
+
+    <p><strong>Fields</strong></p>
+    <ul>
+      <li><strong>Avatar</strong> (initials fallback) — tap circle or pencil → <code>pd-avatar-sheet</code> with 3 actions: Take photo / Choose from library / <em>Remove photo</em> (Medium destructive, tinted red 15%). Remove hidden when no photo.</li>
+      <li><strong>First/Last name</strong> — required, <code>maxlength=50</code>, trimmed. Empty on Save → inline error pattern matching DOB. Server normalizes whitespace.</li>
+      <li><strong>About me</strong> — 3-line clamp, tap → full-screen editor. Server max 500 chars; client warns at 450 (matches <code>feedback_character_counter</code>).</li>
+      <li><strong>Dropdowns:</strong> Time Zone / Home Country / Languages — all full-screen push, device-detected pre-fill at onboarding.</li>
+      <li><strong>Gender:</strong> Woman / Man chips, single-select. Used for athlete-side filter in Discovery.</li>
+      <li><strong>DOB</strong> — 3-wheel sheet (Day/Month/Year), year capped at <code>currentYear − 13</code>; strict <code>≥ 13y</code> on Set — inline red banner in sheet. Prod = <code>UIDatePicker .compact</code> (iOS) / <code>MaterialDatePicker</code> (Android).</li>
+    </ul>
+
+    <hr>
+
+    <p><strong>Flow states</strong> (sidebar to toggle)</p>
+    <ul>
+      <li><strong>Loading</strong> — <code>.fs-loading</code> shows shimmer skeleton, footer hidden.</li>
+      <li><strong>Network error (initial)</strong> — <code>.fs-network-error</code> hides skeleton + content + footer, shows centered illustration + Retry. <strong>Required</strong> — skeleton must not loop indefinitely.</li>
+      <li><strong>Saving</strong> — Save button shows inline spinner, <code>pointer-events:none</code>.</li>
+      <li><strong>Save error</strong> — red banner above footer with Retry. Generic copy for any 5xx / network mid-save.</li>
+      <li><strong>Saved</strong> — snackbar 1400ms.</li>
+    </ul>
+
+    <p><strong>Save gate (client-side validation)</strong></p>
+    <ul>
+      <li>Save button takes <code>.is-disabled</code> style (opacity 0.5, cursor not-allowed) when DOB inline-error visible OR intro video <code>mux_status === "errored"</code>.</li>
+      <li>Tap on disabled Save → smooth-scroll to first invalid field + 600ms red flash twice + snackbar "Fix the highlighted fields". No network call fired.</li>
+      <li>Intro video <code>uploading</code> / <code>processing</code> states are <strong>not</strong> blockers — Save commits other fields independently; video lifecycle is async via webhooks.</li>
+    </ul>
+
+    <p><strong>Upload errors</strong> (avatar / cover)</p>
+    <ul>
+      <li>File &gt; 10 MB / wrong format / network fail → toast: "Couldn&rsquo;t upload cover — file too large (max 10 MB)" or "Couldn&rsquo;t upload photo — try again". 3-second dismissal. Sheet stays open so user can retry.</li>
+      <li>iOS / Android picker enforces type filter at OS level; toast is the second line of defense.</li>
+    </ul>
+
+    <p><strong>Server contracts the prototype does NOT model — devs implement:</strong></p>
+    <ul>
+      <li><strong>401 on Save</strong> — token expired → push to <code>account-access</code> re-auth flow with context "return-to: personal-data, restore-form-state". After re-auth, restore unsaved form + auto-retry Save once.</li>
+      <li><strong>Server-side field validation echo</strong> — backend returns <code>{field, message}</code> per error. Map into inline error pattern matching DOB (<code>.fit-input-error-text</code> below the field). If field can&rsquo;t be mapped (unknown key), fall back to generic <code>.pd-save-error</code> banner with server message.</li>
+      <li><strong>Intro video lifecycle</strong> — fully webhook-driven. Client posts to <code>/me/intro-video/upload-url</code> → PUTs to Mux directly → posts to <code>/me/intro-video/uploaded</code>. Mux webhooks fire <code>asset.ready</code> (backend stores <code>mux_playback_id</code> + sends <code>videoReady</code> push) or <code>asset.errored</code> (backend stores error code + sends <code>videoFailed</code> push). Coach taps either push → lands here at <code>#pd-video-group</code> anchor. See <a href="https://github.com/321-fit/project-spec/blob/main/architecture/mux-integration.md">mux-integration.md</a>.</li>
+      <li><strong>Rate limit 429</strong> — falls into <code>.pd-save-error</code> with server-provided message; no per-state dedicated UI.</li>
+    </ul></div>
+  <div class="ann" id="ann-s-notes-editor"><span class="ann-role athlete">Athlete</span><h3>About Me Editor</h3><p>Full-screen text editor. Cancel/Save header. Reusable for About Me and Notes fields.</p></div>
+  <div class="ann" id="ann-s-lang-select"><span class="ann-role athlete">Athlete</span><h3>Languages</h3><p>Full-screen push from Personal Data. <strong>Multi-select</strong> — tap toggles row, Save commits all changes.</p><ul><li><strong>Row:</strong> <code>native · English</code> (e.g. "Polski · Polish") — users search in either</li><li><strong>Sticky footer Save</strong> — enabled only when selection differs from initial AND at least 1 is selected; shows "(N selected)" count</li><li><strong>Back button:</strong> if dirty → <code>Discard changes?</code> sheet (Discard = Medium destructive tinted red, Keep editing = text)</li><li><strong>On Save:</strong> Personal Data input shows first 2 languages or "Polski +N more"</li><li><strong>Seed</strong> captured on screen load + re-captured after each Save to reset dirty state</li></ul><p class="note">Prototype = 30 common languages. Production pulls full BCP-47 list.</p></div>
+  <div class="ann" id="ann-s-country-select"><span class="ann-role athlete">Athlete</span><h3>Home Country</h3><p>Full-screen push from Personal Data. Same pattern as Time Zone — single-select, auto-dismiss.</p><ul><li><strong>Leading slot:</strong> flag emoji 24×18 (prod: SVG flag set from country code)</li><li>Row = flag + country name; alphabetical</li><li>Current country detected from device at account creation — pre-selected</li><li>Used for tax/currency derivation on backend + Search → Location filter (athlete-search.md)</li><li><strong>Changing country resets the City field</strong> on Personal Data — previous city is no longer valid in the new country</li></ul><p class="note">Prototype uses ~35 countries covering major markets. Production pulls full ISO 3166-1 list.</p></div>
+  <div class="ann" id="ann-s-city-select"><span class="ann-role athlete">Athlete</span><h3>Home City</h3><p>Full-screen push from Personal Data. Same pattern as Country — single-select, auto-dismiss, sticky search.</p><ul><li><strong>Scoped by selected country</strong> — header subtitle "Cities in &lt;Country&gt;"; list re-fetches when country changes</li><li><strong>No flag</strong> in row — city names are unambiguous within country scope; row = city name + checkmark only</li><li><strong>Pre-fill source:</strong> reverse-geocoded from device GPS at onboarding. If location permission denied or geocode fails — field stays empty, user picks manually</li><li><strong>Empty state:</strong> "No matches" when filter returns zero</li><li>Consumed by: Search → Filters → Location (<code>athlete-search.md</code>)</li></ul><p class="note">Prototype shows 10 Polish cities (matches Country=Poland). Production pulls paginated list from backend keyed by <code>country_code</code>.</p></div>
+  <div class="ann" id="ann-s-tz-select"><span class="ann-role athlete">Athlete</span><h3>Time Zone</h3><p>Full-screen push from Personal Data. <strong>Single-select</strong> — tap row auto-dismisses back to Personal Data with the new value.</p><ul><li><strong>Sticky search</strong> under header — live filters list by city/region/GMT</li><li><strong>Row pattern:</strong> <code>cal-select-row</code> — 56px, teal accent on <code>.selected</code>, trailing checkmark toggled by class (no hardcoded SVG state)</li><li><strong>Default:</strong> current TZ detected from device at account creation — shown scrolled into view + checkmarked</li><li><strong>Empty state:</strong> "No matches" when filter returns zero</li><li>Reusable pattern for Country and Languages selectors</li></ul><p class="note">Prototype uses ~20 representative TZs. Production pulls full IANA zone list from device.</p></div>
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+// === THEME SWITCH ===
+function switchTheme(theme) {
+  document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.getElementById("theme-light").style.background = theme === "light" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-light").style.color = theme === "light" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.querySelectorAll(".fit-phone").forEach(function(phone) {
+    if (theme === "light") { phone.classList.remove("fit-dark"); phone.classList.add("fit-light"); }
+    else { phone.classList.remove("fit-light"); phone.classList.add("fit-dark"); }
+  });
+}
+
+// === NAVIGATION ===
+function go(id, btn) {
+  document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+  const ann = document.getElementById('ann-' + id);
+  if (ann) ann.classList.add('active');
+  // Re-init FitUI for newly visible screen
+  FitUI.initAll(document.getElementById(id));
+}
+
+// === STATE TOGGLES ===
+function setListState(state, btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  var list = document.getElementById('s-list');
+  list.classList.remove('ls-default', 'ls-empty', 'ls-loading');
+  list.classList.add('ls-' + state);
+}
+
+function setCreateState(state, btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  var screen = document.getElementById('s-create');
+  // Clear any lingering errors + snackbars
+  screen.querySelectorAll('.fit-input-group.error').forEach(g => g.classList.remove('error'));
+  var vs = document.getElementById('validation-snack'); if (vs) vs.classList.remove('show');
+  var ds = document.getElementById('duration-snack'); if (ds) ds.classList.remove('show');
+  var timeDisp = document.getElementById('time-display');
+  if (state === 'errors') {
+    // Clear required inputs so validateCreate marks them
+    var nameEl = screen.querySelector('[data-required="name"] .fit-input');
+    if (nameEl) nameEl.textContent = '';
+    var priceEl = screen.querySelector('[data-required="price"] + .price-row .fit-input');
+    if (priceEl) priceEl.textContent = '';
+    if (timeDisp) timeDisp.textContent = 'Select time';
+    validateCreate();
+  } else if (state === 'duration-reset') {
+    if (timeDisp) timeDisp.textContent = 'Select time';
+    var snack = document.getElementById('duration-snack');
+    if (snack) { snack.classList.add('show'); setTimeout(function(){ snack.classList.remove('show'); }, 2500); }
+  } else {
+    // Default — restore prefilled values
+    var nameEl = screen.querySelector('[data-required="name"] .fit-input');
+    if (nameEl && !nameEl.textContent.trim()) nameEl.textContent = '';
+    if (timeDisp) timeDisp.textContent = '18:00';
+  }
+}
+
+// === DROPDOWN SELECT (generic) ===
+function selectDropdown(dropdownId, displayId, value, item) {
+  const dropdown = document.getElementById(dropdownId);
+  dropdown.querySelectorAll('.fit-dropdown-item').forEach(i => i.classList.remove('selected'));
+  item.classList.add('selected');
+  document.getElementById(displayId).textContent = value;
+  setTimeout(() => dropdown.classList.remove('open'), 150);
+}
+
+// === FORM VALIDATION ===
+function validateCreate() {
+  const screen = document.getElementById('s-create');
+  const content = screen.querySelector('.fit-phone-content');
+
+  // Clear previous errors
+  screen.querySelectorAll('.fit-input-group.error').forEach(g => g.classList.remove('error'));
+
+  // Check required fields
+  const checks = [
+    { sel: '[data-required="name"]', test: () => {
+      const el = screen.querySelector('[data-required="name"] .fit-input');
+      return el && el.textContent.trim().length > 0;
+    }},
+    { sel: '[data-required="duration"]', test: () => true }, // wheel picker always has value
+    { sel: '[data-required="price"]', test: () => {
+      const el = screen.querySelector('[data-required="price"] + .price-row .fit-input');
+      return el && el.textContent.trim().length > 0 && el.textContent.trim() !== '0';
+    }},
+    { sel: '[data-required="time"]', test: () => {
+      const el = document.getElementById('time-display');
+      return el && el.textContent !== 'Select time';
+    }},
+  ];
+
+  let firstError = null;
+  for (const check of checks) {
+    const group = screen.querySelector(check.sel);
+    if (!group) continue;
+    // Skip time check if personal mode
+    if (check.sel.includes('time') && !document.getElementById('schedule-fields')?.offsetHeight) continue;
+
+    if (!check.test()) {
+      group.classList.add('error');
+      if (!firstError) firstError = group;
+    }
+  }
+
+  if (firstError) {
+    content.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      const rect = firstError.getBoundingClientRect();
+      const contentRect = content.getBoundingClientRect();
+      const offset = rect.top - contentRect.top + content.scrollTop - 10;
+      content.scrollTo({ top: offset, behavior: 'smooth' });
+    }, 50);
+
+    const snack = document.getElementById('validation-snack');
+    snack.classList.add('show');
+    setTimeout(() => snack.classList.remove('show'), 2500);
+
+    setTimeout(() => {
+      screen.querySelectorAll('.fit-input-group.error').forEach(g => g.classList.remove('error'));
+    }, 3000);
+  }
+}
+
+// === DYNAMIC SHEET WARNINGS ===
+function updateSheetWarning(e, sheetId) {
+  var radio = e.target.closest("label");
+  if (!radio) return;
+  radio = radio.querySelector("input[type=radio]");
+  if (!radio) return;
+  var val = radio.value;
+  var msgs = {
+    "edit-scope-sheet-2": {tid:"edit-warning-text",m:{"future":"Only future generated events will have the new settings.","all":"23 participants across 12 events will be notified about the changes."}},
+    "delete-template-sheet": {tid:"del-warning-text",wid:"del-warning",m:{"keep":{t:"New events will stop being generated. Existing 12 events will continue as scheduled.",c:"yellow"},"cancel":{t:"47 participants will be notified and refunded. This cannot be undone.",c:"red"}}}
+  };
+  var cfg = msgs[sheetId];
+  if (!cfg) return;
+  var msg = cfg.m[val];
+  var textEl = document.getElementById(cfg.tid);
+  if (!textEl || !msg) return;
+  if (typeof msg === "string") { textEl.textContent = msg; }
+  else {
+    textEl.textContent = msg.t;
+    var w = document.getElementById(cfg.wid);
+    if (w) {
+      w.style.background = msg.c==="red" ? "rgba(240,92,91,0.08)" : "rgba(247,201,72,0.08)";
+      w.querySelector("svg").setAttribute("stroke", msg.c==="red" ? "var(--fit-red-400)" : "var(--fit-yellow-400)");
+    }
+  }
+}
+
+// === DURATION CHANGE -> RESET TIME ===
+function changeDuration(item) {
+  const col = item.closest('.fit-wheel-scroll');
+  col.querySelectorAll('.fit-wheel-item').forEach(i => {
+    i.classList.remove('active');
+    i.classList.add('dim');
+  });
+  item.classList.remove('dim');
+  item.classList.add('active');
+
+  const timeDisplay = document.getElementById('time-display');
+  if (timeDisplay && timeDisplay.textContent !== 'Select time') {
+    timeDisplay.textContent = 'Select time';
+    const snack = document.getElementById('duration-snack');
+    snack.classList.add('show');
+    setTimeout(() => snack.classList.remove('show'), 2500);
+  }
+}
+
+// === DATE PICKER ===
+let selectedDate = 'Sat, April 19';
+function pickDate(cell, dateStr) {
+  selectedDate = dateStr;
+  document.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('selected'));
+  cell.classList.add('selected');
+  document.getElementById('date-confirm-btn').textContent = 'Confirm \u00b7 ' + dateStr;
+}
+function confirmDate() {
+  const prev = document.getElementById('date-display').textContent;
+  document.getElementById('date-display').textContent = selectedDate;
+  document.getElementById('date-picker-sheet').classList.remove('visible');
+  if (prev !== selectedDate) {
+    const timeDisplay = document.getElementById('time-display');
+    if (timeDisplay && timeDisplay.textContent !== 'Select time') {
+      timeDisplay.textContent = 'Select time';
+      const snack = document.getElementById('duration-snack');
+      snack.querySelector('.snack-dot').style.background = 'var(--fit-yellow-400)';
+      snack.innerHTML = '<span class="snack-dot"></span>Time slot reset \u2014 date changed';
+      snack.classList.add('show');
+      setTimeout(() => snack.classList.remove('show'), 2500);
+    }
+  }
+}
+
+// === TIME PICKER BOTTOM SHEET (accordion slots) ===
+let tpHour = '18';
+let tpMin = '00';
+
+function tpToggleSlot(slot) {
+  if (slot.classList.contains('tp-slot-busy')) return;
+  const wasExpanded = slot.classList.contains('expanded');
+  document.querySelectorAll('#tp-slot-list .tp-slot').forEach(s => s.classList.remove('expanded'));
+  if (!wasExpanded) {
+    slot.classList.add('expanded');
+    var hour = slot.getAttribute('data-hour');
+    var firstChip = slot.querySelector('.min-chip:not(.disabled)');
+    if (firstChip) {
+      var min = firstChip.getAttribute('data-min');
+      document.querySelectorAll('#tp-slot-list .tp-slot-row').forEach(function(r) { r.classList.remove('selected'); });
+      document.querySelectorAll('#tp-slot-list .min-chip').forEach(function(c) { c.classList.remove('selected'); });
+      slot.querySelector('.tp-slot-row').classList.add('selected');
+      firstChip.classList.add('selected');
+      tpHour = hour;
+      tpMin = min;
+      tpUpdateBtn();
+    }
+    setTimeout(function() {
+      var list = document.getElementById('tp-slot-list');
+      var slotBottom = slot.offsetTop + slot.offsetHeight;
+      if (slotBottom > list.scrollTop + list.clientHeight) {
+        list.scrollTo({ top: slotBottom - list.clientHeight + 10, behavior: 'smooth' });
+      }
+    }, 100);
+  }
+}
+
+function tpPickTime(hour, min, e) {
+  e.stopPropagation();
+  tpHour = hour; tpMin = min;
+  document.querySelectorAll('#tp-slot-list .tp-slot-row').forEach(r => r.classList.remove('selected'));
+  document.querySelectorAll('#tp-slot-list .min-chip').forEach(c => c.classList.remove('selected'));
+  const chip = e.target.closest('.min-chip');
+  const slot = chip.closest('.tp-slot');
+  slot.querySelector('.tp-slot-row').classList.add('selected');
+  chip.classList.add('selected');
+  tpUpdateBtn();
+}
+
+function tpUpdateBtn() {
+  const h = parseInt(tpHour), m = parseInt(tpMin);
+  const start = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+  const end = String(h+1).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+  const btn = document.getElementById('tp-confirm-btn');
+  if (btn) btn.textContent = 'Confirm \u00b7 ' + start + ' \u2014 ' + end;
+}
+
+function tpConfirm() {
+  const start = String(parseInt(tpHour)).padStart(2,'0') + ':' + String(parseInt(tpMin)).padStart(2,'0');
+  document.getElementById('time-display').textContent = start;
+  document.getElementById('time-picker-sheet').classList.remove('visible');
+}
+
+// === CREATE SESSION: show/hide logic ===
+document.addEventListener('DOMContentLoaded', () => {
+  const typeToggle = document.getElementById('type-toggle');
+  const groupFields = document.getElementById('group-fields');
+  const scheduleFields = document.getElementById('schedule-fields');
+  const priceLabel = document.getElementById('price-label');
+  const scheduleToggle = document.getElementById('schedule-toggle');
+  const recurringFields = document.getElementById('recurring-fields');
+  const oneoffFields = document.getElementById('oneoff-fields');
+
+  if (!typeToggle) return;
+
+  function slideToggle(el, show) {
+    if (show) {
+      el.style.display = '';
+      el.style.overflow = 'hidden';
+      el.style.maxHeight = '0';
+      el.style.opacity = '0';
+      requestAnimationFrame(() => {
+        el.style.transition = 'max-height 0.3s ease, opacity 0.2s ease';
+        el.style.maxHeight = el.scrollHeight + 200 + 'px';
+        el.style.opacity = '1';
+        setTimeout(() => { el.style.maxHeight = ''; el.style.overflow = ''; el.style.transition = ''; }, 350);
+      });
+    } else {
+      el.style.overflow = 'hidden';
+      el.style.maxHeight = el.scrollHeight + 'px';
+      requestAnimationFrame(() => {
+        el.style.transition = 'max-height 0.3s ease, opacity 0.2s ease';
+        el.style.maxHeight = '0';
+        el.style.opacity = '0';
+        setTimeout(() => { el.style.display = 'none'; el.style.transition = ''; }, 300);
+      });
+    }
+  }
+
+  typeToggle.addEventListener('fit:selection', (e) => {
+    const isGroup = e.detail.values.includes('group');
+    slideToggle(groupFields, isGroup);
+    slideToggle(scheduleFields, isGroup);
+    priceLabel.textContent = isGroup ? 'Price per participant' : 'Price';
+  });
+
+  if (scheduleToggle) {
+    scheduleToggle.addEventListener('fit:selection', (e) => {
+      const isRecurring = e.detail.values.includes('recurring');
+      slideToggle(recurringFields, isRecurring);
+      slideToggle(oneoffFields, !isRecurring);
+    });
+  }
+});
+
+// === MAP MODE TOGGLE ===
+var mapLocked = true;
+function toggleMapMode() {
+  mapLocked = !mapLocked;
+  document.getElementById('map-lock-icon').style.display = mapLocked ? 'block' : 'none';
+  document.getElementById('map-unlock-icon').style.display = mapLocked ? 'none' : 'block';
+  document.getElementById('map-mode-text').textContent = mapLocked ? 'Pin is locked' : 'Drag to set location';
+  document.getElementById('map-mode-action').textContent = mapLocked ? 'Tap to adjust' : 'Tap to lock';
+  document.getElementById('map-mode-action').style.color = mapLocked ? 'var(--fit-teal-500)' : 'var(--fit-text-tertiary)';
+}
+
+// === CALENDAR SYNC FUNCTIONS (from settings.html) ===
+function setAppleDetailState(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll("button").forEach(function(b) {
+      b.style.background = "transparent"; b.style.color = "var(--fit-gray-400)";
+    });
+    btn.style.background = "var(--fit-gray-700)"; btn.style.color = "var(--fit-white)";
+  }
+  ["apple-error-revoked","apple-error-2fa","apple-error-sync"].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = "none";
+  });
+  var calList = document.getElementById("apple-cal-list");
+  var status = document.getElementById("apple-conn-status");
+  if (state === "normal") {
+    if (calList) { calList.style.display = ""; calList.style.opacity = ""; calList.style.pointerEvents = ""; }
+    if (status) { status.textContent = "Connected"; status.style.color = "var(--fit-teal-500)"; }
+  } else if (state === "revoked") {
+    document.getElementById("apple-error-revoked").style.display = "block";
+    if (calList) { calList.style.opacity = "0.5"; calList.style.pointerEvents = "none"; }
+    if (status) { status.textContent = "Password revoked"; status.style.color = "var(--fit-red-400)"; }
+  } else if (state === "2fa") {
+    document.getElementById("apple-error-2fa").style.display = "block";
+    if (calList) { calList.style.opacity = "0.5"; calList.style.pointerEvents = "none"; }
+    if (status) { status.textContent = "2FA required"; status.style.color = "var(--fit-yellow-400)"; }
+  } else if (state === "sync") {
+    document.getElementById("apple-error-sync").style.display = "block";
+    if (calList) { calList.style.display = ""; calList.style.opacity = ""; calList.style.pointerEvents = ""; }
+    if (status) { status.textContent = "Sync error"; status.style.color = "var(--fit-red-400)"; }
+  }
+}
+
+function setDetailState(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll("button").forEach(function(b) {
+      b.style.background = "transparent"; b.style.color = "var(--fit-gray-400)";
+    });
+    btn.style.background = "var(--fit-gray-700)"; btn.style.color = "var(--fit-white)";
+  }
+  ["error-initial","error-sync","error-auth"].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = "none";
+  });
+  var calList = document.querySelector("#s-cal-detail .fit-phone-content > div > div:last-of-type");
+  var statusOk = document.getElementById("sync-status-ok");
+  var statusErr = document.getElementById("sync-status-error");
+
+  if (state === "normal") {
+    if (calList) calList.style.display = "";
+    if (statusOk) { statusOk.style.display = "block"; statusOk.textContent = "2 of 3 calendars synced"; }
+    if (statusErr) statusErr.style.display = "none";
+  } else if (state === "initial") {
+    document.getElementById("error-initial").style.display = "block";
+    if (calList) calList.style.display = "none";
+    if (statusOk) statusOk.style.display = "none";
+    if (statusErr) { statusErr.style.display = "block"; statusErr.textContent = "Failed to load calendars"; }
+  } else if (state === "sync") {
+    document.getElementById("error-sync").style.display = "block";
+    if (calList) calList.style.display = "";
+    if (statusOk) statusOk.style.display = "none";
+    if (statusErr) { statusErr.style.display = "block"; statusErr.textContent = "\u26a0 Sync error"; }
+  } else if (state === "auth") {
+    document.getElementById("error-auth").style.display = "block";
+    if (calList) { calList.style.display = ""; calList.style.opacity = "0.5"; calList.style.pointerEvents = "none"; }
+    if (statusOk) statusOk.style.display = "none";
+    if (statusErr) { statusErr.style.display = "block"; statusErr.textContent = "\u26a0 Reconnect required"; }
+  }
+  if (state !== "auth" && calList) { calList.style.opacity = ""; calList.style.pointerEvents = ""; }
+}
+
+function toggleCalSync(state, btn) {
+  btn.parentElement.querySelectorAll('button').forEach(function(b) {
+    b.style.background = 'transparent'; b.style.color = 'var(--fit-gray-400)';
+  });
+  btn.style.background = 'var(--fit-gray-700)'; btn.style.color = 'var(--fit-white)';
+  var zero = document.getElementById('calsync-zero');
+  var conn = document.getElementById('calsync-connected');
+  zero.style.display = state === 'zero' ? 'flex' : 'none';
+  conn.style.display = state === 'connected' ? 'flex' : 'none';
+}
+
+// Apple Calendar validation
+function validateAppleConnect() {
+  var idField = document.getElementById('apple-id-field');
+  var passField = document.getElementById('apple-pass-field');
+  var idInput = idField.querySelector('input') || idField.querySelector('.fit-input');
+  var passInput = passField.querySelector('input') || passField.querySelector('.fit-input');
+
+  idField.classList.remove('error');
+  passField.classList.remove('error');
+
+  var hasError = false;
+
+  if (!(idInput.value || idInput.textContent || '').trim()) {
+    idField.classList.add('error');
+    if (!hasError) {
+      var content = idField.closest('.fit-phone-content');
+      content.scrollTo({ top: idField.offsetTop - 10, behavior: 'smooth' });
+    }
+    hasError = true;
+  }
+  if (!(passInput.value || passInput.textContent || '').trim()) {
+    passField.classList.add('error');
+    if (!hasError) {
+      var content = passField.closest('.fit-phone-content');
+      content.scrollTo({ top: passField.offsetTop - 10, behavior: 'smooth' });
+    }
+    hasError = true;
+  }
+
+  if (hasError) {
+    setTimeout(function() {
+      idField.classList.remove('error');
+      passField.classList.remove('error');
+    }, 3000);
+    return;
+  }
+
+  var toast = document.getElementById('apple-error-toast');
+  toast.classList.add('show');
+  setTimeout(function() { toast.classList.remove('show'); }, 3000);
+}
+
+// ==================== AVAILABILITY ====================
+let availTpCurrentInput = null;
+
+function toggleDay(headerEl) {
+  const day = headerEl.parentElement;
+  if (day.classList.contains('active')) {
+    day.classList.remove('active');
+    const intervals = day.querySelector('.avail-intervals');
+    if (intervals) intervals.remove();
+  } else {
+    day.classList.add('active');
+    if (!day.querySelector('.avail-intervals')) {
+      const wrap = document.createElement('div');
+      wrap.className = 'avail-intervals';
+      wrap.appendChild(availBuildInterval('07:00', '22:00', true));
+      day.appendChild(wrap);
+    }
+  }
+  validateAvailability();
+}
+
+function availBuildInterval(startVal, endVal, isFirst) {
+  const row = document.createElement('div');
+  row.className = 'avail-interval';
+  row.innerHTML =
+    '<div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">' + startVal + '</span>' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>' +
+    '</div>' +
+    '<span class="avail-interval-sep">to</span>' +
+    '<div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">' + endVal + '</span>' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>' +
+    '</div>' +
+    (isFirst
+      ? '<button class="avail-interval-btn" onclick="addInterval(this)" aria-label="Add interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
+      : '<button class="avail-interval-btn" onclick="removeInterval(this)" aria-label="Remove interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
+    );
+  return row;
+}
+
+function addInterval(btn) {
+  const intervals = btn.closest('.avail-intervals');
+  if (!intervals) return;
+  intervals.appendChild(availBuildInterval('22:00', '23:00', false));
+  validateAvailability();
+}
+
+function removeInterval(btn) {
+  const row = btn.closest('.avail-interval');
+  if (row) row.remove();
+  validateAvailability();
+}
+
+// --- Time picker wheel ---
+function availTpPopulate() {
+  const hourWheel = document.getElementById('avail-tp-hour');
+  const minWheel = document.getElementById('avail-tp-minute');
+  if (!hourWheel || hourWheel.dataset.populated === '1') return;
+  const pad = '<div class="avail-tp-wheel-pad"></div>';
+
+  let html = pad;
+  for (let h = 0; h < 24; h++) {
+    const v = String(h).padStart(2,'0');
+    html += '<div class="avail-tp-wheel-item" data-val="' + v + '">' + v + '</div>';
+  }
+  html += pad;
+  hourWheel.innerHTML = html;
+  hourWheel.dataset.populated = '1';
+
+  html = pad;
+  [0, 15, 30, 45].forEach(function(m) {
+    const v = String(m).padStart(2,'0');
+    html += '<div class="avail-tp-wheel-item" data-val="' + v + '">' + v + '</div>';
+  });
+  html += pad;
+  minWheel.innerHTML = html;
+  minWheel.dataset.populated = '1';
+}
+
+function openTimePicker(inputEl) {
+  availTpCurrentInput = inputEl;
+  availTpPopulate();
+  const valEl = inputEl.querySelector('.avail-time-value');
+  const parts = (valEl && valEl.textContent || '07:00').split(':');
+  const hh = parts[0], mm = parts[1];
+
+  const row = inputEl.closest('.avail-interval');
+  const inputs = row ? row.querySelectorAll('.avail-time-input') : [];
+  const isEnd = inputs[1] === inputEl;
+  const titleEl = document.getElementById('avail-tp-title');
+  if (titleEl) titleEl.textContent = isEnd ? 'End time' : 'Start time';
+
+  document.getElementById('avail-tp-sheet').classList.add('visible');
+  requestAnimationFrame(function() {
+    availTpScrollTo(document.getElementById('avail-tp-hour'), hh);
+    availTpScrollTo(document.getElementById('avail-tp-minute'), mm);
+  });
+}
+
+function availTpScrollTo(wheel, val) {
+  if (!wheel) return;
+  const item = wheel.querySelector('[data-val="' + val + '"]');
+  if (!item) return;
+  const target = item.offsetTop - wheel.offsetTop - (wheel.clientHeight / 2 - item.clientHeight / 2);
+  wheel.scrollTop = Math.max(0, target);
+}
+
+function availTpReadWheel(wheel) {
+  if (!wheel) return null;
+  const center = wheel.scrollTop + wheel.clientHeight / 2;
+  let closest = null, closestDist = Infinity;
+  wheel.querySelectorAll('.avail-tp-wheel-item').forEach(function(item) {
+    const itemCenter = (item.offsetTop - wheel.offsetTop) + item.clientHeight / 2;
+    const dist = Math.abs(itemCenter - center);
+    if (dist < closestDist) { closestDist = dist; closest = item; }
+  });
+  return closest ? closest.dataset.val : null;
+}
+
+function confirmTimePicker() {
+  const hh = availTpReadWheel(document.getElementById('avail-tp-hour')) || '07';
+  const mm = availTpReadWheel(document.getElementById('avail-tp-minute')) || '00';
+  if (availTpCurrentInput) {
+    const valEl = availTpCurrentInput.querySelector('.avail-time-value');
+    if (valEl) valEl.textContent = hh + ':' + mm;
+  }
+  closeSheet('avail-tp-sheet');
+  validateAvailability();
+}
+
+function closeSheet(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('visible');
+  if (id === 'avail-tp-sheet') availTpCurrentInput = null;
+}
+
+function availSetFlowClass(state) {
+  const screen = document.getElementById('s-availability');
+  if (!screen) return;
+  ['default','loading','saving','error'].forEach(function(s){ screen.classList.remove('fs-' + s); });
+  if (state !== 'default') screen.classList.add('fs-' + state);
+}
+
+function handleAvailSave() {
+  const btn = document.getElementById('avail-save-btn');
+  if (btn && btn.disabled) return; // validation errors — ignore
+  availSetFlowClass('saving');
+  // Simulated network delay → success
+  setTimeout(function() {
+    availSetFlowClass('default');
+    const snack = document.getElementById('avail-saved-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+  }, 900);
+}
+
+function handleAvailBack() {
+  // In production: only open sheet if dirty. Prototype: always demo.
+  openSheet('avail-discard-sheet');
+}
+
+function availDiscardConfirm() {
+  closeSheet('avail-discard-sheet');
+  // Return to Settings root
+  const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+  if (btn) go('s-settings', btn);
+}
+
+function setAvailFlow(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+  // Reset the content-row toggle to default visuals (flow is orthogonal)
+  if (state === 'saved') {
+    availSetFlowClass('default');
+    const snack = document.getElementById('avail-saved-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+    return;
+  }
+  availSetFlowClass(state);
+}
+
+// --- Validation ---
+function availParseTime(s) {
+  if (!s) return null;
+  const parts = s.split(':');
+  if (parts.length !== 2) return null;
+  const h = parseInt(parts[0], 10), m = parseInt(parts[1], 10);
+  if (isNaN(h) || isNaN(m)) return null;
+  return h * 60 + m;
+}
+
+function validateAvailability() {
+  const container = document.querySelector('#s-availability .avail-days');
+  if (!container) return;
+
+  container.querySelectorAll('.avail-time-input.error').forEach(function(el){ el.classList.remove('error'); });
+  container.querySelectorAll('.avail-interval-error').forEach(function(el){ el.remove(); });
+
+  let hasError = false;
+  let activeCount = 0;
+
+  container.querySelectorAll('.avail-day.active').forEach(function(day) {
+    activeCount++;
+    const intervalRows = Array.from(day.querySelectorAll('.avail-interval'));
+    const parsed = intervalRows.map(function(row) {
+      const inputs = row.querySelectorAll('.avail-time-input');
+      const sv = inputs[0] && inputs[0].querySelector('.avail-time-value');
+      const ev = inputs[1] && inputs[1].querySelector('.avail-time-value');
+      return {
+        row: row,
+        inputs: inputs,
+        start: availParseTime(sv && sv.textContent),
+        end: availParseTime(ev && ev.textContent),
+      };
+    });
+
+    parsed.forEach(function(iv, idx) {
+      if (iv.start == null || iv.end == null) return;
+      let err = null;
+      if (iv.end <= iv.start) {
+        err = 'End time must be after start';
+      } else if (iv.end - iv.start < 30) {
+        err = 'Interval must be at least 30 minutes';
+      } else {
+        for (let j = 0; j < parsed.length; j++) {
+          if (j === idx) continue;
+          const o = parsed[j];
+          if (o.start == null || o.end == null) continue;
+          if (iv.start < o.end && iv.end > o.start) {
+            err = 'Overlaps with another interval';
+            break;
+          }
+        }
+      }
+      if (err) {
+        hasError = true;
+        iv.inputs[0].classList.add('error');
+        iv.inputs[1].classList.add('error');
+        const msg = document.createElement('div');
+        msg.className = 'avail-interval-error';
+        msg.innerHTML =
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+          '<span>' + err + '</span>';
+        iv.row.insertAdjacentElement('afterend', msg);
+      }
+    });
+  });
+
+  const alloffBanner = document.getElementById('avail-banner-alloff');
+  if (alloffBanner) alloffBanner.style.display = activeCount === 0 ? 'flex' : 'none';
+
+  const saveBtn = document.getElementById('avail-save-btn');
+  if (saveBtn) saveBtn.disabled = hasError;
+}
+
+// --- State toggle (demo seeds) ---
+let availSeedHtml = null;
+
+function availCaptureSeed() {
+  const days = document.querySelector('#s-availability .avail-days');
+  if (days && availSeedHtml == null) availSeedHtml = days.innerHTML;
+}
+
+function availReset() {
+  availCaptureSeed();
+  const days = document.querySelector('#s-availability .avail-days');
+  if (days && availSeedHtml != null) days.innerHTML = availSeedHtml;
+  const existing = document.getElementById('avail-banner-existing');
+  if (existing) existing.style.display = 'none';
+}
+
+function setAvailState(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+  availSetFlowClass('default');
+  // Clear flow-row active state too (they're orthogonal, content reset means flow = default)
+  document.querySelectorAll('#ann-s-availability .state-toggle').forEach(function(row, idx) {
+    if (idx === 1) row.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+  });
+  availReset();
+
+  if (state === 'errors') {
+    // Monday: end (22:00) → 06:00 to demo end ≤ start
+    const mon = document.querySelector('#s-availability .avail-day[data-day="mon"] .avail-interval');
+    if (mon) {
+      const vals = mon.querySelectorAll('.avail-time-value');
+      if (vals.length >= 2) vals[1].textContent = '06:00';
+    }
+    // Tuesday interval 2: change to 10:00–20:00 to overlap with 07:00–12:00
+    const tue = document.querySelectorAll('#s-availability .avail-day[data-day="tue"] .avail-interval');
+    if (tue.length >= 2) {
+      const vals = tue[1].querySelectorAll('.avail-time-value');
+      if (vals.length >= 2) { vals[0].textContent = '10:00'; vals[1].textContent = '20:00'; }
+    }
+  } else if (state === 'alloff') {
+    document.querySelectorAll('#s-availability .avail-day.active').forEach(function(day) {
+      day.classList.remove('active');
+      const iv = day.querySelector('.avail-intervals');
+      if (iv) iv.remove();
+    });
+  } else if (state === 'existing') {
+    const ex = document.getElementById('avail-banner-existing');
+    if (ex) ex.style.display = 'flex';
+  }
+  validateAvailability();
+}
+
+function openSheet(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.add('visible');
+}
+
+// ===== PD SELECTOR (TZ / Country / Languages) =====
+function filterPdList(inputEl, key) {
+  const q = inputEl.value.trim().toLowerCase();
+  const wrap = document.getElementById(key + '-search-wrap');
+  if (wrap) wrap.classList.toggle('has-value', q.length > 0);
+  const list = document.querySelector('[data-pd-list="' + key + '"]');
+  const empty = document.getElementById(key + '-empty');
+  if (!list) return;
+  let visible = 0;
+  list.querySelectorAll('.cal-select-row').forEach(function(row) {
+    const label = (row.getAttribute('data-label') || row.textContent).toLowerCase();
+    const match = !q || label.indexOf(q) !== -1;
+    row.classList.toggle('hidden', !match);
+    if (match) visible++;
+  });
+  if (empty) empty.classList.toggle('show', visible === 0);
+}
+
+function clearPdSearch(key) {
+  const input = document.getElementById(key + '-search-input');
+  if (!input) return;
+  input.value = '';
+  if (key === 'sport') filterSportList(input);
+  else filterPdList(input, key);
+  input.focus();
+}
+
+// ===== PERSONAL DATA FLOW STATES =====
+function pdSetFlowClass(state) {
+  const screen = document.getElementById('s-personal-data');
+  if (!screen) return;
+  ['loading','saving','error','network-error'].forEach(function(s) { screen.classList.remove('fs-' + s); });
+  if (state && state !== 'default') screen.classList.add('fs-' + state);
+}
+
+// Retry from network-error → loading → default (simulated load).
+function handlePdNetworkRetry() {
+  pdSetFlowClass('loading');
+  setTimeout(function(){ pdSetFlowClass('default'); }, 1100);
+}
+
+// Demo helper: toggle inline-error state without going through real validators.
+function pdSimulateInvalid(kind) {
+  if (kind === 'dob') {
+    const err = document.getElementById('pd-dob-error');
+    if (err) err.style.display = 'block';
+    const val = document.getElementById('pd-dob-value');
+    if (val) { val.textContent = '5 Jun 2018'; val.style.color = 'var(--fit-text-primary)'; }
+  } else if (kind === 'video') {
+    pdVideoSetState('errored');
+  }
+  pdUpdateSaveGate();
+}
+
+// Upload error toast — simulates avatar/cover upload failure.
+function pdSimulateUploadError(kind) {
+  const snack = document.getElementById('pd-upload-error-snack');
+  const text = document.getElementById('pd-upload-error-text');
+  if (!snack) return;
+  if (text) {
+    text.textContent = kind === 'cover'
+      ? "Couldn't upload cover — file too large (max 10 MB)"
+      : "Couldn't upload photo — try again";
+  }
+  snack.classList.add('show');
+  clearTimeout(snack._t);
+  snack._t = setTimeout(function(){ snack.classList.remove('show'); }, 3000);
+}
+
+// (legacy YouTube pending-verify helper removed — Mux lifecycle is webhook-driven)
+
+// Client-side validation gate. Returns array of invalid field anchor IDs (empty = valid).
+function pdInvalidFields() {
+  const invalid = [];
+  const dobErr = document.getElementById('pd-dob-error');
+  if (dobErr && dobErr.style.display !== 'none' && dobErr.style.display !== '') {
+    invalid.push('pd-dob-group');
+  } else if (dobErr && dobErr.style.display === 'block') {
+    invalid.push('pd-dob-group');
+  }
+  const videoCard = document.getElementById('pd-video-card');
+  if (videoCard && videoCard.getAttribute('data-fvuc-state') === 'errored') {
+    invalid.push('pd-video-group');
+  }
+  return invalid;
+}
+
+// Refresh Save-btn disabled state based on current validity.
+function pdUpdateSaveGate() {
+  const btn = document.getElementById('pd-save-btn');
+  if (!btn) return;
+  btn.classList.toggle('is-disabled', pdInvalidFields().length > 0);
+}
+
+function handlePdSave() {
+  // Gate: client-side validation must pass before sending to server.
+  const bad = pdInvalidFields();
+  if (bad.length > 0) {
+    const firstId = bad[0];
+    const el = document.getElementById(firstId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.remove('pd-field-flash');
+      void el.offsetWidth; // restart animation
+      el.classList.add('pd-field-flash');
+      setTimeout(function(){ el.classList.remove('pd-field-flash'); }, 1300);
+    }
+    const snack = document.getElementById('pd-validation-snack');
+    if (snack) {
+      snack.classList.add('show');
+      clearTimeout(snack._t);
+      snack._t = setTimeout(function(){ snack.classList.remove('show'); }, 2200);
+    }
+    return;
+  }
+  pdSetFlowClass('saving');
+  setTimeout(function() {
+    pdSetFlowClass('default');
+    const snack = document.getElementById('pd-saved-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+  }, 900);
+}
+
+function handlePdBack() {
+  // In production: open sheet only if form dirty. Prototype always shows for demo.
+  openSheet('pd-discard-sheet');
+}
+
+function pdDiscardConfirm() {
+  closeSheet('pd-discard-sheet');
+  const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+  if (btn) go('s-settings', btn);
+}
+
+function setPdFlow(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+  if (state === 'saved') {
+    pdSetFlowClass('default');
+    const snack = document.getElementById('pd-saved-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+    return;
+  }
+  pdSetFlowClass(state);
+}
+
+// ===== AVATAR ACTION SHEET =====
+function pdAvatarAction(kind) {
+  const imgEl = document.getElementById('pd-avatar-img');
+  const removeBtn = document.getElementById('pd-avatar-remove');
+  if (kind === 'remove') {
+    imgEl.style.backgroundImage = '';
+    imgEl.textContent = 'JM';
+    if (removeBtn) removeBtn.style.display = 'none';
+  } else {
+    // Take photo / Library — simulate pick with a placeholder avatar
+    const demo = 'https://i.pravatar.cc/160?u=coach-john-miller';
+    imgEl.style.backgroundImage = 'url(' + demo + ')';
+    imgEl.textContent = '';
+    if (removeBtn) removeBtn.style.display = 'flex';
+  }
+  closeSheet('pd-avatar-sheet');
+}
+
+// ===== INTRO VIDEO (Mux direct-upload, 6 visual states) =====
+// State machine: idle → uploading → processing → ready  (happy path)
+//                                ↘ errored (any time from asset.errored webhook)
+//                pending = transient state when coach re-opened screen but PUT never finished
+// In production: state comes from coach.intro_video.mux_status. Prototype uses data-fvuc-state attr.
+
+function pdVideoSetState(state) {
+  const card = document.getElementById('pd-video-card');
+  if (!card) return;
+  const valid = ['idle','uploading','processing','ready','errored','pending'];
+  if (valid.indexOf(state) < 0) return;
+  card.setAttribute('data-fvuc-state', state);
+  // Cancel button only visible during uploading
+  const cancel = card.querySelector('.fit-vuc-cancel-btn');
+  if (cancel) cancel.style.display = (state === 'uploading') ? 'flex' : 'none';
+  // Sync state-toggle buttons in the annotation panel
+  const stateGroup = document.querySelector('#ann-s-personal-data .pd-video-states');
+  if (stateGroup) {
+    stateGroup.querySelectorAll('button').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-pd-video-state') === state);
+    });
+  }
+  pdUpdateSaveGate();
+}
+
+function pdVideoTap(ev) {
+  const card = document.getElementById('pd-video-card');
+  if (!card) return;
+  const state = card.getAttribute('data-fvuc-state');
+  // Idle/pending → opens native picker (simulated: jump to uploading state)
+  // Errored → opens picker again (Retry)
+  // Ready → opens preview (simulated: log)
+  // Uploading/processing → no-op (card disabled)
+  if (state === 'idle' || state === 'pending') {
+    pdVideoSimulateUpload();
+  } else if (state === 'errored') {
+    pdVideoSimulateUpload();
+  } else if (state === 'ready') {
+    // Production: open inline preview sheet with HLS player
+    console.log('Open preview sheet for playback_id');
+  }
+}
+
+// Simulates the full upload → processing → ready cycle for prototype demo.
+function pdVideoSimulateUpload() {
+  pdVideoSetState('uploading');
+  const fill = document.getElementById('pd-video-progress-fill');
+  const label = document.getElementById('pd-video-progress-label');
+  let pct = 0;
+  const tick = setInterval(function(){
+    pct = Math.min(100, pct + 8);
+    if (fill) fill.style.width = pct + '%';
+    if (label) label.textContent = 'Uploading… ' + pct + '%';
+    if (pct >= 100) {
+      clearInterval(tick);
+      // PUT done → POST /uploaded → webhook asset.created → processing
+      setTimeout(function(){ pdVideoSetState('processing'); }, 250);
+      // ...then asset.ready webhook → ready (in prototype: 1.5s wait)
+      setTimeout(function(){ pdVideoSetState('ready'); }, 2000);
+    }
+  }, 180);
+}
+
+// Opens the action menu on a ready video (Preview / Replace / Remove).
+// Production: native UIMenu on iOS, PopupMenu on Android. Prototype: floating positioned menu.
+function pdVideoOpenMore() {
+  const menu = document.getElementById('pd-video-menu');
+  const backdrop = document.getElementById('pd-video-menu-backdrop');
+  if (menu) menu.classList.add('show');
+  if (backdrop) backdrop.classList.add('show');
+}
+function pdVideoCloseMore() {
+  const menu = document.getElementById('pd-video-menu');
+  const backdrop = document.getElementById('pd-video-menu-backdrop');
+  if (menu) menu.classList.remove('show');
+  if (backdrop) backdrop.classList.remove('show');
+}
+
+// Remove → confirmation sheet → confirm = delete asset on Mux + clear DB + back to idle
+function pdVideoConfirmRemove() {
+  closeSheet('pd-video-remove-sheet');
+  pdVideoSetState('idle');
+  // Production: DELETE /me/intro-video → clears coach.intro_video
+}
+
+// ===== Foreground push → toast (universal pattern per notifications.md § Foreground push handling) =====
+// 4 toast variants demonstrating the upload/processing lifecycle events.
+const PD_VIDEO_TOAST_PRESETS = {
+  'uploaded':   { variant:'success', text:"Video uploaded — we're processing it now", action:null,    auto:3000 },
+  'put-failed': { variant:'error',   text:"Couldn't upload — check your connection",  action:"Retry", auto:5000 },
+  'ready':      { variant:'success', text:"Your intro video is live",                  action:"View",  auto:5000 },
+  'errored':    { variant:'error',   text:"Couldn't process your video",               action:"Fix it",auto:5000 },
+};
+function pdShowVideoToast(kind) {
+  const preset = PD_VIDEO_TOAST_PRESETS[kind];
+  if (!preset) return;
+  const toast = document.getElementById('pd-video-toast');
+  const icon = document.getElementById('pd-video-toast-icon');
+  const text = document.getElementById('pd-video-toast-text');
+  const action = document.getElementById('pd-video-toast-action');
+  if (!toast || !text || !action || !icon) return;
+  // Variant: swap border-left color + icon stroke (matches calendar-sync canonical pattern)
+  const accentVar = preset.variant === 'success' ? 'var(--fit-teal-500)' : 'var(--fit-red-400)';
+  toast.style.borderLeft = '3px solid ' + accentVar;
+  icon.setAttribute('stroke', accentVar);
+  // Icon path: check for success, alert-triangle for error
+  if (preset.variant === 'success') {
+    icon.innerHTML = '<polyline points="20 6 9 17 4 12"/>';
+  } else {
+    icon.innerHTML = '<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="0.5" fill="' + accentVar + '"/>';
+  }
+  // Text + action
+  text.textContent = preset.text;
+  if (preset.action) {
+    action.textContent = preset.action;
+    action.style.display = '';
+  } else {
+    action.style.display = 'none';
+  }
+  toast.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function(){ toast.classList.remove('show'); }, preset.auto);
+}
+function pdHideVideoToast() {
+  const toast = document.getElementById('pd-video-toast');
+  if (toast) toast.classList.remove('show');
+}
+
+// ===== COVER IMAGE ACTION SHEET =====
+function pdCoverAction(kind) {
+  const thumb = document.getElementById('pd-cover-thumb');
+  const removeBtn = document.getElementById('pd-cover-remove');
+  const title = document.querySelector('#pd-cover-wrap .pd-cover-title');
+  if (kind === 'remove') {
+    thumb.style.backgroundImage = '';
+    thumb.style.background = 'var(--fit-brand-gradient)';
+    if (title) title.textContent = 'Tap to upload';
+    if (removeBtn) removeBtn.style.display = 'none';
+  } else {
+    // Take photo / Library — simulate pick with a placeholder cover
+    const demo = 'https://picsum.photos/seed/coach-cover/640/360';
+    thumb.style.backgroundImage = 'url(' + demo + ')';
+    thumb.style.background = 'var(--fit-brand-gradient) center/cover';
+    thumb.style.backgroundImage = 'url(' + demo + ')';
+    thumb.style.backgroundSize = 'cover';
+    thumb.style.backgroundPosition = 'center';
+    if (title) title.textContent = 'Cover image set';
+    if (removeBtn) removeBtn.style.display = 'flex';
+  }
+  closeSheet('pd-cover-sheet');
+}
+
+// Initial gate calc on load
+document.addEventListener('DOMContentLoaded', function(){ pdUpdateSaveGate(); });
+
+// ===== DOB PICKER (3-wheel) =====
+var DOB_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function dobPopulate() {
+  const dayW = document.getElementById('dob-wheel-day');
+  const monW = document.getElementById('dob-wheel-month');
+  const yrW = document.getElementById('dob-wheel-year');
+  const pad = '<div class="avail-tp-wheel-pad"></div>';
+  if (dayW && !dayW.dataset.populated) {
+    dobRebuildDays(31);
+  }
+  if (monW && !monW.dataset.populated) {
+    let html = pad;
+    DOB_MONTHS.forEach(function(m, i) {
+      const v = String(i + 1).padStart(2,'0');
+      html += '<div class="avail-tp-wheel-item" data-val="' + v + '">' + m + '</div>';
+    });
+    html += pad;
+    monW.innerHTML = html;
+    monW.dataset.populated = '1';
+    monW.addEventListener('scroll', dobOnWheelChange);
+  }
+  if (yrW && !yrW.dataset.populated) {
+    const now = new Date();
+    const maxYear = now.getFullYear() - 13; // 13+ only — year list stops here
+    let html = pad;
+    for (let y = maxYear; y >= 1920; y--) {
+      html += '<div class="avail-tp-wheel-item" data-val="' + y + '">' + y + '</div>';
+    }
+    html += pad;
+    yrW.innerHTML = html;
+    yrW.dataset.populated = '1';
+    yrW.addEventListener('scroll', dobOnWheelChange);
+  }
+}
+
+function dobRebuildDays(max) {
+  const dayW = document.getElementById('dob-wheel-day');
+  if (!dayW) return;
+  const pad = '<div class="avail-tp-wheel-pad"></div>';
+  let html = pad;
+  for (let d = 1; d <= max; d++) {
+    const v = String(d).padStart(2,'0');
+    html += '<div class="avail-tp-wheel-item" data-val="' + v + '">' + d + '</div>';
+  }
+  html += pad;
+  dayW.innerHTML = html;
+  dayW.dataset.populated = '1';
+}
+
+var _dobWheelTimer;
+function dobOnWheelChange() {
+  clearTimeout(_dobWheelTimer);
+  _dobWheelTimer = setTimeout(function() {
+    const m = availTpReadWheel(document.getElementById('dob-wheel-month'));
+    const y = availTpReadWheel(document.getElementById('dob-wheel-year'));
+    if (!m || !y) return;
+    const monthNum = parseInt(m, 10);
+    const yearNum = parseInt(y, 10);
+    const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
+    const dayW = document.getElementById('dob-wheel-day');
+    const currentDay = availTpReadWheel(dayW);
+    dobRebuildDays(daysInMonth);
+    if (currentDay) {
+      const clamped = Math.min(parseInt(currentDay, 10), daysInMonth);
+      requestAnimationFrame(function() {
+        availTpScrollTo(dayW, String(clamped).padStart(2,'0'));
+      });
+    }
+  }, 120);
+}
+
+function openDobPicker() {
+  dobPopulate();
+  // Parse existing value or default to 2000-01-01
+  const valEl = document.getElementById('pd-dob-value');
+  const existing = (valEl && valEl.textContent || '').trim();
+  let dd = '01', mm = '01', yy = '2000';
+  const match = existing.match(/^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$/);
+  if (match) {
+    dd = String(match[1]).padStart(2,'0');
+    const monIdx = DOB_MONTHS.indexOf(match[2]);
+    if (monIdx >= 0) mm = String(monIdx + 1).padStart(2,'0');
+    yy = match[3];
+  }
+  const errBox = document.getElementById('dob-sheet-error');
+  if (errBox) errBox.style.display = 'none';
+  document.getElementById('dob-picker-sheet').classList.add('visible');
+  requestAnimationFrame(function() {
+    // Rebuild day wheel to match initial month/year length
+    const monthNum = parseInt(mm, 10);
+    const yearNum = parseInt(yy, 10);
+    dobRebuildDays(new Date(yearNum, monthNum, 0).getDate());
+    availTpScrollTo(document.getElementById('dob-wheel-day'), dd);
+    availTpScrollTo(document.getElementById('dob-wheel-month'), mm);
+    availTpScrollTo(document.getElementById('dob-wheel-year'), yy);
+  });
+}
+
+function confirmDobPicker() {
+  const dd = availTpReadWheel(document.getElementById('dob-wheel-day')) || '01';
+  const mm = availTpReadWheel(document.getElementById('dob-wheel-month')) || '01';
+  const yy = availTpReadWheel(document.getElementById('dob-wheel-year')) || '2000';
+  const picked = new Date(parseInt(yy,10), parseInt(mm,10) - 1, parseInt(dd,10));
+  const today = new Date();
+  const thirteenAgo = new Date(today.getFullYear() - 13, today.getMonth(), today.getDate());
+  if (picked > thirteenAgo) {
+    const errBox = document.getElementById('dob-sheet-error');
+    if (errBox) errBox.style.display = 'block';
+    return;
+  }
+  const valEl = document.getElementById('pd-dob-value');
+  if (valEl) {
+    valEl.textContent = parseInt(dd, 10) + ' ' + DOB_MONTHS[parseInt(mm, 10) - 1] + ' ' + yy;
+    valEl.style.color = 'var(--fit-text-primary)';
+  }
+  const errInline = document.getElementById('pd-dob-error');
+  if (errInline) errInline.style.display = 'none';
+  closeSheet('dob-picker-sheet');
+  pdUpdateSaveGate();
+}
+
+// Snapshot of initial selected labels per multi-select key (for dirty check)
+var pdMultiSeed = {};
+
+var PD_ITEM_SELECTOR = '.cal-select-row, .sp-card';
+
+function pdCaptureSeed(key) {
+  const list = document.querySelector('[data-pd-list="' + key + '"]');
+  if (!list) return;
+  pdMultiSeed[key] = Array.from(list.querySelectorAll(PD_ITEM_SELECTOR))
+    .filter(r => r.classList.contains('selected'))
+    .map(r => r.getAttribute('data-label'));
+}
+
+function pdIsDirty(key) {
+  const list = document.querySelector('[data-pd-list="' + key + '"]');
+  if (!list || !pdMultiSeed[key]) return false;
+  const current = Array.from(list.querySelectorAll(PD_ITEM_SELECTOR))
+    .filter(r => r.classList.contains('selected'))
+    .map(r => r.getAttribute('data-label'));
+  if (current.length !== pdMultiSeed[key].length) return true;
+  const seedSet = new Set(pdMultiSeed[key]);
+  return current.some(l => !seedSet.has(l));
+}
+
+function pdToggleMulti(row, key) {
+  row.classList.toggle('selected');
+  pdUpdateMultiFooter(key);
+}
+
+function pdUpdateMultiFooter(key) {
+  const list = document.querySelector('[data-pd-list="' + key + '"]');
+  const btn = document.getElementById(key + '-save-btn');
+  const countEl = document.getElementById(key + '-save-count');
+  if (!list || !btn) return;
+  const selected = list.querySelectorAll('.cal-select-row.selected, .sp-card.selected').length;
+  if (countEl) countEl.textContent = '(' + selected + ' selected)';
+  const enabled = selected > 0 && pdIsDirty(key);
+  btn.style.opacity = enabled ? '1' : '0.5';
+  btn.style.pointerEvents = enabled ? 'auto' : 'none';
+}
+
+function pdLangSave() {
+  const list = document.querySelector('[data-pd-list="lang"]');
+  if (!list) return;
+  const labels = Array.from(list.querySelectorAll('.cal-select-row.selected'))
+    .map(r => (r.getAttribute('data-label') || '').split(' · ')[0]); // native only
+  const valueEl = document.getElementById('pd-lang-value');
+  if (valueEl) {
+    valueEl.textContent = labels.length === 0 ? '—' :
+      labels.length <= 2 ? labels.join(', ') :
+      labels[0] + ' +' + (labels.length - 1) + ' more';
+  }
+  pdCaptureSeed('lang'); // reset seed after save
+  pdUpdateMultiFooter('lang');
+  const btn = document.querySelector('[onclick*="s-personal-data"]');
+  if (typeof go === 'function') go('s-personal-data', btn);
+}
+
+function pdLangBack() {
+  if (pdIsDirty('lang')) {
+    openSheet('lang-discard-sheet');
+    return;
+  }
+  const btn = document.querySelector('[onclick*="s-personal-data"]');
+  if (typeof go === 'function') go('s-personal-data', btn);
+}
+
+// ===== SPORT multi — analog to lang, adapts to grid cards =====
+function filterSportList(inputEl) {
+  const q = inputEl.value.trim().toLowerCase();
+  const wrap = document.getElementById('sport-search-wrap');
+  if (wrap) wrap.classList.toggle('has-value', q.length > 0);
+  const list = document.querySelector('[data-pd-list="sport"]');
+  const empty = document.getElementById('sport-empty');
+  if (!list) return;
+  let totalVisible = 0;
+  list.querySelectorAll('.sp-section').forEach(function(sec) {
+    let secVisible = 0;
+    sec.querySelectorAll('.sp-card').forEach(function(card) {
+      const label = (card.getAttribute('data-label') || card.textContent).toLowerCase();
+      const match = !q || label.indexOf(q) !== -1;
+      card.classList.toggle('hidden', !match);
+      if (match) secVisible++;
+    });
+    sec.classList.toggle('hidden', secVisible === 0);
+    totalVisible += secVisible;
+  });
+  if (empty) empty.classList.toggle('show', totalVisible === 0);
+}
+
+function pdSportSave() {
+  const list = document.querySelector('[data-pd-list="sport"]');
+  if (!list) return;
+  const labels = Array.from(list.querySelectorAll('.sp-card.selected'))
+    .map(c => c.getAttribute('data-label'));
+  const sub = document.getElementById('set-sport-sub');
+  if (sub) {
+    sub.textContent = labels.length === 0 ? 'Not set yet' :
+      labels.length <= 3 ? labels.join(', ') :
+      labels.slice(0,2).join(', ') + ' +' + (labels.length - 2) + ' more';
+  }
+  pdCaptureSeed('sport');
+  pdUpdateMultiFooter('sport');
+  const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+  if (typeof go === 'function') go('s-settings', btn);
+}
+
+function pdSportBack() {
+  if (pdIsDirty('sport')) {
+    openSheet('sport-discard-sheet');
+    return;
+  }
+  const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+  if (typeof go === 'function') go('s-settings', btn);
+}
+
+function pdSportDiscardConfirm() {
+  const list = document.querySelector('[data-pd-list="sport"]');
+  if (list && pdMultiSeed.sport) {
+    const seedSet = new Set(pdMultiSeed.sport);
+    list.querySelectorAll('.sp-card').forEach(c => {
+      c.classList.toggle('selected', seedSet.has(c.getAttribute('data-label')));
+    });
+  }
+  pdUpdateMultiFooter('sport');
+  closeSheet('sport-discard-sheet');
+  const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+  if (typeof go === 'function') go('s-settings', btn);
+}
+
+function pdLangDiscardConfirm() {
+  // Revert selection to seed
+  const list = document.querySelector('[data-pd-list="lang"]');
+  if (list && pdMultiSeed.lang) {
+    const seedSet = new Set(pdMultiSeed.lang);
+    list.querySelectorAll('.cal-select-row').forEach(r => {
+      r.classList.toggle('selected', seedSet.has(r.getAttribute('data-label')));
+    });
+  }
+  pdUpdateMultiFooter('lang');
+  closeSheet('lang-discard-sheet');
+  const btn = document.querySelector('[onclick*="s-personal-data"]');
+  if (typeof go === 'function') go('s-personal-data', btn);
+}
+
+function pdPickSingle(row, key, targetValueId) {
+  const list = row.closest('[data-pd-list]');
+  if (!list) return;
+  list.querySelectorAll('.cal-select-row').forEach(function(r) { r.classList.remove('selected'); });
+  row.classList.add('selected');
+  const label = row.getAttribute('data-label') || row.textContent.trim();
+  const target = targetValueId ? document.getElementById(targetValueId) : null;
+  if (target) target.textContent = label;
+  // Return to Personal Data after brief delay (mimic push-pop animation feel)
+  setTimeout(function() {
+    const btn = document.querySelector('[onclick*="s-personal-data"]');
+    if (typeof go === 'function') go('s-personal-data', btn);
+  }, 180);
+}
+
+// Capture seed + initial validation after DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+  availCaptureSeed();
+  validateAvailability();
+  pdCaptureSeed('lang');
+  pdUpdateMultiFooter('lang');
+  pdCaptureSeed('sport');
+  pdUpdateMultiFooter('sport');
+});
+
+// Log out — prototype: show toast. In production: clears session + navigates to sign-in.
+function doLogout() {
+  var t = document.getElementById('logout-toast');
+  if (!t) return;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+
+  switchTheme('light');
+</script>
+</body>
+</html>

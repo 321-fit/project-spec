@@ -1,0 +1,2275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Sport Types</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--fit-font);
+    background: #0a0a0a;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 24px; min-height: 100vh;
+    min-width: 900px;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    left: 24px;
+    top: 24px; bottom: 24px; width: 200px;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-scroll {
+    flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+  }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--fit-gray-600);
+    padding: 0 8px; margin: 16px 0 8px;
+  }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button {
+    font-family: var(--fit-font); font-size: 14px; font-weight: 400;
+    padding: 10px 12px; border-radius: 10px; border: none;
+    background: transparent; color: var(--fit-gray-400);
+    cursor: pointer; text-align: left; width: 100%; transition: all 0.15s;
+  }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active {
+    background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500;
+  }
+
+  /* Annotations */
+  .ann-container {
+    position: fixed;
+    left: calc(50% + 195px + 48px); right: 24px;
+    top: 24px; bottom: 24px; width: auto;
+    overflow-y: auto;
+  }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; }
+  .ann.active { display: block; }
+  .ann-role {
+    display: inline-block; font-size: 14px; font-weight: 500;
+    padding: 4px 12px; border-radius: 8px; margin-bottom: 16px;
+  }
+  .ann-role.coach { background: rgba(3,178,226,0.15); color: var(--fit-blue-500); }
+  .ann-role.athlete { background: rgba(5,224,166,0.15); color: var(--fit-teal-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 14px; padding-left: 18px; font-size: 16px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 6px; }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  /* Expandable details (subtle — left accent, no bordered card) */
+  .ann-detail {
+    margin-top: 8px; padding: 4px 0 4px 16px;
+    border-left: 2px solid var(--fit-brand-primary);
+    display: none;
+  }
+  .ann-detail.open { display: block; }
+  .ann-detail h4:first-child { margin-top: 0; }
+  .ann-detail h4 + p { margin-bottom: 12px; }
+  .ann-detail-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; color: var(--fit-blue-500); cursor: pointer;
+    margin-top: 12px; font-weight: 500;
+  }
+  .ann-detail-toggle svg { width: 14px; height: 14px; transition: transform 0.2s; }
+  .ann-detail-toggle.open svg { transform: rotate(90deg); }
+  .ann-detail h4 { font-size: 14px; font-weight: 500; color: var(--fit-gray-300); margin-bottom: 6px; }
+  .ann-detail p { font-size: 14px; line-height: 1.5; color: var(--fit-gray-500); margin-bottom: 8px; }
+  .ann-detail code { font-size: 12px; background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 3px; color: var(--fit-gray-400); }
+
+  /* Screen visibility */
+  .fit-phone { display: none; }
+  .fit-phone.active { display: flex; }
+
+  /* SVG icon defaults */
+  svg.i { width: 16px; height: 16px; vertical-align: middle; }
+  svg.i-sm { width: 14px; height: 14px; vertical-align: middle; margin-right: 4px; }
+
+  /* Dark header/footer bg */
+  .fit-dark .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-dark .fit-phone-footer { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+
+  /* Prototype-specific */
+  .detail-participants { padding: 0 var(--fit-sp-4); }
+  #tp-slot-list::-webkit-scrollbar { display: none; }
+
+  /* Contenteditable placeholder */
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: var(--fit-text-placeholder);
+    pointer-events: none;
+  }
+
+  /* State toggle (filled/empty) */
+  .state-toggle {
+    display: inline-flex; gap: 0; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--fit-gray-700); margin-bottom: 12px;
+  }
+  .state-toggle button {
+    font-family: var(--fit-font); font-size: 12px; font-weight: 500;
+    padding: 4px 10px; border: none; cursor: pointer;
+    background: transparent; color: var(--fit-gray-400);
+    transition: all 0.15s;
+  }
+  .state-toggle button.active {
+    background: var(--fit-gray-700); color: var(--fit-white);
+  }
+  /* Empty state placeholder */
+  .fit-empty-state {
+    text-align: center; padding: 48px 24px;
+    color: var(--fit-text-tertiary); font-size: 14px; line-height: 1.5;
+  }
+  .fit-empty-state svg.fes-illus { width: 56px; height: 56px; margin-bottom: 16px; color: var(--fit-gray-600); }
+  .fit-empty-state-title { font-size: 17px; font-weight: 500; color: var(--fit-text-secondary); margin-bottom: 6px; }
+  .fit-empty-state-sub { font-size: 14px; color: var(--fit-text-tertiary); margin-bottom: 20px; line-height: 1.5; }
+  .fit-light .fit-empty-state svg.fes-illus { color: var(--fit-gray-400); }
+
+  /* List state switcher (default/empty/loading) */
+  #s-list [data-list-state] { display: none; }
+  #s-list.ls-default [data-list-state="default"] { display: block; }
+  #s-list.ls-empty [data-list-state="empty"] { display: block; }
+  #s-list.ls-loading [data-list-state="loading"] { display: block; }
+
+  /* Skeleton classes migrated to fit-ui.css (Phase 2) */
+
+  /* Conditional fields animation */
+  #group-fields, #schedule-fields, #recurring-fields, #oneoff-fields {
+    will-change: max-height, opacity;
+  }
+
+  /* Light theme overrides for group training */
+  .fit-light .set-card { background: var(--fit-white); }
+  .fit-light .fit-card { background: var(--fit-white); }
+  .fit-light .fit-ticket { background: var(--fit-white); }
+  .fit-light .fit-participants-card { background: var(--fit-white); }
+  .fit-light .fit-spots { background: var(--fit-gray-100); }
+  .fit-light .fit-spots-fill { background: var(--fit-gray-200); }
+  .fit-light .fit-input { background: var(--fit-gray-100); }
+  .fit-light .fit-navbar { background: rgba(255,255,255,0.75); box-shadow: 0 0 24px rgba(0,0,0,0.15); }
+  .fit-light .fit-navbar-item { color: var(--fit-gray-400); }
+  .fit-light .fit-navbar-item.active { color: var(--fit-text-primary); }
+
+  /* Month grid day with event dot */
+  .mg-day { display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;cursor:pointer; }
+  .mg-day-num { font-size:14px;color:var(--fit-text-secondary);width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%; }
+  .mg-day.today .mg-day-num { color:var(--fit-brand-primary);font-weight:600; }
+  .mg-day.selected .mg-day-num { background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);color:var(--fit-text-primary);font-weight:500; }
+  .mg-dots { display:flex;gap:2px;height:4px; }
+  .mg-dot { width:4px;height:4px;border-radius:50%; }
+  .mg-dot.p { background:var(--fit-teal-500); }
+  .mg-dot.g { background:var(--fit-brand-primary); }
+  .mg-dot.e { background:var(--fit-text-tertiary); }
+
+  /* Calendar header component (reusable) */
+  .fit-cal-header {
+    display: flex; align-items: center; gap: 4px; cursor: pointer;
+  }
+  .fit-cal-header-month { font-size: 16px; font-weight: 600; color: var(--fit-text-primary); }
+  .fit-cal-header-year { font-size: 16px; font-weight: 400; color: var(--fit-text-secondary); }
+  .fit-cal-chevron { transition: transform 0.2s; flex-shrink: 0; }
+
+  /* V6d card themes */
+  .v6d-card { background: var(--fit-surface-high); }
+  .fit-light .v6d-card { background: var(--fit-white) !important; box-shadow: 0 1px 12px rgba(0,0,0,0.12); }
+  .fit-light .v6d-card { box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+  .fit-light .v6d-icon-box { background: rgba(0,0,0,0.06) !important; }
+  .fit-light .v6d-icon-box svg { stroke: var(--fit-gray-900) !important; }
+  .fit-light .v6d-price { color: var(--fit-text-primary) !important; }
+  .fit-light .v6d-loc-strip { border-bottom-color: var(--fit-gray-200) !important; }
+  .fit-light .v6d-special-badge { background: rgba(0,0,0,0.08) !important; color: var(--fit-text-primary) !important; }
+  /* Alt 1 header: light theme */
+  .fit-light .v6d-header-neutral { background: var(--fit-gray-200) !important; }
+  .fit-light .v6d-header-neutral .v6d-icon-box { background: rgba(0,0,0,0.08) !important; }
+  /* Alt 2 header: light theme */
+  .fit-light .v6d-header-dense { background: linear-gradient(to right, rgba(10,147,189,0.25), rgba(5,224,166,0.25)) !important; }
+
+  /* CalDAV howto expandable */
+  #caldav-howto.open { max-height: 300px; }
+
+  /* Light theme for calendar screens */
+  .fit-light .cal-select-row { background: var(--fit-white); }
+  .fit-light .cal-select-row.selected { background: linear-gradient(to right, rgba(10,147,189,0.1), rgba(5,224,166,0.1)); }
+  .fit-light .fit-input-label { color: var(--fit-text-secondary); }
+
+  /* Light theme settings overrides */
+  .fit-light .set-title { color: var(--fit-text-primary); }
+  .fit-light .set-sub { color: var(--fit-text-secondary); }
+  .fit-light .set-icon { color: var(--fit-text-primary); }
+  .fit-light .set-chev { color: var(--fit-text-tertiary); }
+
+  /* Paid dimming + validation errors: in fit-ui.css */
+
+  /* ===== AVAILABILITY ===== */
+  .avail-tz {
+    display: flex; align-items: center; gap: 6px;
+    padding: 0 16px 16px;
+    font-size: 13px; color: var(--fit-text-tertiary); line-height: 1.4;
+  }
+  .avail-tz svg { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.8; }
+  .avail-days {
+    display: flex; flex-direction: column; gap: 16px;
+    padding: 0 16px 16px;
+  }
+  .avail-day { display: flex; flex-direction: column; gap: 12px; }
+  .avail-day-header {
+    display: flex; align-items: center; gap: 12px;
+    min-height: 44px; cursor: pointer;
+  }
+  .avail-checkbox {
+    width: 24px; height: 24px; flex-shrink: 0;
+    border-radius: 6px; border: 1px solid rgba(246,247,248,0.5);
+    background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .fit-light .avail-checkbox { border-color: var(--fit-gray-400); }
+  .avail-checkbox svg { width: 14px; height: 14px; stroke: var(--fit-white); display: none; }
+  .avail-day.active .avail-checkbox {
+    background: var(--fit-brand-gradient);
+    border-color: transparent;
+  }
+  .avail-day.active .avail-checkbox svg { display: block; }
+  .avail-day-name { font-size: 16px; color: var(--fit-text-primary); font-weight: 400; }
+  .avail-day:not(.active) .avail-day-name { color: var(--fit-text-secondary); }
+  .avail-intervals { display: flex; flex-direction: column; gap: 8px; }
+  .avail-day:not(.active) .avail-intervals { display: none; }
+  .avail-interval { display: flex; align-items: center; gap: 12px; }
+  .avail-time-input {
+    flex: 1 0 0; min-width: 0; height: 56px;
+    background: var(--fit-surface-low);
+    border: none; border-radius: var(--fit-radius-md);
+    padding: 0 12px;
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--fit-font); font-size: 16px;
+    color: var(--fit-text-primary); cursor: pointer;
+  }
+  .fit-dark .avail-time-input { background: var(--fit-black); }
+  .avail-time-input.active { outline: 1px solid var(--fit-divider); }
+  .avail-time-input .avail-time-value { flex: 1; }
+  .avail-time-input svg { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .avail-interval-sep { font-size: 14px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .avail-interval-btn {
+    width: 32px; height: 32px; flex-shrink: 0;
+    border-radius: 99px; border: none;
+    background: rgba(117,126,135,0.3);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background 0.15s;
+    position: relative;
+  }
+  /* Invisible hit-area expansion → 44x44 effective (HIG) */
+  .avail-interval-btn::before {
+    content: "";
+    position: absolute;
+    top: -6px; right: -6px; bottom: -6px; left: -6px;
+  }
+  .avail-interval-btn:hover { background: rgba(117,126,135,0.45); }
+  .avail-interval-btn svg { width: 16px; height: 16px; stroke: var(--fit-text-primary); }
+  .fit-light .avail-interval-btn { background: rgba(0,0,0,0.08); }
+  .fit-light .avail-interval-btn:hover { background: rgba(0,0,0,0.14); }
+
+  /* Time picker bottom sheet — iOS-style wheel (prototype; platform-native in dev) */
+  .avail-tp-wheels {
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+    padding: 12px 16px 4px;
+    position: relative;
+  }
+  .avail-tp-wheel {
+    flex: 0 1 96px; max-width: 96px;
+    height: 180px;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+    mask-image: linear-gradient(to bottom,
+      transparent 0%, rgba(0,0,0,0.3) 12%, rgba(0,0,0,1) 35%,
+      rgba(0,0,0,1) 65%, rgba(0,0,0,0.3) 88%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom,
+      transparent 0%, rgba(0,0,0,0.3) 12%, rgba(0,0,0,1) 35%,
+      rgba(0,0,0,1) 65%, rgba(0,0,0,0.3) 88%, transparent 100%);
+  }
+  .avail-tp-wheel::-webkit-scrollbar { display: none; }
+  .avail-tp-wheel-pad { height: 72px; scroll-snap-align: none; }
+  .avail-tp-wheel-item {
+    height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    scroll-snap-align: center;
+    font-size: 22px; color: var(--fit-text-primary);
+    font-family: var(--fit-font);
+    user-select: none;
+  }
+  .avail-tp-sep {
+    font-size: 22px; color: var(--fit-text-primary);
+    line-height: 1; margin-top: -4px;
+  }
+  /* Validation errors (per-interval) */
+  .avail-time-input.error { outline: 1px solid var(--fit-red-400); }
+  .avail-interval-error {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: -2px;
+    font-size: 13px; color: var(--fit-red-400); line-height: 1.4;
+  }
+  .avail-interval-error svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  /* Inline banners (non-blocking warnings) */
+  .avail-banner {
+    margin: 0 16px 16px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    display: flex; gap: 12px; align-items: flex-start;
+    font-size: 14px; line-height: 1.4;
+    color: var(--fit-text-primary);
+  }
+  .avail-banner svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+  .avail-banner .avail-banner-body { flex: 1; }
+  .avail-banner .avail-banner-title { font-weight: 500; margin-bottom: 2px; }
+  .avail-banner .avail-banner-link {
+    color: inherit; text-decoration: underline; cursor: pointer; font-weight: 500;
+  }
+  /* Info — existing bookings affected */
+  .avail-banner.info {
+    background: rgba(3,178,226,0.08);
+    border: 1px solid rgba(3,178,226,0.22);
+  }
+  .avail-banner.info svg { color: var(--fit-blue-500); }
+  /* Warning — all days off */
+  .avail-banner.warn {
+    background: rgba(247,201,72,0.08);
+    border: 1px solid rgba(247,201,72,0.3);
+  }
+  .avail-banner.warn svg { color: #F7C948; }
+
+  /* Existing bookings sheet — event row */
+  .avail-ev-row {
+    display: flex; gap: 12px; align-items: center;
+    padding: 12px 14px; border-radius: 12px;
+    background: var(--fit-surface-low);
+    margin-bottom: 8px;
+  }
+  .fit-dark .avail-ev-row { background: var(--fit-black); }
+  .avail-ev-row .avail-ev-icon {
+    width: 36px; height: 36px; flex-shrink: 0;
+    border-radius: 10px;
+    background: var(--fit-selection-gradient);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-white);
+  }
+  .avail-ev-row .avail-ev-icon svg { width: 18px; height: 18px; }
+  .avail-ev-row .avail-ev-body { flex: 1; min-width: 0; }
+  .avail-ev-row .avail-ev-title { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .avail-ev-row .avail-ev-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+
+  /* Disabled Save button */
+  .fit-phone-footer > button:disabled {
+    opacity: 0.45; cursor: not-allowed;
+  }
+
+  /* ===== AVAILABILITY FLOW STATES ===== */
+  /* Loading skeleton shown in place of content */
+  #s-availability .avail-fs-skel { display: none; padding: 0 16px; }
+  #s-availability.fs-loading .avail-fs-content { display: none; }
+  #s-availability.fs-loading .avail-fs-skel { display: flex; flex-direction: column; gap: 20px; }
+  #s-availability.fs-loading .fit-phone-footer { display: none; }
+  .avail-sk-day { display: flex; flex-direction: column; gap: 12px; }
+  .avail-sk-head { display: flex; align-items: center; gap: 12px; }
+  .avail-sk-box { width: 24px; height: 24px; border-radius: 6px; flex-shrink: 0; }
+  .avail-sk-label { height: 14px; border-radius: 7px; width: 38%; }
+  .avail-sk-row { display: flex; gap: 12px; align-items: center; }
+  .avail-sk-input { flex: 1 0 0; height: 56px; border-radius: var(--fit-radius-md); }
+  .avail-sk-sep { width: 14px; height: 14px; border-radius: 7px; flex-shrink: 0; }
+  .avail-sk-btn { width: 32px; height: 32px; border-radius: 99px; flex-shrink: 0; }
+
+  /* Saving: inline spinner inside Save button */
+  .avail-save-spinner {
+    display: none;
+    width: 16px; height: 16px; vertical-align: -3px; margin-right: 8px;
+    border: 2px solid rgba(255,255,255,0.35);
+    border-top-color: var(--fit-white);
+    border-radius: 50%;
+    animation: avail-spin 0.9s linear infinite;
+  }
+  #s-availability.fs-saving .avail-save-spinner { display: inline-block; }
+  #s-availability.fs-saving #avail-save-btn { cursor: wait; opacity: 0.85; }
+  @keyframes avail-spin { to { transform: rotate(360deg); } }
+
+  /* Save error banner (above footer) */
+  .avail-save-error {
+    display: none;
+    align-items: center; gap: 10px;
+    margin: 0 16px 12px; padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(240,92,91,0.08);
+    border: 1px solid rgba(240,92,91,0.22);
+    font-size: 14px; color: var(--fit-red-400); line-height: 1.4;
+  }
+  #s-availability.fs-error .avail-save-error { display: flex; }
+  .avail-save-error svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .avail-save-error-body { flex: 1; color: var(--fit-text-primary); }
+  .avail-save-error-body strong { color: var(--fit-red-400); font-weight: 500; }
+  .avail-save-error-retry {
+    font-family: var(--fit-font); font-size: 13px; font-weight: 500;
+    color: var(--fit-red-400); background: transparent; border: none;
+    cursor: pointer; padding: 4px 8px; margin: -4px -8px;
+  }
+
+  /* Selection band (centered 36px highlight) */
+  .avail-tp-wheels::before {
+    content: "";
+    position: absolute; left: 16px; right: 16px;
+    top: 50%; transform: translateY(-50%);
+    height: 36px; pointer-events: none;
+    background: var(--fit-surface-low);
+    border-radius: var(--fit-radius-md);
+    z-index: 0;
+  }
+  .fit-dark .avail-tp-wheels::before { background: var(--fit-black); }
+  .avail-tp-wheels > * { position: relative; z-index: 1; }
+
+  /* ===== PD SELECTOR (TZ / Country / Languages) — push screen ===== */
+  .pd-search-wrap { padding: 0 16px 16px; }
+  .pd-search {
+    display: flex; align-items: center; gap: 8px;
+    height: 44px; padding: 0 12px; border-radius: 12px;
+    background: var(--fit-surface-high); color: var(--fit-text-primary);
+  }
+  .fit-light .pd-search { background: var(--fit-gray-100); }
+  .pd-search svg { width: 18px; height: 18px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .pd-search input {
+    flex: 1; border: none; outline: none; background: transparent;
+    font-family: var(--fit-font); font-size: 16px; color: var(--fit-text-primary);
+    padding: 0;
+  }
+  .pd-search input::placeholder { color: var(--fit-text-placeholder); }
+  .pd-search-clear {
+    width: 20px; height: 20px; border: none; background: var(--fit-gray-600);
+    color: var(--fit-white); border-radius: 50%;
+    display: none; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0; padding: 0;
+  }
+  .pd-search.has-value .pd-search-clear { display: flex; }
+  .pd-search-clear svg { width: 10px; height: 10px; color: var(--fit-white); }
+
+  .pd-list { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .pd-list .cal-select-row { padding: 16px 12px; min-height: 56px; }
+  .pd-list .cal-select-row span { font-size: 16px; line-height: 1.25; }
+  .pd-list .cal-flag {
+    width: 24px; height: 18px; border-radius: 3px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; line-height: 1;
+  }
+  .pd-list .cal-select-row.hidden { display: none; }
+
+  .pd-empty {
+    display: none; flex-direction: column; align-items: center;
+    text-align: center; padding: 48px 20px;
+    color: var(--fit-text-tertiary); gap: 8px;
+  }
+  .pd-empty.show { display: flex; }
+  .pd-empty svg { width: 40px; height: 40px; color: var(--fit-gray-600); margin-bottom: 4px; }
+  .pd-empty-title { font-size: 16px; font-weight: 500; color: var(--fit-text-secondary); }
+  .pd-empty-sub { font-size: 14px; }
+
+  /* Multi-select footer count */
+  .pd-save-count { opacity: 0.7; margin-left: 6px; font-weight: 400; }
+
+  /* ===== PD NUMERIC INPUT (Weight / Height) ===== */
+  .pd-num-input {
+    flex: 1; border: none; outline: none; background: transparent;
+    font-family: var(--fit-font); font-size: 16px; color: var(--fit-text-primary);
+    padding: 0; min-width: 0;
+  }
+  .pd-num-input::-webkit-inner-spin-button,
+  .pd-num-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .pd-num-wrap.error { border: 1px solid var(--fit-red-400); }
+  .pd-num-error { font-size: 13px; color: var(--fit-red-400); margin-top: 6px; line-height: 1.4; }
+
+  /* ===== PD AVATAR ACTION ROWS ===== */
+  .pd-avatar-action {
+    display: flex; align-items: center; gap: 14px;
+    width: 100%; min-height: 56px; padding: 0 16px;
+    background: var(--fit-surface-high); color: var(--fit-text-primary);
+    border: none; border-radius: 12px;
+    font-family: var(--fit-font); font-size: 16px; font-weight: 400;
+    cursor: pointer; text-align: left;
+    transition: background 0.15s;
+  }
+  .fit-light .pd-avatar-action { background: var(--fit-white); }
+  .pd-avatar-action:active { transform: scale(0.98); }
+  .pd-avatar-action svg { width: 22px; height: 22px; flex-shrink: 0; color: var(--fit-text-secondary); }
+  .pd-avatar-action.pd-avatar-destructive {
+    background: rgba(240,92,91,0.12); color: var(--fit-red-400);
+  }
+  .pd-avatar-action.pd-avatar-destructive svg { color: var(--fit-red-400); }
+  .pd-avatar-wrap.no-photo .pd-avatar-destructive { display: none; }
+
+  /* ===== PD FLOW STATES (loading / saving / error / saved) ===== */
+  #s-personal-data .pd-fs-skel { display: none; padding: 0 16px; }
+  #s-personal-data.fs-loading .pd-fs-content { display: none; }
+  #s-personal-data.fs-loading .pd-fs-skel { display: flex; flex-direction: column; gap: 20px; }
+  #s-personal-data.fs-loading .fit-phone-footer { display: none; }
+
+  .pd-sk-avatar { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; }
+  .pd-sk-group { display: flex; flex-direction: column; gap: 8px; }
+  .pd-sk-label { height: 12px; width: 30%; border-radius: 6px; }
+  .pd-sk-input { height: 56px; border-radius: var(--fit-radius-md); }
+  .pd-sk-row { display: flex; gap: 12px; }
+  .pd-sk-row .pd-sk-col { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+
+  /* Saving spinner inside Save button */
+  .pd-save-spinner {
+    display: none;
+    width: 16px; height: 16px; vertical-align: -3px; margin-right: 8px;
+    border: 2px solid rgba(255,255,255,0.35);
+    border-top-color: var(--fit-white);
+    border-radius: 50%;
+    animation: pd-spin 0.9s linear infinite;
+  }
+  #s-personal-data.fs-saving .pd-save-spinner { display: inline-block; }
+  #s-personal-data.fs-saving #pd-save-btn { cursor: wait; opacity: 0.85; pointer-events: none; }
+  @keyframes pd-spin { to { transform: rotate(360deg); } }
+
+  /* Save error banner */
+  .pd-save-error {
+    display: none;
+    align-items: center; gap: 10px;
+    margin: 0 16px 12px; padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(240,92,91,0.08);
+    border: 1px solid rgba(240,92,91,0.22);
+    font-size: 14px; line-height: 1.4;
+  }
+  #s-personal-data.fs-error .pd-save-error { display: flex; }
+  .pd-save-error svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--fit-red-400); }
+  .pd-save-error-body { flex: 1; color: var(--fit-text-primary); }
+  .pd-save-error-body strong { color: var(--fit-red-400); font-weight: 500; }
+  .pd-save-error-retry {
+    font-family: var(--fit-font); font-size: 13px; font-weight: 500;
+    color: var(--fit-red-400); background: transparent; border: none;
+    cursor: pointer; padding: 4px 8px; margin: -4px -8px;
+  }
+
+  /* ===== SPORT TYPES SELECT (grid, multi, sectioned) ===== */
+  #s-sport-types .fit-phone-content { padding-bottom: 16px; }
+  .sp-section { padding: 0 16px; margin-bottom: 20px; }
+  .sp-section-title {
+    font-size: 14px; font-weight: 500;
+    color: var(--fit-text-secondary);
+    margin: 4px 0 12px;
+  }
+  .sp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .sp-card {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px; min-height: 56px;
+    border-radius: 14px;
+    background: var(--fit-surface-high);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.12s;
+    color: var(--fit-text-primary);
+    user-select: none;
+  }
+  .fit-light .sp-card { background: var(--fit-white); border-color: var(--fit-gray-200); }
+  .sp-card:active { transform: scale(0.98); }
+  .sp-card.selected {
+    background: var(--fit-selection-gradient);
+    border-color: var(--fit-teal-600);
+  }
+  .sp-card svg { width: 22px; height: 22px; flex-shrink: 0; color: var(--fit-text-secondary); stroke-width: 1.8; }
+  .sp-card.selected svg { color: var(--fit-text-primary); }
+  .sp-card-label { font-size: 14px; line-height: 1.2; }
+  .sp-card.hidden { display: none; }
+  .sp-section.hidden { display: none; }
+  /* Custom sport: coach-created, pending admin review (placeholder icon) */
+  .sp-card.sp-custom { position: relative; }
+  .sp-card.sp-custom svg { stroke-dasharray: 3 3; opacity: 0.8; }
+  /* Empty-state prompt (no custom sport yet) — full width, centered */
+  .sp-add-custom {
+    width: 100%; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 16px; border-radius: 14px;
+    border: 1px dashed var(--fit-gray-600); background: transparent;
+    color: var(--fit-text-primary); font-family: var(--fit-font);
+    font-size: 15px; font-weight: 600; cursor: pointer; text-align: center;
+  }
+  .fit-light .sp-add-custom { border-color: var(--fit-gray-300); }
+  .sp-add-custom .sp-add-custom-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .sp-add-custom .sp-add-custom-row svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .sp-add-custom .sp-add-custom-sub { font-size: 12px; font-weight: 400; color: var(--fit-text-tertiary); }
+  .sp-add-custom:active { transform: scale(0.99); }
+  /* Compact +Add tile (shown once ≥1 custom sport exists) — sized like a sport card */
+  .sp-card.sp-add-tile {
+    justify-content: center; gap: 8px;
+    border: 1px dashed var(--fit-gray-600); background: transparent;
+    color: var(--fit-text-secondary); font-weight: 600;
+  }
+  .fit-light .sp-card.sp-add-tile { border-color: var(--fit-gray-300); background: transparent; }
+  .sp-card.sp-add-tile svg { color: var(--fit-text-secondary); }
+  #custom-sport-create:disabled { opacity: 0.5; pointer-events: none; }
+
+  /* ===== SPORT TYPES — flow states (loading / saving / error / network-error / saved) ===== */
+  #s-sport-types .sp-fs-skel { display: none; padding: 0 16px; }
+  #s-sport-types.fs-loading .sp-fs-content { display: none; }
+  #s-sport-types.fs-loading .sp-fs-skel { display: flex; flex-direction: column; gap: 20px; }
+  #s-sport-types.fs-loading .fit-phone-footer { display: none; }
+  #s-sport-types.fs-loading .pd-search-wrap { display: none; }
+
+  .sp-sk-section { display: flex; flex-direction: column; gap: 10px; }
+  .sp-sk-title { height: 12px; width: 40%; border-radius: 6px; }
+  .sp-sk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .sp-sk-card { height: 56px; border-radius: 14px; }
+
+  /* Saving spinner */
+  .sp-save-spinner {
+    display: none;
+    width: 16px; height: 16px; vertical-align: -3px; margin-right: 8px;
+    border: 2px solid rgba(255,255,255,0.35);
+    border-top-color: var(--fit-white);
+    border-radius: 50%;
+    animation: pd-spin 0.9s linear infinite;
+  }
+  #s-sport-types.fs-saving .sp-save-spinner { display: inline-block; }
+  #s-sport-types.fs-saving #sport-save-btn { cursor: wait; opacity: 0.85 !important; pointer-events: none !important; }
+
+  /* Save error banner */
+  .sp-save-error {
+    display: none; align-items: center; gap: 10px;
+    margin: 0 16px 12px; padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(240,92,91,0.08);
+    border: 1px solid rgba(240,92,91,0.22);
+    font: 400 14px/1.4 var(--fit-font);
+  }
+  #s-sport-types.fs-error .sp-save-error { display: flex; }
+  .sp-save-error svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--fit-red-400); }
+  .sp-save-error-body { flex: 1; color: var(--fit-text-primary); }
+  .sp-save-error-body strong { color: var(--fit-red-400); font-weight: 500; }
+  .sp-save-error-retry {
+    font: 500 13px/1.3 var(--fit-font);
+    color: var(--fit-red-400); background: transparent; border: none;
+    cursor: pointer; padding: 4px 8px; margin: -4px -8px;
+  }
+
+  /* Network error initial load */
+  .sp-network-error {
+    display: none; flex-direction: column; align-items: center;
+    padding: 60px 24px; text-align: center; gap: 12px;
+  }
+  .sp-network-error svg.sp-ne-illus {
+    width: 56px; height: 56px; color: var(--fit-text-tertiary);
+    margin-bottom: 4px;
+  }
+  .sp-network-error-title { font: 500 17px/1.3 var(--fit-font); color: var(--fit-text-primary); }
+  .sp-network-error-sub {
+    font: 400 14px/1.5 var(--fit-font); color: var(--fit-text-tertiary);
+    max-width: 280px;
+  }
+  .sp-network-error-retry {
+    margin-top: 8px; padding: 10px 24px;
+    border: none; border-radius: 99px;
+    background: var(--fit-brand-gradient); color: var(--fit-white);
+    font: 500 15px/1.3 var(--fit-font); cursor: pointer;
+  }
+  #s-sport-types.fs-network-error .sp-fs-content { display: none; }
+  #s-sport-types.fs-network-error .sp-fs-skel { display: none; }
+  #s-sport-types.fs-network-error .fit-phone-footer { display: none; }
+  #s-sport-types.fs-network-error .pd-search-wrap { display: none; }
+  #s-sport-types.fs-network-error .sp-network-error { display: flex; }
+
+  /* Selection hints (zero / many) — non-blocking nudges, sit above the grid */
+  .sp-hint {
+    display: none; align-items: flex-start; gap: 10px;
+    margin: 0 16px 16px; padding: 12px 14px;
+    border-radius: 12px;
+    font: 400 13px/1.45 var(--fit-font);
+  }
+  .sp-hint svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+  .sp-hint-body strong { font-weight: 500; }
+  .sp-hint--zero {
+    background: rgba(3,178,226,0.08);
+    border: 1px solid rgba(3,178,226,0.22);
+    color: var(--fit-text-primary);
+  }
+  .sp-hint--zero svg { color: var(--fit-blue-500); }
+  .sp-hint--many {
+    background: rgba(247,201,72,0.08);
+    border: 1px solid rgba(247,201,72,0.22);
+    color: var(--fit-text-primary);
+  }
+  .sp-hint--many svg { color: #F7C948; }
+  #s-sport-types.sp-zero .sp-hint--zero { display: flex; }
+  #s-sport-types.sp-many .sp-hint--many { display: flex; }
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+    <button onclick="window.location.href='../../index.html'" style="display:flex;align-items:center;gap:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;padding:8px 12px;border-radius:10px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-gray-300);cursor:pointer;width:100%;margin-bottom:8px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      All modules
+    </button>
+    
+  <div class="label">Sport Types</div>
+  <button class="active" onclick="go('s-sport-types',this)">Sport Types</button>
+  <div class="label">Other modules</div>
+  <button onclick="window.location.href='./settings.html'">← Back to Settings</button>
+  </div>
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ==================== PHONE ==================== -->
+<!-- ===== SPORT TYPES — push screen, multi, sectioned grid ===== -->
+<div class="fit-phone fit-dark active" id="s-sport-types">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="pdSportBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Sport types</span>
+    </div>
+    <div class="pd-search-wrap">
+      <div class="pd-search" id="sport-search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="search" id="sport-search-input" placeholder="Search" autocomplete="off" oninput="filterSportList(this)"/>
+        <button class="pd-search-clear" onclick="clearPdSearch('sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-content" data-pd-list="sport" data-pd-mode="multi">
+
+    <!-- Network error (initial GET failed) -->
+    <div class="sp-network-error">
+      <svg class="sp-ne-illus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12.5a11 11 0 0122 0M5 16.5a7 7 0 0114 0M9 20.5a3 3 0 016 0"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+      <div class="sp-network-error-title">Couldn&rsquo;t load sports</div>
+      <div class="sp-network-error-sub">Check your connection and try again. Your existing selection stays on the server.</div>
+      <button class="sp-network-error-retry" onclick="handleSpNetworkRetry()">Retry</button>
+    </div>
+
+    <!-- Loading skeleton (initial GET) -->
+    <div class="sp-fs-skel">
+      <div class="sp-sk-section">
+        <div class="sp-sk-title sk-shimmer"></div>
+        <div class="sp-sk-grid">
+          <div class="sp-sk-card sk-shimmer"></div><div class="sp-sk-card sk-shimmer"></div>
+          <div class="sp-sk-card sk-shimmer"></div><div class="sp-sk-card sk-shimmer"></div>
+        </div>
+      </div>
+      <div class="sp-sk-section">
+        <div class="sp-sk-title sk-shimmer" style="width:30%;"></div>
+        <div class="sp-sk-grid">
+          <div class="sp-sk-card sk-shimmer"></div><div class="sp-sk-card sk-shimmer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save error banner (above grid) -->
+    <div class="sp-save-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12" y2="16.5"/></svg>
+      <div class="sp-save-error-body"><strong>Couldn&rsquo;t save your sports.</strong> Check your connection and try again.</div>
+      <button class="sp-save-error-retry" onclick="pdSportSave()">Retry</button>
+    </div>
+
+    <!-- Hint banners (zero / many) — non-blocking nudges -->
+    <div class="sp-hint sp-hint--zero">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div class="sp-hint-body"><strong>Pick at least one sport</strong> so we can match you with the right coaches.</div>
+    </div>
+    <div class="sp-hint sp-hint--many">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 20 2 20 12 2"/><line x1="12" y1="9" x2="12" y2="14"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div class="sp-hint-body"><strong>Lots of sports selected.</strong> Pick the ones you actually train &mdash; no need to add everything.</div>
+    </div>
+
+    <!-- Real content wrapper (only one of these renders at a time per fs-* state) -->
+    <div class="sp-fs-content">
+
+    <!-- Fitness & Strength -->
+    <div class="sp-section">
+      <div class="sp-section-title">Fitness &amp; Strength</div>
+      <div class="sp-grid">
+        <div class="sp-card" data-label="Fitness" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h12M4 8v8M8 6v12M16 6v12M20 8v8"/></svg><span class="sp-card-label">Fitness</span></div>
+        <div class="sp-card" data-label="CrossFit" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M5 9v6M19 9v6"/><circle cx="12" cy="12" r="2.2"/></svg><span class="sp-card-label">CrossFit</span></div>
+        <div class="sp-card" data-label="Functional training" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6M9 4c-.8.6-1.5 1.4-2 2.5"/><path d="M15 4c.8.6 1.5 1.4 2 2.5"/><circle cx="12" cy="14" r="6"/></svg><span class="sp-card-label">Functional</span></div>
+        <div class="sp-card" data-label="HIIT" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="7"/><path d="M10 3h4M12 10v4h3"/><path d="M19 5l1.5 1.5"/></svg><span class="sp-card-label">HIIT</span></div>
+        <div class="sp-card" data-label="Weightlifting" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M6 9v6M18 9v6M3 10v4M21 10v4"/></svg><span class="sp-card-label">Weightlifting</span></div>
+        <div class="sp-card" data-label="Calisthenics" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M7 5v3M17 5v3"/><circle cx="12" cy="11" r="2"/><path d="M12 13v5M10 16l2-2 2 2"/></svg><span class="sp-card-label">Calisthenics</span></div>
+      </div>
+    </div>
+
+    <!-- Racket sports -->
+    <div class="sp-section">
+      <div class="sp-section-title">Racket sports</div>
+      <div class="sp-grid">
+        <div class="sp-card selected" data-label="Tennis" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="10" cy="9" rx="5" ry="6"/><path d="M13 13l5 7M7 5l6 8M13 5l-6 8"/></svg><span class="sp-card-label">Tennis</span></div>
+        <div class="sp-card selected" data-label="Padel" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="10" cy="9" rx="5" ry="6"/><path d="M13 13l5 7"/><circle cx="8.5" cy="7" r=".6"/><circle cx="11" cy="7" r=".6"/><circle cx="8.5" cy="9.5" r=".6"/><circle cx="11" cy="9.5" r=".6"/></svg><span class="sp-card-label">Padel</span></div>
+        <div class="sp-card" data-label="Badminton" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="15" cy="15" r="2.5"/><path d="M14 13l-5-6M12 14l-7-3M17 14l-2-9M16 16l-9-1"/></svg><span class="sp-card-label">Badminton</span></div>
+        <div class="sp-card" data-label="Squash" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="10" cy="9" rx="4" ry="5"/><path d="M13 12l5 8M8 5l4 6M12 5l-4 6"/></svg><span class="sp-card-label">Squash</span></div>
+        <div class="sp-card" data-label="Table tennis" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="10" cy="9" rx="5" ry="6"/><path d="M12 14l5 7"/><circle cx="17" cy="18" r="1.5"/></svg><span class="sp-card-label">Table tennis</span></div>
+      </div>
+    </div>
+
+    <!-- Team / court -->
+    <div class="sp-section">
+      <div class="sp-section-title">Team &amp; court</div>
+      <div class="sp-grid">
+        <div class="sp-card selected" data-label="Basketball" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10M12 3c-2.5 3-2.5 7 0 10s2.5 7 0 10"/></svg><span class="sp-card-label">Basketball</span></div>
+        <div class="sp-card" data-label="Football" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8l3.2 2.3-1.2 3.9h-4l-1.2-3.9z"/><path d="M12 3v5M19.5 9.5l-4 1M4.5 9.5l4 1M7.5 20l2-4.5M16.5 20l-2-4.5"/></svg><span class="sp-card-label">Football</span></div>
+        <div class="sp-card" data-label="Volleyball" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3c0 5 3.5 9 9 9M12 3c0 5-3.5 9-9 9M21 12c-5 0-9 3.5-9 9M3 12c5 0 9 3.5 9 9"/></svg><span class="sp-card-label">Volleyball</span></div>
+      </div>
+    </div>
+
+    <!-- Combat -->
+    <div class="sp-section">
+      <div class="sp-section-title">Combat &amp; martial arts</div>
+      <div class="sp-grid">
+        <div class="sp-card" data-label="Boxing" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10v5a3 3 0 003 3h5a3 3 0 003-3v-2"/><path d="M9 10h7a2 2 0 002-2 3 3 0 00-3-3H9a3 3 0 00-3 3v2"/><path d="M10 12v2"/></svg><span class="sp-card-label">Boxing</span></div>
+        <div class="sp-card" data-label="Muay Thai" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="4" width="8" height="16" rx="2.5"/><path d="M12 8v8M9 7h6M9 17h6"/></svg><span class="sp-card-label">Muay Thai</span></div>
+        <div class="sp-card" data-label="MMA" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13V9a3 3 0 013-3h0v7"/><path d="M13 5a2.5 2.5 0 015 0v5"/><path d="M18 10a3 3 0 013 3v2a4 4 0 01-4 4h-6a4 4 0 01-4-4v-2"/></svg><span class="sp-card-label">MMA</span></div>
+        <div class="sp-card" data-label="BJJ" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18v4H3z"/><path d="M9 11v2M12 11v2M15 11v2"/></svg><span class="sp-card-label">BJJ</span></div>
+        <div class="sp-card" data-label="Karate" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="6" r="2"/><path d="M8 8v4l-3 4M8 12l4 1 4-3M13 13l5 5"/></svg><span class="sp-card-label">Karate</span></div>
+      </div>
+    </div>
+
+    <!-- Endurance -->
+    <div class="sp-section">
+      <div class="sp-section-title">Endurance &amp; cardio</div>
+      <div class="sp-grid">
+        <div class="sp-card" data-label="Running" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="5" r="2"/><path d="M14 7l-3 5 3 3v5M11 12l-4 2M14 12h5l-2 6"/></svg><span class="sp-card-label">Running</span></div>
+        <div class="sp-card" data-label="Cycling" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M6 18l4-7h5l3 7M10 11l3-4h3"/></svg><span class="sp-card-label">Cycling</span></div>
+        <div class="sp-card" data-label="Swimming" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="2"/><path d="M12 10l3 2"/><path d="M3 15c2 0 2 2 5 2s3-2 5-2 3 2 5 2 2-2 3-2"/><path d="M3 20c2 0 2 2 5 2s3-2 5-2 3 2 5 2 2-2 3-2"/></svg><span class="sp-card-label">Swimming</span></div>
+        <div class="sp-card" data-label="Triathlon" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6s1.5-1 3 0 2.5 1 4 0"/><circle cx="18" cy="6" r="1.5"/><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8 14h2l2-4h3l2 5"/></svg><span class="sp-card-label">Triathlon</span></div>
+      </div>
+    </div>
+
+    <!-- Mind-body -->
+    <div class="sp-section">
+      <div class="sp-section-title">Mind &amp; body</div>
+      <div class="sp-grid">
+        <div class="sp-card" data-label="Yoga" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v5M7 12h10M5 18c2-4 5-4 7-2 2-2 5-2 7 2"/></svg><span class="sp-card-label">Yoga</span></div>
+        <div class="sp-card" data-label="Pilates" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5" r="2"/><path d="M8 7l2 4 6-2M10 11l-2 4h3l2 2"/></svg><span class="sp-card-label">Pilates</span></div>
+        <div class="sp-card" data-label="Stretching" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v5M8 9l4 3 4-3M10 12l-1 7M14 12l1 7"/></svg><span class="sp-card-label">Stretching</span></div>
+      </div>
+    </div>
+
+    <!-- Recovery & therapy -->
+    <div class="sp-section">
+      <div class="sp-section-title">Recovery &amp; therapy</div>
+      <div class="sp-grid">
+        <div class="sp-card" data-label="Massage" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="10" width="18" height="6" rx="3"/><path d="M7 10l-1-3M17 10l1-3"/><circle cx="7" cy="13" r=".6"/><circle cx="11" cy="13" r=".6"/><circle cx="15" cy="13" r=".6"/><circle cx="19" cy="13" r=".6"/></svg><span class="sp-card-label">Massage</span></div>
+        <div class="sp-card" data-label="Sports massage" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13c0-3 2-5 5-5s5 2 5 5"/><path d="M13 14h4l3 2v4h-7z"/><circle cx="16" cy="18" r=".7"/></svg><span class="sp-card-label">Sports massage</span></div>
+        <div class="sp-card" data-label="Physiotherapy" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M10.5 4.5h3"/><circle cx="12" cy="10" r="2"/><path d="M12 12v4M9 20l3-4 3 4"/></svg><span class="sp-card-label">Physiotherapy</span></div>
+      </div>
+    </div>
+
+    <!-- Other -->
+    <div class="sp-section">
+      <div class="sp-section-title">Other</div>
+      <div class="sp-grid">
+        <div class="sp-card" data-label="Golf" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20l8-14M14 6l-2 3M4 20h16"/><circle cx="18" cy="20" r="1.5"/></svg><span class="sp-card-label">Golf</span></div>
+        <div class="sp-card" data-label="Climbing" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l6-12 4 7 3-4 5 9H3z"/><circle cx="10" cy="5" r="1.2"/></svg><span class="sp-card-label">Climbing</span></div>
+        <div class="sp-card" data-label="Skiing / Snowboarding" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19"/></svg><span class="sp-card-label">Skiing</span></div>
+        <div class="sp-card" data-label="Dance" onclick="pdToggleMulti(this,'sport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5" r="2"/><path d="M8 7l3 4 4-1M11 11l-1 5 3 2M12 16l3 2"/><circle cx="18" cy="10" r="2"/><path d="M20 10V3"/></svg><span class="sp-card-label">Dance</span></div>
+      </div>
+    </div>
+
+    <!-- Athlete picks from the closed list only — no custom-sport creation (coach-only). -->
+
+    </div><!-- /.sp-fs-content -->
+
+    <!-- Empty state (search no matches) -->
+    <div class="pd-empty" id="sport-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      <div class="pd-empty-title">No matches</div>
+      <div class="pd-empty-sub">Try a different sport name</div>
+    </div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;">
+    <button id="sport-save-btn" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;opacity:0.5;pointer-events:none;" onclick="pdSportSave()"><span class="sp-save-spinner"></span>Save<span class="pd-save-count" id="sport-save-count">(1 selected)</span></button>
+  </div>
+
+  <div class="fit-snackbar" id="sport-saved-snack">Sport selection updated</div>
+
+  <!-- Discard changes confirm sheet -->
+  <div class="fit-sheet-overlay" id="sport-discard-sheet">
+    <div class="fit-sheet" >
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Discard changes?</div>
+      <div class="fit-sheet-subtitle">Your sport selection will not be saved.</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
+        <button class="fit-btn fit-btn-destructive" style="height:50px;font-size:16px;" onclick="pdSportDiscardConfirm()">Discard</button>
+        <button style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="closeSheet('sport-discard-sheet')">Keep editing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- (custom-sport drawer removed — athlete can't create custom sports) -->
+</div>
+
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+  <div class="ann active" id="ann-s-sport-types"><span class="ann-role athlete">Athlete</span><h3>Sport types</h3>
+    <p>Push screen opened from <strong>Sport types</strong> set-card in Settings. Curated <strong>closed list</strong> of 33 sports across 8 sections.</p>
+    <p><strong>Athlete variant of the coach screen.</strong> Identical grid + multi-select + search + Save, but the athlete picks from the closed list only — <strong>no custom-sport creation</strong> (that's coach-only). Sports the athlete trains feed coach matching/search, not a public profile.</p>
+    <ul>
+      <li><strong>Sticky search</strong> filters live across sections; empty sections auto-hide; "No matches" when zero results.</li>
+      <li><strong>2-column card grid</strong> per section; <strong>multi-select</strong> via <code>.sp-card.selected</code> only (teal border + gradient, CSS-driven, no hardcoded ticks).</li>
+      <li><strong>Sticky footer Save</strong> disabled until selection differs from seed AND ≥1 picked; shows "(N selected)". On Save the Settings subtitle shows up to 3 names + "+N more".</li>
+      <li><strong>No custom-sport creation</strong> — athletes pick from the closed canonical list only (creating/moderating custom sports is coach-only).</li>
+    </ul>
+
+    <h4>Flow states</h4>
+    <div class="state-toggle">
+      <button class="active" onclick="setSpFlow('default',this)">Default</button>
+      <button onclick="setSpFlow('loading',this)">Loading</button>
+      <button onclick="setSpFlow('network-error',this)">Network error</button>
+      <button onclick="setSpFlow('saving',this)">Saving</button>
+      <button onclick="setSpFlow('error',this)">Save error</button>
+      <button onclick="setSpFlow('saved',this)">Saved</button>
+    </div>
+
+    <h4>Selection hints</h4>
+    <div class="state-toggle">
+      <button onclick="spSimulateZero()">Zero selected</button>
+      <button onclick="spSimulateMany()">Many selected (10)</button>
+    </div>
+
+    <ul><li><strong>Sticky search</strong> filters live across all sections; empty sections auto-hide; "No matches" if zero results</li><li><strong>2-column card grid</strong> per section with non-sticky section headers (Fitness &amp; Strength, Racket, Team &amp; court, Combat, Endurance, Mind &amp; body, Recovery &amp; therapy, Other)</li><li><strong>Multi-select</strong>: <code>.sp-card.selected</code> only — teal border + gradient; no hardcoded tick SVGs per card (CSS-driven from class)</li><li><strong>Sticky footer Save</strong> disabled until selection differs from seed AND at least 1 picked; shows "(N selected)"</li><li><strong>Back</strong> → discard-sheet if dirty; Discard reverts to seed + goes to Settings</li><li><strong>On Save</strong>: Settings "Sport types" subtitle shows up to 3 names, then "+N more"</li><li><strong>Zero-selected hint</strong> (blue info-banner) — "Pick at least one sport so athletes can find you in search"; non-blocking, Save button already disabled</li><li><strong>Many-selected hint</strong> (yellow warning-banner, threshold 8) — "Picking many can dilute your specialty — focus on what you actually coach"; non-blocking</li></ul><p class="note">Recovery &amp; therapy section exists because home-visit location type makes massage/physio a significant offering. Deferred from v1: Surfing / Kitesurfing / SUP / Equestrian — added on geo expansion.</p><p class="note">Icons = draft adapted Tabler/Material style. Formal 33-icon set goes to <code>design-tokens/assets/icons/sport/</code> as Phase 3 task (stable IDs, Style Dictionary pipeline).</p></div>
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+// === THEME SWITCH ===
+function switchTheme(theme) {
+  document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.getElementById("theme-light").style.background = theme === "light" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-light").style.color = theme === "light" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.querySelectorAll(".fit-phone").forEach(function(phone) {
+    if (theme === "light") { phone.classList.remove("fit-dark"); phone.classList.add("fit-light"); }
+    else { phone.classList.remove("fit-light"); phone.classList.add("fit-dark"); }
+  });
+}
+
+// === NAVIGATION ===
+function go(id, btn) {
+  document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+  const ann = document.getElementById('ann-' + id);
+  if (ann) ann.classList.add('active');
+  // Re-init FitUI for newly visible screen
+  FitUI.initAll(document.getElementById(id));
+}
+
+// === STATE TOGGLES ===
+function setListState(state, btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  var list = document.getElementById('s-list');
+  list.classList.remove('ls-default', 'ls-empty', 'ls-loading');
+  list.classList.add('ls-' + state);
+}
+
+function setCreateState(state, btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  var screen = document.getElementById('s-create');
+  // Clear any lingering errors + snackbars
+  screen.querySelectorAll('.fit-input-group.error').forEach(g => g.classList.remove('error'));
+  var vs = document.getElementById('validation-snack'); if (vs) vs.classList.remove('show');
+  var ds = document.getElementById('duration-snack'); if (ds) ds.classList.remove('show');
+  var timeDisp = document.getElementById('time-display');
+  if (state === 'errors') {
+    // Clear required inputs so validateCreate marks them
+    var nameEl = screen.querySelector('[data-required="name"] .fit-input');
+    if (nameEl) nameEl.textContent = '';
+    var priceEl = screen.querySelector('[data-required="price"] + .price-row .fit-input');
+    if (priceEl) priceEl.textContent = '';
+    if (timeDisp) timeDisp.textContent = 'Select time';
+    validateCreate();
+  } else if (state === 'duration-reset') {
+    if (timeDisp) timeDisp.textContent = 'Select time';
+    var snack = document.getElementById('duration-snack');
+    if (snack) { snack.classList.add('show'); setTimeout(function(){ snack.classList.remove('show'); }, 2500); }
+  } else {
+    // Default — restore prefilled values
+    var nameEl = screen.querySelector('[data-required="name"] .fit-input');
+    if (nameEl && !nameEl.textContent.trim()) nameEl.textContent = '';
+    if (timeDisp) timeDisp.textContent = '18:00';
+  }
+}
+
+// === DROPDOWN SELECT (generic) ===
+function selectDropdown(dropdownId, displayId, value, item) {
+  const dropdown = document.getElementById(dropdownId);
+  dropdown.querySelectorAll('.fit-dropdown-item').forEach(i => i.classList.remove('selected'));
+  item.classList.add('selected');
+  document.getElementById(displayId).textContent = value;
+  setTimeout(() => dropdown.classList.remove('open'), 150);
+}
+
+// === FORM VALIDATION ===
+function validateCreate() {
+  const screen = document.getElementById('s-create');
+  const content = screen.querySelector('.fit-phone-content');
+
+  // Clear previous errors
+  screen.querySelectorAll('.fit-input-group.error').forEach(g => g.classList.remove('error'));
+
+  // Check required fields
+  const checks = [
+    { sel: '[data-required="name"]', test: () => {
+      const el = screen.querySelector('[data-required="name"] .fit-input');
+      return el && el.textContent.trim().length > 0;
+    }},
+    { sel: '[data-required="duration"]', test: () => true }, // wheel picker always has value
+    { sel: '[data-required="price"]', test: () => {
+      const el = screen.querySelector('[data-required="price"] + .price-row .fit-input');
+      return el && el.textContent.trim().length > 0 && el.textContent.trim() !== '0';
+    }},
+    { sel: '[data-required="time"]', test: () => {
+      const el = document.getElementById('time-display');
+      return el && el.textContent !== 'Select time';
+    }},
+  ];
+
+  let firstError = null;
+  for (const check of checks) {
+    const group = screen.querySelector(check.sel);
+    if (!group) continue;
+    // Skip time check if personal mode
+    if (check.sel.includes('time') && !document.getElementById('schedule-fields')?.offsetHeight) continue;
+
+    if (!check.test()) {
+      group.classList.add('error');
+      if (!firstError) firstError = group;
+    }
+  }
+
+  if (firstError) {
+    content.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      const rect = firstError.getBoundingClientRect();
+      const contentRect = content.getBoundingClientRect();
+      const offset = rect.top - contentRect.top + content.scrollTop - 10;
+      content.scrollTo({ top: offset, behavior: 'smooth' });
+    }, 50);
+
+    const snack = document.getElementById('validation-snack');
+    snack.classList.add('show');
+    setTimeout(() => snack.classList.remove('show'), 2500);
+
+    setTimeout(() => {
+      screen.querySelectorAll('.fit-input-group.error').forEach(g => g.classList.remove('error'));
+    }, 3000);
+  }
+}
+
+// === DYNAMIC SHEET WARNINGS ===
+function updateSheetWarning(e, sheetId) {
+  var radio = e.target.closest("label");
+  if (!radio) return;
+  radio = radio.querySelector("input[type=radio]");
+  if (!radio) return;
+  var val = radio.value;
+  var msgs = {
+    "edit-scope-sheet-2": {tid:"edit-warning-text",m:{"future":"Only future generated events will have the new settings.","all":"23 participants across 12 events will be notified about the changes."}},
+    "delete-template-sheet": {tid:"del-warning-text",wid:"del-warning",m:{"keep":{t:"New events will stop being generated. Existing 12 events will continue as scheduled.",c:"yellow"},"cancel":{t:"47 participants will be notified and refunded. This cannot be undone.",c:"red"}}}
+  };
+  var cfg = msgs[sheetId];
+  if (!cfg) return;
+  var msg = cfg.m[val];
+  var textEl = document.getElementById(cfg.tid);
+  if (!textEl || !msg) return;
+  if (typeof msg === "string") { textEl.textContent = msg; }
+  else {
+    textEl.textContent = msg.t;
+    var w = document.getElementById(cfg.wid);
+    if (w) {
+      w.style.background = msg.c==="red" ? "rgba(240,92,91,0.08)" : "rgba(247,201,72,0.08)";
+      w.querySelector("svg").setAttribute("stroke", msg.c==="red" ? "var(--fit-red-400)" : "var(--fit-yellow-400)");
+    }
+  }
+}
+
+// === DURATION CHANGE -> RESET TIME ===
+function changeDuration(item) {
+  const col = item.closest('.fit-wheel-scroll');
+  col.querySelectorAll('.fit-wheel-item').forEach(i => {
+    i.classList.remove('active');
+    i.classList.add('dim');
+  });
+  item.classList.remove('dim');
+  item.classList.add('active');
+
+  const timeDisplay = document.getElementById('time-display');
+  if (timeDisplay && timeDisplay.textContent !== 'Select time') {
+    timeDisplay.textContent = 'Select time';
+    const snack = document.getElementById('duration-snack');
+    snack.classList.add('show');
+    setTimeout(() => snack.classList.remove('show'), 2500);
+  }
+}
+
+// === DATE PICKER ===
+let selectedDate = 'Sat, April 19';
+function pickDate(cell, dateStr) {
+  selectedDate = dateStr;
+  document.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('selected'));
+  cell.classList.add('selected');
+  document.getElementById('date-confirm-btn').textContent = 'Confirm \u00b7 ' + dateStr;
+}
+function confirmDate() {
+  const prev = document.getElementById('date-display').textContent;
+  document.getElementById('date-display').textContent = selectedDate;
+  document.getElementById('date-picker-sheet').classList.remove('visible');
+  if (prev !== selectedDate) {
+    const timeDisplay = document.getElementById('time-display');
+    if (timeDisplay && timeDisplay.textContent !== 'Select time') {
+      timeDisplay.textContent = 'Select time';
+      const snack = document.getElementById('duration-snack');
+      snack.querySelector('.snack-dot').style.background = 'var(--fit-yellow-400)';
+      snack.innerHTML = '<span class="snack-dot"></span>Time slot reset \u2014 date changed';
+      snack.classList.add('show');
+      setTimeout(() => snack.classList.remove('show'), 2500);
+    }
+  }
+}
+
+// === TIME PICKER BOTTOM SHEET (accordion slots) ===
+let tpHour = '18';
+let tpMin = '00';
+
+function tpToggleSlot(slot) {
+  if (slot.classList.contains('tp-slot-busy')) return;
+  const wasExpanded = slot.classList.contains('expanded');
+  document.querySelectorAll('#tp-slot-list .tp-slot').forEach(s => s.classList.remove('expanded'));
+  if (!wasExpanded) {
+    slot.classList.add('expanded');
+    var hour = slot.getAttribute('data-hour');
+    var firstChip = slot.querySelector('.min-chip:not(.disabled)');
+    if (firstChip) {
+      var min = firstChip.getAttribute('data-min');
+      document.querySelectorAll('#tp-slot-list .tp-slot-row').forEach(function(r) { r.classList.remove('selected'); });
+      document.querySelectorAll('#tp-slot-list .min-chip').forEach(function(c) { c.classList.remove('selected'); });
+      slot.querySelector('.tp-slot-row').classList.add('selected');
+      firstChip.classList.add('selected');
+      tpHour = hour;
+      tpMin = min;
+      tpUpdateBtn();
+    }
+    setTimeout(function() {
+      var list = document.getElementById('tp-slot-list');
+      var slotBottom = slot.offsetTop + slot.offsetHeight;
+      if (slotBottom > list.scrollTop + list.clientHeight) {
+        list.scrollTo({ top: slotBottom - list.clientHeight + 10, behavior: 'smooth' });
+      }
+    }, 100);
+  }
+}
+
+function tpPickTime(hour, min, e) {
+  e.stopPropagation();
+  tpHour = hour; tpMin = min;
+  document.querySelectorAll('#tp-slot-list .tp-slot-row').forEach(r => r.classList.remove('selected'));
+  document.querySelectorAll('#tp-slot-list .min-chip').forEach(c => c.classList.remove('selected'));
+  const chip = e.target.closest('.min-chip');
+  const slot = chip.closest('.tp-slot');
+  slot.querySelector('.tp-slot-row').classList.add('selected');
+  chip.classList.add('selected');
+  tpUpdateBtn();
+}
+
+function tpUpdateBtn() {
+  const h = parseInt(tpHour), m = parseInt(tpMin);
+  const start = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+  const end = String(h+1).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+  const btn = document.getElementById('tp-confirm-btn');
+  if (btn) btn.textContent = 'Confirm \u00b7 ' + start + ' \u2014 ' + end;
+}
+
+function tpConfirm() {
+  const start = String(parseInt(tpHour)).padStart(2,'0') + ':' + String(parseInt(tpMin)).padStart(2,'0');
+  document.getElementById('time-display').textContent = start;
+  document.getElementById('time-picker-sheet').classList.remove('visible');
+}
+
+// === CREATE SESSION: show/hide logic ===
+document.addEventListener('DOMContentLoaded', () => {
+  const typeToggle = document.getElementById('type-toggle');
+  const groupFields = document.getElementById('group-fields');
+  const scheduleFields = document.getElementById('schedule-fields');
+  const priceLabel = document.getElementById('price-label');
+  const scheduleToggle = document.getElementById('schedule-toggle');
+  const recurringFields = document.getElementById('recurring-fields');
+  const oneoffFields = document.getElementById('oneoff-fields');
+
+  if (!typeToggle) return;
+
+  function slideToggle(el, show) {
+    if (show) {
+      el.style.display = '';
+      el.style.overflow = 'hidden';
+      el.style.maxHeight = '0';
+      el.style.opacity = '0';
+      requestAnimationFrame(() => {
+        el.style.transition = 'max-height 0.3s ease, opacity 0.2s ease';
+        el.style.maxHeight = el.scrollHeight + 200 + 'px';
+        el.style.opacity = '1';
+        setTimeout(() => { el.style.maxHeight = ''; el.style.overflow = ''; el.style.transition = ''; }, 350);
+      });
+    } else {
+      el.style.overflow = 'hidden';
+      el.style.maxHeight = el.scrollHeight + 'px';
+      requestAnimationFrame(() => {
+        el.style.transition = 'max-height 0.3s ease, opacity 0.2s ease';
+        el.style.maxHeight = '0';
+        el.style.opacity = '0';
+        setTimeout(() => { el.style.display = 'none'; el.style.transition = ''; }, 300);
+      });
+    }
+  }
+
+  typeToggle.addEventListener('fit:selection', (e) => {
+    const isGroup = e.detail.values.includes('group');
+    slideToggle(groupFields, isGroup);
+    slideToggle(scheduleFields, isGroup);
+    priceLabel.textContent = isGroup ? 'Price per participant' : 'Price';
+  });
+
+  if (scheduleToggle) {
+    scheduleToggle.addEventListener('fit:selection', (e) => {
+      const isRecurring = e.detail.values.includes('recurring');
+      slideToggle(recurringFields, isRecurring);
+      slideToggle(oneoffFields, !isRecurring);
+    });
+  }
+});
+
+// === MAP MODE TOGGLE ===
+var mapLocked = true;
+function toggleMapMode() {
+  mapLocked = !mapLocked;
+  document.getElementById('map-lock-icon').style.display = mapLocked ? 'block' : 'none';
+  document.getElementById('map-unlock-icon').style.display = mapLocked ? 'none' : 'block';
+  document.getElementById('map-mode-text').textContent = mapLocked ? 'Pin is locked' : 'Drag to set location';
+  document.getElementById('map-mode-action').textContent = mapLocked ? 'Tap to adjust' : 'Tap to lock';
+  document.getElementById('map-mode-action').style.color = mapLocked ? 'var(--fit-teal-500)' : 'var(--fit-text-tertiary)';
+}
+
+// === CALENDAR SYNC FUNCTIONS (from settings.html) ===
+function setAppleDetailState(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll("button").forEach(function(b) {
+      b.style.background = "transparent"; b.style.color = "var(--fit-gray-400)";
+    });
+    btn.style.background = "var(--fit-gray-700)"; btn.style.color = "var(--fit-white)";
+  }
+  ["apple-error-revoked","apple-error-2fa","apple-error-sync"].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = "none";
+  });
+  var calList = document.getElementById("apple-cal-list");
+  var status = document.getElementById("apple-conn-status");
+  if (state === "normal") {
+    if (calList) { calList.style.display = ""; calList.style.opacity = ""; calList.style.pointerEvents = ""; }
+    if (status) { status.textContent = "Connected"; status.style.color = "var(--fit-teal-500)"; }
+  } else if (state === "revoked") {
+    document.getElementById("apple-error-revoked").style.display = "block";
+    if (calList) { calList.style.opacity = "0.5"; calList.style.pointerEvents = "none"; }
+    if (status) { status.textContent = "Password revoked"; status.style.color = "var(--fit-red-400)"; }
+  } else if (state === "2fa") {
+    document.getElementById("apple-error-2fa").style.display = "block";
+    if (calList) { calList.style.opacity = "0.5"; calList.style.pointerEvents = "none"; }
+    if (status) { status.textContent = "2FA required"; status.style.color = "var(--fit-yellow-400)"; }
+  } else if (state === "sync") {
+    document.getElementById("apple-error-sync").style.display = "block";
+    if (calList) { calList.style.display = ""; calList.style.opacity = ""; calList.style.pointerEvents = ""; }
+    if (status) { status.textContent = "Sync error"; status.style.color = "var(--fit-red-400)"; }
+  }
+}
+
+function setDetailState(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll("button").forEach(function(b) {
+      b.style.background = "transparent"; b.style.color = "var(--fit-gray-400)";
+    });
+    btn.style.background = "var(--fit-gray-700)"; btn.style.color = "var(--fit-white)";
+  }
+  ["error-initial","error-sync","error-auth"].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = "none";
+  });
+  var calList = document.querySelector("#s-cal-detail .fit-phone-content > div > div:last-of-type");
+  var statusOk = document.getElementById("sync-status-ok");
+  var statusErr = document.getElementById("sync-status-error");
+
+  if (state === "normal") {
+    if (calList) calList.style.display = "";
+    if (statusOk) { statusOk.style.display = "block"; statusOk.textContent = "2 of 3 calendars synced"; }
+    if (statusErr) statusErr.style.display = "none";
+  } else if (state === "initial") {
+    document.getElementById("error-initial").style.display = "block";
+    if (calList) calList.style.display = "none";
+    if (statusOk) statusOk.style.display = "none";
+    if (statusErr) { statusErr.style.display = "block"; statusErr.textContent = "Failed to load calendars"; }
+  } else if (state === "sync") {
+    document.getElementById("error-sync").style.display = "block";
+    if (calList) calList.style.display = "";
+    if (statusOk) statusOk.style.display = "none";
+    if (statusErr) { statusErr.style.display = "block"; statusErr.textContent = "\u26a0 Sync error"; }
+  } else if (state === "auth") {
+    document.getElementById("error-auth").style.display = "block";
+    if (calList) { calList.style.display = ""; calList.style.opacity = "0.5"; calList.style.pointerEvents = "none"; }
+    if (statusOk) statusOk.style.display = "none";
+    if (statusErr) { statusErr.style.display = "block"; statusErr.textContent = "\u26a0 Reconnect required"; }
+  }
+  if (state !== "auth" && calList) { calList.style.opacity = ""; calList.style.pointerEvents = ""; }
+}
+
+function toggleCalSync(state, btn) {
+  btn.parentElement.querySelectorAll('button').forEach(function(b) {
+    b.style.background = 'transparent'; b.style.color = 'var(--fit-gray-400)';
+  });
+  btn.style.background = 'var(--fit-gray-700)'; btn.style.color = 'var(--fit-white)';
+  var zero = document.getElementById('calsync-zero');
+  var conn = document.getElementById('calsync-connected');
+  zero.style.display = state === 'zero' ? 'flex' : 'none';
+  conn.style.display = state === 'connected' ? 'flex' : 'none';
+}
+
+// Apple Calendar validation
+function validateAppleConnect() {
+  var idField = document.getElementById('apple-id-field');
+  var passField = document.getElementById('apple-pass-field');
+  var idInput = idField.querySelector('input') || idField.querySelector('.fit-input');
+  var passInput = passField.querySelector('input') || passField.querySelector('.fit-input');
+
+  idField.classList.remove('error');
+  passField.classList.remove('error');
+
+  var hasError = false;
+
+  if (!(idInput.value || idInput.textContent || '').trim()) {
+    idField.classList.add('error');
+    if (!hasError) {
+      var content = idField.closest('.fit-phone-content');
+      content.scrollTo({ top: idField.offsetTop - 10, behavior: 'smooth' });
+    }
+    hasError = true;
+  }
+  if (!(passInput.value || passInput.textContent || '').trim()) {
+    passField.classList.add('error');
+    if (!hasError) {
+      var content = passField.closest('.fit-phone-content');
+      content.scrollTo({ top: passField.offsetTop - 10, behavior: 'smooth' });
+    }
+    hasError = true;
+  }
+
+  if (hasError) {
+    setTimeout(function() {
+      idField.classList.remove('error');
+      passField.classList.remove('error');
+    }, 3000);
+    return;
+  }
+
+  var toast = document.getElementById('apple-error-toast');
+  toast.classList.add('show');
+  setTimeout(function() { toast.classList.remove('show'); }, 3000);
+}
+
+// ==================== AVAILABILITY ====================
+let availTpCurrentInput = null;
+
+function toggleDay(headerEl) {
+  const day = headerEl.parentElement;
+  if (day.classList.contains('active')) {
+    day.classList.remove('active');
+    const intervals = day.querySelector('.avail-intervals');
+    if (intervals) intervals.remove();
+  } else {
+    day.classList.add('active');
+    if (!day.querySelector('.avail-intervals')) {
+      const wrap = document.createElement('div');
+      wrap.className = 'avail-intervals';
+      wrap.appendChild(availBuildInterval('07:00', '22:00', true));
+      day.appendChild(wrap);
+    }
+  }
+  validateAvailability();
+}
+
+function availBuildInterval(startVal, endVal, isFirst) {
+  const row = document.createElement('div');
+  row.className = 'avail-interval';
+  row.innerHTML =
+    '<div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">' + startVal + '</span>' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>' +
+    '</div>' +
+    '<span class="avail-interval-sep">to</span>' +
+    '<div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">' + endVal + '</span>' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>' +
+    '</div>' +
+    (isFirst
+      ? '<button class="avail-interval-btn" onclick="addInterval(this)" aria-label="Add interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
+      : '<button class="avail-interval-btn" onclick="removeInterval(this)" aria-label="Remove interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
+    );
+  return row;
+}
+
+function addInterval(btn) {
+  const intervals = btn.closest('.avail-intervals');
+  if (!intervals) return;
+  intervals.appendChild(availBuildInterval('22:00', '23:00', false));
+  validateAvailability();
+}
+
+function removeInterval(btn) {
+  const row = btn.closest('.avail-interval');
+  if (row) row.remove();
+  validateAvailability();
+}
+
+// --- Time picker wheel ---
+function availTpPopulate() {
+  const hourWheel = document.getElementById('avail-tp-hour');
+  const minWheel = document.getElementById('avail-tp-minute');
+  if (!hourWheel || hourWheel.dataset.populated === '1') return;
+  const pad = '<div class="avail-tp-wheel-pad"></div>';
+
+  let html = pad;
+  for (let h = 0; h < 24; h++) {
+    const v = String(h).padStart(2,'0');
+    html += '<div class="avail-tp-wheel-item" data-val="' + v + '">' + v + '</div>';
+  }
+  html += pad;
+  hourWheel.innerHTML = html;
+  hourWheel.dataset.populated = '1';
+
+  html = pad;
+  [0, 15, 30, 45].forEach(function(m) {
+    const v = String(m).padStart(2,'0');
+    html += '<div class="avail-tp-wheel-item" data-val="' + v + '">' + v + '</div>';
+  });
+  html += pad;
+  minWheel.innerHTML = html;
+  minWheel.dataset.populated = '1';
+}
+
+function openTimePicker(inputEl) {
+  availTpCurrentInput = inputEl;
+  availTpPopulate();
+  const valEl = inputEl.querySelector('.avail-time-value');
+  const parts = (valEl && valEl.textContent || '07:00').split(':');
+  const hh = parts[0], mm = parts[1];
+
+  const row = inputEl.closest('.avail-interval');
+  const inputs = row ? row.querySelectorAll('.avail-time-input') : [];
+  const isEnd = inputs[1] === inputEl;
+  const titleEl = document.getElementById('avail-tp-title');
+  if (titleEl) titleEl.textContent = isEnd ? 'End time' : 'Start time';
+
+  document.getElementById('avail-tp-sheet').classList.add('visible');
+  requestAnimationFrame(function() {
+    availTpScrollTo(document.getElementById('avail-tp-hour'), hh);
+    availTpScrollTo(document.getElementById('avail-tp-minute'), mm);
+  });
+}
+
+function availTpScrollTo(wheel, val) {
+  if (!wheel) return;
+  const item = wheel.querySelector('[data-val="' + val + '"]');
+  if (!item) return;
+  const target = item.offsetTop - wheel.offsetTop - (wheel.clientHeight / 2 - item.clientHeight / 2);
+  wheel.scrollTop = Math.max(0, target);
+}
+
+function availTpReadWheel(wheel) {
+  if (!wheel) return null;
+  const center = wheel.scrollTop + wheel.clientHeight / 2;
+  let closest = null, closestDist = Infinity;
+  wheel.querySelectorAll('.avail-tp-wheel-item').forEach(function(item) {
+    const itemCenter = (item.offsetTop - wheel.offsetTop) + item.clientHeight / 2;
+    const dist = Math.abs(itemCenter - center);
+    if (dist < closestDist) { closestDist = dist; closest = item; }
+  });
+  return closest ? closest.dataset.val : null;
+}
+
+function confirmTimePicker() {
+  const hh = availTpReadWheel(document.getElementById('avail-tp-hour')) || '07';
+  const mm = availTpReadWheel(document.getElementById('avail-tp-minute')) || '00';
+  if (availTpCurrentInput) {
+    const valEl = availTpCurrentInput.querySelector('.avail-time-value');
+    if (valEl) valEl.textContent = hh + ':' + mm;
+  }
+  closeSheet('avail-tp-sheet');
+  validateAvailability();
+}
+
+function closeSheet(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('visible');
+  if (id === 'avail-tp-sheet') availTpCurrentInput = null;
+}
+
+function availSetFlowClass(state) {
+  const screen = document.getElementById('s-availability');
+  if (!screen) return;
+  ['default','loading','saving','error'].forEach(function(s){ screen.classList.remove('fs-' + s); });
+  if (state !== 'default') screen.classList.add('fs-' + state);
+}
+
+function handleAvailSave() {
+  const btn = document.getElementById('avail-save-btn');
+  if (btn && btn.disabled) return; // validation errors — ignore
+  availSetFlowClass('saving');
+  // Simulated network delay → success
+  setTimeout(function() {
+    availSetFlowClass('default');
+    const snack = document.getElementById('avail-saved-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+  }, 900);
+}
+
+function handleAvailBack() {
+  // In production: only open sheet if dirty. Prototype: always demo.
+  openSheet('avail-discard-sheet');
+}
+
+function availDiscardConfirm() {
+  closeSheet('avail-discard-sheet');
+  // Return to Settings root
+  const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+  if (btn) go('s-settings', btn);
+}
+
+function setAvailFlow(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+  // Reset the content-row toggle to default visuals (flow is orthogonal)
+  if (state === 'saved') {
+    availSetFlowClass('default');
+    const snack = document.getElementById('avail-saved-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+    return;
+  }
+  availSetFlowClass(state);
+}
+
+// --- Validation ---
+function availParseTime(s) {
+  if (!s) return null;
+  const parts = s.split(':');
+  if (parts.length !== 2) return null;
+  const h = parseInt(parts[0], 10), m = parseInt(parts[1], 10);
+  if (isNaN(h) || isNaN(m)) return null;
+  return h * 60 + m;
+}
+
+function validateAvailability() {
+  const container = document.querySelector('#s-availability .avail-days');
+  if (!container) return;
+
+  container.querySelectorAll('.avail-time-input.error').forEach(function(el){ el.classList.remove('error'); });
+  container.querySelectorAll('.avail-interval-error').forEach(function(el){ el.remove(); });
+
+  let hasError = false;
+  let activeCount = 0;
+
+  container.querySelectorAll('.avail-day.active').forEach(function(day) {
+    activeCount++;
+    const intervalRows = Array.from(day.querySelectorAll('.avail-interval'));
+    const parsed = intervalRows.map(function(row) {
+      const inputs = row.querySelectorAll('.avail-time-input');
+      const sv = inputs[0] && inputs[0].querySelector('.avail-time-value');
+      const ev = inputs[1] && inputs[1].querySelector('.avail-time-value');
+      return {
+        row: row,
+        inputs: inputs,
+        start: availParseTime(sv && sv.textContent),
+        end: availParseTime(ev && ev.textContent),
+      };
+    });
+
+    parsed.forEach(function(iv, idx) {
+      if (iv.start == null || iv.end == null) return;
+      let err = null;
+      if (iv.end <= iv.start) {
+        err = 'End time must be after start';
+      } else if (iv.end - iv.start < 30) {
+        err = 'Interval must be at least 30 minutes';
+      } else {
+        for (let j = 0; j < parsed.length; j++) {
+          if (j === idx) continue;
+          const o = parsed[j];
+          if (o.start == null || o.end == null) continue;
+          if (iv.start < o.end && iv.end > o.start) {
+            err = 'Overlaps with another interval';
+            break;
+          }
+        }
+      }
+      if (err) {
+        hasError = true;
+        iv.inputs[0].classList.add('error');
+        iv.inputs[1].classList.add('error');
+        const msg = document.createElement('div');
+        msg.className = 'avail-interval-error';
+        msg.innerHTML =
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+          '<span>' + err + '</span>';
+        iv.row.insertAdjacentElement('afterend', msg);
+      }
+    });
+  });
+
+  const alloffBanner = document.getElementById('avail-banner-alloff');
+  if (alloffBanner) alloffBanner.style.display = activeCount === 0 ? 'flex' : 'none';
+
+  const saveBtn = document.getElementById('avail-save-btn');
+  if (saveBtn) saveBtn.disabled = hasError;
+}
+
+// --- State toggle (demo seeds) ---
+let availSeedHtml = null;
+
+function availCaptureSeed() {
+  const days = document.querySelector('#s-availability .avail-days');
+  if (days && availSeedHtml == null) availSeedHtml = days.innerHTML;
+}
+
+function availReset() {
+  availCaptureSeed();
+  const days = document.querySelector('#s-availability .avail-days');
+  if (days && availSeedHtml != null) days.innerHTML = availSeedHtml;
+  const existing = document.getElementById('avail-banner-existing');
+  if (existing) existing.style.display = 'none';
+}
+
+function setAvailState(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+  availSetFlowClass('default');
+  // Clear flow-row active state too (they're orthogonal, content reset means flow = default)
+  document.querySelectorAll('#ann-s-availability .state-toggle').forEach(function(row, idx) {
+    if (idx === 1) row.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+  });
+  availReset();
+
+  if (state === 'errors') {
+    // Monday: end (22:00) → 06:00 to demo end ≤ start
+    const mon = document.querySelector('#s-availability .avail-day[data-day="mon"] .avail-interval');
+    if (mon) {
+      const vals = mon.querySelectorAll('.avail-time-value');
+      if (vals.length >= 2) vals[1].textContent = '06:00';
+    }
+    // Tuesday interval 2: change to 10:00–20:00 to overlap with 07:00–12:00
+    const tue = document.querySelectorAll('#s-availability .avail-day[data-day="tue"] .avail-interval');
+    if (tue.length >= 2) {
+      const vals = tue[1].querySelectorAll('.avail-time-value');
+      if (vals.length >= 2) { vals[0].textContent = '10:00'; vals[1].textContent = '20:00'; }
+    }
+  } else if (state === 'alloff') {
+    document.querySelectorAll('#s-availability .avail-day.active').forEach(function(day) {
+      day.classList.remove('active');
+      const iv = day.querySelector('.avail-intervals');
+      if (iv) iv.remove();
+    });
+  } else if (state === 'existing') {
+    const ex = document.getElementById('avail-banner-existing');
+    if (ex) ex.style.display = 'flex';
+  }
+  validateAvailability();
+}
+
+function openSheet(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.add('visible');
+}
+
+// ===== PD SELECTOR (TZ / Country / Languages) =====
+function filterPdList(inputEl, key) {
+  const q = inputEl.value.trim().toLowerCase();
+  const wrap = document.getElementById(key + '-search-wrap');
+  if (wrap) wrap.classList.toggle('has-value', q.length > 0);
+  const list = document.querySelector('[data-pd-list="' + key + '"]');
+  const empty = document.getElementById(key + '-empty');
+  if (!list) return;
+  let visible = 0;
+  list.querySelectorAll('.cal-select-row').forEach(function(row) {
+    const label = (row.getAttribute('data-label') || row.textContent).toLowerCase();
+    const match = !q || label.indexOf(q) !== -1;
+    row.classList.toggle('hidden', !match);
+    if (match) visible++;
+  });
+  if (empty) empty.classList.toggle('show', visible === 0);
+}
+
+function clearPdSearch(key) {
+  const input = document.getElementById(key + '-search-input');
+  if (!input) return;
+  input.value = '';
+  if (key === 'sport') filterSportList(input);
+  else filterPdList(input, key);
+  input.focus();
+}
+
+// ===== PERSONAL DATA FLOW STATES =====
+function pdSetFlowClass(state) {
+  const screen = document.getElementById('s-personal-data');
+  if (!screen) return;
+  ['loading','saving','error'].forEach(function(s) { screen.classList.remove('fs-' + s); });
+  if (state && state !== 'default') screen.classList.add('fs-' + state);
+}
+
+function handlePdSave() {
+  pdSetFlowClass('saving');
+  setTimeout(function() {
+    pdSetFlowClass('default');
+    const snack = document.getElementById('pd-saved-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+  }, 900);
+}
+
+function handlePdBack() {
+  // In production: open sheet only if form dirty. Prototype always shows for demo.
+  openSheet('pd-discard-sheet');
+}
+
+function pdDiscardConfirm() {
+  closeSheet('pd-discard-sheet');
+  const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+  if (btn) go('s-settings', btn);
+}
+
+function setPdFlow(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+  if (state === 'saved') {
+    pdSetFlowClass('default');
+    const snack = document.getElementById('pd-saved-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+    return;
+  }
+  pdSetFlowClass(state);
+}
+
+// ===== AVATAR ACTION SHEET =====
+function pdAvatarAction(kind) {
+  const imgEl = document.getElementById('pd-avatar-img');
+  const removeBtn = document.getElementById('pd-avatar-remove');
+  if (kind === 'remove') {
+    imgEl.style.backgroundImage = '';
+    imgEl.textContent = 'JM';
+    if (removeBtn) removeBtn.style.display = 'none';
+  } else {
+    // Take photo / Library — simulate pick with a placeholder avatar
+    const demo = 'https://i.pravatar.cc/160?u=coach-john-miller';
+    imgEl.style.backgroundImage = 'url(' + demo + ')';
+    imgEl.textContent = '';
+    if (removeBtn) removeBtn.style.display = 'flex';
+  }
+  closeSheet('pd-avatar-sheet');
+}
+
+// ===== WEIGHT / HEIGHT — metric-only (kg / cm) =====
+// Validation ranges: weight 20-300 kg; height 50-250 cm
+function pdParseNum(s) {
+  const n = parseFloat(String(s).replace(',', '.').trim());
+  return isFinite(n) ? n : null;
+}
+
+function pdWeightValidate() {
+  const inp = document.getElementById('pd-weight-input');
+  const wrap = document.getElementById('pd-weight-wrap');
+  const err = document.getElementById('pd-weight-err');
+  const kg = pdParseNum(inp.value);
+  let msg = '';
+  if (inp.value.trim() && kg != null) {
+    if (kg < 20) msg = 'Weight seems too low';
+    else if (kg > 300) msg = 'Weight seems too high';
+  }
+  wrap.classList.toggle('error', !!msg);
+  if (err) { err.textContent = msg; err.style.display = msg ? 'block' : 'none'; }
+}
+
+function pdHeightValidate() {
+  const inp = document.getElementById('pd-height-input');
+  const wrap = document.getElementById('pd-height-wrap');
+  const err = document.getElementById('pd-height-err');
+  const cm = pdParseNum(inp.value);
+  let msg = '';
+  if (inp.value.trim() && cm != null) {
+    if (cm < 50) msg = 'Height seems too low';
+    else if (cm > 250) msg = 'Height seems too high';
+  }
+  wrap.classList.toggle('error', !!msg);
+  if (err) { err.textContent = msg; err.style.display = msg ? 'block' : 'none'; }
+}
+
+// ===== DOB PICKER (3-wheel) =====
+var DOB_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function dobPopulate() {
+  const dayW = document.getElementById('dob-wheel-day');
+  const monW = document.getElementById('dob-wheel-month');
+  const yrW = document.getElementById('dob-wheel-year');
+  const pad = '<div class="avail-tp-wheel-pad"></div>';
+  if (dayW && !dayW.dataset.populated) {
+    dobRebuildDays(31);
+  }
+  if (monW && !monW.dataset.populated) {
+    let html = pad;
+    DOB_MONTHS.forEach(function(m, i) {
+      const v = String(i + 1).padStart(2,'0');
+      html += '<div class="avail-tp-wheel-item" data-val="' + v + '">' + m + '</div>';
+    });
+    html += pad;
+    monW.innerHTML = html;
+    monW.dataset.populated = '1';
+    monW.addEventListener('scroll', dobOnWheelChange);
+  }
+  if (yrW && !yrW.dataset.populated) {
+    const now = new Date();
+    const maxYear = now.getFullYear() - 13; // 13+ only — year list stops here
+    let html = pad;
+    for (let y = maxYear; y >= 1920; y--) {
+      html += '<div class="avail-tp-wheel-item" data-val="' + y + '">' + y + '</div>';
+    }
+    html += pad;
+    yrW.innerHTML = html;
+    yrW.dataset.populated = '1';
+    yrW.addEventListener('scroll', dobOnWheelChange);
+  }
+}
+
+function dobRebuildDays(max) {
+  const dayW = document.getElementById('dob-wheel-day');
+  if (!dayW) return;
+  const pad = '<div class="avail-tp-wheel-pad"></div>';
+  let html = pad;
+  for (let d = 1; d <= max; d++) {
+    const v = String(d).padStart(2,'0');
+    html += '<div class="avail-tp-wheel-item" data-val="' + v + '">' + d + '</div>';
+  }
+  html += pad;
+  dayW.innerHTML = html;
+  dayW.dataset.populated = '1';
+}
+
+var _dobWheelTimer;
+function dobOnWheelChange() {
+  clearTimeout(_dobWheelTimer);
+  _dobWheelTimer = setTimeout(function() {
+    const m = availTpReadWheel(document.getElementById('dob-wheel-month'));
+    const y = availTpReadWheel(document.getElementById('dob-wheel-year'));
+    if (!m || !y) return;
+    const monthNum = parseInt(m, 10);
+    const yearNum = parseInt(y, 10);
+    const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
+    const dayW = document.getElementById('dob-wheel-day');
+    const currentDay = availTpReadWheel(dayW);
+    dobRebuildDays(daysInMonth);
+    if (currentDay) {
+      const clamped = Math.min(parseInt(currentDay, 10), daysInMonth);
+      requestAnimationFrame(function() {
+        availTpScrollTo(dayW, String(clamped).padStart(2,'0'));
+      });
+    }
+  }, 120);
+}
+
+function openDobPicker() {
+  dobPopulate();
+  // Parse existing value or default to 2000-01-01
+  const valEl = document.getElementById('pd-dob-value');
+  const existing = (valEl && valEl.textContent || '').trim();
+  let dd = '01', mm = '01', yy = '2000';
+  const match = existing.match(/^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$/);
+  if (match) {
+    dd = String(match[1]).padStart(2,'0');
+    const monIdx = DOB_MONTHS.indexOf(match[2]);
+    if (monIdx >= 0) mm = String(monIdx + 1).padStart(2,'0');
+    yy = match[3];
+  }
+  const errBox = document.getElementById('dob-sheet-error');
+  if (errBox) errBox.style.display = 'none';
+  document.getElementById('dob-picker-sheet').classList.add('visible');
+  requestAnimationFrame(function() {
+    // Rebuild day wheel to match initial month/year length
+    const monthNum = parseInt(mm, 10);
+    const yearNum = parseInt(yy, 10);
+    dobRebuildDays(new Date(yearNum, monthNum, 0).getDate());
+    availTpScrollTo(document.getElementById('dob-wheel-day'), dd);
+    availTpScrollTo(document.getElementById('dob-wheel-month'), mm);
+    availTpScrollTo(document.getElementById('dob-wheel-year'), yy);
+  });
+}
+
+function confirmDobPicker() {
+  const dd = availTpReadWheel(document.getElementById('dob-wheel-day')) || '01';
+  const mm = availTpReadWheel(document.getElementById('dob-wheel-month')) || '01';
+  const yy = availTpReadWheel(document.getElementById('dob-wheel-year')) || '2000';
+  const picked = new Date(parseInt(yy,10), parseInt(mm,10) - 1, parseInt(dd,10));
+  const today = new Date();
+  const thirteenAgo = new Date(today.getFullYear() - 13, today.getMonth(), today.getDate());
+  if (picked > thirteenAgo) {
+    const errBox = document.getElementById('dob-sheet-error');
+    if (errBox) errBox.style.display = 'block';
+    return;
+  }
+  const valEl = document.getElementById('pd-dob-value');
+  if (valEl) {
+    valEl.textContent = parseInt(dd, 10) + ' ' + DOB_MONTHS[parseInt(mm, 10) - 1] + ' ' + yy;
+    valEl.style.color = 'var(--fit-text-primary)';
+  }
+  const errInline = document.getElementById('pd-dob-error');
+  if (errInline) errInline.style.display = 'none';
+  closeSheet('dob-picker-sheet');
+}
+
+// Snapshot of initial selected labels per multi-select key (for dirty check)
+var pdMultiSeed = {};
+
+var PD_ITEM_SELECTOR = '.cal-select-row, .sp-card';
+
+function pdCaptureSeed(key) {
+  const list = document.querySelector('[data-pd-list="' + key + '"]');
+  if (!list) return;
+  pdMultiSeed[key] = Array.from(list.querySelectorAll(PD_ITEM_SELECTOR))
+    .filter(r => r.classList.contains('selected'))
+    .map(r => r.getAttribute('data-label'));
+}
+
+function pdIsDirty(key) {
+  const list = document.querySelector('[data-pd-list="' + key + '"]');
+  if (!list || !pdMultiSeed[key]) return false;
+  const current = Array.from(list.querySelectorAll(PD_ITEM_SELECTOR))
+    .filter(r => r.classList.contains('selected'))
+    .map(r => r.getAttribute('data-label'));
+  if (current.length !== pdMultiSeed[key].length) return true;
+  const seedSet = new Set(pdMultiSeed[key]);
+  return current.some(l => !seedSet.has(l));
+}
+
+function pdToggleMulti(row, key) {
+  row.classList.toggle('selected');
+  pdUpdateMultiFooter(key);
+  if (key === 'sport' && typeof spUpdateHints === 'function') spUpdateHints();
+}
+
+// --- Custom sport (coach-created → pending admin review) ---
+function openCustomSportSheet() {
+  var i = document.getElementById('custom-sport-name');
+  if (i) i.value = '';
+  var b = document.getElementById('custom-sport-create');
+  if (b) b.disabled = true;
+  openSheet('custom-sport-sheet');
+}
+
+function createCustomSport() {
+  var i = document.getElementById('custom-sport-name');
+  var name = (i && i.value || '').trim();
+  if (!name) return;
+  var sec = document.getElementById('sp-custom-section');
+  var grid = document.getElementById('sp-custom-grid');
+  var emptyCta = document.getElementById('sp-custom-empty-cta');
+  if (sec) sec.style.display = '';
+  if (emptyCta) emptyCta.style.display = 'none';   // CTA collapses into the inline +Add tile
+  var card = document.createElement('div');
+  card.className = 'sp-card sp-custom selected';
+  card.setAttribute('data-label', name);
+  card.setAttribute('onclick', "pdToggleMulti(this,'sport')");
+  card.innerHTML =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4.5M12 16h.01"/></svg>'
+    + '<span class="sp-card-label">' + name + '</span>';
+  if (grid) {
+    var addTile = grid.querySelector('.sp-add-tile');
+    grid.insertBefore(card, addTile);   // keep the +Add tile last
+  }
+  closeSheet('custom-sport-sheet');
+  if (typeof pdUpdateMultiFooter === 'function') pdUpdateMultiFooter('sport');
+  if (typeof spUpdateHints === 'function') spUpdateHints();
+}
+
+function pdUpdateMultiFooter(key) {
+  const list = document.querySelector('[data-pd-list="' + key + '"]');
+  const btn = document.getElementById(key + '-save-btn');
+  const countEl = document.getElementById(key + '-save-count');
+  if (!list || !btn) return;
+  const selected = list.querySelectorAll('.cal-select-row.selected, .sp-card.selected').length;
+  if (countEl) countEl.textContent = '(' + selected + ' selected)';
+  const enabled = selected > 0 && pdIsDirty(key);
+  btn.style.opacity = enabled ? '1' : '0.5';
+  btn.style.pointerEvents = enabled ? 'auto' : 'none';
+}
+
+function pdLangSave() {
+  const list = document.querySelector('[data-pd-list="lang"]');
+  if (!list) return;
+  const labels = Array.from(list.querySelectorAll('.cal-select-row.selected'))
+    .map(r => (r.getAttribute('data-label') || '').split(' · ')[0]); // native only
+  const valueEl = document.getElementById('pd-lang-value');
+  if (valueEl) {
+    valueEl.textContent = labels.length === 0 ? '—' :
+      labels.length <= 2 ? labels.join(', ') :
+      labels[0] + ' +' + (labels.length - 1) + ' more';
+  }
+  pdCaptureSeed('lang'); // reset seed after save
+  pdUpdateMultiFooter('lang');
+  const btn = document.querySelector('[onclick*="s-personal-data"]');
+  if (typeof go === 'function') go('s-personal-data', btn);
+}
+
+function pdLangBack() {
+  if (pdIsDirty('lang')) {
+    openSheet('lang-discard-sheet');
+    return;
+  }
+  const btn = document.querySelector('[onclick*="s-personal-data"]');
+  if (typeof go === 'function') go('s-personal-data', btn);
+}
+
+// ===== SPORT multi — analog to lang, adapts to grid cards =====
+function filterSportList(inputEl) {
+  const q = inputEl.value.trim().toLowerCase();
+  const wrap = document.getElementById('sport-search-wrap');
+  if (wrap) wrap.classList.toggle('has-value', q.length > 0);
+  const list = document.querySelector('[data-pd-list="sport"]');
+  const empty = document.getElementById('sport-empty');
+  if (!list) return;
+  let totalVisible = 0;
+  list.querySelectorAll('.sp-section').forEach(function(sec) {
+    let secVisible = 0;
+    sec.querySelectorAll('.sp-card').forEach(function(card) {
+      const label = (card.getAttribute('data-label') || card.textContent).toLowerCase();
+      const match = !q || label.indexOf(q) !== -1;
+      card.classList.toggle('hidden', !match);
+      if (match) secVisible++;
+    });
+    sec.classList.toggle('hidden', secVisible === 0);
+    totalVisible += secVisible;
+  });
+  if (empty) empty.classList.toggle('show', totalVisible === 0);
+}
+
+function pdSportSave() {
+  const list = document.querySelector('[data-pd-list="sport"]');
+  if (!list) return;
+  // Client gate: ≥1 sport required. Footer button is disabled already, but defend in depth.
+  const selectedCount = list.querySelectorAll('.sp-card.selected').length;
+  if (selectedCount === 0) { spUpdateHints(); return; }
+
+  // Simulated save with optional injected failure (set via sidebar).
+  spSetFlowClass('saving');
+  setTimeout(function() {
+    if (window.__spForceError) {
+      window.__spForceError = false; // one-shot
+      spSetFlowClass('error');
+      return;
+    }
+    spSetFlowClass('default');
+    const labels = Array.from(list.querySelectorAll('.sp-card.selected')).map(c => c.getAttribute('data-label'));
+    const sub = document.getElementById('set-sport-sub');
+    if (sub) {
+      sub.textContent = labels.length === 0 ? 'Not set yet' :
+        labels.length <= 3 ? labels.join(', ') :
+        labels.slice(0,2).join(', ') + ' +' + (labels.length - 2) + ' more';
+    }
+    pdCaptureSeed('sport');
+    pdUpdateMultiFooter('sport');
+    const snack = document.getElementById('sport-saved-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+    // Push back to settings root after successful save.
+    setTimeout(function(){
+      const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+      if (typeof go === 'function') go('s-settings', btn);
+    }, 200);
+  }, 900);
+}
+
+// Flow state class management (mirrors personal-data pattern)
+function spSetFlowClass(state) {
+  const screen = document.getElementById('s-sport-types');
+  if (!screen) return;
+  ['loading','saving','error','network-error'].forEach(function(s){ screen.classList.remove('fs-' + s); });
+  if (state && state !== 'default') screen.classList.add('fs-' + state);
+}
+
+function handleSpNetworkRetry() {
+  spSetFlowClass('loading');
+  setTimeout(function(){ spSetFlowClass('default'); }, 1100);
+}
+
+// Hint classes (zero / many) — call after every toggle.
+const SP_MANY_THRESHOLD = 8;
+function spUpdateHints() {
+  const screen = document.getElementById('s-sport-types');
+  const list = document.querySelector('[data-pd-list="sport"]');
+  if (!screen || !list) return;
+  const n = list.querySelectorAll('.sp-card.selected').length;
+  screen.classList.toggle('sp-zero', n === 0);
+  screen.classList.toggle('sp-many', n >= SP_MANY_THRESHOLD);
+}
+
+// Sidebar demo helpers
+function setSpFlow(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+  if (state === 'saved') {
+    spSetFlowClass('default');
+    const snack = document.getElementById('sport-saved-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+    return;
+  }
+  spSetFlowClass(state);
+}
+
+function spSimulateSaveError() {
+  window.__spForceError = true;
+  // Caller should tap Save — but to demo, fire it immediately if there is selection.
+  pdSportSave();
+}
+
+function spSimulateZero() {
+  const list = document.querySelector('[data-pd-list="sport"]');
+  if (!list) return;
+  list.querySelectorAll('.sp-card.selected').forEach(c => c.classList.remove('selected'));
+  pdUpdateMultiFooter('sport');
+  spUpdateHints();
+}
+
+function spSimulateMany() {
+  const list = document.querySelector('[data-pd-list="sport"]');
+  if (!list) return;
+  const cards = Array.from(list.querySelectorAll('.sp-card'));
+  // Pick first 10 to trip the many-threshold.
+  cards.forEach((c, i) => c.classList.toggle('selected', i < 10));
+  pdUpdateMultiFooter('sport');
+  spUpdateHints();
+}
+
+// Initial hint pass on load + after every toggle
+document.addEventListener('DOMContentLoaded', spUpdateHints);
+
+function pdSportBack() {
+  if (pdIsDirty('sport')) {
+    openSheet('sport-discard-sheet');
+    return;
+  }
+  const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+  if (typeof go === 'function') go('s-settings', btn);
+}
+
+function pdSportDiscardConfirm() {
+  const list = document.querySelector('[data-pd-list="sport"]');
+  if (list && pdMultiSeed.sport) {
+    const seedSet = new Set(pdMultiSeed.sport);
+    list.querySelectorAll('.sp-card').forEach(c => {
+      c.classList.toggle('selected', seedSet.has(c.getAttribute('data-label')));
+    });
+  }
+  pdUpdateMultiFooter('sport');
+  closeSheet('sport-discard-sheet');
+  const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+  if (typeof go === 'function') go('s-settings', btn);
+}
+
+function pdLangDiscardConfirm() {
+  // Revert selection to seed
+  const list = document.querySelector('[data-pd-list="lang"]');
+  if (list && pdMultiSeed.lang) {
+    const seedSet = new Set(pdMultiSeed.lang);
+    list.querySelectorAll('.cal-select-row').forEach(r => {
+      r.classList.toggle('selected', seedSet.has(r.getAttribute('data-label')));
+    });
+  }
+  pdUpdateMultiFooter('lang');
+  closeSheet('lang-discard-sheet');
+  const btn = document.querySelector('[onclick*="s-personal-data"]');
+  if (typeof go === 'function') go('s-personal-data', btn);
+}
+
+function pdPickSingle(row, key, targetValueId) {
+  const list = row.closest('[data-pd-list]');
+  if (!list) return;
+  list.querySelectorAll('.cal-select-row').forEach(function(r) { r.classList.remove('selected'); });
+  row.classList.add('selected');
+  const label = row.getAttribute('data-label') || row.textContent.trim();
+  const target = targetValueId ? document.getElementById(targetValueId) : null;
+  if (target) target.textContent = label;
+  // Return to Personal Data after brief delay (mimic push-pop animation feel)
+  setTimeout(function() {
+    const btn = document.querySelector('[onclick*="s-personal-data"]');
+    if (typeof go === 'function') go('s-personal-data', btn);
+  }, 180);
+}
+
+// Capture seed + initial validation after DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+  availCaptureSeed();
+  validateAvailability();
+  pdCaptureSeed('lang');
+  pdUpdateMultiFooter('lang');
+  pdCaptureSeed('sport');
+  pdUpdateMultiFooter('sport');
+});
+
+// Log out — prototype: show toast. In production: clears session + navigates to sign-in.
+function doLogout() {
+  var t = document.getElementById('logout-toast');
+  if (!t) return;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+
+  switchTheme('light');
+</script>
+</body>
+</html>

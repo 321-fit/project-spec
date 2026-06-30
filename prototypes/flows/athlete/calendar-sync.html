@@ -1,0 +1,2314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Calendar Sync</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--fit-font);
+    background: #0a0a0a;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 24px; min-height: 100vh;
+    min-width: 900px;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    left: 24px;
+    top: 24px; bottom: 24px; width: 200px;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-scroll {
+    flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+  }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--fit-gray-600);
+    padding: 0 8px; margin: 16px 0 8px;
+  }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button {
+    font-family: var(--fit-font); font-size: 14px; font-weight: 400;
+    padding: 10px 12px; border-radius: 10px; border: none;
+    background: transparent; color: var(--fit-gray-400);
+    cursor: pointer; text-align: left; width: 100%; transition: all 0.15s;
+  }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active {
+    background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500;
+  }
+
+  /* Annotations */
+  .ann-container {
+    position: fixed;
+    left: calc(50% + 195px + 48px); right: 24px;
+    top: 24px; bottom: 24px; width: auto;
+    overflow-y: auto;
+  }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; }
+  .ann.active { display: block; }
+  .ann-role {
+    display: inline-block; font-size: 14px; font-weight: 500;
+    padding: 4px 12px; border-radius: 8px; margin-bottom: 16px;
+  }
+  .ann-role.coach { background: rgba(3,178,226,0.15); color: var(--fit-blue-500); }
+  .ann-role.athlete { background: rgba(5,224,166,0.15); color: var(--fit-teal-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 14px; padding-left: 18px; font-size: 16px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 6px; }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  /* Expandable details (subtle — left accent, no bordered card) */
+  .ann-detail {
+    margin-top: 8px; padding: 4px 0 4px 16px;
+    border-left: 2px solid var(--fit-brand-primary);
+    display: none;
+  }
+  .ann-detail.open { display: block; }
+  .ann-detail h4:first-child { margin-top: 0; }
+  .ann-detail h4 + p { margin-bottom: 12px; }
+  .ann-detail-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; color: var(--fit-blue-500); cursor: pointer;
+    margin-top: 12px; font-weight: 500;
+  }
+  .ann-detail-toggle svg { width: 14px; height: 14px; transition: transform 0.2s; }
+  .ann-detail-toggle.open svg { transform: rotate(90deg); }
+  .ann-detail h4 { font-size: 14px; font-weight: 500; color: var(--fit-gray-300); margin-bottom: 6px; }
+  .ann-detail p { font-size: 14px; line-height: 1.5; color: var(--fit-gray-500); margin-bottom: 8px; }
+  .ann-detail code { font-size: 12px; background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 3px; color: var(--fit-gray-400); }
+
+  /* Screen visibility */
+  .fit-phone { display: none; }
+  .fit-phone.active { display: flex; }
+
+  /* SVG icon defaults */
+  svg.i { width: 16px; height: 16px; vertical-align: middle; }
+  svg.i-sm { width: 14px; height: 14px; vertical-align: middle; margin-right: 4px; }
+
+  /* Dark header/footer bg */
+  .fit-dark .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-dark .fit-phone-footer { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+
+  /* Prototype-specific */
+  .detail-participants { padding: 0 var(--fit-sp-4); }
+  #tp-slot-list::-webkit-scrollbar { display: none; }
+
+  /* Contenteditable placeholder */
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: var(--fit-text-placeholder);
+    pointer-events: none;
+  }
+
+  /* State toggle (filled/empty) */
+  .state-toggle {
+    display: inline-flex; gap: 0; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--fit-gray-700); margin-bottom: 12px;
+  }
+  .state-toggle button {
+    font-family: var(--fit-font); font-size: 12px; font-weight: 500;
+    padding: 4px 10px; border: none; cursor: pointer;
+    background: transparent; color: var(--fit-gray-400);
+    transition: all 0.15s;
+  }
+  .state-toggle button.active {
+    background: var(--fit-gray-700); color: var(--fit-white);
+  }
+  /* Empty state placeholder */
+  .fit-empty-state {
+    text-align: center; padding: 48px 24px;
+    color: var(--fit-text-tertiary); font-size: 14px; line-height: 1.5;
+  }
+  .fit-empty-state svg.fes-illus { width: 56px; height: 56px; margin-bottom: 16px; color: var(--fit-gray-600); }
+  .fit-empty-state-title { font-size: 17px; font-weight: 500; color: var(--fit-text-secondary); margin-bottom: 6px; }
+  .fit-empty-state-sub { font-size: 14px; color: var(--fit-text-tertiary); margin-bottom: 20px; line-height: 1.5; }
+  .fit-light .fit-empty-state svg.fes-illus { color: var(--fit-gray-400); }
+
+  /* List state switcher (default/empty/loading) */
+  #s-list [data-list-state] { display: none; }
+  #s-list.ls-default [data-list-state="default"] { display: block; }
+  #s-list.ls-empty [data-list-state="empty"] { display: block; }
+  #s-list.ls-loading [data-list-state="loading"] { display: block; }
+
+  /* Skeleton classes migrated to fit-ui.css (Phase 2) */
+
+  /* Conditional fields animation */
+  #group-fields, #schedule-fields, #recurring-fields, #oneoff-fields {
+    will-change: max-height, opacity;
+  }
+
+  /* Light theme overrides for group training */
+  .fit-light .set-card { background: var(--fit-white); }
+  .fit-light .fit-card { background: var(--fit-white); }
+  .fit-light .fit-ticket { background: var(--fit-white); }
+  .fit-light .fit-participants-card { background: var(--fit-white); }
+  .fit-light .fit-spots { background: var(--fit-gray-100); }
+  .fit-light .fit-spots-fill { background: var(--fit-gray-200); }
+  .fit-light .fit-input { background: var(--fit-gray-100); }
+  .fit-light .fit-navbar { background: rgba(255,255,255,0.75); box-shadow: 0 0 24px rgba(0,0,0,0.15); }
+  .fit-light .fit-navbar-item { color: var(--fit-gray-400); }
+  .fit-light .fit-navbar-item.active { color: var(--fit-text-primary); }
+
+  /* Month grid day with event dot */
+  .mg-day { display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;cursor:pointer; }
+  .mg-day-num { font-size:14px;color:var(--fit-text-secondary);width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%; }
+  .mg-day.today .mg-day-num { color:var(--fit-brand-primary);font-weight:600; }
+  .mg-day.selected .mg-day-num { background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);color:var(--fit-text-primary);font-weight:500; }
+  .mg-dots { display:flex;gap:2px;height:4px; }
+  .mg-dot { width:4px;height:4px;border-radius:50%; }
+  .mg-dot.p { background:var(--fit-teal-500); }
+  .mg-dot.g { background:var(--fit-brand-primary); }
+  .mg-dot.e { background:var(--fit-text-tertiary); }
+
+  /* Calendar header component (reusable) */
+  .fit-cal-header {
+    display: flex; align-items: center; gap: 4px; cursor: pointer;
+  }
+  .fit-cal-header-month { font-size: 16px; font-weight: 600; color: var(--fit-text-primary); }
+  .fit-cal-header-year { font-size: 16px; font-weight: 400; color: var(--fit-text-secondary); }
+  .fit-cal-chevron { transition: transform 0.2s; flex-shrink: 0; }
+
+  /* V6d card themes */
+  .v6d-card { background: var(--fit-surface-high); }
+  .fit-light .v6d-card { background: var(--fit-white) !important; box-shadow: 0 1px 12px rgba(0,0,0,0.12); }
+  .fit-light .v6d-card { box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+  .fit-light .v6d-icon-box { background: rgba(0,0,0,0.06) !important; }
+  .fit-light .v6d-icon-box svg { stroke: var(--fit-gray-900) !important; }
+  .fit-light .v6d-price { color: var(--fit-text-primary) !important; }
+  .fit-light .v6d-loc-strip { border-bottom-color: var(--fit-gray-200) !important; }
+  .fit-light .v6d-special-badge { background: rgba(0,0,0,0.08) !important; color: var(--fit-text-primary) !important; }
+  /* Alt 1 header: light theme */
+  .fit-light .v6d-header-neutral { background: var(--fit-gray-200) !important; }
+  .fit-light .v6d-header-neutral .v6d-icon-box { background: rgba(0,0,0,0.08) !important; }
+  /* Alt 2 header: light theme */
+  .fit-light .v6d-header-dense { background: linear-gradient(to right, rgba(10,147,189,0.25), rgba(5,224,166,0.25)) !important; }
+
+  /* CalDAV howto expandable */
+  #caldav-howto.open { max-height: 300px; }
+
+  /* Light theme for calendar screens */
+  .fit-light .cal-select-row { background: var(--fit-white); }
+  .fit-light .cal-select-row.selected { background: linear-gradient(to right, rgba(10,147,189,0.1), rgba(5,224,166,0.1)); }
+  .fit-light .fit-input-label { color: var(--fit-text-secondary); }
+
+  /* Light theme settings overrides */
+  .fit-light .set-title { color: var(--fit-text-primary); }
+  .fit-light .set-sub { color: var(--fit-text-secondary); }
+  .fit-light .set-icon { color: var(--fit-text-primary); }
+  .fit-light .set-chev { color: var(--fit-text-tertiary); }
+
+  /* Paid dimming + validation errors: in fit-ui.css */
+
+  /* ===== AVAILABILITY ===== */
+  .avail-tz {
+    display: flex; align-items: center; gap: 6px;
+    padding: 0 16px 16px;
+    font-size: 13px; color: var(--fit-text-tertiary); line-height: 1.4;
+  }
+  .avail-tz svg { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.8; }
+  .avail-days {
+    display: flex; flex-direction: column; gap: 16px;
+    padding: 0 16px 16px;
+  }
+  .avail-day { display: flex; flex-direction: column; gap: 12px; }
+  .avail-day-header {
+    display: flex; align-items: center; gap: 12px;
+    min-height: 44px; cursor: pointer;
+  }
+  .avail-checkbox {
+    width: 24px; height: 24px; flex-shrink: 0;
+    border-radius: 6px; border: 1px solid rgba(246,247,248,0.5);
+    background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .fit-light .avail-checkbox { border-color: var(--fit-gray-400); }
+  .avail-checkbox svg { width: 14px; height: 14px; stroke: var(--fit-white); display: none; }
+  .avail-day.active .avail-checkbox {
+    background: var(--fit-brand-gradient);
+    border-color: transparent;
+  }
+  .avail-day.active .avail-checkbox svg { display: block; }
+  .avail-day-name { font-size: 16px; color: var(--fit-text-primary); font-weight: 400; }
+  .avail-day:not(.active) .avail-day-name { color: var(--fit-text-secondary); }
+  .avail-intervals { display: flex; flex-direction: column; gap: 8px; }
+  .avail-day:not(.active) .avail-intervals { display: none; }
+  .avail-interval { display: flex; align-items: center; gap: 12px; }
+  .avail-time-input {
+    flex: 1 0 0; min-width: 0; height: 56px;
+    background: var(--fit-surface-low);
+    border: none; border-radius: var(--fit-radius-md);
+    padding: 0 12px;
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--fit-font); font-size: 16px;
+    color: var(--fit-text-primary); cursor: pointer;
+  }
+  .fit-dark .avail-time-input { background: var(--fit-black); }
+  .avail-time-input.active { outline: 1px solid var(--fit-divider); }
+  .avail-time-input .avail-time-value { flex: 1; }
+  .avail-time-input svg { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .avail-interval-sep { font-size: 14px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .avail-interval-btn {
+    width: 32px; height: 32px; flex-shrink: 0;
+    border-radius: 99px; border: none;
+    background: rgba(117,126,135,0.3);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background 0.15s;
+    position: relative;
+  }
+  /* Invisible hit-area expansion → 44x44 effective (HIG) */
+  .avail-interval-btn::before {
+    content: "";
+    position: absolute;
+    top: -6px; right: -6px; bottom: -6px; left: -6px;
+  }
+  .avail-interval-btn:hover { background: rgba(117,126,135,0.45); }
+  .avail-interval-btn svg { width: 16px; height: 16px; stroke: var(--fit-text-primary); }
+  .fit-light .avail-interval-btn { background: rgba(0,0,0,0.08); }
+  .fit-light .avail-interval-btn:hover { background: rgba(0,0,0,0.14); }
+
+  /* Time picker bottom sheet — iOS-style wheel (prototype; platform-native in dev) */
+  .avail-tp-wheels {
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+    padding: 12px 16px 4px;
+    position: relative;
+  }
+  .avail-tp-wheel {
+    flex: 0 1 96px; max-width: 96px;
+    height: 180px;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+    mask-image: linear-gradient(to bottom,
+      transparent 0%, rgba(0,0,0,0.3) 12%, rgba(0,0,0,1) 35%,
+      rgba(0,0,0,1) 65%, rgba(0,0,0,0.3) 88%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom,
+      transparent 0%, rgba(0,0,0,0.3) 12%, rgba(0,0,0,1) 35%,
+      rgba(0,0,0,1) 65%, rgba(0,0,0,0.3) 88%, transparent 100%);
+  }
+  .avail-tp-wheel::-webkit-scrollbar { display: none; }
+  .avail-tp-wheel-pad { height: 72px; scroll-snap-align: none; }
+  .avail-tp-wheel-item {
+    height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    scroll-snap-align: center;
+    font-size: 22px; color: var(--fit-text-primary);
+    font-family: var(--fit-font);
+    user-select: none;
+  }
+  .avail-tp-sep {
+    font-size: 22px; color: var(--fit-text-primary);
+    line-height: 1; margin-top: -4px;
+  }
+  /* Validation errors (per-interval) */
+  .avail-time-input.error { outline: 1px solid var(--fit-red-400); }
+  .avail-interval-error {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: -2px;
+    font-size: 13px; color: var(--fit-red-400); line-height: 1.4;
+  }
+  .avail-interval-error svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  /* Inline banners (non-blocking warnings) */
+  .avail-banner {
+    margin: 0 16px 16px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    display: flex; gap: 12px; align-items: flex-start;
+    font-size: 14px; line-height: 1.4;
+    color: var(--fit-text-primary);
+  }
+  .avail-banner svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+  .avail-banner .avail-banner-body { flex: 1; }
+  .avail-banner .avail-banner-title { font-weight: 500; margin-bottom: 2px; }
+  .avail-banner .avail-banner-link {
+    color: inherit; text-decoration: underline; cursor: pointer; font-weight: 500;
+  }
+  /* Info — existing bookings affected */
+  .avail-banner.info {
+    background: rgba(3,178,226,0.08);
+    border: 1px solid rgba(3,178,226,0.22);
+  }
+  .avail-banner.info svg { color: var(--fit-blue-500); }
+  /* Warning — all days off */
+  .avail-banner.warn {
+    background: rgba(247,201,72,0.08);
+    border: 1px solid rgba(247,201,72,0.3);
+  }
+  .avail-banner.warn svg { color: #F7C948; }
+
+  /* Existing bookings sheet — event row */
+  .avail-ev-row {
+    display: flex; gap: 12px; align-items: center;
+    padding: 12px 14px; border-radius: 12px;
+    background: var(--fit-surface-low);
+    margin-bottom: 8px;
+  }
+  .fit-dark .avail-ev-row { background: var(--fit-black); }
+  .avail-ev-row .avail-ev-icon {
+    width: 36px; height: 36px; flex-shrink: 0;
+    border-radius: 10px;
+    background: var(--fit-selection-gradient);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-white);
+  }
+  .avail-ev-row .avail-ev-icon svg { width: 18px; height: 18px; }
+  .avail-ev-row .avail-ev-body { flex: 1; min-width: 0; }
+  .avail-ev-row .avail-ev-title { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .avail-ev-row .avail-ev-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+
+  /* Disabled Save button */
+  .fit-phone-footer > button:disabled {
+    opacity: 0.45; cursor: not-allowed;
+  }
+
+  /* ===== AVAILABILITY FLOW STATES ===== */
+  /* Loading skeleton shown in place of content */
+  #s-availability .avail-fs-skel { display: none; padding: 0 16px; }
+  #s-availability.fs-loading .avail-fs-content { display: none; }
+  #s-availability.fs-loading .avail-fs-skel { display: flex; flex-direction: column; gap: 20px; }
+  #s-availability.fs-loading .fit-phone-footer { display: none; }
+  .avail-sk-day { display: flex; flex-direction: column; gap: 12px; }
+  .avail-sk-head { display: flex; align-items: center; gap: 12px; }
+  .avail-sk-box { width: 24px; height: 24px; border-radius: 6px; flex-shrink: 0; }
+  .avail-sk-label { height: 14px; border-radius: 7px; width: 38%; }
+  .avail-sk-row { display: flex; gap: 12px; align-items: center; }
+  .avail-sk-input { flex: 1 0 0; height: 56px; border-radius: var(--fit-radius-md); }
+  .avail-sk-sep { width: 14px; height: 14px; border-radius: 7px; flex-shrink: 0; }
+  .avail-sk-btn { width: 32px; height: 32px; border-radius: 99px; flex-shrink: 0; }
+
+  /* Saving: inline spinner inside Save button */
+  .avail-save-spinner {
+    display: none;
+    width: 16px; height: 16px; vertical-align: -3px; margin-right: 8px;
+    border: 2px solid rgba(255,255,255,0.35);
+    border-top-color: var(--fit-white);
+    border-radius: 50%;
+    animation: avail-spin 0.9s linear infinite;
+  }
+  #s-availability.fs-saving .avail-save-spinner { display: inline-block; }
+  #s-availability.fs-saving #avail-save-btn { cursor: wait; opacity: 0.85; }
+  @keyframes avail-spin { to { transform: rotate(360deg); } }
+
+  /* Save error banner (above footer) */
+  .avail-save-error {
+    display: none;
+    align-items: center; gap: 10px;
+    margin: 0 16px 12px; padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(240,92,91,0.08);
+    border: 1px solid rgba(240,92,91,0.22);
+    font-size: 14px; color: var(--fit-red-400); line-height: 1.4;
+  }
+  #s-availability.fs-error .avail-save-error { display: flex; }
+  .avail-save-error svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .avail-save-error-body { flex: 1; color: var(--fit-text-primary); }
+  .avail-save-error-body strong { color: var(--fit-red-400); font-weight: 500; }
+  .avail-save-error-retry {
+    font-family: var(--fit-font); font-size: 13px; font-weight: 500;
+    color: var(--fit-red-400); background: transparent; border: none;
+    cursor: pointer; padding: 4px 8px; margin: -4px -8px;
+  }
+
+  /* Selection band (centered 36px highlight) */
+  .avail-tp-wheels::before {
+    content: "";
+    position: absolute; left: 16px; right: 16px;
+    top: 50%; transform: translateY(-50%);
+    height: 36px; pointer-events: none;
+    background: var(--fit-surface-low);
+    border-radius: var(--fit-radius-md);
+    z-index: 0;
+  }
+  .fit-dark .avail-tp-wheels::before { background: var(--fit-black); }
+  .avail-tp-wheels > * { position: relative; z-index: 1; }
+
+  /* ===== PD SELECTOR (TZ / Country / Languages) — push screen ===== */
+  .pd-search-wrap { padding: 0 16px 16px; }
+  .pd-search {
+    display: flex; align-items: center; gap: 8px;
+    height: 44px; padding: 0 12px; border-radius: 12px;
+    background: var(--fit-surface-high); color: var(--fit-text-primary);
+  }
+  .fit-light .pd-search { background: var(--fit-gray-100); }
+  .pd-search svg { width: 18px; height: 18px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .pd-search input {
+    flex: 1; border: none; outline: none; background: transparent;
+    font-family: var(--fit-font); font-size: 16px; color: var(--fit-text-primary);
+    padding: 0;
+  }
+  .pd-search input::placeholder { color: var(--fit-text-placeholder); }
+  .pd-search-clear {
+    width: 20px; height: 20px; border: none; background: var(--fit-gray-600);
+    color: var(--fit-white); border-radius: 50%;
+    display: none; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0; padding: 0;
+  }
+  .pd-search.has-value .pd-search-clear { display: flex; }
+  .pd-search-clear svg { width: 10px; height: 10px; color: var(--fit-white); }
+
+  .pd-list { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .pd-list .cal-select-row { padding: 16px 12px; min-height: 56px; }
+  .pd-list .cal-select-row span { font-size: 16px; line-height: 1.25; }
+  .pd-list .cal-flag {
+    width: 24px; height: 18px; border-radius: 3px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; line-height: 1;
+  }
+  .pd-list .cal-select-row.hidden { display: none; }
+
+  .pd-empty {
+    display: none; flex-direction: column; align-items: center;
+    text-align: center; padding: 48px 20px;
+    color: var(--fit-text-tertiary); gap: 8px;
+  }
+  .pd-empty.show { display: flex; }
+  .pd-empty svg { width: 40px; height: 40px; color: var(--fit-gray-600); margin-bottom: 4px; }
+  .pd-empty-title { font-size: 16px; font-weight: 500; color: var(--fit-text-secondary); }
+  .pd-empty-sub { font-size: 14px; }
+
+  /* Multi-select footer count */
+  .pd-save-count { opacity: 0.7; margin-left: 6px; font-weight: 400; }
+
+  /* ===== PD NUMERIC INPUT (Weight / Height) ===== */
+  .pd-num-input {
+    flex: 1; border: none; outline: none; background: transparent;
+    font-family: var(--fit-font); font-size: 16px; color: var(--fit-text-primary);
+    padding: 0; min-width: 0;
+  }
+  .pd-num-input::-webkit-inner-spin-button,
+  .pd-num-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .pd-num-wrap.error { border: 1px solid var(--fit-red-400); }
+  .pd-num-error { font-size: 13px; color: var(--fit-red-400); margin-top: 6px; line-height: 1.4; }
+
+  /* ===== PD AVATAR ACTION ROWS ===== */
+  .pd-avatar-action {
+    display: flex; align-items: center; gap: 14px;
+    width: 100%; min-height: 56px; padding: 0 16px;
+    background: var(--fit-surface-high); color: var(--fit-text-primary);
+    border: none; border-radius: 12px;
+    font-family: var(--fit-font); font-size: 16px; font-weight: 400;
+    cursor: pointer; text-align: left;
+    transition: background 0.15s;
+  }
+  .fit-light .pd-avatar-action { background: var(--fit-white); }
+  .pd-avatar-action:active { transform: scale(0.98); }
+  .pd-avatar-action svg { width: 22px; height: 22px; flex-shrink: 0; color: var(--fit-text-secondary); }
+  .pd-avatar-action.pd-avatar-destructive {
+    background: rgba(240,92,91,0.12); color: var(--fit-red-400);
+  }
+  .pd-avatar-action.pd-avatar-destructive svg { color: var(--fit-red-400); }
+  .pd-avatar-wrap.no-photo .pd-avatar-destructive { display: none; }
+
+  /* ===== PD FLOW STATES (loading / saving / error / saved) ===== */
+  #s-personal-data .pd-fs-skel { display: none; padding: 0 16px; }
+  #s-personal-data.fs-loading .pd-fs-content { display: none; }
+  #s-personal-data.fs-loading .pd-fs-skel { display: flex; flex-direction: column; gap: 20px; }
+  #s-personal-data.fs-loading .fit-phone-footer { display: none; }
+
+  .pd-sk-avatar { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; }
+  .pd-sk-group { display: flex; flex-direction: column; gap: 8px; }
+  .pd-sk-label { height: 12px; width: 30%; border-radius: 6px; }
+  .pd-sk-input { height: 56px; border-radius: var(--fit-radius-md); }
+  .pd-sk-row { display: flex; gap: 12px; }
+  .pd-sk-row .pd-sk-col { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+
+  /* Saving spinner inside Save button */
+  .pd-save-spinner {
+    display: none;
+    width: 16px; height: 16px; vertical-align: -3px; margin-right: 8px;
+    border: 2px solid rgba(255,255,255,0.35);
+    border-top-color: var(--fit-white);
+    border-radius: 50%;
+    animation: pd-spin 0.9s linear infinite;
+  }
+  #s-personal-data.fs-saving .pd-save-spinner { display: inline-block; }
+  #s-personal-data.fs-saving #pd-save-btn { cursor: wait; opacity: 0.85; pointer-events: none; }
+  @keyframes pd-spin { to { transform: rotate(360deg); } }
+
+  /* Save error banner */
+  .pd-save-error {
+    display: none;
+    align-items: center; gap: 10px;
+    margin: 0 16px 12px; padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(240,92,91,0.08);
+    border: 1px solid rgba(240,92,91,0.22);
+    font-size: 14px; line-height: 1.4;
+  }
+  #s-personal-data.fs-error .pd-save-error { display: flex; }
+  .pd-save-error svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--fit-red-400); }
+  .pd-save-error-body { flex: 1; color: var(--fit-text-primary); }
+  .pd-save-error-body strong { color: var(--fit-red-400); font-weight: 500; }
+  .pd-save-error-retry {
+    font-family: var(--fit-font); font-size: 13px; font-weight: 500;
+    color: var(--fit-red-400); background: transparent; border: none;
+    cursor: pointer; padding: 4px 8px; margin: -4px -8px;
+  }
+
+  /* ===== SPORT TYPES SELECT (grid, multi, sectioned) ===== */
+  #s-sport-types .fit-phone-content { padding-bottom: 16px; }
+  .sp-section { padding: 0 16px; margin-bottom: 20px; }
+  .sp-section-title {
+    font-size: 14px; font-weight: 500;
+    color: var(--fit-text-secondary);
+    margin: 4px 0 12px;
+  }
+  .sp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .sp-card {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px; min-height: 56px;
+    border-radius: 14px;
+    background: var(--fit-surface-high);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.12s;
+    color: var(--fit-text-primary);
+    user-select: none;
+  }
+  .fit-light .sp-card { background: var(--fit-white); border-color: var(--fit-gray-200); }
+  .sp-card:active { transform: scale(0.98); }
+  .sp-card.selected {
+    background: var(--fit-selection-gradient);
+    border-color: var(--fit-teal-600);
+  }
+  .sp-card svg { width: 22px; height: 22px; flex-shrink: 0; color: var(--fit-text-secondary); stroke-width: 1.8; }
+  .sp-card.selected svg { color: var(--fit-text-primary); }
+  .sp-card-label { font-size: 14px; line-height: 1.2; }
+  .sp-card.hidden { display: none; }
+  .sp-section.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+    <button onclick="window.location.href='../../index.html'" style="display:flex;align-items:center;gap:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;padding:8px 12px;border-radius:10px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-gray-300);cursor:pointer;width:100%;margin-bottom:8px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      All modules
+    </button>
+    
+  <div class="label">Calendar Sync</div>
+  <button class="active" onclick="go('s-calsync',this)">Calendar Sync</button>
+  <button onclick="go('s-cal-detail',this)">Google Detail</button>
+  <button onclick="go('s-write-target-picker',this)">Write Target Picker</button>
+  <button onclick="go('s-apple-connect',this)" style="opacity:0.5;" title="Apple UI hidden v1 — reference only">Apple Connect (hidden v1)</button>
+  <button onclick="go('s-apple-detail',this)" style="opacity:0.5;" title="Apple UI hidden v1 — reference only">Apple Detail (hidden v1)</button>
+  <div class="label">Other modules</div>
+  <button onclick="window.location.href='./settings.html'">← Back to Settings</button>
+  </div>
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ==================== PHONE ==================== -->
+<!-- ===== CALENDAR SYNC ===== -->
+<div class="fit-phone fit-dark active" id="s-calsync">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Calendar sync</span>
+      <!-- Refresh: refetches all connected accounts. Auto-fires silently on screen open;
+           manual tap shows spinner inline + snackbar result. -->
+      <button class="fit-icon-btn" data-a11y-id="athlete.calsync.refresh" onclick="triggerCalsyncRefresh()" aria-label="Refresh calendars">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15.36 6.36L3 16"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <!-- ZERO STATE (nothing connected) — Apple row hidden v1 (Google-only) -->
+    <div id="calsync-zero" style="display:none;padding:0 16px 16px;flex-direction:column;gap:12px;">
+      <div style="padding:8px 0 4px;">
+        <div style="font-size:16px;font-weight:500;color:var(--fit-text-secondary);margin-bottom:4px;">No calendars connected</div>
+        <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;">Sync your Google Calendar to avoid scheduling conflicts.</div>
+      </div>
+      <div class="set-card" style="cursor:pointer;"><div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div><div class="set-info" style="flex:1;"><div class="set-title">Google Calendar</div><div class="set-sub">Not connected</div></div><button class="fit-btn fit-btn-primary fit-btn-xs">Connect</button></div>
+      <!-- Apple Calendar zero-state row hidden v1 (kept commented for revival path):
+      <div class="set-card" style="cursor:pointer;" onclick="go('s-apple-connect',document.querySelector('[onclick*=s-apple-connect]'))"><div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/apple-calendar.svg" style="width:20px;height:20px;"></div><div class="set-info" style="flex:1;"><div class="set-title">Apple Calendar</div><div class="set-sub">Not connected</div></div><button class="fit-btn fit-btn-primary fit-btn-xs">Connect</button></div>
+      -->
+    </div>
+    <!-- Success toast -->
+    <div class="fit-toast" id="connect-success-toast" style="border-left:3px solid var(--fit-teal-500);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>
+      <span style="font-size:14px;">Google Calendar connected</span>
+    </div>
+    <!-- Refresh + default-change result toast (canonical .fit-toast, shared across screens) -->
+    <div class="fit-toast" id="refresh-toast" style="border-left:3px solid var(--fit-blue-500);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/></svg>
+      <span style="font-size:14px;">Calendars updated</span>
+    </div>
+    <!-- CONNECTED STATE — restructured 2026-06-01:
+         Section 1: "Calendars to check for conflicts" — list of connected Google
+                    accounts + inline [+ Connect account] button (read sources).
+         Section 2: "Calendar to add events to" — single root-level selector,
+                    tap → push to s-write-target-picker (write destination).
+         Apple Calendar UI hidden v1 (only Google). Per-account "Default" badge
+         removed (default destination is now per-calendar, not per-account). -->
+    <div id="calsync-connected" style="padding:0 16px 16px;display:flex;flex-direction:column;gap:24px;">
+
+      <!-- ====== Section 1: Calendars to check for conflicts ======
+           Reverted 2026-06-01: section heading is title+subtitle only (no
+           inline right-aligned mini button — was an ugly invention).
+           Canonical "Add Google account" dashed-border card pattern at the
+           bottom is what we already had for "add another" — kept exactly. -->
+      <div>
+        <div style="margin-bottom:12px;">
+          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Calendars to check for conflicts</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;line-height:1.4;">These calendars will be used to prevent double bookings.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="set-card" style="cursor:pointer;padding:14px 12px;" data-a11y-id="athlete.calsync.account.row" onclick="go('s-cal-detail',document.querySelector('[onclick*=s-cal-detail]'))">
+            <div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div>
+            <div class="set-info">
+              <div class="set-title">Google Calendar</div>
+              <div style="font-size:14px;color:var(--fit-blue-400);margin-top:2px;">john.miller@gmail.com</div>
+              <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;" id="sync-status-ok">Checking 2 calendars</div>
+              <div style="display:none;font-size:12px;font-weight:500;color:var(--fit-red-400);margin-top:2px;" id="sync-status-error">⚠ Sync error</div>
+            </div>
+            <svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <div class="set-card" style="padding:14px 12px;opacity:0.7;" data-a11y-id="athlete.calsync.account.row"><div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div><div class="set-info"><div class="set-title">Google Calendar</div><div style="font-size:14px;color:var(--fit-blue-400);margin-top:2px;">coach.work@gmail.com</div><div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;display:flex;align-items:center;gap:6px;"><div class="cal-spinner" style="width:10px;height:10px;border-width:1.5px;"></div>Fetching calendars...</div></div></div>
+          <!-- Canonical "Add another" dashed-border card — same pattern as
+               other multi-item lists in the app (e.g. locations.html add gym). -->
+          <div data-a11y-id="athlete.calsync.connect" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border:1px dashed var(--fit-gray-700);border-radius:16px;cursor:pointer;"><svg style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span style="font-size:14px;color:var(--fit-blue-500);font-weight:500;">Add Google account</span></div>
+        </div>
+      </div>
+
+      <!-- ====== Section 2: Calendar to add events to ====== -->
+      <div>
+        <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);margin-bottom:4px;">Calendar to add events to</div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);margin-bottom:12px;line-height:1.4;">New 321Fit events will be saved here. Visible in your Google Calendar.</div>
+        <div class="set-card" style="cursor:pointer;padding:14px 12px;" data-a11y-id="athlete.calsync.write-target.selector" onclick="document.getElementById('s-calsync').dataset.firstHintDismissed='true';applyFirstHintState();go('s-write-target-picker',document.querySelector('[onclick*=s-write-target-picker]'))">
+          <div style="width:36px;height:36px;border-radius:10px;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div>
+          <div class="set-info">
+            <div class="set-title" id="write-target-name">Personal</div>
+            <div style="font-size:14px;color:var(--fit-blue-400);margin-top:2px;" id="write-target-email">john.miller@gmail.com</div>
+          </div>
+          <svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <!-- First-time hint — auto-dismisses on first tap of selector above. Toggle in ann panel -->
+        <div id="write-target-hint" style="display:none;align-items:flex-start;gap:8px;margin-top:10px;padding:10px 12px;background:rgba(3,178,226,0.06);border:1px solid rgba(3,178,226,0.18);border-radius:10px;">
+          <svg style="width:14px;height:14px;flex-shrink:0;margin-top:2px;color:var(--fit-blue-500);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span style="font-size:12px;color:var(--fit-text-secondary);line-height:1.4;">Auto-selected on first connect. Tap to choose a different calendar.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== GOOGLE CALENDAR DETAIL ===== -->
+<div class="fit-phone fit-dark" id="s-cal-detail" data-default-account="true">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Google Calendar</span>
+      <!-- Refresh this single account's calendar list -->
+      <button class="fit-icon-btn" data-a11y-id="athlete.calsync.detail.refresh" onclick="triggerCalDetailRefresh()" aria-label="Refresh calendars">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15.36 6.36L3 16"/></svg>
+      </button>
+      <button class="fit-icon-btn" style="background:rgba(240,92,91,0.1);" onclick="document.getElementById('disconnect-sheet').classList.add('visible')"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:16px;">
+      <div class="fit-inline-error" id="error-initial" style="display:none;margin:0;flex-direction:column;align-items:flex-start;gap:10px;">
+        <div style="display:flex;align-items:flex-start;gap:8px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span class="fit-inline-error-body" style="color:var(--fit-text-secondary);">Could not load your calendars. Check your connection and try again.</span>
+        </div>
+        <button class="fit-btn fit-btn-secondary fit-btn-xs">Retry</button>
+      </div>
+      <div class="fit-inline-error" id="error-sync" style="display:none;margin:0;flex-direction:column;align-items:flex-start;gap:10px;">
+        <div style="display:flex;align-items:flex-start;gap:8px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span class="fit-inline-error-body" style="color:var(--fit-text-secondary);">Last sync failed. Your events may be outdated.</span>
+        </div>
+        <button class="fit-btn fit-btn-secondary fit-btn-xs" onclick="this.innerHTML='Syncing...';var self=this;setTimeout(function(){self.innerHTML='Retry Sync';document.getElementById('error-sync').style.display='none';},2000);">Retry Sync</button>
+      </div>
+      <div class="fit-inline-error" id="error-auth" style="display:none;margin:0;flex-direction:column;align-items:flex-start;gap:10px;background:rgba(247,201,72,0.08);border-color:rgba(247,201,72,0.2);color:var(--fit-yellow-400);">
+        <div style="display:flex;align-items:flex-start;gap:8px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span class="fit-inline-error-body" style="color:var(--fit-text-secondary);">Your Google session has expired. Reconnect to resume syncing.</span>
+        </div>
+        <button class="fit-btn fit-btn-primary fit-btn-xs">Reconnect</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:0 4px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;"><img src="../../../design-tokens/assets/icons/google-calendar.svg" style="width:20px;height:20px;"></div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:500;display:flex;align-items:center;gap:6px;">
+            john.miller@gmail.com
+            <span class="fit-badge fit-badge-accent" data-default-badge>Default</span>
+          </div>
+          <div style="font-size:12px;color:var(--fit-teal-500);">Connected</div>
+        </div>
+      </div>
+
+      <!-- Default destination action + label REMOVED 2026-06-01 — default
+           writing destination is now a global per-calendar selector on
+           s-calsync root, not a per-account toggle here. -->
+
+      <div><div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:10px;">Select calendars to sync</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div class="cal-select-row selected" data-a11y-id="athlete.calsync.detail.calendar.row" data-calendar-id="primary" onclick="toggleSyncCalendar(this)"><div style="width:10px;height:10px;border-radius:50%;background:#4285F4;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Personal</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" data-a11y-id="athlete.calsync.detail.calendar.row" data-calendar-id="work" onclick="toggleSyncCalendar(this)"><div style="width:10px;height:10px;border-radius:50%;background:#EA4335;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Work</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" data-a11y-id="athlete.calsync.detail.calendar.row" data-calendar-id="bday" onclick="toggleSyncCalendar(this)"><div style="width:10px;height:10px;border-radius:50%;background:#FBBC04;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Birthdays</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" data-a11y-id="athlete.calsync.detail.calendar.row" data-calendar-id="hol" onclick="toggleSyncCalendar(this)"><div style="width:10px;height:10px;border-radius:50%;background:#34A853;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Holidays in Poland</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        </div>
+
+        <!-- Inline warning: all calendars in this account deselected.
+             Shows only when 0 rows have .selected. -->
+        <div id="warn-all-deselected" style="display:none;margin-top:12px;padding:10px 12px;background:rgba(247,201,72,0.08);border:1px solid rgba(247,201,72,0.24);border-radius:10px;align-items:flex-start;gap:8px;">
+          <svg style="width:14px;height:14px;flex-shrink:0;margin-top:2px;color:var(--fit-yellow-400);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span style="font-size:12px;color:var(--fit-text-secondary);line-height:1.4;">No events will be checked from this account. Sessions may be double-booked.</span>
+        </div>
+
+        <!-- Inline alert: user just unchecked the calendar that is currently
+             the write target. Backend would auto-move target on save. -->
+        <div id="warn-write-target-off" style="display:none;margin-top:12px;padding:10px 12px;background:rgba(3,178,226,0.06);border:1px solid rgba(3,178,226,0.18);border-radius:10px;align-items:flex-start;gap:8px;">
+          <svg style="width:14px;height:14px;flex-shrink:0;margin-top:2px;color:var(--fit-blue-500);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span style="font-size:12px;color:var(--fit-text-secondary);line-height:1.4;"><strong style="color:var(--fit-text-primary);">Personal</strong> is your default destination. Disabling it will move new 321Fit events to your next active calendar on save.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="fit-sheet-overlay" id="disconnect-sheet">
+    <div class="fit-sheet" >
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Disconnect Google Calendar?</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:20px;line-height:1.5;">john.miller@gmail.com will be disconnected. Synced events will be removed from your schedule.</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-destructive" style="border-radius:99px;" onclick="document.getElementById('disconnect-sheet').classList.remove('visible');">Disconnect</button>
+        <button class="fit-btn fit-btn-secondary" style="border-radius:99px;height:48px;" onclick="document.getElementById('disconnect-sheet').classList.remove('visible');">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" style="border-radius:99px;">Save</button></div>
+</div>
+
+<!-- ===== WRITE TARGET PICKER (new 2026-06-01) =====
+     Pushed from s-calsync "Calendar to add events to" row. Lists all
+     calendars across all connected Google accounts grouped by account
+     email. Single-select radio (always exactly one selected). Tap any
+     row → instant set + back gesture returns to s-calsync with updated
+     selector. No Save / Cancel — instant-set + back pattern. -->
+<div class="fit-phone fit-dark" id="s-write-target-picker">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="athlete.calsync.write-target.back" onclick="go('s-calsync',document.querySelector('[onclick*=s-calsync]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Calendar to add events to</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div style="padding:8px 16px 16px;">
+      <div style="font-size:13px;color:var(--fit-text-tertiary);line-height:1.5;margin-bottom:20px;">New 321Fit events will be saved here. Choose any calendar from your connected Google accounts — tap to select.</div>
+
+      <!-- Account 1 group -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:12px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:10px;padding:0 4px;">john.miller@gmail.com</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div class="cal-select-row selected" data-a11y-id="athlete.calsync.write-target.row" data-calendar-id="primary" onclick="selectWriteTarget(this,'Personal','john.miller@gmail.com')"><div style="width:10px;height:10px;border-radius:50%;background:#4285F4;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Personal</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" data-a11y-id="athlete.calsync.write-target.row" data-calendar-id="work-jm" onclick="selectWriteTarget(this,'Work','john.miller@gmail.com')"><div style="width:10px;height:10px;border-radius:50%;background:#EA4335;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Work</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" data-a11y-id="athlete.calsync.write-target.row" data-calendar-id="bday-jm" onclick="selectWriteTarget(this,'Birthdays','john.miller@gmail.com')"><div style="width:10px;height:10px;border-radius:50%;background:#FBBC04;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Birthdays</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" data-a11y-id="athlete.calsync.write-target.row" data-calendar-id="hol-jm" onclick="selectWriteTarget(this,'Holidays in Poland','john.miller@gmail.com')"><div style="width:10px;height:10px;border-radius:50%;background:#34A853;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Holidays in Poland</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        </div>
+      </div>
+
+      <!-- Account 2 group -->
+      <div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:10px;padding:0 4px;">coach.work@gmail.com</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div class="cal-select-row" data-a11y-id="athlete.calsync.write-target.row" data-calendar-id="primary-cw" onclick="selectWriteTarget(this,'Coaching','coach.work@gmail.com')"><div style="width:10px;height:10px;border-radius:50%;background:#673AB7;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Coaching</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" data-a11y-id="athlete.calsync.write-target.row" data-calendar-id="family-cw" onclick="selectWriteTarget(this,'Family','coach.work@gmail.com')"><div style="width:10px;height:10px;border-radius:50%;background:#009688;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Family</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" data-a11y-id="athlete.calsync.write-target.row" data-calendar-id="personal-cw" onclick="selectWriteTarget(this,'Personal','coach.work@gmail.com')"><div style="width:10px;height:10px;border-radius:50%;background:#FF9800;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Personal</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== APPLE CALENDAR CONNECT ===== -->
+<div class="fit-phone fit-dark" id="s-apple-connect">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header"><button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button><span class="fit-header-title">Apple Calendar</span></div>
+  </div>
+  <div class="fit-phone-content">
+    <div style="margin:0 16px 16px;padding:14px;background:rgba(3,178,226,0.08);border-radius:12px;display:flex;gap:10px;align-items:flex-start;"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;width:18px;height:18px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;">Apple Calendar uses CalDAV, which requires an <strong style="color:var(--fit-text-primary);">app-specific password</strong> instead of your iCloud password.</div></div>
+    <div class="fit-input-group" id="apple-id-field"><span class="fit-input-label">Apple ID</span><input class="fit-input" type="email" placeholder="your@icloud.com" style="outline:none;border:none;"></div>
+    <div class="fit-input-group" id="apple-pass-field"><span class="fit-input-label">App-specific password</span><div class="fit-input" style="padding-right:0;">
+        <input type="password" placeholder="xxxx-xxxx-xxxx-xxxx" style="outline:none;border:none;flex:1;font-size:16px;font-family:var(--fit-font);color:var(--fit-text-primary);background:transparent;" id="apple-pass-input">
+        <button style="background:none;border:none;cursor:pointer;padding:8px 12px;color:var(--fit-text-tertiary);flex-shrink:0;" onclick="var inp=document.getElementById('apple-pass-input');var h=inp.type==='password';inp.type=h?'text':'password';this.querySelector('.eye-on').style.display=h?'block':'none';this.querySelector('.eye-off').style.display=h?'none':'block';">
+          <svg class="eye-on" style="display:none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div></div>
+    <div style="padding:0 16px;margin-bottom:20px;">
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:10px;">How to create an app-specific password:</div>
+      <div style="background:var(--fit-surface-high);border-radius:12px;padding:14px;font-size:14px;color:var(--fit-text-secondary);line-height:1.6;">
+        <div style="display:flex;gap:8px;margin-bottom:10px;"><span style="color:var(--fit-blue-500);font-weight:600;flex-shrink:0;">1.</span> Go to <strong style="color:var(--fit-text-primary);">appleid.apple.com</strong></div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;"><span style="color:var(--fit-blue-500);font-weight:600;flex-shrink:0;">2.</span> Sign in with your Apple ID</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;"><span style="color:var(--fit-blue-500);font-weight:600;flex-shrink:0;">3.</span> <span><strong style="color:var(--fit-text-primary);">Sign-In and Security</strong> &rarr; <strong style="color:var(--fit-text-primary);">App-Specific Passwords</strong></span></div>
+        <div style="display:flex;gap:8px;margin-bottom:14px;"><span style="color:var(--fit-blue-500);font-weight:600;flex-shrink:0;">4.</span> Generate a password and paste it here</div>
+        <button class="fit-btn fit-btn-secondary fit-btn-sm" style="width:auto;padding:0 16px;height:36px;font-size:14px;border-radius:99px;gap:6px;"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open Apple ID Settings</button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-toast" id="apple-error-toast" style="border-left:3px solid var(--fit-red-400);">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+    <span id="apple-error-text">Invalid credentials. Check your Apple ID and password.</span>
+  </div>
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" onclick="validateAppleConnect()">Connect</button></div>
+</div>
+
+<!-- ===== APPLE CALENDAR DETAIL ===== -->
+<div class="fit-phone fit-dark" id="s-apple-detail">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Apple Calendar</span>
+      <button class="fit-icon-btn" style="background:rgba(240,92,91,0.1);" onclick="document.getElementById('apple-disconnect-sheet').classList.add('visible')"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:16px;">
+      <div id="apple-error-revoked" style="display:none;padding:12px;background:rgba(240,92,91,0.08);border-radius:12px;">
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;">
+          <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span style="font-size:14px;color:var(--fit-text-secondary);line-height:1.4;">Your app-specific password was revoked. This usually happens when you change your Apple ID password. Create a new app-specific password and reconnect.</span>
+        </div>
+        <button class="fit-btn fit-btn-primary fit-btn-sm" style="width:auto;padding:0 16px;height:36px;font-size:14px;border-radius:99px;" onclick="go('s-apple-connect',document.querySelector('[onclick*=s-apple-connect]'))">Create New Password</button>
+      </div>
+      <div id="apple-error-2fa" style="display:none;padding:12px;background:rgba(247,201,72,0.08);border-radius:12px;">
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;">
+          <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-yellow-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span style="font-size:14px;color:var(--fit-text-secondary);line-height:1.4;">Two-factor authentication is required for app-specific passwords. Enable it in your Apple ID settings.</span>
+        </div>
+        <button class="fit-btn fit-btn-secondary fit-btn-sm" style="width:auto;padding:0 16px;height:36px;font-size:14px;border-radius:99px;gap:6px;"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open Apple ID Settings</button>
+      </div>
+      <div id="apple-error-sync" style="display:none;padding:12px;background:rgba(240,92,91,0.08);border-radius:12px;">
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;">
+          <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span style="font-size:14px;color:var(--fit-text-secondary);line-height:1.4;">Last sync failed. Your events may be outdated.</span>
+        </div>
+        <button class="fit-btn fit-btn-secondary fit-btn-sm" style="width:auto;padding:0 16px;height:36px;font-size:14px;border-radius:99px;">Retry Sync</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:0 4px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;">
+          <img src="../../../design-tokens/assets/icons/apple-calendar.svg" style="width:20px;height:20px;">
+        </div>
+        <div>
+          <div style="font-size:16px;font-weight:500;">youri@icloud.com</div>
+          <div style="font-size:12px;color:var(--fit-teal-500);" id="apple-conn-status">Connected</div>
+        </div>
+      </div>
+      <div id="apple-cal-list">
+        <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:10px;">Select calendars to sync</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div class="cal-select-row selected" onclick="this.classList.toggle('selected')"><div style="width:10px;height:10px;border-radius:50%;background:#FF3B30;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Personal</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row selected" onclick="this.classList.toggle('selected')"><div style="width:10px;height:10px;border-radius:50%;background:#5856D6;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Work</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="cal-select-row" onclick="this.classList.toggle('selected')"><div style="width:10px;height:10px;border-radius:50%;background:#FF9500;flex-shrink:0;"></div><span style="flex:1;font-size:16px;">Family</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fit-sheet-overlay" id="apple-disconnect-sheet">
+    <div class="fit-sheet" >
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Disconnect Apple Calendar?</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:20px;line-height:1.5;">youri@icloud.com will be disconnected. Synced events will be removed from your schedule.</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-destructive" style="border-radius:99px;" onclick="document.getElementById('apple-disconnect-sheet').classList.remove('visible');">Disconnect</button>
+        <button class="fit-btn fit-btn-secondary" style="border-radius:99px;height:48px;" onclick="document.getElementById('apple-disconnect-sheet').classList.remove('visible');">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" style="border-radius:99px;">Save</button></div>
+</div>
+
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+  <div class="ann" id="ann-s-calsync"><span class="ann-role athlete">Athlete</span><h3>Calendar Sync</h3>
+    <div style="display:inline-flex;gap:0;border-radius:6px;overflow:hidden;border:1px solid var(--fit-gray-700);margin-bottom:12px;">
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="toggleCalSync('connected',this)">Connected</button>
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="toggleCalSync('zero',this)">Zero State</button>
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-teal-500);" onclick="var t=document.getElementById('connect-success-toast');t.classList.add('show');setTimeout(function(){t.classList.remove('show')},3000)">Toast</button>
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-red-400);" onclick="var ok=document.getElementById('sync-status-ok');var err=document.getElementById('sync-status-error');var show=err.style.display==='none';ok.style.display=show?'none':'block';err.style.display=show?'block':'none';">Sync Error</button>
+    </div>
+    <p><strong>Restructured 2026-06-01.</strong> Two distinct sections:</p>
+    <ul>
+      <li><strong>§ Calendars to check for conflicts</strong> — list of connected Google accounts (READ sources for busy-time check). Canonical dashed-border <code>+ Add Google account</code> card under the list — same "add another" pattern used in <code>locations.html</code>.</li>
+      <li><strong>§ Calendar to add events to</strong> — single global selector (WRITE destination). Tap → pushes to <code>s-write-target-picker</code> screen (NOT bottom sheet — list can grow with multiple accounts × multiple calendars). Default = first calendar of first connected Google account. No more auto-created "321 Fit" calendar.</li>
+      <li><strong>Apple Calendar UI hidden v1.</strong> Backend infra dormant in code; reactivate by uncommenting zero-state row + adding entries to picker. Same pattern as <code>feedback_openclaw_issue_body</code> / WhatsApp dormancy.</li>
+      <li><strong>"Default" badge on account rows removed</strong> — default destination is now per-calendar (root selector), not per-account.</li>
+      <li><strong>First-time hint</strong> — small info pill under selector ("Auto-selected on first connect. Tap to choose a different calendar.") shown on initial post-connect state, fades on first selector tap. State persisted server-side.</li>
+      <li><strong>Refresh icon-btn</strong> in header — refetches calendar list for all connected accounts. Auto-fires silently on screen open.</li>
+    </ul>
+    <div style="display:inline-flex;gap:0;border-radius:6px;overflow:hidden;border:1px solid var(--fit-gray-700);margin:8px 0 0;">
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="var c=document.getElementById('s-calsync');c.dataset.firstHint='true';c.dataset.firstHintDismissed='false';applyFirstHintState();this.parentElement.querySelectorAll('button').forEach(function(x){x.style.background='transparent';x.style.color='var(--fit-gray-400)'});this.style.background='var(--fit-gray-700)';this.style.color='var(--fit-white)';">First-time hint: shown</button>
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="var c=document.getElementById('s-calsync');c.dataset.firstHintDismissed='true';applyFirstHintState();this.parentElement.querySelectorAll('button').forEach(function(x){x.style.background='transparent';x.style.color='var(--fit-gray-400)'});this.style.background='var(--fit-gray-700)';this.style.color='var(--fit-white)';">First-time hint: hidden</button>
+    </div>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Connection flows</span><div class="ann-detail"><h4>Google OAuth</h4><p>Tap "+ Connect account" → system Google Sign-In → OAuth → backend stores tokens → calendar list fetched → first calendar auto-set as default writing destination (no "321 Fit" auto-creation anymore).</p><h4>Apple CalDAV</h4><p><em>Hidden v1.</em> Backend infra dormant; UI re-enable path documented in google-apple-calendar.md.</p><h4>Sync</h4><p>Bidirectional with read calendars (which-to-check toggles in s-cal-detail). Write goes only into the selected default destination calendar. External events anonymized. Webhook + 15-min fallback.</p></div></div>
+  <div class="ann" id="ann-s-cal-detail"><span class="ann-role athlete">Athlete</span><h3>Google Calendar Detail</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;border-radius:6px;margin-bottom:12px;">
+      <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="setDetailState('normal',this)">Normal</button>
+      <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setDetailState('initial',this)">Fetch Failed</button>
+      <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setDetailState('sync',this)">Sync Error</button>
+      <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setDetailState('auth',this)">Auth Expired</button>
+    </div>
+    <p>Dedicated screen per Google account. 4 states via toggle (Normal / Fetch Failed / Sync Error / Auth Expired).</p>
+    <ul>
+      <li><strong>Selectable rows</strong> with Google calendar colors. Each toggle = "include this calendar in conflict check" (READ direction). Independent from the write target which lives on the root selector.</li>
+      <li><strong>"Make default destination" row REMOVED 2026-06-01</strong> — default writing destination is now a global per-calendar selector at root level (<code>s-write-target-picker</code>), not a per-account toggle here.</li>
+      <li><strong>Inline deselect warnings</strong> (added 2026-06-01):
+        <ul>
+          <li><em>All deselected</em> — yellow info: "No events will be checked from this account. Sessions may be double-booked." Appears when 0 rows selected.</li>
+          <li><em>Write target unchecked</em> — blue info: "&lt;Calendar&gt; is your default destination. Disabling it will move new 321Fit events to your next active calendar on save." Appears when the calendar that's currently the write target gets deselected.</li>
+        </ul>
+      </li>
+      <li><strong>Refresh icon-btn</strong> in header — refetches just this account's calendar list. Auto-fires silently on screen open. Sibling to disconnect (trash) button.</li>
+      <li>Save in footer, trash icon for disconnect.</li>
+    </ul>
+    <div style="display:inline-flex;gap:0;border-radius:6px;overflow:hidden;border:1px solid var(--fit-gray-700);margin:8px 0 0;">
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="document.querySelectorAll('#s-cal-detail .cal-select-row').forEach(function(r){if(r.dataset.calendarId==='primary')r.classList.add('selected');else r.classList.add('selected')});refreshDeselectWarnings();this.parentElement.querySelectorAll('button').forEach(function(x){x.style.background='transparent';x.style.color='var(--fit-gray-400)'});this.style.background='var(--fit-gray-700)';this.style.color='var(--fit-white)';">All selected</button>
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="document.querySelectorAll('#s-cal-detail .cal-select-row').forEach(function(r){r.classList.remove('selected')});refreshDeselectWarnings();this.parentElement.querySelectorAll('button').forEach(function(x){x.style.background='transparent';x.style.color='var(--fit-gray-400)'});this.style.background='var(--fit-gray-700)';this.style.color='var(--fit-white)';">All deselected (warn)</button>
+      <button style="font-family:var(--fit-font);font-size:12px;font-weight:500;padding:4px 10px;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="document.querySelectorAll('#s-cal-detail .cal-select-row').forEach(function(r){if(r.dataset.calendarId==='primary')r.classList.remove('selected');else r.classList.add('selected')});refreshDeselectWarnings();this.parentElement.querySelectorAll('button').forEach(function(x){x.style.background='transparent';x.style.color='var(--fit-gray-400)'});this.style.background='var(--fit-gray-700)';this.style.color='var(--fit-white)';">Write target off (warn)</button>
+    </div>
+    </div>
+  <div class="ann" id="ann-s-write-target-picker"><span class="ann-role athlete">Athlete</span><h3>Write Target Picker</h3>
+    <p><strong>New 2026-06-01.</strong> Push screen reached from "Calendar to add events to" on s-calsync. Single-select radio: lists all calendars from all connected Google accounts grouped by account email subheader.</p>
+    <ul>
+      <li><strong>Instant-set + back</strong> pattern — tap any row → check animates to that row + toast "Default destination updated" + back gesture returns to root with new selector value. No Save / Cancel button.</li>
+      <li><strong>Always exactly one selected</strong> — radio behavior. Cannot deselect to nothing (would leave writes orphaned).</li>
+      <li><strong>Grouped by account email</strong> — subheader per account (12px uppercase tertiary), matches our other grouped-list patterns.</li>
+      <li><strong>Calendar color dot + name</strong> — reuses canonical <code>.cal-select-row</code> styling from s-cal-detail for consistency.</li>
+      <li>Empty state (0 accounts connected) — shouldn't be reachable, but if hit shows "Connect a Google account first" with deep-link back to s-calsync zero state.</li>
+    </ul>
+  </div>
+  <div class="ann" id="ann-s-apple-connect"><span class="ann-role athlete">Athlete</span><h3>Apple Calendar Connect</h3><p>CalDAV connection. Apple ID + <strong>app-specific password</strong>.</p><ul><li>Info banner explains CalDAV requirement</li><li>Steps always visible (not expandable)</li><li>"Open Apple ID Settings" → Safari</li><li>Password: eye toggle inside input</li><li>Validation: empty → red border, backend error → toast</li></ul></div>
+  <div class="ann" id="ann-s-apple-detail"><span class="ann-role athlete">Athlete</span><h3>Apple Calendar Detail</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;">
+      <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" onclick="setAppleDetailState('normal',this)">Normal</button>
+      <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setAppleDetailState('revoked',this)">Revoked</button>
+      <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setAppleDetailState('2fa',this)">2FA Issue</button>
+      <button style="font-family:var(--fit-font);font-size:10px;font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--fit-gray-700);cursor:pointer;background:transparent;color:var(--fit-gray-400);" onclick="setAppleDetailState('sync',this)">Sync Error</button>
+    </div>
+    <p>Apple-specific error states differ from Google.</p><ul><li><strong>Normal:</strong> calendars (iCloud colors), Save + Disconnect</li><li><strong>Revoked:</strong> password changed → "Create New Password"</li><li><strong>2FA Issue:</strong> yellow warning + "Open Apple ID Settings"</li><li><strong>Sync Error:</strong> Retry button, calendars stale but usable</li></ul></div>
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+// === THEME SWITCH ===
+function switchTheme(theme) {
+  document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.getElementById("theme-light").style.background = theme === "light" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-light").style.color = theme === "light" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.querySelectorAll(".fit-phone").forEach(function(phone) {
+    if (theme === "light") { phone.classList.remove("fit-dark"); phone.classList.add("fit-light"); }
+    else { phone.classList.remove("fit-light"); phone.classList.add("fit-dark"); }
+  });
+}
+
+// === NAVIGATION ===
+function go(id, btn) {
+  document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+  const ann = document.getElementById('ann-' + id);
+  if (ann) ann.classList.add('active');
+  // Re-init FitUI for newly visible screen
+  FitUI.initAll(document.getElementById(id));
+  // Auto silent refresh on calendar-sync screens (prototype: just show toast after fake delay)
+  if (id === 's-calsync' || id === 's-cal-detail') {
+    // production: call backend list endpoint; here we just no-op silently
+  }
+}
+
+// === REFRESH HANDLERS (manual tap on header icon-btn) ===
+function triggerCalsyncRefresh() {
+  const toast = document.getElementById('refresh-toast');
+  if (!toast) return;
+  toast.textContent = 'Refreshing all accounts…';
+  toast.classList.add('show');
+  setTimeout(function() {
+    toast.textContent = 'Calendars updated · 1 new';
+    setTimeout(function() { toast.classList.remove('show'); }, 1800);
+  }, 900);
+}
+function triggerCalDetailRefresh() {
+  const toast = document.getElementById('refresh-toast');
+  if (!toast) return;
+  toast.textContent = 'Refreshing this account…';
+  toast.classList.add('show');
+  setTimeout(function() {
+    toast.textContent = 'Already up to date';
+    setTimeout(function() { toast.classList.remove('show'); }, 1800);
+  }, 800);
+}
+
+// === WRITE TARGET PICKER (s-write-target-picker) — 2026-06-01 ===
+// Single-select radio: pick any calendar across all connected Google accounts
+// as the write destination for new 321Fit events. Instant-set + back.
+function selectWriteTarget(row, name, email) {
+  const picker = document.getElementById('s-write-target-picker');
+  if (!picker) return;
+  picker.querySelectorAll('.cal-select-row').forEach(function(r) { r.classList.remove('selected'); });
+  row.classList.add('selected');
+  // Update root selector display
+  const nameEl  = document.getElementById('write-target-name');
+  const emailEl = document.getElementById('write-target-email');
+  if (nameEl)  nameEl.textContent  = name;
+  if (emailEl) emailEl.textContent = email;
+  // First-time hint dismissed on first interaction
+  const calsync = document.getElementById('s-calsync');
+  if (calsync) { calsync.dataset.firstHintDismissed = 'true'; applyFirstHintState(); }
+  // Brief confirmation toast — back gesture takes user to root naturally
+  const toast = document.getElementById('refresh-toast');
+  if (toast) {
+    toast.querySelector('span').textContent = 'Default destination updated';
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 1800);
+  }
+}
+
+// First-time hint under root selector. Shown when calsync.dataset.firstHint='true'
+// AND firstHintDismissed != 'true'. Auto-dismisses on first selector tap.
+function applyFirstHintState() {
+  const calsync = document.getElementById('s-calsync');
+  const hint = document.getElementById('write-target-hint');
+  if (!calsync || !hint) return;
+  const show = calsync.dataset.firstHint === 'true' && calsync.dataset.firstHintDismissed !== 'true';
+  hint.style.display = show ? 'flex' : 'none';
+}
+
+// === DESELECT WARNINGS (s-cal-detail) — 2026-06-01 ===
+// 1) "All deselected" — appears when 0 rows have .selected in the sync list
+// 2) "Write target off" — appears when the currently-selected write target's
+//    row gets unchecked (data-calendar-id='primary' in demo)
+function toggleSyncCalendar(row) {
+  row.classList.toggle('selected');
+  refreshDeselectWarnings();
+}
+function refreshDeselectWarnings() {
+  const detail = document.getElementById('s-cal-detail');
+  if (!detail) return;
+  const rows = detail.querySelectorAll('.cal-select-row');
+  let selectedCount = 0;
+  let writeTargetUnchecked = false;
+  rows.forEach(function(r) {
+    if (r.classList.contains('selected')) selectedCount++;
+    // Demo wiring: 'primary' calendar id treated as current write target
+    if (r.dataset.calendarId === 'primary' && !r.classList.contains('selected')) {
+      writeTargetUnchecked = true;
+    }
+  });
+  const warnAll = document.getElementById('warn-all-deselected');
+  const warnWT  = document.getElementById('warn-write-target-off');
+  if (warnAll) warnAll.style.display = (selectedCount === 0) ? 'flex' : 'none';
+  if (warnWT)  warnWT.style.display  = (writeTargetUnchecked && selectedCount > 0) ? 'flex' : 'none';
+}
+
+// Initial application
+document.addEventListener('DOMContentLoaded', function() {
+  applyFirstHintState();
+  refreshDeselectWarnings();
+});
+
+// === STATE TOGGLES ===
+function setListState(state, btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  var list = document.getElementById('s-list');
+  list.classList.remove('ls-default', 'ls-empty', 'ls-loading');
+  list.classList.add('ls-' + state);
+}
+
+function setCreateState(state, btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  var screen = document.getElementById('s-create');
+  // Clear any lingering errors + snackbars
+  screen.querySelectorAll('.fit-input-group.error').forEach(g => g.classList.remove('error'));
+  var vs = document.getElementById('validation-snack'); if (vs) vs.classList.remove('show');
+  var ds = document.getElementById('duration-snack'); if (ds) ds.classList.remove('show');
+  var timeDisp = document.getElementById('time-display');
+  if (state === 'errors') {
+    // Clear required inputs so validateCreate marks them
+    var nameEl = screen.querySelector('[data-required="name"] .fit-input');
+    if (nameEl) nameEl.textContent = '';
+    var priceEl = screen.querySelector('[data-required="price"] + .price-row .fit-input');
+    if (priceEl) priceEl.textContent = '';
+    if (timeDisp) timeDisp.textContent = 'Select time';
+    validateCreate();
+  } else if (state === 'duration-reset') {
+    if (timeDisp) timeDisp.textContent = 'Select time';
+    var snack = document.getElementById('duration-snack');
+    if (snack) { snack.classList.add('show'); setTimeout(function(){ snack.classList.remove('show'); }, 2500); }
+  } else {
+    // Default — restore prefilled values
+    var nameEl = screen.querySelector('[data-required="name"] .fit-input');
+    if (nameEl && !nameEl.textContent.trim()) nameEl.textContent = '';
+    if (timeDisp) timeDisp.textContent = '18:00';
+  }
+}
+
+// === DROPDOWN SELECT (generic) ===
+function selectDropdown(dropdownId, displayId, value, item) {
+  const dropdown = document.getElementById(dropdownId);
+  dropdown.querySelectorAll('.fit-dropdown-item').forEach(i => i.classList.remove('selected'));
+  item.classList.add('selected');
+  document.getElementById(displayId).textContent = value;
+  setTimeout(() => dropdown.classList.remove('open'), 150);
+}
+
+// === FORM VALIDATION ===
+function validateCreate() {
+  const screen = document.getElementById('s-create');
+  const content = screen.querySelector('.fit-phone-content');
+
+  // Clear previous errors
+  screen.querySelectorAll('.fit-input-group.error').forEach(g => g.classList.remove('error'));
+
+  // Check required fields
+  const checks = [
+    { sel: '[data-required="name"]', test: () => {
+      const el = screen.querySelector('[data-required="name"] .fit-input');
+      return el && el.textContent.trim().length > 0;
+    }},
+    { sel: '[data-required="duration"]', test: () => true }, // wheel picker always has value
+    { sel: '[data-required="price"]', test: () => {
+      const el = screen.querySelector('[data-required="price"] + .price-row .fit-input');
+      return el && el.textContent.trim().length > 0 && el.textContent.trim() !== '0';
+    }},
+    { sel: '[data-required="time"]', test: () => {
+      const el = document.getElementById('time-display');
+      return el && el.textContent !== 'Select time';
+    }},
+  ];
+
+  let firstError = null;
+  for (const check of checks) {
+    const group = screen.querySelector(check.sel);
+    if (!group) continue;
+    // Skip time check if personal mode
+    if (check.sel.includes('time') && !document.getElementById('schedule-fields')?.offsetHeight) continue;
+
+    if (!check.test()) {
+      group.classList.add('error');
+      if (!firstError) firstError = group;
+    }
+  }
+
+  if (firstError) {
+    content.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      const rect = firstError.getBoundingClientRect();
+      const contentRect = content.getBoundingClientRect();
+      const offset = rect.top - contentRect.top + content.scrollTop - 10;
+      content.scrollTo({ top: offset, behavior: 'smooth' });
+    }, 50);
+
+    const snack = document.getElementById('validation-snack');
+    snack.classList.add('show');
+    setTimeout(() => snack.classList.remove('show'), 2500);
+
+    setTimeout(() => {
+      screen.querySelectorAll('.fit-input-group.error').forEach(g => g.classList.remove('error'));
+    }, 3000);
+  }
+}
+
+// === DYNAMIC SHEET WARNINGS ===
+function updateSheetWarning(e, sheetId) {
+  var radio = e.target.closest("label");
+  if (!radio) return;
+  radio = radio.querySelector("input[type=radio]");
+  if (!radio) return;
+  var val = radio.value;
+  var msgs = {
+    "edit-scope-sheet-2": {tid:"edit-warning-text",m:{"future":"Only future generated events will have the new settings.","all":"23 participants across 12 events will be notified about the changes."}},
+    "delete-template-sheet": {tid:"del-warning-text",wid:"del-warning",m:{"keep":{t:"New events will stop being generated. Existing 12 events will continue as scheduled.",c:"yellow"},"cancel":{t:"47 participants will be notified and refunded. This cannot be undone.",c:"red"}}}
+  };
+  var cfg = msgs[sheetId];
+  if (!cfg) return;
+  var msg = cfg.m[val];
+  var textEl = document.getElementById(cfg.tid);
+  if (!textEl || !msg) return;
+  if (typeof msg === "string") { textEl.textContent = msg; }
+  else {
+    textEl.textContent = msg.t;
+    var w = document.getElementById(cfg.wid);
+    if (w) {
+      w.style.background = msg.c==="red" ? "rgba(240,92,91,0.08)" : "rgba(247,201,72,0.08)";
+      w.querySelector("svg").setAttribute("stroke", msg.c==="red" ? "var(--fit-red-400)" : "var(--fit-yellow-400)");
+    }
+  }
+}
+
+// === DURATION CHANGE -> RESET TIME ===
+function changeDuration(item) {
+  const col = item.closest('.fit-wheel-scroll');
+  col.querySelectorAll('.fit-wheel-item').forEach(i => {
+    i.classList.remove('active');
+    i.classList.add('dim');
+  });
+  item.classList.remove('dim');
+  item.classList.add('active');
+
+  const timeDisplay = document.getElementById('time-display');
+  if (timeDisplay && timeDisplay.textContent !== 'Select time') {
+    timeDisplay.textContent = 'Select time';
+    const snack = document.getElementById('duration-snack');
+    snack.classList.add('show');
+    setTimeout(() => snack.classList.remove('show'), 2500);
+  }
+}
+
+// === DATE PICKER ===
+let selectedDate = 'Sat, April 19';
+function pickDate(cell, dateStr) {
+  selectedDate = dateStr;
+  document.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('selected'));
+  cell.classList.add('selected');
+  document.getElementById('date-confirm-btn').textContent = 'Confirm \u00b7 ' + dateStr;
+}
+function confirmDate() {
+  const prev = document.getElementById('date-display').textContent;
+  document.getElementById('date-display').textContent = selectedDate;
+  document.getElementById('date-picker-sheet').classList.remove('visible');
+  if (prev !== selectedDate) {
+    const timeDisplay = document.getElementById('time-display');
+    if (timeDisplay && timeDisplay.textContent !== 'Select time') {
+      timeDisplay.textContent = 'Select time';
+      const snack = document.getElementById('duration-snack');
+      snack.querySelector('.snack-dot').style.background = 'var(--fit-yellow-400)';
+      snack.innerHTML = '<span class="snack-dot"></span>Time slot reset \u2014 date changed';
+      snack.classList.add('show');
+      setTimeout(() => snack.classList.remove('show'), 2500);
+    }
+  }
+}
+
+// === TIME PICKER BOTTOM SHEET (accordion slots) ===
+let tpHour = '18';
+let tpMin = '00';
+
+function tpToggleSlot(slot) {
+  if (slot.classList.contains('tp-slot-busy')) return;
+  const wasExpanded = slot.classList.contains('expanded');
+  document.querySelectorAll('#tp-slot-list .tp-slot').forEach(s => s.classList.remove('expanded'));
+  if (!wasExpanded) {
+    slot.classList.add('expanded');
+    var hour = slot.getAttribute('data-hour');
+    var firstChip = slot.querySelector('.min-chip:not(.disabled)');
+    if (firstChip) {
+      var min = firstChip.getAttribute('data-min');
+      document.querySelectorAll('#tp-slot-list .tp-slot-row').forEach(function(r) { r.classList.remove('selected'); });
+      document.querySelectorAll('#tp-slot-list .min-chip').forEach(function(c) { c.classList.remove('selected'); });
+      slot.querySelector('.tp-slot-row').classList.add('selected');
+      firstChip.classList.add('selected');
+      tpHour = hour;
+      tpMin = min;
+      tpUpdateBtn();
+    }
+    setTimeout(function() {
+      var list = document.getElementById('tp-slot-list');
+      var slotBottom = slot.offsetTop + slot.offsetHeight;
+      if (slotBottom > list.scrollTop + list.clientHeight) {
+        list.scrollTo({ top: slotBottom - list.clientHeight + 10, behavior: 'smooth' });
+      }
+    }, 100);
+  }
+}
+
+function tpPickTime(hour, min, e) {
+  e.stopPropagation();
+  tpHour = hour; tpMin = min;
+  document.querySelectorAll('#tp-slot-list .tp-slot-row').forEach(r => r.classList.remove('selected'));
+  document.querySelectorAll('#tp-slot-list .min-chip').forEach(c => c.classList.remove('selected'));
+  const chip = e.target.closest('.min-chip');
+  const slot = chip.closest('.tp-slot');
+  slot.querySelector('.tp-slot-row').classList.add('selected');
+  chip.classList.add('selected');
+  tpUpdateBtn();
+}
+
+function tpUpdateBtn() {
+  const h = parseInt(tpHour), m = parseInt(tpMin);
+  const start = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+  const end = String(h+1).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+  const btn = document.getElementById('tp-confirm-btn');
+  if (btn) btn.textContent = 'Confirm \u00b7 ' + start + ' \u2014 ' + end;
+}
+
+function tpConfirm() {
+  const start = String(parseInt(tpHour)).padStart(2,'0') + ':' + String(parseInt(tpMin)).padStart(2,'0');
+  document.getElementById('time-display').textContent = start;
+  document.getElementById('time-picker-sheet').classList.remove('visible');
+}
+
+// === CREATE SESSION: show/hide logic ===
+document.addEventListener('DOMContentLoaded', () => {
+  const typeToggle = document.getElementById('type-toggle');
+  const groupFields = document.getElementById('group-fields');
+  const scheduleFields = document.getElementById('schedule-fields');
+  const priceLabel = document.getElementById('price-label');
+  const scheduleToggle = document.getElementById('schedule-toggle');
+  const recurringFields = document.getElementById('recurring-fields');
+  const oneoffFields = document.getElementById('oneoff-fields');
+
+  if (!typeToggle) return;
+
+  function slideToggle(el, show) {
+    if (show) {
+      el.style.display = '';
+      el.style.overflow = 'hidden';
+      el.style.maxHeight = '0';
+      el.style.opacity = '0';
+      requestAnimationFrame(() => {
+        el.style.transition = 'max-height 0.3s ease, opacity 0.2s ease';
+        el.style.maxHeight = el.scrollHeight + 200 + 'px';
+        el.style.opacity = '1';
+        setTimeout(() => { el.style.maxHeight = ''; el.style.overflow = ''; el.style.transition = ''; }, 350);
+      });
+    } else {
+      el.style.overflow = 'hidden';
+      el.style.maxHeight = el.scrollHeight + 'px';
+      requestAnimationFrame(() => {
+        el.style.transition = 'max-height 0.3s ease, opacity 0.2s ease';
+        el.style.maxHeight = '0';
+        el.style.opacity = '0';
+        setTimeout(() => { el.style.display = 'none'; el.style.transition = ''; }, 300);
+      });
+    }
+  }
+
+  typeToggle.addEventListener('fit:selection', (e) => {
+    const isGroup = e.detail.values.includes('group');
+    slideToggle(groupFields, isGroup);
+    slideToggle(scheduleFields, isGroup);
+    priceLabel.textContent = isGroup ? 'Price per participant' : 'Price';
+  });
+
+  if (scheduleToggle) {
+    scheduleToggle.addEventListener('fit:selection', (e) => {
+      const isRecurring = e.detail.values.includes('recurring');
+      slideToggle(recurringFields, isRecurring);
+      slideToggle(oneoffFields, !isRecurring);
+    });
+  }
+});
+
+// === MAP MODE TOGGLE ===
+var mapLocked = true;
+function toggleMapMode() {
+  mapLocked = !mapLocked;
+  document.getElementById('map-lock-icon').style.display = mapLocked ? 'block' : 'none';
+  document.getElementById('map-unlock-icon').style.display = mapLocked ? 'none' : 'block';
+  document.getElementById('map-mode-text').textContent = mapLocked ? 'Pin is locked' : 'Drag to set location';
+  document.getElementById('map-mode-action').textContent = mapLocked ? 'Tap to adjust' : 'Tap to lock';
+  document.getElementById('map-mode-action').style.color = mapLocked ? 'var(--fit-teal-500)' : 'var(--fit-text-tertiary)';
+}
+
+// === CALENDAR SYNC FUNCTIONS (from settings.html) ===
+function setAppleDetailState(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll("button").forEach(function(b) {
+      b.style.background = "transparent"; b.style.color = "var(--fit-gray-400)";
+    });
+    btn.style.background = "var(--fit-gray-700)"; btn.style.color = "var(--fit-white)";
+  }
+  ["apple-error-revoked","apple-error-2fa","apple-error-sync"].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = "none";
+  });
+  var calList = document.getElementById("apple-cal-list");
+  var status = document.getElementById("apple-conn-status");
+  if (state === "normal") {
+    if (calList) { calList.style.display = ""; calList.style.opacity = ""; calList.style.pointerEvents = ""; }
+    if (status) { status.textContent = "Connected"; status.style.color = "var(--fit-teal-500)"; }
+  } else if (state === "revoked") {
+    document.getElementById("apple-error-revoked").style.display = "block";
+    if (calList) { calList.style.opacity = "0.5"; calList.style.pointerEvents = "none"; }
+    if (status) { status.textContent = "Password revoked"; status.style.color = "var(--fit-red-400)"; }
+  } else if (state === "2fa") {
+    document.getElementById("apple-error-2fa").style.display = "block";
+    if (calList) { calList.style.opacity = "0.5"; calList.style.pointerEvents = "none"; }
+    if (status) { status.textContent = "2FA required"; status.style.color = "var(--fit-yellow-400)"; }
+  } else if (state === "sync") {
+    document.getElementById("apple-error-sync").style.display = "block";
+    if (calList) { calList.style.display = ""; calList.style.opacity = ""; calList.style.pointerEvents = ""; }
+    if (status) { status.textContent = "Sync error"; status.style.color = "var(--fit-red-400)"; }
+  }
+}
+
+function setDetailState(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll("button").forEach(function(b) {
+      b.style.background = "transparent"; b.style.color = "var(--fit-gray-400)";
+    });
+    btn.style.background = "var(--fit-gray-700)"; btn.style.color = "var(--fit-white)";
+  }
+  ["error-initial","error-sync","error-auth"].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = "none";
+  });
+  var calList = document.querySelector("#s-cal-detail .fit-phone-content > div > div:last-of-type");
+  var statusOk = document.getElementById("sync-status-ok");
+  var statusErr = document.getElementById("sync-status-error");
+
+  if (state === "normal") {
+    if (calList) calList.style.display = "";
+    if (statusOk) { statusOk.style.display = "block"; statusOk.textContent = "2 of 3 calendars synced"; }
+    if (statusErr) statusErr.style.display = "none";
+  } else if (state === "initial") {
+    document.getElementById("error-initial").style.display = "block";
+    if (calList) calList.style.display = "none";
+    if (statusOk) statusOk.style.display = "none";
+    if (statusErr) { statusErr.style.display = "block"; statusErr.textContent = "Failed to load calendars"; }
+  } else if (state === "sync") {
+    document.getElementById("error-sync").style.display = "block";
+    if (calList) calList.style.display = "";
+    if (statusOk) statusOk.style.display = "none";
+    if (statusErr) { statusErr.style.display = "block"; statusErr.textContent = "\u26a0 Sync error"; }
+  } else if (state === "auth") {
+    document.getElementById("error-auth").style.display = "block";
+    if (calList) { calList.style.display = ""; calList.style.opacity = "0.5"; calList.style.pointerEvents = "none"; }
+    if (statusOk) statusOk.style.display = "none";
+    if (statusErr) { statusErr.style.display = "block"; statusErr.textContent = "\u26a0 Reconnect required"; }
+  }
+  if (state !== "auth" && calList) { calList.style.opacity = ""; calList.style.pointerEvents = ""; }
+}
+
+function toggleCalSync(state, btn) {
+  btn.parentElement.querySelectorAll('button').forEach(function(b) {
+    b.style.background = 'transparent'; b.style.color = 'var(--fit-gray-400)';
+  });
+  btn.style.background = 'var(--fit-gray-700)'; btn.style.color = 'var(--fit-white)';
+  var zero = document.getElementById('calsync-zero');
+  var conn = document.getElementById('calsync-connected');
+  zero.style.display = state === 'zero' ? 'flex' : 'none';
+  conn.style.display = state === 'connected' ? 'flex' : 'none';
+}
+
+// Apple Calendar validation
+function validateAppleConnect() {
+  var idField = document.getElementById('apple-id-field');
+  var passField = document.getElementById('apple-pass-field');
+  var idInput = idField.querySelector('input') || idField.querySelector('.fit-input');
+  var passInput = passField.querySelector('input') || passField.querySelector('.fit-input');
+
+  idField.classList.remove('error');
+  passField.classList.remove('error');
+
+  var hasError = false;
+
+  if (!(idInput.value || idInput.textContent || '').trim()) {
+    idField.classList.add('error');
+    if (!hasError) {
+      var content = idField.closest('.fit-phone-content');
+      content.scrollTo({ top: idField.offsetTop - 10, behavior: 'smooth' });
+    }
+    hasError = true;
+  }
+  if (!(passInput.value || passInput.textContent || '').trim()) {
+    passField.classList.add('error');
+    if (!hasError) {
+      var content = passField.closest('.fit-phone-content');
+      content.scrollTo({ top: passField.offsetTop - 10, behavior: 'smooth' });
+    }
+    hasError = true;
+  }
+
+  if (hasError) {
+    setTimeout(function() {
+      idField.classList.remove('error');
+      passField.classList.remove('error');
+    }, 3000);
+    return;
+  }
+
+  var toast = document.getElementById('apple-error-toast');
+  toast.classList.add('show');
+  setTimeout(function() { toast.classList.remove('show'); }, 3000);
+}
+
+// ==================== AVAILABILITY ====================
+let availTpCurrentInput = null;
+
+function toggleDay(headerEl) {
+  const day = headerEl.parentElement;
+  if (day.classList.contains('active')) {
+    day.classList.remove('active');
+    const intervals = day.querySelector('.avail-intervals');
+    if (intervals) intervals.remove();
+  } else {
+    day.classList.add('active');
+    if (!day.querySelector('.avail-intervals')) {
+      const wrap = document.createElement('div');
+      wrap.className = 'avail-intervals';
+      wrap.appendChild(availBuildInterval('07:00', '22:00', true));
+      day.appendChild(wrap);
+    }
+  }
+  validateAvailability();
+}
+
+function availBuildInterval(startVal, endVal, isFirst) {
+  const row = document.createElement('div');
+  row.className = 'avail-interval';
+  row.innerHTML =
+    '<div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">' + startVal + '</span>' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>' +
+    '</div>' +
+    '<span class="avail-interval-sep">to</span>' +
+    '<div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">' + endVal + '</span>' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>' +
+    '</div>' +
+    (isFirst
+      ? '<button class="avail-interval-btn" onclick="addInterval(this)" aria-label="Add interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
+      : '<button class="avail-interval-btn" onclick="removeInterval(this)" aria-label="Remove interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
+    );
+  return row;
+}
+
+function addInterval(btn) {
+  const intervals = btn.closest('.avail-intervals');
+  if (!intervals) return;
+  intervals.appendChild(availBuildInterval('22:00', '23:00', false));
+  validateAvailability();
+}
+
+function removeInterval(btn) {
+  const row = btn.closest('.avail-interval');
+  if (row) row.remove();
+  validateAvailability();
+}
+
+// --- Time picker wheel ---
+function availTpPopulate() {
+  const hourWheel = document.getElementById('avail-tp-hour');
+  const minWheel = document.getElementById('avail-tp-minute');
+  if (!hourWheel || hourWheel.dataset.populated === '1') return;
+  const pad = '<div class="avail-tp-wheel-pad"></div>';
+
+  let html = pad;
+  for (let h = 0; h < 24; h++) {
+    const v = String(h).padStart(2,'0');
+    html += '<div class="avail-tp-wheel-item" data-val="' + v + '">' + v + '</div>';
+  }
+  html += pad;
+  hourWheel.innerHTML = html;
+  hourWheel.dataset.populated = '1';
+
+  html = pad;
+  [0, 15, 30, 45].forEach(function(m) {
+    const v = String(m).padStart(2,'0');
+    html += '<div class="avail-tp-wheel-item" data-val="' + v + '">' + v + '</div>';
+  });
+  html += pad;
+  minWheel.innerHTML = html;
+  minWheel.dataset.populated = '1';
+}
+
+function openTimePicker(inputEl) {
+  availTpCurrentInput = inputEl;
+  availTpPopulate();
+  const valEl = inputEl.querySelector('.avail-time-value');
+  const parts = (valEl && valEl.textContent || '07:00').split(':');
+  const hh = parts[0], mm = parts[1];
+
+  const row = inputEl.closest('.avail-interval');
+  const inputs = row ? row.querySelectorAll('.avail-time-input') : [];
+  const isEnd = inputs[1] === inputEl;
+  const titleEl = document.getElementById('avail-tp-title');
+  if (titleEl) titleEl.textContent = isEnd ? 'End time' : 'Start time';
+
+  document.getElementById('avail-tp-sheet').classList.add('visible');
+  requestAnimationFrame(function() {
+    availTpScrollTo(document.getElementById('avail-tp-hour'), hh);
+    availTpScrollTo(document.getElementById('avail-tp-minute'), mm);
+  });
+}
+
+function availTpScrollTo(wheel, val) {
+  if (!wheel) return;
+  const item = wheel.querySelector('[data-val="' + val + '"]');
+  if (!item) return;
+  const target = item.offsetTop - wheel.offsetTop - (wheel.clientHeight / 2 - item.clientHeight / 2);
+  wheel.scrollTop = Math.max(0, target);
+}
+
+function availTpReadWheel(wheel) {
+  if (!wheel) return null;
+  const center = wheel.scrollTop + wheel.clientHeight / 2;
+  let closest = null, closestDist = Infinity;
+  wheel.querySelectorAll('.avail-tp-wheel-item').forEach(function(item) {
+    const itemCenter = (item.offsetTop - wheel.offsetTop) + item.clientHeight / 2;
+    const dist = Math.abs(itemCenter - center);
+    if (dist < closestDist) { closestDist = dist; closest = item; }
+  });
+  return closest ? closest.dataset.val : null;
+}
+
+function confirmTimePicker() {
+  const hh = availTpReadWheel(document.getElementById('avail-tp-hour')) || '07';
+  const mm = availTpReadWheel(document.getElementById('avail-tp-minute')) || '00';
+  if (availTpCurrentInput) {
+    const valEl = availTpCurrentInput.querySelector('.avail-time-value');
+    if (valEl) valEl.textContent = hh + ':' + mm;
+  }
+  closeSheet('avail-tp-sheet');
+  validateAvailability();
+}
+
+function closeSheet(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('visible');
+  if (id === 'avail-tp-sheet') availTpCurrentInput = null;
+}
+
+function availSetFlowClass(state) {
+  const screen = document.getElementById('s-availability');
+  if (!screen) return;
+  ['default','loading','saving','error'].forEach(function(s){ screen.classList.remove('fs-' + s); });
+  if (state !== 'default') screen.classList.add('fs-' + state);
+}
+
+function handleAvailSave() {
+  const btn = document.getElementById('avail-save-btn');
+  if (btn && btn.disabled) return; // validation errors — ignore
+  availSetFlowClass('saving');
+  // Simulated network delay → success
+  setTimeout(function() {
+    availSetFlowClass('default');
+    const snack = document.getElementById('avail-saved-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+  }, 900);
+}
+
+function handleAvailBack() {
+  // In production: only open sheet if dirty. Prototype: always demo.
+  openSheet('avail-discard-sheet');
+}
+
+function availDiscardConfirm() {
+  closeSheet('avail-discard-sheet');
+  // Return to Settings root
+  const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+  if (btn) go('s-settings', btn);
+}
+
+function setAvailFlow(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+  // Reset the content-row toggle to default visuals (flow is orthogonal)
+  if (state === 'saved') {
+    availSetFlowClass('default');
+    const snack = document.getElementById('avail-saved-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+    return;
+  }
+  availSetFlowClass(state);
+}
+
+// --- Validation ---
+function availParseTime(s) {
+  if (!s) return null;
+  const parts = s.split(':');
+  if (parts.length !== 2) return null;
+  const h = parseInt(parts[0], 10), m = parseInt(parts[1], 10);
+  if (isNaN(h) || isNaN(m)) return null;
+  return h * 60 + m;
+}
+
+function validateAvailability() {
+  const container = document.querySelector('#s-availability .avail-days');
+  if (!container) return;
+
+  container.querySelectorAll('.avail-time-input.error').forEach(function(el){ el.classList.remove('error'); });
+  container.querySelectorAll('.avail-interval-error').forEach(function(el){ el.remove(); });
+
+  let hasError = false;
+  let activeCount = 0;
+
+  container.querySelectorAll('.avail-day.active').forEach(function(day) {
+    activeCount++;
+    const intervalRows = Array.from(day.querySelectorAll('.avail-interval'));
+    const parsed = intervalRows.map(function(row) {
+      const inputs = row.querySelectorAll('.avail-time-input');
+      const sv = inputs[0] && inputs[0].querySelector('.avail-time-value');
+      const ev = inputs[1] && inputs[1].querySelector('.avail-time-value');
+      return {
+        row: row,
+        inputs: inputs,
+        start: availParseTime(sv && sv.textContent),
+        end: availParseTime(ev && ev.textContent),
+      };
+    });
+
+    parsed.forEach(function(iv, idx) {
+      if (iv.start == null || iv.end == null) return;
+      let err = null;
+      if (iv.end <= iv.start) {
+        err = 'End time must be after start';
+      } else if (iv.end - iv.start < 30) {
+        err = 'Interval must be at least 30 minutes';
+      } else {
+        for (let j = 0; j < parsed.length; j++) {
+          if (j === idx) continue;
+          const o = parsed[j];
+          if (o.start == null || o.end == null) continue;
+          if (iv.start < o.end && iv.end > o.start) {
+            err = 'Overlaps with another interval';
+            break;
+          }
+        }
+      }
+      if (err) {
+        hasError = true;
+        iv.inputs[0].classList.add('error');
+        iv.inputs[1].classList.add('error');
+        const msg = document.createElement('div');
+        msg.className = 'avail-interval-error';
+        msg.innerHTML =
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+          '<span>' + err + '</span>';
+        iv.row.insertAdjacentElement('afterend', msg);
+      }
+    });
+  });
+
+  const alloffBanner = document.getElementById('avail-banner-alloff');
+  if (alloffBanner) alloffBanner.style.display = activeCount === 0 ? 'flex' : 'none';
+
+  const saveBtn = document.getElementById('avail-save-btn');
+  if (saveBtn) saveBtn.disabled = hasError;
+}
+
+// --- State toggle (demo seeds) ---
+let availSeedHtml = null;
+
+function availCaptureSeed() {
+  const days = document.querySelector('#s-availability .avail-days');
+  if (days && availSeedHtml == null) availSeedHtml = days.innerHTML;
+}
+
+function availReset() {
+  availCaptureSeed();
+  const days = document.querySelector('#s-availability .avail-days');
+  if (days && availSeedHtml != null) days.innerHTML = availSeedHtml;
+  const existing = document.getElementById('avail-banner-existing');
+  if (existing) existing.style.display = 'none';
+}
+
+function setAvailState(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+  availSetFlowClass('default');
+  // Clear flow-row active state too (they're orthogonal, content reset means flow = default)
+  document.querySelectorAll('#ann-s-availability .state-toggle').forEach(function(row, idx) {
+    if (idx === 1) row.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+  });
+  availReset();
+
+  if (state === 'errors') {
+    // Monday: end (22:00) → 06:00 to demo end ≤ start
+    const mon = document.querySelector('#s-availability .avail-day[data-day="mon"] .avail-interval');
+    if (mon) {
+      const vals = mon.querySelectorAll('.avail-time-value');
+      if (vals.length >= 2) vals[1].textContent = '06:00';
+    }
+    // Tuesday interval 2: change to 10:00–20:00 to overlap with 07:00–12:00
+    const tue = document.querySelectorAll('#s-availability .avail-day[data-day="tue"] .avail-interval');
+    if (tue.length >= 2) {
+      const vals = tue[1].querySelectorAll('.avail-time-value');
+      if (vals.length >= 2) { vals[0].textContent = '10:00'; vals[1].textContent = '20:00'; }
+    }
+  } else if (state === 'alloff') {
+    document.querySelectorAll('#s-availability .avail-day.active').forEach(function(day) {
+      day.classList.remove('active');
+      const iv = day.querySelector('.avail-intervals');
+      if (iv) iv.remove();
+    });
+  } else if (state === 'existing') {
+    const ex = document.getElementById('avail-banner-existing');
+    if (ex) ex.style.display = 'flex';
+  }
+  validateAvailability();
+}
+
+function openSheet(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.add('visible');
+}
+
+// ===== PD SELECTOR (TZ / Country / Languages) =====
+function filterPdList(inputEl, key) {
+  const q = inputEl.value.trim().toLowerCase();
+  const wrap = document.getElementById(key + '-search-wrap');
+  if (wrap) wrap.classList.toggle('has-value', q.length > 0);
+  const list = document.querySelector('[data-pd-list="' + key + '"]');
+  const empty = document.getElementById(key + '-empty');
+  if (!list) return;
+  let visible = 0;
+  list.querySelectorAll('.cal-select-row').forEach(function(row) {
+    const label = (row.getAttribute('data-label') || row.textContent).toLowerCase();
+    const match = !q || label.indexOf(q) !== -1;
+    row.classList.toggle('hidden', !match);
+    if (match) visible++;
+  });
+  if (empty) empty.classList.toggle('show', visible === 0);
+}
+
+function clearPdSearch(key) {
+  const input = document.getElementById(key + '-search-input');
+  if (!input) return;
+  input.value = '';
+  if (key === 'sport') filterSportList(input);
+  else filterPdList(input, key);
+  input.focus();
+}
+
+// ===== PERSONAL DATA FLOW STATES =====
+function pdSetFlowClass(state) {
+  const screen = document.getElementById('s-personal-data');
+  if (!screen) return;
+  ['loading','saving','error'].forEach(function(s) { screen.classList.remove('fs-' + s); });
+  if (state && state !== 'default') screen.classList.add('fs-' + state);
+}
+
+function handlePdSave() {
+  pdSetFlowClass('saving');
+  setTimeout(function() {
+    pdSetFlowClass('default');
+    const snack = document.getElementById('pd-saved-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+  }, 900);
+}
+
+function handlePdBack() {
+  // In production: open sheet only if form dirty. Prototype always shows for demo.
+  openSheet('pd-discard-sheet');
+}
+
+function pdDiscardConfirm() {
+  closeSheet('pd-discard-sheet');
+  const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+  if (btn) go('s-settings', btn);
+}
+
+function setPdFlow(state, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+  if (state === 'saved') {
+    pdSetFlowClass('default');
+    const snack = document.getElementById('pd-saved-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 1400);
+    }
+    return;
+  }
+  pdSetFlowClass(state);
+}
+
+// ===== AVATAR ACTION SHEET =====
+function pdAvatarAction(kind) {
+  const imgEl = document.getElementById('pd-avatar-img');
+  const removeBtn = document.getElementById('pd-avatar-remove');
+  if (kind === 'remove') {
+    imgEl.style.backgroundImage = '';
+    imgEl.textContent = 'JM';
+    if (removeBtn) removeBtn.style.display = 'none';
+  } else {
+    // Take photo / Library — simulate pick with a placeholder avatar
+    const demo = 'https://i.pravatar.cc/160?u=coach-john-miller';
+    imgEl.style.backgroundImage = 'url(' + demo + ')';
+    imgEl.textContent = '';
+    if (removeBtn) removeBtn.style.display = 'flex';
+  }
+  closeSheet('pd-avatar-sheet');
+}
+
+// ===== WEIGHT / HEIGHT — metric-only (kg / cm) =====
+// Validation ranges: weight 20-300 kg; height 50-250 cm
+function pdParseNum(s) {
+  const n = parseFloat(String(s).replace(',', '.').trim());
+  return isFinite(n) ? n : null;
+}
+
+function pdWeightValidate() {
+  const inp = document.getElementById('pd-weight-input');
+  const wrap = document.getElementById('pd-weight-wrap');
+  const err = document.getElementById('pd-weight-err');
+  const kg = pdParseNum(inp.value);
+  let msg = '';
+  if (inp.value.trim() && kg != null) {
+    if (kg < 20) msg = 'Weight seems too low';
+    else if (kg > 300) msg = 'Weight seems too high';
+  }
+  wrap.classList.toggle('error', !!msg);
+  if (err) { err.textContent = msg; err.style.display = msg ? 'block' : 'none'; }
+}
+
+function pdHeightValidate() {
+  const inp = document.getElementById('pd-height-input');
+  const wrap = document.getElementById('pd-height-wrap');
+  const err = document.getElementById('pd-height-err');
+  const cm = pdParseNum(inp.value);
+  let msg = '';
+  if (inp.value.trim() && cm != null) {
+    if (cm < 50) msg = 'Height seems too low';
+    else if (cm > 250) msg = 'Height seems too high';
+  }
+  wrap.classList.toggle('error', !!msg);
+  if (err) { err.textContent = msg; err.style.display = msg ? 'block' : 'none'; }
+}
+
+// ===== DOB PICKER (3-wheel) =====
+var DOB_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function dobPopulate() {
+  const dayW = document.getElementById('dob-wheel-day');
+  const monW = document.getElementById('dob-wheel-month');
+  const yrW = document.getElementById('dob-wheel-year');
+  const pad = '<div class="avail-tp-wheel-pad"></div>';
+  if (dayW && !dayW.dataset.populated) {
+    dobRebuildDays(31);
+  }
+  if (monW && !monW.dataset.populated) {
+    let html = pad;
+    DOB_MONTHS.forEach(function(m, i) {
+      const v = String(i + 1).padStart(2,'0');
+      html += '<div class="avail-tp-wheel-item" data-val="' + v + '">' + m + '</div>';
+    });
+    html += pad;
+    monW.innerHTML = html;
+    monW.dataset.populated = '1';
+    monW.addEventListener('scroll', dobOnWheelChange);
+  }
+  if (yrW && !yrW.dataset.populated) {
+    const now = new Date();
+    const maxYear = now.getFullYear() - 13; // 13+ only — year list stops here
+    let html = pad;
+    for (let y = maxYear; y >= 1920; y--) {
+      html += '<div class="avail-tp-wheel-item" data-val="' + y + '">' + y + '</div>';
+    }
+    html += pad;
+    yrW.innerHTML = html;
+    yrW.dataset.populated = '1';
+    yrW.addEventListener('scroll', dobOnWheelChange);
+  }
+}
+
+function dobRebuildDays(max) {
+  const dayW = document.getElementById('dob-wheel-day');
+  if (!dayW) return;
+  const pad = '<div class="avail-tp-wheel-pad"></div>';
+  let html = pad;
+  for (let d = 1; d <= max; d++) {
+    const v = String(d).padStart(2,'0');
+    html += '<div class="avail-tp-wheel-item" data-val="' + v + '">' + d + '</div>';
+  }
+  html += pad;
+  dayW.innerHTML = html;
+  dayW.dataset.populated = '1';
+}
+
+var _dobWheelTimer;
+function dobOnWheelChange() {
+  clearTimeout(_dobWheelTimer);
+  _dobWheelTimer = setTimeout(function() {
+    const m = availTpReadWheel(document.getElementById('dob-wheel-month'));
+    const y = availTpReadWheel(document.getElementById('dob-wheel-year'));
+    if (!m || !y) return;
+    const monthNum = parseInt(m, 10);
+    const yearNum = parseInt(y, 10);
+    const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
+    const dayW = document.getElementById('dob-wheel-day');
+    const currentDay = availTpReadWheel(dayW);
+    dobRebuildDays(daysInMonth);
+    if (currentDay) {
+      const clamped = Math.min(parseInt(currentDay, 10), daysInMonth);
+      requestAnimationFrame(function() {
+        availTpScrollTo(dayW, String(clamped).padStart(2,'0'));
+      });
+    }
+  }, 120);
+}
+
+function openDobPicker() {
+  dobPopulate();
+  // Parse existing value or default to 2000-01-01
+  const valEl = document.getElementById('pd-dob-value');
+  const existing = (valEl && valEl.textContent || '').trim();
+  let dd = '01', mm = '01', yy = '2000';
+  const match = existing.match(/^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$/);
+  if (match) {
+    dd = String(match[1]).padStart(2,'0');
+    const monIdx = DOB_MONTHS.indexOf(match[2]);
+    if (monIdx >= 0) mm = String(monIdx + 1).padStart(2,'0');
+    yy = match[3];
+  }
+  const errBox = document.getElementById('dob-sheet-error');
+  if (errBox) errBox.style.display = 'none';
+  document.getElementById('dob-picker-sheet').classList.add('visible');
+  requestAnimationFrame(function() {
+    // Rebuild day wheel to match initial month/year length
+    const monthNum = parseInt(mm, 10);
+    const yearNum = parseInt(yy, 10);
+    dobRebuildDays(new Date(yearNum, monthNum, 0).getDate());
+    availTpScrollTo(document.getElementById('dob-wheel-day'), dd);
+    availTpScrollTo(document.getElementById('dob-wheel-month'), mm);
+    availTpScrollTo(document.getElementById('dob-wheel-year'), yy);
+  });
+}
+
+function confirmDobPicker() {
+  const dd = availTpReadWheel(document.getElementById('dob-wheel-day')) || '01';
+  const mm = availTpReadWheel(document.getElementById('dob-wheel-month')) || '01';
+  const yy = availTpReadWheel(document.getElementById('dob-wheel-year')) || '2000';
+  const picked = new Date(parseInt(yy,10), parseInt(mm,10) - 1, parseInt(dd,10));
+  const today = new Date();
+  const thirteenAgo = new Date(today.getFullYear() - 13, today.getMonth(), today.getDate());
+  if (picked > thirteenAgo) {
+    const errBox = document.getElementById('dob-sheet-error');
+    if (errBox) errBox.style.display = 'block';
+    return;
+  }
+  const valEl = document.getElementById('pd-dob-value');
+  if (valEl) {
+    valEl.textContent = parseInt(dd, 10) + ' ' + DOB_MONTHS[parseInt(mm, 10) - 1] + ' ' + yy;
+    valEl.style.color = 'var(--fit-text-primary)';
+  }
+  const errInline = document.getElementById('pd-dob-error');
+  if (errInline) errInline.style.display = 'none';
+  closeSheet('dob-picker-sheet');
+}
+
+// Snapshot of initial selected labels per multi-select key (for dirty check)
+var pdMultiSeed = {};
+
+var PD_ITEM_SELECTOR = '.cal-select-row, .sp-card';
+
+function pdCaptureSeed(key) {
+  const list = document.querySelector('[data-pd-list="' + key + '"]');
+  if (!list) return;
+  pdMultiSeed[key] = Array.from(list.querySelectorAll(PD_ITEM_SELECTOR))
+    .filter(r => r.classList.contains('selected'))
+    .map(r => r.getAttribute('data-label'));
+}
+
+function pdIsDirty(key) {
+  const list = document.querySelector('[data-pd-list="' + key + '"]');
+  if (!list || !pdMultiSeed[key]) return false;
+  const current = Array.from(list.querySelectorAll(PD_ITEM_SELECTOR))
+    .filter(r => r.classList.contains('selected'))
+    .map(r => r.getAttribute('data-label'));
+  if (current.length !== pdMultiSeed[key].length) return true;
+  const seedSet = new Set(pdMultiSeed[key]);
+  return current.some(l => !seedSet.has(l));
+}
+
+function pdToggleMulti(row, key) {
+  row.classList.toggle('selected');
+  pdUpdateMultiFooter(key);
+}
+
+function pdUpdateMultiFooter(key) {
+  const list = document.querySelector('[data-pd-list="' + key + '"]');
+  const btn = document.getElementById(key + '-save-btn');
+  const countEl = document.getElementById(key + '-save-count');
+  if (!list || !btn) return;
+  const selected = list.querySelectorAll('.cal-select-row.selected, .sp-card.selected').length;
+  if (countEl) countEl.textContent = '(' + selected + ' selected)';
+  const enabled = selected > 0 && pdIsDirty(key);
+  btn.style.opacity = enabled ? '1' : '0.5';
+  btn.style.pointerEvents = enabled ? 'auto' : 'none';
+}
+
+function pdLangSave() {
+  const list = document.querySelector('[data-pd-list="lang"]');
+  if (!list) return;
+  const labels = Array.from(list.querySelectorAll('.cal-select-row.selected'))
+    .map(r => (r.getAttribute('data-label') || '').split(' · ')[0]); // native only
+  const valueEl = document.getElementById('pd-lang-value');
+  if (valueEl) {
+    valueEl.textContent = labels.length === 0 ? '—' :
+      labels.length <= 2 ? labels.join(', ') :
+      labels[0] + ' +' + (labels.length - 1) + ' more';
+  }
+  pdCaptureSeed('lang'); // reset seed after save
+  pdUpdateMultiFooter('lang');
+  const btn = document.querySelector('[onclick*="s-personal-data"]');
+  if (typeof go === 'function') go('s-personal-data', btn);
+}
+
+function pdLangBack() {
+  if (pdIsDirty('lang')) {
+    openSheet('lang-discard-sheet');
+    return;
+  }
+  const btn = document.querySelector('[onclick*="s-personal-data"]');
+  if (typeof go === 'function') go('s-personal-data', btn);
+}
+
+// ===== SPORT multi — analog to lang, adapts to grid cards =====
+function filterSportList(inputEl) {
+  const q = inputEl.value.trim().toLowerCase();
+  const wrap = document.getElementById('sport-search-wrap');
+  if (wrap) wrap.classList.toggle('has-value', q.length > 0);
+  const list = document.querySelector('[data-pd-list="sport"]');
+  const empty = document.getElementById('sport-empty');
+  if (!list) return;
+  let totalVisible = 0;
+  list.querySelectorAll('.sp-section').forEach(function(sec) {
+    let secVisible = 0;
+    sec.querySelectorAll('.sp-card').forEach(function(card) {
+      const label = (card.getAttribute('data-label') || card.textContent).toLowerCase();
+      const match = !q || label.indexOf(q) !== -1;
+      card.classList.toggle('hidden', !match);
+      if (match) secVisible++;
+    });
+    sec.classList.toggle('hidden', secVisible === 0);
+    totalVisible += secVisible;
+  });
+  if (empty) empty.classList.toggle('show', totalVisible === 0);
+}
+
+function pdSportSave() {
+  const list = document.querySelector('[data-pd-list="sport"]');
+  if (!list) return;
+  const labels = Array.from(list.querySelectorAll('.sp-card.selected'))
+    .map(c => c.getAttribute('data-label'));
+  const sub = document.getElementById('set-sport-sub');
+  if (sub) {
+    sub.textContent = labels.length === 0 ? 'Not set yet' :
+      labels.length <= 3 ? labels.join(', ') :
+      labels.slice(0,2).join(', ') + ' +' + (labels.length - 2) + ' more';
+  }
+  pdCaptureSeed('sport');
+  pdUpdateMultiFooter('sport');
+  const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+  if (typeof go === 'function') go('s-settings', btn);
+}
+
+function pdSportBack() {
+  if (pdIsDirty('sport')) {
+    openSheet('sport-discard-sheet');
+    return;
+  }
+  const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+  if (typeof go === 'function') go('s-settings', btn);
+}
+
+function pdSportDiscardConfirm() {
+  const list = document.querySelector('[data-pd-list="sport"]');
+  if (list && pdMultiSeed.sport) {
+    const seedSet = new Set(pdMultiSeed.sport);
+    list.querySelectorAll('.sp-card').forEach(c => {
+      c.classList.toggle('selected', seedSet.has(c.getAttribute('data-label')));
+    });
+  }
+  pdUpdateMultiFooter('sport');
+  closeSheet('sport-discard-sheet');
+  const btn = document.querySelector('.sidebar button[onclick*="s-settings"]');
+  if (typeof go === 'function') go('s-settings', btn);
+}
+
+function pdLangDiscardConfirm() {
+  // Revert selection to seed
+  const list = document.querySelector('[data-pd-list="lang"]');
+  if (list && pdMultiSeed.lang) {
+    const seedSet = new Set(pdMultiSeed.lang);
+    list.querySelectorAll('.cal-select-row').forEach(r => {
+      r.classList.toggle('selected', seedSet.has(r.getAttribute('data-label')));
+    });
+  }
+  pdUpdateMultiFooter('lang');
+  closeSheet('lang-discard-sheet');
+  const btn = document.querySelector('[onclick*="s-personal-data"]');
+  if (typeof go === 'function') go('s-personal-data', btn);
+}
+
+function pdPickSingle(row, key, targetValueId) {
+  const list = row.closest('[data-pd-list]');
+  if (!list) return;
+  list.querySelectorAll('.cal-select-row').forEach(function(r) { r.classList.remove('selected'); });
+  row.classList.add('selected');
+  const label = row.getAttribute('data-label') || row.textContent.trim();
+  const target = targetValueId ? document.getElementById(targetValueId) : null;
+  if (target) target.textContent = label;
+  // Return to Personal Data after brief delay (mimic push-pop animation feel)
+  setTimeout(function() {
+    const btn = document.querySelector('[onclick*="s-personal-data"]');
+    if (typeof go === 'function') go('s-personal-data', btn);
+  }, 180);
+}
+
+// Capture seed + initial validation after DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+  availCaptureSeed();
+  validateAvailability();
+  pdCaptureSeed('lang');
+  pdUpdateMultiFooter('lang');
+  pdCaptureSeed('sport');
+  pdUpdateMultiFooter('sport');
+});
+
+// Log out — prototype: show toast. In production: clears session + navigates to sign-in.
+function doLogout() {
+  var t = document.getElementById('logout-toast');
+  if (!t) return;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+
+  switchTheme('light');
+</script>
+</body>
+</html>
