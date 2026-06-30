@@ -63,14 +63,7 @@
   .bal-topup:hover { background: rgba(255,255,255,0.30); }
   .bal-topup svg { width: 14px; height: 14px; }
 
-  /* ===== Swipeable money cards — Balance (wallet) + Spending — mirrors coach Earnings ===== */
-  .earn-swiper { position: relative; }
-  .earn-swiper-track {
-    display: flex; gap: 12px; padding: 0 16px;
-    scroll-padding-inline: 16px; overflow-x: auto;
-    scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch;
-  }
-  .earn-swiper-track::-webkit-scrollbar { display: none; }
+  /* ===== Money cards (single, no swiper here — canonical .fit-swiper* in lib if needed) ===== */
   .earn-card {
     flex: 0 0 calc(100% - 24px); scroll-snap-align: start; scroll-snap-stop: always;
     border-radius: 20px; padding: 20px; color: var(--fit-white);
@@ -94,9 +87,6 @@
   .earn-card-row-chev { width: 14px; height: 14px; color: rgba(255,255,255,0.7); flex-shrink: 0; }
   /* footer pieces from .bal-hero reused inside the Balance card row */
   .earn-card .bal-hero-note, .earn-card .bal-topup { /* inherit existing styling */ }
-  .earn-swiper-dots { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
-  .earn-swiper-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--fit-text-tertiary); opacity: 0.35; cursor: pointer; transition: opacity 0.15s, transform 0.15s; }
-  .earn-swiper-dots span.active { opacity: 1; transform: scale(1.25); }
 
   /* Ledger (rows/filters/section/summary/empty) canonical in fit-ui.css */
 
@@ -183,11 +173,7 @@
   #s-top-up .at-warn-declined, #s-top-up .at-warn-auth { display: none; }
   #s-top-up.tm-auto.at-on.at-warn.aw-declined .at-warn-declined { display: flex; }
   #s-top-up.tm-auto.at-on.at-warn.aw-auth .at-warn-auth { display: flex; }
-  /* Authentication-required banner — info/blue (action needed, NOT a dead card) */
-  .at-warn-auth { margin: 8px 16px 0; padding: 12px 14px; border-radius: 12px; align-items: center; gap: 10px; background: rgba(3,178,226,0.08); border: 1px solid rgba(3,178,226,0.2); font-size: 14px; line-height: 1.4; }
-  .at-warn-auth svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--fit-blue-500); }
-  .at-warn-auth .aw-body { flex: 1; color: var(--fit-text-secondary); }
-  .at-warn-auth .aw-action { font-family: var(--fit-font); font-size: 13px; font-weight: 500; color: var(--fit-blue-500); background: transparent; border: none; cursor: pointer; padding: 4px 8px; margin: -4px -8px; }
+  /* Authentication-required banner — canonical .fit-banner.fit-banner--info (lib); .at-warn-auth kept as display-toggle hook only */
   #s-top-up [data-tu-load] { display: none; }
   #s-top-up.at-loading .tu-once-pane,
   #s-top-up.at-loading .tu-auto-pane,
@@ -521,10 +507,10 @@
         <button class="fit-inline-error-retry" data-a11y-id="athlete.auto-topup.warn.update-card" onclick="openSheet('cardpick-at')">Update</button>
       </div>
       <!-- Charge needs AUTHENTICATION (3-D Secure) → confirm, NOT a dead card -->
-      <div class="at-warn-auth" style="display:none;">
+      <div class="fit-banner fit-banner--info at-warn-auth" style="display:none; margin:8px 16px 0;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-        <span class="aw-body">Your bank needs to verify this top-up. Confirm once and auto top-up keeps working.</span>
-        <button class="aw-action" data-a11y-id="athlete.auto-topup.warn.confirm" onclick="openSheet('auth-sheet')">Confirm</button>
+        <span class="fit-banner-body">Your bank needs to verify this top-up. Confirm once and auto top-up keeps working.</span>
+        <button class="fit-banner-retry" data-a11y-id="athlete.auto-topup.warn.confirm" onclick="openSheet('auth-sheet')">Confirm</button>
       </div>
 
       <div class="fit-section-title--md" style="margin-top:4px;">When balance falls below</div>

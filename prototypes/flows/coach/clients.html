@@ -157,34 +157,6 @@
   .fit-light .fit-navbar-item { color: var(--fit-gray-400); }
   .fit-light .fit-navbar-item.active { color: var(--fit-text-primary); }
 
-  /* Cash actions drawer rows (shared with balance.html + dashboard.html pattern) */
-  .cash-action-row {
-    display: flex; align-items: center; gap: 14px;
-    padding: 16px;
-    background: var(--fit-surface-high);
-    border-radius: 14px;
-    cursor: pointer;
-    text-align: left;
-    width: 100%; border: none;
-    font-family: var(--fit-font);
-  }
-  .cash-action-row + .cash-action-row { margin-top: 8px; }
-  .cash-action-row.destructive .cash-action-icon {
-    background: rgba(240,92,91,0.14); color: var(--fit-red-400);
-  }
-  .cash-action-row.primary .cash-action-icon {
-    background: rgba(5,224,166,0.12); color: var(--fit-teal-500);
-  }
-  .cash-action-icon {
-    width: 36px; height: 36px; border-radius: 50%;
-    background: var(--fit-surface-higher); color: var(--fit-text-secondary);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .cash-action-body { flex: 1; min-width: 0; }
-  .cash-action-title { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
-  .cash-action-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; line-height: 1.4; }
-
   /* ===== Add-client drawer rows (calendar-style: title + description) ===== */
   .add-client-row { display: flex; align-items: flex-start; gap: 14px; padding: 14px 4px; cursor: pointer; border-bottom: 1px solid var(--fit-divider); }
   .add-client-row:last-child { border-bottom: none; }
@@ -740,19 +712,19 @@
         <div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:4px;" id="cd-cash-actions-sub">Session · €amount</div>
       </div>
 
-      <button class="cash-action-row primary" data-a11y-id="coach.client-detail.pending.mark-paid" onclick="confirmClientCashAction('paid')">
-        <div class="cash-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <div class="cash-action-body">
-          <div class="cash-action-title">Mark as paid</div>
-          <div class="cash-action-sub">Athlete handed you the money &mdash; counts as income.</div>
+      <button class="fit-sheet-action-row primary" data-a11y-id="coach.client-detail.pending.mark-paid" onclick="confirmClientCashAction('paid')">
+        <div class="fit-sheet-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="fit-sheet-action-body">
+          <div class="fit-sheet-action-title">Mark as paid</div>
+          <div class="fit-sheet-action-sub">Athlete handed you the money &mdash; counts as income.</div>
         </div>
       </button>
 
-      <button class="cash-action-row destructive" data-a11y-id="coach.client-detail.pending.waive" onclick="confirmClientCashAction('waive')">
-        <div class="cash-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
-        <div class="cash-action-body">
-          <div class="cash-action-title">Waive payment</div>
-          <div class="cash-action-sub">No charge to the athlete &mdash; debt cleared. Session still counts, &euro;0 income.</div>
+      <button class="fit-sheet-action-row destructive" data-a11y-id="coach.client-detail.pending.waive" onclick="confirmClientCashAction('waive')">
+        <div class="fit-sheet-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+        <div class="fit-sheet-action-body">
+          <div class="fit-sheet-action-title">Waive payment</div>
+          <div class="fit-sheet-action-sub">No charge to the athlete &mdash; debt cleared. Session still counts, &euro;0 income.</div>
         </div>
       </button>
 
@@ -961,9 +933,9 @@
       <span class="fit-header-title">Archived &amp; Blocked</span>
     </div>
     <!-- Segmented tabs (pill toggle) -->
-    <div style="display:flex;margin:0 16px 12px;border-radius:10px;overflow:hidden;background:var(--fit-surface-high);padding:3px;">
-      <button id="arch-tab-archived" onclick="switchArchivedTab('archived')" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;background:var(--fit-brand-gradient);color:var(--fit-white);">Archived (2)</button>
-      <button id="arch-tab-blocked" onclick="switchArchivedTab('blocked')" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;background:transparent;color:var(--fit-text-secondary);">Blocked (3)</button>
+    <div class="fit-segmented">
+      <button id="arch-tab-archived" class="fit-segmented-tab selected" onclick="switchArchivedTab('archived')">Archived (2)</button>
+      <button id="arch-tab-blocked" class="fit-segmented-tab" onclick="switchArchivedTab('blocked')">Blocked (3)</button>
     </div>
   </div>
   <div class="fit-phone-content">
@@ -1157,8 +1129,8 @@
       </div>
     </div>
   </div>
-  <div class="fit-phone-footer" style="padding:12px 16px 40px;">
-    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" onclick="validateCreateClient()">Create Client</button>
+  <div class="fit-phone-footer fit-footer-btn">
+    <button class="fit-btn fit-btn-primary" onclick="validateCreateClient()">Create Client</button>
   </div>
   <!-- Validation snackbar -->
   <div class="fit-snackbar" id="cc-validation-snack"><span class="snack-dot" style="background:var(--fit-red-400);"></span>Please fill in required fields</div>
@@ -1198,7 +1170,7 @@
     <div style="margin:0 16px 16px;padding:14px;border-radius:12px;background:var(--fit-surface-high);display:flex;align-items:center;gap:10px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg><div style="flex:1;"><div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">12 Palm St</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Larnaca, Cyprus</div></div><div style="font-size:12px;color:var(--fit-brand-primary);cursor:pointer;" onclick="go('s-crm-addr-pick',null)">Change</div></div>
     <div class="fit-input-group" style="padding:0 16px;"><span class="fit-input-label">Note <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span><div class="fit-input" style="min-height:80px;align-items:flex-start;padding-top:14px;color:var(--fit-text-placeholder);">e.g., 2nd floor, ring the bell, gate code</div></div>
   </div>
-  <div class="fit-phone-footer" style="padding:12px 16px 40px;"><button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" onclick="crmAddrSave('12 Palm St, Larnaca')">Save home address</button></div>
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" onclick="crmAddrSave('12 Palm St, Larnaca')">Save home address</button></div>
 </div>
 
 <!-- ===== COACH: IMPORT FROM CONTACTS (bulk CRM) ===== -->
@@ -1292,8 +1264,8 @@
 
   </div>
   <!-- Footer: import CTA -->
-  <div class="fit-phone-footer" style="padding:12px 16px 40px;">
-    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" id="imp-cta" data-a11y-id="coach.import.confirm" onclick="importContacts()">Import 4 contacts</button>
+  <div class="fit-phone-footer fit-footer-btn">
+    <button class="fit-btn fit-btn-primary" id="imp-cta" data-a11y-id="coach.import.confirm" onclick="importContacts()">Import 4 contacts</button>
   </div>
 </div>
 
@@ -1637,12 +1609,8 @@ function switchArchivedTab(tab) {
   var other = tab === 'archived' ? 'blocked' : 'archived';
   document.getElementById('arch-panel-' + tab).style.display = '';
   document.getElementById('arch-panel-' + other).style.display = 'none';
-  var on = document.getElementById('arch-tab-' + tab);
-  var off = document.getElementById('arch-tab-' + other);
-  on.style.background = 'var(--fit-brand-gradient)';
-  on.style.color = 'var(--fit-white)';
-  off.style.background = 'transparent';
-  off.style.color = 'var(--fit-text-secondary)';
+  document.getElementById('arch-tab-' + tab).classList.add('selected');
+  document.getElementById('arch-tab-' + other).classList.remove('selected');
 }
 
 // Toggle a tab's empty (zero) state — independent per tab. Updates the tab count + jumps to it.

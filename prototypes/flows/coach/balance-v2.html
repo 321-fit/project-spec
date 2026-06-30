@@ -346,17 +346,6 @@
   }
   .earn-card > * { position: relative; z-index: 1; }
 
-  /* Swipeable cards container + dots (restored — Cash + Card) */
-  .earn-swiper { position: relative; }
-  .earn-swiper-track {
-    display: flex; gap: 12px; padding: 0 16px;
-    scroll-padding-inline: 16px; overflow-x: auto;
-    scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch;
-  }
-  .earn-swiper-track::-webkit-scrollbar { display: none; }
-  .earn-swiper-dots { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
-  .earn-swiper-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--fit-text-tertiary); opacity: 0.35; cursor: pointer; transition: opacity 0.15s, transform 0.15s; }
-  .earn-swiper-dots span.active { opacity: 1; transform: scale(1.25); }
   /* Recent header — canonical .fit-section-title--md-row + See all link,
      unified with the athlete balance-v2 (same font / size / colour / wording).
      16px gap above; reset the row's own 16px side padding since .earn-section
@@ -626,33 +615,6 @@
     background: var(--fit-gray-700); color: var(--fit-text-secondary);
   }
 
-  /* Cash actions drawer rows */
-  .cash-action-row {
-    display: flex; align-items: center; gap: 14px;
-    padding: 16px;
-    background: var(--fit-surface-high);
-    border-radius: 14px;
-    cursor: pointer;
-    text-align: left;
-    width: 100%; border: none;
-    font-family: var(--fit-font);
-  }
-  .cash-action-row + .cash-action-row { margin-top: 8px; }
-  .cash-action-row.destructive .cash-action-icon {
-    background: rgba(240,92,91,0.14); color: var(--fit-red-400);
-  }
-  .cash-action-row.primary .cash-action-icon {
-    background: rgba(5,224,166,0.12); color: var(--fit-teal-500);
-  }
-  .cash-action-icon {
-    width: 36px; height: 36px; border-radius: 50%;
-    background: var(--fit-surface-higher); color: var(--fit-text-secondary);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .cash-action-body { flex: 1; min-width: 0; }
-  .cash-action-title { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
-  .cash-action-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; line-height: 1.4; }
 
   /* Earnings history filter (All / Card / Cash) — toggles which numbers/sublines show */
   #s-earnings-history [data-show] { display: none; }
@@ -698,31 +660,6 @@
   #s-stripe.ss-pending  [data-stripe-state="pending"]  { display: block; }
   #s-stripe.ss-done     [data-stripe-state="done"]     { display: block; }
   #s-stripe.ss-action   [data-stripe-state="action"]   { display: block; }
-
-  /* Inline banner (blocking / warn) */
-  .earn-banner {
-    margin: 0 16px 16px;
-    padding: 12px 14px;
-    border-radius: 12px;
-    display: flex; gap: 12px; align-items: flex-start;
-    font-size: 14px; line-height: 1.4;
-  }
-  .earn-banner svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
-  .earn-banner.warn {
-    background: rgba(247,201,72,0.08);
-    border: 1px solid rgba(247,201,72,0.3);
-    color: var(--fit-text-primary);
-  }
-  .earn-banner.warn svg { color: #F7C948; }
-  .earn-banner.info {
-    background: rgba(3,178,226,0.08);
-    border: 1px solid rgba(3,178,226,0.22);
-    color: var(--fit-text-primary);
-  }
-  .earn-banner.info svg { color: var(--fit-blue-500); }
-  .earn-banner-body { flex: 1; }
-  .earn-banner-title { font-weight: 500; margin-bottom: 2px; }
-  .earn-banner-link { color: inherit; text-decoration: underline; font-weight: 500; cursor: pointer; }
 
   /* Key-value rows (.fit-kv*) now canonical in fit-ui.css */
 
@@ -912,8 +849,8 @@
   <div class="fit-phone-content" style="padding-bottom:24px;">
 
     <!-- ===== SWIPEABLE BALANCE CARDS — Cash (default) + Card ===== -->
-    <div class="earn-swiper">
-      <div class="earn-swiper-track" id="earn-swiper-track">
+    <div class="fit-swiper">
+      <div class="fit-swiper-track" id="earn-swiper-track">
 
         <!-- CASH CARD -->
         <div class="earn-card cash">
@@ -1055,17 +992,17 @@
       </div>
 
       <!-- Dot indicator -->
-      <div class="earn-swiper-dots" id="earn-swiper-dots">
+      <div class="fit-swiper-dots" id="earn-swiper-dots">
         <span class="active" data-a11y-id="coach.earnings.swiper.dot" data-idx="0" onclick="scrollEarnCard(0)"></span>
         <span data-a11y-id="coach.earnings.swiper.dot" data-idx="1" onclick="scrollEarnCard(1)"></span>
       </div>
     </div>
 
     <!-- Premium-only notice (shown when Instant Payout toggled on) -->
-    <div class="earn-banner info" data-premium-notice style="margin:16px;">
+    <div class="fit-banner fit-banner--info" data-premium-notice style="margin:16px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4 2 7-6.5-4-6.5 4 2-7L2 9h7z"/></svg>
-      <div class="earn-banner-body">
-        <div class="earn-banner-title">Instant Payout &middot; Premium (post-MVP)</div>
+      <div class="fit-banner-body">
+        <div class="fit-banner-title">Instant Payout &middot; Premium (post-MVP)</div>
         <div style="font-size:13px;line-height:1.45;">Not in v1. Weekly batch is the only payout path for MVP. This state previews the future paid add-on &mdash; keep it in spec but don't ship the "Withdraw" pill yet.</div>
       </div>
     </div>
@@ -1159,9 +1096,9 @@
         </div>
       </div>
 
-      <div class="earn-banner info" style="margin:0 0 20px;">
+      <div class="fit-banner fit-banner--info" style="margin:0 0 20px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
-        <div class="earn-banner-body">
+        <div class="fit-banner-body">
           <div style="font-size:13px;line-height:1.45;">Prefer free payouts? Your next weekly payout of <strong>&euro;340.50</strong> arrives <strong>Mon, Apr 27</strong> with no fee.</div>
         </div>
       </div>
@@ -1197,7 +1134,7 @@
      Reached by tapping the Pending col on Card hero. Simple list of
      individual sessions whose payouts are still in Stripe's 24h hold,
      plus inline "Why pending?" info banner (replaces the old info-sheet).
-     Reuses canonical .fit-detail-hero / .earn-banner.info / .fit-txn
+     Reuses canonical .fit-detail-hero / .fit-banner--info / .fit-txn
      patterns — no new page-local CSS.
      ============================================================ -->
 <div class="fit-phone fit-dark" id="s-pending">
@@ -1219,9 +1156,9 @@
     </div>
 
     <!-- Inline "Why pending?" — replaces the old info-sheet -->
-    <div class="earn-banner info" style="margin:0 16px 16px;">
+    <div class="fit-banner fit-banner--info" style="margin:0 16px 16px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-      <div class="earn-banner-body">
+      <div class="fit-banner-body">
         <div style="font-weight:500;color:var(--fit-text-primary);margin-bottom:2px;">Funds wait 24h before becoming available</div>
         <div style="font-size:13px;color:var(--fit-text-secondary);line-height:1.4;">This window covers cancellations and no-shows — so what moves into your balance is final.</div>
       </div>
@@ -1582,9 +1519,9 @@
 
     <!-- Action area — only shown in pending state. Drawer with 2 options replaces single Mark-as-paid button. -->
     <div style="padding:24px 16px 0;display:flex;flex-direction:column;gap:8px;" data-cash-status="pending">
-      <div class="earn-banner info" style="margin:0 0 12px;">
+      <div class="fit-banner fit-banner--info" style="margin:0 0 12px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
-        <div class="earn-banner-body">
+        <div class="fit-banner-body">
           <div style="font-size:13px;line-height:1.45;">Cash sessions don't auto-track. Mark how this one settles &mdash; paid or waived &mdash; so your ledger stays clean.</div>
         </div>
       </div>
@@ -1602,19 +1539,19 @@
         <div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:4px;">Yoga 1:1 &middot; &euro;30 &middot; Mon, Apr 20</div>
       </div>
 
-      <button class="cash-action-row primary" data-a11y-id="coach.earnings.txn-cash.mark-paid" onclick="markCashPaid()">
-        <div class="cash-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <div class="cash-action-body">
-          <div class="cash-action-title">Mark as paid</div>
-          <div class="cash-action-sub">Anna handed you &euro;30 in cash &mdash; counts as income.</div>
+      <button class="fit-sheet-action-row primary" data-a11y-id="coach.earnings.txn-cash.mark-paid" onclick="markCashPaid()">
+        <div class="fit-sheet-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="fit-sheet-action-body">
+          <div class="fit-sheet-action-title">Mark as paid</div>
+          <div class="fit-sheet-action-sub">Anna handed you &euro;30 in cash &mdash; counts as income.</div>
         </div>
       </button>
 
-      <button class="cash-action-row destructive" data-a11y-id="coach.earnings.txn-cash.waive" onclick="markCashWaived()">
-        <div class="cash-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
-        <div class="cash-action-body">
-          <div class="cash-action-title">Waive payment</div>
-          <div class="cash-action-sub">No charge to Anna &mdash; debt cleared. Session still counts toward your stats, &euro;0 income.</div>
+      <button class="fit-sheet-action-row destructive" data-a11y-id="coach.earnings.txn-cash.waive" onclick="markCashWaived()">
+        <div class="fit-sheet-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+        <div class="fit-sheet-action-body">
+          <div class="fit-sheet-action-title">Waive payment</div>
+          <div class="fit-sheet-action-sub">No charge to Anna &mdash; debt cleared. Session still counts toward your stats, &euro;0 income.</div>
         </div>
       </button>
 

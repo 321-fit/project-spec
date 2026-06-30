@@ -324,33 +324,7 @@
   }
   .avail-interval-error svg { width: 14px; height: 14px; flex-shrink: 0; }
 
-  /* Inline banners (non-blocking warnings) */
-  .avail-banner {
-    margin: 0 16px 16px;
-    padding: 12px 14px;
-    border-radius: 12px;
-    display: flex; gap: 12px; align-items: flex-start;
-    font-size: 14px; line-height: 1.4;
-    color: var(--fit-text-primary);
-  }
-  .avail-banner svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
-  .avail-banner .avail-banner-body { flex: 1; }
-  .avail-banner .avail-banner-title { font-weight: 500; margin-bottom: 2px; }
-  .avail-banner .avail-banner-link {
-    color: inherit; text-decoration: underline; cursor: pointer; font-weight: 500;
-  }
-  /* Info — existing bookings affected */
-  .avail-banner.info {
-    background: rgba(3,178,226,0.08);
-    border: 1px solid rgba(3,178,226,0.22);
-  }
-  .avail-banner.info svg { color: var(--fit-blue-500); }
-  /* Warning — all days off */
-  .avail-banner.warn {
-    background: rgba(247,201,72,0.08);
-    border: 1px solid rgba(247,201,72,0.3);
-  }
-  .avail-banner.warn svg { color: #F7C948; }
+  /* Inline banners migrated to canonical .fit-banner (lib/fit-ui.css) */
 
   /* Existing bookings sheet — event row */
   .avail-ev-row {
@@ -497,15 +471,6 @@
   }
   .pd-list .cal-select-row.hidden { display: none; }
 
-  .pd-empty {
-    display: none; flex-direction: column; align-items: center;
-    text-align: center; padding: 48px 20px;
-    color: var(--fit-text-tertiary); gap: 8px;
-  }
-  .pd-empty.show { display: flex; }
-  .pd-empty svg { width: 40px; height: 40px; color: var(--fit-gray-600); margin-bottom: 4px; }
-  .pd-empty-title { font-size: 16px; font-weight: 500; color: var(--fit-text-secondary); }
-  .pd-empty-sub { font-size: 14px; }
 
   /* Multi-select footer count */
   .pd-save-count { opacity: 0.7; margin-left: 6px; font-weight: 400; }
@@ -742,20 +707,20 @@
     </div>
 
     <!-- All-days-off warning banner (shown when no active days) -->
-    <div class="avail-banner warn" id="avail-banner-alloff" style="display:none;">
+    <div class="fit-banner fit-banner--warn" id="avail-banner-alloff" style="display:none;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <div class="avail-banner-body">
-        <div class="avail-banner-title">No available hours</div>
+      <div class="fit-banner-body">
+        <div class="fit-banner-title">No available hours</div>
         <div>Athletes can't book new sessions with you. Enable at least one day.</div>
       </div>
     </div>
 
     <!-- Existing-bookings-affected banner (shown when changes conflict with upcoming events) -->
-    <div class="avail-banner info" id="avail-banner-existing" style="display:none;">
+    <div class="fit-banner fit-banner--info" id="avail-banner-existing" style="display:none;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      <div class="avail-banner-body">
-        <div class="avail-banner-title">3 sessions fall outside new hours</div>
-        <div>Existing bookings will stay — only new requests are affected. <span class="avail-banner-link" onclick="openSheet('avail-existing-sheet')">View sessions</span></div>
+      <div class="fit-banner-body">
+        <div class="fit-banner-title">3 sessions fall outside new hours</div>
+        <div>Existing bookings will stay — only new requests are affected. <span class="fit-banner-link" onclick="openSheet('avail-existing-sheet')">View sessions</span></div>
       </div>
     </div>
 
@@ -876,8 +841,8 @@
     <div class="fit-inline-error-body"><strong>Couldn't save</strong> — check your connection and try again.</div>
     <button class="fit-inline-error-retry" onclick="handleAvailSave()">Retry</button>
   </div>
-  <div class="fit-phone-footer" style="padding:12px 16px 40px;">
-    <button id="avail-save-btn" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" onclick="handleAvailSave()"><span class="avail-save-spinner"></span>Save availability</button>
+  <div class="fit-phone-footer fit-footer-btn">
+    <button id="avail-save-btn" class="fit-btn fit-btn-primary" onclick="handleAvailSave()"><span class="avail-save-spinner"></span>Save availability</button>
   </div>
 
   <!-- Snackbar: save success -->
@@ -986,8 +951,8 @@
       <div style="text-align:right;font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;"><span id="vac-count">0/160</span></div>
     </div>
   </div>
-  <div class="fit-phone-footer" style="padding:12px 16px 40px;">
-    <button style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;" data-a11y-id="coach.vacation.start" onclick="document.getElementById('vac-conflict-sheet').classList.add('visible');updateVacConflict()">Schedule time off</button>
+  <div class="fit-phone-footer fit-footer-btn">
+    <button class="fit-btn fit-btn-primary" data-a11y-id="coach.vacation.start" onclick="document.getElementById('vac-conflict-sheet').classList.add('visible');updateVacConflict()">Schedule time off</button>
   </div>
 
   <!-- Confirm + conflict sheet. When the chosen dates overlap booked/confirmed

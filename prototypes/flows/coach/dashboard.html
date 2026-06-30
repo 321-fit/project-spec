@@ -632,25 +632,6 @@
     flex-shrink: 0;
   }
 
-  /* Offline / error banner */
-  .dash-error-banner {
-    padding: 10px 12px;
-    border-radius: 10px;
-    background: rgba(239,68,68,0.1);
-    border: 1px solid rgba(239,68,68,0.25);
-    display: flex; align-items: center; gap: 10px;
-    font-size: 13px; color: var(--fit-red-400);
-  }
-  .dash-error-banner svg { width: 16px; height: 16px; flex-shrink: 0; }
-  .dash-error-retry {
-    font-size: 13px; font-weight: 500;
-    color: var(--fit-red-400);
-    text-decoration: underline;
-    cursor: pointer; margin-left: auto;
-    background: transparent; border: none;
-    font-family: var(--fit-font);
-  }
-
   /* Skeleton (loading) */
   .dash-skel {
     border-radius: 14px;
@@ -879,60 +860,6 @@
   .notif-row:not(.notif-row--unread) .notif-row__title {
     font-weight: 400; color: var(--fit-text-secondary);
   }
-
-  /* Inline error banner (per feedback_error_states — blocking error gets banner + retry, not toast) */
-  .notif-error-banner {
-    margin: 12px 16px;
-    padding: 12px;
-    border-radius: 12px;
-    background: rgba(240,92,91,0.10);
-    border: 1px solid rgba(240,92,91,0.25);
-    display: flex; align-items: flex-start; gap: 10px;
-  }
-  .notif-error-banner svg { flex: 0 0 20px; height: 20px; color: var(--fit-red-400); margin-top: 1px; }
-  .notif-error-banner-body { flex: 1; }
-  .notif-error-banner-title {
-    font-family: var(--fit-font); font-size: 14px; font-weight: 500;
-    color: var(--fit-text-primary);
-  }
-  .notif-error-banner-msg {
-    font-family: var(--fit-font); font-size: 13px;
-    color: var(--fit-text-tertiary); margin-top: 2px;
-  }
-  .notif-error-retry {
-    font-family: var(--fit-font); font-size: 13px; font-weight: 500;
-    color: var(--fit-brand-primary);
-    background: none; border: none; padding: 0; margin-top: 8px;
-    cursor: pointer;
-  }
-
-  /* Action row inside bottom-sheet drawer (Waiting Edit drawer + reused from balance.html cash actions) */
-  .cash-action-row {
-    display: flex; align-items: center; gap: 14px;
-    padding: 16px;
-    background: var(--fit-surface-high);
-    border-radius: 14px;
-    cursor: pointer;
-    text-align: left;
-    width: 100%; border: none;
-    font-family: var(--fit-font);
-  }
-  .cash-action-row + .cash-action-row { margin-top: 8px; }
-  .cash-action-row.destructive .cash-action-icon {
-    background: rgba(240,92,91,0.14); color: var(--fit-red-400);
-  }
-  .cash-action-row.primary .cash-action-icon {
-    background: rgba(5,224,166,0.12); color: var(--fit-teal-500);
-  }
-  .cash-action-icon {
-    width: 36px; height: 36px; border-radius: 50%;
-    background: var(--fit-surface-higher); color: var(--fit-text-secondary);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .cash-action-body { flex: 1; min-width: 0; }
-  .cash-action-title { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
-  .cash-action-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; line-height: 1.4; }
 
 </style>
 </head>
@@ -1454,10 +1381,10 @@
         <div class="dash-greeting-sub">You&rsquo;re offline &mdash; showing cached data</div>
       </div>
 
-      <div class="dash-error-banner" style="margin:0;">
+      <div class="fit-banner fit-banner--error" style="margin:0;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l22 22"/><path d="M16.72 11.06A10.94 10.94 0 0119 12.55"/><path d="M5 12.55a10.94 10.94 0 015.17-2.39"/><path d="M10.71 5.05A16 16 0 0122.58 9"/><path d="M1.42 9a15.91 15.91 0 014.7-2.88"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
-        <span>Couldn&rsquo;t refresh &mdash; check your connection</span>
-        <button class="dash-error-retry" onclick="setDashState('default',null)">Retry</button>
+        <div class="fit-banner-body">Couldn&rsquo;t refresh &mdash; check your connection</div>
+        <button class="fit-banner-retry" onclick="setDashState('default',null)">Retry</button>
       </div>
 
       <!-- Stale (faded) content -->
@@ -1674,10 +1601,10 @@
       </button>
     </div>
     <!-- 3-way segmented tabs: Activity (history) | To reply (incoming pending) | Waiting (outgoing pending) -->
-    <div style="display:flex;margin:0 16px 12px;border-radius:10px;overflow:hidden;background:var(--fit-surface-high);padding:3px;">
-      <button id="notif-tab-activity" data-a11y-id="coach.inbox.tab.activity" onclick="switchNotifTab('activity')" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;background:var(--fit-brand-gradient);color:var(--fit-white);">Activity <span id="notif-tab-activity-count" style="opacity:0.8;">(5)</span></button>
-      <button id="notif-tab-toreply" data-a11y-id="coach.inbox.tab.toreply" onclick="switchNotifTab('toreply')" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--fit-text-secondary);">To reply <span id="notif-tab-toreply-count" style="opacity:0.6;">(3)</span></button>
-      <button id="notif-tab-waiting" data-a11y-id="coach.inbox.tab.waiting" onclick="switchNotifTab('waiting')" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--fit-text-secondary);">Waiting <span id="notif-tab-waiting-count" style="opacity:0.6;">(2)</span></button>
+    <div class="fit-segmented">
+      <button id="notif-tab-activity" class="fit-segmented-tab selected" data-a11y-id="coach.inbox.tab.activity" onclick="switchNotifTab('activity')">Activity <span id="notif-tab-activity-count" style="opacity:0.8;">(5)</span></button>
+      <button id="notif-tab-toreply" class="fit-segmented-tab" data-a11y-id="coach.inbox.tab.toreply" onclick="switchNotifTab('toreply')">To reply <span id="notif-tab-toreply-count" style="opacity:0.6;">(3)</span></button>
+      <button id="notif-tab-waiting" class="fit-segmented-tab" data-a11y-id="coach.inbox.tab.waiting" onclick="switchNotifTab('waiting')">Waiting <span id="notif-tab-waiting-count" style="opacity:0.6;">(2)</span></button>
     </div>
   </div>
   <div class="fit-phone-content">
@@ -1816,12 +1743,12 @@
     <!-- ===== TO REPLY PANEL — incoming athlete → coach booking requests ===== -->
     <div id="notif-panel-toreply" style="display:none;">
 
-      <div class="req-card" data-name="Tom" style="margin:16px 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
-          <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-text-secondary);flex-shrink:0;">TN</div>
+      <div class="fit-request-card req-card" data-name="Tom" style="margin-top:16px;">
+        <div class="fit-request-card-head">
+          <div class="fit-request-card-avatar">TN</div>
           <div style="flex:1;">
-            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Tom Novak</div>
-            <div style="font-size:12px;color:var(--fit-text-tertiary);">wants to book a session</div>
+            <div class="fit-request-card-name">Tom Novak</div>
+            <div class="fit-request-card-sub">wants to book a session</div>
           </div>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
         </div>
@@ -1842,16 +1769,16 @@
         </div>
         <div style="display:flex;gap:8px;">
           <button class="fit-btn fit-btn-destructive" style="flex:1;height:44px;font-size:16px;" onclick="setIncomingAction('decline',this)">Decline</button>
-          <button class="fit-btn" style="flex:1;height:44px;font-size:16px;background:var(--fit-brand-gradient);color:var(--fit-white);" onclick="setIncomingAction('accept',this)">Accept</button>
+          <button class="fit-btn fit-btn-primary" style="flex:1;height:44px;font-size:16px;" onclick="setIncomingAction('accept',this)">Accept</button>
         </div>
       </div>
 
-      <div class="req-card" data-name="Sara" style="margin:0 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
-          <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-text-secondary);flex-shrink:0;">SK</div>
+      <div class="fit-request-card req-card" data-name="Sara">
+        <div class="fit-request-card-head">
+          <div class="fit-request-card-avatar">SK</div>
           <div style="flex:1;">
-            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Sara Kim</div>
-            <div style="font-size:12px;color:var(--fit-text-tertiary);">wants to book a session</div>
+            <div class="fit-request-card-name">Sara Kim</div>
+            <div class="fit-request-card-sub">wants to book a session</div>
           </div>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
         </div>
@@ -1872,16 +1799,16 @@
         </div>
         <div style="display:flex;gap:8px;">
           <button class="fit-btn fit-btn-destructive" style="flex:1;height:44px;font-size:16px;" onclick="setIncomingAction('decline',this)">Decline</button>
-          <button class="fit-btn" style="flex:1;height:44px;font-size:16px;background:var(--fit-brand-gradient);color:var(--fit-white);" onclick="setIncomingAction('accept',this)">Accept</button>
+          <button class="fit-btn fit-btn-primary" style="flex:1;height:44px;font-size:16px;" onclick="setIncomingAction('accept',this)">Accept</button>
         </div>
       </div>
 
-      <div class="req-card" data-name="Lena" style="margin:0 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
-          <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-text-secondary);flex-shrink:0;">LR</div>
+      <div class="fit-request-card req-card" data-name="Lena">
+        <div class="fit-request-card-head">
+          <div class="fit-request-card-avatar">LR</div>
           <div style="flex:1;">
-            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Lena Roth</div>
-            <div style="font-size:12px;color:var(--fit-text-tertiary);">wants to book a session</div>
+            <div class="fit-request-card-name">Lena Roth</div>
+            <div class="fit-request-card-sub">wants to book a session</div>
           </div>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
         </div>
@@ -1902,7 +1829,7 @@
         </div>
         <div style="display:flex;gap:8px;">
           <button class="fit-btn fit-btn-destructive" style="flex:1;height:44px;font-size:16px;" onclick="setIncomingAction('decline',this)">Decline</button>
-          <button class="fit-btn" style="flex:1;height:44px;font-size:16px;background:var(--fit-brand-gradient);color:var(--fit-white);" onclick="setIncomingAction('accept',this)">Accept</button>
+          <button class="fit-btn fit-btn-primary" style="flex:1;height:44px;font-size:16px;" onclick="setIncomingAction('accept',this)">Accept</button>
         </div>
       </div>
 
@@ -1919,12 +1846,12 @@
     <!-- ===== WAITING PANEL — outgoing coach → athlete sent invites ===== -->
     <div id="notif-panel-waiting" style="display:none;">
 
-      <div class="req-card" data-name="Anna" data-payment-type="cash" data-session-name="Yoga Morning Flow" data-session-when="Mon, May 4 · 09:00" style="margin:16px 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
-          <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-text-secondary);flex-shrink:0;">AK</div>
+      <div class="fit-request-card req-card" data-name="Anna" data-payment-type="cash" data-session-name="Yoga Morning Flow" data-session-when="Mon, May 4 · 09:00" style="margin-top:16px;">
+        <div class="fit-request-card-head">
+          <div class="fit-request-card-avatar">AK</div>
           <div style="flex:1;">
-            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Anna Kowalski</div>
-            <div style="font-size:12px;color:var(--fit-text-tertiary);">
+            <div class="fit-request-card-name">Anna Kowalski</div>
+            <div class="fit-request-card-sub">
               <span style="display:inline-flex;align-items:center;gap:4px;">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--fit-yellow-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
                 Awaiting reply
@@ -1956,12 +1883,12 @@
         </div>
       </div>
 
-      <div class="req-card" data-name="Lukas" data-payment-type="cash" data-session-name="Boxing Training" data-session-when="Wed, Apr 23 · 19:00" style="margin:0 16px 12px;padding:16px;border-radius:16px;background:var(--fit-surface-high);transition:opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;">
-          <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-surface-higher);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-text-secondary);flex-shrink:0;">LN</div>
+      <div class="fit-request-card req-card" data-name="Lukas" data-payment-type="cash" data-session-name="Boxing Training" data-session-when="Wed, Apr 23 · 19:00">
+        <div class="fit-request-card-head">
+          <div class="fit-request-card-avatar">LN</div>
           <div style="flex:1;">
-            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Lukas Navickas</div>
-            <div style="font-size:12px;color:var(--fit-text-tertiary);">
+            <div class="fit-request-card-name">Lukas Navickas</div>
+            <div class="fit-request-card-sub">
               <span style="display:inline-flex;align-items:center;gap:4px;">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--fit-yellow-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
                 Awaiting reply
@@ -2014,27 +1941,27 @@
           <div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:4px;" data-waiting-edit-sub>Yoga Morning Flow &middot; Mon, May 4 &middot; 09:00</div>
         </div>
 
-        <button class="cash-action-row primary" data-a11y-id="coach.inbox.waiting.coach-confirm" onclick="openCoachConfirmSheet()">
-          <div class="cash-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-          <div class="cash-action-body">
-            <div class="cash-action-title">Confirm for athlete</div>
-            <div class="cash-action-sub">You agreed offline &mdash; mark this session confirmed without waiting for them to tap Accept.</div>
+        <button class="fit-sheet-action-row primary" data-a11y-id="coach.inbox.waiting.coach-confirm" onclick="openCoachConfirmSheet()">
+          <div class="fit-sheet-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="fit-sheet-action-body">
+            <div class="fit-sheet-action-title">Confirm for athlete</div>
+            <div class="fit-sheet-action-sub">You agreed offline &mdash; mark this session confirmed without waiting for them to tap Accept.</div>
           </div>
         </button>
 
-        <button class="cash-action-row" data-a11y-id="coach.inbox.waiting.edit-details" onclick="closeWaitingEditSheet();setOutgoingAction('navigate-to-edit',document.querySelector('[data-waiting-current]'))">
-          <div class="cash-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
-          <div class="cash-action-body">
-            <div class="cash-action-title">Edit invite details</div>
-            <div class="cash-action-sub">Change date, time, location, price, or note. Re-pings the athlete.</div>
+        <button class="fit-sheet-action-row" data-a11y-id="coach.inbox.waiting.edit-details" onclick="closeWaitingEditSheet();setOutgoingAction('navigate-to-edit',document.querySelector('[data-waiting-current]'))">
+          <div class="fit-sheet-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+          <div class="fit-sheet-action-body">
+            <div class="fit-sheet-action-title">Edit invite details</div>
+            <div class="fit-sheet-action-sub">Change date, time, location, price, or note. Re-pings the athlete.</div>
           </div>
         </button>
 
-        <button class="cash-action-row destructive" data-a11y-id="coach.inbox.waiting.cancel-from-drawer" onclick="closeWaitingEditSheet();setOutgoingAction('cancel',document.querySelector('[data-waiting-current]'))">
-          <div class="cash-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
-          <div class="cash-action-body">
-            <div class="cash-action-title">Cancel invite</div>
-            <div class="cash-action-sub">Withdraw the invitation. Athlete gets &ldquo;Coach cancelled invitation&rdquo;.</div>
+        <button class="fit-sheet-action-row destructive" data-a11y-id="coach.inbox.waiting.cancel-from-drawer" onclick="closeWaitingEditSheet();setOutgoingAction('cancel',document.querySelector('[data-waiting-current]'))">
+          <div class="fit-sheet-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+          <div class="fit-sheet-action-body">
+            <div class="fit-sheet-action-title">Cancel invite</div>
+            <div class="fit-sheet-action-sub">Withdraw the invitation. Athlete gets &ldquo;Coach cancelled invitation&rdquo;.</div>
           </div>
         </button>
 
@@ -2133,12 +2060,12 @@
 
     <!-- ========== ERROR ========== -->
     <div data-list-state="error">
-      <div class="notif-error-banner">
+      <div class="fit-banner fit-banner--error">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16.5" r="0.5" fill="currentColor"/></svg>
-        <div class="notif-error-banner-body">
-          <div class="notif-error-banner-title">Couldn't load notifications</div>
-          <div class="notif-error-banner-msg">Check your connection and try again.</div>
-          <button class="notif-error-retry" onclick="setNotifState('loading',null);setTimeout(function(){setNotifState('default',null);},1200);">Retry</button>
+        <div class="fit-banner-body">
+          <div class="fit-banner-title">Couldn't load notifications</div>
+          <div class="fit-banner-body">Check your connection and try again.</div>
+          <button class="fit-banner-retry" onclick="setNotifState('loading',null);setTimeout(function(){setNotifState('default',null);},1200);">Retry</button>
         </div>
       </div>
     </div>
@@ -2543,15 +2470,11 @@
       var el = document.getElementById(panels[t]);
       if (el) el.style.display = t === tab ? '' : 'none';
     });
-    // Tab button visual states (active = gradient, inactive = transparent)
+    // Tab button visual states (selected = gradient pill via .fit-segmented-tab.selected)
     ['activity','toreply','waiting'].forEach(function(t) {
       var b = document.getElementById('notif-tab-' + t);
       if (!b) return;
-      if (t === tab) {
-        b.style.background = 'var(--fit-brand-gradient)'; b.style.color = 'var(--fit-white)';
-      } else {
-        b.style.background = 'transparent'; b.style.color = 'var(--fit-text-secondary)';
-      }
+      b.classList.toggle('selected', t === tab);
     });
   }
 
