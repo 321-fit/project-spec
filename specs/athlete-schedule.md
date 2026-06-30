@@ -107,7 +107,7 @@ Tapping an event opens a **unified, state-aware bottom drawer** — the athlete-
 
 | State | Tile | Drawer descriptor + pill | Footer actions |
 |---|---|---|---|
-| **Planned** | teal/blue, no pill | "Confirmed session" | Message coach · **Cancel** → cancel-with-refund sheet |
+| **Planned** | teal/blue, no pill | "Confirmed session" | Message coach · **Reschedule** (→ new request, coach approves; current slot held) · **Cancel** → cancel-with-refund sheet |
 | **Request** (incoming — coach scheduled, athlete must respond) | yellow tint + "Request" pill | "Coach invited you" | **Decline / Accept** (inline) |
 | **Awaiting** (outgoing — athlete requested, waiting on coach) | gray + "Awaiting" pill | "Waiting for coach" + expiry note ("Expires in 22h — auto-cancelled & refunded", the 48h window) | **Cancel request** |
 | **Finished** | faded (opacity 0.5), no pill | "Completed" | **Rate this session** → star sheet |
