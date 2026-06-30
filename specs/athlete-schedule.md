@@ -1,10 +1,10 @@
 # Athlete Schedule & Booking
 
-> Status: Implemented (iOS) · Cross-role + unified tile layout added 2026-05-20
+> Status: In Progress (iOS booking implemented) · state-aware event drawer specced 2026-06-30
 > Prototype: [flows/athlete/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/calendar.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md) — FitCalEvent, FitCalEventPill, FitRoleTag
 > Related: [coach-calendar.md](./coach-calendar.md), [event-statuses.md](./event-statuses.md)
-> Last updated: 2026-05-20
+> Last updated: 2026-06-30 (state-aware event drawer brought up to coach parity — Planned/Request/Awaiting/Finished/Missed; accept/decline on the calendar; rate-on-finish; cancel-with-refund — see "Event drawer" below)
 
 ## Overview
 Athletes use the same Schedule tab as coaches but with a different feature set. Athletes browse coach availability and send booking requests. They cannot create events directly — only request sessions that coaches must approve.
@@ -100,6 +100,23 @@ Athletes and coaches share the **same** `ScheduleView` and `ScheduleViewModel`. 
 | Create custom events | No | Yes |
 | Create events in past | No | Yes |
 | Manage work hours | No | Via settings |
+
+### Event drawer — states & actions (2026-06-30)
+
+Tapping an event opens a **unified, state-aware bottom drawer** — the athlete-side mirror of the coach's `cal-event-sheet`. It reuses the **canonical** status grammar (`fit-ui.css` `.fit-cal-event.request / .awaiting / .missed / .finished` tile tints + `.fit-cal-event-pill--*` pills) and the canonical `data-event-state` + `.fit-sheet-footer-variant` mechanism — shared verbatim with the coach calendar. **Accept/Decline happens right on the calendar** (no deep-link into the Inbox); the same action also lives in the Inbox "To reply" tab (`dashboard.html#s-notifications`) — the calendar is the time-view shortcut. See [event-statuses.md](./event-statuses.md) for the shared 6-state system.
+
+| State | Tile | Drawer descriptor + pill | Footer actions |
+|---|---|---|---|
+| **Planned** | teal/blue, no pill | "Confirmed session" | Message coach · **Cancel** → cancel-with-refund sheet |
+| **Request** (incoming — coach scheduled, athlete must respond) | yellow tint + "Request" pill | "Coach invited you" | **Decline / Accept** (inline) |
+| **Awaiting** (outgoing — athlete requested, waiting on coach) | gray + "Awaiting" pill | "Waiting for coach" + expiry note ("Expires in 22h — auto-cancelled & refunded", the 48h window) | **Cancel request** |
+| **Finished** | faded (opacity 0.5), no pill | "Completed" | **Rate this session** → star sheet |
+| **Missed** | red tint + "Missed" pill | "Missed — no-show" | Book again |
+
+- **Cancel-with-refund:** free cancellation up to **24h** before → amount returned to balance; within 24h a policy warning is shown (may be non-refundable per the coach's policy). See [payments.md](payments.md).
+- **Rate vs review:** the Finished footer gives a quick **star rating** only. The written **review** is prompted by a **separate follow-up notification the day after the athlete's first session** (notifications-catalog), not from the calendar.
+- **Coach-confirmed note:** when the coach proxied the athlete's Accept after an offline agreement (status `coach_confirmed`), a Planned event shows an informational blue note (transparency without push).
+- **Cross-role events:** when the user is also a coach, their own coaching sessions appear as muted dashed-stripe tiles with a "Coach" tag → read-only drawer + **Switch to coach**.
 
 ## Athlete Booking Flow
 
