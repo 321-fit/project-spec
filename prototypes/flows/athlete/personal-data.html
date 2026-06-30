@@ -726,6 +726,7 @@
   <button onclick="go('s-city-select',this)">Home City</button>
   <button onclick="go('s-lang-select',this)">Languages</button>
   <button onclick="go('s-personal-data',this);setTimeout(openDobPicker,100);">DOB Picker</button>
+  <button onclick="go('s-personal-data',this);setTimeout(function(){openHwPicker('height')},100);">Height / Weight Picker</button>
   <div class="label">Other modules</div>
   <button onclick="window.location.href='./settings.html'">← Back to Settings</button>
   </div>
@@ -818,6 +819,15 @@
       <span class="fit-input-label">Date of birth</span>
       <div class="fit-input" style="cursor:pointer;" onclick="openDobPicker()"><span id="pd-dob-value" style="color:var(--fit-text-placeholder);">Select your date of birth</span><span class="fit-input-chevron" style="margin-left:auto;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
       <div class="fit-input-error-text" id="pd-dob-error" style="display:none;margin-top:6px;color:var(--fit-red-400);font-size:13px;line-height:1.4;">Must be 13 or older</div>
+    </div>
+    <!-- Athlete-only: Height + Weight (metric, kg/cm) -->
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Height</span>
+      <div class="fit-input" style="cursor:pointer;" data-a11y-id="athlete.personal-data.height" onclick="openHwPicker('height')"><span id="pd-height-value" style="color:var(--fit-text-primary);">180 cm</span><span class="fit-input-chevron" style="margin-left:auto;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Weight</span>
+      <div class="fit-input" style="cursor:pointer;" data-a11y-id="athlete.personal-data.weight" onclick="openHwPicker('weight')"><span id="pd-weight-value" style="color:var(--fit-text-primary);">75 kg</span><span class="fit-input-chevron" style="margin-left:auto;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
     </div>
   </div><!-- /.pd-fs-content -->
   </div>
@@ -940,6 +950,21 @@
       <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
         <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="confirmDobPicker()">Set</button>
         <button style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="closeSheet('dob-picker-sheet')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Height / Weight single-wheel picker (metric) — reuses the .avail-tp-wheel infra -->
+  <div class="fit-sheet-overlay" id="hw-picker-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title" id="hw-sheet-title">Height</div>
+      <div class="avail-tp-wheels" style="gap:0;justify-content:center;">
+        <div class="avail-tp-wheel" id="hw-wheel" style="flex:0 1 140px;max-width:140px;"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
+        <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="confirmHwPicker()">Set</button>
+        <button style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="closeSheet('hw-picker-sheet')">Cancel</button>
       </div>
     </div>
   </div>
@@ -1197,7 +1222,7 @@
       <button onclick="pdSimulateInvalid('dob')">DOB invalid (&lt;13)</button>
       <button onclick="pdSimulateUploadError('avatar')">Avatar upload error</button>
     </div>
-    <p><strong>Athlete personal data</strong>, edited from Settings. Cloned from the coach screen but <strong>without the intro video + cover image</strong> (those are coach public-profile media). Avatar + text fields + selectors are identical. <em>Per <code>project_personal_data_selectors</code> athletes also have Height/Weight (kg/cm) — not added here yet.</em></p>
+    <p><strong>Athlete personal data</strong>, edited from Settings. Cloned from the coach screen but <strong>without the intro video + cover image</strong> (those are coach public-profile media). Adds athlete-only <strong>Height + Weight</strong> (metric kg/cm, single-wheel pickers). Avatar + the rest of the fields are identical to coach.</p>
 
     <p><strong>Fields</strong></p>
     <ul>
@@ -1207,6 +1232,7 @@
       <li><strong>Dropdowns:</strong> Time Zone / Home Country / Languages — all full-screen push, device-detected pre-fill at onboarding.</li>
       <li><strong>Gender:</strong> Woman / Man chips, single-select. Used for athlete-side filter in Discovery.</li>
       <li><strong>DOB</strong> — 3-wheel sheet (Day/Month/Year), year capped at <code>currentYear − 13</code>; strict <code>≥ 13y</code> on Set — inline red banner in sheet. Prod = <code>UIDatePicker .compact</code> (iOS) / <code>MaterialDatePicker</code> (Android).</li>
+      <li><strong>Height / Weight</strong> (athlete-only) — metric <strong>kg/cm</strong>, single-wheel pickers (Height 120–220 cm, Weight 30–200 kg). Coach screen omits these. Prod = native wheel (SwiftUI <code>Picker</code> / Material). Per <code>project_personal_data_selectors</code> (metric-only).</li>
     </ul>
 
     <hr>
@@ -1809,6 +1835,35 @@ function availTpReadWheel(wheel) {
     if (dist < closestDist) { closestDist = dist; closest = item; }
   });
   return closest ? closest.dataset.val : null;
+}
+
+// --- Height / Weight single-wheel picker (metric kg/cm) ---
+var hwKind = 'height';
+function openHwPicker(kind) {
+  hwKind = kind;
+  var wheel = document.getElementById('hw-wheel');
+  var unit = kind === 'height' ? 'cm' : 'kg';
+  var min = kind === 'height' ? 120 : 30;
+  var max = kind === 'height' ? 220 : 200;
+  document.getElementById('hw-sheet-title').textContent = kind === 'height' ? 'Height' : 'Weight';
+  var pad = '<div class="avail-tp-wheel-pad"></div>';
+  var html = pad;
+  for (var v = min; v <= max; v++) html += '<div class="avail-tp-wheel-item" data-val="' + v + '">' + v + ' ' + unit + '</div>';
+  html += pad;
+  wheel.innerHTML = html;
+  var valEl = document.getElementById(kind === 'height' ? 'pd-height-value' : 'pd-weight-value');
+  var cur = parseInt((valEl.textContent || '').replace(/[^0-9]/g, ''), 10) || (kind === 'height' ? 175 : 70);
+  document.getElementById('hw-picker-sheet').classList.add('visible');
+  requestAnimationFrame(function() { availTpScrollTo(wheel, String(cur)); });
+}
+function confirmHwPicker() {
+  var v = availTpReadWheel(document.getElementById('hw-wheel'));
+  if (v) {
+    var unit = hwKind === 'height' ? 'cm' : 'kg';
+    document.getElementById(hwKind === 'height' ? 'pd-height-value' : 'pd-weight-value').textContent = v + ' ' + unit;
+    if (typeof pdMarkDirty === 'function') pdMarkDirty('pd');
+  }
+  closeSheet('hw-picker-sheet');
 }
 
 function confirmTimePicker() {
