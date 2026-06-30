@@ -1,9 +1,10 @@
 # Sport Picker (Coach & Athlete)
 
 > Status: Draft
-> Prototype: [flows/coach/settings.html#s-sport-types](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html#s-sport-types)
+> Prototype (coach): [flows/coach/sport-types.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/sport-types.html)
+> Prototype (athlete): [flows/athlete/sport-types.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/sport-types.html) — built 2026-06-30
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-12
+> Last updated: 2026-06-30 (athlete variant built — closed list, no custom-sport creation)
 > Implementation:
 > - iOS:     [321fit_ios/docs/sport-picker-ios.md] (to be created)
 > - Backend: [poly-backend/docs/sport-picker-backend.md] (to be created)
@@ -11,6 +12,8 @@
 > - Android: [321fit_android/docs/sport-picker-android.md] (when available)
 
 **Scope note:** this spec covers the **shared sport selection component** used by both coach (sports I teach) and athlete (sports I practice). The taxonomy itself (closed list of 33 sports across 8 sections) is canonical — same data on every screen that touches sports.
+
+**Role difference (custom sports):** the grid, sections, search, multi-select and Save are identical for both roles. The **athlete picks from the closed list only — no custom-sport creation**. The **coach** screen adds a gated "Create custom sport" path (private to the coach until a moderator promotes it to the shared pool). So the "closed list, no free-text" rule below holds verbatim for athletes; for coaches it's relaxed via the moderated custom flow. Athlete prototype: `athlete/sport-types.html`.
 
 ---
 

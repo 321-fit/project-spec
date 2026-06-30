@@ -3,7 +3,7 @@
 > Status: Draft
 > Prototype (coach): [flows/coach/settings.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html)
 > Prototype (athlete): [flows/athlete/settings.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/settings.html)
-> Last updated: 2026-06-05 (athlete Settings landed — trimmed analog of coach; Balance → athlete spending screen)
+> Last updated: 2026-06-30 (athlete settings sub-modules unblocked — Personal Data / Sport Types / Calendar Sync cloned from coach, wired from Settings + hub). Earlier: 2026-06-05 athlete Settings landed.
 
 ## Overview
 
@@ -59,10 +59,10 @@ Reached via the **gear** on the athlete Profile tab → `settings.html`. Same `.
 
 | Section | Item | Subtitle | Destination |
 |---|---|---|---|
-| Profile | Edit personal info | Avatar, name, gender, height, weight | Personal Data (athlete variant — **TBD**, stubbed) |
+| Profile | Edit personal info | Avatar, name, gender, height, weight | [personal-data.md](./personal-data.md) — `athlete/personal-data.html` (**built 2026-06-30**) |
 | Profile | Invite a friend | Recommend the app to a friend | placeholder (referral on hold — [invite-coach.md](./invite-coach.md), memory `project_invite_a_coach`) |
-| Training | Choose a sport | Basketball, Tennis | [sport-picker.md](./sport-picker.md) (shared `sport-types.html`) |
-| Training | Calendar Sync | Google connected | [calendar-sync.md](./calendar-sync.md) |
+| Training | Choose a sport | Basketball, Tennis | [sport-picker.md](./sport-picker.md) — `athlete/sport-types.html` (**built 2026-06-30**) |
+| Training | Calendar Sync | Google connected | [calendar-sync.md](./calendar-sync.md) — `athlete/calendar-sync.html` (**built 2026-06-30**) |
 | Payments | Balance | €240.00 | [payments.md](./payments.md) — athlete Balance screen (`balance.html`) |
 | Account | Account Access | Login and security | [account-access.md](./account-access.md) (shared) |
 | (footer) | Log out | — | inline action → "Signed out" toast |
@@ -74,6 +74,8 @@ Reached via the **gear** on the athlete Profile tab → `settings.html`. Same `.
 - ➕ **Choose a sport** surfaced here (coach edits sports inline on Profile; athlete has no public profile storefront, so the sport edit lives in Settings + the Profile "My sports" pencil)
 
 Athlete-side Personal Data **does include** body metrics (weight + height in kg/cm). Coach-side intentionally omits them — see [personal-data.md § 10](./personal-data.md).
+
+**2026-06-30 — athlete settings sub-modules unblocked.** Three screens were cloned from coach into the athlete folder + wired from Settings (and the prototype hub): `athlete/personal-data.html` (drops the coach intro video + cover image, adds Height/Weight kg/cm wheel pickers), `athlete/sport-types.html` (closed list only — **no custom-sport creation**, which is coach-only), `athlete/calendar-sync.html` (same as coach). Light theme. They were previously stubbed / pointing at the coach screens.
 
 ## UI Components
 

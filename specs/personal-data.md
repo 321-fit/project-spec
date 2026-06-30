@@ -1,9 +1,10 @@
-# Personal Data (Coach)
+# Personal Data (Coach + Athlete)
 
 > Status: Draft
-> Prototype: [flows/coach/personal-data.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/personal-data.html)
+> Prototype (coach): [flows/coach/personal-data.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/personal-data.html)
+> Prototype (athlete): [flows/athlete/personal-data.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/personal-data.html) — built 2026-06-30
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-05-12
+> Last updated: 2026-06-30 (athlete variant built — see § 1)
 > Implementation:
 > - iOS:     [321fit_ios/docs/personal-data-ios.md] (to be created)
 > - Backend: [poly-backend/docs/profile-api.md] (to be created)
@@ -11,7 +12,7 @@
 
 **Scope note:** this spec covers the **coach-side** Personal Data screen reached from Settings root → Edit personal info. Same screen is used for the data points surfaced on the public coach profile (`coach-profile.md`) plus private operational fields (TZ, country, city, languages, DOB, gender).
 
-Athlete-side personal data uses the same component patterns but **adds** body metrics (weight + height) — covered in athlete-side spec when built. Coach side intentionally omits body metrics (not needed for marketplace function — see § 10).
+**Athlete variant (`athlete/personal-data.html`, built 2026-06-30):** same screen + component patterns, with two role differences — it **adds** body metrics **Height + Weight** (metric kg/cm, single-wheel pickers, placed after DOB) and **omits the coach public-profile media** (intro video + cover image). Avatar + all other fields (name, About, TZ, country, city, languages, gender, DOB) are identical. Light theme. Coach side intentionally omits body metrics (not needed for marketplace function — see § 10).
 
 ---
 

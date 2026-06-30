@@ -1,12 +1,13 @@
 # Calendar Sync
 
 > Status: Draft
-> Prototype: [settings.html](https://321-fit.github.io/project-spec/prototypes/flows/settings.html) ([source](https://321-fit.github.io/project-spec/prototypes/flows/settings.html))
-> Last updated: 2026-04-13
+> Prototype (coach): [flows/coach/calendar-sync.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar-sync.html)
+> Prototype (athlete): [flows/athlete/calendar-sync.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/calendar-sync.html) — built 2026-06-30 (same as coach, light theme)
+> Last updated: 2026-06-30 (athlete prototype built — identical to coach)
 
 ## Overview
 
-External calendar integration for syncing events bidirectionally. Supports Google Calendar (OAuth) and Apple Calendar (CalDAV). Available for both Coach and Athlete roles. Shared connection — one account serves both roles.
+External calendar integration for syncing events bidirectionally. Supports Google Calendar (OAuth) and Apple Calendar (CalDAV). Available for both Coach and Athlete roles. Shared connection — one account serves both roles. The athlete screen (`athlete/calendar-sync.html`) is identical to the coach's — same connect/conflict-check/write-target flow, light theme.
 
 ## Screens
 
