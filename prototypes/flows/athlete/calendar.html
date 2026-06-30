@@ -227,9 +227,16 @@
     
   <div class="label">Athlete Calendar</div>
   <button class="active" onclick="go('s-schedule',this)">My Schedule</button>
-  <div class="label">Sheets / drawers</div>
+  <div class="label">Event drawer · states</div>
+  <button onclick="go('s-schedule',this);openAthEvent('planned')">Planned</button>
+  <button onclick="go('s-schedule',this);openAthEvent('request')">Request · accept/decline</button>
+  <button onclick="go('s-schedule',this);openAthEvent('awaiting')">Awaiting</button>
+  <button onclick="go('s-schedule',this);openAthEvent('finished')">Finished · rate</button>
+  <button onclick="go('s-schedule',this);openAthEvent('missed')">Missed</button>
+  <button onclick="go('s-schedule',this);previewCoachConfirmedSheet()">Coach-confirmed note</button>
+  <div class="label">Other sheets</div>
   <button onclick="go('s-schedule',this);document.getElementById('ath-cross-role-sheet').classList.add('visible')">Cross-role drawer</button>
-  <button onclick="go('s-schedule',this);previewCoachConfirmedSheet()">Event sheet · Coach-confirmed</button>
+  <button onclick="go('s-schedule',this);document.getElementById('ath-cancel-sheet').classList.add('visible')">Cancel · refund</button>
   </div>
   <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
     <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
@@ -294,8 +301,18 @@
         <!-- Current time line -->
         <div class="fit-now-line" style="top:270px;"><div class="fit-now-dot"></div></div>
 
-        <!-- 10:00-11:00 group — Standard tier (3 rows) -->
-        <div class="fit-cal-event fit-cal-event-group" data-fit-longpress data-fit-sheet="ath-event-sheet" style="top:240px;height:60px;">
+        <!-- 07:00-08:00 personal FINISHED (past, faded) → tap = Rate -->
+        <div class="fit-cal-event fit-cal-event-personal finished" onclick="openAthEvent('finished')" style="top:60px;height:60px;cursor:pointer;">
+          <div class="fit-cal-event-title">Strength Training</div>
+          <div class="fit-cal-event-meta">with Coach Sarah L. · 07:00 – 08:00</div>
+          <div class="fit-cal-event-loc">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            Wellness Studio
+          </div>
+        </div>
+
+        <!-- 10:00-11:00 group PLANNED (confirmed) -->
+        <div class="fit-cal-event fit-cal-event-group" onclick="openAthEvent('planned')" style="top:240px;height:60px;cursor:pointer;">
           <div class="fit-cal-event-title">HIIT Group Session</div>
           <div class="fit-cal-event-meta">with Coach John M. · 10:00 – 11:00</div>
           <div class="fit-cal-event-loc">
@@ -304,9 +321,12 @@
           </div>
         </div>
 
-        <!-- 12:00-13:00 personal — Standard tier (3 rows) -->
-        <div class="fit-cal-event fit-cal-event-personal" data-fit-longpress data-fit-sheet="ath-event-sheet" style="top:360px;height:60px;">
-          <div class="fit-cal-event-title">Basketball Training</div>
+        <!-- 12:00-13:00 personal REQUEST (incoming — coach scheduled, athlete must Accept/Decline) -->
+        <div class="fit-cal-event fit-cal-event-personal request" onclick="openAthEvent('request')" style="top:360px;height:60px;cursor:pointer;">
+          <div class="fit-cal-event-title-row">
+            <span class="fit-cal-event-title">Basketball Training</span>
+            <span class="fit-cal-event-pill fit-cal-event-pill--request">Request</span>
+          </div>
           <div class="fit-cal-event-meta">with Coach John M. · 12:00 – 13:00</div>
           <div class="fit-cal-event-loc">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
@@ -314,9 +334,12 @@
           </div>
         </div>
 
-        <!-- 17:00-18:00 personal — Standard tier (3 rows) -->
-        <div class="fit-cal-event fit-cal-event-personal" data-fit-longpress data-fit-sheet="ath-event-sheet" style="top:660px;height:60px;">
-          <div class="fit-cal-event-title">Yoga Private</div>
+        <!-- 17:00-18:00 personal AWAITING (outgoing — athlete requested, waiting on coach) -->
+        <div class="fit-cal-event fit-cal-event-personal awaiting" onclick="openAthEvent('awaiting')" style="top:660px;height:60px;cursor:pointer;">
+          <div class="fit-cal-event-title-row">
+            <span class="fit-cal-event-title">Yoga Private</span>
+            <span class="fit-cal-event-pill fit-cal-event-pill--awaiting">Awaiting</span>
+          </div>
           <div class="fit-cal-event-meta">with Coach Sarah L. · 17:00 – 18:00</div>
           <div class="fit-cal-event-loc">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
@@ -411,36 +434,109 @@
     </div>
   </div>
 
-  <!-- Athlete event sheet (no reschedule/cancel — just view) -->
-  <!-- Event action sheet -->
-  <div class="fit-sheet-overlay" id="ath-event-sheet" data-event-status="regular">
-    <div class="fit-sheet" style="padding:8px 16px 40px;">
+  <!-- Athlete event sheet — unified, 5 states via data-event-state (mirrors the
+       coach cal-event-sheet pattern + canonical .fit-sheet-footer-variant). -->
+  <div class="fit-sheet-overlay" id="ath-event-sheet">
+    <div class="fit-sheet" id="ath-event-body" data-event-state="planned" style="padding:8px 16px 40px;">
       <div class="fit-sheet-handle"></div>
+      <!-- Status header: descriptor + optional pill -->
+      <div class="fit-sheet-status-header">
+        <div class="fit-sheet-descriptor" id="ath-ev-descriptor">Confirmed session</div>
+        <span class="fit-cal-event-pill" id="ath-ev-pill" style="display:none;"></span>
+      </div>
 
-      <!-- Coach-confirmed inline note — shown only when event was confirmed by coach on behalf of athlete.
-           Transparency without push: athlete sees this when they next open the event sheet. -->
-      <div data-coach-confirmed-note style="display:none;margin:6px 0 12px;padding:12px 14px;background:rgba(3,178,226,0.10);border-radius:12px;display:flex;gap:10px;align-items:flex-start;">
+      <!-- Awaiting-only: expiry note -->
+      <div class="ev-await-only" style="display:none;margin:0 0 16px;padding:12px 14px;background:rgba(222,145,29,0.10);border-radius:12px;align-items:flex-start;gap:10px;">
+        <svg style="width:18px;height:18px;flex-shrink:0;margin-top:1px;color:var(--fit-yellow-600);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        <span style="font-size:13px;color:var(--fit-text-secondary);line-height:1.45;">Waiting for the coach to confirm. <strong style="color:var(--fit-text-primary);">Expires in 22h</strong> — auto-cancelled &amp; refunded if no response.</span>
+      </div>
+
+      <!-- Coach-confirmed inline note — planned only, shown when coach proxied the accept offline -->
+      <div class="ev-confirmed-note" style="display:none;margin:0 0 16px;padding:12px 14px;background:rgba(3,178,226,0.10);border-radius:12px;gap:10px;align-items:flex-start;">
         <svg style="width:18px;height:18px;flex-shrink:0;margin-top:1px;color:var(--fit-blue-500);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
         <div style="font-size:13px;color:var(--fit-text-secondary);line-height:1.5;">
           <div style="font-weight:500;color:var(--fit-text-primary);">Confirmed by Coach Mark on your behalf</div>
-          <div style="margin-top:2px;">Mark indicated you agreed to this session offline (Apr 14). Reach out to your coach if this doesn't look right.</div>
+          <div style="margin-top:2px;">Mark indicated you agreed to this session offline (Apr 14). Reach out if this doesn&rsquo;t look right.</div>
         </div>
       </div>
 
-      <div class="fit-sheet-item" data-action="view"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg> View Details</div>
-      <div style="margin-top:12px;">
-        <button style="width:100%;height:50px;border:none;border-radius:99px;background:rgba(240,92,91,0.15);color:var(--fit-red-400);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('ath-event-sheet').classList.remove('visible')">Cancel Registration</button>
+      <!-- Coach avatar + name (tap → coach profile) -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;cursor:pointer;" onclick="window.location.href='../shared/profile.html'">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;" id="ath-ev-av">JM</div>
+        <div style="flex:1;"><div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);" id="ath-ev-coach">Coach John M.</div></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+
+      <!-- Event info -->
+      <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);margin-bottom:12px;" id="ath-ev-title">HIIT Group Session</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        <span id="ath-ev-time">Thu, Apr 10 · 10:00 – 11:00</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          <span id="ath-ev-loc">TNT Studio</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);" id="ath-ev-price">&euro;25</span>
+          <span class="fit-badge fit-badge-neutral" id="ath-ev-method">Balance</span>
+        </div>
+      </div>
+
+      <!-- Footer variants — one visible per data-event-state -->
+      <div class="fit-sheet-footer-variant ev-planned">
+        <button style="width:50px;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" aria-label="Message coach" onclick="window.location.href='../shared/messages.html'">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </button>
+        <button class="fit-btn fit-btn-destructive" style="flex:1;height:50px;font-size:16px;" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');document.getElementById('ath-cancel-sheet').classList.add('visible');">Cancel</button>
+      </div>
+      <div class="fit-sheet-footer-variant ev-request">
+        <button class="fit-btn fit-btn-destructive" style="flex:1;height:50px;font-size:16px;" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');showAthToast('Request declined')">Decline</button>
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');showAthToast('Session confirmed')">Accept</button>
+      </div>
+      <div class="fit-sheet-footer-variant ev-awaiting">
+        <button style="flex:1;height:50px;border:1px solid var(--fit-red-400);border-radius:99px;background:transparent;color:var(--fit-red-400);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');showAthToast('Request cancelled')">Cancel request</button>
+      </div>
+      <div class="fit-sheet-footer-variant ev-finished">
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');document.getElementById('post-training-sheet').classList.add('visible')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Rate this session
+        </button>
+      </div>
+      <div class="fit-sheet-footer-variant ev-missed">
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');window.location.href='../shared/profile.html'">Book again</button>
       </div>
     </div>
   </div>
 
-  <!-- ===== Coach-confirmed mode CSS for ath-event-sheet ===== -->
+  <!-- Cancel-with-refund sheet (athlete) -->
+  <div class="fit-sheet-overlay" id="ath-cancel-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Cancel this session?</div>
+      <p style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;margin:6px 0 14px;">Free cancellation up to <strong style="color:var(--fit-text-primary);">24h</strong> before. <strong style="color:var(--fit-text-primary);">&euro;25</strong> will be refunded to your balance.</p>
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:18px;padding:10px;background:rgba(222,145,29,0.08);border-radius:8px;">
+        <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-yellow-600)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span style="font-size:12px;color:var(--fit-text-secondary);line-height:1.4;">Within 24h of the session, cancellation may be non-refundable depending on the coach&rsquo;s policy.</span>
+      </div>
+      <button class="fit-btn fit-btn-destructive" style="border-radius:99px;" onclick="document.getElementById('ath-cancel-sheet').classList.remove('visible');showAthToast('Session cancelled · €25 refunded')">Cancel session</button>
+      <button style="width:100%;height:46px;margin-top:8px;background:transparent;border:none;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:15px;font-weight:500;cursor:pointer;" onclick="document.getElementById('ath-cancel-sheet').classList.remove('visible')">Keep it</button>
+    </div>
+  </div>
+
+  <!-- Snackbar -->
+  <div class="fit-snackbar" id="ath-snackbar"><span class="snack-dot"></span><span class="snack-text" id="ath-snack-text">Done</span></div>
+
+  <!-- ===== state-conditional notes inside ath-event-sheet ===== -->
   <style>
-    #ath-event-sheet[data-event-status="coach-confirmed"] [data-coach-confirmed-note] { display: flex !important; }
+    #ath-event-body[data-event-state="awaiting"] .ev-await-only { display: flex !important; }
+    #ath-event-body.is-coach-confirmed[data-event-state="planned"] .ev-confirmed-note { display: flex !important; }
   </style>
 
-  <!-- Post-training feedback sheet (triggered by push or tap on completed event) -->
-  <div class="fit-sheet-overlay visible" id="post-training-sheet" onclick="this.classList.remove('visible')">
+  <!-- Rate sheet — opens from a Finished event's "Rate this session" (the written
+       review is a separate follow-up notification the day after the first session). -->
+  <div class="fit-sheet-overlay" id="post-training-sheet" onclick="this.classList.remove('visible')">
     <div class="fit-sheet" style="background:var(--fit-white);padding:8px 16px 40px;" onclick="event.stopPropagation()">
       <div class="fit-sheet-handle" style="background:var(--fit-gray-200);"></div>
       <div style="text-align:center;padding-top:8px;">
@@ -494,23 +590,26 @@
       <button onclick="setSchedState('loading',this)">Loading</button>
       <button onclick="setSchedState('error',this)">Error</button>
     </div>
-    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Event sheet mode</div>
+    <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Event sheet state</div>
     <div class="state-toggle">
-      <button class="active" onclick="previewRegularEventSheet();this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Regular</button>
-      <button onclick="previewCoachConfirmedSheet();this.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Coach-confirmed</button>
+      <button class="active" onclick="openAthEvent('planned');annPick(this)">Planned</button>
+      <button onclick="openAthEvent('request');annPick(this)">Request</button>
+      <button onclick="openAthEvent('awaiting');annPick(this)">Awaiting</button>
+      <button onclick="openAthEvent('finished');annPick(this)">Finished</button>
+      <button onclick="openAthEvent('missed');annPick(this)">Missed</button>
+      <button onclick="previewCoachConfirmedSheet();annPick(this)">Coach-confirmed</button>
     </div>
-    <p>Same calendar as coach, light theme. <strong>No drag & drop, no FAB.</strong> Post-training feedback as bottom sheet.</p>
+    <p>Same calendar as coach, light theme, <strong>no drag &amp; drop</strong>. The event drawer reuses the coach&rsquo;s <strong>unified state-aware sheet</strong> (<code>data-event-state</code> + canonical <code>.fit-sheet-footer-variant</code> + status pills) — accept/decline happens <strong>right on the calendar</strong> (no deep-link into notifications).</p>
     <ul>
-      <li>Long press → View Details / Cancel Registration</li>
-      <li><strong>Post-training sheet</strong> — opens on push or tap completed event</li>
-      <li>Coach avatar + training name + "Done" badge</li>
-      <li>Star rating (1-5)</li>
-      <li>"Didn't happen? Report issue" link</li>
-      <li>Submit closes sheet</li>
-      <li><strong>Cross-role events</strong> — when the user is also a coach, their coaching sessions appear here as muted dashed-stripe tiles with a "Coach" tag. Tap → read-only drawer + CTA <strong>"Switch to coach"</strong> that flips the active role and reopens the event in its proper coach drawer (with reschedule/cancel/complete).</li>
+      <li><strong>Planned</strong> — confirmed session. Footer: <em>Message coach</em> + <em>Cancel</em> → cancel-with-refund sheet (free up to 24h, &euro; back to balance; within 24h = policy warning).</li>
+      <li><strong>Request</strong> (yellow pill) — <em>coach scheduled this, you must respond</em>. Footer: <strong>Decline / Accept</strong> inline. (Same action also lives in the Inbox &ldquo;To reply&rdquo; tab — calendar is the time-view shortcut, [[project_inbox_unification]].)</li>
+      <li><strong>Awaiting</strong> (gray pill) — <em>you requested, waiting on the coach</em>. Shows an expiry note (&ldquo;Expires in 22h — auto-cancelled &amp; refunded&rdquo;, the 48h window). Footer: <em>Cancel request</em>. Mirror of the Inbox &ldquo;Waiting&rdquo; tab.</li>
+      <li><strong>Finished</strong> (faded) — footer <strong>Rate this session</strong> → star sheet. The written <em>review</em> is a separate follow-up notification the day after the first session (not here).</li>
+      <li><strong>Missed</strong> (red pill) — no-show. Footer: <em>Book again</em>.</li>
+      <li><strong>Coach-confirmed note</strong> — blue note on a Planned event when the coach proxied the Accept offline (<code>coach_confirmed</code>; transparency without push).</li>
+      <li><strong>Cross-role events</strong> — user-as-coach sessions show as muted dashed tiles with a &ldquo;Coach&rdquo; tag → read-only drawer + <strong>Switch to coach</strong>.</li>
     </ul>
-    <h4>Coach-confirmed inline note (NEW 2026-06-02)</h4>
-    <p>When event status = <code>coach_confirmed</code> (coach proxied the athlete's Accept after offline agreement), the event sheet shows an informational blue note above View Details: "Confirmed by Coach &lt;name&gt; on your behalf. Mark indicated you agreed to this session offline (&lt;date&gt;). Reach out to your coach if this doesn't look right." Transparency without push — athlete only sees it next time they open the event. Cash debt activates as normal. <strong>Backend status:</strong> <code>coach_confirmed</code> (separate from regular <code>confirmed</code> for dispute resolution / audit trail).</p>
+    <p class="note">Statuses + pills are canonical (<code>fit-ui.css</code> <code>.fit-cal-event.request/.awaiting/.missed/.finished</code> + <code>.fit-cal-event-pill--*</code>) — shared verbatim with the coach calendar. Spec: <code>event-statuses.md</code> (both roles) + <code>booking-flow.md</code>.</p>
   </div>
 </div>
 
@@ -534,18 +633,43 @@ function switchTheme(theme) {
   });
 }
 
-// Preview the event sheet in coach-confirmed mode (sidebar shortcut + annotation toggle)
-function previewCoachConfirmedSheet() {
-  var sheet = document.getElementById('ath-event-sheet');
-  if (!sheet) return;
-  sheet.setAttribute('data-event-status', 'coach-confirmed');
-  sheet.classList.add('visible');
+// === ATHLETE EVENT SHEET — 5 states (mirrors coach openEventSheet) ===
+var ATH_EVENT_STATES = {
+  planned:  { descriptor: 'Confirmed session',  pill: null,
+              c: { av:'JM', coach:'Coach John M.',  title:'HIIT Group Session',  time:'Thu, Apr 10 · 10:00 – 11:00', loc:'TNT Studio',      price:'€25', method:'Balance' } },
+  request:  { descriptor: 'Coach invited you',   pill: { text:'Request',  mod:'request' },
+              c: { av:'JM', coach:'Coach John M.',  title:'Basketball Training', time:'Thu, Apr 10 · 12:00 – 13:00', loc:'TNT Studio',      price:'€30', method:'Balance' } },
+  awaiting: { descriptor: 'Waiting for coach',   pill: { text:'Awaiting', mod:'awaiting' },
+              c: { av:'SL', coach:'Coach Sarah L.', title:'Yoga Private',        time:'Thu, Apr 10 · 17:00 – 18:00', loc:'Wellness Studio', price:'€40', method:'Balance' } },
+  finished: { descriptor: 'Completed',           pill: null,
+              c: { av:'SL', coach:'Coach Sarah L.', title:'Strength Training',   time:'Thu, Apr 10 · 07:00 – 08:00', loc:'Wellness Studio', price:'€40', method:'Balance' } },
+  missed:   { descriptor: 'Missed — no-show',    pill: { text:'Missed',   mod:'missed' },
+              c: { av:'JM', coach:'Coach John M.',  title:'Basketball Training', time:'Thu, Apr 10 · 12:00 – 13:00', loc:'TNT Studio',      price:'€30', method:'Balance' } }
+};
+function openAthEvent(state, opts) {
+  var s = ATH_EVENT_STATES[state]; if (!s) return;
+  var body = document.getElementById('ath-event-body');
+  body.dataset.eventState = state;
+  body.classList.toggle('is-coach-confirmed', !!(opts && opts.coachConfirmed));
+  document.getElementById('ath-ev-descriptor').textContent = s.descriptor;
+  var pill = document.getElementById('ath-ev-pill');
+  if (s.pill) { pill.textContent = s.pill.text; pill.className = 'fit-cal-event-pill fit-cal-event-pill--' + s.pill.mod; pill.style.display = ''; }
+  else { pill.style.display = 'none'; }
+  var set = function(id, v){ var e=document.getElementById(id); if(e) e.textContent=v; };
+  set('ath-ev-av', s.c.av); set('ath-ev-coach', s.c.coach); set('ath-ev-title', s.c.title);
+  set('ath-ev-time', s.c.time); set('ath-ev-loc', s.c.loc); set('ath-ev-price', s.c.price); set('ath-ev-method', s.c.method);
+  document.getElementById('ath-event-sheet').classList.add('visible');
 }
-function previewRegularEventSheet() {
-  var sheet = document.getElementById('ath-event-sheet');
-  if (!sheet) return;
-  sheet.setAttribute('data-event-status', 'regular');
-  sheet.classList.add('visible');
+// Sidebar / annotation shortcut: planned + coach-confirmed note
+function previewCoachConfirmedSheet() { openAthEvent('planned', { coachConfirmed: true }); }
+function annPick(btn){ btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); }
+
+var _athSnackTimer;
+function showAthToast(msg) {
+  var sn = document.getElementById('ath-snackbar'), t = document.getElementById('ath-snack-text');
+  if (t) t.textContent = msg; if (!sn) return;
+  sn.classList.add('show'); clearTimeout(_athSnackTimer);
+  _athSnackTimer = setTimeout(function(){ sn.classList.remove('show'); }, 1800);
 }
 
 // Schedule day-state preview (default / empty / loading / error) — annotation toggle
