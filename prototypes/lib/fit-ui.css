@@ -2882,3 +2882,94 @@ svg.i-sm { width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;
 .fit-detail-hero-amt.plus { color: var(--fit-teal-500); }
 .fit-detail-hero-amt.minus { color: var(--fit-text-primary); }
 .fit-detail-hero-sub { font-size: 14px; color: var(--fit-text-tertiary); }
+
+/* =========================================================================
+   Reuse-audit extractions (2026-06-30) — prototype CSS only.
+   Native parity (Swift + Compose + components.md) PENDING — see
+   project memory `audit_remaining` + design-system.md "Pending component extractions".
+   ========================================================================= */
+
+/* --- FitSheetActionRow: rich 2-line action row inside a bottom sheet
+   (icon-box + title + subtitle). Extracted from the cash-settlement drawer
+   duplicated byte-identical across clients/balance/balance-v2/dashboard. --- */
+.fit-sheet-action-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px;
+  background: var(--fit-surface-high);
+  border-radius: 14px;
+  cursor: pointer; text-align: left;
+  width: 100%; border: none;
+  font-family: var(--fit-font);
+}
+.fit-sheet-action-row + .fit-sheet-action-row { margin-top: 8px; }
+.fit-sheet-action-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--fit-surface-higher); color: var(--fit-text-secondary);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.fit-sheet-action-row.primary .fit-sheet-action-icon { background: rgba(5,224,166,0.12); color: var(--fit-teal-500); }
+.fit-sheet-action-row.destructive .fit-sheet-action-icon { background: rgba(240,92,91,0.14); color: var(--fit-red-400); }
+.fit-sheet-action-body { flex: 1; min-width: 0; }
+.fit-sheet-action-title { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
+.fit-sheet-action-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; line-height: 1.4; }
+
+/* --- FitBanner: inline info/warn/error notice (icon + body + optional
+   title/link/retry). Generalizes earn-banner / avail-banner / stripe-banner /
+   *-error-banner. `.fit-inline-error` is the legacy error-only subset (kept for
+   compat; migrate to `.fit-banner.fit-banner--error` opportunistically). --- */
+.fit-banner {
+  margin: 0 16px 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  display: flex; gap: 12px; align-items: flex-start;
+  font-size: 14px; line-height: 1.4;
+  color: var(--fit-text-primary);
+}
+.fit-banner svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+.fit-banner--info  { background: rgba(3,178,226,0.08); border: 1px solid rgba(3,178,226,0.22); }
+.fit-banner--info svg  { color: var(--fit-blue-500); }
+.fit-banner--warn  { background: rgba(247,201,72,0.08); border: 1px solid rgba(247,201,72,0.3); }
+.fit-banner--warn svg  { color: #F7C948; }
+.fit-banner--error { background: rgba(240,92,91,0.08); border: 1px solid rgba(240,92,91,0.2); color: var(--fit-red-400); }
+.fit-banner--error svg { color: var(--fit-red-400); }
+.fit-banner-body  { flex: 1; }
+.fit-banner-title { font-weight: 500; margin-bottom: 2px; }
+.fit-banner-link  { color: inherit; text-decoration: underline; font-weight: 500; cursor: pointer; }
+.fit-banner-retry { font-family: var(--fit-font); font-size: 13px; font-weight: 500; color: inherit; background: transparent; border: none; cursor: pointer; padding: 4px 8px; margin: -4px -8px -4px auto; }
+
+/* --- FitSwiper: horizontal snap track + dot indicators. Card sizing
+   (flex-basis + scroll-snap-align) stays on the page-local card (e.g.
+   `.earn-card`). Extracted from the balance Cash/Card swiper (4 copies). --- */
+.fit-swiper { position: relative; }
+.fit-swiper-track {
+  display: flex; gap: 12px;
+  padding: 0 16px;
+  scroll-padding-inline: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.fit-swiper-track::-webkit-scrollbar { display: none; }
+.fit-swiper-dots { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
+.fit-swiper-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--fit-text-tertiary); opacity: 0.35; cursor: pointer; transition: opacity 0.15s, transform 0.15s; }
+.fit-swiper-dots span.active { opacity: 1; transform: scale(1.25); }
+
+/* --- FitRequestCard (shell): inbox request/invite card frame + identity head
+   (44px avatar + name + sub). Extracted from the fully-inline req-card
+   duplicated across coach/athlete dashboards (9 instances). Adds the
+   light-theme soft shadow the inline copies lacked. Variant-specific inner
+   content (meta row, action buttons) stays page-local. Keep the `req-card`
+   class alongside as the JS hook (`closest('.req-card')`). --- */
+.fit-request-card {
+  margin: 0 16px 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--fit-surface-high);
+  transition: opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;
+}
+.fit-light .fit-request-card { box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+.fit-request-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; cursor: pointer; }
+.fit-request-card-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--fit-surface-higher); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 500; color: var(--fit-text-secondary); flex-shrink: 0; }
+.fit-request-card-name { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
+.fit-request-card-sub { font-size: 12px; color: var(--fit-text-tertiary); }
