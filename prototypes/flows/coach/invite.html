@@ -1030,14 +1030,19 @@ function gpPublishClick() {
 function gpOpenReview() {
   document.getElementById('gp-config').style.display = 'none';
   document.getElementById('gp-review').style.display = 'block';
+  // Review is short — size to content (medium detent). gp-tall (92%) is only for the calendar.
   var sheet = document.querySelector('#group-publish-sheet .fit-sheet');
-  if (sheet) { sheet.classList.add('gp-tall'); sheet.scrollTop = 0; }
+  if (sheet) { sheet.classList.remove('gp-tall'); sheet.scrollTop = 0; }
   gpReviewRecount();
 }
 
 function gpBackToConfig() {
   document.getElementById('gp-review').style.display = 'none';
   document.getElementById('gp-config').style.display = 'block';
+  // Restore the large detent only if On date (inline calendar) was active.
+  var onDate = !!document.querySelector('#gp-ends-toggle .fit-selection-chip.selected[data-value="on-date"]');
+  var sheet = document.querySelector('#group-publish-sheet .fit-sheet');
+  if (sheet) sheet.classList.toggle('gp-tall', onDate);
 }
 
 // Own-calendar conflict is always skipped; external can be kept → recompute published count.
