@@ -249,20 +249,22 @@ Same calendar as coach but light theme.
 
 ### New/Modified Tables
 
-**training_session (modified)**
+> **DECOUPLED 2026-07-01.** The template holds **no schedule** — drop `recurring_days` / `recurring_time` / `is_recurring` from `training_session`. Recurrence lives on the **event/placement** via the existing `training_event.recurrence_pattern` / `recurrence_pattern_end_date` / `recurrence_description` columns.
+
+**training_session (modified)** — group definition only
 | Field | Type | Description |
 |---|---|---|
 | is_group | boolean | false = personal, true = group |
 | max_participants | int, nullable | max athletes (group only) |
 | min_participants | int, nullable | min threshold (group only, optional) |
-| recurring_days | array[int], nullable | days of week 0-6 (group recurring) |
-| recurring_time | time, nullable | start time for recurring events |
-| is_recurring | boolean | true = auto-generate events |
 
-**training_event (modified)**
+**training_event (modified)** — carries the schedule/recurrence
 | Field | Type | Description |
 |---|---|---|
-| is_group_event | boolean | derived from session.is_group |
+| is_group_event | boolean | derived from session.is_group at placement time |
+| recurrence_pattern | text, nullable | **existing col** — `weekly` + day-of-week set; null = one-off |
+| recurrence_pattern_end_date | date, nullable | **existing col** — `Ends: On date`; null = ongoing |
+| recurrence_description | string, nullable | **existing col** — human-readable ("Tue & Thu · 09:00") |
 | override_datetime | datetime, nullable | for rescheduled individual recurring events |
 | cancelled_from_recurring | boolean | true if cancelled but chain continues |
 
@@ -283,13 +285,15 @@ Same calendar as coach but light theme.
 
 ## API Endpoints
 
-### New Endpoints
+> **DECOUPLED 2026-07-01.** Template create no longer generates events. Scheduling is a **separate** call (preview → commit) so the coach can review overlap conflicts before publishing. Recurrence lives on the **event/placement** (`training_event.recurrence_pattern` / `recurrence_pattern_end_date` / `recurrence_description` — already in schema), **not** on the template.
 
 | Method | Path | Description |
 |---|---|---|
 | GET | `/coach/group-templates/` | List coach's group training templates |
-| POST | `/coach/group-templates/` | Create group template + auto-generate events |
-| GET | `/coach/group-templates/{id}/events/` | List events for a template |
+| POST | `/coach/group-templates/` | Create group template **only** (no events; max/min participants) |
+| POST | `/coach/group-templates/{id}/schedule/preview/` | **NEW** — dry-run: given start datetime + recurrence (`once`/`weekly` + days + ends `ongoing`/`on_date`), return occurrences in the 60-day window + conflicts split `own` (hard-skip) / `external` (soft) |
+| POST | `/coach/group-templates/{id}/schedule/` | **NEW** — commit a placement: same payload + `keep_external_dates[]` → generate events skipping own conflicts + non-kept external → returns created + skipped |
+| GET | `/coach/group-templates/{id}/events/` | List events (placements) for a template |
 | GET | `/athlete/coaches/{id}/group-trainings/` | Group templates on coach profile |
 | GET | `/athlete/group-events/{id}/` | Group event detail with participants |
 | POST | `/athlete/group-events/{id}/join/` | Join group training |
@@ -463,7 +467,7 @@ All bottom sheets in the app follow these spacing and interaction rules:
 - Only for overridden events, not for the regular recurring instances
 
 ### Special Badge (one-off events)
-- Determined by `is_recurring == false` on template — no separate field needed
+- Determined per **placement**: `training_event.recurrence_pattern IS NULL` (one-off `Just this date`) → "Special". Recurring placements have a non-null pattern. *(No template-level recurrence flag post-decouple.)*
 - Coach profile: one-off template card gets "Special" badge (brand cyan bg, small text) + subtle brand border highlight on the card
 - Calendar: one-off events look the same as recurring (no special indicator on timeline)
 
@@ -493,15 +497,15 @@ The delete sheet (Keep existing / Cancel all + warning + refund count) is docume
 
 ## Data Model Notes
 
-### One-off vs Recurring
-- No separate `is_one_off` field — determined by `is_recurring == false`
-- "Special" badge is a UI-only concept, derived from data
+### One-off vs Recurring (per placement, post-decouple)
+- Determined per **placement/event**, not the template: `training_event.recurrence_pattern IS NULL` = one-off (`Just this date`), non-null = recurring (`Weekly`)
+- "Special" badge is a UI-only concept derived from this
+- One template → many placements (each its own pattern)
 
-### Recurring Days Storage
-- V1: `recurring_days` as `array[int]` (0=Mon, 6=Sun) on `training_session` table
-- Sufficient for "every Tue & Thu" patterns
-- If future versions need complex recurrence (bi-weekly, monthly, specific dates), consider migrating to separate `recurrence_rule` table or RFC 5545 RRULE format
-- Final implementation decision deferred to backend engineer
+### Recurring Storage
+- Recurrence lives on the **event/placement** via existing `training_event` cols: `recurrence_pattern` (weekly + day-of-week set), `recurrence_pattern_end_date` (`Ends: On date`; null = ongoing), `recurrence_description` (human-readable)
+- V1 = **Weekly only** (multi-day, single time). Monthly / bi-weekly / after-N-occurrences NOT in V1 — if ever needed, migrate to RFC 5545 RRULE
+- Different time per weekday = **separate placements** (matches Google/Apple)
 
 ### API Scope Parameter
 - Existing `PATCH {role}/training-events/{id}/change-status/` extended with optional `scope` field:
@@ -511,11 +515,10 @@ The delete sheet (Keep existing / Cancel all + warning + refund count) is docume
 - Same scope parameter used for reschedule: `PUT /coach/training-events/{id}/reschedule/` with `{new_datetime, scope}`
 - Backward compatible — `scope` is optional, defaults to `"this"`
 
-### Creating Events from Templates
-- No separate endpoint needed
-- Same `POST /coach/training-events/` with `session_id` pointing to group template
-- Backend determines group behavior from `session.is_group`
-- Auto-generation uses same creation logic internally
+### Creating Events from Templates (scheduling — post-decouple)
+- Template create generates **no** events. A **placement** is scheduled separately: `POST /coach/group-templates/{id}/schedule/preview/` (dry-run → occurrences + conflicts) then `POST /coach/group-templates/{id}/schedule/` (commit with `keep_external_dates[]`)
+- Weekly placement → generate events **60 days** ahead, rolling daily; one-off → single event
+- **Conflict-skip:** own coach events = hard-skip that occurrence (STRICT); external Google/Apple = skip unless the coach chose "Keep anyway"; rolling job re-checks + low-pri push. See § Overlap & Conflicts
 
 ## Migration & Compatibility
 
