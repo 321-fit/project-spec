@@ -1,15 +1,13 @@
 # Self-paced Training (online / async)
 
-> Status: **Draft · WIP** — prototype in progress, NOT ready for task breakdown yet.
-> Prototype: [flows/shared/self-paced.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/self-paced.html) (isolated WIP module — will be split into real modules later)
+> Status: **Approved** — flow prototyped & reviewed, ready for task breakdown. (Deferred from v1: video library, packages/series, progress-over-time — see §9.)
+> Prototype: [flows/shared/self-paced.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/self-paced.html) (isolated module; screens split into real surfaces per §5)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-12
+> Last updated: 2026-07-02
 > Implementation:
-> - iOS:     [321fit_ios/docs/self-paced-ios.md] (to be created)
-> - Android: [321fit_android/docs/self-paced-android.md] (to be created)
-> - Backend: [poly-backend/docs/self-paced-api.md] (to be created)
-
-> ⚠️ **WIP.** This captures the model + flow we've agreed in prototype so far. Several things are still open (see §9). Don't generate issues from this yet.
+> - iOS:     [321fit_ios/docs/self-paced-ios.md] (to be created during dev)
+> - Android: [321fit_android_new/docs/self-paced-android.md] (to be created during dev)
+> - Backend: [poly-backend/docs/self-paced-api.md](https://github.com/321-fit/poly-backend/blob/main/docs/self-paced-api.md)
 
 ---
 
