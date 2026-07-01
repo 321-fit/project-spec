@@ -49,12 +49,9 @@
   [contenteditable][data-placeholder]:empty::before { content: attr(data-placeholder); color: var(--fit-text-placeholder); pointer-events: none; }
 
   /* ===== Self-paced atoms (sp-) ===== */
-  .sp-pill { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; padding: 3px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
-  .sp-pill.assigned  { color: var(--fit-blue-500);  background: rgba(3,178,226,0.12);  border: 1px solid rgba(3,178,226,0.3); }
-  .sp-pill.scheduled { color: var(--fit-teal-500);  background: rgba(5,224,166,0.10);  border: 1px solid rgba(5,224,166,0.3); }
-  .sp-pill.submitted { color: var(--fit-yellow-600);background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.3); }
-  .sp-pill.finished  { color: var(--fit-text-tertiary); background: var(--fit-surface-high); border: 1px solid var(--fit-divider); }
-  .sp-pill.online    { color: var(--fit-brand-primary); background: rgba(0,167,208,0.12); border: 1px solid rgba(0,167,208,0.3); }
+  /* .sp-pill family lives in lib/fit-ui.css (shared with dashboard/clients/coach-detail entry points) */
+  .sp-spin { display: inline-block; border: 2px solid var(--fit-divider); border-top-color: var(--fit-brand-primary); border-radius: 50%; animation: sp-spin 0.8s linear infinite; }
+  @keyframes sp-spin { to { transform: rotate(360deg); } }
 
   .sp-sec { padding: 0 16px; margin: 20px 0 10px; } .sp-sec:first-child { margin-top: 4px; }
 
@@ -245,6 +242,19 @@
   /* List/welcome/player state toggles */
   [data-st] { display: none; }
   .ls-default [data-st="default"], .ls-empty [data-st="empty"], .ls-loading [data-st="loading"] { display: block; }
+  /* Upload states (uploading / error) */
+  #s-upload .up-loading { display: flex; }
+  #s-upload .up-error { display: none; }
+  #s-upload.up-error .up-loading { display: none; }
+  #s-upload.up-error .up-error { display: flex; }
+  /* Review clip states (ready / processing) */
+  #s-review.rv-processing .rv-clip-ready { display: none; }
+  #s-review .rv-clip-processing { display: none; }
+  #s-review.rv-processing .rv-clip-processing { display: flex; }
+  /* Per-tab empty states in the coach hub (each tab empties independently) */
+  #s-queue .qp-empty { display: none; }
+  #s-queue .qp-tab.qp-empty-on .qp-items { display: none; }
+  #s-queue .qp-tab.qp-empty-on .qp-empty { display: block; }
   #s-welcome [data-wlc] { display: none; }
   #s-welcome.wlc-paid [data-wlc="paid"] { display: block; }
   #s-welcome.wlc-unpaid [data-wlc="unpaid"] { display: block; }
@@ -385,11 +395,12 @@
       <div class="fit-segmented">
         <button class="fit-segmented-tab selected" onclick="spqTab('setup',this)">Set up <span class="ct">(1)</span></button>
         <button class="fit-segmented-tab" onclick="spqTab('review',this)">Review <span class="ct">(2)</span></button>
-        <button class="fit-segmented-tab" onclick="spqTab('active',this)">Active <span class="ct">(1)</span></button>
+        <button class="fit-segmented-tab" onclick="spqTab('active',this)">Active <span class="ct">(2)</span></button>
       </div>
 
       <!-- TO SET UP -->
-      <div id="qp-setup" style="padding:0 16px 24px;">
+      <div id="qp-setup" class="qp-tab" style="padding:0 16px 24px;">
+        <div class="qp-items">
         <div class="spq">
           <div class="spq-head" onclick="go('s-setup',null)">
             <span class="spq-av">AK</span>
@@ -400,10 +411,19 @@
           <div class="spq-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>Build the workout for Anna</div>
           <button class="spq-btn" onclick="go('s-setup',null)">Set up workout</button>
         </div>
+        </div><!-- /qp-items -->
+        <div class="qp-empty">
+          <div class="fit-empty-state" style="padding:56px 24px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:44px;height:44px;color:var(--fit-gray-600);margin-bottom:14px;"><polyline points="20 6 9 17 4 12"/></svg>
+            <div class="fit-empty-state-title">All set up</div>
+            <div style="font-size:14px;color:var(--fit-text-tertiary);margin-top:6px;line-height:1.5;">New bookings land here for you to build.</div>
+          </div>
+        </div>
       </div>
 
       <!-- TO REVIEW -->
-      <div id="qp-review" style="padding:0 16px 24px;display:none;">
+      <div id="qp-review" class="qp-tab" style="padding:0 16px 24px;display:none;">
+        <div class="qp-items">
         <div class="spq">
           <div class="spq-head" onclick="go('s-review',null)">
             <span class="spq-av">JD</span>
@@ -424,10 +444,19 @@
           <div class="spq-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>No clip — done from her note</div>
           <button class="spq-btn" onclick="go('s-review',null)">Review</button>
         </div>
+        </div><!-- /qp-items -->
+        <div class="qp-empty">
+          <div class="fit-empty-state" style="padding:56px 24px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:44px;height:44px;color:var(--fit-gray-600);margin-bottom:14px;"><polyline points="20 6 9 17 4 12"/></svg>
+            <div class="fit-empty-state-title">All caught up</div>
+            <div style="font-size:14px;color:var(--fit-text-tertiary);margin-top:6px;line-height:1.5;">No submissions waiting for your review.</div>
+          </div>
+        </div>
       </div>
 
       <!-- ACTIVE -->
-      <div id="qp-active" style="padding:0 16px 24px;display:none;">
+      <div id="qp-active" class="qp-tab" style="padding:0 16px 24px;display:none;">
+        <div class="qp-items">
         <div class="spq">
           <div class="spq-head" style="cursor:default;">
             <span class="spq-av">PW</span>
@@ -436,6 +465,23 @@
           </div>
           <div class="spq-title">Mobility reset</div>
           <div class="spq-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Waiting for Paul to do it · 3 steps</div>
+        </div>
+        <div class="spq">
+          <div class="spq-head" style="cursor:default;">
+            <span class="spq-av">TN</span>
+            <div style="flex:1;min-width:0;"><div class="spq-name">Tom Novak</div><div class="spq-sub"><span class="spq-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 9l5-2v10l-5-2z"/></svg>Self-paced</span> missed his day · Apr 15</div></div>
+            <span class="sp-pill overdue">Overdue</span>
+          </div>
+          <div class="spq-title">Core stability</div>
+          <div class="spq-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>He hasn't done it — a nudge was sent. Message him or leave it.</div>
+        </div>
+        </div><!-- /qp-items -->
+        <div class="qp-empty">
+          <div class="fit-empty-state" style="padding:56px 24px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:44px;height:44px;color:var(--fit-gray-600);margin-bottom:14px;"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 9l5-2v10l-5-2z"/></svg>
+            <div class="fit-empty-state-title">Nothing active</div>
+            <div style="font-size:14px;color:var(--fit-text-tertiary);margin-top:6px;line-height:1.5;">Sessions athletes are working on show here.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -674,13 +720,21 @@
     <div class="rv-card">
       <!-- clip hero (+ extra clips as thumbs) -->
       <div data-rv="clip">
-        <div class="rv-clip-hero" onclick="alert('Full-screen player — TBD')">
-          <svg class="play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-          <span class="dur">0:38</span>
+        <!-- clip ready to watch -->
+        <div class="rv-clip-ready">
+          <div class="rv-clip-hero" onclick="alert('Full-screen player — TBD')">
+            <svg class="play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            <span class="dur">0:38</span>
+          </div>
+          <div class="rv-thumbs">
+            <div class="rv-thumb" onclick="alert('Full-screen player — TBD')"><div style="position:absolute;inset:0;background:linear-gradient(135deg,#374151,#4b5563);"></div></div>
+            <div class="rv-thumb more">+1</div>
+          </div>
         </div>
-        <div class="rv-thumbs">
-          <div class="rv-thumb" onclick="alert('Full-screen player — TBD')"><div style="position:absolute;inset:0;background:linear-gradient(135deg,#374151,#4b5563);"></div></div>
-          <div class="rv-thumb more">+1</div>
+        <!-- clip still transcoding on Mux -->
+        <div class="rv-clip-processing" style="align-items:center;gap:12px;padding:18px 14px;">
+          <span class="sp-spin" style="width:22px;height:22px;flex-shrink:0;"></span>
+          <div style="min-width:0;"><div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Clip is still processing</div><div style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.4;">Julia's video is uploaded — Mux is transcoding it. You'll get a nudge when it's ready to watch. You can still rate from her note below.</div></div>
         </div>
       </div>
       <!-- no clip -->
@@ -854,6 +908,7 @@
     <div data-st="default">
       <div class="sp-sec"><span class="fit-section-title--md" style="padding:0;">To do</span></div>
       <div style="padding:0 16px;">
+        <div class="sp-card" onclick="go('s-welcome',null)" style="border:1px solid rgba(240,92,91,0.3);"><span class="sp-thumb" style="background:linear-gradient(135deg,#f05c5b,#f59e0b);"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Core stability</span><span class="sp-pill overdue">Overdue</span></div><div class="sp-meta">Was due Apr 15 · do it now or reschedule</div></div></div>
         <div class="sp-card" onclick="go('s-welcome',null)"><span class="sp-thumb"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Lower-body mobility</span><span class="sp-pill scheduled">Ready</span></div><div class="sp-meta">From Maria · 3 steps · ~15 min</div></div></div>
         <div class="sp-card" style="cursor:default;opacity:0.9;"><span class="sp-thumb g2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Core circuit</span><span class="sp-pill assigned">Setting up</span></div><div class="sp-meta">From Maria · she's preparing it</div></div></div>
       </div>
@@ -862,8 +917,12 @@
         <div class="sp-card" onclick="go('s-comments',null)" style="opacity:0.9;"><span class="sp-thumb g3"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Upper-body push</span><span class="sp-pill submitted">Submitted</span></div><div class="sp-meta">Done Apr 8 · waiting for Maria</div></div></div>
       </div>
       <div class="sp-sec"><span class="fit-section-title--md" style="padding:0;">Done</span></div>
-      <div style="padding:0 16px 24px;">
+      <div style="padding:0 16px;">
         <div class="sp-card" onclick="go('s-comments',null)" style="opacity:0.75;"><span class="sp-thumb" style="background:var(--fit-gray-400);"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Mobility reset</span><span class="sp-pill finished">4★</span></div><div class="sp-meta">Apr 2 · Maria left feedback</div></div></div>
+      </div>
+      <div class="sp-sec"><span class="fit-section-title--md" style="padding:0;">Cancelled</span></div>
+      <div style="padding:0 16px 24px;">
+        <div class="sp-card" style="cursor:default;opacity:0.6;"><span class="sp-thumb" style="background:var(--fit-gray-500);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Speed ladder</span><span class="sp-pill refunded">Refunded €12</span></div><div class="sp-meta">Maria didn't set it up in time · refunded to balance</div></div></div>
       </div>
     </div>
     <div data-st="empty">
@@ -901,6 +960,9 @@
       <div style="flex:1;min-width:0;"><div style="font-size:14px;color:var(--fit-text-primary);">Thu, Apr 17</div><div style="font-size:12px;color:var(--fit-text-tertiary);">1h block · do it anytime that day</div></div>
       <button style="border:none;background:transparent;color:var(--fit-brand-primary);font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;" onclick="document.getElementById('resched-sheet').classList.add('visible')">Reschedule</button>
     </div>
+    <div style="text-align:center;margin:-4px 16px 14px;">
+      <button style="border:none;background:transparent;color:var(--fit-text-tertiary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;" onclick="document.getElementById('sp-cancel-sheet').classList.add('visible')">Cancel this session</button>
+    </div>
     <div class="sp-note" style="cursor:default;">
       <div class="sp-note-label">Note from Maria</div>
       <div class="sp-note-body">Do these this week — film set 3 of the hip openers so I can check your depth.</div>
@@ -927,6 +989,20 @@
       <div class="fit-sheet-item" onclick="document.getElementById('resched-sheet').classList.remove('visible');spSnack('Moved to Mon, Apr 21 · Maria notified')">Mon, Apr 21</div>
       <div class="fit-sheet-item" onclick="document.getElementById('resched-sheet').classList.remove('visible')">Pick another day…</div>
       <button style="width:100%;height:50px;margin-top:12px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('resched-sheet').classList.remove('visible')">Cancel</button>
+    </div>
+  </div>
+  <!-- Cancel sheet — session already set up (case C): no refund, coach spent the time -->
+  <div class="fit-sheet-overlay" id="sp-cancel-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:600;margin-bottom:4px;">Cancel this session?</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;margin-bottom:16px;">Maria already built this workout for you, so the <strong>€12 won't be refunded</strong>. You can do it anytime instead, or reschedule to another day — that's free.</div>
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:20px;padding:12px;border-radius:12px;background:rgba(240,92,91,0.08);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span style="font-size:13px;color:var(--fit-text-secondary);line-height:1.45;">Cancelling <strong>before</strong> a coach sets up a booking is always refunded in full — this one is already built.</span>
+      </div>
+      <button style="width:100%;height:50px;border:none;border-radius:99px;background:rgba(240,92,91,0.12);color:var(--fit-red-400);font-family:var(--fit-font);font-size:16px;font-weight:600;cursor:pointer;" onclick="document.getElementById('sp-cancel-sheet').classList.remove('visible');go('s-list',null);spSnack('Session cancelled · no refund')">Cancel anyway — no refund</button>
+      <button style="width:100%;height:50px;margin-top:8px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('sp-cancel-sheet').classList.remove('visible')">Keep it</button>
     </div>
   </div>
 </div>
@@ -1095,11 +1171,20 @@
 <div class="fit-phone fit-dark" id="s-upload">
   <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div><div class="fit-header"><span class="fit-header-title" style="flex:1;text-align:center;">Uploading</span></div></div>
   <div class="fit-phone-content">
-    <div style="min-height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:24px;box-sizing:border-box;">
+    <!-- Uploading -->
+    <div class="up-loading" style="min-height:100%;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:24px;box-sizing:border-box;">
       <div style="width:56px;height:56px;border-radius:14px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;margin-bottom:18px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg></div>
       <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);margin-bottom:4px;">Uploading to Mux…</div>
       <div style="font-size:13px;color:var(--fit-text-tertiary);margin-bottom:22px;" id="sp-up-pct">0% · transcoding starts after upload</div>
       <div class="sp-prog-track" style="width:100%;max-width:280px;"><div class="sp-prog-fill" id="sp-prog"></div></div>
+    </div>
+    <!-- Upload failed (network / Mux error) -->
+    <div class="up-error" style="min-height:100%;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:24px;box-sizing:border-box;">
+      <div style="width:56px;height:56px;border-radius:14px;background:rgba(240,92,91,0.12);display:flex;align-items:center;justify-content:center;margin-bottom:18px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div>
+      <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);margin-bottom:4px;">Upload failed</div>
+      <div style="font-size:13px;color:var(--fit-text-tertiary);margin-bottom:22px;line-height:1.5;">Couldn't upload your clip — check your connection.<br>Your video is saved on your device.</div>
+      <button onclick="setUp('loading',null)" style="height:48px;padding:0 28px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Try again</button>
+      <button onclick="go('s-comments',null)" style="height:44px;margin-top:8px;padding:0 20px;border:none;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:15px;font-weight:500;cursor:pointer;">Skip for now</button>
     </div>
   </div>
 </div>
@@ -1135,6 +1220,7 @@
 
   <div class="ann" id="ann-s-queue"><span class="ann-role coach">Coach</span>
     <div class="state-toggle"><button class="active" onclick="setSt('s-queue','default',this)">Default</button><button onclick="setSt('s-queue','empty',this)">Empty</button><button onclick="setSt('s-queue','loading',this)">Loading</button></div>
+    <div class="state-toggle"><button onclick="spqTabEmpty('setup',this)">Set up empty</button><button onclick="spqTabEmpty('review',this)">Review empty</button><button onclick="spqTabEmpty('active',this)">Active empty</button></div>
     <h3>Self-paced hub (batch)</h3>
     <p>Dedicated batch view for the coach's "review day" — <strong>segmented tabs</strong> (Set up / Review / Active), each its own scroll, so it scales when a block gets long.</p>
     <ul><li><strong>Set up</strong> = booked → tap → builder. <strong>Review</strong> = submitted → tap → review. <strong>Active</strong> = sent, athlete doing it.</li><li>Cards match the unified-Inbox <code>.req-card</code> shell (avatar + name + sub + chevron + title + meta + action) — see the Inbox screen.</li></ul>
@@ -1170,6 +1256,7 @@
 
   <div class="ann" id="ann-s-review"><span class="ann-role coach">Coach</span>
     <div class="state-toggle"><button class="active" onclick="setRv('clip',this)">With clip</button><button onclick="setRv('noclip',this)">No clip</button></div>
+    <div class="state-toggle"><button class="active" onclick="setRvProc(false,this)">Clip ready</button><button onclick="setRvProc(true,this)">Clip processing</button></div>
     <h3>Review submission</h3>
     <p>Layout reworked (async-coaching apps: CoachNow / OnForm / Freeletics) — clips up top, athlete's words as a quote, your verdict at the bottom.</p>
     <ul>
@@ -1244,9 +1331,11 @@
     <p>Shared step after picking a source. Trim is <strong>optional</strong> — many self-paced clips don't need it; <strong>Skip</strong> uploads the full take. Clipping via <strong>Mux SDK clip API</strong> (upload full → set clip start/end), not native-only. Reuses #116.</p>
   </div>
 
-  <div class="ann" id="ann-s-upload"><span class="ann-role coach">Coach</span><span class="ann-role athlete" style="margin-left:6px;">Athlete</span><h3>Uploading (Mux)</h3>
+  <div class="ann" id="ann-s-upload"><span class="ann-role coach">Coach</span><span class="ann-role athlete" style="margin-left:6px;">Athlete</span>
+    <div class="state-toggle"><button class="active" onclick="setUp('loading',this)">Uploading</button><button onclick="setUp('error',this)">Failed</button></div>
+    <h3>Uploading (Mux)</h3>
     <p>Mux direct-upload (reuses #116). Progress → clip attaches to the caller → return.</p>
-    <p class="note">Auto-advances from Trim's "Use this clip".</p>
+    <p class="note">Auto-advances from Trim's "Use this clip". <strong>Failed</strong> (network/Mux error): the local video is kept, offer <em>Try again</em> or <em>Skip for now</em> (submit without a clip).</p>
   </div>
 </div>
 
@@ -1269,10 +1358,19 @@ function go(id, btn) {
   var ann = document.getElementById('ann-' + id); if (ann) ann.classList.add('active');
   if (window.FitUI) FitUI.initAll(document.getElementById(id));
 }
+// Deep-link: open a specific screen when reached via #hash (e.g. coach dashboard → #s-queue)
+window.addEventListener('DOMContentLoaded', function(){
+  var h = (location.hash || '').replace('#','');
+  if (h && document.getElementById(h)) go(h, null);
+});
 function setSt(id, state, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} var el=document.getElementById(id); el.classList.remove('ls-default','ls-empty','ls-loading'); el.classList.add('ls-'+state); }
 function spqTab(name, btn){ if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');} ['setup','review','active'].forEach(function(n){ var p=document.getElementById('qp-'+n); if(p)p.style.display=n===name?'block':'none'; }); }
+// Demo: toggle a single hub tab into its empty state (each tab empties independently)
+function spqTabEmpty(name, btn){ if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} var q=document.getElementById('s-queue'); q.classList.remove('ls-empty','ls-loading'); q.classList.add('ls-default'); ['setup','review','active'].forEach(function(n){ var p=document.getElementById('qp-'+n); if(p) p.classList.toggle('qp-empty-on', n===name); }); var tabBtn=document.querySelectorAll('#s-queue .fit-segmented-tab')[['setup','review','active'].indexOf(name)]; if(tabBtn) spqTab(name, tabBtn); }
 function inbTab(name, btn){ if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');} ['activity','reply','waiting'].forEach(function(n){ var p=document.getElementById('inb-'+n); if(p)p.style.display=n===name?'block':'none'; }); }
 function setRv(v, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} var el=document.getElementById('s-review'); el.classList.remove('rv-clip','rv-noclip'); el.classList.add('rv-'+v); }
+function setRvProc(on, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} document.getElementById('s-review').classList.toggle('rv-processing', !!on); }
+function setUp(state, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} document.getElementById('s-upload').classList.toggle('up-error', state==='error'); }
 function setWlc(v, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} var el=document.getElementById('s-welcome'); el.classList.remove('wlc-paid','wlc-unpaid'); el.classList.add('wlc-'+v); }
 function setPl(v, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} var el=document.getElementById('s-player'); el.classList.remove('pl-timed','pl-reps','pl-rest','pl-ready'); el.classList.add('pl-'+v); }
 function spVoice(btn) { btn.classList.toggle('muted'); }

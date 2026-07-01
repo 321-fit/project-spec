@@ -81,12 +81,15 @@ Lifecycle: **Requested** (booked, coach to set up) → **Ready** (set up, athlet
 
 ---
 
-## 6. Placement / integration (decided: "C-lite")
+## 6. Placement / integration (decided: "C-lite") — BUILT 2026-07-01
 
 - **Coach events → unified Inbox** (no new bell, no 4th tab): `To reply` = Set up + Review; `Waiting` = Active; `Activity` = history. Cards reuse the inbox `.req-card` shell + a `Self-paced` tag. A tabbed **batch hub** (same items, filtered) reached from a Dashboard card.
-- **Coach Client Detail** — a "Self-paced (N)" section + Assign entry; tap → Review / thread.
-- **Athlete Coach Detail** — mirror "Self-paced with this coach" section.
+- **Coach Dashboard** — a `.dash-action` row under "Needs your attention": "Self-paced · N to set up, N to review / N active · overdue" → the batch hub (`self-paced.html#s-queue`). Hidden when all counts 0.
+- **Athlete Dashboard** — `.pending-row`(s) under "Needs your attention": day-bound **overdue** + **due-today** self-paced → `#s-welcome`. Shown only when present.
+- **Coach Client Detail** — a compact **summary card** (stat counters: To review / Active / Done) + **Assign self-paced** entry (coach-initiated). Tap the counters → a full **per-client screen** (`s-client-selfpaced`) with the sessions **grouped by status** (To review / Active / Done / Cancelled, count in each header) — chosen over an inline list (doesn't scale) and over tabs (tabs are for the all-clients batch hub; per-person is a bounded overview, so grouped sections match the athlete `s-list` and show the whole picture at once).
+- **Athlete Coach Detail** (`#s-coach-v2`) — a **light link row** "Self-paced with <coach> · N sessions · N to do" → the athlete's My self-paced (`#s-list`). Deliberately not a full mirror section (avoids two sources of truth).
 - **Athlete list** — not a tab; surfaced from Dashboard + Coach Detail.
+- **Status pills** — the `.sp-pill` family was extracted from `self-paced.html` into `lib/fit-ui.css` (shared across all entry points). Deep-link: `self-paced.html#<screen>` opens that screen on load.
 
 ---
 
@@ -129,11 +132,18 @@ Get ready (3-2-1, voiced)  →  WORK set  →  Rest (voiced countdown, auto-flow
 - **A bought session is the athlete's forever** — they can re-do it as practice anytime. But **feedback to the coach is one-time**: a re-do skips the structured report / clip / submit (just "Done"), keeping the coach's review queue to one submission per session.
 - **The coach's Review surfaces the athlete's structured self-report** (intensity + technique) — same data the athlete submits on Complete, shown to the coach before they rate.
 - **Missed day → notify the coach** (athlete didn't do it on the assigned day).
+- **Booking window + cancellation/refunds (decided 2026-07-01):** the coach has **N = 2 days** to build a booked session; the athlete's day picker is constrained to that window. Refund policy on the balance charged at booking:
+  - **(A) Coach never sets up in time** → **100% auto-refund** (coach's fault; session auto-cancels).
+  - **(B) Athlete cancels *before* setup** (Requested) → **100% refund** (no coach work done yet).
+  - **(C) Athlete cancels *after* setup, before doing it** → **no refund** (coach already spent the time building it).
+  - Future: a **trial / free first self-paced session** per athlete as an acquisition lever — deferred (see §9 deferred + `project_self_paced`).
+- **Type colour + sections (2026-07-01):** training-type catalogs (coach `sessions.html#s-list`, athlete `profile.html#s-book-sessions`) are **grouped into vertical sections by type** (no tabs — 3–6 types make tabs overkill; empty types don't render) with a **per-type header colour**: Personal=teal, Group=blue, **Self-paced=violet** (new `--fit-color-violet-*` token, TODO promote to Figma). Header gradient only; Book CTA stays brand. See memory `feedback_training_type_colors`, `feedback_tabs_vs_sections`.
+- **Creation & discovery integrated (2026-07-01):** Self-paced is now the **3rd Training type** in `coach/sessions.html` (hides Location / Payment-Cash / calendar-scheduling; Duration → optional "Estimated time"; explainer that content is built per athlete after booking) and a **catalog card + day-bound confirm sheet** in the athlete's real Book training (`shared/profile.html#s-book-sessions`, Personal tab). The isolated `s-offering` in `self-paced.html` is superseded by the `sessions.html` type.
 - **Voice cues** = native TTS for get-ready **and** rest countdowns; speaker toggle; respects silent mode. English only for v1.
 - **Trim is optional** — Skip uploads the full clip; clipping via **Mux SDK clip API**, not native-only.
 
 **Open / deferred:**
-- **Booking window + cancellation/refunds (revisit together):** the coach gets **N days (e.g. 2)** to set up a booked self-paced session → the athlete's day picker is constrained to that window. If the coach never sets it up (or the athlete cancels), define the **refund** path (balance was charged at booking). To design as one block.
+- **Trial / free first self-paced session** per athlete — acquisition lever so an athlete can try the format once before paying. Deferred (design with pricing/packages, Phase 2).
 - **Backend data model** — exact `training_session` type + `training_event.delivery` + steps schema (incl. independent reps/timer/rest) + offering as a catalog item + structured-feedback enums + one-submission-per-session constraint. TBD with backend.
 - **Notifications** — new categories: assigned/ready · submitted · feedback/finished · new-comment · day-change · (optional) due reminder. To add to `notifications-catalog.md`.
 - **Coach video library** home — lives near session templates (coach Profile/Sessions); reuse across athletes is the scale lever.

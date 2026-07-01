@@ -592,12 +592,19 @@
   <div class="fit-phone-content">
     <div class="fit-input-group" data-required="name"><span class="fit-input-label">Training name</span><div class="fit-input" contenteditable="true" data-placeholder="Enter training name" style="outline:none;cursor:text;"></div></div>
     <div class="fit-input-group"><span class="fit-input-label">Sport type</span><div class="fit-input" style="cursor:pointer;" data-a11y-id="coach.session.sport" onclick="window.location.href='./sport-types.html'"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg></span> Fitness<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div></div>
-    <div class="fit-input-group"><span class="fit-input-label">Location</span><div class="fit-input" style="cursor:pointer;" onclick="window.location.href='./locations.html'"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></span> TNT Studio<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div></div>
+    <div class="fit-input-group" id="location-field"><span class="fit-input-label">Location</span><div class="fit-input" style="cursor:pointer;" onclick="window.location.href='./locations.html'"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></span> TNT Studio<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div></div>
 
     <div class="fit-input-group"><span class="fit-input-label">Training type</span></div>
     <div class="fit-selection-group" data-fit-selection="single" id="type-toggle">
       <div class="fit-selection-chip" data-value="personal">Personal</div>
       <div class="fit-selection-chip selected" data-value="group">Group</div>
+      <div class="fit-selection-chip" data-value="selfpaced">Self-paced</div>
+    </div>
+
+    <!-- SELF-PACED explainer (shown only when Self-paced selected) -->
+    <div id="selfpaced-note" style="display:none;align-items:flex-start;gap:10px;margin:4px 16px 12px;padding:12px 14px;border:1px solid var(--fit-divider);border-radius:14px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-brand-primary);flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg>
+      <span style="font-size:13px;line-height:1.45;color:var(--fit-text-secondary);">A cheaper online option athletes do on their own time. You&rsquo;ll build the workout for each athlete <strong>after they book</strong> — no dates or location needed here.</span>
     </div>
 
     <!-- GROUP-ONLY sections -->
@@ -620,7 +627,7 @@
       </div>
     </div>
 
-    <div class="fit-input-group" data-required="duration"><span class="fit-input-label">Duration</span></div>
+    <div class="fit-input-group" data-required="duration"><span class="fit-input-label" id="duration-label">Duration</span></div>
     <div class="fit-wheel-picker" id="duration-picker">
       <div class="fit-wheel-col">
         <span class="fit-wheel-label">Hour</span>
@@ -648,16 +655,24 @@
     <div class="price-row"><div class="fit-input" contenteditable="true" data-placeholder="0" style="flex:1;outline:none;cursor:text;"></div><div class="price-currency">&euro;</div></div>
 
     <!-- Scheduling moved out of the template (set on calendar) -->
-    <div style="display:flex;align-items:flex-start;gap:10px;margin:4px 16px 12px;padding:12px 14px;border:1px solid var(--fit-divider);border-radius:14px;">
+    <div id="schedule-note" style="display:flex;align-items:flex-start;gap:10px;margin:4px 16px 12px;padding:12px 14px;border:1px solid var(--fit-divider);border-radius:14px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-text-tertiary);flex-shrink:0;margin-top:1px;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
       <span style="font-size:13px;line-height:1.45;color:var(--fit-text-secondary);">This is a reusable template. You&rsquo;ll pick dates &amp; times later when you schedule it on your calendar.</span>
     </div>
 
-    <!-- PAYMENT METHOD (always visible, at the bottom) -->
-    <div class="fit-input-group"><span class="fit-input-label">Payment method</span></div>
-    <div class="fit-selection-group" data-fit-selection="multi">
-      <div class="fit-selection-chip selected" data-value="cash"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h2M20 10h2M2 14h2M20 14h2"/><circle cx="12" cy="12" r="3"/></svg> Cash</div>
-      <div class="fit-selection-chip selected" data-value="card"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card</div>
+    <!-- PAYMENT METHOD (hidden for self-paced — online only) -->
+    <div id="payment-field">
+      <div class="fit-input-group"><span class="fit-input-label">Payment method</span></div>
+      <div class="fit-selection-group" data-fit-selection="multi">
+        <div class="fit-selection-chip selected" data-value="cash"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h2M20 10h2M2 14h2M20 14h2"/><circle cx="12" cy="12" r="3"/></svg> Cash</div>
+        <div class="fit-selection-chip selected" data-value="card"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card</div>
+      </div>
+    </div>
+
+    <!-- SELF-PACED payment note (online from balance — no cash) -->
+    <div id="selfpaced-pay-note" style="display:none;align-items:center;gap:10px;margin:0 16px 12px;padding:12px 14px;border:1px solid var(--fit-divider);border-radius:14px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-text-tertiary);flex-shrink:0;"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      <span style="font-size:13px;line-height:1.45;color:var(--fit-text-secondary);">Paid online from the athlete&rsquo;s 321Fit balance. Cash isn&rsquo;t available for online sessions.</span>
     </div>
   </div>
   <!-- Validation snackbar -->
@@ -706,9 +721,10 @@
   <div class="fit-phone-content">
     <!-- === DEFAULT STATE: list of templates === -->
     <div data-list-state="default">
+    <div class="fit-section-title--md" style="margin-top:4px;">Personal</div>
     <!-- Personal: Basketball -->
     <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;" onclick="go('s-edit',document.querySelector('[onclick*=s-edit]'))">
-      <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+      <div style="background:var(--fit-grad-type-personal);padding:14px 16px;display:flex;align-items:center;gap:12px;">
         <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>
         </div>
@@ -724,13 +740,13 @@
       <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;cursor:pointer;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
         <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">TNT Studio</span>
-        <span style="font-size:12px;color:var(--fit-text-tertiary);">Personal</span>
       </div>
     </div>
 
+    <div class="fit-section-title--md">Group</div>
     <!-- Group: HIIT -->
     <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;" onclick="go('s-edit',document.querySelector('[onclick*=s-edit]'))">
-      <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+      <div style="background:var(--fit-grad-type-group);padding:14px 16px;display:flex;align-items:center;gap:12px;">
         <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M4.5 12H2M22 12h-2.5M12 4.5V2M12 22v-2.5"/></svg>
         </div>
@@ -749,13 +765,13 @@
       <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;cursor:pointer;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
         <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">TNT Studio</span>
-        <span style="font-size:12px;color:var(--fit-text-tertiary);">Group &middot; max 10</span>
+        <span style="font-size:12px;color:var(--fit-text-tertiary);">max 10</span>
       </div>
     </div>
 
     <!-- Group: Yoga -->
     <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;" onclick="go('s-edit',document.querySelector('[onclick*=s-edit]'))">
-      <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+      <div style="background:var(--fit-grad-type-group);padding:14px 16px;display:flex;align-items:center;gap:12px;">
         <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 8l8 8M16 8l-8 8"/></svg>
         </div>
@@ -774,7 +790,29 @@
       <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;cursor:pointer;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
         <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">GYM Bro</span>
-        <span style="font-size:12px;color:var(--fit-text-tertiary);">Group &middot; max 15</span>
+        <span style="font-size:12px;color:var(--fit-text-tertiary);">max 15</span>
+      </div>
+    </div>
+
+    <div class="fit-section-title--md">Self-paced</div>
+    <!-- Self-paced: Tennis (online, day-bound, no location) -->
+    <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;" onclick="go('s-edit',document.querySelector('[onclick*=s-edit]'))">
+      <div style="background:var(--fit-grad-type-selfpaced);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+        <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:600;">Tennis self-paced</div>
+          <div style="font-size:12px;opacity:0.7;">~15 min &middot; online</div>
+        </div>
+        <div style="text-align:right;display:flex;align-items:center;gap:8px;">
+          <div class="v6d-price" style="font-size:16px;font-weight:600;color:var(--fit-white);">&euro;12</div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+      <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg>
+        <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">Self-paced &middot; do it anytime</span>
       </div>
     </div>
     </div><!-- /data-list-state="default" -->
@@ -1171,10 +1209,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  const locationField = document.getElementById('location-field');
+  const paymentField = document.getElementById('payment-field');
+  const scheduleNote = document.getElementById('schedule-note');
+  const selfpacedNote = document.getElementById('selfpaced-note');
+  const selfpacedPayNote = document.getElementById('selfpaced-pay-note');
+  const durationLabel = document.getElementById('duration-label');
+
+  function setDisplay(el, show, dsp) { if (el) el.style.display = show ? (dsp || '') : 'none'; }
+
   typeToggle.addEventListener('fit:selection', (e) => {
-    const isGroup = e.detail.values.includes('group');
+    const val = (e.detail.values || [])[0];
+    const isGroup = val === 'group';
+    const isSelf = val === 'selfpaced';
+
+    // Group-only participant fields
     slideToggle(groupFields, isGroup);
+
+    // Self-paced = online, day-bound, no location / no cash / est. time only
+    setDisplay(locationField, !isSelf);
+    setDisplay(paymentField, !isSelf);
+    setDisplay(scheduleNote, !isSelf, 'flex');
+    setDisplay(selfpacedNote, isSelf, 'flex');
+    setDisplay(selfpacedPayNote, isSelf, 'flex');
+
     priceLabel.textContent = isGroup ? 'Price per participant' : 'Price';
+    durationLabel.innerHTML = isSelf
+      ? 'Estimated time <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span>'
+      : 'Duration';
   });
 });
 

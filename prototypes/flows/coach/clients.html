@@ -200,6 +200,20 @@
   .loc-add-cta:hover { background: rgba(255,255,255,0.03); }
   .loc-add-cta svg { width: 18px; height: 18px; color: var(--fit-text-tertiary); flex-shrink: 0; }
   .loc-add-cta span { font-size: 14px; color: var(--fit-text-secondary); }
+  /* Client self-paced list (per-client grouped screen) — cards, not bare rows */
+  .cs-card { margin: 0 16px; background: var(--fit-surface-high); border-radius: 14px; overflow: hidden; }
+  .cs-row { display: flex; align-items: center; gap: 12px; padding: 13px 14px; border-bottom: 1px solid var(--fit-divider); cursor: pointer; }
+  .cs-row:last-child { border-bottom: none; }
+  .cs-thumb { width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--fit-selection-gradient); color: var(--fit-white); }
+  .cs-thumb svg { width: 18px; height: 18px; }
+  .cs-thumb.gray { background: var(--fit-gray-600); }
+  .cs-body { flex: 1; min-width: 0; }
+  .cs-title { font-size: 15px; font-weight: 600; color: var(--fit-text-primary); margin-bottom: 2px; }
+  .cs-meta { font-size: 12px; color: var(--fit-text-tertiary); }
+  .cs-chev { width: 16px; height: 16px; flex-shrink: 0; color: var(--fit-text-tertiary); }
+  /* Section label above each card — muted uppercase so it never competes with card titles */
+  #s-client-selfpaced .cs-sec { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--fit-text-tertiary); padding: 0 16px; margin: 26px 0 10px; }
+  #s-client-selfpaced .cs-sec:first-of-type { margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -216,6 +230,7 @@
   <!-- "Requests" sidebar entry removed 2026-06-02 — moved to dashboard.html Inbox 3-tab structure. -->
   <button onclick="go('s-client-detail',this)">Client Detail</button>
   <button onclick="go('s-client-history',this)">Client History</button>
+  <button onclick="go('s-client-selfpaced',this)">Client Self-paced</button>
   <button onclick="go('s-client-notes-editor',this)">Client Notes Editor</button>
   <button onclick="go('s-archived',this)">Archived &amp; Blocked</button>
   <button onclick="go('s-create-client',this)">Create Client</button>
@@ -567,6 +582,25 @@
       </div>
     </div>
 
+    <!-- Self-paced (online async) with this client — summary counters, tap → full per-client screen -->
+    <div class="fit-section-title--md">Self-paced</div>
+    <div style="margin:0 16px 24px;border-radius:14px;overflow:hidden;background:var(--fit-surface-high);">
+      <div data-a11y-id="coach.client.self-paced.view-all" onclick="go('s-client-selfpaced',document.querySelector('[onclick*=s-client-selfpaced]'))" style="display:flex;align-items:center;padding:16px 14px;cursor:pointer;">
+        <div style="flex:1;display:flex;">
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-yellow-600);">2</div><div style="font-size:12px;color:var(--fit-text-tertiary);">To review</div></div>
+          <div style="width:1px;background:var(--fit-divider);"></div>
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-teal-500);">1</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Active</div></div>
+          <div style="width:1px;background:var(--fit-divider);"></div>
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">8</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Done</div></div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-left:8px;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div data-a11y-id="coach.client.self-paced.assign" onclick="window.location.href='../shared/self-paced.html#s-setup'" style="display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer;color:var(--fit-brand-primary);font-size:14px;font-weight:500;border-top:1px solid var(--fit-divider);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Assign self-paced
+      </div>
+    </div>
+
     <!-- Home visit addresses (coach-set; multiple supported; same picker as athlete) -->
     <div class="fit-section-title--md">Home visit addresses</div>
     <div class="set-card" style="margin:0 16px 10px;cursor:pointer;" onclick="openCrmAddr('detail')">
@@ -806,6 +840,79 @@
     </div>
   </div>
 
+</div>
+
+<!-- ===== COACH: CLIENT SELF-PACED (full per-client list, grouped by status) ===== -->
+<div class="fit-phone fit-dark" id="s-client-selfpaced">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-client-detail',document.querySelector('[onclick*=s-client-detail]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Self-paced</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-top:8px;">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 16px 12px;">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">AK</div>
+      <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Anna Kowalski</span>
+      <span style="font-size:14px;color:var(--fit-text-tertiary);">· 11 self-paced</span>
+    </div>
+
+    <!-- To review -->
+    <div class="cs-sec">To review (2)</div>
+    <div class="cs-card">
+      <div class="cs-row" data-a11y-id="coach.client.self-paced.item" onclick="window.location.href='../shared/self-paced.html#s-review'">
+        <span class="cs-thumb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        <div class="cs-body"><div class="cs-title">Lower-body mobility</div><div class="cs-meta">Apr 12 · 1 clip · note attached</div></div>
+        <span class="sp-pill submitted">Submitted</span>
+        <svg class="cs-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="cs-row" data-a11y-id="coach.client.self-paced.item" onclick="window.location.href='../shared/self-paced.html#s-review'">
+        <span class="cs-thumb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        <div class="cs-body"><div class="cs-title">Core circuit</div><div class="cs-meta">Apr 10 · marked done · no clip</div></div>
+        <span class="sp-pill submitted">Submitted</span>
+        <svg class="cs-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+
+    <!-- Active -->
+    <div class="cs-sec">Active (1)</div>
+    <div class="cs-card">
+      <div class="cs-row" data-a11y-id="coach.client.self-paced.item" onclick="window.location.href='../shared/self-paced.html#s-comments'">
+        <span class="cs-thumb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        <div class="cs-body"><div class="cs-title">Mobility reset</div><div class="cs-meta">Sent 2 days ago · waiting for her to do it</div></div>
+        <span class="sp-pill scheduled">Ready</span>
+        <svg class="cs-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+
+    <!-- Done -->
+    <div class="cs-sec">Done (8)</div>
+    <div class="cs-card">
+      <div class="cs-row" data-a11y-id="coach.client.self-paced.item" onclick="window.location.href='../shared/self-paced.html#s-comments'">
+        <span class="cs-thumb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        <div class="cs-body"><div class="cs-title">Hip stability</div><div class="cs-meta">Apr 2 · you rated 4★</div></div>
+        <span class="sp-pill finished">Finished</span>
+        <svg class="cs-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="cs-row" data-a11y-id="coach.client.self-paced.item" onclick="window.location.href='../shared/self-paced.html#s-comments'">
+        <span class="cs-thumb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        <div class="cs-body"><div class="cs-title">Ankle mobility</div><div class="cs-meta">Mar 28 · you rated 5★</div></div>
+        <span class="sp-pill finished">Finished</span>
+        <svg class="cs-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+
+    <!-- Cancelled -->
+    <div class="cs-sec">Cancelled (1)</div>
+    <div class="cs-card" style="margin-bottom:24px;">
+      <div class="cs-row" style="cursor:default;">
+        <span class="cs-thumb gray"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></span>
+        <div class="cs-body"><div class="cs-title">Speed ladder</div><div class="cs-meta">Refunded €12 · you didn't set it up in time</div></div>
+        <span class="sp-pill refunded">Refunded</span>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ===== COACH: CLIENT HISTORY ===== -->
