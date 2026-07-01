@@ -106,7 +106,6 @@
 
   /* Prototype-specific */
   .detail-participants { padding: 0 var(--fit-sp-4); }
-  #tp-slot-list::-webkit-scrollbar { display: none; }
 
   /* Contenteditable placeholder */
   [contenteditable][data-placeholder]:empty::before {
@@ -148,7 +147,7 @@
   /* Skeleton classes migrated to fit-ui.css (Phase 2) */
 
   /* Conditional fields animation */
-  #group-fields, #schedule-fields, #recurring-fields, #oneoff-fields {
+  #group-fields {
     will-change: max-height, opacity;
   }
 
@@ -648,47 +647,10 @@
     <div class="fit-input-group" data-required="price"><span class="fit-input-label" id="price-label">Price per participant</span></div>
     <div class="price-row"><div class="fit-input" contenteditable="true" data-placeholder="0" style="flex:1;outline:none;cursor:text;"></div><div class="price-currency">&euro;</div></div>
 
-    <!-- SCHEDULE (group only) -->
-    <div id="schedule-fields">
-      <div class="fit-input-group"><span class="fit-input-label">Schedule</span></div>
-      <div class="fit-selection-group" data-fit-selection="single" id="schedule-toggle" style="margin-bottom:12px;">
-        <div class="fit-selection-chip selected" data-value="recurring" style="font-size:14px;">Recurring</div>
-        <div class="fit-selection-chip" data-value="one-off" style="font-size:14px;">One-off</div>
-      </div>
-
-      <!-- Recurring: day picker -->
-      <div id="recurring-fields">
-        <div class="fit-input-group"><span class="fit-input-label">Days</span></div>
-        <div style="display:flex;gap:6px;padding:0 16px;margin-bottom:16px;">
-          <div class="day-btn" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;cursor:pointer;background:var(--fit-surface-high);color:var(--fit-text-tertiary);" onclick="this.classList.toggle('sel');this.style.background=this.classList.contains('sel')?'var(--fit-selection-gradient)':'var(--fit-surface-high)';this.style.border=this.classList.contains('sel')?'1px solid var(--fit-teal-600)':'none';this.style.color=this.classList.contains('sel')?'var(--fit-white)':'var(--fit-text-tertiary)';">M</div>
-          <div class="day-btn sel" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;cursor:pointer;background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);color:var(--fit-white);">T</div>
-          <div class="day-btn" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;cursor:pointer;background:var(--fit-surface-high);color:var(--fit-text-tertiary);">W</div>
-          <div class="day-btn sel" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;cursor:pointer;background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);color:var(--fit-white);">T</div>
-          <div class="day-btn" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;cursor:pointer;background:var(--fit-surface-high);color:var(--fit-text-tertiary);">F</div>
-          <div class="day-btn" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;cursor:pointer;background:var(--fit-surface-high);color:var(--fit-text-tertiary);">S</div>
-          <div class="day-btn" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;cursor:pointer;background:var(--fit-surface-high);color:var(--fit-text-tertiary);">S</div>
-        </div>
-      </div>
-
-      <!-- One-off: date picker -->
-      <div id="oneoff-fields" style="display:none;">
-        <div class="fit-input-group"><span class="fit-input-label">Date</span>
-          <div class="fit-input" onclick="document.getElementById('date-picker-sheet').classList.add('visible')" style="cursor:pointer;">
-            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;color:var(--fit-text-tertiary);"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            <span id="date-display">Sat, April 19</span>
-            <span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Start time: tap -> bottom sheet picker -->
-      <div class="fit-input-group" data-required="time"><span class="fit-input-label">Start time</span>
-        <div class="fit-input" onclick="document.getElementById('time-picker-sheet').classList.add('visible')" style="cursor:pointer;">
-          <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-          <span id="time-display">18:00</span>
-          <span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-        </div>
-      </div>
+    <!-- Scheduling moved out of the template (set on calendar) -->
+    <div style="display:flex;align-items:flex-start;gap:10px;margin:4px 16px 12px;padding:12px 14px;border:1px solid var(--fit-divider);border-radius:14px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-text-tertiary);flex-shrink:0;margin-top:1px;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <span style="font-size:13px;line-height:1.45;color:var(--fit-text-secondary);">This is a reusable template. You&rsquo;ll pick dates &amp; times later when you schedule it on your calendar.</span>
     </div>
 
     <!-- PAYMENT METHOD (always visible, at the bottom) -->
@@ -698,199 +660,8 @@
       <div class="fit-selection-chip selected" data-value="card"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card</div>
     </div>
   </div>
-  <!-- Date picker bottom sheet (calendar grid) -->
-  <div class="fit-sheet-overlay" id="date-picker-sheet">
-    <div class="fit-sheet tp-sheet" >
-      <div class="fit-sheet-handle"></div>
-      <div style="font-size:16px;font-weight:500;margin-bottom:16px;">Select date</div>
-
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <span style="font-size:16px;font-weight:500;">April 2026</span>
-        <div style="display:flex;gap:12px;">
-          <svg class="i" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer;"><path d="M15 18l-6-6 6-6"/></svg>
-          <svg class="i" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer;"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;margin-bottom:20px;">
-        <span style="font-size:12px;color:var(--fit-text-tertiary);padding:6px 0;">M</span>
-        <span style="font-size:12px;color:var(--fit-text-tertiary);padding:6px 0;">T</span>
-        <span style="font-size:12px;color:var(--fit-text-tertiary);padding:6px 0;">W</span>
-        <span style="font-size:12px;color:var(--fit-text-tertiary);padding:6px 0;">T</span>
-        <span style="font-size:12px;color:var(--fit-text-tertiary);padding:6px 0;">F</span>
-        <span style="font-size:12px;color:var(--fit-text-tertiary);padding:6px 0;">S</span>
-        <span style="font-size:12px;color:var(--fit-text-tertiary);padding:6px 0;">S</span>
-
-        <span class="cal-cell" style="opacity:0;"></span>
-        <span class="cal-cell" style="opacity:0;"></span>
-        <span class="cal-cell past">1</span>
-        <span class="cal-cell past">2</span>
-        <span class="cal-cell past">3</span>
-        <span class="cal-cell past">4</span>
-        <span class="cal-cell past">5</span>
-
-        <span class="cal-cell past">6</span>
-        <span class="cal-cell past">7</span>
-        <span class="cal-cell past">8</span>
-        <span class="cal-cell past">9</span>
-        <span class="cal-cell today" onclick="pickDate(this,'Thu, April 10')">10</span>
-        <span class="cal-cell" onclick="pickDate(this,'Fri, April 11')">11</span>
-        <span class="cal-cell" onclick="pickDate(this,'Sat, April 12')">12</span>
-
-        <span class="cal-cell" onclick="pickDate(this,'Mon, April 13')">13</span>
-        <span class="cal-cell" onclick="pickDate(this,'Tue, April 14')">14</span>
-        <span class="cal-cell" onclick="pickDate(this,'Wed, April 15')">15</span>
-        <span class="cal-cell" onclick="pickDate(this,'Thu, April 16')">16</span>
-        <span class="cal-cell" onclick="pickDate(this,'Fri, April 17')">17</span>
-        <span class="cal-cell" onclick="pickDate(this,'Sat, April 18')">18</span>
-        <span class="cal-cell selected" onclick="pickDate(this,'Sat, April 19')">19</span>
-
-        <span class="cal-cell" onclick="pickDate(this,'Mon, April 20')">20</span>
-        <span class="cal-cell" onclick="pickDate(this,'Tue, April 21')">21</span>
-        <span class="cal-cell" onclick="pickDate(this,'Wed, April 22')">22</span>
-        <span class="cal-cell" onclick="pickDate(this,'Thu, April 23')">23</span>
-        <span class="cal-cell" onclick="pickDate(this,'Fri, April 24')">24</span>
-        <span class="cal-cell" onclick="pickDate(this,'Sat, April 25')">25</span>
-        <span class="cal-cell" onclick="pickDate(this,'Sun, April 26')">26</span>
-
-        <span class="cal-cell" onclick="pickDate(this,'Mon, April 27')">27</span>
-        <span class="cal-cell" onclick="pickDate(this,'Tue, April 28')">28</span>
-        <span class="cal-cell" onclick="pickDate(this,'Wed, April 29')">29</span>
-        <span class="cal-cell" onclick="pickDate(this,'Thu, April 30')">30</span>
-        <span class="cal-cell" style="opacity:0;"></span>
-        <span class="cal-cell" style="opacity:0;"></span>
-        <span class="cal-cell" style="opacity:0;"></span>
-      </div>
-
-      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" id="date-confirm-btn" onclick="confirmDate()">Confirm &middot; Sat, April 19</button>
-    </div>
-  </div>
-
-  <!-- Time picker bottom sheet -->
-  <div class="fit-sheet-overlay" id="time-picker-sheet">
-    <div class="fit-sheet tp-sheet" >
-      <div class="fit-sheet-handle"></div>
-      <div style="font-size:16px;font-weight:500;margin-bottom:4px;">Select time</div>
-      <div style="font-size:14px;color:var(--fit-text-tertiary);margin-bottom:16px;">1h session &middot; available slots</div>
-
-      <!-- Slot list with accordion minutes -->
-      <div class="tp-slot-list" style="height:320px;overflow-y:auto;margin-bottom:20px;border-radius:12px;padding:4px;" id="tp-slot-list">
-
-        <div class="tp-slot" data-hour="08" onclick="tpToggleSlot(this)">
-          <div class="tp-slot-row">
-            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-            <span class="tp-slot-label">08:00</span>
-            <span class="tp-slot-partial">2/4</span>
-            <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-          </div>
-          <div class="tp-slot-minutes">
-            <div class="min-chip" data-min="00" onclick="tpPickTime('08','00',event)">08:00</div>
-            <div class="min-chip" data-min="15" onclick="tpPickTime('08','15',event)">08:15</div>
-            <div class="min-chip disabled" data-min="30">08:30</div>
-            <div class="min-chip disabled" data-min="45">08:45</div>
-          </div>
-        </div>
-
-        <div class="tp-slot" data-hour="10" onclick="tpToggleSlot(this)">
-          <div class="tp-slot-row">
-            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-            <span class="tp-slot-label">10:00</span>
-            <span class="tp-slot-status"></span>
-            <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-          </div>
-          <div class="tp-slot-minutes">
-            <div class="min-chip" data-min="00" onclick="tpPickTime('10','00',event)">10:00</div>
-            <div class="min-chip" data-min="15" onclick="tpPickTime('10','15',event)">10:15</div>
-            <div class="min-chip" data-min="30" onclick="tpPickTime('10','30',event)">10:30</div>
-            <div class="min-chip" data-min="45" onclick="tpPickTime('10','45',event)">10:45</div>
-          </div>
-        </div>
-
-        <div class="tp-slot tp-slot-busy" data-hour="12">
-          <div class="tp-slot-row">
-            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-            <span class="tp-slot-label">12:00</span>
-            <span class="tp-slot-busy-label">Busy &middot; Basketball Training</span>
-          </div>
-        </div>
-
-        <div class="tp-slot tp-slot-busy" data-hour="13">
-          <div class="tp-slot-row">
-            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-            <span class="tp-slot-label">13:00</span>
-            <span class="tp-slot-busy-label">Busy &middot; Yoga Flow</span>
-          </div>
-        </div>
-
-        <div class="tp-slot" data-hour="14" onclick="tpToggleSlot(this)">
-          <div class="tp-slot-row">
-            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-            <span class="tp-slot-label">14:00</span>
-            <span class="tp-slot-partial">2/4</span>
-            <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-          </div>
-          <div class="tp-slot-minutes">
-            <div class="min-chip" data-min="00" onclick="tpPickTime('14','00',event)">14:00</div>
-            <div class="min-chip" data-min="15" onclick="tpPickTime('14','15',event)">14:15</div>
-            <div class="min-chip disabled" data-min="30">14:30</div>
-            <div class="min-chip disabled" data-min="45">14:45</div>
-          </div>
-        </div>
-
-        <div class="tp-slot" data-hour="16" onclick="tpToggleSlot(this)">
-          <div class="tp-slot-row">
-            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-            <span class="tp-slot-label">16:00</span>
-            <span class="tp-slot-partial">3/4</span>
-            <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-          </div>
-          <div class="tp-slot-minutes">
-            <div class="min-chip" data-min="00" onclick="tpPickTime('16','00',event)">16:00</div>
-            <div class="min-chip" data-min="15" onclick="tpPickTime('16','15',event)">16:15</div>
-            <div class="min-chip" data-min="30" onclick="tpPickTime('16','30',event)">16:30</div>
-            <div class="min-chip disabled" data-min="45">16:45</div>
-          </div>
-        </div>
-
-        <div class="tp-slot" data-hour="18" onclick="tpToggleSlot(this)">
-          <div class="tp-slot-row">
-            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-            <span class="tp-slot-label">18:00</span>
-            <span class="tp-slot-status"></span>
-            <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-          </div>
-          <div class="tp-slot-minutes">
-            <div class="min-chip" data-min="00" onclick="tpPickTime('18','00',event)">18:00</div>
-            <div class="min-chip" data-min="15" onclick="tpPickTime('18','15',event)">18:15</div>
-            <div class="min-chip" data-min="30" onclick="tpPickTime('18','30',event)">18:30</div>
-            <div class="min-chip" data-min="45" onclick="tpPickTime('18','45',event)">18:45</div>
-          </div>
-        </div>
-
-        <div class="tp-slot" data-hour="20" onclick="tpToggleSlot(this)">
-          <div class="tp-slot-row">
-            <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-            <span class="tp-slot-label">20:00</span>
-            <span class="tp-slot-status"></span>
-            <svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-          </div>
-          <div class="tp-slot-minutes">
-            <div class="min-chip" data-min="00" onclick="tpPickTime('20','00',event)">20:00</div>
-            <div class="min-chip" data-min="15" onclick="tpPickTime('20','15',event)">20:15</div>
-            <div class="min-chip" data-min="30" onclick="tpPickTime('20','30',event)">20:30</div>
-            <div class="min-chip" data-min="45" onclick="tpPickTime('20','45',event)">20:45</div>
-          </div>
-        </div>
-
-      </div>
-
-      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="tpConfirm()" id="tp-confirm-btn">Select a time slot</button>
-    </div>
-  </div>
-
   <!-- Validation snackbar -->
   <div class="fit-snackbar" id="validation-snack"><span class="snack-dot" style="background:var(--fit-red-400);"></span>Please fill in required fields</div>
-  <div class="fit-snackbar" id="duration-snack"><span class="snack-dot"></span>Time slot reset — duration changed</div>
 
   <!-- Edit scope sheet (shown when impactful changes detected in edit mode) -->
   <div class="fit-sheet-overlay" id="edit-scope-sheet">
@@ -965,7 +736,7 @@
         </div>
         <div style="flex:1;">
           <div style="font-size:16px;font-weight:600;">HIIT Group Session</div>
-          <div style="font-size:12px;opacity:0.7;">Tue &amp; Thu, 18:00 &middot; 1h</div>
+          <div style="font-size:12px;opacity:0.7;">1h &middot; cash/card</div>
         </div>
         <div style="text-align:right;display:flex;align-items:center;gap:8px;">
           <div>
@@ -990,7 +761,7 @@
         </div>
         <div style="flex:1;">
           <div style="font-size:16px;font-weight:600;">Yoga Morning Flow</div>
-          <div style="font-size:12px;opacity:0.7;">Mon &amp; Wed, 08:00 &middot; 1h 30m</div>
+          <div style="font-size:12px;opacity:0.7;">1h 30m &middot; cash/card</div>
         </div>
         <div style="text-align:right;display:flex;align-items:center;gap:8px;">
           <div>
@@ -1076,24 +847,35 @@
     <div class="fit-input-group"><span class="fit-input-label">Price per participant</span></div>
     <div class="price-row"><div class="fit-input" style="flex:1">25</div><div class="price-currency">&euro;</div></div>
 
-    <!-- Schedule prefilled: Recurring, Tue & Thu -->
-    <div class="fit-input-group"><span class="fit-input-label">Schedule</span></div>
-    <div class="fit-selection-group" data-fit-selection="single"><div class="fit-selection-chip selected">Recurring</div><div class="fit-selection-chip">One-off</div></div>
-
-    <div class="fit-input-group"><span class="fit-input-label">Days</span></div>
-    <div style="display:flex;gap:6px;padding:0 16px;margin-bottom:16px;">
-      <div class="day-btn" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;background:var(--fit-surface-high);color:var(--fit-text-tertiary);">M</div>
-      <div class="day-btn" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);color:var(--fit-white);">T</div>
-      <div class="day-btn" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;background:var(--fit-surface-high);color:var(--fit-text-tertiary);">W</div>
-      <div class="day-btn" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);color:var(--fit-white);">T</div>
-      <div class="day-btn" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;background:var(--fit-surface-high);color:var(--fit-text-tertiary);">F</div>
-      <div class="day-btn" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;background:var(--fit-surface-high);color:var(--fit-text-tertiary);">S</div>
-      <div class="day-btn" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;background:var(--fit-surface-high);color:var(--fit-text-tertiary);">S</div>
+    <!-- Scheduled dates — series/instances generated from this template (managed on calendar) -->
+    <div class="fit-input-group"><span class="fit-input-label">Scheduled dates</span></div>
+    <!-- Empty: template created but never scheduled yet -->
+    <div id="se-dates-empty" style="display:none;margin:0 16px 12px;padding:20px 16px;border:1px dashed var(--fit-gray-700);border-radius:14px;text-align:center;">
+      <div style="font-size:14px;color:var(--fit-text-secondary);">No dates scheduled yet</div>
+      <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:4px;">Add this template to your calendar below.</div>
     </div>
-
-    <div class="fit-input-group"><span class="fit-input-label">Start time</span>
-      <div class="fit-input" style="cursor:pointer;"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg> 18:00 <span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    <div id="se-dates-list" style="margin:0 16px 12px;display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--fit-divider);border-radius:14px;cursor:pointer;" onclick="window.location.href='./calendar.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;flex-shrink:0;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Recurring &middot; Tue &amp; Thu &middot; 18:00</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;">Next: Tue, Apr 15 &middot; 3/10 spots</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--fit-divider);border-radius:14px;cursor:pointer;" onclick="window.location.href='./calendar.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;flex-shrink:0;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">One-off &middot; Sat, Apr 19 &middot; 10:00</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;">Special &middot; 5/10 spots</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
     </div>
+    <button class="fit-btn fit-btn-secondary" style="margin:0 16px 16px;width:calc(100% - 32px);display:flex;align-items:center;justify-content:center;gap:8px;" onclick="window.location.href='./invite.html?mode=schedule&amp;origin=s-edit'">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      Schedule new dates
+    </button>
 
     <div class="fit-input-group"><span class="fit-input-label">Payment method</span></div>
     <div class="fit-selection-group" data-fit-selection="multi">
@@ -1148,29 +930,21 @@
     <div class="state-toggle">
       <button class="active" onclick="setCreateState('default',this)">Default</button>
       <button onclick="setCreateState('errors',this)">Validation errors</button>
-      <button onclick="setCreateState('duration-reset',this)">Time reset</button>
     </div>
-    <p>Unified form for personal and group. Group-only fields <strong>hide/show</strong> with animation based on type toggle.</p>
+    <p>Unified <strong>template</strong> form for personal and group — a reusable definition, <strong>no dates/times</strong>. Group-only fields (max/min participants) <strong>hide/show</strong> with animation on type toggle.</p>
     <ul>
-      <li>Personal / Group toggle — hides/shows group fields</li>
-      <li>Recurring / One-off — switches Days ↔ Date picker</li>
-      <li>Time picker — bottom sheet with <strong>available slots</strong></li>
+      <li>Personal / Group toggle — hides/shows participant fields</li>
       <li>Price label changes: "Price" vs "Price per participant"</li>
+      <li><strong>No schedule here</strong> — dates, times &amp; recurrence are picked later when the coach schedules this template on the calendar (see Schedule flow)</li>
     </ul>
     <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Full behavior spec</span>
     <div class="ann-detail">
+      <h4>Template vs schedule (new model)</h4>
+      <p>A training session is now a pure <strong>template</strong>: name, sport, location, duration, price, participants, payment. It carries <strong>no recurrence, days, or time</strong>. Scheduling is a separate step (calendar FAB → "Schedule training" → pick template → drag onto time-grid → recurrence drawer). One template → many placements (e.g. Tue 12:00 <em>and</em> Fri 17:00).</p>
       <h4>Prefilled defaults</h4>
-      <p>Sport: first from profile. Location: first address. Type: Personal. Payment: Cash. Max: 10, Min: 3. Days: current weekday. Date: today. Time: NOT prefilled.</p>
+      <p>Sport: first from profile. Location: first address. Type: Personal. Payment: Cash + Card. Max: 10, Min: 3.</p>
       <h4>Validation (Errors state)</h4>
-      <p>Save always active. On tap <strong>Save</strong>: validates name, duration, price, time. Red border + red label on empty fields (all at once). <strong>Auto-scroll to first error.</strong> Snackbar: <em>"Please fill in required fields"</em> for 2.5s. Error styles auto-clear after 3s so user can focus and retype. Re-typing in a field does NOT auto-clear — only Save re-validates.</p>
-      <h4>Side-effect resets (Time reset state)</h4>
-      <p>Changing <strong>duration</strong> or <strong>date</strong> after time was selected → resets time to <em>"Select time"</em> + neutral snackbar: <em>"Time slot reset — duration changed"</em>. Prevents invalid slot selection.</p>
-      <h4>Time picker (sheet)</h4>
-      <p>Accordion: hours with busy labels + "2/4" partial badges. Tap hour → expand minute chips. Busy minutes greyed. Confirm button shows selected range.</p>
-      <h4>Recurring</h4>
-      <p>Auto-generates events 2 months ahead. Daily rolling check.</p>
-      <h4>One-off</h4>
-      <p>Calendar grid in bottom sheet. Past dates greyed. "Special" badge on profile.</p>
+      <p>Save always active. On tap <strong>Save</strong>: validates name, duration, price. Red border + red label on empty fields (all at once). <strong>Auto-scroll to first error.</strong> Snackbar: <em>"Please fill in required fields"</em> for 2.5s. Error styles auto-clear after 3s so user can focus and retype. Re-typing in a field does NOT auto-clear — only Save re-validates.</p>
       <h4>Location picker</h4>
       <p>Tap Location field → pushes to <strong>Training Locations</strong> screen in select mode. Shows all in-person + online locations. Tap = select + pop back. Supports both physical gyms and online meeting links.</p>
       <h4>API</h4>
@@ -1188,7 +962,7 @@
       <li>Tap card → edit template (Create Session form, edit mode)</li>
       <li>Header "+" → create new session</li>
       <li><strong>Non-impactful</strong> edits (name, price, max): apply silently</li>
-      <li><strong>Impactful</strong> edits (time, days, location): scope picker + participant warning</li>
+      <li><strong>Impactful</strong> edits (duration, location, price): scope picker (future only / all upcoming) + participant warning</li>
     </ul>
     <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>States &amp; behavior</span>
     <div class="ann-detail">
@@ -1202,7 +976,12 @@
       <p><code>GET /coach/training-sessions/</code> — returns template list.<br><code>DELETE /coach/training-sessions/{id}/</code> — with cascade warning if used in scheduled events.</p>
     </div>
   </div>
-  <div class="ann" id="ann-s-edit"><span class="ann-role coach">Coach</span><h3>My Training Sessions</h3><p>All templates. Pencil icon → edit (same form, prefilled).</p><ul><li>Pencil → edit template (Create Session form, edit mode)</li><li>FAB "+" → create new</li><li><strong>Non-impactful</strong> edits (name, price, max): apply silently</li><li><strong>Impactful</strong> edits (time, days, location): scope picker + participant warning</li></ul></div>
+  <div class="ann" id="ann-s-edit"><span class="ann-role coach">Coach</span><h3>Edit Training Session</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="seDates(false,this)">Has dates</button>
+      <button onclick="seDates(true,this)">No dates yet</button>
+    </div>
+    <p>Template detail + edit. Same fields as create, prefilled — plus a <strong>Scheduled dates</strong> section (this template's live placements) unique to edit mode. A freshly created template has <strong>no placements</strong> until scheduled → empty state.</p><ul><li><strong>Scheduled dates</strong> — lists each placement of this template (recurring series + one-off "Special" events). Tap a row → manage on calendar.</li><li><strong>Schedule new dates</strong> CTA → hands off to the scheduling flow (<code>invite.html?mode=schedule&amp;origin=s-edit</code>) → drag-drop time-grid → recurrence drawer.</li><li><strong>Non-impactful</strong> edits (name, price, max): apply silently.</li><li><strong>Impactful</strong> edits (duration, location, price): scope picker (future only / all upcoming) + participant warning.</li><li><strong>Delete</strong> (header trash): keep existing events vs cancel-all-and-refund.</li></ul></div>
 </div>
 
 <script src="../../lib/fit-ui.js"></script>
@@ -1248,25 +1027,17 @@ function setCreateState(state, btn) {
   // Clear any lingering errors + snackbars
   screen.querySelectorAll('.fit-input-group.error').forEach(g => g.classList.remove('error'));
   var vs = document.getElementById('validation-snack'); if (vs) vs.classList.remove('show');
-  var ds = document.getElementById('duration-snack'); if (ds) ds.classList.remove('show');
-  var timeDisp = document.getElementById('time-display');
   if (state === 'errors') {
     // Clear required inputs so validateCreate marks them
     var nameEl = screen.querySelector('[data-required="name"] .fit-input');
     if (nameEl) nameEl.textContent = '';
     var priceEl = screen.querySelector('[data-required="price"] + .price-row .fit-input');
     if (priceEl) priceEl.textContent = '';
-    if (timeDisp) timeDisp.textContent = 'Select time';
     validateCreate();
-  } else if (state === 'duration-reset') {
-    if (timeDisp) timeDisp.textContent = 'Select time';
-    var snack = document.getElementById('duration-snack');
-    if (snack) { snack.classList.add('show'); setTimeout(function(){ snack.classList.remove('show'); }, 2500); }
   } else {
     // Default — restore prefilled values
     var nameEl = screen.querySelector('[data-required="name"] .fit-input');
     if (nameEl && !nameEl.textContent.trim()) nameEl.textContent = '';
-    if (timeDisp) timeDisp.textContent = '18:00';
   }
 }
 
@@ -1298,18 +1069,12 @@ function validateCreate() {
       const el = screen.querySelector('[data-required="price"] + .price-row .fit-input');
       return el && el.textContent.trim().length > 0 && el.textContent.trim() !== '0';
     }},
-    { sel: '[data-required="time"]', test: () => {
-      const el = document.getElementById('time-display');
-      return el && el.textContent !== 'Select time';
-    }},
   ];
 
   let firstError = null;
   for (const check of checks) {
     const group = screen.querySelector(check.sel);
     if (!group) continue;
-    // Skip time check if personal mode
-    if (check.sel.includes('time') && !document.getElementById('schedule-fields')?.offsetHeight) continue;
 
     if (!check.test()) {
       group.classList.add('error');
@@ -1363,7 +1128,7 @@ function updateSheetWarning(e, sheetId) {
   }
 }
 
-// === DURATION CHANGE -> RESET TIME ===
+// === DURATION WHEEL SELECT ===
 function changeDuration(item) {
   const col = item.closest('.fit-wheel-scroll');
   col.querySelectorAll('.fit-wheel-item').forEach(i => {
@@ -1372,108 +1137,13 @@ function changeDuration(item) {
   });
   item.classList.remove('dim');
   item.classList.add('active');
-
-  const timeDisplay = document.getElementById('time-display');
-  if (timeDisplay && timeDisplay.textContent !== 'Select time') {
-    timeDisplay.textContent = 'Select time';
-    const snack = document.getElementById('duration-snack');
-    snack.classList.add('show');
-    setTimeout(() => snack.classList.remove('show'), 2500);
-  }
-}
-
-// === DATE PICKER ===
-let selectedDate = 'Sat, April 19';
-function pickDate(cell, dateStr) {
-  selectedDate = dateStr;
-  document.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('selected'));
-  cell.classList.add('selected');
-  document.getElementById('date-confirm-btn').textContent = 'Confirm \u00b7 ' + dateStr;
-}
-function confirmDate() {
-  const prev = document.getElementById('date-display').textContent;
-  document.getElementById('date-display').textContent = selectedDate;
-  document.getElementById('date-picker-sheet').classList.remove('visible');
-  if (prev !== selectedDate) {
-    const timeDisplay = document.getElementById('time-display');
-    if (timeDisplay && timeDisplay.textContent !== 'Select time') {
-      timeDisplay.textContent = 'Select time';
-      const snack = document.getElementById('duration-snack');
-      snack.querySelector('.snack-dot').style.background = 'var(--fit-yellow-400)';
-      snack.innerHTML = '<span class="snack-dot"></span>Time slot reset \u2014 date changed';
-      snack.classList.add('show');
-      setTimeout(() => snack.classList.remove('show'), 2500);
-    }
-  }
-}
-
-// === TIME PICKER BOTTOM SHEET (accordion slots) ===
-let tpHour = '18';
-let tpMin = '00';
-
-function tpToggleSlot(slot) {
-  if (slot.classList.contains('tp-slot-busy')) return;
-  const wasExpanded = slot.classList.contains('expanded');
-  document.querySelectorAll('#tp-slot-list .tp-slot').forEach(s => s.classList.remove('expanded'));
-  if (!wasExpanded) {
-    slot.classList.add('expanded');
-    var hour = slot.getAttribute('data-hour');
-    var firstChip = slot.querySelector('.min-chip:not(.disabled)');
-    if (firstChip) {
-      var min = firstChip.getAttribute('data-min');
-      document.querySelectorAll('#tp-slot-list .tp-slot-row').forEach(function(r) { r.classList.remove('selected'); });
-      document.querySelectorAll('#tp-slot-list .min-chip').forEach(function(c) { c.classList.remove('selected'); });
-      slot.querySelector('.tp-slot-row').classList.add('selected');
-      firstChip.classList.add('selected');
-      tpHour = hour;
-      tpMin = min;
-      tpUpdateBtn();
-    }
-    setTimeout(function() {
-      var list = document.getElementById('tp-slot-list');
-      var slotBottom = slot.offsetTop + slot.offsetHeight;
-      if (slotBottom > list.scrollTop + list.clientHeight) {
-        list.scrollTo({ top: slotBottom - list.clientHeight + 10, behavior: 'smooth' });
-      }
-    }, 100);
-  }
-}
-
-function tpPickTime(hour, min, e) {
-  e.stopPropagation();
-  tpHour = hour; tpMin = min;
-  document.querySelectorAll('#tp-slot-list .tp-slot-row').forEach(r => r.classList.remove('selected'));
-  document.querySelectorAll('#tp-slot-list .min-chip').forEach(c => c.classList.remove('selected'));
-  const chip = e.target.closest('.min-chip');
-  const slot = chip.closest('.tp-slot');
-  slot.querySelector('.tp-slot-row').classList.add('selected');
-  chip.classList.add('selected');
-  tpUpdateBtn();
-}
-
-function tpUpdateBtn() {
-  const h = parseInt(tpHour), m = parseInt(tpMin);
-  const start = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
-  const end = String(h+1).padStart(2,'0') + ':' + String(m).padStart(2,'0');
-  const btn = document.getElementById('tp-confirm-btn');
-  if (btn) btn.textContent = 'Confirm \u00b7 ' + start + ' \u2014 ' + end;
-}
-
-function tpConfirm() {
-  const start = String(parseInt(tpHour)).padStart(2,'0') + ':' + String(parseInt(tpMin)).padStart(2,'0');
-  document.getElementById('time-display').textContent = start;
-  document.getElementById('time-picker-sheet').classList.remove('visible');
 }
 
 // === CREATE SESSION: show/hide logic ===
 document.addEventListener('DOMContentLoaded', () => {
   const typeToggle = document.getElementById('type-toggle');
   const groupFields = document.getElementById('group-fields');
-  const scheduleFields = document.getElementById('schedule-fields');
   const priceLabel = document.getElementById('price-label');
-  const scheduleToggle = document.getElementById('schedule-toggle');
-  const recurringFields = document.getElementById('recurring-fields');
-  const oneoffFields = document.getElementById('oneoff-fields');
 
   if (!typeToggle) return;
 
@@ -1504,17 +1174,8 @@ document.addEventListener('DOMContentLoaded', () => {
   typeToggle.addEventListener('fit:selection', (e) => {
     const isGroup = e.detail.values.includes('group');
     slideToggle(groupFields, isGroup);
-    slideToggle(scheduleFields, isGroup);
     priceLabel.textContent = isGroup ? 'Price per participant' : 'Price';
   });
-
-  if (scheduleToggle) {
-    scheduleToggle.addEventListener('fit:selection', (e) => {
-      const isRecurring = e.detail.values.includes('recurring');
-      slideToggle(recurringFields, isRecurring);
-      slideToggle(oneoffFields, !isRecurring);
-    });
-  }
 });
 
 // === MAP MODE TOGGLE ===
@@ -2396,6 +2057,15 @@ function doLogout() {
   if (!t) return;
   t.classList.add('show');
   setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+
+// s-edit "Scheduled dates" — toggle between placement list and the no-dates-yet empty state.
+function seDates(empty, btn) {
+  var list = document.getElementById('se-dates-list');
+  var em = document.getElementById('se-dates-empty');
+  if (list) list.style.display = empty ? 'none' : 'flex';
+  if (em) em.style.display = empty ? 'block' : 'none';
+  if (btn) { btn.parentNode.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); }
 }
 </script>
 </body>

@@ -630,6 +630,15 @@ Spec: `booking-flow.md` — prototype lives partly in `athlete/search.html` + `s
 | `coach.invite.grid` | time-grid scroll/tap area | `s-invite-time` | mirror of athlete grid (coach invite/schedule) |
 | `coach.invite.slot` | draggable `.fit-bk-sel` selection block | `s-invite-time` | drag to set start |
 | `coach.invite.time.back` | back chevron | `s-invite-time` | returns to `s-invite-select` (template chooser) |
+| `coach.invite.group.repeat.once` / `.repeat.weekly` | Repeat chips | `group-publish-sheet` | Just this date / Weekly |
+| `coach.invite.group.day.{mon…sun}` | weekday chips | `group-publish-sheet` | multi-select; Weekly needs ≥1 (else Publish disabled) |
+| `coach.invite.group.ends.ongoing` / `.ends.on-date` | Ends chips | `group-publish-sheet` | On date expands sheet + reveals calendar |
+| `coach.invite.group.end-date` | inline month calendar | `group-publish-sheet` | shown when Ends = "On date"; sheet expands to large detent + scrolls to it (native graphical DatePicker) |
+| `coach.invite.group.cal-prev` / `.cal-next` | month nav arrows | `group-publish-sheet` | inline calendar month step |
+| `coach.invite.group.publish` | "Publish" CTA | `group-publish-sheet` | disabled when Weekly & 0 days; Weekly w/ conflicts → review page |
+| `coach.invite.group.review.back` | ‹ back | `group-publish-sheet` (review) | returns to config page |
+| `coach.invite.group.review.keep` | "Keep anyway" toggle | `group-publish-sheet` (review) | external conflict only; own conflicts are hard-skipped |
+| `coach.invite.group.review.publish` | "Publish N sessions" CTA | `group-publish-sheet` (review) | publishes minus skipped occurrences |
 
 ### `my-coaches` — athlete relationships + reviews (`athlete/my-coaches.html`)
 

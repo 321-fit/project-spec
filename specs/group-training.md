@@ -1,8 +1,10 @@
 # Group Training
 
 > Status: Approved
-> Prototypes (Phase 4 redesign): coach create/manage [coach/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html) + [coach/settings.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html) · athlete discover/join [shared/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/profile.html) · athlete schedule [athlete/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/calendar.html). Group event detail: [group-event-detail.md](group-event-detail.md).
-> Last updated: 2026-06-19
+> Prototypes (Phase 4 redesign): coach create/manage [coach/sessions.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/sessions.html) + [coach/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html) · schedule/publish [coach/invite.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/invite.html) · athlete discover/join [shared/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/profile.html) · athlete schedule [athlete/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/calendar.html). Group event detail: [group-event-detail.md](group-event-detail.md).
+> Last updated: 2026-07-01
+
+> **Changelog 2026-07-01 — Template/schedule DECOUPLE.** A group template is now a *pure definition* (no days/time/recurrence), created exactly like a personal one. Scheduling is a **separate step** (calendar FAB → `invite.html?mode=schedule` → template chooser → drag-drop grid → **publish drawer**). One template → many placements. Recurrence trimmed to `Just this date` / `Weekly` (+ day chips) with `Ends: Ongoing / On date`. "On date" expands the drawer to the large detent + inline calendar. Weekly publish runs a **conflict review** over the 60-day generation window (own events hard-skipped, external "keep anyway"). See §1, §3, §3a, §"Overlap & Conflicts".
 
 ## Overview
 
@@ -47,20 +49,24 @@ Add group training sessions to 321Fit. Coaches create reusable templates with pa
 
 ### Coach Flow
 
-#### 1. Create Group Session
+#### 1. Create Group Session (template = pure definition, NO schedule)
 
-The create / edit form is shared between personal and group templates and is documented in [session-creation.md](./session-creation.md). Group fields (max/min participants, recurring schedule, days, date, start time, time/date picker sheets), validation, side-effect resets, and the impactful-changes scope picker all live there.
+> **DECOUPLED 2026-07-01.** The template no longer carries any schedule. It is a reusable definition, created with the **same** `s-create` form as a personal template — the group toggle only adds **max/min participants**. NO days, time, recurrence, or date pickers on the template form.
+
+The create / edit form is shared between personal and group templates and is documented in [session-creation.md](./session-creation.md). Fields: name, sport, location, duration, price/participant, payment method — plus (group only) max + optional min participants.
 
 **Group-specific behavior layered on top of the shared form:**
-- Selecting Group reveals max/min participants and the schedule section
-- On save with `is_group: true && is_recurring: true`, server auto-generates events for the next 2 months (see Section "Recurring Events" below)
-- One-off mode (`is_recurring: false`) creates a single event and gets the "Special" badge on the coach profile
+- Selecting Group reveals **max participants** + optional **min participants** (threshold) — nothing else
+- Saving creates only the template. It generates **no events** — scheduling happens later (see §3a)
+- Lives in "My Sessions" beside personal templates
 
 #### 2. My Training Sessions
 
 The list screen, edit-mode behavior, and impactful-vs-non-impactful change rules are documented in [session-creation.md](./session-creation.md). On a group template card, badges and price strings differ from personal:
 - Group templates: badge "Group · max 10", price shown as "€25/person"
 - Personal templates: badge "Personal"
+
+**Edit mode — `Scheduled dates` section (edit-only).** Lists every live placement of this template (recurring series + one-off "Special" events), each row → manage on calendar. A **"Schedule new dates"** CTA hands off to the scheduling flow (`invite.html?mode=schedule&origin=s-edit`). **Empty state:** a freshly created template with no placements shows a dashed "No dates scheduled yet · Add this template to your calendar below" card above the CTA.
 
 #### 3. Calendar
 [Prototype screen: Calendar]
@@ -71,9 +77,8 @@ The list screen, edit-mode behavior, and impactful-vs-non-impactful change rules
 - Personal events: green left border + athlete name
 - Day strip wheel (horizontal scroll, today centered)
 - Today / Sync buttons in header
-- FAB "+" → bottom sheet: "Create Personal Event", "Create Group Event", "Create Custom Event"
-- Long tap on empty slot → same FAB sheet, but time prefilled from finger position
-- "Create Group Event" → opens Create Session form with: Group type, current day as date, Recurring default. FAB tap = no time prefill, long tap = time from position
+- FAB "+" → bottom sheet: **"Schedule training"** (personal or group session) + "Block time off" (custom event). *(Was "Create Personal/Group/Custom Event" — replaced 2026-07-01: scheduling now goes through the template chooser, §3a.)*
+- "Schedule training" → `invite.html?mode=schedule` → template chooser → drag-drop grid → publish/invite (see §3a)
 - Long press on existing event → bottom sheet: View Details, Reschedule, Cancel
 - Current time indicator (teal line + dot)
 
@@ -87,6 +92,25 @@ The list screen, edit-mode behavior, and impactful-vs-non-impactful change rules
 - Radio options: "This session only" / "This and all following" / "All sessions"
 - Cancel: warning "X participants will be notified and refunded"
 - Reschedule: then opens date/time picker
+
+#### 3a. Scheduling a session (template → calendar) — NEW 2026-07-01
+[Prototype: coach/invite.html]
+
+Decoupled scheduling. Reached from the calendar FAB "Schedule training" **or** a template's "Schedule new dates" CTA in edit mode. One shared flow for personal + group, branched by template type.
+
+**Flow:**
+1. **Template chooser** (`s-invite-select`) — ONE list of all templates (personal + group). Tap selects + pushes to the grid. Empty (no templates) → jumps to `sessions.html#s-create`; loading = 2 skeleton cards.
+2. **Drag-drop time-grid** (`s-invite-time`) — reuses the athlete booking grid (`.fit-bk-*`, 96px = 1h). Tap a free band or drag the block (15-min snap); it snaps off any busy range to the nearest free slot (coach's own conflict = STRICT, can't place). Group branch hides the athlete-availability row (open event, no invitee). One template → **many placements** (Tue 12:00 + Fri 17:00 = two drops).
+3. **Confirm step** branches by type:
+   - **Personal** → invite (link) / schedule (in-app) confirm sheet.
+   - **Group** → **publish drawer** (`group-publish-sheet`), CTA **Publish** (open event, no invite).
+
+**Group publish drawer:**
+- **Session summary** (name, time from the drop, location, max, price/person).
+- **Repeat:** `Just this date` / `Weekly`. Weekly reveals **day chips** (M–S, dropped weekday pre-selected, same time) — Publish is **disabled** until ≥1 day is selected.
+- **Ends:** `Ongoing` / `On date`. Picking **On date** expands the sheet to the **large detent** (`.presentationDetents([.medium,.large])`) and scrolls to an **inline month calendar** (native graphical `DatePicker` on device — no stacked picker sheet; maps to `training_event.recurrence_pattern_end_date`).
+- **Recurrence-aware copy** summarizing what will publish ("Publishes a weekly open session · Tue & Thu · 09:00 until Jul 23").
+- On **Publish** of a Weekly placement → **conflict review** (§"Overlap & Conflicts"). One-off publishes directly → snackbar → land on Calendar.
 
 #### 4. Group Event Detail
 [Prototype screen: Event Detail]
@@ -309,11 +333,20 @@ Same calendar as coach but light theme.
 - External calendar events block availability (treated as busy)
 - External conflicts shown side-by-side in calendar
 
+**Recurring-publish conflict review (NEW 2026-07-01).** A `Weekly` placement projects the same time onto future weeks; some occurrences may overlap existing events. On Publish, the server (or client pre-check) evaluates occurrences **inside the 60-day generation window** and, if any collide, returns them for a **review step** (page 2 of the publish drawer — no stacked sheet):
+- **Coach's own 321Fit event** (personal/group) → **hard auto-skip** that occurrence. Cannot double-book yourself (canon STRICT). Shown with a "Skipped" tag, no toggle.
+- **External Google/Apple** busy → **soft**: default skip, per-date **"Keep anyway"** toggle (canon: external "resolves manually"). Toggling recomputes the "Publish N sessions" count.
+- **No per-occurrence time-shift** — athletes keep a stable weekly time. To use a skipped date, the coach manually frees their slot and adds an occurrence.
+- **Rolling generation** (day 61+ as the window advances): the daily job re-checks new occurrences, skips conflicts, and sends a low-priority push to the coach ("Recurring HIIT skipped Aug 20 — calendar conflict").
+
 ### Recurring Events
-- Auto-generate 2 months ahead, rolling window (daily check)
+- Auto-generate **60 days (2 months) ahead**, rolling window (daily check)
+- Weekly only (multi-day, single time — matches Google/Apple). Monthly / every-N-weeks / after-N-occurrences are **not** in V1
+- `Ends: Ongoing` (open-ended, keeps rolling) or `On date` (`recurrence_pattern_end_date`)
+- Each generated occurrence is checked for overlap and **skipped** on conflict (see review above)
 - Individual event can be cancelled/rescheduled without affecting chain
 - Reschedule options: this only / this and following / all
-- One-off events: single event, "Special" badge on profile
+- One-off events (`Just this date`): single event, "Special" badge on profile
 
 ## Notifications
 
