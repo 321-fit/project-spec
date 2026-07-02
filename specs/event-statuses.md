@@ -244,6 +244,26 @@ Creates new event with `request`/`awaiting` state + cancels old. Body: `{ newSta
 - **State transitions are atomic** — server must not allow a partial transition (e.g., status updated but push not sent). Use database transactions + idempotent outgoing events.
 - **Every visible transition fires a push** unless recipient disabled notifications. See Push table below.
 - **Pill colors map to state, not to role or context.** A yellow pill always means "needs attention" (request or review); gray always means "waiting on other party" (awaiting).
+- **Session count rule (unified across all surfaces):** every "N sessions" counter in the product counts only **`finished`** events. All other statuses are excluded:
+  - ❌ `cancelled` — did not happen (includes declined, auto-declined, user-cancelled)
+  - ❌ `missed` — coach marked the session as missed (not a completed training)
+  - ❌ `planned` — future/upcoming, hasn't happened yet
+  - ❌ `request` / `awaiting` — not yet confirmed
+  - ❌ `review` — waiting for coach confirmation, not yet resolved
+
+  This rule applies uniformly to:
+  - **Coach Profile** stat strip → `sessions_count` (lifetime, all athletes)
+  - **Athlete Profile** stat strip → `Sessions` / `Hours` / `This month` (lifetime + monthly, all coaches)
+  - **Per-relationship counts** → My Coaches list ("12 sessions · last Apr 2"), Coach Detail training history tile ("12 sessions"), Client Detail training history
+  - **Coach Maturity** graduation threshold (`sessions_count >= 3` — see [coach-maturity-model.md](./coach-maturity-model.md))
+  - **Deleted account badge** → "Account deleted · {date} · N sessions" (Archived & Blocked → Blocked tab)
+  - **Dashboard** `todaySummary` → "3 sessions · €180 today" (counts `planned` + `finished` for today — **exception**: dashboard shows scheduled sessions for the day, not historical completions; the counter here is "sessions on the agenda", not lifetime stat)
+
+  **Rationale:** `finished` is the only state that unambiguously means "training actually took place and was confirmed by the coach". Counting `missed` would inflate the number with sessions that didn't happen. Counting `cancelled` would include declined requests and no-shows. One rule, one query filter, consistent across all surfaces.
+
+  **Hours derivation:** `total_hours = SUM(endAt - startAt)` for all `finished` events. Same filter, same consistency.
+
+  **Backend implementation:** a single reusable query filter / scope (e.g., `EventStatus.finished` predicate) should be used across all endpoints that return session counts, to prevent drift between surfaces.
 
 ---
 
