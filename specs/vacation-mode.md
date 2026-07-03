@@ -3,7 +3,7 @@
 > Status: Draft (v1 scope intentionally narrow) — prototyped 2026-06-23
 > Prototype: [flows/coach/availability.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/availability.html) → Time off · also `flows/coach/available-hours.html#timeoff`
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-23
+> Last updated: 2026-07-03
 > Implementation:
 > - iOS:     [321fit_ios/docs/vacation-mode-ios.md] (to be created)
 > - Backend: [poly-backend/docs/vacation-mode-backend.md] (to be created)
@@ -23,6 +23,17 @@
 **Setup form** (`s-vacation-start`): Starts/Ends date fields (native pickers) + optional 160-char message to clients → confirm sheet → **Scheduled**. Scheduled auto-promotes to Active when the start date arrives (backend).
 
 **Still to prototype:** coach Dashboard banner ("You're on time off until Aug 19 · End early") + athlete-side "Paused until" badge + disabled Book on the coach's public profile (`shared/profile.html` → `s-coach-v2`).
+
+---
+
+## Update — 2026-07-03 — Compact cards + history screen
+
+Supersedes the 3-state single-list from the 2026-06-23 update.
+
+- **Main screen (`s-time-off`) = current only.** **Active** (amber, shown first) + **Scheduled** cards, now **compact** (dates + status pill on one line, client message truncated to one line below; card height ~halved) + the dashed **Add time off**. Empty (None) unchanged.
+- **History behind a link.** A canonical `.fit-section-title--md-row` "**Past time off — See all ›**" (same Recent→History pattern as balance) pushes to a **new read-only screen `s-time-off-history`**: ended/cancelled time-offs with an **outcome pill** (*Ended* = ran its course / *Cancelled* = ended early or removed), **not tappable** — nothing to edit on a past entry. a11y `coach.timeoff-history.*`. Backend: paginated `GET` past time-offs (status in ended/cancelled), most-recent first.
+- **Reason icons on cards deferred** — "reason" isn't a stored field (the setup-form reason chips only pre-fill the message text).
+- **Calendar cross-link.** The calendar's one-off blocker was renamed **Block time off → Busy time** (see [coach-calendar.md](./coach-calendar.md)); its form now carries an outline note *"Away for a few days? → Set Time off"* deep-linking to `available-hours.html#timeoff` — disambiguates an ad-hoc busy slot (Busy time) from a multi-day absence (Time off).
 
 ---
 

@@ -222,14 +222,23 @@
   }
   .avail-tz svg { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.8; }
   .avail-days {
-    display: flex; flex-direction: column; gap: 16px;
+    display: flex; flex-direction: column; gap: 12px;
     padding: 0 16px 16px;
   }
-  .avail-day { display: flex; flex-direction: column; gap: 12px; }
+  /* Each day = a self-contained card: checkbox + name + its intervals + location */
+  .avail-day {
+    display: flex; flex-direction: column; gap: 14px;
+    background: var(--fit-surface-high);
+    border-radius: 16px; padding: 16px;
+  }
+  .fit-light .avail-day { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+  .avail-day:not(.active) { gap: 0; }
   .avail-day-header {
     display: flex; align-items: center; gap: 12px;
-    min-height: 44px; cursor: pointer;
+    min-height: 24px; cursor: pointer;
   }
+  .avail-day-off { margin-left: auto; font-size: 14px; color: var(--fit-text-tertiary); }
+  .avail-day.active .avail-day-off { display: none; }
   .avail-checkbox {
     width: 24px; height: 24px; flex-shrink: 0;
     border-radius: 6px; border: 1px solid rgba(246,247,248,0.5);
@@ -246,11 +255,32 @@
   .avail-day.active .avail-checkbox svg { display: block; }
   .avail-day-name { font-size: 16px; color: var(--fit-text-primary); font-weight: 400; }
   .avail-day:not(.active) .avail-day-name { color: var(--fit-text-secondary); }
-  .avail-intervals { display: flex; flex-direction: column; gap: 8px; }
+  .avail-intervals {
+    display: flex; flex-direction: column; gap: 14px;
+    border-top: 1px solid var(--fit-divider); padding-top: 14px;
+  }
   .avail-day:not(.active) .avail-intervals { display: none; }
-  .avail-interval { display: flex; align-items: center; gap: 12px; }
+  .avail-interval { display: flex; flex-direction: column; gap: 8px; }
+  .avail-interval-times { display: flex; align-items: center; gap: 12px; }
+  /* Per-DAY location selector — pill in the day header, right edge.
+     Shown only when the coach has 2+ in-person locations (else the whole
+     schedule is implicitly at the single location). One location per day;
+     per-interval (different gym per half-day) is a documented future option. */
+  .avail-day-loc {
+    display: none; align-items: center; gap: 6px;
+    margin-left: auto; max-width: 58%; padding: 7px 12px;
+    background: transparent; border: 1px solid var(--fit-divider);
+    border-radius: 99px; cursor: pointer;
+  }
+  .avail-day-loc:hover { background: var(--fit-surface-low); }
+  .fit-dark .avail-day-loc:hover { background: var(--fit-black); }
+  .avail-day-loc:active { transform: scale(0.98); }
+  #s-availability.loc-multi .avail-day.active .avail-day-loc { display: inline-flex; }
+  .avail-loc-pin { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .avail-loc-name { flex: 0 1 auto; min-width: 0; font-size: 14px; color: var(--fit-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .avail-loc-chev { width: 14px; height: 14px; color: var(--fit-text-tertiary); flex-shrink: 0; }
   .avail-time-input {
-    flex: 1 0 0; min-width: 0; height: 56px;
+    flex: 1 0 0; min-width: 0; height: 48px;
     background: var(--fit-surface-low);
     border: none; border-radius: var(--fit-radius-md);
     padding: 0 12px;
@@ -362,7 +392,7 @@
   .avail-sk-box { width: 24px; height: 24px; border-radius: 6px; flex-shrink: 0; }
   .avail-sk-label { height: 14px; border-radius: 7px; width: 38%; }
   .avail-sk-row { display: flex; gap: 12px; align-items: center; }
-  .avail-sk-input { flex: 1 0 0; height: 56px; border-radius: var(--fit-radius-md); }
+  .avail-sk-input { flex: 1 0 0; height: 48px; border-radius: var(--fit-radius-md); }
   .avail-sk-sep { width: 14px; height: 14px; border-radius: 7px; flex-shrink: 0; }
   .avail-sk-btn { width: 32px; height: 32px; border-radius: 99px; flex-shrink: 0; }
 
@@ -463,6 +493,9 @@
 
   .pd-list { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 8px; }
   .pd-list .cal-select-row { padding: 16px 12px; min-height: 56px; }
+  /* Location picker sheet rows — match canonical pd-list row metrics (56px, 16px 12px) */
+  #avail-loc-sheet .cal-select-row { padding: 16px 12px; min-height: 56px; }
+  #avail-loc-sheet .cal-select-row > span { line-height: 1.25; }
   .pd-list .cal-select-row span { font-size: 16px; line-height: 1.25; }
   .pd-list .cal-flag {
     width: 24px; height: 18px; border-radius: 3px; flex-shrink: 0;
@@ -595,7 +628,7 @@
   .vac-field-label { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--fit-text-primary); }
   .vac-field-label svg { width: 18px; height: 18px; color: var(--fit-text-tertiary); }
   .vac-field-val { font-size: 15px; color: var(--fit-teal-500); font-weight: 500; }
-  .vac-msg { width: 100%; min-height: 84px; border: 1px solid var(--fit-divider); border-radius: 12px; padding: 12px 14px; font-family: var(--fit-font); font-size: 15px; line-height: 1.5; color: var(--fit-text-primary); background: var(--fit-surface-high); outline: none; resize: none; }
+  .vac-msg { width: 100%; min-height: 120px; border: 1px solid var(--fit-divider); border-radius: 12px; padding: 12px 14px; font-family: var(--fit-font); font-size: 15px; line-height: 1.5; color: var(--fit-text-primary); background: var(--fit-surface-high); outline: none; resize: none; }
   .vac-hint { font-size: 13px; color: var(--fit-text-tertiary); line-height: 1.5; padding: 2px 16px 10px; margin: 0; }
   .vac-reasons { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 16px 12px; }
   .vac-reason-chip { font-size: 13px; font-weight: 500; padding: 7px 12px; border-radius: 99px; border: 1px solid var(--fit-divider); background: var(--fit-surface-high); color: var(--fit-text-secondary); cursor: pointer; font-family: var(--fit-font); }
@@ -608,15 +641,23 @@
   #s-time-off.to-list .to-list-block { display: block; }
 
   /* list of time-off cards + "Add" pattern */
-  .to-list { padding: 12px 16px 24px; display: flex; flex-direction: column; gap: 12px; }
-  .to-card { padding: 16px; border-radius: 16px; border: 1px solid var(--fit-divider); background: var(--fit-surface-high); cursor: pointer; }
+  .to-cards { padding: 12px 16px 8px; display: flex; flex-direction: column; gap: 10px; }
+  .to-card { padding: 14px; border-radius: 14px; border: 1px solid var(--fit-divider); background: var(--fit-surface-high); cursor: pointer; }
   .to-card.active { background: rgba(247,201,72,0.10); border-color: rgba(247,201,72,0.32); }
-  .to-card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  /* compact: dates + status pill on one line, message truncated below */
+  .to-card-top { display: flex; align-items: center; gap: 8px; }
   .to-card-chev { width: 18px; height: 18px; color: var(--fit-text-tertiary); flex-shrink: 0; }
-  .to-status-pill { display: inline-flex; align-items: center; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 99px; background: var(--fit-surface-higher); color: var(--fit-text-secondary); }
+  .to-status-pill { flex-shrink: 0; display: inline-flex; align-items: center; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: var(--fit-surface-higher); color: var(--fit-text-secondary); }
   .to-status-pill.act { background: rgba(247,201,72,0.18); color: var(--fit-yellow-400); }
-  .to-dates { font-size: 20px; font-weight: 600; color: var(--fit-text-primary); }
-  .to-card-msg { font-size: 14px; color: var(--fit-text-secondary); line-height: 1.5; margin-top: 8px; font-style: italic; }
+  .to-status-pill.past { background: var(--fit-surface-higher); color: var(--fit-text-tertiary); }
+  .to-dates { flex: 1; min-width: 0; font-size: 16px; font-weight: 600; color: var(--fit-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .to-card-msg { font-size: 13px; color: var(--fit-text-secondary); line-height: 1.4; margin-top: 5px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* read-only past card (history screen) */
+  .to-card--past { cursor: default; }
+  .to-card--past .to-dates { font-weight: 500; color: var(--fit-text-secondary); }
+  /* "Past time off — See all ›" row (canonical section-title--md-row + seeall) */
+  .to-seeall { display: inline-flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 500; color: var(--fit-teal-500); background: none; border: none; cursor: pointer; font-family: var(--fit-font); padding: 0; }
+  .to-seeall svg { width: 14px; height: 14px; }
   /* dashed "Add another" card — same pattern as calendar-sync / locations */
   .to-add-card { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 16px; border: 1px dashed var(--fit-gray-700); border-radius: 16px; cursor: pointer; }
   .to-add-card svg { width: 18px; height: 18px; color: var(--fit-blue-500); }
@@ -644,6 +685,7 @@
   <div class="label">Time off</div>
   <button onclick="go('s-time-off',this)">Time off</button>
   <button onclick="go('s-vacation-start',this)">Time off · edit form</button>
+  <button onclick="go('s-time-off-history',this)">Time off · history</button>
   <div class="label">Booking rules</div>
   <button onclick="go('s-booking-rules',this)">Booking rules (WIP)</button>
   <div class="label">Other modules</div>
@@ -657,7 +699,7 @@
 
 <!-- ==================== PHONE ==================== -->
 <!-- ===== AVAILABLE HOURS — Default state ===== -->
-<div class="fit-phone fit-dark active" id="s-availability">
+<div class="fit-phone fit-dark active loc-multi" id="s-availability">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -731,35 +773,45 @@
         <div class="avail-day-header" onclick="toggleDay(this)">
           <div class="avail-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
           <span class="avail-day-name">Monday</span>
+          <div class="avail-day-loc" onclick="event.stopPropagation();openLocPicker(this)"><svg class="avail-loc-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="avail-loc-name">TNT Studio</span><svg class="avail-loc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <span class="avail-day-off">Unavailable</span>
         </div>
         <div class="avail-intervals">
           <div class="avail-interval">
-            <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">07:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
-            <span class="avail-interval-sep">to</span>
-            <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">22:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
-            <button class="avail-interval-btn" onclick="addInterval(this)" aria-label="Add interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <div class="avail-interval-times">
+              <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">07:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              <span class="avail-interval-sep">to</span>
+              <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">22:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              <button class="avail-interval-btn" onclick="addInterval(this)" aria-label="Add interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Tuesday (split schedule) -->
+      <!-- Tuesday (split schedule — different location per half of the day) -->
       <div class="avail-day active" data-day="tue">
         <div class="avail-day-header" onclick="toggleDay(this)">
           <div class="avail-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
           <span class="avail-day-name">Tuesday</span>
+          <div class="avail-day-loc" onclick="event.stopPropagation();openLocPicker(this)"><svg class="avail-loc-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="avail-loc-name">TNT Studio</span><svg class="avail-loc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <span class="avail-day-off">Unavailable</span>
         </div>
         <div class="avail-intervals">
           <div class="avail-interval">
-            <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">07:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
-            <span class="avail-interval-sep">to</span>
-            <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">12:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
-            <button class="avail-interval-btn" onclick="addInterval(this)" aria-label="Add interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <div class="avail-interval-times">
+              <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">07:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              <span class="avail-interval-sep">to</span>
+              <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">12:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              <button class="avail-interval-btn" onclick="addInterval(this)" aria-label="Add interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            </div>
           </div>
           <div class="avail-interval">
-            <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">14:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
-            <span class="avail-interval-sep">to</span>
-            <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">20:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
-            <button class="avail-interval-btn" onclick="removeInterval(this)" aria-label="Remove interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <div class="avail-interval-times">
+              <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">14:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              <span class="avail-interval-sep">to</span>
+              <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">20:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              <button class="avail-interval-btn" onclick="removeInterval(this)" aria-label="Remove interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            </div>
           </div>
         </div>
       </div>
@@ -769,13 +821,17 @@
         <div class="avail-day-header" onclick="toggleDay(this)">
           <div class="avail-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
           <span class="avail-day-name">Wednesday</span>
+          <div class="avail-day-loc" onclick="event.stopPropagation();openLocPicker(this)"><svg class="avail-loc-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="avail-loc-name">TNT Studio</span><svg class="avail-loc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <span class="avail-day-off">Unavailable</span>
         </div>
         <div class="avail-intervals">
           <div class="avail-interval">
-            <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">07:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
-            <span class="avail-interval-sep">to</span>
-            <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">22:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
-            <button class="avail-interval-btn" onclick="addInterval(this)" aria-label="Add interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <div class="avail-interval-times">
+              <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">07:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              <span class="avail-interval-sep">to</span>
+              <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">22:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              <button class="avail-interval-btn" onclick="addInterval(this)" aria-label="Add interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            </div>
           </div>
         </div>
       </div>
@@ -785,13 +841,17 @@
         <div class="avail-day-header" onclick="toggleDay(this)">
           <div class="avail-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
           <span class="avail-day-name">Thursday</span>
+          <div class="avail-day-loc" onclick="event.stopPropagation();openLocPicker(this)"><svg class="avail-loc-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="avail-loc-name">TNT Studio</span><svg class="avail-loc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <span class="avail-day-off">Unavailable</span>
         </div>
         <div class="avail-intervals">
           <div class="avail-interval">
-            <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">07:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
-            <span class="avail-interval-sep">to</span>
-            <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">22:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
-            <button class="avail-interval-btn" onclick="addInterval(this)" aria-label="Add interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <div class="avail-interval-times">
+              <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">07:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              <span class="avail-interval-sep">to</span>
+              <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">22:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              <button class="avail-interval-btn" onclick="addInterval(this)" aria-label="Add interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            </div>
           </div>
         </div>
       </div>
@@ -801,6 +861,8 @@
         <div class="avail-day-header" onclick="toggleDay(this)">
           <div class="avail-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
           <span class="avail-day-name">Friday</span>
+          <div class="avail-day-loc" onclick="event.stopPropagation();openLocPicker(this)"><svg class="avail-loc-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="avail-loc-name">TNT Studio</span><svg class="avail-loc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <span class="avail-day-off">Unavailable</span>
         </div>
       </div>
 
@@ -809,13 +871,17 @@
         <div class="avail-day-header" onclick="toggleDay(this)">
           <div class="avail-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
           <span class="avail-day-name">Saturday</span>
+          <div class="avail-day-loc" onclick="event.stopPropagation();openLocPicker(this)"><svg class="avail-loc-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="avail-loc-name">TNT Studio</span><svg class="avail-loc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <span class="avail-day-off">Unavailable</span>
         </div>
         <div class="avail-intervals">
           <div class="avail-interval">
-            <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">10:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
-            <span class="avail-interval-sep">to</span>
-            <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">14:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
-            <button class="avail-interval-btn" onclick="addInterval(this)" aria-label="Add interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <div class="avail-interval-times">
+              <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">10:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              <span class="avail-interval-sep">to</span>
+              <div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">14:00</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              <button class="avail-interval-btn" onclick="addInterval(this)" aria-label="Add interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            </div>
           </div>
         </div>
       </div>
@@ -825,6 +891,8 @@
         <div class="avail-day-header" onclick="toggleDay(this)">
           <div class="avail-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
           <span class="avail-day-name">Sunday</span>
+          <div class="avail-day-loc" onclick="event.stopPropagation();openLocPicker(this)"><svg class="avail-loc-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="avail-loc-name">TNT Studio</span><svg class="avail-loc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <span class="avail-day-off">Unavailable</span>
         </div>
       </div>
 
@@ -912,6 +980,31 @@
     </div>
   </div>
 
+  <!-- Location picker (in-person locations) — one per interval. Reuses cal-select-row. -->
+  <div class="fit-sheet-overlay" id="avail-loc-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Where are you training?</div>
+      <div class="fit-sheet-subtitle">Athletes see this location on every slot they book that day.</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin:8px 0 4px;">
+        <div class="cal-select-row" data-loc="TNT Studio" onclick="pickLoc('TNT Studio')">
+          <svg class="avail-loc-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:var(--fit-text-secondary);"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span style="flex:1;font-size:16px;">TNT Studio <span style="font-size:12px;color:var(--fit-text-tertiary);">· Default</span></span>
+          <span class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-white)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+        </div>
+        <div class="cal-select-row" data-loc="Iron Gym" onclick="pickLoc('Iron Gym')">
+          <svg class="avail-loc-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:var(--fit-text-secondary);"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span style="flex:1;font-size:16px;">Iron Gym</span>
+          <span class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-white)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+        </div>
+      </div>
+      <button style="width:100%;height:44px;border:none;background:transparent;color:var(--fit-blue-500);font-family:var(--fit-font);font-size:15px;font-weight:500;cursor:pointer;text-align:left;padding:0 12px;display:flex;align-items:center;gap:8px;" onclick="window.location.href='./locations.html'">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+        Manage locations
+      </button>
+    </div>
+  </div>
+
 </div>
 
 <!-- ==================== SCREEN: VACATION START (Time off) ==================== -->
@@ -939,7 +1032,7 @@
     </div>
 
     <div class="fit-section-title" style="margin-top:22px;">Message to clients <span style="text-transform:none;font-weight:400;color:var(--fit-text-tertiary);">· optional</span></div>
-    <p class="vac-hint">Tell clients why you&rsquo;re away &mdash; a vacation, an injury break, a competition. They&rsquo;ll see this when they try to book you for these dates.</p>
+    <p class="vac-hint">Clients see this when they try to book you for these dates. Pick a reason to start &mdash; or write your own.</p>
     <div class="vac-reasons">
       <button class="vac-reason-chip" data-a11y-id="coach.vacation.reason.vacation" onclick="setVacReason('vacation')">🏖 Vacation</button>
       <button class="vac-reason-chip" data-a11y-id="coach.vacation.reason.injury" onclick="setVacReason('injury')">🤕 Injury</button>
@@ -1002,26 +1095,26 @@
 
     <!-- LIST (1+ time-offs) -->
     <div class="to-block to-list-block">
-      <div class="to-list">
+      <div class="to-cards">
+
+        <!-- Active time-off card (current — shown first) -->
+        <div class="to-card active" data-a11y-id="coach.timeoff.card" onclick="openToManage('active')">
+          <div class="to-card-top">
+            <span class="to-dates">Paused until Sep 5</span>
+            <span class="to-status-pill act">On time off</span>
+            <svg class="to-card-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <div class="to-card-msg">&ldquo;Recovering from an injury &mdash; back early September.&rdquo;</div>
+        </div>
 
         <!-- Scheduled time-off card -->
         <div class="to-card" data-a11y-id="coach.timeoff.card" onclick="openToManage('sched')">
           <div class="to-card-top">
+            <span class="to-dates">Aug 12 &ndash; Aug 19</span>
             <span class="to-status-pill">Scheduled</span>
             <svg class="to-card-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
           </div>
-          <div class="to-dates">Aug 12 &ndash; Aug 19</div>
           <div class="to-card-msg">&ldquo;On vacation until Aug 19 &mdash; back then!&rdquo;</div>
-        </div>
-
-        <!-- Active time-off card -->
-        <div class="to-card active" data-a11y-id="coach.timeoff.card" onclick="openToManage('active')">
-          <div class="to-card-top">
-            <span class="to-status-pill act">On time off</span>
-            <svg class="to-card-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-          </div>
-          <div class="to-dates">Paused until Sep 5</div>
-          <div class="to-card-msg">&ldquo;Recovering from an injury &mdash; back early September.&rdquo;</div>
         </div>
 
         <!-- Add another (dashed) -->
@@ -1031,6 +1124,13 @@
         </div>
 
       </div>
+
+      <!-- Past time off → read-only history screen (canonical section-title--md-row + See all ›) -->
+      <div class="fit-section-title--md-row tap" data-a11y-id="coach.timeoff.history" onclick="go('s-time-off-history',null)" style="margin-top:6px;">
+        <div class="fit-section-title--md">Past time off</div>
+        <button class="to-seeall">See all<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+      </div>
+
     </div>
 
   </div>
@@ -1081,6 +1181,47 @@
   <div class="fit-snackbar" id="to-snackbar"><span class="snack-dot"></span><span class="snack-text" id="to-snack-text">Done</span></div>
 </div>
 
+<!-- ==================== SCREEN: TIME OFF — HISTORY (read-only past) ==================== -->
+<div class="fit-phone fit-dark" id="s-time-off-history">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.timeoff-history.back" onclick="history.length>1?history.back():go('s-time-off',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Past time off</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <p style="font-size:13px;color:var(--fit-text-tertiary);line-height:1.5;padding:12px 16px 0;">Time off that has ended or was cancelled. Read-only — for your records.</p>
+    <div class="to-cards" style="padding-top:12px;">
+
+      <div class="to-card to-card--past">
+        <div class="to-card-top">
+          <span class="to-dates">Jun 3 &ndash; Jun 10</span>
+          <span class="to-status-pill past">Ended</span>
+        </div>
+        <div class="to-card-msg">&ldquo;Family holiday &mdash; back Jun 10.&rdquo;</div>
+      </div>
+
+      <div class="to-card to-card--past">
+        <div class="to-card-top">
+          <span class="to-dates">May 1 &ndash; May 5</span>
+          <span class="to-status-pill past">Cancelled</span>
+        </div>
+        <div class="to-card-msg">&ldquo;Away at a competition &mdash; back on May 5.&rdquo;</div>
+      </div>
+
+      <div class="to-card to-card--past">
+        <div class="to-card-top">
+          <span class="to-dates">Mar 18 &ndash; Mar 22</span>
+          <span class="to-status-pill past">Ended</span>
+        </div>
+        <div class="to-card-msg">&ldquo;Recovering from a knee injury.&rdquo;</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- ==================== SCREEN: BOOKING RULES (WIP) ==================== -->
 <div class="fit-phone fit-dark" id="s-booking-rules">
   <div class="fit-phone-header">
@@ -1122,7 +1263,20 @@
       <button onclick="setAvailFlow('error',this)">Save error</button>
       <button onclick="setAvailFlow('saved',this)">Saved</button>
     </div>
-    <p>Coach's weekly schedule — when athletes can book training sessions. Applies indefinitely until edited. New accounts are seeded with <strong>Mon–Sun 07:00–22:00</strong> so the screen opens populated rather than empty.</p>
+    <div class="state-toggle">
+      <button class="active" onclick="setAvailLoc('multi',this)">2+ locations</button>
+      <button onclick="setAvailLoc('single',this)">1 location</button>
+    </div>
+    <p>Coach's weekly schedule — when athletes can book training sessions. Applies indefinitely until edited. New accounts are seeded with <strong>Mon–Sun 07:00–22:00</strong> so the screen opens populated rather than empty. Each day is a <strong>card</strong>: checkbox + name in the header, its time intervals below.</p>
+    <hr>
+    <p><strong>Per-day location (multi-gym coaches):</strong> when a coach has <strong>2+ in-person locations</strong>, each active day shows a <strong>📍 location pill in its header</strong> (right edge) → bottom-sheet picker (reuses <code>cal-select-row</code>). One location per day. Coaches with a single location never see the pill — toggle <em>1 location</em> above to preview.</p>
+    <ul>
+      <li><strong>Booking logic:</strong> the session template keeps its location (its identity); availability says <em>when</em> the coach is at that gym. Athlete booking an in-person session sees only slots on days where availability = that gym, each labelled <code>Wed · 10:00 · TNT Studio</code>.</li>
+      <li><strong>Online / home-visit sessions ignore location tags</strong> — bookable across all working hours (online has no place; home-visit coach travels, minus travel buffer).</li>
+      <li><strong>Validation (backend):</strong> if an in-person session has no day tagged with its gym → warn the coach "This session has no bookable slots — add hours at &lt;gym&gt;".</li>
+      <li>Default pill value = coach's default location; <em>Manage locations</em> row deep-links to Locations.</li>
+      <li><strong>Deferred:</strong> per-interval location (different gym for the morning vs the evening of the same day) — rarer case; add later if demand appears. Per-day covers ~90%.</li>
+    </ul>
     <ul>
       <li>One row per day (Mon–Sun); checkbox toggles active/inactive</li>
       <li>Active day → 1+ time intervals (<code>start · to · end</code>) for split schedule (morning/evening with a break)</li>
@@ -1170,7 +1324,7 @@
       <li>Dark + light themed end-to-end — skeleton shimmer, banners, wheel selection band, save-error banner, checkbox border all adapt</li>
     </ul>
     <hr>
-    <p class="note"><strong>Scope decisions (v1):</strong> single availability for all locations · no copy-to-other-days · no quick presets.</p>
+    <p class="note"><strong>Scope decisions (v1):</strong> per-day location for multi-gym coaches (supersedes the earlier "single availability for all locations"; per-interval deferred) · no copy-to-other-days · no quick presets.</p>
     <hr>
     <p><strong>Time off (vacation)</strong> — row at the bottom (state chip: none / "Starts MM/DD" / "Paused until MM/DD") → <code>s-vacation-start</code>: start + end dates (native pickers) + optional 160-char message → confirm sheet → active. Pauses new bookings; existing sessions stay. Athlete sees a "Paused until" badge + disabled Book on the coach profile; coach sees a Dashboard banner with "End early" (those two states still to add). Spec: <code>vacation-mode.md</code>, issue #191.</p>
     <div class="state-toggle" style="margin-top:8px;">
@@ -1184,10 +1338,19 @@
       <button onclick="setToState('none',this)">None (empty)</button>
       <button class="active" onclick="setToState('list',this)">List</button>
     </div>
-    <p>Now holds <strong>multiple</strong> time-offs (vacation, injury break, competition…). <strong>None</strong>: empty illustration + <em>Add time off</em>. <strong>List</strong>: one card per time-off (status pill + dates + client message) followed by the canonical dashed <strong>+ Add time off</strong> card (same pattern as calendar-sync / locations).</p>
-    <p>Tap a card &rarr; status-aware <strong>manage sheet</strong>: Scheduled = Edit dates &amp; message / Cancel; Active = Edit end date / <strong>End time off now</strong> / Cancel. Add / Edit via <code>s-vacation-start</code>. A Scheduled time-off flips to Active automatically when its start date arrives (backend).</p>
+    <p>Main screen stays lean: only <strong>current</strong> time-offs — Active first (amber), then Scheduled/upcoming — as <strong>compact cards</strong> (dates + status pill on one line, client message truncated below), then the dashed <strong>+ Add time off</strong>. <strong>None</strong>: empty illustration + <em>Add time off</em>.</p>
+    <p><strong>Past time off &rarr; history:</strong> a canonical <code>section-title--md-row</code> with <strong>See all &rsaquo;</strong> pushes to <code>s-time-off-history</code> — a read-only list of ended/cancelled time-offs (outcome pill <em>Ended</em> / <em>Cancelled</em>, no chevron, not tappable — nothing to change there). Same Recent&rarr;History pattern as balance-v2. Row shows whenever past time-offs exist.</p>
+    <p>Tap a current card &rarr; status-aware <strong>manage sheet</strong>: Scheduled = Edit dates &amp; message / Cancel; Active = Edit end date / <strong>End time off now</strong> / Cancel. Add / Edit via <code>s-vacation-start</code>. A Scheduled time-off flips to Active automatically when its start date arrives (backend).</p>
     <p><strong>Add screen (<code>s-vacation-start</code>):</strong> dates + a client message with a hint + quick <strong>reason chips</strong> (Vacation / Injury / Competition / Personal) that pre-fill the message so the coach knows what to write.</p>
     <p><strong>Conflict drawer on schedule:</strong> if the chosen dates overlap booked/confirmed sessions, a sheet asks &mdash; <em>Keep them</em> (only block new bookings) or <em>Cancel &amp; notify</em> (cancel all N + notify/refund the athletes). Same cancel-with-notify pattern as the calendar. No-conflict case skips straight to scheduling.</p>
+  </div>
+  <div class="ann" id="ann-s-time-off-history"><span class="ann-role coach">Coach</span><h3>Past time off (history)</h3>
+    <p>Read-only archive of ended/cancelled time-offs, pushed from the <strong>See all &rsaquo;</strong> row on <code>s-time-off</code>. Keeps the main screen lean while preserving records (useful for the coach's own reference and for disputes with athletes about past cancellations/refunds).</p>
+    <ul>
+      <li>Same compact card, muted — dates + <strong>outcome pill</strong> (<em>Ended</em> = ran its course / <em>Cancelled</em> = ended early or removed) + the client message.</li>
+      <li><strong>Not tappable</strong> — nothing to edit on a past time-off.</li>
+      <li>Sorted most-recent first. Backend: <code>GET</code> past time-offs (status in ended/cancelled), paginated.</li>
+    </ul>
   </div>
   <div class="ann" id="ann-s-booking-rules"><span class="ann-role coach">Coach</span><h3>Booking rules (WIP)</h3>
     <p>Reached from <strong>Settings → Availability → Booking rules</strong> (deep-link <code>available-hours.html#rules</code>). Standard scheduling controls (Calendly/Cal.com/Acuity): minimum notice, booking window, buffer, max/day.</p>
@@ -1719,21 +1882,20 @@ function toggleDay(headerEl) {
   validateAvailability();
 }
 
-function availBuildInterval(startVal, endVal, isFirst) {
+function availBuildInterval(startVal, endVal, isFirst, locName) {
   const row = document.createElement('div');
   row.className = 'avail-interval';
+  const chev = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+  const btn = isFirst
+    ? '<button class="avail-interval-btn" onclick="addInterval(this)" aria-label="Add interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
+    : '<button class="avail-interval-btn" onclick="removeInterval(this)" aria-label="Remove interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>';
   row.innerHTML =
-    '<div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">' + startVal + '</span>' +
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>' +
-    '</div>' +
-    '<span class="avail-interval-sep">to</span>' +
-    '<div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">' + endVal + '</span>' +
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>' +
-    '</div>' +
-    (isFirst
-      ? '<button class="avail-interval-btn" onclick="addInterval(this)" aria-label="Add interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
-      : '<button class="avail-interval-btn" onclick="removeInterval(this)" aria-label="Remove interval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
-    );
+    '<div class="avail-interval-times">' +
+      '<div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">' + startVal + '</span>' + chev + '</div>' +
+      '<span class="avail-interval-sep">to</span>' +
+      '<div class="avail-time-input" onclick="openTimePicker(this)"><span class="avail-time-value">' + endVal + '</span>' + chev + '</div>' +
+      btn +
+    '</div>';
   return row;
 }
 
@@ -1827,10 +1989,31 @@ function confirmTimePicker() {
   validateAvailability();
 }
 
+// --- Per-interval location picker ---
+let availLocCurrentChip = null;
+function openLocPicker(chipEl) {
+  availLocCurrentChip = chipEl;
+  const nameEl = chipEl.querySelector('.avail-loc-name');
+  const cur = nameEl ? nameEl.textContent.trim() : '';
+  const sheet = document.getElementById('avail-loc-sheet');
+  sheet.querySelectorAll('.cal-select-row').forEach(function(r) {
+    r.classList.toggle('selected', r.getAttribute('data-loc') === cur);
+  });
+  sheet.classList.add('visible');
+}
+function pickLoc(name) {
+  if (availLocCurrentChip) {
+    const nameEl = availLocCurrentChip.querySelector('.avail-loc-name');
+    if (nameEl) nameEl.textContent = name;
+  }
+  closeSheet('avail-loc-sheet');
+}
+
 function closeSheet(id) {
   const el = document.getElementById(id);
   if (el) el.classList.remove('visible');
   if (id === 'avail-tp-sheet') availTpCurrentInput = null;
+  if (id === 'avail-loc-sheet') availLocCurrentChip = null;
 }
 
 function availSetFlowClass(state) {
@@ -1980,6 +2163,11 @@ function availReset() {
   if (existing) existing.style.display = 'none';
 }
 
+function setAvailLoc(mode, btn) {
+  var s = document.getElementById('s-availability');
+  s.classList.toggle('loc-multi', mode === 'multi');
+  if (btn) { btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); }
+}
 function setAvailState(state, btn) {
   if (btn) {
     btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
@@ -2450,6 +2638,6 @@ function doLogout() {
   setTimeout(function(){ t.classList.remove('show'); }, 2200);
 }
 </script>
-<script>(function(){var h=location.hash;if(h==='#timeoff')go('s-time-off',null);else if(h==='#rules')go('s-booking-rules',null);})();</script>
+<script>(function(){var h=location.hash.replace('#','');if(!h)return;var parts=h.split('|');var id=parts[0];if(id==='timeoff')id='s-time-off';if(id==='rules')id='s-booking-rules';var el=document.getElementById(id);if(el&&el.classList.contains('fit-phone'))go(id,null);if(parts.indexOf('light')>=0)switchTheme('light');})();</script>
 </body>
 </html>

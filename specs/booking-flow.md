@@ -5,7 +5,7 @@
 > - [flows/shared/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/profile.html) (athlete booking)
 > - [flows/coach/invite.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/invite.html) (coach invite + schedule)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-09
+> Last updated: 2026-07-03
 > Implementation:
 > - iOS:     [321fit_ios/docs/booking-flow-ios.md] (to be created)
 > - Android: [321fit_android/docs/booking-flow-android.md] (to be created)
@@ -89,9 +89,15 @@ Lives in `flows/shared/profile.html`. Reached by athlete tapping a session in `s
 **State class on `.fit-phone`** drives content:
 - `.bk-personal` — time-grid slot picker (default for personal sessions)
 - `.bk-group` — upcoming group session instances
-- `.bk-empty` — no availability on selected day (hides footer)
+- `.bk-empty` — no availability on selected day (hides footer); reason toggled by `.bk-reason-booked` (see Location surfacing)
 - `.bk-loading` — skeleton (hides footer)
 - `.bk-error` — inline error banner (hides footer)
+- `.bk-hv` — home-visit session (no gym): swaps the location reminder + forces the generic empty reason
+
+**Location surfacing (per-day availability — added 2026-07-03).** The picked session pins the location, so a **constant reminder** sits under the day-strip (`.bk-day-loc`) — it does NOT vary by day:
+- **In-person** (`setHV(false)`, e.g. Basketball @ TNT Studio) — **📍 <gym>** reminder. Because coach availability is per-day location (see [location-picker.md](./location-picker.md)), the strip **greys out days** the coach isn't at that gym (off / training elsewhere). Tapping a greyed day → **gym-aware empty**: `.ber-gym` ("Not at TNT Studio this day — pick a highlighted day") vs `.ber-booked` (a gym day but every slot taken/off-hours), toggled by `.bk-reason-booked`.
+- **Home-visit** (`setHV(true)` → `.bk-hv`, e.g. Padel) — **🏠 Home visit · coach travels to you**; bookable across all working hours, so **no gym-mismatch** — only the generic all-booked/off-hours empty.
+- **Group** is day-driven (own location on the session card); **online / self-paced** use a separate flow (`openSpBook`), not this calendar.
 
 **Personal time-grid (`data-booking-state="personal"`):**
 

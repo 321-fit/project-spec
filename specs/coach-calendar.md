@@ -3,7 +3,7 @@
 > Status: Approved (contract) / In Progress (event sheet + custom event migration)
 > Prototype: [flows/coach/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-05-21
+> Last updated: 2026-07-03
 > Implementation:
 > - iOS:     [321fit_ios/docs/coach-calendar-ios.md] (to be created)
 > - Backend: [poly-backend/docs/coach-calendar-backend.md] (to be created)
@@ -84,11 +84,11 @@ Root tab screen, has the nav bar footer. Acts as both agenda view (for the coach
 
 1. Long-press on empty timeline slot OR tap FAB (`+`) → action sheet with **2 intent-based options**:
    - **Schedule training** — primary action: creates a session event (Personal or one-off Group).
-   - **Block time off** — secondary action: custom calendar event (doctor, vacation, personal time).
+   - **Busy time** (renamed 2026-07-03 from "Block time off" — visible label only; internal screen id `s-block-time-off` + `coach.calendar.block.*` a11y unchanged) — secondary action: an ad-hoc calendar blocker (dentist, errand, gym closed). Disambiguated from Availability → **Time off** (multi-day absence): Busy time = one slot; Time off = a date range that pauses bookings + messages clients.
 2. **Schedule training** → `s-schedule-event` form with a **Training type toggle (Personal / Group)** at the top. Conditional rows + CTA copy adapt per type:
    - **Personal:** athlete picker visible → template picker (personal templates only) → datetime → payment chips → optional "Note to athlete". CTA "Send invitation". On save: POST `/coach/events` with status `awaiting`; athlete gets push to accept.
    - **Group (one-off):** athlete picker hidden — there's no specific athlete; athletes find the event on the marketplace and join independently. Template picker filters to group templates. Datetime + payment + optional "Note to athletes". CTA "Create group event". On save: POST `/coach/events` with type=group, status=planned.
-3. **Block time off** → `s-block-time-off` form (see Flow 5).
+3. **Busy time** → `s-block-time-off` form (see Flow 5).
 4. **Recurring group events are still auto-generated** from session templates per [session-creation.md](./session-creation.md) — unchanged. The Group toggle on Schedule training is only for one-off events (special masterclasses, holiday sessions). Recurring chains continue to be managed from Sessions module.
 
 **Schedule training sub-flows:**
@@ -105,11 +105,12 @@ Root tab screen, has the nav bar footer. Acts as both agenda view (for the coach
 4. Drop on invalid (conflict) → snackbar "Slot conflicts with another event"; event snaps back.
 5. Cross-day drag not supported in v1.
 
-### Flow 5: Block time off (custom event — 2026-05-20 prototype landed)
+### Flow 5: Busy time (custom event — 2026-05-20 prototype landed; renamed from "Block time off" 2026-07-03)
 
-1. From FAB action sheet → **"Block time off"** option.
-2. Screen `s-block-time-off`:
-   - Title input (**optional**, 1–60 chars, placeholder "Dentist", "Family", "Vacation"). Inline hint: "Leave empty and we'll call it **My time**."
+1. From FAB action sheet → **"Busy time"** option.
+2. Screen `s-block-time-off` (id kept):
+   - Title input (**optional**, 1–60 chars, placeholder "Dentist", "Errand", "Gym closed"). Inline hint: "Leave empty and we'll call it **My time**."
+   - **Cross-link to Time off:** an outline note *"Away for a few days? → Set Time off"* (a11y `coach.calendar.block.timeoff-link`) deep-links to `available-hours.html#timeoff` — routes coaches who actually want a multi-day absence to the right tool. Shown always; the all-day case is the classic "I really mean vacation" signal. See [vacation-mode.md](./vacation-mode.md).
    - **All-day toggle** — when on, hides start/end time row and the event blocks the whole day
    - Date — single date picker sheet (full month calendar grid, multi-day deferred)
    - Start time + end time — two canonical `.fit-wheel-picker` sheets (Hour + Minutes columns, 15-min snap matching the broader 15-min grid used across calendar / sessions / availability)

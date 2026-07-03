@@ -254,6 +254,20 @@
   /* Pinned grid hint lives in the sticky header — show only in personal state */
   #s-booking .bk-grid-hint { display: none; padding: 8px 16px 12px; }
   #s-booking.bk-personal .bk-grid-hint { display: block; }
+  /* Session location reminder — constant (the picked session's gym), not per-day */
+  .bk-day-loc { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; color: var(--fit-text-primary); margin-bottom: 8px; }
+  .bk-day-loc svg { width: 15px; height: 15px; color: var(--fit-teal-500); flex-shrink: 0; }
+  /* Empty-state reasons: gym-mismatch (default) vs all-booked. Toggled by .bk-reason-booked */
+  #s-booking .bk-empty-reason { display: none; }
+  #s-booking:not(.bk-reason-booked) .ber-gym { display: block; }
+  #s-booking.bk-reason-booked .ber-booked { display: block; }
+  /* Home-visit booking (.bk-hv): no gym → home-visit reminder + never a gym-mismatch empty */
+  #s-booking .bk-loc-inperson { display: inline-flex; align-items: center; gap: 6px; }
+  #s-booking .bk-loc-hv { display: none; align-items: center; gap: 6px; }
+  #s-booking.bk-hv .bk-loc-inperson { display: none; }
+  #s-booking.bk-hv .bk-loc-hv { display: inline-flex; }
+  #s-booking.bk-hv .ber-gym { display: none !important; }
+  #s-booking.bk-hv .ber-booked { display: block; }
 
   /* ===== Booking payment-method picker (bpm-) — segmented chips, shown only when the session accepts both cash & balance ===== */
   .bpm-block { margin-bottom: 4px; }
@@ -406,6 +420,17 @@
     </div>
     <!-- Pinned grid hint + legend (personal state only) — stays under the date header -->
     <div class="bk-grid-hint">
+      <!-- Session location reminder — constant (the picked session pins the location). In-person = gym; home-visit = travels to you. -->
+      <div class="bk-day-loc" data-a11y-id="athlete.booking.day-location">
+        <span class="bk-loc-inperson">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span id="bk-day-loc-name">TNT Studio</span>
+        </span>
+        <span class="bk-loc-hv">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Home visit &middot; coach travels to you
+        </span>
+      </div>
       <div style="font-size:14px;color:var(--fit-text-secondary);">Tap a free slot or drag the block to set your time</div>
       <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
         <span style="display:flex;align-items:center;gap:6px;"><span style="width:14px;height:10px;border-radius:2px;background:var(--fit-surface-high);border-left:2px solid var(--fit-teal-500);"></span>Your events</span>
@@ -474,13 +499,26 @@
 
     <!-- ===== EMPTY: no availability on selected day ===== -->
     <div data-booking-state="empty" style="padding:48px 24px 32px;text-align:center;">
-      <svg style="width:56px;height:56px;color:var(--fit-gray-600);margin-bottom:16px;" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="32" cy="32" r="22"/>
-        <path d="M32 20v12l8 6"/>
-        <path d="M21 21l22 22"/>
-      </svg>
-      <div style="font-size:16px;font-weight:500;color:var(--fit-text-secondary);margin-bottom:6px;">No slots available</div>
-      <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:280px;margin:0 auto;">All slots on this day are taken or outside the coach&rsquo;s working hours. Pick another date on the strip above &mdash; days with availability are highlighted.</div>
+
+      <!-- Reason A (default): coach isn't at THIS session's gym on this day (per-day availability).
+           The session is location-bound, so days the coach trains elsewhere / is off are greyed on the strip. -->
+      <div class="bk-empty-reason ber-gym">
+        <svg style="width:56px;height:56px;color:var(--fit-gray-600);margin-bottom:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <div style="font-size:16px;font-weight:500;color:var(--fit-text-secondary);margin-bottom:6px;">Not at TNT Studio this day</div>
+        <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:280px;margin:0 auto;">John trains at <strong style="color:var(--fit-text-secondary);">TNT Studio</strong> only on the highlighted days — he&rsquo;s at another location, or off, on this date. Pick a highlighted day above.</div>
+      </div>
+
+      <!-- Reason B: it IS a TNT Studio day, but every slot is taken / outside working hours. -->
+      <div class="bk-empty-reason ber-booked">
+        <svg style="width:56px;height:56px;color:var(--fit-gray-600);margin-bottom:16px;" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="32" cy="32" r="22"/>
+          <path d="M32 20v12l8 6"/>
+          <path d="M21 21l22 22"/>
+        </svg>
+        <div style="font-size:16px;font-weight:500;color:var(--fit-text-secondary);margin-bottom:6px;">No slots available</div>
+        <div style="font-size:14px;color:var(--fit-text-tertiary);line-height:1.5;max-width:280px;margin:0 auto;">Every slot this day is taken, or the coach isn&rsquo;t working. Pick another highlighted date above.</div>
+      </div>
+
     </div>
 
     <!-- ===== LOADING ===== -->
@@ -1604,7 +1642,8 @@
     <div class="state-toggle">
       <button class="active" onclick="setBookingState('personal');annHighlight(this)">Personal slots</button>
       <button onclick="setBookingState('group');annHighlight(this)">Group sessions</button>
-      <button onclick="setBookingState('empty');annHighlight(this)">No slots</button>
+      <button onclick="setBookingState('empty');document.getElementById('s-booking').classList.remove('bk-reason-booked');annHighlight(this)">Wrong gym day</button>
+      <button onclick="setBookingState('empty');document.getElementById('s-booking').classList.add('bk-reason-booked');annHighlight(this)">All booked</button>
       <button onclick="setBookingState('loading');annHighlight(this)">Loading</button>
       <button onclick="setBookingState('error');annHighlight(this)">Error</button>
     </div>
@@ -1631,7 +1670,9 @@
     <ul>
       <li><strong>Personal</strong> — vertical <strong>time-grid</strong> (reuses <code>.fit-timeline</code>/<code>.fit-hour</code>, 96px = 1h). <strong>Tap a free band</strong> to place the 1h block, or <strong>drag</strong> to fine-tune (snaps to 15 min). Shows <strong>both parties' unavailability</strong>: hatched = coach off-hours + coach's booked events ("Coach busy"); solid gray = your own conflicts ("You · Yoga"). Block turns red + CTA disables over any busy range; release/tap snaps to nearest free slot. Replaces the old expandable-hour picker — mirrors prod iOS <code>SelectSlotsView</code> drag-n-drop, plus dual-availability + tap-to-place as improvements.</li>
       <li><strong>Group</strong> — <strong>day-driven</strong>: the strip dots the days that have a session of this template; entering <strong>auto-lands on the nearest available day</strong>. Shows the <strong>ONE session</strong> for the selected day (not a list); swiping/tapping another dotted day swaps it. Full day → dimmed card + disabled CTA; non-session day → "No session this day". Sticky <strong>Join · &lt;day&gt;</strong> CTA (or tapping the card) → group confirm sheet.</li>
-      <li><strong>No slots</strong> — empty state with hint to pick another date</li>
+      <li><strong>Location is per session type</strong> (the picked session pins it — this grid opens for personal <em>in-person</em> AND <em>home-visit</em>; group is day-driven, online/self-paced use a different flow):
+        <br>· <strong>In-person</strong> (<code>setHV(false)</code>, e.g. Basketball) — constant <strong>📍 TNT Studio</strong> reminder; strip <strong>greys out days</strong> the coach isn't at that gym (off / training elsewhere — per-day location). Two empty reasons: <em>Wrong gym day</em> ("Not at TNT Studio this day") vs <em>All booked</em> (<code>.bk-reason-booked</code>).
+        <br>· <strong>Home-visit</strong> (<code>setHV(true)</code>, e.g. Padel → <code>.bk-hv</code>) — no gym: reminder becomes <strong>🏠 Home visit · coach travels to you</strong>; bookable across all working hours, so <strong>no gym-mismatch</strong> empty — only the generic all-booked/off-hours reason.</li>
       <li><strong>Loading</strong> — skeleton slot cards</li>
       <li><strong>Error</strong> — inline banner with Retry</li>
     </ul>
@@ -2115,7 +2156,7 @@ switchTheme('light');
 })();
 </script>
 <script>
-function setHV(v){ var s=document.getElementById('booking-confirm-sheet'); if(s) s.classList.toggle('is-hv', !!v); }
+function setHV(v){ var s=document.getElementById('booking-confirm-sheet'); if(s) s.classList.toggle('is-hv', !!v); var b=document.getElementById('s-booking'); if(b) b.classList.toggle('bk-hv', !!v); }
 function setHvAddrState(state, btn){ var s=document.getElementById('booking-confirm-sheet'); if(s) s.classList.toggle('hv-noaddr', state==='none'); if(typeof annHighlight==='function' && btn) annHighlight(btn); }
 var _hvReturn='booking';
 function openHvPicker(){ _hvReturn='booking'; var s=document.getElementById('booking-confirm-sheet'); if(s) s.classList.remove('visible'); go('s-hv-address', null); }

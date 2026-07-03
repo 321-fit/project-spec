@@ -3,7 +3,7 @@
 > Status: Draft
 > Prototype: [flows/coach/settings.html#s-locations](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html#s-locations)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-04-27
+> Last updated: 2026-07-03
 > Implementation:
 > - iOS:     [321fit_ios/docs/location-picker-ios.md] (to be created)
 > - Backend: [poly-backend/docs/location-picker-backend.md] (to be created)
@@ -11,6 +11,20 @@
 > - Android: [321fit_android/docs/location-picker-android.md] (when available)
 
 **Scope note:** this spec covers the **coach side** of locations — defining where training takes place. Athletes interact with locations only as read-only data in session detail. The "athlete provides home address at booking" piece belongs to the athlete-side booking spec, not here.
+
+---
+
+## Update — 2026-07-03 — Per-day location on availability
+
+Coach **weekly availability** (`flows/coach/available-hours.html`) is now **location-aware** when the coach has **2+ in-person locations**:
+
+- Each active day shows a **location pill in its day-header** (right edge) → bottom-sheet picker (canonical `cal-select-row`, 56px rows; a11y `athlete.booking.day-location` on the athlete side / coach picker `avail-loc-sheet`). **One location per day.** Coaches with a single in-person location never see the pill — the whole schedule is implicitly at that location.
+- Division of responsibility: the **session template still owns *which* location** (its identity, e.g. "HIIT @ TNT Studio"); availability answers ***when*** the coach is at each gym.
+- **Deferred:** per-interval location (different gym for the morning vs the evening of the same day) — rarer case; add later if demand appears. Per-day covers ~90%.
+
+**Booking consequence (athlete side — detailed in [booking-flow.md](./booking-flow.md)):** for a **location-bound in-person session** the calendar shows slots only on days the coach is at that gym; other days are greyed → tapping shows a gym-aware empty state ("Not at TNT Studio this day"). **Online** (no place) and **home-visit** (coach travels) sessions ignore location tags — bookable across all working hours.
+
+**Backend:** an availability day carries an optional `location_id` (in-person only). Warn the coach if an in-person session's gym has no availability days ("This session has no bookable slots — add hours at &lt;gym&gt;").
 
 ---
 
