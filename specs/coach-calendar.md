@@ -182,6 +182,18 @@ When a coach connects Google/Apple Calendar AFTER they already have 321Fit booki
 4. Tap **Switch to athlete** → app flips active role, navigates to the same event in the **athlete** schedule with the full athlete event sheet open (cancel / message / pay actions available).
 5. Cancelling on the cross-role sheet just dismisses it (returns to coach calendar untouched).
 
+### Flow 12: Edit event details (instance-level) — 2026-07-13
+
+An event created from a Training Session is its **own entity**: it inherits the template's fields, then each is editable **on the instance** without touching the template (matches current backend). From the event drawer `⋯` menu → **Edit details** → `s-event-edit`.
+
+**Light field set (decided 2026-07-13):** Location · Duration · Price · Note to athlete. The fuller "everything inherited" variant (name / sport / payment) was **dropped** — those rarely change per occurrence and belong to the template, not one instance. To change them for all future events, edit the template via My Sessions → Edit training session (`sessions.html#s-edit`).
+
+**Re-confirm rule:** changing any **dry field** (location / duration / price) on a **confirmed** event resets its status → the athlete must **re-confirm**. **Note changes are free** (no re-confirm). Surfaced as a persistent note on the edit screen ("Changing location, duration or price sends this session back to {athlete} for re-confirmation. Note changes don't.") + `event-reconfirm-sheet` on Save ("Send for re-confirmation? … keeps their spot while pending" → Keep editing / Save & notify).
+
+**Not template edit:** this edits one occurrence only. Template editing (applies to future / all events, with its own Future/All scope sheet) lives in `sessions.html#s-edit` — don't conflate.
+
+**Open before dev-ready:** re-confirm should fire only when a dry field actually changed AND the event is confirmed (request / pending or note-only → no re-confirm); recurring scope on Save (This / This+following / All), layered like Reschedule; group edit must gate participant-affecting changes (refunds), like group reschedule.
+
 ---
 
 ## 4a. Event tile layout (unified)
