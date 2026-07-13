@@ -231,6 +231,7 @@
     </button>
     
   <div class="label">Flow</div>
+  <button onclick="go('s-schedule-pick-athlete',this)">Pick athlete (schedule)</button>
   <button class="active" onclick="go('s-invite-select',this)">Select Training</button>
   <button onclick="go('s-invite-time',this)">Date &amp; Time (Personal)</button>
   </div>
@@ -241,12 +242,82 @@
   </div>
 </nav>
 
+<!-- ===== SCHEDULE STEP 1: PICK ATHLETE (calendar-FAB entry only) =====
+     Mirror of athlete flow (athlete picks coach). Shown first when
+     mode=schedule & origin=s-calendar. From Client Detail the athlete is
+     already known, so this step is skipped. -->
+<div class="fit-phone fit-dark" id="s-schedule-pick-athlete">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.invite.schedule.athlete.back" onclick="var u=resolveOrigin(inviteOrigin); if(u){location.href=u;}else{history.back();}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="fit-header-title">Choose athlete</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="fit-input-group" style="padding:0 16px;">
+      <div class="fit-input" style="display:flex;align-items:center;gap:8px;" data-a11y-id="coach.invite.schedule.athlete.search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <span style="color:var(--fit-text-placeholder);">Search by name</span>
+      </div>
+    </div>
+
+    <div style="font-size:14px;font-weight:500;color:var(--fit-text-secondary);padding:8px 16px 10px;">Recent clients</div>
+
+    <div style="padding:0 16px;">
+      <div class="set-card" style="cursor:pointer;" data-a11y-id="coach.invite.schedule.athlete.row" onclick="pickScheduleAthlete('Anna Kowalski','AK')">
+        <div style="display:flex;align-items:center;gap:12px;width:100%;">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">AK</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Anna Kowalski</div>
+            <div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:1px;">Last session 3 days ago</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+      <div class="set-card" data-a11y-id="coach.invite.schedule.athlete.row" style="cursor:pointer;margin-top:8px;" onclick="pickScheduleAthlete('Mark Schmidt','MS')">
+        <div style="display:flex;align-items:center;gap:12px;width:100%;">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">MS</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Mark Schmidt</div>
+            <div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:1px;">Last session 1 week ago</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+      <div class="set-card" data-a11y-id="coach.invite.schedule.athlete.row" style="cursor:pointer;margin-top:8px;" onclick="pickScheduleAthlete('Julia Dent','JD')">
+        <div style="display:flex;align-items:center;gap:12px;width:100%;">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">JD</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Julia Dent</div>
+            <div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:1px;">Last session 2 weeks ago</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:1px;background:var(--fit-divider);margin:16px;"></div>
+
+    <!-- Invite-by-link CTA — for someone not on 321Fit yet → switches to link-invite mode -->
+    <div style="padding:0 16px;">
+      <button class="fit-btn fit-btn-secondary" data-a11y-id="coach.invite.schedule.athlete.invite" style="display:flex;align-items:center;justify-content:center;gap:8px;" onclick="switchToLinkInvite()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>
+        Invite by phone
+      </button>
+      <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:8px;text-align:center;line-height:1.4;">Sends an SMS booking link to someone who isn't on 321Fit yet.</div>
+    </div>
+  </div>
+</div>
+
 <!-- ===== INVITE: SELECT TRAINING ===== -->
 <div class="fit-phone fit-dark active ls-default" id="s-invite-select">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
-      <button class="fit-header-back" data-a11y-id="coach.invite.select.back" onclick="var u=resolveOrigin(inviteOrigin); if(u){location.href=u;}else{history.back();}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="fit-header-back" data-a11y-id="coach.invite.select.back" onclick="backFromSelect()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
       <span class="fit-header-title">Select training</span>
     </div>
   </div>
@@ -502,10 +573,10 @@
 
       <!-- Recipient (in-app athlete) -->
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
-        <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);color:var(--fit-white);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0;">AK</div>
+        <div id="sched-confirm-av" style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);color:var(--fit-white);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0;">AK</div>
         <div style="flex:1;min-width:0;">
           <div style="font-size:11px;color:var(--fit-text-tertiary);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;margin-bottom:1px;">Sending to</div>
-          <div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Anna Kowalski</div>
+          <div id="sched-confirm-name" style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Anna Kowalski</div>
         </div>
       </div>
 
@@ -752,9 +823,9 @@
 
     <!-- Recipient row (who will receive this request) -->
     <div style="margin:0 16px 24px;padding:12px 14px;border-radius:12px;background:var(--fit-surface-high);display:flex;align-items:center;gap:12px;">
-      <div style="width:36px;height:36px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">AK</div>
+      <div id="sched-review-av" style="width:36px;height:36px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">AK</div>
       <div style="flex:1;">
-        <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Anna Kowalski</div>
+        <div id="sched-review-name" style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Anna Kowalski</div>
         <div style="font-size:12px;color:var(--fit-text-tertiary);">Will be sent as a training request</div>
       </div>
     </div>
@@ -832,7 +903,7 @@
       <button class="active" onclick="setReviewState('schedule','default',this)">Default</button>
       <button onclick="setReviewState('schedule','sending',this)">Sending</button>
       <button onclick="setReviewState('schedule','error',this)">Error</button>
-    </div><p>Step 3 of <strong>Schedule training</strong> flow — coach proposes a session to an existing in-app client. Reuses 3 of 4 invite screens; differs only here.</p><ul><li>Summary card: same layout but <strong>Request</strong> pill (yellow) matches 6-state calendar system</li><li><strong>Recipient row</strong>: avatar + name + "Will be sent as a training request" — makes destination explicit (invite doesn't have this — athlete is anonymous until link opens)</li><li>Optional comment field — coach's message to athlete, shown in their Request drawer (max 300 chars with live counter — gray default, red at limit)</li><li>Info text: "Anna will receive this as a training request..."</li><li><strong>"Send Request"</strong> → backend call → event lands in <code>Awaiting</code> for coach + <code>Request</code> for athlete inbox → snackbar confirmation → navigates back to origin</li></ul><hr><p class="note">Entry points (URL param <code>mode=schedule&amp;origin=X</code>):<br>&bull; Client Detail ⋯ → <strong>Schedule training</strong> (<code>origin=s-client-detail</code>)<br>&bull; Client Detail empty Upcoming → <strong>Schedule training</strong> CTA<br>&bull; Calendar FAB → <strong>Schedule training</strong> (future, not yet wired)</p></div>
+    </div><p>Step 3 of <strong>Schedule training</strong> flow — coach proposes a session to an existing in-app client. Reuses the invite screens; differs only here.</p><ul><li><strong>Recipient source</strong>: from <strong>Client Detail</strong> the athlete is known → this flow starts at template select. From the <strong>Calendar FAB</strong> the athlete is unknown → an extra first step <code>s-schedule-pick-athlete</code> (pick client / invite by phone) sets the recipient, then template → time → here.</li><li>Summary card: same layout but <strong>Request</strong> pill (yellow) matches 6-state calendar system</li><li><strong>Recipient row</strong>: avatar + name + "Will be sent as a training request" — makes destination explicit (invite doesn't have this — athlete is anonymous until link opens)</li><li>Optional comment field — coach's message to athlete, shown in their Request drawer (max 300 chars with live counter — gray default, red at limit)</li><li>Info text: "Anna will receive this as a training request..."</li><li><strong>"Send Request"</strong> → backend call → event lands in <code>Awaiting</code> for coach + <code>Request</code> for athlete inbox → snackbar confirmation → navigates back to origin</li></ul><hr><p class="note">Entry points (URL param <code>mode=schedule&amp;origin=X</code>):<br>&bull; Client Detail ⋯ → <strong>Schedule training</strong> (<code>origin=s-client-detail</code>)<br>&bull; Client Detail empty Upcoming → <strong>Schedule training</strong> CTA<br>&bull; Calendar FAB → <strong>Schedule training</strong> (<code>origin=s-calendar</code> → starts at <code>s-schedule-pick-athlete</code>)</p></div>
 </div>
 
 <script src="../../lib/fit-ui.js"></script>
@@ -893,6 +964,46 @@ var inviteOrigin = _params.get('origin') || 's-clients';
 // 'personal' | 'group' — set when a template is chosen in s-invite-select.
 // Both use the SAME time-grid; only the confirm step differs (group → publish drawer, no athlete).
 var inviteType = 'personal';
+
+// === SCHEDULE RECIPIENT (in-app athlete) ===
+// Default = Anna (client-detail entry, athlete already known). Overwritten when
+// the coach picks someone in s-schedule-pick-athlete (calendar-FAB entry).
+var scheduleAthlete = { name: 'Anna Kowalski', initials: 'AK' };
+function applyScheduleAthlete() {
+  var set = function(id, v){ var e = document.getElementById(id); if (e) e.textContent = v; };
+  set('sched-review-av', scheduleAthlete.initials);
+  set('sched-review-name', scheduleAthlete.name);
+  set('sched-confirm-av', scheduleAthlete.initials);
+  set('sched-confirm-name', scheduleAthlete.name);
+}
+// Step 1 → pick an athlete, then advance to template select
+function pickScheduleAthlete(name, initials) {
+  scheduleAthlete = { name: name, initials: initials };
+  applyScheduleAthlete();
+  go('s-invite-select', document.querySelector('.sidebar button[onclick*=s-invite-select]'));
+}
+// Back from template select — return to athlete pick (calendar schedule entry) or leave the flow
+function backFromSelect() {
+  if (inviteMode === 'schedule' && inviteOrigin === 's-calendar') {
+    go('s-schedule-pick-athlete', document.querySelector('.sidebar button[onclick*=s-schedule-pick-athlete]'));
+    return;
+  }
+  var u = resolveOrigin(inviteOrigin);
+  if (u) { location.href = u; } else { history.back(); }
+}
+// "Invite by phone" — recipient isn't on 321Fit yet → switch to anonymous link-invite flow
+function switchToLinkInvite() {
+  inviteMode = 'invite';
+  go('s-invite-select', document.querySelector('.sidebar button[onclick*=s-invite-select]'));
+}
+// Onload router — calendar FAB starts at athlete pick; every other entry keeps template-first
+(function initScheduleFlow() {
+  if (inviteMode === 'schedule' && inviteOrigin === 's-calendar') {
+    go('s-schedule-pick-athlete', document.querySelector('.sidebar button[onclick*=s-schedule-pick-athlete]'));
+  } else {
+    applyScheduleAthlete();
+  }
+})();
 
 // Pick a template on the chooser → set type + carry name into the grid, then go to time-grid
 function pickTemplate(type, name) {

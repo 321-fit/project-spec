@@ -247,6 +247,9 @@
   /* Context menu CSS now lives in fit-ui.css (extracted 2026-04-22, 2nd application) */
 
   /* Participant row is tappable (→ athlete profile) */
+  /* ⋯ menu: Reschedule item only for a request (planned has it in the footer) */
+  #cal-event-sheet-body .mn-request { display: none; }
+  #cal-event-sheet-body[data-event-state="request"] .mn-request { display: flex; }
   #s-event .fit-participant { cursor: pointer; }
   #s-event .fit-participant .fit-remove-btn,
   #s-event .fit-participant .fit-swipe-left,
@@ -295,10 +298,9 @@
   <button class="active" onclick="go('s-calendar',this)">Calendar</button>
   <button onclick="go('s-event',this)">Event Detail</button>
   <button onclick="go('s-cash',this)">Event Completion</button>
-  <div class="label">Schedule training</div>
-  <button onclick="go('s-schedule-event',this)">Schedule form</button>
-  <button onclick="go('s-schedule-pick-athlete',this)">↳ Pick athlete</button>
-  <button onclick="go('s-schedule-pick-template',this)">↳ Pick template</button>
+  <div class="label">Edit event</div>
+  <button onclick="go('s-event-edit',this)">Edit — light</button>
+  <button onclick="go('s-event-edit-full',this)">Edit — full</button>
   <div class="label">Busy time</div>
   <button onclick="go('s-block-time-off',this)">Busy time form</button>
   <div class="label">Sheets / drawers</div>
@@ -594,8 +596,9 @@
        2026-07-01: templates are now schedule-free; the chooser lists BOTH personal
        and group templates and branches on tap — personal → invite/schedule an athlete,
        group → publish an open session via the recurrence drawer. So this single entry
-       covers group scheduling too (no separate group FAB item). The legacy
-       s-schedule-event form below is bypassed by the FAB (kept in DOM as reference). -->
+       covers group scheduling too (no separate group FAB item). Full schedule flow
+       lives in invite.html (mode=schedule): pick athlete -> pick session -> time ->
+       confirm. The legacy s-schedule-* form screens were removed 2026-07-13. -->
   <div class="fit-sheet-overlay" id="fab-sheet">
     <div class="fit-sheet"><div class="fit-sheet-handle"></div>
       <div style="font-size:18px;font-weight:600;margin-bottom:4px;">New on your calendar</div>
@@ -627,6 +630,24 @@
       <div class="fit-sheet-status-header">
         <div class="fit-sheet-descriptor" id="cal-event-descriptor">Confirmed session</div>
         <span class="fit-cal-event-pill" id="cal-event-pill" style="display:none;"></span>
+        <button class="fit-sheet-menu-btn" data-a11y-id="coach.calendar.event.overflow" aria-label="More options" onclick="event.stopPropagation();toggleSheetMenu('cal-event-menu')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+        </button>
+      </div>
+      <!-- ⋯ menu (action hub): Reschedule shown only for request; Edit/Message always -->
+      <div class="fit-context-menu" id="cal-event-menu" style="top:44px;right:8px;">
+        <div class="fit-context-menu-item mn-request" data-a11y-id="coach.calendar.event.menu.reschedule" onclick="closeSheetMenu('cal-event-menu');document.getElementById('cal-event-sheet').classList.remove('visible');document.getElementById('cal-reschedule-sheet').classList.add('visible');">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          Reschedule
+        </div>
+        <div class="fit-context-menu-item" data-a11y-id="coach.calendar.event.menu.edit" onclick="closeSheetMenu('cal-event-menu');calEditEvent()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit details
+        </div>
+        <div class="fit-context-menu-item" data-a11y-id="coach.calendar.event.menu.message" onclick="closeSheetMenu('cal-event-menu')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          Message
+        </div>
       </div>
       <!-- Avatar + name (tap → profile) -->
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;cursor:pointer;">
@@ -658,19 +679,19 @@
         </div>
       </div>
       <!-- Footer variants — one visible per data-event-state -->
+      <!-- planned: Cancel + Reschedule (Edit lives in the ⋯ menu) -->
       <div class="fit-sheet-footer-variant ev-planned">
-        <button style="width:50px;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        </button>
-        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-event-sheet').classList.remove('visible');document.getElementById('cal-reschedule-sheet').classList.add('visible');">Reschedule</button>
-        <button class="fit-btn fit-btn-destructive" style="flex:1;height:50px;font-size:16px;" onclick="document.getElementById('cal-event-sheet').classList.remove('visible');document.getElementById('cal-cancel-sheet').classList.add('visible');">Cancel</button>
+        <button data-a11y-id="coach.calendar.event.cancel" style="flex:1;height:50px;border:1px solid var(--fit-red-400);border-radius:99px;background:transparent;color:var(--fit-red-400);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-event-sheet').classList.remove('visible');document.getElementById('cal-cancel-sheet').classList.add('visible');">Cancel training</button>
+        <button data-a11y-id="coach.calendar.event.reschedule" style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-event-sheet').classList.remove('visible');document.getElementById('cal-reschedule-sheet').classList.add('visible');">Reschedule</button>
       </div>
+      <!-- request: the decision (Reschedule/Edit live in the ⋯ menu) -->
       <div class="fit-sheet-footer-variant ev-request">
-        <button class="fit-btn fit-btn-destructive" style="flex:1;height:50px;font-size:16px;" onclick="document.getElementById('cal-event-sheet').classList.remove('visible');">Decline</button>
-        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-event-sheet').classList.remove('visible');">Accept</button>
+        <button data-a11y-id="coach.calendar.event.decline" style="flex:1;height:50px;border:1px solid var(--fit-red-400);border-radius:99px;background:transparent;color:var(--fit-red-400);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-event-sheet').classList.remove('visible');">Decline</button>
+        <button data-a11y-id="coach.calendar.event.accept" style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-event-sheet').classList.remove('visible');">Accept</button>
       </div>
       <div class="fit-sheet-footer-variant ev-awaiting">
-        <button style="flex:1;height:50px;border:1px solid var(--fit-red-400);border-radius:99px;background:transparent;color:var(--fit-red-400);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-event-sheet').classList.remove('visible');">Cancel request</button>
+        <button data-a11y-id="coach.calendar.event.cancel-request" style="flex:1;height:50px;border:1px solid var(--fit-red-400);border-radius:99px;background:transparent;color:var(--fit-red-400);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-event-sheet').classList.remove('visible');">Cancel request</button>
+        <button data-a11y-id="coach.calendar.event.reschedule" style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-event-sheet').classList.remove('visible');document.getElementById('cal-reschedule-sheet').classList.add('visible');">Reschedule</button>
       </div>
       <div class="fit-sheet-footer-variant ev-review">
         <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-event-sheet').classList.remove('visible');">Complete training</button>
@@ -692,6 +713,20 @@
       <div class="fit-sheet-status-header">
         <div class="fit-sheet-descriptor" id="cal-group-descriptor">Confirmed group session</div>
         <span class="fit-cal-event-pill" id="cal-group-pill" style="display:none;"></span>
+        <button class="fit-sheet-menu-btn" data-a11y-id="coach.calendar.group.overflow" aria-label="More options" onclick="event.stopPropagation();toggleSheetMenu('cal-group-menu')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+        </button>
+      </div>
+      <!-- ⋯ menu (action hub) — group: Edit + Invite (Reschedule/Cancel in footer) -->
+      <div class="fit-context-menu" id="cal-group-menu" style="top:44px;right:8px;">
+        <div class="fit-context-menu-item" data-a11y-id="coach.calendar.group.menu.edit" onclick="closeSheetMenu('cal-group-menu');calEditEvent()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit details
+        </div>
+        <div class="fit-context-menu-item" data-a11y-id="coach.calendar.group.menu.invite" onclick="closeSheetMenu('cal-group-menu')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
+          Invite athletes
+        </div>
       </div>
       <!-- Sport icon + session name (tap → Event Detail) -->
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;cursor:pointer;" onclick="document.getElementById('cal-group-sheet').classList.remove('visible');go('s-event',document.querySelector('[onclick*=s-event]'));">
@@ -719,12 +754,10 @@
         </div>
       </div>
       <!-- Footer variants — one visible per data-event-state -->
+      <!-- planned: Cancel + Reschedule (Edit + Invite live in the ⋯ menu) -->
       <div class="fit-sheet-footer-variant ev-planned">
-        <button style="width:50px;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
-        </button>
-        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-group-sheet').classList.remove('visible');document.getElementById('cal-reschedule-sheet').classList.add('visible');">Reschedule</button>
-        <button class="fit-btn fit-btn-destructive" style="flex:1;height:50px;font-size:16px;" onclick="document.getElementById('cal-group-sheet').classList.remove('visible');document.getElementById('cal-cancel-sheet').classList.add('visible');">Cancel</button>
+        <button data-a11y-id="coach.calendar.group.cancel" style="flex:1;height:50px;border:1px solid var(--fit-red-400);border-radius:99px;background:transparent;color:var(--fit-red-400);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-group-sheet').classList.remove('visible');document.getElementById('cal-cancel-sheet').classList.add('visible');">Cancel training</button>
+        <button data-a11y-id="coach.calendar.group.reschedule" style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-group-sheet').classList.remove('visible');document.getElementById('cal-reschedule-sheet').classList.add('visible');">Reschedule</button>
       </div>
       <div class="fit-sheet-footer-variant ev-review">
         <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-group-sheet').classList.remove('visible');go('s-cash',document.querySelector('[onclick*=s-cash]'));">Complete training</button>
@@ -1342,291 +1375,6 @@
 </div>
 
 <!-- ============================================================
-     SCREEN: SCHEDULE TRAINING (Personal — FAB primary action)
-     Pick athlete + training session template + datetime → create event.
-     Reuses canonical .fit-input-group / .fit-input / .fit-selection-group /
-     .fit-sheet patterns. No new page-local CSS introduced.
-     ============================================================ -->
-<div class="fit-phone fit-dark" id="s-schedule-event">
-  <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header">
-      <button class="fit-header-back" data-a11y-id="coach.calendar.schedule.back" onclick="go('s-calendar',document.querySelector('[onclick*=s-calendar]'))">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
-      <span class="fit-header-title">Schedule training</span>
-    </div>
-  </div>
-  <div class="fit-phone-content" data-schedule-type="personal">
-
-    <!-- Training type toggle — Personal (default) / Group. Restored 2026-05-21
-         after the Personal-only short form left no place for one-off group
-         events. Now: Personal flow keeps athlete picker + sends invite;
-         Group flow hides athlete picker + creates a one-off group event
-         athletes join independently via marketplace. -->
-    <div class="fit-input-group"><span class="fit-input-label">Training type</span></div>
-    <div class="fit-selection-group" data-fit-selection="single" data-a11y-id="coach.calendar.schedule.type" onclick="setTimeout(applyScheduleType,10)">
-      <div class="fit-selection-chip selected" data-value="personal">Personal</div>
-      <div class="fit-selection-chip" data-value="group">Group</div>
-    </div>
-
-    <!-- Athlete picker — Personal only -->
-    <div class="fit-input-group" data-required="athlete" data-schedule-show="personal">
-      <span class="fit-input-label">Athlete</span>
-      <div class="fit-input" style="cursor:pointer;" data-a11y-id="coach.calendar.schedule.athlete" onclick="go('s-schedule-pick-athlete',document.querySelector('[onclick*=s-schedule-pick-athlete]'))">
-        <span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></span>
-        <span style="flex:1;">Anna K.</span>
-        <span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
-      </div>
-    </div>
-
-    <!-- Template picker — list filter swaps per type (personal / group templates).
-         Default display swaps copy to match selected type for prototype demo. -->
-    <div class="fit-input-group" data-required="template">
-      <span class="fit-input-label">Training session</span>
-      <div class="fit-input" style="cursor:pointer;" data-a11y-id="coach.calendar.schedule.template" onclick="go('s-schedule-pick-template',document.querySelector('[onclick*=s-schedule-pick-template]'))">
-        <span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg></span>
-        <span style="flex:1;" id="schedule-template-display">Basketball Training · 1h · &euro;50</span>
-        <span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
-      </div>
-    </div>
-
-    <!-- Date picker — opens canonical date sheet -->
-    <div class="fit-input-group" data-required="date">
-      <span class="fit-input-label">Date</span>
-      <div class="fit-input" style="cursor:pointer;" data-a11y-id="coach.calendar.schedule.date" onclick="document.getElementById('schedule-date-sheet').classList.add('visible')">
-        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;color:var(--fit-text-tertiary);"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-        <span style="flex:1;" id="schedule-date-display">Thu, Apr 10</span>
-        <span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-      </div>
-    </div>
-
-    <!-- Start time picker — opens canonical time sheet -->
-    <div class="fit-input-group" data-required="time">
-      <span class="fit-input-label">Start time</span>
-      <div class="fit-input" style="cursor:pointer;" data-a11y-id="coach.calendar.schedule.time" onclick="document.getElementById('schedule-time-sheet').classList.add('visible')">
-        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-        <span style="flex:1;" id="schedule-time-display">14:00</span>
-        <span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-      </div>
-    </div>
-
-    <!-- Payment method — canonical fit-selection-group (multi) -->
-    <div class="fit-input-group"><span class="fit-input-label">Payment method</span></div>
-    <div class="fit-selection-group" data-fit-selection="multi" data-a11y-id="coach.calendar.schedule.payment">
-      <div class="fit-selection-chip selected" data-value="cash"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg> Cash</div>
-      <div class="fit-selection-chip" data-value="card"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card</div>
-    </div>
-
-    <!-- Optional note — Personal: addressed to specific athlete.
-         Group: shown to all athletes who join. Copy adapts. -->
-    <div class="fit-input-group">
-      <span class="fit-input-label" id="schedule-note-label">Note to athlete <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
-      <textarea class="fit-input-ta" placeholder="Bring water, mat, etc." data-a11y-id="coach.calendar.schedule.note" maxlength="300" style="min-height:80px;"></textarea>
-    </div>
-
-    <!-- Info banner — copy adapts per type. Personal: awaiting / invitation.
-         Group: marketplace visibility / no athlete picked here. -->
-    <div data-schedule-show="personal" style="margin:0 16px 16px;padding:12px;border-radius:12px;background:rgba(3,178,226,0.06);border:1px solid rgba(3,178,226,0.18);display:flex;align-items:flex-start;gap:10px;">
-      <svg style="width:18px;height:18px;flex-shrink:0;margin-top:1px;color:var(--fit-blue-500);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
-      <span style="font-size:13px;color:var(--fit-text-secondary);line-height:1.45;">Anna K. will receive a session invitation. The event lives as <strong style="color:var(--fit-text-primary);">Awaiting</strong> until she accepts.</span>
-    </div>
-    <div data-schedule-show="group" style="display:none;margin:0 16px 16px;padding:12px;border-radius:12px;background:rgba(3,178,226,0.06);border:1px solid rgba(3,178,226,0.18);display:flex;align-items:flex-start;gap:10px;">
-      <svg style="width:18px;height:18px;flex-shrink:0;margin-top:1px;color:var(--fit-blue-500);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
-      <span style="font-size:13px;color:var(--fit-text-secondary);line-height:1.45;">This creates a <strong style="color:var(--fit-text-primary);">one-off group event</strong>. Athletes find it on the marketplace and join independently — no invitations sent.</span>
-    </div>
-
-  </div>
-
-  <!-- Date picker bottom sheet — canonical fit-sheet (calendar grid) -->
-  <div class="fit-sheet-overlay" id="schedule-date-sheet">
-    <div class="fit-sheet tp-sheet"><div class="fit-sheet-handle"></div>
-      <div style="font-size:16px;font-weight:500;margin-bottom:16px;">Select date</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <span style="font-size:16px;font-weight:500;">April 2026</span>
-        <div style="display:flex;gap:12px;">
-          <svg class="i" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer;"><path d="M15 18l-6-6 6-6"/></svg>
-          <svg class="i" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer;"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;margin-bottom:20px;">
-        <span style="font-size:12px;color:var(--fit-text-tertiary);padding:6px 0;">M</span>
-        <span style="font-size:12px;color:var(--fit-text-tertiary);padding:6px 0;">T</span>
-        <span style="font-size:12px;color:var(--fit-text-tertiary);padding:6px 0;">W</span>
-        <span style="font-size:12px;color:var(--fit-text-tertiary);padding:6px 0;">T</span>
-        <span style="font-size:12px;color:var(--fit-text-tertiary);padding:6px 0;">F</span>
-        <span style="font-size:12px;color:var(--fit-text-tertiary);padding:6px 0;">S</span>
-        <span style="font-size:12px;color:var(--fit-text-tertiary);padding:6px 0;">S</span>
-        <span class="cal-cell past">1</span><span class="cal-cell past">2</span><span class="cal-cell past">3</span><span class="cal-cell past">4</span><span class="cal-cell past">5</span><span class="cal-cell past">6</span><span class="cal-cell past">7</span>
-        <span class="cal-cell past">8</span><span class="cal-cell past">9</span><span class="cal-cell today selected">10</span><span class="cal-cell">11</span><span class="cal-cell">12</span><span class="cal-cell">13</span><span class="cal-cell">14</span>
-        <span class="cal-cell">15</span><span class="cal-cell">16</span><span class="cal-cell">17</span><span class="cal-cell">18</span><span class="cal-cell">19</span><span class="cal-cell">20</span><span class="cal-cell">21</span>
-        <span class="cal-cell">22</span><span class="cal-cell">23</span><span class="cal-cell">24</span><span class="cal-cell">25</span><span class="cal-cell">26</span><span class="cal-cell">27</span><span class="cal-cell">28</span>
-        <span class="cal-cell">29</span><span class="cal-cell">30</span>
-      </div>
-      <button class="fit-btn fit-btn-primary" data-a11y-id="coach.calendar.schedule.date.confirm" style="border-radius:99px;" onclick="document.getElementById('schedule-date-sheet').classList.remove('visible');">Confirm</button>
-    </div>
-  </div>
-
-  <!-- Time picker bottom sheet — reuses canonical tp-slot pattern from sessions.html -->
-  <div class="fit-sheet-overlay" id="schedule-time-sheet">
-    <div class="fit-sheet tp-sheet"><div class="fit-sheet-handle"></div>
-      <div style="font-size:16px;font-weight:500;margin-bottom:4px;">Select time</div>
-      <div style="font-size:14px;color:var(--fit-text-tertiary);margin-bottom:16px;">1h session · available slots</div>
-      <div style="height:280px;overflow-y:auto;margin-bottom:20px;padding:4px;">
-        <div class="tp-slot" data-a11y-id="coach.calendar.schedule.time.slot" data-hour="10" onclick="this.classList.toggle('expanded')">
-          <div class="tp-slot-row"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><span class="tp-slot-label">10:00</span><svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
-          <div class="tp-slot-minutes"><div class="min-chip">10:00</div><div class="min-chip">10:15</div><div class="min-chip">10:30</div><div class="min-chip">10:45</div></div>
-        </div>
-        <div class="tp-slot tp-slot-busy"><div class="tp-slot-row"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><span class="tp-slot-label">12:00</span><span class="tp-slot-busy-label">Busy · Basketball Training</span></div></div>
-        <div class="tp-slot" data-a11y-id="coach.calendar.schedule.time.slot" data-hour="14" onclick="this.classList.toggle('expanded')">
-          <div class="tp-slot-row selected"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fit-text-tertiary);"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><span class="tp-slot-label">14:00</span><svg class="tp-slot-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
-          <div class="tp-slot-minutes"><div class="min-chip selected">14:00</div><div class="min-chip">14:15</div><div class="min-chip">14:30</div><div class="min-chip">14:45</div></div>
-        </div>
-      </div>
-      <button class="fit-btn fit-btn-primary" data-a11y-id="coach.calendar.schedule.time.confirm" style="border-radius:99px;" onclick="document.getElementById('schedule-time-sheet').classList.remove('visible');">Confirm · 14:00</button>
-    </div>
-  </div>
-
-  <!-- Validation snackbar -->
-  <div class="fit-snackbar" id="schedule-snack"><span class="snack-dot" style="background:var(--fit-red-400);"></span>Please fill in required fields</div>
-
-  <div class="fit-phone-footer fit-footer-btn">
-    <button class="fit-btn fit-btn-primary" data-a11y-id="coach.calendar.schedule.save" id="schedule-save-cta" onclick="go('s-calendar',document.querySelector('[onclick*=s-calendar]'))">Send invitation</button>
-  </div>
-</div>
-
-<!-- ============================================================
-     SCREEN: PICK ATHLETE (sub-flow of Schedule training)
-     Search + list of recent clients. "Invite by phone" deep-link CTA.
-     ============================================================ -->
-<div class="fit-phone fit-dark" id="s-schedule-pick-athlete">
-  <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header">
-      <button class="fit-header-back" data-a11y-id="coach.calendar.schedule.athlete.back" onclick="go('s-schedule-event',document.querySelector('[onclick*=s-schedule-event]'))">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
-      <span class="fit-header-title">Choose athlete</span>
-    </div>
-  </div>
-  <div class="fit-phone-content">
-    <!-- Search input — canonical .fit-input-group / .fit-input pattern (same
-         as coach/locations.html#s-loc-map search). The previous .pd-search /
-         .pd-search-wrap classes are defined only in personal-data.html +
-         account-access.html and weren't carried into this file, so the SVG
-         had no width/height cap and ballooned to fill the container. -->
-    <div class="fit-input-group" style="padding:0 16px;">
-      <div class="fit-input" style="display:flex;align-items:center;gap:8px;" data-a11y-id="coach.calendar.schedule.athlete.search">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        <span style="color:var(--fit-text-placeholder);">Search by name</span>
-      </div>
-    </div>
-
-    <div style="font-size:14px;font-weight:500;color:var(--fit-text-secondary);padding:8px 16px 10px;">Recent clients</div>
-
-    <div style="padding:0 16px;">
-      <!-- Athlete row pattern matches coach/clients.html cards -->
-      <div class="set-card" style="cursor:pointer;" data-a11y-id="coach.calendar.schedule.athlete.row" onclick="go('s-schedule-event',document.querySelector('[onclick*=s-schedule-event]'))">
-        <div style="display:flex;align-items:center;gap:12px;width:100%;">
-          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">AK</div>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Anna K.</div>
-            <div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:1px;">Last session 3 days ago</div>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-      </div>
-      <div class="set-card" data-a11y-id="coach.calendar.schedule.athlete.row" style="cursor:pointer;margin-top:8px;" onclick="go('s-schedule-event',document.querySelector('[onclick*=s-schedule-event]'))">
-        <div style="display:flex;align-items:center;gap:12px;width:100%;">
-          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">MS</div>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Mark S.</div>
-            <div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:1px;">Last session 1 week ago</div>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-      </div>
-      <div class="set-card" data-a11y-id="coach.calendar.schedule.athlete.row" style="cursor:pointer;margin-top:8px;" onclick="go('s-schedule-event',document.querySelector('[onclick*=s-schedule-event]'))">
-        <div style="display:flex;align-items:center;gap:12px;width:100%;">
-          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">JD</div>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Julia D.</div>
-            <div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:1px;">Last session 2 weeks ago</div>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-      </div>
-    </div>
-
-    <div style="height:1px;background:var(--fit-divider);margin:16px;"></div>
-
-    <!-- Invite-by-phone deep link CTA — sends booking deeplink via SMS -->
-    <div style="padding:0 16px;">
-      <button class="fit-btn fit-btn-secondary" data-a11y-id="coach.calendar.schedule.athlete.invite" style="display:flex;align-items:center;justify-content:center;gap:8px;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>
-        Invite by phone
-      </button>
-      <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:8px;text-align:center;line-height:1.4;">Sends an SMS booking link to someone who isn't on 321Fit yet.</div>
-    </div>
-  </div>
-</div>
-
-<!-- ============================================================
-     SCREEN: PICK TEMPLATE (sub-flow of Schedule training)
-     Reuses canonical v6d-card from sessions.html for session list.
-     "+ Create new template" CTA at the top routes to session-creation flow.
-     ============================================================ -->
-<div class="fit-phone fit-dark" id="s-schedule-pick-template">
-  <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header">
-      <button class="fit-header-back" data-a11y-id="coach.calendar.schedule.template.back" onclick="go('s-schedule-event',document.querySelector('[onclick*=s-schedule-event]'))">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
-      <span class="fit-header-title">Choose session</span>
-    </div>
-  </div>
-  <div class="fit-phone-content">
-    <!-- Create new template inline CTA — opens canonical sessions create -->
-    <div style="padding:0 16px 16px;">
-      <button class="fit-btn fit-btn-secondary" data-a11y-id="coach.calendar.schedule.template.create" onclick="window.location.href='sessions.html#s-create'" style="display:flex;align-items:center;justify-content:center;gap:8px;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-        Create new template
-      </button>
-    </div>
-
-    <div style="font-size:14px;font-weight:500;color:var(--fit-text-secondary);padding:0 16px 10px;">Your sessions</div>
-
-    <!-- Personal session templates only (group templates excluded from this picker) -->
-    <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;" data-a11y-id="coach.calendar.schedule.template.row" onclick="go('s-schedule-event',document.querySelector('[onclick*=s-schedule-event]'))">
-      <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
-        <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--fit-white);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg></div>
-        <div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Basketball Training</div><div style="font-size:12px;color:var(--fit-text-secondary);opacity:0.7;">1h · cash/card</div></div>
-        <div style="display:flex;align-items:center;gap:8px;"><div class="v6d-price" style="font-size:16px;font-weight:600;color:var(--fit-white);">&euro;50</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
-      </div>
-      <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-        <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">TNT Studio</span>
-        <span style="font-size:12px;color:var(--fit-text-tertiary);">Personal</span>
-      </div>
-    </div>
-
-    <div class="v6d-card" data-a11y-id="coach.calendar.schedule.template.row" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;" onclick="go('s-schedule-event',document.querySelector('[onclick*=s-schedule-event]'))">
-      <div style="background:var(--fit-selection-gradient);padding:14px 16px;display:flex;align-items:center;gap:12px;">
-        <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--fit-white);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h4l2 4-2 3v6h-4z"/><path d="M14 7l6 3v8h-4"/></svg></div>
-        <div style="flex:1;"><div style="font-size:16px;font-weight:600;color:var(--fit-text-primary);">Boxing Training</div><div style="font-size:12px;color:var(--fit-text-secondary);opacity:0.7;">45 min · cash</div></div>
-        <div style="display:flex;align-items:center;gap:8px;"><div class="v6d-price" style="font-size:16px;font-weight:600;color:var(--fit-white);">&euro;40</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
-      </div>
-      <div class="v6d-loc-strip" style="display:flex;align-items:center;gap:8px;padding:10px 16px;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-        <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">Champion's Gym</span>
-        <span style="font-size:12px;color:var(--fit-text-tertiary);">Personal</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ============================================================
      SCREEN: BLOCK TIME OFF (Custom event — FAB secondary action)
      Simple form: title + date + start/end time + optional notes.
      No athlete, no template — just a calendar blocker.
@@ -1816,6 +1564,120 @@
   </div>
 </div>
 
+<!-- ============================================================
+     SCREEN: EDIT EVENT — LIGHT (instance-level, common fields only)
+     An event is its own entity (inherits the template, then edits
+     independently). Any dry field (location/duration/price) changed on a
+     confirmed event resets status → re-confirm. Notes are free.
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-event-edit">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.event-edit.back" onclick="go('s-calendar',document.querySelector('[onclick*=s-calendar]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Edit event</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <!-- Read-only identity: what you're editing -->
+    <div style="display:flex;align-items:center;gap:12px;margin:0 16px 16px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">AK</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Basketball Training</div>
+        <div style="font-size:13px;color:var(--fit-text-tertiary);">Anna K. &middot; Thu, Apr 17 &middot; 19:30</div>
+      </div>
+    </div>
+
+    <div class="fit-input-group"><span class="fit-input-label">Location</span><div class="fit-input" style="cursor:pointer;" data-a11y-id="coach.event-edit.location" onclick="window.location.href='./locations.html'"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></span> TNT Studio<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div></div>
+
+    <div class="fit-input-group"><span class="fit-input-label">Duration</span></div>
+    <div class="fit-wheel-picker">
+      <div class="fit-wheel-col"><span class="fit-wheel-label">Hour</span><div class="fit-wheel-scroll"><div class="fit-wheel-item dim" onclick="changeDuration(this)">0</div><div class="fit-wheel-item active" onclick="changeDuration(this)">1</div><div class="fit-wheel-item dim" onclick="changeDuration(this)">2</div></div><div class="fit-wheel-fade-top"></div><div class="fit-wheel-fade-bottom"></div></div>
+      <div class="fit-wheel-col"><span class="fit-wheel-label">Minutes</span><div class="fit-wheel-scroll"><div class="fit-wheel-item dim" onclick="changeDuration(this)">00</div><div class="fit-wheel-item active" onclick="changeDuration(this)">30</div><div class="fit-wheel-item dim" onclick="changeDuration(this)">45</div></div><div class="fit-wheel-fade-top"></div><div class="fit-wheel-fade-bottom"></div></div>
+    </div>
+
+    <div class="fit-input-group"><span class="fit-input-label">Price</span></div>
+    <div class="price-row"><div class="fit-input" contenteditable="true" style="flex:1;outline:none;cursor:text;">50</div><div class="price-currency">&euro;</div></div>
+
+    <div class="fit-input-group"><span class="fit-input-label">Note to athlete <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <textarea class="fit-input-ta" maxlength="200" placeholder="e.g. bring a towel, court changed" style="margin-top:8px;"></textarea>
+    </div>
+
+    <!-- Re-confirm note (outline card — not a colored banner) -->
+    <div style="display:flex;align-items:flex-start;gap:10px;margin:4px 16px 12px;padding:12px 14px;border:1px solid var(--fit-divider);border-radius:14px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-brand-primary);flex-shrink:0;margin-top:1px;"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15.36 6.36L3 16"/></svg>
+      <span style="font-size:13px;line-height:1.45;color:var(--fit-text-secondary);">Changing location, duration or price sends this session back to <strong>Anna</strong> for re-confirmation. Note changes don&rsquo;t.</span>
+    </div>
+  </div>
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" data-a11y-id="coach.event-edit.save" onclick="openSheet('event-reconfirm-sheet')">Save changes</button></div>
+</div>
+
+<!-- ============================================================
+     SCREEN: EDIT EVENT — FULL (instance-level, everything editable)
+     Same reconfirm rule; exposes the full inherited field set.
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-event-edit-full">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.event-edit-full.back" onclick="go('s-calendar',document.querySelector('[onclick*=s-calendar]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Edit event</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div style="display:flex;align-items:center;gap:12px;margin:0 16px 16px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">AK</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;color:var(--fit-text-tertiary);">Editing this event only</div>
+        <div style="font-size:13px;color:var(--fit-text-tertiary);">Anna K. &middot; Thu, Apr 17 &middot; 19:30</div>
+      </div>
+    </div>
+
+    <div class="fit-input-group"><span class="fit-input-label">Training name</span><div class="fit-input" contenteditable="true" style="outline:none;cursor:text;">Basketball Training</div></div>
+    <div class="fit-input-group"><span class="fit-input-label">Sport type</span><div class="fit-input" style="cursor:pointer;" onclick="window.location.href='./sport-types.html'"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg></span> Fitness<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div></div>
+    <div class="fit-input-group"><span class="fit-input-label">Location</span><div class="fit-input" style="cursor:pointer;" onclick="window.location.href='./locations.html'"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></span> TNT Studio<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div></div>
+
+    <div class="fit-input-group"><span class="fit-input-label">Duration</span></div>
+    <div class="fit-wheel-picker">
+      <div class="fit-wheel-col"><span class="fit-wheel-label">Hour</span><div class="fit-wheel-scroll"><div class="fit-wheel-item dim" onclick="changeDuration(this)">0</div><div class="fit-wheel-item active" onclick="changeDuration(this)">1</div><div class="fit-wheel-item dim" onclick="changeDuration(this)">2</div></div><div class="fit-wheel-fade-top"></div><div class="fit-wheel-fade-bottom"></div></div>
+      <div class="fit-wheel-col"><span class="fit-wheel-label">Minutes</span><div class="fit-wheel-scroll"><div class="fit-wheel-item dim" onclick="changeDuration(this)">00</div><div class="fit-wheel-item active" onclick="changeDuration(this)">30</div><div class="fit-wheel-item dim" onclick="changeDuration(this)">45</div></div><div class="fit-wheel-fade-top"></div><div class="fit-wheel-fade-bottom"></div></div>
+    </div>
+
+    <div class="fit-input-group"><span class="fit-input-label">Price</span></div>
+    <div class="price-row"><div class="fit-input" contenteditable="true" style="flex:1;outline:none;cursor:text;">50</div><div class="price-currency">&euro;</div></div>
+
+    <div class="fit-input-group"><span class="fit-input-label">Payment method</span></div>
+    <div class="fit-selection-group" data-fit-selection="multi">
+      <div class="fit-selection-chip selected" data-value="cash"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h2M20 10h2M2 14h2M20 14h2"/><circle cx="12" cy="12" r="3"/></svg> Cash</div>
+      <div class="fit-selection-chip selected" data-value="card"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card</div>
+    </div>
+
+    <div class="fit-input-group"><span class="fit-input-label">Note to athlete <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <textarea class="fit-input-ta" maxlength="200" placeholder="e.g. bring a towel, court changed" style="margin-top:8px;"></textarea>
+    </div>
+
+    <div style="display:flex;align-items:flex-start;gap:10px;margin:4px 16px 12px;padding:12px 14px;border:1px solid var(--fit-divider);border-radius:14px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-brand-primary);flex-shrink:0;margin-top:1px;"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15.36 6.36L3 16"/></svg>
+      <span style="font-size:13px;line-height:1.45;color:var(--fit-text-secondary);">Any change except the note (name, sport, location, duration, price, payment) sends this session back to <strong>Anna</strong> for re-confirmation.</span>
+    </div>
+  </div>
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" data-a11y-id="coach.event-edit-full.save" onclick="openSheet('event-reconfirm-sheet')">Save changes</button></div>
+</div>
+
+<!-- Re-confirm sheet — shown on Save when a dry field changed on a confirmed event -->
+<div class="fit-sheet-overlay" id="event-reconfirm-sheet">
+  <div class="fit-sheet"><div class="fit-sheet-handle"></div>
+    <div class="fit-sheet-status-header">
+      <div class="fit-sheet-descriptor">Send for re-confirmation?</div>
+    </div>
+    <div style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;margin-bottom:28px;">You changed the price, duration or location. <strong>Anna</strong> will need to accept the updated session again before it&rsquo;s confirmed. She keeps her spot while it&rsquo;s pending.</div>
+    <div style="display:flex;gap:8px;">
+      <button data-a11y-id="coach.event-edit.reconfirm.cancel" style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('event-reconfirm-sheet').classList.remove('visible');">Keep editing</button>
+      <button class="fit-btn fit-btn-primary" data-a11y-id="coach.event-edit.reconfirm.save" style="flex:1;height:50px;font-size:16px;" onclick="document.getElementById('event-reconfirm-sheet').classList.remove('visible');go('s-calendar',document.querySelector('[onclick*=s-calendar]'));">Save &amp; notify</button>
+    </div>
+  </div>
+</div>
+
 <!-- Annotations -->
 <div class="ann-container">
   <div class="ann active" id="ann-s-calendar"><span class="ann-role coach">Coach</span><h3>Coach Calendar</h3>
@@ -1854,57 +1716,6 @@
   <div class="ann" id="ann-s-cash"><span class="ann-role coach">Coach</span><h3>Event Completion</h3>
     <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Entry & flow</span><div class="ann-detail"><h4>Entry point</h4><p>Push notification after event end time: "Training ended. Tap to review and complete." Deep links to this screen.</p><h4>Unpaid cash</h4><p>Does NOT block completion. Stays as cash_pending record. Coach can see unpaid athletes in training history.</p></div>
     <p style="margin-top:12px;">Post-training screen. Coach reviews payments and completes training.</p><ul><li><strong>Card participants:</strong> auto "Paid" badge, no action needed</li><li><strong>Cash participants:</strong> checkbox, swipe right/left, long press</li><li>Payment summary: "4 paid &middot; 1 unpaid"</li><li>Each row shows payment method (Card/Cash)</li><li>Complete Training → triggers Stripe transfers for card</li></ul></div>
-
-  <div class="ann" id="ann-s-schedule-event"><span class="ann-role coach">Coach</span><h3>Schedule training</h3>
-    <p>Primary FAB action. Coach creates an event for a 1-on-1 athlete OR a one-off group session via the Personal/Group toggle at the top.</p>
-    <ul>
-      <li><strong>Training type toggle</strong> (Personal / Group) — canonical <code>.fit-selection-group</code>. Conditional rows + CTA copy adapt per type.</li>
-      <li><strong>Athlete row</strong> → push <code>s-schedule-pick-athlete</code>. <strong>Hidden in Group mode</strong> (one-off group has no specific athlete — athletes join via marketplace independently).</li>
-      <li><strong>Training session row</strong> → push <code>s-schedule-pick-template</code>. Personal mode filters to personal templates; Group mode filters to group templates. "+ Create new template" CTA in the picker routes to <code>sessions.html#s-create</code>.</li>
-      <li><strong>Date / start time</strong> open canonical bottom sheets (calendar grid + slot picker).</li>
-      <li><strong>Payment method</strong> chips multi-select — Cash / Card.</li>
-      <li><strong>Note</strong> textarea — label adapts: "Note to athlete" / "Note to athletes" (group).</li>
-      <li><strong>CTA</strong> — Personal: "Send invitation" → POST <code>/coach/events</code> with status <code>awaiting</code>; athlete gets push to accept. Group: "Create group event" → POST <code>/coach/events</code> with type=group, status=planned (no invitation step — athletes find on marketplace).</li>
-      <li>Use the toggle inside the right panel state-controls below to preview both modes.</li>
-    </ul>
-    <div class="state-toggle" style="margin-top:8px;">
-      <button class="active" onclick="document.querySelector('#s-schedule-event .fit-selection-chip[data-value=personal]').click();applyScheduleType();this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));this.classList.add('active');">Personal</button>
-      <button onclick="document.querySelector('#s-schedule-event .fit-selection-chip[data-value=group]').click();applyScheduleType();this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));this.classList.add('active');">Group (one-off)</button>
-    </div>
-    <p class="note" style="margin-top:12px;">Restored 2026-05-21 — earlier rework had stripped the toggle assuming all group events come from recurring templates. One-off group sessions (special masterclass, holiday session) now have a home again. Recurring group events still auto-generate from templates in Sessions module — unchanged.</p>
-  </div>
-
-  <div class="ann" id="ann-s-schedule-pick-athlete"><span class="ann-role coach">Coach</span><h3>Pick athlete</h3>
-    <p>Sub-flow of Schedule training. Search-first list of coach's clients ordered by recency.</p>
-    <ul>
-      <li>Search input filters list as coach types (matches <code>account-access.html</code> picker pattern)</li>
-      <li>Tap row → return to <code>s-schedule-event</code> with athlete pre-filled</li>
-      <li><strong>"Invite by phone"</strong> CTA at bottom — sends SMS deep-link to non-321Fit recipients (uses Appsflyer OneLink, same pattern as group event invite per <code>deep-linking-referrals.md</code>)</li>
-    </ul>
-  </div>
-
-  <div class="ann" id="ann-s-schedule-pick-template"><span class="ann-role coach">Coach</span><h3>Pick template</h3>
-    <p>Sub-flow of Schedule training. List of coach's session templates using the canonical <code>v6d-card</code> from sessions module (visual rhyme — coach sees the same card here as on their My Sessions screen).</p>
-    <ul>
-      <li><strong>Filter follows parent toggle:</strong> if Schedule type = Personal → list shows personal templates only. If Group → list shows group templates only. The opposite-type templates are excluded so coach can't accidentally pick a 10-athlete group template for a 1-on-1 booking.</li>
-      <li>"+ Create new template" inline CTA at the top → routes to <code>sessions.html#s-create</code> with the matching type preselected (coach finishes template creation then returns).</li>
-      <li>Tap card → return to <code>s-schedule-event</code> with template pre-filled (name, duration, price, payment method, location).</li>
-    </ul>
-  </div>
-
-  <div class="ann" id="ann-cal-overlap-sheet"><span class="ann-role coach">Coach</span><h3>Event overlap drawer</h3>
-    <p>Opens when an existing 321Fit event collides with one or more external (Google/Apple) events pulled in post-factum — coach connects calendar after the trainings are already booked. We can't prevent this at create time (external event predates our awareness), so we flag it visually and surface resolution options.</p>
-    <ul>
-      <li><strong>Visual marker</strong> on each overlapping tile (canonical <code>.overlapped</code> modifier in lib): red-tinted gradient overlay + small corner dot. Mirrors iOS <code>Theme.Gradient.overlappedEvent</code> (#705959 → #BB7F7F muted brown-red). Additive on top of any tile type (Personal/Group/External/Cross-role/Custom).</li>
-      <li><strong>Drawer supports N events</strong> in the conflict group — list is scrollable (max-height 280pt). Hero copy is dynamic ("3 events overlap · 18:00 – 19:45"). Each row carries an inline "Yours" / "Google" / "Apple" badge so the coach immediately knows which events are editable here vs. need external action.</li>
-      <li><strong>Bulk "Ignore external events"</strong> action (secondary footer btn) — one tap hides every external event in the current overlap group + auto-recomputes overlap state on the timeline so our own tile loses its red overlay + closes the drawer + shows undo snackbar ("Ignored N events from this slot · Undo", 5s). Under the hood: loops POST <code>/v1.0.0/coach/calendar/external-events/{id}/hide</code> for each external (a bulk batch endpoint can land in Phase 2). Surgical per-event hide is intentionally NOT exposed here — the overlap drawer is for resolving conflict, not for granular calendar management; coach who wants surgical mute taps the external tile directly on the schedule (cal-external-sheet) and hits "Hide from schedule" there.</li>
-      <li><strong>Primary action</strong>: 1 own event in conflict → direct "Reschedule {name}". 2+ → "Reschedule one of your events" → picker.</li>
-      <li><strong>Secondary action</strong>: <strong>"Ignore external events"</strong> — see bulk-hide explanation above. 0 external in group (rare race, all events are ours) → secondary hidden; reschedule picker is the only path.</li>
-      <li><strong>Trigger in production:</strong> coach scrolls timeline → sees the red-tinted overlay + corner dot on conflicting tiles → taps any one of them (own or external) → drawer opens. Tap of an overlapped own event short-circuits the regular event drawer (cal-event-sheet / cal-group-sheet) in favor of this conflict drawer; coach can still get to the regular event drawer afterwards from inside Reschedule flow.</li>
-      <li><strong>Preview here:</strong> toggle "Overlap demo" in the state row above — 3 tiles get the marker visible on the timeline (HIIT Group at 18:00 + two Google externals at 18:30 and 18:45) plus a teal snackbar hint. Tap any of them to open this drawer.</li>
-    </ul>
-    <p class="note"><strong>Backend dep:</strong> day events endpoint already returns all event types; client computes overlap by pairwise interval intersection across all events for the day (matches iOS pattern in <code>ScheduleManager.overlapped: [Int: Set&lt;Int&gt;]</code>). No new API needed.</p>
-  </div>
 
   <div class="ann" id="ann-s-block-time-off"><span class="ann-role coach">Coach</span><h3>Busy time</h3>
     <p>Secondary FAB action. Coach creates a custom calendar block — no athlete, no training session template. Renders on timeline as muted block, blocks athlete booking calendars for this slot. Renamed from "Block time off" to disambiguate from Availability → <strong>Time off</strong> (multi-day vacation). Busy time = one ad-hoc slot; Time off = a date range that pauses all bookings + messages clients.</p>
@@ -1953,32 +1764,6 @@ function go(id, btn) {
   FitUI.initAll(document.getElementById(id));
 }
 
-// === SCHEDULE TRAINING: Personal/Group toggle ===
-// Conditional row visibility + CTA copy. Toggle lives in s-schedule-event.
-function applyScheduleType() {
-  const screen = document.getElementById('s-schedule-event');
-  if (!screen) return;
-  const group = screen.querySelector('.fit-selection-group[data-fit-selection="single"]');
-  if (!group) return;
-  const selected = group.querySelector('.fit-selection-chip.selected');
-  const type = selected ? selected.dataset.value : 'personal';
-  screen.dataset.scheduleType = type;
-  // Show/hide rows by data-schedule-show
-  screen.querySelectorAll('[data-schedule-show]').forEach(el => {
-    el.style.display = (el.dataset.scheduleShow === type) ? '' : 'none';
-  });
-  // CTA + template display + note label adapt per type
-  const cta = document.getElementById('schedule-save-cta');
-  const tplDisplay = document.getElementById('schedule-template-display');
-  const noteLabel = document.getElementById('schedule-note-label');
-  if (cta) cta.textContent = (type === 'group') ? 'Create group event' : 'Send invitation';
-  if (tplDisplay) tplDisplay.textContent = (type === 'group')
-    ? 'HIIT Group Session · 1h · €25/person'
-    : 'Basketball Training · 1h · €50';
-  if (noteLabel) noteLabel.innerHTML = (type === 'group')
-    ? 'Note to athletes <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span>'
-    : 'Note to athlete <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span>';
-}
 
 // === CONTEXT MENU (iOS UIMenu pattern) ===
 function openEventMenu() {
@@ -1988,6 +1773,37 @@ function openEventMenu() {
 function closeEventMenu() {
   document.getElementById('event-menu').classList.remove('visible');
   document.getElementById('event-menu-backdrop').classList.remove('visible');
+}
+// === SHEET ⋯ ACTION MENU (personal + group drawers) ===
+function toggleSheetMenu(id) {
+  var m = document.getElementById(id);
+  if (!m) return;
+  var wasOpen = m.classList.contains('visible');
+  closeSheetMenu('cal-event-menu'); closeSheetMenu('cal-group-menu');
+  if (!wasOpen) m.classList.add('visible');
+}
+function closeSheetMenu(id) {
+  var m = document.getElementById(id);
+  if (m) m.classList.remove('visible');
+}
+// Tap outside → close (scoped to the two sheet menus so the s-event event-menu is untouched)
+document.addEventListener('click', function(e) {
+  if (e.target.closest('#cal-event-menu, #cal-group-menu')) return;
+  closeSheetMenu('cal-event-menu'); closeSheetMenu('cal-group-menu');
+});
+
+// Edit event → instance-level edit screen (LIGHT by default; s-event-edit-full is the fuller variant).
+function calEditEvent() {
+  document.getElementById('cal-event-sheet').classList.remove('visible');
+  document.getElementById('cal-group-sheet').classList.remove('visible');
+  closeSheetMenu('cal-event-menu'); closeSheetMenu('cal-group-menu');
+  go('s-event-edit', document.querySelector('.sidebar button[onclick*=s-event-edit]'));
+}
+// Vertical duration wheel — select tapped item (ported from sessions.html Create Session)
+function changeDuration(item) {
+  var col = item.closest('.fit-wheel-scroll');
+  col.querySelectorAll('.fit-wheel-item').forEach(function(i){ i.classList.remove('active'); i.classList.add('dim'); });
+  item.classList.remove('dim'); item.classList.add('active');
 }
 
 // === SHEET OPENER (moves sheet into currently active screen so absolute-positioned overlay renders correctly) ===
