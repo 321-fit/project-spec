@@ -143,10 +143,36 @@
   .bal-search svg { width: 17px; height: 17px; color: var(--fit-text-tertiary); flex-shrink: 0; }
   .bal-search input { flex: 1; border: none; background: transparent; outline: none; font-family: var(--fit-font); font-size: 15px; color: var(--fit-text-primary); }
   #s-history .fit-txn-sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  /* Period-scope row — "This month" chip (independent axis above the type/method chips) */
-  .hist-period { margin-bottom: 8px; }
-  .hist-month { display: inline-flex; align-items: center; gap: 5px; }
-  .hist-month svg { width: 13px; height: 13px; }
+  /* Funnel entry inside the search bar + active-filters dot (green when period/method set) */
+  .hist-filter-btn { position: relative; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; padding: 0; flex-shrink: 0; background: none; border: none; cursor: pointer; color: var(--fit-text-secondary); }
+  .hist-filter-btn svg { width: 19px; height: 19px; }
+  .hist-filter-dot { display: none; position: absolute; top: -1px; right: -1px; width: 8px; height: 8px; border-radius: 50%; background: var(--fit-teal-500); box-shadow: 0 0 0 1.5px var(--fit-surface-high); }
+  .fit-light .hist-filter-dot { box-shadow: 0 0 0 1.5px var(--fit-white); }
+  #s-history.has-filters .hist-filter-dot { display: block; }
+  #s-history.has-filters .hist-filter-btn { color: var(--fit-teal-500); }
+
+  /* History Filter screen — canonical Search-filter pattern (ported from search.html) */
+  #s-history-filter .filter-body { flex: 1; overflow-y: auto; padding: 0 16px 16px; }
+  #s-history-filter .filter-section { padding: 20px 0; border-bottom: 1px solid var(--fit-divider); }
+  #s-history-filter .filter-section:first-child { padding-top: 12px; }
+  #s-history-filter .filter-section:last-child { border-bottom: none; }
+  #s-history-filter .filter-section-title { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); margin-bottom: 12px; }
+  #s-history-filter .filter-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  #s-history-filter .filter-chip { height: 32px; padding: 0 14px; border-radius: 99px; background: var(--fit-surface-high); border: 1px solid transparent; color: var(--fit-text-primary); font-family: var(--fit-font); font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .fit-light #s-history-filter .filter-chip { background: var(--fit-white); border-color: var(--fit-gray-200); }
+  #s-history-filter .filter-chip.selected { background: var(--fit-brand-gradient); color: var(--fit-white); border-color: transparent; }
+  #s-history-filter .filter-sticky-cta { flex-shrink: 0; padding: 12px 16px 16px; background: var(--fit-screen-bg); border-top: 1px solid var(--fit-divider); display: flex; gap: 8px; }
+  #s-history-filter .filter-cta-apply { flex: 1; height: 44px; border: none; border-radius: 99px; background: var(--fit-brand-gradient); color: var(--fit-white); font-family: var(--fit-font); font-size: 14px; font-weight: 500; cursor: pointer; }
+  .hp-reset { background: transparent; border: none; cursor: pointer; color: var(--fit-blue-500); font-family: var(--fit-font); font-size: 14px; font-weight: 500; padding: 0 4px; }
+  /* Custom date range — revealed only under the Custom preset */
+  .hp-custom-range { display: none; margin-top: 14px; }
+  #s-history-filter.hp-custom .hp-custom-range { display: block; }
+  .hp-daterow { display: flex; gap: 10px; }
+  .hp-datecol { flex: 1; }
+  .hp-date-label { color: var(--fit-text-tertiary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+  .hp-date { height: 46px; border-radius: 12px; border: 1px solid var(--fit-divider); background: var(--fit-surface-high); display: flex; align-items: center; gap: 8px; padding: 0 14px; font-size: 14px; color: var(--fit-text-primary); cursor: pointer; }
+  .fit-light .hp-date { background: var(--fit-white); border-color: var(--fit-gray-200); }
+  .hp-date svg { width: 16px; height: 16px; color: var(--fit-text-tertiary); margin-left: auto; }
 
   /* Consistent section rhythm on money screens */
   #s-balance .fit-section-title--md,
@@ -245,6 +271,7 @@
   <div class="label">Balance</div>
   <button class="active" onclick="go('s-balance',this)">Balance</button>
   <button onclick="go('s-history',this)">Transactions (History)</button>
+  <button onclick="openFilter()">Transactions · Filter</button>
   <div class="label">Balance states</div>
   <button onclick="go('s-balance',this);setBalState('default')">Default</button>
   <button onclick="go('s-balance',this);setBalState('empty')">Empty (no history)</button>
@@ -314,12 +341,12 @@
 
       <!-- Analytics widgets (replace the old Spending swipe card + history list) -->
       <div class="bal-grid">
-        <button class="bal-widget" data-a11y-id="athlete.balance.widget.month" onclick="go('s-history',null);histScope(true,'spend')">
+        <button class="bal-widget" data-a11y-id="athlete.balance.widget.month" onclick="go('s-history',null);histScope('month','spend')">
           <div class="bal-widget-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 4-6"/></svg>This month</div>
           <div class="bal-widget-value">&euro;245.00</div>
           <div class="bal-widget-sub">&euro;175 card &middot; &euro;70 cash</div>
         </button>
-        <button class="bal-widget" data-a11y-id="athlete.balance.widget.total" onclick="go('s-history',null);histScope(false,'spend')">
+        <button class="bal-widget" data-a11y-id="athlete.balance.widget.total" onclick="go('s-history',null);histScope('all','spend')">
           <div class="bal-widget-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Total spent</div>
           <div class="bal-widget-value">&euro;1,840</div>
           <div class="bal-widget-sub">lifetime</div>
@@ -423,41 +450,36 @@
 
     <!-- Sticky header: search + filters pinned; the ledger scrolls underneath -->
     <div class="hist-sticky">
+    <!-- Search + inline Filter entry (funnel). Green dot = advanced filters active (period / method) -->
     <div class="bal-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input type="text" placeholder="Search coach, session, amount…" data-a11y-id="athlete.history.search" oninput="searchTxns(this.value)">
+      <input type="text" placeholder="Search coach, session, amount…" data-a11y-id="athlete.history.search" oninput="searchTxns()">
+      <button class="hist-filter-btn" data-a11y-id="athlete.history.filter-open" onclick="openFilter()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg><span class="hist-filter-dot"></span></button>
     </div>
 
-    <!-- Period scope (independent axis): "This month" toggle. Deep-linked ON from the This month
-         widget, OFF from Total spent. Combines with the type/method row below. -->
-    <div class="fit-filter-row hist-period" data-a11y-id="athlete.history.period">
-      <button class="fit-filter-chip hist-month" data-a11y-id="athlete.history.month" onclick="balMonth(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>This month</button>
-    </div>
-
-    <!-- Filters: type + payment method -->
+    <!-- Quick type chips (single axis, one-tap). Period lives in the Filter screen (funnel). -->
     <div class="fit-filter-row" data-a11y-id="athlete.history.filters">
       <button class="fit-filter-chip active" data-filter="all" onclick="balFilter('all',this)">All</button>
       <button class="fit-filter-chip" data-filter="spend" onclick="balFilter('spend',this)">Spent</button>
       <button class="fit-filter-chip" data-filter="topup" onclick="balFilter('topup',this)">Top-ups</button>
       <button class="fit-filter-chip" data-filter="refund" onclick="balFilter('refund',this)">Refunds</button>
-      <button class="fit-filter-chip" data-filter="card" onclick="balFilter('card',this)">Card</button>
-      <button class="fit-filter-chip" data-filter="cash" onclick="balFilter('cash',this)">Cash</button>
     </div>
     </div><!-- /.hist-sticky -->
 
+    <!-- Rows carry data-in (which period presets they fall in) + data-date (for a Custom range) -->
     <div class="fit-txn-date">This week</div>
     <div class="fit-txn-group">
-      <div class="fit-txn" data-txn="spend" data-method="card" data-month="current" data-a11y-id="athlete.history.txn" onclick="go('s-txn-spend',null)">
+      <div class="fit-txn" data-txn="spend" data-method="card" data-in="week month year" data-date="2026-04-21" data-a11y-id="athlete.history.txn" onclick="go('s-txn-spend',null)">
         <div class="fit-txn-icon fit-txn-icon--out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/></svg></div>
         <div class="fit-txn-body"><div class="fit-txn-title">Maria Rodriguez<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">1:1 Tennis</div><div class="fit-txn-meta">Mon, Apr 21 &middot; 18:00</div></div>
         <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;25.00</div>
       </div>
-      <div class="fit-txn" data-txn="topup" data-method="card" data-month="current" data-a11y-id="athlete.history.txn" onclick="go('s-txn-topup',null)">
+      <div class="fit-txn" data-txn="topup" data-method="card" data-in="week month year" data-date="2026-04-21" data-a11y-id="athlete.history.txn" onclick="go('s-txn-topup',null)">
         <div class="fit-txn-icon fit-txn-icon--in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
         <div class="fit-txn-body"><div class="fit-txn-title">Top-up<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">Visa &bull;&bull; 4242</div><div class="fit-txn-meta">Mon, Apr 21 &middot; 14:32</div></div>
         <div class="fit-txn-amt fit-txn-amt--plus">+&euro;100.00</div>
       </div>
-      <div class="fit-txn" data-txn="spend" data-method="cash" data-month="current" data-a11y-id="athlete.history.txn" onclick="go('s-txn-spend-cash',null)">
+      <div class="fit-txn" data-txn="spend" data-method="cash" data-in="week month year" data-date="2026-04-20" data-a11y-id="athlete.history.txn" onclick="go('s-txn-spend-cash',null)">
         <div class="fit-txn-icon fit-txn-icon--out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10v5a3 3 0 003 3h5a3 3 0 003-3v-2"/><path d="M9 10h7a2 2 0 002-2 3 3 0 00-3-3H9a3 3 0 00-3 3v2"/></svg></div>
         <div class="fit-txn-body"><div class="fit-txn-title">Pavel S.<span class="txn-method-tag cash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</span></div><div class="fit-txn-sub">1:1 Boxing</div><div class="fit-txn-meta">Sun, Apr 20 &middot; 09:00</div></div>
         <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;30.00</div>
@@ -466,32 +488,32 @@
 
     <div class="fit-txn-date">Apr 14 – 18</div>
     <div class="fit-txn-group">
-      <div class="fit-txn" data-txn="refund" data-method="card" data-month="current" data-a11y-id="athlete.history.txn" onclick="go('s-txn-refund',null)">
+      <div class="fit-txn" data-txn="refund" data-method="card" data-in="month year" data-date="2026-04-17" data-a11y-id="athlete.history.txn" onclick="go('s-txn-refund',null)">
         <div class="fit-txn-icon fit-txn-icon--info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 015 5v1"/></svg></div>
         <div class="fit-txn-body"><div class="fit-txn-title">Anna K.<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">Refund &middot; 1:1 Yoga</div><div class="fit-txn-meta">Thu, Apr 17</div></div>
         <div class="fit-txn-amt fit-txn-amt--plus">+&euro;20.00</div>
       </div>
-      <div class="fit-txn" data-txn="spend" data-method="cash" data-month="current" data-a11y-id="athlete.history.txn" onclick="go('s-txn-spend-cash',null)">
+      <div class="fit-txn" data-txn="spend" data-method="cash" data-in="month year" data-date="2026-04-16" data-a11y-id="athlete.history.txn" onclick="go('s-txn-spend-cash',null)">
         <div class="fit-txn-icon fit-txn-icon--out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/></svg></div>
         <div class="fit-txn-body"><div class="fit-txn-title">Maria Rodriguez<span class="txn-method-tag cash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</span></div><div class="fit-txn-sub">1:1 Padel</div><div class="fit-txn-meta">Wed, Apr 16 &middot; 18:00</div></div>
         <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;40.00</div>
       </div>
-      <div class="fit-txn" data-txn="topup" data-method="card" data-month="current" data-a11y-id="athlete.history.txn" onclick="go('s-txn-topup',null)">
+      <div class="fit-txn" data-txn="topup" data-method="card" data-in="month year" data-date="2026-04-14" data-a11y-id="athlete.history.txn" onclick="go('s-txn-topup',null)">
         <div class="fit-txn-icon fit-txn-icon--in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
         <div class="fit-txn-body"><div class="fit-txn-title">Top-up<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">Apple&nbsp;Pay</div><div class="fit-txn-meta">Mon, Apr 14 &middot; 09:10</div></div>
         <div class="fit-txn-amt fit-txn-amt--plus">+&euro;100.00</div>
       </div>
     </div>
 
-    <!-- Previous-month group (data-month="past") — hidden when the "This month" scope is on -->
+    <!-- Previous-month group — falls only in "This year" / "All time" (hidden by This week / This month) -->
     <div class="fit-txn-date">Mar 2026</div>
     <div class="fit-txn-group">
-      <div class="fit-txn" data-txn="spend" data-method="card" data-month="past" data-a11y-id="athlete.history.txn" onclick="go('s-txn-spend',null)">
+      <div class="fit-txn" data-txn="spend" data-method="card" data-in="year" data-date="2026-03-28" data-a11y-id="athlete.history.txn" onclick="go('s-txn-spend',null)">
         <div class="fit-txn-icon fit-txn-icon--out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/></svg></div>
         <div class="fit-txn-body"><div class="fit-txn-title">David M.<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">1:1 Strength</div><div class="fit-txn-meta">Fri, Mar 28 &middot; 17:00</div></div>
         <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;45.00</div>
       </div>
-      <div class="fit-txn" data-txn="topup" data-method="card" data-month="past" data-a11y-id="athlete.history.txn" onclick="go('s-txn-topup',null)">
+      <div class="fit-txn" data-txn="topup" data-method="card" data-in="year" data-date="2026-03-20" data-a11y-id="athlete.history.txn" onclick="go('s-txn-topup',null)">
         <div class="fit-txn-icon fit-txn-icon--in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
         <div class="fit-txn-body"><div class="fit-txn-title">Top-up<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">Visa &bull;&bull; 4242</div><div class="fit-txn-meta">Fri, Mar 20 &middot; 10:05</div></div>
         <div class="fit-txn-amt fit-txn-amt--plus">+&euro;100.00</div>
@@ -504,6 +526,50 @@
       <div class="fit-empty-state-sub">No transactions match this filter.</div>
     </div>
 
+  </div>
+</div>
+
+<!-- ==================== SCREEN: HISTORY FILTER (push, canonical Search-filter pattern) ==================== -->
+<!-- Opened from the funnel in the History search bar. Holds Period (the genuinely new axis) —
+     presets + a Custom range. Type stays inline on the ledger. Reset (header) clears; Apply commits.
+     Built on the canonical .filter-section / .filter-chip / .filter-sticky-cta kit (search.html). -->
+<div class="fit-phone fit-light" id="s-history-filter">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="athlete.history.filter.back" onclick="go('s-history',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title" style="flex:1;">Filter history</span>
+      <button class="hp-reset" data-a11y-id="athlete.history.filter.reset" onclick="clearFilters()">Reset</button>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="display:flex;flex-direction:column;padding:0;">
+    <div class="filter-body">
+      <div class="filter-section">
+        <div class="filter-section-title">Period</div>
+        <div class="filter-chips hp-period" data-a11y-id="athlete.history.filter.period">
+          <button class="filter-chip selected" data-period="all" onclick="selectPeriod('all',this)">All time</button>
+          <button class="filter-chip" data-period="week" onclick="selectPeriod('week',this)">This week</button>
+          <button class="filter-chip" data-period="month" onclick="selectPeriod('month',this)">This month</button>
+          <button class="filter-chip" data-period="year" onclick="selectPeriod('year',this)">This year</button>
+          <button class="filter-chip" data-period="custom" onclick="selectPeriod('custom',this)">Custom&hellip;</button>
+        </div>
+        <div class="hp-custom-range">
+          <div class="hp-daterow">
+            <div class="hp-datecol">
+              <div class="hp-date-label">From</div>
+              <div class="hp-date" id="hp-from" data-a11y-id="athlete.history.filter.from" onclick="setDraftDate('from')"><span class="hp-date-val">Start date</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+            </div>
+            <div class="hp-datecol">
+              <div class="hp-date-label">To</div>
+              <div class="hp-date" id="hp-to" data-a11y-id="athlete.history.filter.to" onclick="setDraftDate('to')"><span class="hp-date-val">End date</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="filter-sticky-cta">
+      <button class="filter-cta-apply" data-a11y-id="athlete.history.filter.apply" onclick="applyFilters()">Apply</button>
+    </div>
   </div>
 </div>
 
@@ -1000,10 +1066,21 @@
     <ul>
       <li><strong>Sticky header (<code>.hist-sticky</code>)</strong> — the search field + filter chips are <strong>pinned</strong> (CSS <code>position: sticky; top: 0</code>); the transaction list scrolls <em>underneath</em> them. Native: pin search + chips to the top of the scroll view (iOS <code>UICollectionView</code> pinned supplementary / Android sticky header) so filters stay reachable while scrolling.</li>
       <li><strong>Search</strong> — narrows the current chip filter by free text (coach, session, amount).</li>
-      <li><strong>Filter chips — two dimensions in one row:</strong> by <em>type</em> (All / Spent / Top-ups / Refunds) and by <em>payment method</em> (Card / Cash). Single-select; method chips read <code>data-method</code>, type chips read <code>data-txn</code>.</li>
-      <li><strong>Period scope — independent second axis (<code>.hist-period</code> row):</strong> a <em>This month</em> toggle chip that <strong>combines</strong> with the type/method selection (rows carry <code>data-month</code>; scope keeps only current-month rows). It is a toggle, <strong>not</strong> a removable ×-chip (per <code>filter_chips_no_inline_remove</code>).</li>
-      <li><strong>Widget deep-links set both axes:</strong> <em>This month</em> → <code>histScope(true,'spend')</code> (month ON + Spent, total matches the €245 tile); <em>Total spent</em> → <code>histScope(false,'spend')</code> (all-time + Spent). Native: pass a <code>{ period, type }</code> filter state into the Transactions screen.</li>
+      <li><strong>Quick type chips (inline, one axis):</strong> All / Spent / Top-ups / Refunds — single-select, one-tap (read <code>data-txn</code>). This is the 80% flick; it is the <em>only</em> chip row on the ledger.</li>
+      <li><strong>Funnel → Filter screen (<code>s-history-filter</code>):</strong> the search bar carries a <strong>funnel</strong> with a <strong>green dot</strong> when a period filter is set. It opens a push Filter screen (canonical <code>.filter-section</code>/<code>.filter-chip</code> kit from Search) holding <strong>Period</strong> — presets <em>All time / This week / This month / This year</em> + <strong>Custom&hellip;</strong> which reveals a From/To range. Edits a <em>draft</em>; <strong>Apply</strong> commits, header <strong>Reset</strong> clears. Mirrors the Search Filters screen and fixes the earlier lone-toggle smell. <em>No Payment-method filter</em> — in this ledger method mostly overlaps type (top-ups + refunds are always card; only spends split card/cash), and cash reconciliation already lives on the <em>Owed</em> screen — so it earned no section.</li>
+      <li><strong>Rows carry <code>data-in</code></strong> (which presets they fall in: <code>week</code>/<code>month</code>/<code>year</code>) <strong>+ <code>data-date</code></strong> (for the Custom range). Presets compute to a <code>from</code>/<code>to</code> range.</li>
+      <li><strong>Widget deep-links:</strong> <em>This month</em> → <code>histScope('month','spend')</code> (green dot lit; total matches the €245 tile); <em>Total spent</em> → <code>histScope('all','spend')</code>. <strong>Native resolves all filters server-side</strong> (<code>type</code> + <code>method</code> + <code>from</code>/<code>to</code> on <code>GET /athlete/transactions-history</code>), like Search — don't filter a client copy.</li>
       <li>Empty result → "Nothing here" no-match state.</li>
+    </ul>
+  </div>
+
+  <div class="ann" id="ann-s-history-filter"><span class="ann-role athlete">Athlete</span><h3>Filter history</h3>
+    <p>Push screen from the History funnel. Built on the <strong>canonical Search-filter kit</strong> — <code>.filter-body</code> / <code>.filter-section</code> (20px rhythm + dividers) / <code>.filter-section-title</code> / <code>.filter-chip</code> / <code>.filter-sticky-cta</code> — so spacing matches the rest of the app rather than being hand-rolled.</p>
+    <ul>
+      <li><strong>Period</strong> — preset <code>.filter-chip</code>s <em>All time / This week / This month / This year</em> + <strong>Custom&hellip;</strong> which reveals a <strong>From / To</strong> range (native date pickers; mocked here). Presets resolve to a <code>from</code>/<code>to</code> range server-side.</li>
+      <li><strong>Reset (header) + Apply (sticky CTA)</strong> — edits stage in a draft; <strong>Apply</strong> commits + returns to the ledger + lights the funnel dot; header <strong>Reset</strong> clears to defaults. Explicit commit (matches Search + Top up), no live-apply.</li>
+      <li><strong>No Payment-method section</strong> — method mostly overlaps type in this ledger (top-ups + refunds are always card; only spends split card/cash), and cash reconciliation lives on the <em>Owed</em> screen — so it didn't earn a filter. Type quick-chips + Period cover the real needs.</li>
+      <li><strong>Why a screen, not a sheet</strong> — preset chips + a date range = focused-input surface (per <code>screen_vs_sheet_vs_toast</code> / <code>picker_sheet_vs_push</code>), and it mirrors the Search Filters screen. Future axes (amount, coach) drop in as new <code>.filter-section</code>s without touching the ledger chrome.</li>
     </ul>
   </div>
 
@@ -1148,8 +1225,12 @@ function setRfReason(r, btn) {
   el.classList.add('rf-' + r);
   if (btn) { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
 }
-// History filter — chips match by type (data-txn) OR payment method (data-method).
-// Type/method chips (single-select, in the .fit-filter-row that is NOT .hist-period).
+// History filters: inline type chips (data-txn) + a Filter screen holding Period.
+// Committed filter state. Type comes from the inline chips; period from the Filter screen.
+var histFilter = { period: 'all', from: '', to: '' };
+var filterDraft = { period: 'all', from: '', to: '' };
+
+// Inline quick type chips — single axis, one-tap.
 function balFilter(filter, btn) {
   if (btn) {
     btn.parentElement.querySelectorAll('.fit-filter-chip').forEach(c => c.classList.remove('active'));
@@ -1157,39 +1238,39 @@ function balFilter(filter, btn) {
   }
   applyHistoryFilter();
 }
-// "This month" period scope — an INDEPENDENT second axis; toggles on/off, combines with type/method.
-function balMonth(btn) {
-  if (btn) btn.classList.toggle('active');
-  applyHistoryFilter();
-}
-// Deep-link helper (from Balance widgets): set month scope + type in one shot.
-// This month → histScope(true,'spend'); Total spent → histScope(false,'spend').
-function histScope(monthOn, type) {
-  var m = document.querySelector('#s-history .hist-month');
-  if (m) m.classList.toggle('active', !!monthOn);
-  document.querySelectorAll('#s-history .fit-filter-row:not(.hist-period) .fit-filter-chip').forEach(function (c) {
+// Deep-link helper from Balance widgets: set period + type in one shot.
+// This month → histScope('month','spend'); Total spent → histScope('all','spend').
+function histScope(period, type) {
+  histFilter = { period: period, from: '', to: '' };
+  document.querySelectorAll('#s-history .fit-filter-row .fit-filter-chip').forEach(function (c) {
     c.classList.toggle('active', c.getAttribute('data-filter') === type);
   });
+  updateDot();
   applyHistoryFilter();
 }
-// Live search inside History — narrows the current type + month scope by text.
-function searchTxns() {
-  applyHistoryFilter();
+function searchTxns() { applyHistoryFilter(); }
+
+// Does a row fall inside the active period? Presets read data-in; Custom compares data-date.
+function matchPeriod(r) {
+  var p = histFilter.period;
+  if (p === 'all') return true;
+  if (p === 'custom') {
+    var d = r.getAttribute('data-date') || '';
+    return (!histFilter.from || d >= histFilter.from) && (!histFilter.to || d <= histFilter.to);
+  }
+  return (r.getAttribute('data-in') || '').split(' ').indexOf(p) !== -1;
 }
 function applyHistoryFilter() {
-  var typeChip = document.querySelector('#s-history .fit-filter-row:not(.hist-period) .fit-filter-chip.active');
-  var filter = typeChip ? typeChip.getAttribute('data-filter') : 'all';
-  var scoped = !!document.querySelector('#s-history .hist-month.active');
+  var typeChip = document.querySelector('#s-history .fit-filter-row .fit-filter-chip.active');
+  var type = typeChip ? typeChip.getAttribute('data-filter') : 'all';
   var query = ((document.querySelector('#s-history .bal-search input') || {}).value || '').trim().toLowerCase();
   var rows = document.querySelectorAll('#s-history .fit-txn');
   var anyVisible = false;
   rows.forEach(function(r) {
-    var byChip = filter === 'all'
-      || r.getAttribute('data-txn') === filter
-      || r.getAttribute('data-method') === filter;
-    var byMonth = !scoped || r.getAttribute('data-month') === 'current';
+    var byType = type === 'all' || r.getAttribute('data-txn') === type;
+    var byPeriod = matchPeriod(r);
     var byText = !query || r.textContent.toLowerCase().indexOf(query) !== -1;
-    var show = byChip && byMonth && byText;
+    var show = byType && byPeriod && byText;
     r.style.display = show ? '' : 'none';
     if (show) anyVisible = true;
   });
@@ -1201,6 +1282,61 @@ function applyHistoryFilter() {
   });
   var noMatch = document.getElementById('bal-no-match');
   if (noMatch) noMatch.style.display = anyVisible ? 'none' : 'block';
+}
+// Green dot on the funnel when a period filter is set.
+function updateDot() {
+  var el = document.getElementById('s-history');
+  if (el) el.classList.toggle('has-filters', histFilter.period !== 'all');
+}
+
+/* ---- Filter screen (canonical .filter-chip/.selected): edits a draft, commits on Apply ---- */
+function openFilter() { syncFilterScreen(); go('s-history-filter', null); }
+function syncFilterScreen() {
+  filterDraft = { period: histFilter.period, from: histFilter.from, to: histFilter.to };
+  reflectDraft();
+}
+function reflectDraft() {
+  document.querySelectorAll('#s-history-filter .hp-period .filter-chip').forEach(function (c) {
+    c.classList.toggle('selected', c.getAttribute('data-period') === filterDraft.period);
+  });
+  var fs = document.getElementById('s-history-filter');
+  if (fs) fs.classList.toggle('hp-custom', filterDraft.period === 'custom');
+  setDateVal('from', filterDraft.from);
+  setDateVal('to', filterDraft.to);
+}
+function setDateVal(which, val) {
+  var el = document.querySelector('#hp-' + which + ' .hp-date-val');
+  if (!el) return;
+  el.textContent = val ? val.split('-').reverse().join('.') : (which === 'from' ? 'Start date' : 'End date');
+}
+function selectPeriod(p, btn) {
+  filterDraft.period = p;
+  document.querySelectorAll('#s-history-filter .hp-period .filter-chip').forEach(c => c.classList.remove('selected'));
+  if (btn) btn.classList.add('selected');
+  var fs = document.getElementById('s-history-filter');
+  if (fs) fs.classList.toggle('hp-custom', p === 'custom');
+  if (p !== 'custom') { filterDraft.from = ''; filterDraft.to = ''; setDateVal('from', ''); setDateVal('to', ''); }
+}
+// Mock native date picker — sets a sample range so Custom is demonstrable in the prototype.
+function setDraftDate(which) {
+  if (which === 'from') filterDraft.from = '2026-04-01';
+  if (which === 'to') filterDraft.to = '2026-04-30';
+  filterDraft.period = 'custom';
+  document.querySelectorAll('#s-history-filter .hp-period .filter-chip').forEach(function (c) {
+    c.classList.toggle('selected', c.getAttribute('data-period') === 'custom');
+  });
+  setDateVal('from', filterDraft.from);
+  setDateVal('to', filterDraft.to);
+}
+function applyFilters() {
+  histFilter = { period: filterDraft.period, from: filterDraft.from, to: filterDraft.to };
+  updateDot();
+  applyHistoryFilter();
+  go('s-history', null);
+}
+function clearFilters() {
+  filterDraft = { period: 'all', from: '', to: '' };
+  reflectDraft();
 }
 
 /* ===== Sheets ===== */
