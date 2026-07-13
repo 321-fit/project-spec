@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>321Fit store frame</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #000; }
+  #stage { width: 1290px; height: 2796px; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script type="module">
+  import { FRAMES } from "./config.js";
+  import { buildFrame } from "./render.js";
+
+  const params = new URLSearchParams(location.search);
+  let frame;
+  if (params.has("id")) frame = FRAMES.find(f => f.id === params.get("id"));
+  else frame = FRAMES[Number(params.get("i") || 0)];
+
+  const stage = document.getElementById("stage");
+  if (!frame) {
+    stage.textContent = "frame not found";
+  } else {
+    const el = buildFrame(frame);
+    stage.appendChild(el);
+    // Signal readiness to the export script once the screenshot image has loaded.
+    const img = el.querySelector("img");
+    const done = () => { window.__frameReady = true; };
+    if (img.complete) done(); else { img.onload = done; img.onerror = done; }
+  }
+</script>
+</body>
+</html>

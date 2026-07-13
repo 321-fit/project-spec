@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>321Fit — Store storyboard</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #1b1d21; }
+  .bar {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 28px; background: #101216;
+    color: #eaeaea; font: 15px -apple-system, sans-serif;
+    border-bottom: 1px solid #2a2d31;
+  }
+  .bar b { font-weight: 600; }
+  .bar .muted { color: #8b9096; }
+  .rail {
+    display: flex; gap: 40px; padding: 44px 40px 80px;
+    overflow-x: auto; align-items: flex-start;
+  }
+  .cell { flex: 0 0 auto; }
+  .cell .cap {
+    color: #b7bcc2; font: 13px -apple-system, sans-serif;
+    margin: 0 0 12px; text-align: center;
+  }
+  .thumb {
+    width: 322px; height: 699px;      /* 1290×2796 scaled 0.25 */
+    overflow: hidden; border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  }
+  .thumb .sa-frame { transform: scale(0.25); transform-origin: top left; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <b>321Fit — App Store / Google Play storyboard</b>
+  <span class="muted">edit copy &amp; screens in <code>config.js</code> · this is a live preview, not the export</span>
+</div>
+<div class="rail" id="rail"></div>
+<script type="module">
+  import { FRAMES } from "./config.js";
+  import { buildFrame } from "./render.js";
+
+  const rail = document.getElementById("rail");
+  FRAMES.forEach((f, i) => {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    const cap = document.createElement("p");
+    cap.className = "cap";
+    cap.textContent = `${i + 1}. ${f.id}`;
+    const thumb = document.createElement("div");
+    thumb.className = "thumb";
+    thumb.appendChild(buildFrame(f));
+    cell.appendChild(cap);
+    cell.appendChild(thumb);
+    rail.appendChild(cell);
+  });
+</script>
+</body>
+</html>
