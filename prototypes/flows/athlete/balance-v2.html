@@ -120,6 +120,14 @@
   .bal-widget-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .bal-widget.warn .bal-widget-value, .bal-widget.warn .bal-widget-label { color: var(--fit-red-400); }
 
+  /* ===== Owed screen — cash sessions the athlete still owes for (red = action needed) ===== */
+  .bal-owed-amt { color: var(--fit-red-400); }
+  .fit-badge.bal-owed-badge { background: rgba(240,92,91,0.15); color: var(--fit-red-400); }
+  /* Tappable KV row (Coach → profile) — chevron affordance on a canonical .fit-kv */
+  .fit-kv.bal-kv-tap { cursor: pointer; }
+  .bal-kv-tap .fit-kv-value { display: inline-flex; align-items: center; gap: 6px; }
+  .bal-kv-chev { width: 15px; height: 15px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+
   /* Recent header — canonical .fit-section-title--md-row + See all link */
   .bal-seeall { display: inline-flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 500; color: var(--fit-teal-500); background: none; border: none; cursor: pointer; font-family: var(--fit-font); padding: 0; }
   .bal-seeall svg { width: 14px; height: 14px; }
@@ -135,13 +143,19 @@
   .bal-search svg { width: 17px; height: 17px; color: var(--fit-text-tertiary); flex-shrink: 0; }
   .bal-search input { flex: 1; border: none; background: transparent; outline: none; font-family: var(--fit-font); font-size: 15px; color: var(--fit-text-primary); }
   #s-history .fit-txn-sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* Period-scope row — "This month" chip (independent axis above the type/method chips) */
+  .hist-period { margin-bottom: 8px; }
+  .hist-month { display: inline-flex; align-items: center; gap: 5px; }
+  .hist-month svg { width: 13px; height: 13px; }
 
   /* Consistent section rhythm on money screens */
   #s-balance .fit-section-title--md,
   #s-top-up .fit-section-title--md,
   #s-txn-spend .fit-section-title--md,
   #s-txn-topup .fit-section-title--md,
-  #s-txn-refund .fit-section-title--md { margin-top: 22px; }
+  #s-txn-refund .fit-section-title--md,
+  #s-owed-detail .fit-section-title--md,
+  #s-booked-detail .fit-section-title--md { margin-top: 22px; }
   #s-balance .bal-hero { margin-bottom: 0; }
   #s-balance .fit-stat-strip { margin-bottom: 0; }
   /* 3-line txn cells: title (coach name + method pill) / sub (session) / meta (date) — each on one line */
@@ -152,7 +166,7 @@
   .txn-method-tag.cash { background: rgba(75,191,127,0.14); color: var(--fit-teal-500); }
   .txn-method-tag.card { background: rgba(99,91,255,0.14); color: #635BFF; }
   /* method pill pinned to the top-right of a transaction detail hero card */
-  #s-txn-spend .fit-detail-hero, #s-txn-topup .fit-detail-hero, #s-txn-refund .fit-detail-hero { position: relative; }
+  #s-txn-spend .fit-detail-hero, #s-txn-topup .fit-detail-hero, #s-txn-refund .fit-detail-hero, #s-owed-detail .fit-detail-hero { position: relative; }
   .txn-hero-pill { position: absolute; top: 14px; right: 14px; margin-left: 0; }
   /* outline note card (per feedback_note_block — transparent + border, not a colored banner) */
   .txn-note { padding: 12px 14px; border: 1px solid var(--fit-divider); border-radius: 12px; font-size: 13px; color: var(--fit-text-secondary); line-height: 1.5; }
@@ -249,6 +263,12 @@
   <button onclick="go('s-txn-spend-cash',this)">Session payment (cash)</button>
   <button onclick="go('s-txn-topup',this)">Top-up</button>
   <button onclick="go('s-txn-refund',this)">Refund</button>
+  <div class="label">Owed (cash)</div>
+  <button onclick="go('s-owed',this)">Owed sessions (list)</button>
+  <button onclick="go('s-owed-detail',this)">Owed session (detail)</button>
+  <div class="label">Booked (upcoming)</div>
+  <button onclick="go('s-booked',this)">Booked sessions (list)</button>
+  <button onclick="go('s-booked-detail',this)">Booked session (detail)</button>
   <div class="label">Other modules</div>
   <button onclick="window.location.href='settings.html'">Settings</button>
   <button onclick="window.location.href='profile.html'">Profile</button>
@@ -294,22 +314,22 @@
 
       <!-- Analytics widgets (replace the old Spending swipe card + history list) -->
       <div class="bal-grid">
-        <button class="bal-widget" data-a11y-id="athlete.balance.widget.month" onclick="go('s-history',null);balFilter('spend',document.querySelector('#s-history [data-filter=spend]'))">
+        <button class="bal-widget" data-a11y-id="athlete.balance.widget.month" onclick="go('s-history',null);histScope(true,'spend')">
           <div class="bal-widget-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 4-6"/></svg>This month</div>
           <div class="bal-widget-value">&euro;245.00</div>
           <div class="bal-widget-sub">&euro;175 card &middot; &euro;70 cash</div>
         </button>
-        <button class="bal-widget" data-a11y-id="athlete.balance.widget.total" onclick="go('s-history',null);balFilter('spend',document.querySelector('#s-history [data-filter=spend]'))">
+        <button class="bal-widget" data-a11y-id="athlete.balance.widget.total" onclick="go('s-history',null);histScope(false,'spend')">
           <div class="bal-widget-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Total spent</div>
           <div class="bal-widget-value">&euro;1,840</div>
           <div class="bal-widget-sub">lifetime</div>
         </button>
-        <button class="bal-widget" data-a11y-id="athlete.balance.widget.booked" onclick="window.location.href='calendar.html'">
+        <button class="bal-widget" data-a11y-id="athlete.balance.widget.booked" onclick="go('s-booked',null)">
           <div class="bal-widget-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Booked</div>
           <div class="bal-widget-value">&euro;150.00</div>
           <div class="bal-widget-sub">3 upcoming</div>
         </button>
-        <button class="bal-widget warn" data-a11y-id="athlete.balance.widget.owed" onclick="window.location.href='my-coaches.html'">
+        <button class="bal-widget warn" data-a11y-id="athlete.balance.widget.owed" onclick="go('s-owed',null)">
           <div class="bal-widget-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Owed</div>
           <div class="bal-widget-value">&euro;70.00</div>
           <div class="bal-widget-sub">2 sessions &middot; cash</div>
@@ -408,6 +428,12 @@
       <input type="text" placeholder="Search coach, session, amount…" data-a11y-id="athlete.history.search" oninput="searchTxns(this.value)">
     </div>
 
+    <!-- Period scope (independent axis): "This month" toggle. Deep-linked ON from the This month
+         widget, OFF from Total spent. Combines with the type/method row below. -->
+    <div class="fit-filter-row hist-period" data-a11y-id="athlete.history.period">
+      <button class="fit-filter-chip hist-month" data-a11y-id="athlete.history.month" onclick="balMonth(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>This month</button>
+    </div>
+
     <!-- Filters: type + payment method -->
     <div class="fit-filter-row" data-a11y-id="athlete.history.filters">
       <button class="fit-filter-chip active" data-filter="all" onclick="balFilter('all',this)">All</button>
@@ -421,17 +447,17 @@
 
     <div class="fit-txn-date">This week</div>
     <div class="fit-txn-group">
-      <div class="fit-txn" data-txn="spend" data-method="card" data-a11y-id="athlete.history.txn" onclick="go('s-txn-spend',null)">
+      <div class="fit-txn" data-txn="spend" data-method="card" data-month="current" data-a11y-id="athlete.history.txn" onclick="go('s-txn-spend',null)">
         <div class="fit-txn-icon fit-txn-icon--out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/></svg></div>
         <div class="fit-txn-body"><div class="fit-txn-title">Maria Rodriguez<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">1:1 Tennis</div><div class="fit-txn-meta">Mon, Apr 21 &middot; 18:00</div></div>
         <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;25.00</div>
       </div>
-      <div class="fit-txn" data-txn="topup" data-method="card" data-a11y-id="athlete.history.txn" onclick="go('s-txn-topup',null)">
+      <div class="fit-txn" data-txn="topup" data-method="card" data-month="current" data-a11y-id="athlete.history.txn" onclick="go('s-txn-topup',null)">
         <div class="fit-txn-icon fit-txn-icon--in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
         <div class="fit-txn-body"><div class="fit-txn-title">Top-up<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">Visa &bull;&bull; 4242</div><div class="fit-txn-meta">Mon, Apr 21 &middot; 14:32</div></div>
         <div class="fit-txn-amt fit-txn-amt--plus">+&euro;100.00</div>
       </div>
-      <div class="fit-txn" data-txn="spend" data-method="cash" data-a11y-id="athlete.history.txn" onclick="go('s-txn-spend-cash',null)">
+      <div class="fit-txn" data-txn="spend" data-method="cash" data-month="current" data-a11y-id="athlete.history.txn" onclick="go('s-txn-spend-cash',null)">
         <div class="fit-txn-icon fit-txn-icon--out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10v5a3 3 0 003 3h5a3 3 0 003-3v-2"/><path d="M9 10h7a2 2 0 002-2 3 3 0 00-3-3H9a3 3 0 00-3 3v2"/></svg></div>
         <div class="fit-txn-body"><div class="fit-txn-title">Pavel S.<span class="txn-method-tag cash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</span></div><div class="fit-txn-sub">1:1 Boxing</div><div class="fit-txn-meta">Sun, Apr 20 &middot; 09:00</div></div>
         <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;30.00</div>
@@ -440,19 +466,34 @@
 
     <div class="fit-txn-date">Apr 14 – 18</div>
     <div class="fit-txn-group">
-      <div class="fit-txn" data-txn="refund" data-method="card" data-a11y-id="athlete.history.txn" onclick="go('s-txn-refund',null)">
+      <div class="fit-txn" data-txn="refund" data-method="card" data-month="current" data-a11y-id="athlete.history.txn" onclick="go('s-txn-refund',null)">
         <div class="fit-txn-icon fit-txn-icon--info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 015 5v1"/></svg></div>
         <div class="fit-txn-body"><div class="fit-txn-title">Anna K.<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">Refund &middot; 1:1 Yoga</div><div class="fit-txn-meta">Thu, Apr 17</div></div>
         <div class="fit-txn-amt fit-txn-amt--plus">+&euro;20.00</div>
       </div>
-      <div class="fit-txn" data-txn="spend" data-method="cash" data-a11y-id="athlete.history.txn" onclick="go('s-txn-spend-cash',null)">
+      <div class="fit-txn" data-txn="spend" data-method="cash" data-month="current" data-a11y-id="athlete.history.txn" onclick="go('s-txn-spend-cash',null)">
         <div class="fit-txn-icon fit-txn-icon--out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/></svg></div>
         <div class="fit-txn-body"><div class="fit-txn-title">Maria Rodriguez<span class="txn-method-tag cash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</span></div><div class="fit-txn-sub">1:1 Padel</div><div class="fit-txn-meta">Wed, Apr 16 &middot; 18:00</div></div>
         <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;40.00</div>
       </div>
-      <div class="fit-txn" data-txn="topup" data-method="card" data-a11y-id="athlete.history.txn" onclick="go('s-txn-topup',null)">
+      <div class="fit-txn" data-txn="topup" data-method="card" data-month="current" data-a11y-id="athlete.history.txn" onclick="go('s-txn-topup',null)">
         <div class="fit-txn-icon fit-txn-icon--in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
         <div class="fit-txn-body"><div class="fit-txn-title">Top-up<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">Apple&nbsp;Pay</div><div class="fit-txn-meta">Mon, Apr 14 &middot; 09:10</div></div>
+        <div class="fit-txn-amt fit-txn-amt--plus">+&euro;100.00</div>
+      </div>
+    </div>
+
+    <!-- Previous-month group (data-month="past") — hidden when the "This month" scope is on -->
+    <div class="fit-txn-date">Mar 2026</div>
+    <div class="fit-txn-group">
+      <div class="fit-txn" data-txn="spend" data-method="card" data-month="past" data-a11y-id="athlete.history.txn" onclick="go('s-txn-spend',null)">
+        <div class="fit-txn-icon fit-txn-icon--out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/></svg></div>
+        <div class="fit-txn-body"><div class="fit-txn-title">David M.<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">1:1 Strength</div><div class="fit-txn-meta">Fri, Mar 28 &middot; 17:00</div></div>
+        <div class="fit-txn-amt fit-txn-amt--minus">&minus;&euro;45.00</div>
+      </div>
+      <div class="fit-txn" data-txn="topup" data-method="card" data-month="past" data-a11y-id="athlete.history.txn" onclick="go('s-txn-topup',null)">
+        <div class="fit-txn-icon fit-txn-icon--in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+        <div class="fit-txn-body"><div class="fit-txn-title">Top-up<span class="txn-method-tag card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Card</span></div><div class="fit-txn-sub">Visa &bull;&bull; 4242</div><div class="fit-txn-meta">Fri, Mar 20 &middot; 10:05</div></div>
         <div class="fit-txn-amt fit-txn-amt--plus">+&euro;100.00</div>
       </div>
     </div>
@@ -771,6 +812,163 @@
   </div>
 </div>
 
+<!-- ==================== SCREEN: OWED (cash sessions still to settle) ==================== -->
+<!-- Reached from the red "Owed" analytics widget. Lists completed cash sessions the athlete
+     still owes for (coach · session · when · amount). Athlete pays each coach in person; a row
+     clears automatically once the coach confirms receipt — there's no athlete-side "mark paid".
+     Owed cash sessions never appear in Balance (money isn't taken from the wallet). -->
+<div class="fit-phone fit-light" id="s-owed">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="athlete.owed.back" onclick="go('s-balance',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Owed</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+    <div class="fit-detail-hero">
+      <div class="fit-detail-hero-amt bal-owed-amt">&euro;70.00</div>
+      <div class="fit-detail-hero-sub">2 sessions to settle &middot; cash</div>
+      <span class="fit-badge bal-owed-badge" style="margin-top:4px;">Owed</span>
+    </div>
+    <div class="fit-section-title--md">Sessions to pay</div>
+    <div class="fit-txn-group">
+      <div class="fit-txn" data-a11y-id="athlete.owed.session" onclick="go('s-owed-detail',null)">
+        <div class="fit-txn-icon fit-txn-icon--danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <div class="fit-txn-body"><div class="fit-txn-title">Maria Rodriguez<span class="txn-method-tag cash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</span></div><div class="fit-txn-sub">1:1 Tennis</div><div class="fit-txn-meta">Sat, Apr 19 &middot; 10:00</div></div>
+        <div class="fit-txn-amt bal-owed-amt">&euro;40.00</div>
+      </div>
+      <div class="fit-txn" data-a11y-id="athlete.owed.session" onclick="go('s-owed-detail',null)">
+        <div class="fit-txn-icon fit-txn-icon--danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <div class="fit-txn-body"><div class="fit-txn-title">Pavel S.<span class="txn-method-tag cash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</span></div><div class="fit-txn-sub">1:1 Boxing</div><div class="fit-txn-meta">Fri, Apr 18 &middot; 09:00</div></div>
+        <div class="fit-txn-amt bal-owed-amt">&euro;30.00</div>
+      </div>
+    </div>
+    <div class="txn-note" style="margin:14px 16px 0;">Pay each coach in&nbsp;person. A session clears from here automatically once the coach confirms they received the cash &mdash; nothing to mark in the app.</div>
+  </div>
+</div>
+
+<!-- ==================== OWED DETAIL: cash session to settle ==================== -->
+<!-- Tap an owed row → this detail. Same shape as s-txn-spend-cash but status = Owed (red),
+     no "paid" timestamp, and a pay-in-person note instead of a receipt confirmation. -->
+<div class="fit-phone fit-light" id="s-owed-detail">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="athlete.owed.detail.back" onclick="go('s-owed',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Session payment</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+    <div class="fit-detail-hero">
+      <span class="txn-method-tag cash txn-hero-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Cash</span>
+      <div class="fit-detail-hero-amt bal-owed-amt">&euro;40.00</div>
+      <div class="fit-detail-hero-sub">Sat, Apr 19 &middot; 10:00</div>
+      <span class="fit-badge bal-owed-badge" style="margin-top:4px;">Owed</span>
+    </div>
+    <div class="fit-section-title--md">Session</div>
+    <div class="fit-kv-group">
+      <div class="fit-kv"><span class="fit-kv-label">Training</span><span class="fit-kv-value">1:1 Tennis</span></div>
+      <div class="fit-kv bal-kv-tap" data-a11y-id="athlete.owed.detail.coach" onclick="window.location.href='my-coaches.html#s-coach-detail'"><span class="fit-kv-label">Coach</span><span class="fit-kv-value">Maria Rodriguez<svg class="bal-kv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div>
+      <div class="fit-kv"><span class="fit-kv-label">When</span><span class="fit-kv-value">Sat, Apr 19 &middot; 10:00</span></div>
+      <div class="fit-kv"><span class="fit-kv-label">Duration</span><span class="fit-kv-value">60 min</span></div>
+      <div class="fit-kv"><span class="fit-kv-label">Location</span><span class="fit-kv-value">TNT Studio, Riga</span></div>
+    </div>
+    <div class="fit-section-title--md">Payment</div>
+    <div class="fit-kv-group">
+      <div class="fit-kv"><span class="fit-kv-label">Session price</span><span class="fit-kv-value">&euro;40.00</span></div>
+      <div class="fit-kv"><span class="fit-kv-label">Method</span><span class="fit-kv-value">Cash &middot; in person</span></div>
+      <div class="fit-kv"><span class="fit-kv-label">Status</span><span class="fit-kv-value" style="color:var(--fit-red-400);">Owed</span></div>
+    </div>
+    <div class="txn-note" style="margin:14px 16px 0;">You&rsquo;ll pay Maria in&nbsp;person. This clears automatically once she confirms she received the cash &mdash; nothing to mark here.</div>
+  </div>
+  <!-- B — reach the coach to arrange the cash hand-off (real job on this screen) -->
+  <div class="fit-phone-footer fit-footer-btn">
+    <button class="fit-btn fit-btn-secondary" data-a11y-id="athlete.owed.detail.message" onclick="window.location.href='../shared/messages.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>Message coach</button>
+  </div>
+</div>
+
+<!-- ==================== SCREEN: BOOKED (upcoming sessions, funds held) ==================== -->
+<!-- Reached from the "Booked" analytics widget. Lists the athlete's upcoming, already-paid
+     sessions whose funds are HELD from balance (coach · session · when · amount). Money moves
+     held → coach on completion, or held → balance on an in-window cancel. Info (blue), not warn
+     — nothing is wrong here; it's planned spend. Tap a row → s-booked-detail. -->
+<div class="fit-phone fit-light" id="s-booked">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="athlete.booked.back" onclick="go('s-balance',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Booked</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+    <div class="fit-detail-hero">
+      <div class="fit-detail-hero-amt">&euro;150.00</div>
+      <div class="fit-detail-hero-sub">3 upcoming sessions</div>
+      <span class="fit-badge fit-badge-info" style="margin-top:4px;">Booked</span>
+    </div>
+    <div class="fit-section-title--md">Upcoming</div>
+    <div class="fit-txn-group">
+      <div class="fit-txn" data-a11y-id="athlete.booked.session" onclick="go('s-booked-detail',null)">
+        <div class="fit-txn-icon fit-txn-icon--info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+        <div class="fit-txn-body"><div class="fit-txn-title">Maria Rodriguez</div><div class="fit-txn-sub">1:1 Tennis</div><div class="fit-txn-meta">Tue, Apr 22 &middot; 18:00</div></div>
+        <div class="fit-txn-amt">&euro;50.00</div>
+      </div>
+      <div class="fit-txn" data-a11y-id="athlete.booked.session" onclick="go('s-booked-detail',null)">
+        <div class="fit-txn-icon fit-txn-icon--info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+        <div class="fit-txn-body"><div class="fit-txn-title">Anna K.</div><div class="fit-txn-sub">1:1 Yoga</div><div class="fit-txn-meta">Thu, Apr 24 &middot; 08:00</div></div>
+        <div class="fit-txn-amt">&euro;40.00</div>
+      </div>
+      <div class="fit-txn" data-a11y-id="athlete.booked.session" onclick="go('s-booked-detail',null)">
+        <div class="fit-txn-icon fit-txn-icon--info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+        <div class="fit-txn-body"><div class="fit-txn-title">David M.</div><div class="fit-txn-sub">1:1 Strength</div><div class="fit-txn-meta">Sat, Apr 26 &middot; 11:00</div></div>
+        <div class="fit-txn-amt">&euro;60.00</div>
+      </div>
+    </div>
+    <div class="txn-note" style="margin:14px 16px 0;">Funds for upcoming sessions are held from your balance. Each coach is paid after the session is completed &mdash; cancel in&nbsp;time and it returns to your balance in full.</div>
+  </div>
+</div>
+
+<!-- ==================== BOOKED DETAIL: upcoming session, funds held ==================== -->
+<!-- Tap a booked row → this money-view of the session (mirrors s-owed-detail). Status = Booked
+     (funds held), Coach row → profile, footer jumps to the calendar event where reschedule /
+     cancel actually live. -->
+<div class="fit-phone fit-light" id="s-booked-detail">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="athlete.booked.detail.back" onclick="go('s-booked',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Booked session</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+    <div class="fit-detail-hero">
+      <div class="fit-detail-hero-amt">&euro;50.00</div>
+      <div class="fit-detail-hero-sub">Tue, Apr 22 &middot; 18:00</div>
+      <span class="fit-badge fit-badge-info" style="margin-top:4px;">Booked</span>
+    </div>
+    <div class="fit-section-title--md">Session</div>
+    <div class="fit-kv-group">
+      <div class="fit-kv"><span class="fit-kv-label">Training</span><span class="fit-kv-value">1:1 Tennis</span></div>
+      <div class="fit-kv bal-kv-tap" data-a11y-id="athlete.booked.detail.coach" onclick="window.location.href='my-coaches.html#s-coach-detail'"><span class="fit-kv-label">Coach</span><span class="fit-kv-value">Maria Rodriguez<svg class="bal-kv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div>
+      <div class="fit-kv"><span class="fit-kv-label">When</span><span class="fit-kv-value">Tue, Apr 22 &middot; 18:00</span></div>
+      <div class="fit-kv"><span class="fit-kv-label">Duration</span><span class="fit-kv-value">60 min</span></div>
+      <div class="fit-kv"><span class="fit-kv-label">Location</span><span class="fit-kv-value">TNT Studio, Riga</span></div>
+    </div>
+    <div class="fit-section-title--md">Payment</div>
+    <div class="fit-kv-group">
+      <div class="fit-kv"><span class="fit-kv-label">Session price</span><span class="fit-kv-value">&euro;50.00</span></div>
+      <div class="fit-kv"><span class="fit-kv-label">Paid from</span><span class="fit-kv-value">Balance</span></div>
+      <div class="fit-kv"><span class="fit-kv-label">Status</span><span class="fit-kv-value" style="color:var(--fit-blue-500);">Held until session</span></div>
+    </div>
+    <div class="txn-note" style="margin:14px 16px 0;">&euro;50 is held from your balance for this session. Your coach is paid once it&rsquo;s completed. Cancel within the allowed window and it returns to your balance in full.</div>
+  </div>
+  <!-- Real job on an upcoming session — manage the event (reschedule / cancel live in the calendar) -->
+  <div class="fit-phone-footer fit-footer-btn">
+    <button class="fit-btn fit-btn-secondary" data-a11y-id="athlete.booked.detail.calendar" onclick="window.location.href='calendar.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>View in calendar</button>
+  </div>
+</div>
+
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
   <div class="ann active" id="ann-s-balance"><span class="ann-role athlete">Athlete</span><h3>Balance</h3>
@@ -788,7 +986,7 @@
     <p><strong>v2 — Revolut-style dashboard.</strong> Variant of <code>balance.html</code> (kept intact for rollback). The list-first layout is replaced by: one <strong>Balance card</strong> → <strong>analytics widgets</strong> → <strong>Recent preview</strong> → full history on its own screen.</p>
     <ul>
       <li><strong>Balance card</strong> (teal, single — no swiper): prepaid wallet — Available + auto-top-up note + <strong>Top up</strong> pill. The "money I have."</li>
-      <li><strong>Analytics widgets</strong> (2×2 <code>.bal-widget</code> tiles, page-local — genuinely novel visual): <em>This month</em> (€245 · €175 card · €70 cash), <em>Total spent</em> (lifetime), <em>Booked</em> (planned spend = upcoming sessions → calendar), <em>Owed</em> (red, cash debt → <code>my-coaches.html</code>). These answer the same questions the old swipe "Spending" card did, so that card is dropped (decision: fork B).</li>
+      <li><strong>Analytics widgets</strong> (2×2 <code>.bal-widget</code> tiles, page-local — genuinely novel visual): <em>This month</em> (€245 · €175 card · €70 cash), <em>Total spent</em> (lifetime), <em>Booked</em> (planned spend = upcoming sessions → <code>s-booked</code> list), <em>Owed</em> (red, cash debt → <code>s-owed</code> list). These answer the same questions the old swipe "Spending" card did, so that card is dropped (decision: fork B).</li>
       <li><strong>Recent</strong> — 3 latest rows + <strong>See all ›</strong>. Plus an <strong>All transactions</strong> button. Both → History screen.</li>
       <li><strong>Why widgets, not a list</strong> — finance dashboards (Revolut/Monzo) lead with glanceable metrics; the raw ledger is one tap away, not the first thing you scroll.</li>
       <li><strong>No "Payment methods" entry</strong> — cards saved during Stripe checkout, managed inside Stripe's PaymentSheet.</li>
@@ -803,7 +1001,8 @@
       <li><strong>Sticky header (<code>.hist-sticky</code>)</strong> — the search field + filter chips are <strong>pinned</strong> (CSS <code>position: sticky; top: 0</code>); the transaction list scrolls <em>underneath</em> them. Native: pin search + chips to the top of the scroll view (iOS <code>UICollectionView</code> pinned supplementary / Android sticky header) so filters stay reachable while scrolling.</li>
       <li><strong>Search</strong> — narrows the current chip filter by free text (coach, session, amount).</li>
       <li><strong>Filter chips — two dimensions in one row:</strong> by <em>type</em> (All / Spent / Top-ups / Refunds) and by <em>payment method</em> (Card / Cash). Single-select; method chips read <code>data-method</code>, type chips read <code>data-txn</code>.</li>
-      <li>Widgets deep-link with a pre-applied filter (e.g. <em>This month</em> → Spent).</li>
+      <li><strong>Period scope — independent second axis (<code>.hist-period</code> row):</strong> a <em>This month</em> toggle chip that <strong>combines</strong> with the type/method selection (rows carry <code>data-month</code>; scope keeps only current-month rows). It is a toggle, <strong>not</strong> a removable ×-chip (per <code>filter_chips_no_inline_remove</code>).</li>
+      <li><strong>Widget deep-links set both axes:</strong> <em>This month</em> → <code>histScope(true,'spend')</code> (month ON + Spent, total matches the €245 tile); <em>Total spent</em> → <code>histScope(false,'spend')</code> (all-time + Spent). Native: pass a <code>{ period, type }</code> filter state into the Transactions screen.</li>
       <li>Empty result → "Nothing here" no-match state.</li>
     </ul>
   </div>
@@ -840,6 +1039,42 @@
 
   <div class="ann" id="ann-s-txn-spend-cash"><span class="ann-role athlete">Athlete</span><h3>Session payment — cash (detail)</h3>
     <p>Tap a <em>cash</em> spend row → this detail (separate screen, not the card one). <strong>Cash</strong> pill; the money is <strong>not</strong> taken from balance (paid in person), so there's no "Paid from / Balance after". Status = <strong>Paid</strong> (teal) — a cash session lands in Balance only once the coach confirms receipt; Payment shows <em>Method: Cash · in person</em>. <strong>Owed</strong> (not-yet-paid) cash sessions never appear in Balance — they live on the Dashboard, coach detail, and the red <em>Owed</em> summary widget.</p>
+  </div>
+
+  <div class="ann" id="ann-s-owed"><span class="ann-role athlete">Athlete</span><h3>Owed — cash sessions to settle</h3>
+    <p>Reached from the red <em>Owed</em> analytics widget. Lists the completed <strong>cash</strong> sessions the athlete still owes for — canonical <code>.fit-txn</code> rows (coach + <strong>Cash</strong> pill · session · when · red amount), grouped under a warn <code>.fit-detail-hero</code> total. Tap a row → <code>s-owed-detail</code>.</p>
+    <ul>
+      <li><strong>Why a dedicated screen, not <code>my-coaches</code></strong> — the widget used to dump you on the coach list; now it lands on the actual debt, itemised. One tap to the session that owes money, not two.</li>
+      <li><strong>Cash only</strong> — card sessions are prepaid from Balance, so they can never be "owed". These rows never appear in Balance/History (no wallet movement until the coach confirms receipt → then a <em>Paid · in person</em> row shows up there).</li>
+      <li><strong>No "Mark paid" here</strong> — the athlete pays in person; the <em>coach</em> confirms receipt (see <code>cash-settlement-drawer</code>). The row clears on confirmation, silently.</li>
+    </ul>
+  </div>
+
+  <div class="ann" id="ann-s-owed-detail"><span class="ann-role athlete">Athlete</span><h3>Owed session (detail)</h3>
+    <p>Same shape as the cash-payment detail (<code>s-txn-spend-cash</code>) but pre-settlement: <strong>Cash</strong> pill, red amount, warn <strong>Owed</strong> badge, Status = <em>Owed</em> (red), and a pay-in-person <code>.txn-note</code> instead of a receipt confirmation. No "Paid from / Balance after" — cash never touches the wallet.</p>
+    <ul>
+      <li><strong>Coach row → profile</strong> — the <em>Coach</em> KV row is tappable (chevron affordance) → <code>my-coaches.html#s-coach-detail</code>. Lightweight "see the coach" path, no extra button weight.</li>
+      <li><strong>Message coach (footer CTA)</strong> — secondary button → <code>shared/messages.html</code>. The real job here isn't "pay in app" (you can't — it's cash), it's <em>coordinating the hand-off</em>: text the coach when/how you'll settle.</li>
+      <li><strong>No "Mark paid"</strong> — deliberate. The coach confirms receipt (<code>cash-settlement-drawer</code>); the athlete has no self-settle action.</li>
+    </ul>
+  </div>
+
+  <div class="ann" id="ann-s-booked"><span class="ann-role athlete">Athlete</span><h3>Booked — upcoming sessions (funds held)</h3>
+    <p>Reached from the <em>Booked</em> analytics widget. Lists the athlete's upcoming, already-paid sessions whose money is <strong>held</strong> from balance — canonical <code>.fit-txn</code> rows (coach · session · when · amount) under an <strong>info</strong> (blue) <code>.fit-detail-hero</code> total. Tap a row → <code>s-booked-detail</code>.</p>
+    <ul>
+      <li><strong>Info, not warn</strong> — mirror of <code>s-owed</code> but nothing is wrong: this is planned spend. Blue (<code>fit-txn-icon--info</code> / <code>fit-badge-info</code>) vs owed's red.</li>
+      <li><strong>Held, not spent</strong> — <em>Booked</em> money sits apart from <em>Available</em> on the Balance card. It moves held → coach on completion, or held → balance on an in-window cancel (refund).</li>
+      <li><strong>Widget parity</strong> — same list→detail shape as <code>Owed</code>; the two red/blue money widgets now both land on their itemised debt/commitment, not a generic list.</li>
+    </ul>
+  </div>
+
+  <div class="ann" id="ann-s-booked-detail"><span class="ann-role athlete">Athlete</span><h3>Booked session (detail)</h3>
+    <p>Money-view of one upcoming session (mirrors <code>s-owed-detail</code>): <strong>Booked</strong> badge, Paid from <em>Balance</em>, Status = <em>Held until session</em> (blue), and a hold/refund <code>.txn-note</code>.</p>
+    <ul>
+      <li><strong>Coach row → profile</strong> — tappable KV row (chevron) → <code>my-coaches.html#s-coach-detail</code>. Same affordance as owed.</li>
+      <li><strong>View in calendar (footer CTA)</strong> — secondary button → <code>calendar.html</code>. The real job on an upcoming session isn't here (money is settled) — it's <em>managing the event</em>: reschedule / cancel live in the calendar event drawer. Booked's footer analog to owed's <em>Message coach</em>.</li>
+      <li><strong>No inline cancel/refund here</strong> — deliberate. This is the money lens; the event actions stay on their canonical surface (calendar) to avoid duplicating a second cancel path.</li>
+    </ul>
   </div>
 
   <div class="ann" id="ann-s-txn-topup"><span class="ann-role athlete">Athlete</span><h3>Top-up (detail)</h3>
@@ -914,29 +1149,47 @@ function setRfReason(r, btn) {
   if (btn) { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
 }
 // History filter — chips match by type (data-txn) OR payment method (data-method).
+// Type/method chips (single-select, in the .fit-filter-row that is NOT .hist-period).
 function balFilter(filter, btn) {
   if (btn) {
     btn.parentElement.querySelectorAll('.fit-filter-chip').forEach(c => c.classList.remove('active'));
     btn.classList.add('active');
   }
-  var search = (document.querySelector('#s-history .bal-search input') || {}).value || '';
-  applyHistoryFilter(filter, search);
+  applyHistoryFilter();
 }
-// Live search inside History — narrows the current chip filter by text.
-function searchTxns(q) {
-  var active = document.querySelector('#s-history .fit-filter-chip.active');
-  applyHistoryFilter(active ? active.getAttribute('data-filter') : 'all', q);
+// "This month" period scope — an INDEPENDENT second axis; toggles on/off, combines with type/method.
+function balMonth(btn) {
+  if (btn) btn.classList.toggle('active');
+  applyHistoryFilter();
 }
-function applyHistoryFilter(filter, query) {
-  query = (query || '').trim().toLowerCase();
+// Deep-link helper (from Balance widgets): set month scope + type in one shot.
+// This month → histScope(true,'spend'); Total spent → histScope(false,'spend').
+function histScope(monthOn, type) {
+  var m = document.querySelector('#s-history .hist-month');
+  if (m) m.classList.toggle('active', !!monthOn);
+  document.querySelectorAll('#s-history .fit-filter-row:not(.hist-period) .fit-filter-chip').forEach(function (c) {
+    c.classList.toggle('active', c.getAttribute('data-filter') === type);
+  });
+  applyHistoryFilter();
+}
+// Live search inside History — narrows the current type + month scope by text.
+function searchTxns() {
+  applyHistoryFilter();
+}
+function applyHistoryFilter() {
+  var typeChip = document.querySelector('#s-history .fit-filter-row:not(.hist-period) .fit-filter-chip.active');
+  var filter = typeChip ? typeChip.getAttribute('data-filter') : 'all';
+  var scoped = !!document.querySelector('#s-history .hist-month.active');
+  var query = ((document.querySelector('#s-history .bal-search input') || {}).value || '').trim().toLowerCase();
   var rows = document.querySelectorAll('#s-history .fit-txn');
   var anyVisible = false;
   rows.forEach(function(r) {
     var byChip = filter === 'all'
       || r.getAttribute('data-txn') === filter
       || r.getAttribute('data-method') === filter;
+    var byMonth = !scoped || r.getAttribute('data-month') === 'current';
     var byText = !query || r.textContent.toLowerCase().indexOf(query) !== -1;
-    var show = byChip && byText;
+    var show = byChip && byMonth && byText;
     r.style.display = show ? '' : 'none';
     if (show) anyVisible = true;
   });
