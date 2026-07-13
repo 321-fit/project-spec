@@ -554,6 +554,58 @@
   .sp-card-label { font-size: 14px; line-height: 1.2; }
   .sp-card.hidden { display: none; }
   .sp-section.hidden { display: none; }
+
+  /* ===== Session packages (prepaid pass tiers) ===== */
+  .pkg-helper {
+    display: flex; align-items: flex-start; gap: 10px;
+    margin: 4px 16px 12px; padding: 12px 14px;
+    border: 1px solid var(--fit-divider); border-radius: 14px;
+  }
+  .pkg-helper svg { width: 18px; height: 18px; color: var(--fit-brand-primary); flex-shrink: 0; margin-top: 1px; }
+  .pkg-helper span { font-size: 13px; line-height: 1.45; color: var(--fit-text-secondary); }
+  .pkg-list { margin: 0 16px; display: flex; flex-direction: column; gap: 10px; }
+  .pkg-tier {
+    position: relative;
+    border: 1px solid var(--fit-divider); border-radius: 14px;
+    padding: 14px 14px 12px;
+  }
+  .pkg-tier-remove {
+    position: absolute; top: 10px; right: 10px;
+    width: 30px; height: 30px; border-radius: 8px; border: none;
+    background: transparent; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-text-tertiary);
+  }
+  .pkg-tier-remove:hover { color: var(--fit-red-400); background: rgba(240,92,91,0.1); }
+  .pkg-field-label { display: block; font-size: 12px; color: var(--fit-text-tertiary); margin-bottom: 6px; }
+  .pkg-sessions-label { padding-right: 34px; } /* clear the remove btn */
+  .pkg-price { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+  .pkg-price-box {
+    flex: 1; display: flex; align-items: center;
+    border: 1px solid var(--fit-divider); border-radius: 12px;
+    height: 48px; padding: 0 14px;
+  }
+  .pkg-price-box .pkg-price-val { flex: 1; outline: none; cursor: text; font-size: 16px; }
+  .pkg-price-box .pkg-price-cur { font-size: 16px; color: var(--fit-text-tertiary); }
+  .pkg-price-box .pkg-price-val:empty:before { content: attr(data-placeholder); color: var(--fit-text-tertiary); }
+  .pkg-math {
+    margin-top: 12px; font-size: 13px; line-height: 1.4;
+    color: var(--fit-text-secondary);
+  }
+  .pkg-math .pkg-per { color: var(--fit-text-primary); font-weight: 600; }
+  .pkg-math .pkg-save { color: var(--fit-green-400); font-weight: 600; }
+  .pkg-add {
+    display: flex; align-items: center; gap: 12px;
+    margin: 10px 16px 0; padding: 4px 0; cursor: pointer; user-select: none;
+  }
+  .pkg-add .pkg-add-icon {
+    width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--fit-divider); color: var(--fit-text-primary);
+  }
+  .pkg-add:hover .pkg-add-icon { border-color: var(--fit-text-secondary); }
+  .pkg-add .pkg-add-label { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .pkg-add .pkg-add-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 1px; }
 </style>
 </head>
 <body>
@@ -674,7 +726,50 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-text-tertiary);flex-shrink:0;"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
       <span style="font-size:13px;line-height:1.45;color:var(--fit-text-secondary);">Paid online from the athlete&rsquo;s 321Fit balance. Cash isn&rsquo;t available for online sessions.</span>
     </div>
+
+    <!-- ===== PACKAGES (optional) — prepaid pass sold in bulk ===== -->
+    <div class="fit-input-group" style="margin-top:8px;"><span class="fit-input-label">Packages <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span></div>
+    <div class="pkg-helper">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+      <span>Sell this session as a prepaid pack at a lower per-session price. The athlete pays for all sessions upfront (cash or card) and redeems them one booking at a time.</span>
+    </div>
+    <div class="pkg-list" id="pkg-list-s-create"></div>
+    <div class="pkg-add" onclick="addPkgTier('s-create')" data-a11y-id="coach.session.package.add">
+      <div class="pkg-add-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div>
+      <div><div class="pkg-add-label">Add package tier</div><div class="pkg-add-sub">e.g. 5 sessions at a discount</div></div>
+    </div>
+
+    <!-- Package expiry (revealed once a tier exists) -->
+    <div id="pkg-expiry-wrap-s-create" style="display:none;">
+      <div class="fit-input-group" style="margin-top:20px;"><span class="fit-input-label">Package expiry</span>
+        <div class="fit-input" style="cursor:pointer;" onclick="openPkgExpiry('s-create')" data-a11y-id="coach.session.package.expiry">
+          <span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg></span>
+          <span id="pkg-expiry-val-s-create" style="flex:1;">No expiry</span>
+          <span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+        </div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;line-height:1.4;">Recommended: no expiry — unused sessions stay valid, which keeps refunds simple.</div>
+      </div>
+    </div>
   </div>
+
+  <!-- Package expiry sheet -->
+  <div class="fit-sheet-overlay" id="pkg-expiry-sheet-s-create">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Package expiry</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:24px;">Counted from the purchase date.</div>
+      <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:8px;">
+        <label class="pkg-expiry-opt" onclick="selectPkgExpiry('s-create','No expiry')" style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:16px;padding:12px 0;">
+          <input type="radio" name="pkg-expiry-s-create" value="No expiry" checked style="accent-color:var(--fit-teal-600);width:20px;height:20px;">
+          No expiry <span style="font-size:12px;color:var(--fit-green-400);font-weight:500;">Recommended</span>
+        </label>
+        <label class="pkg-expiry-opt" onclick="selectPkgExpiry('s-create','3 months')" style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:16px;padding:12px 0;"><input type="radio" name="pkg-expiry-s-create" value="3 months" style="accent-color:var(--fit-teal-600);width:20px;height:20px;">3 months</label>
+        <label class="pkg-expiry-opt" onclick="selectPkgExpiry('s-create','6 months')" style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:16px;padding:12px 0;"><input type="radio" name="pkg-expiry-s-create" value="6 months" style="accent-color:var(--fit-teal-600);width:20px;height:20px;">6 months</label>
+        <label class="pkg-expiry-opt" onclick="selectPkgExpiry('s-create','12 months')" style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:16px;padding:12px 0;"><input type="radio" name="pkg-expiry-s-create" value="12 months" style="accent-color:var(--fit-teal-600);width:20px;height:20px;">12 months</label>
+      </div>
+    </div>
+  </div>
+
   <!-- Validation snackbar -->
   <div class="fit-snackbar" id="validation-snack"><span class="snack-dot" style="background:var(--fit-red-400);"></span>Please fill in required fields</div>
 
@@ -919,6 +1014,67 @@
     <div class="fit-selection-group" data-fit-selection="multi">
       <div class="fit-selection-chip selected" data-value="cash"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h2M20 10h2M2 14h2M20 14h2"/><circle cx="12" cy="12" r="3"/></svg> Cash</div>
       <div class="fit-selection-chip selected" data-value="card"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card</div>
+    </div>
+
+    <!-- ===== PACKAGES (optional) — prefilled tiers ===== -->
+    <div class="fit-input-group" style="margin-top:8px;"><span class="fit-input-label">Packages <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span></div>
+    <div class="pkg-helper">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+      <span>Sell this session as a prepaid pack at a lower per-session price. The athlete pays for all sessions upfront (cash or card) and redeems them one booking at a time.</span>
+    </div>
+    <div class="pkg-list" id="pkg-list-s-edit">
+      <div class="pkg-tier">
+        <button class="pkg-tier-remove" onclick="removePkgTier(this)" aria-label="Remove tier"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        <span class="pkg-field-label pkg-sessions-label">Number of sessions</span>
+        <div class="fit-stepper" data-fit-stepper data-value="5" data-min="2" data-max="50">
+          <button class="fit-stepper-btn" data-dir="-1">&minus;</button>
+          <div class="fit-stepper-value"><span data-stepper-display>5</span> <span class="fit-stepper-unit">sessions</span></div>
+          <button class="fit-stepper-btn" data-dir="1">+</button>
+        </div>
+        <div class="pkg-price"><div class="pkg-price-box"><span class="pkg-price-val" contenteditable="true" data-placeholder="0" oninput="recalcTier(this.closest(&quot;.pkg-tier&quot;))">110</span><span class="pkg-price-cur">&euro; total</span></div></div>
+        <div class="pkg-math"><span class="pkg-per">&euro;22</span> / session &middot; <span class="pkg-save">save 12% vs &euro;25 single</span></div>
+      </div>
+      <div class="pkg-tier">
+        <button class="pkg-tier-remove" onclick="removePkgTier(this)" aria-label="Remove tier"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        <span class="pkg-field-label pkg-sessions-label">Number of sessions</span>
+        <div class="fit-stepper" data-fit-stepper data-value="10" data-min="2" data-max="50">
+          <button class="fit-stepper-btn" data-dir="-1">&minus;</button>
+          <div class="fit-stepper-value"><span data-stepper-display>10</span> <span class="fit-stepper-unit">sessions</span></div>
+          <button class="fit-stepper-btn" data-dir="1">+</button>
+        </div>
+        <div class="pkg-price"><div class="pkg-price-box"><span class="pkg-price-val" contenteditable="true" data-placeholder="0" oninput="recalcTier(this.closest(&quot;.pkg-tier&quot;))">200</span><span class="pkg-price-cur">&euro; total</span></div></div>
+        <div class="pkg-math"><span class="pkg-per">&euro;20</span> / session &middot; <span class="pkg-save">save 20% vs &euro;25 single</span></div>
+      </div>
+    </div>
+    <div class="pkg-add" onclick="addPkgTier('s-edit')" data-a11y-id="coach.session.package.add">
+      <div class="pkg-add-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div>
+      <div><div class="pkg-add-label">Add package tier</div><div class="pkg-add-sub">e.g. 20 sessions at a bigger discount</div></div>
+    </div>
+
+    <div id="pkg-expiry-wrap-s-edit">
+      <div class="fit-input-group" style="margin-top:20px;"><span class="fit-input-label">Package expiry</span>
+        <div class="fit-input" style="cursor:pointer;" onclick="openPkgExpiry('s-edit')" data-a11y-id="coach.session.package.expiry">
+          <span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg></span>
+          <span id="pkg-expiry-val-s-edit" style="flex:1;">No expiry</span>
+          <span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+        </div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;line-height:1.4;">Recommended: no expiry — unused sessions stay valid, which keeps refunds simple.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Package expiry sheet -->
+  <div class="fit-sheet-overlay" id="pkg-expiry-sheet-s-edit">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Package expiry</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:24px;">Counted from the purchase date.</div>
+      <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:8px;">
+        <label onclick="selectPkgExpiry('s-edit','No expiry')" style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:16px;padding:12px 0;"><input type="radio" name="pkg-expiry-s-edit" value="No expiry" checked style="accent-color:var(--fit-teal-600);width:20px;height:20px;">No expiry <span style="font-size:12px;color:var(--fit-green-400);font-weight:500;">Recommended</span></label>
+        <label onclick="selectPkgExpiry('s-edit','3 months')" style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:16px;padding:12px 0;"><input type="radio" name="pkg-expiry-s-edit" value="3 months" style="accent-color:var(--fit-teal-600);width:20px;height:20px;">3 months</label>
+        <label onclick="selectPkgExpiry('s-edit','6 months')" style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:16px;padding:12px 0;"><input type="radio" name="pkg-expiry-s-edit" value="6 months" style="accent-color:var(--fit-teal-600);width:20px;height:20px;">6 months</label>
+        <label onclick="selectPkgExpiry('s-edit','12 months')" style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:16px;padding:12px 0;"><input type="radio" name="pkg-expiry-s-edit" value="12 months" style="accent-color:var(--fit-teal-600);width:20px;height:20px;">12 months</label>
+      </div>
     </div>
   </div>
 
@@ -1237,6 +1393,102 @@ document.addEventListener('DOMContentLoaded', () => {
     durationLabel.innerHTML = isSelf
       ? 'Estimated time <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span>'
       : 'Duration';
+  });
+});
+
+// ===== SESSION PACKAGES (prepaid pass tiers) =====
+function pkgFmt(v){ return (Math.round(v * 100) / 100).toString(); }
+
+function pkgBasePrice(screen){
+  var el = screen && screen.querySelector('.price-row .fit-input');
+  if(!el) return 0;
+  return parseFloat((el.textContent || '').replace(/[^0-9.]/g,'')) || 0;
+}
+
+function recalcTier(tier){
+  if(!tier) return;
+  var stepper = tier.querySelector('[data-fit-stepper]');
+  var n = parseInt(stepper && stepper.getAttribute('data-value')) || 0;
+  var priceEl = tier.querySelector('.pkg-price-val');
+  var total = parseFloat((priceEl ? priceEl.textContent : '').replace(/[^0-9.]/g,'')) || 0;
+  var math = tier.querySelector('.pkg-math');
+  if(!math) return;
+  if(!total || !n){ math.innerHTML = 'Set a total price to see the per-session rate.'; return; }
+  var per = Math.round((total / n) * 100) / 100;
+  var html = '<span class="pkg-per">&euro;' + pkgFmt(per) + '</span> / session';
+  var base = pkgBasePrice(tier.closest('.fit-phone'));
+  if(base > 0 && per < base){
+    var pct = Math.round((1 - per / base) * 100);
+    if(pct > 0) html += ' &middot; <span class="pkg-save">save ' + pct + '% vs &euro;' + pkgFmt(base) + ' single</span>';
+  }
+  math.innerHTML = html;
+}
+
+function pkgTierMarkup(sessions){
+  sessions = sessions || 5;
+  return '<div class="pkg-tier">' +
+    '<button class="pkg-tier-remove" onclick="removePkgTier(this)" aria-label="Remove tier"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>' +
+    '<span class="pkg-field-label pkg-sessions-label">Number of sessions</span>' +
+    '<div class="fit-stepper" data-fit-stepper data-value="' + sessions + '" data-min="2" data-max="50">' +
+      '<button class="fit-stepper-btn" data-dir="-1">&minus;</button>' +
+      '<div class="fit-stepper-value"><span data-stepper-display>' + sessions + '</span> <span class="fit-stepper-unit">sessions</span></div>' +
+      '<button class="fit-stepper-btn" data-dir="1">+</button>' +
+    '</div>' +
+    '<div class="pkg-price">' +
+      '<div class="pkg-price-box">' +
+        '<span class="pkg-price-val" contenteditable="true" data-placeholder="0" oninput="recalcTier(this.closest(&quot;.pkg-tier&quot;))"></span>' +
+        '<span class="pkg-price-cur">&euro; total</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="pkg-math">Set a total price to see the per-session rate.</div>' +
+  '</div>';
+}
+
+function addPkgTier(screenId){
+  var screen = document.getElementById(screenId);
+  if(!screen) return;
+  var list = document.getElementById('pkg-list-' + screenId) || screen.querySelector('.pkg-list');
+  if(!list) return;
+  var wrap = document.createElement('div');
+  wrap.innerHTML = pkgTierMarkup(5);
+  var tier = wrap.firstChild;
+  list.appendChild(tier);
+  var exp = document.getElementById('pkg-expiry-wrap-' + screenId);
+  if(exp) exp.style.display = '';
+  recalcTier(tier);
+  var priceEl = tier.querySelector('.pkg-price-val');
+  if(priceEl) priceEl.focus();
+}
+
+function removePkgTier(btn){
+  var tier = btn.closest('.pkg-tier');
+  var list = tier ? tier.closest('.pkg-list') : null;
+  if(tier) tier.remove();
+  if(list && !list.querySelector('.pkg-tier')){
+    var screen = list.closest('.fit-phone');
+    var exp = screen && screen.querySelector('[id^="pkg-expiry-wrap-"]');
+    if(exp) exp.style.display = 'none';
+  }
+}
+
+function openPkgExpiry(screenId){
+  var sheet = document.getElementById('pkg-expiry-sheet-' + screenId);
+  if(sheet) sheet.classList.add('visible');
+}
+function selectPkgExpiry(screenId, val){
+  var lbl = document.getElementById('pkg-expiry-val-' + screenId);
+  if(lbl) lbl.textContent = val;
+  var sheet = document.getElementById('pkg-expiry-sheet-' + screenId);
+  if(sheet) setTimeout(function(){ sheet.classList.remove('visible'); }, 140);
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.pkg-list').forEach(function(list){
+    list.addEventListener('fit:stepper', function(e){
+      var tier = e.target.closest('.pkg-tier');
+      if(tier) recalcTier(tier);
+    });
+    list.querySelectorAll('.pkg-tier').forEach(recalcTier);
   });
 });
 

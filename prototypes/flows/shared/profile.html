@@ -361,6 +361,38 @@
   #s-coach-v2 .cv-reviews-empty-subtitle {
     font-size: 13px; color: var(--fit-text-tertiary); line-height: 1.5;
   }
+
+  /* ===== Session packages — buy strip (catalog card) + redeem (booking confirm) ===== */
+  .pkg-buy-strip { display: flex; align-items: center; gap: 8px; padding: 11px 16px; border-top: 1px solid var(--fit-divider); cursor: pointer; }
+  .pkg-buy-strip svg { width: 15px; height: 15px; color: var(--fit-teal-600); flex-shrink: 0; }
+  .pkg-buy-strip .pkg-buy-txt { flex: 1; font-size: 13px; font-weight: 500; color: var(--fit-teal-600); }
+  /* buy sheet tiers */
+  .pkg-buy-tier { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--fit-divider); border-radius: 14px; cursor: pointer; margin-bottom: 10px; }
+  .pkg-buy-tier.selected { border-color: var(--fit-teal-500); background: var(--fit-selection-gradient); }
+  .pkg-buy-tier-main { flex: 1; }
+  .pkg-buy-tier-t { font-size: 15px; font-weight: 600; color: var(--fit-text-primary); }
+  .pkg-buy-tier-s { font-size: 13px; color: var(--fit-text-secondary); margin-top: 2px; }
+  .pkg-buy-tier-save { font-size: 12px; font-weight: 600; color: var(--fit-green-500); margin-top: 3px; }
+  .pkg-buy-radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--fit-gray-500); flex-shrink: 0; position: relative; }
+  .pkg-buy-tier.selected .pkg-buy-radio { border-color: var(--fit-teal-500); }
+  .pkg-buy-tier.selected .pkg-buy-radio:after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: var(--fit-teal-500); }
+  /* redeem block in booking confirm */
+  .bk-pack-block { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 12px; background: var(--fit-selection-gradient); border: 1px solid var(--fit-teal-500); margin-bottom: 16px; }
+  .bk-pack-ic { width: 36px; height: 36px; border-radius: 10px; background: var(--fit-teal-500); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .bk-pack-ic svg { width: 19px; height: 19px; }
+  .bk-pack-tt { flex: 1; min-width: 0; }
+  .bk-pack-t { font-size: 15px; font-weight: 600; color: var(--fit-text-primary); }
+  .bk-pack-s { font-size: 13px; color: var(--fit-text-secondary); margin-top: 2px; }
+  #booking-confirm-sheet.pm-pack .bpm-block,
+  #booking-confirm-sheet.pm-pack .bpm-single-line,
+  #booking-confirm-sheet.pm-pack .bpm-info-row { display: none !important; }
+  #booking-confirm-sheet:not(.pm-pack) .bk-pack-block,
+  #booking-confirm-sheet:not(.pm-pack) .bk-pack-toggle-off { display: none; }
+  #booking-confirm-sheet.pm-pack .bk-pack-toggle-on { display: none; }
+  #booking-confirm-sheet.pm-pack .bk-price-amt { text-decoration: line-through; color: var(--fit-text-tertiary); font-weight: 400; font-size: 15px; }
+  .bk-price-incl { display: none; font-size: 15px; font-weight: 600; color: var(--fit-teal-600); margin-left: 8px; }
+  #booking-confirm-sheet.pm-pack .bk-price-incl { display: inline; }
+  .bk-pack-link { display: block; width: 100%; margin-top: 12px; background: none; border: none; color: var(--fit-teal-600); font-family: var(--fit-font); font-size: 14px; font-weight: 500; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -599,7 +631,16 @@
       <!-- Price row -->
       <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0 16px;border-top:1px solid var(--fit-divider);">
         <span style="font-size:15px;color:var(--fit-text-primary);">Price</span>
-        <span style="font-size:18px;font-weight:500;color:var(--fit-text-primary);">&euro;50.00</span>
+        <span><span class="bk-price-amt" style="font-size:18px;font-weight:500;color:var(--fit-text-primary);">&euro;50.00</span><span class="bk-price-incl">Included in pack</span></span>
+      </div>
+
+      <!-- Pack redemption — shown when the athlete holds a pack for this session (pm-pack) -->
+      <div class="bk-pack-block">
+        <div class="bk-pack-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></div>
+        <div class="bk-pack-tt">
+          <div class="bk-pack-t">Use 1 session from your pack</div>
+          <div class="bk-pack-s">Basketball pack &middot; 2 left after this booking</div>
+        </div>
       </div>
 
       <!-- Payment method — segmented picker shown only when the coach accepts both cash & balance; default = Cash -->
@@ -618,13 +659,16 @@
       </div>
 
       <!-- Info line — copy follows the selected method -->
-      <div style="display:flex;align-items:flex-start;gap:8px;padding:0 0 20px;">
+      <div class="bpm-info-row" style="display:flex;align-items:flex-start;gap:8px;padding:0 0 20px;">
         <svg id="bpm-info-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
         <span id="bpm-info-text" style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.5;">You'll pay &euro;50 to the coach in person. Nothing is reserved now — the coach confirms the payment after the session. Coach has 24h to approve.</span>
       </div>
 
       <!-- CTA — turns into "Top up balance" when paying from balance with insufficient funds -->
       <button class="fit-btn fit-btn-primary" id="bpm-cta" onclick="bkBookingCta()" style="border-radius:99px;">Send Request &middot; &euro;50</button>
+      <!-- Pack redemption toggles -->
+      <button class="bk-pack-link bk-pack-toggle-on" onclick="bkSetPack(true)" data-a11y-id="athlete.booking.use-pack">Have a Basketball pack? Use a session instead</button>
+      <button class="bk-pack-link bk-pack-toggle-off" onclick="bkSetPack(false)" data-a11y-id="athlete.booking.pay-instead">Pay per session instead</button>
       <!-- Contextual auto top-up offer — only when balance is short -->
       <button id="bpm-autotopup" data-a11y-id="athlete.booking.setup-auto-topup" style="display:none;width:100%;margin-top:12px;background:none;border:none;color:var(--fit-teal-500);font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;" onclick="location.href='../athlete/balance.html'">Set up auto top-up so this doesn&rsquo;t happen again</button>
     </div>
@@ -1414,6 +1458,11 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
           <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">TNT Studio, Riga</span>
         </div>
+        <div class="pkg-buy-strip" data-a11y-id="athlete.booking.catalog.buy-pack" onclick="event.stopPropagation();openPkgBuy('Basketball Training')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+          <span class="pkg-buy-txt">Save with a 5-pack &middot; from &euro;40/session</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
       </div>
 
       <!-- Padel Training -->
@@ -1466,6 +1515,45 @@
     </div>
 
   </div>
+
+  <!-- ===== ATHLETE: BUY A PACKAGE (prepaid pass, gym-pass model) ===== -->
+  <div class="fit-sheet-overlay" id="pkg-buy-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;color:var(--fit-text-primary);margin-bottom:4px;">Buy a package</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:20px;"><span id="pkg-buy-name">Basketball Training</span> &middot; with John Miller</div>
+
+      <div class="pkg-buy-tier selected" onclick="pkgBuyTier(this,5,200)" data-a11y-id="athlete.booking.buy-pack.tier">
+        <div class="pkg-buy-tier-main">
+          <div class="pkg-buy-tier-t">5 sessions</div>
+          <div class="pkg-buy-tier-s">&euro;200 &middot; &euro;40 / session</div>
+          <div class="pkg-buy-tier-save">Save 20% vs &euro;50 single</div>
+        </div>
+        <div class="pkg-buy-radio"></div>
+      </div>
+      <div class="pkg-buy-tier" onclick="pkgBuyTier(this,10,360)" data-a11y-id="athlete.booking.buy-pack.tier">
+        <div class="pkg-buy-tier-main">
+          <div class="pkg-buy-tier-t">10 sessions</div>
+          <div class="pkg-buy-tier-s">&euro;360 &middot; &euro;36 / session</div>
+          <div class="pkg-buy-tier-save">Save 28% vs &euro;50 single</div>
+        </div>
+        <div class="pkg-buy-radio"></div>
+      </div>
+
+      <div class="bpm-label" style="margin-top:16px;">How would you like to pay?</div>
+      <div class="fit-selection-group" style="padding:0;margin-bottom:10px;">
+        <div class="fit-selection-chip selected" id="pkg-buy-cash" data-a11y-id="athlete.booking.buy-pack.pay-cash" onclick="pkgBuyPay('cash')">Cash</div>
+        <div class="fit-selection-chip" id="pkg-buy-card" data-a11y-id="athlete.booking.buy-pack.pay-card" onclick="pkgBuyPay('card')">Card</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:8px;padding:0 0 20px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span id="pkg-buy-paytext" style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.5;">Pay John in person. Your sessions unlock once he confirms the cash — then book them anytime, no expiry.</span>
+      </div>
+
+      <button class="fit-btn fit-btn-primary" id="pkg-buy-cta" onclick="pkgBuyConfirm()" style="border-radius:99px;">Buy 5 sessions &middot; &euro;200</button>
+    </div>
+  </div>
+  <div class="fit-snackbar" id="pkg-buy-snack">Pack reserved &middot; pay John in person to activate</div>
 
   <!-- ===== ATHLETE: SELF-PACED BOOKING CONFIRM (day-bound, pay from balance — no time slot) ===== -->
   <div class="fit-sheet-overlay" id="sp-book-sheet">
@@ -2169,6 +2257,48 @@ function pickHvAddr(addr){ var t=document.getElementById('bk-hv-addr'); if(t) t.
 function openBookingConfirmHV(){ setHV(true); go('s-booking', null); setTimeout(function(){ document.getElementById('booking-confirm-sheet').classList.add('visible'); }, 60); }
 // Deep-link for the home-visit journey: #book-hv opens the booking confirm in home-visit mode
 (function(){ if ((location.hash||'').slice(1) === 'book-hv') { setHV(true); go('s-booking', null); setTimeout(function(){ document.getElementById('booking-confirm-sheet').classList.add('visible'); }, 140); } })();
+
+// ===== Session packages — buy (prepaid pass) + redeem (burn a credit) =====
+var pkgBuyN = 5, pkgBuyTotal = 200, pkgBuyMethod = 'cash';
+function openPkgBuy(name){
+  var nm = document.getElementById('pkg-buy-name'); if (nm && name) nm.textContent = name;
+  document.getElementById('pkg-buy-sheet').classList.add('visible');
+}
+function pkgBuyTier(el, n, total){
+  pkgBuyN = n; pkgBuyTotal = total;
+  el.parentNode.querySelectorAll('.pkg-buy-tier').forEach(function(t){ t.classList.remove('selected'); });
+  el.classList.add('selected');
+  document.getElementById('pkg-buy-cta').textContent = 'Buy ' + n + ' sessions · €' + total;
+}
+function pkgBuyPay(method){
+  pkgBuyMethod = method;
+  document.getElementById('pkg-buy-cash').classList.toggle('selected', method === 'cash');
+  document.getElementById('pkg-buy-card').classList.toggle('selected', method === 'card');
+  document.getElementById('pkg-buy-paytext').textContent = method === 'cash'
+    ? 'Pay John in person. Your sessions unlock once he confirms the cash — then book them anytime, no expiry.'
+    : 'Charged to your card now. Your sessions are ready to book right away — anytime, no expiry.';
+}
+function pkgBuyConfirm(){
+  document.getElementById('pkg-buy-sheet').classList.remove('visible');
+  var snack = document.getElementById('pkg-buy-snack');
+  snack.textContent = pkgBuyMethod === 'cash'
+    ? 'Pack reserved · pay John in person to activate'
+    : pkgBuyN + '-session pack purchased · ready to book';
+  snack.classList.add('show');
+  setTimeout(function(){ snack.classList.remove('show'); }, 2600);
+}
+function bkSetPack(on){
+  var sheet = document.getElementById('booking-confirm-sheet');
+  var cta = document.getElementById('bpm-cta');
+  if (on){
+    if (!sheet.classList.contains('pm-pack')) sheet._preCta = cta.textContent;
+    sheet.classList.add('pm-pack');
+    cta.textContent = 'Book · use 1 session';
+  } else {
+    sheet.classList.remove('pm-pack');
+    if (sheet._preCta) cta.textContent = sheet._preCta;
+  }
+}
 </script>
 </body>
 </html>

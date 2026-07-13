@@ -140,6 +140,30 @@
   #s-my-coaches.mc-empty   [data-mc-state="empty"]   { display: block; }
   #s-my-coaches.mc-loading [data-mc-state="loading"] { display: block; }
   #s-my-coaches.mc-error   [data-mc-state="error"]   { display: block; }
+
+  /* ===== Package punch-card (prepaid pass tracker) — shared component ===== */
+  .pkg-punch { border: 1px solid var(--fit-divider); border-radius: 16px; padding: 16px; background: var(--fit-surface-high); }
+  .fit-light .pkg-punch { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.06); border: none; }
+  .pkg-punch--low { border: 1px solid rgba(247,201,72,0.5); }
+  .fit-light .pkg-punch--low { box-shadow: none; border: 1px solid rgba(247,201,72,0.55); }
+  .pkg-punch-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .pkg-punch-ic { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--fit-teal-600); }
+  .fit-dark .pkg-punch-ic { color: var(--fit-teal-300); }
+  .pkg-punch-ic svg { width: 20px; height: 20px; }
+  .pkg-punch-tt { flex: 1; min-width: 0; }
+  .pkg-punch-name { font-size: 15px; font-weight: 600; color: var(--fit-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pkg-punch-coach { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 1px; }
+  .pkg-dots-row { display: flex; align-items: center; gap: 10px; }
+  .pkg-dots { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; flex: 1; }
+  .pkg-dot { width: 15px; height: 15px; border-radius: 50%; box-sizing: border-box; flex-shrink: 0; }
+  .pkg-dot--used { background: var(--fit-teal-500); }
+  .pkg-dot--left { background: transparent; border: 2px solid var(--fit-teal-500); opacity: 0.85; }
+  .pkg-punch-left { font-size: 14px; font-weight: 700; color: var(--fit-text-primary); white-space: nowrap; }
+  .pkg-punch-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
+  .pkg-punch-sub { font-size: 13px; color: var(--fit-text-secondary); }
+  .pkg-lowpill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: rgba(247,201,72,0.15); color: var(--fit-yellow-600); white-space: nowrap; }
+  .fit-dark .pkg-lowpill { color: var(--fit-yellow-400); }
+  .pkg-lowpill svg { width: 12px; height: 12px; }
 </style>
 </head>
 <body>
@@ -380,6 +404,52 @@
       <div style="width:1px;background:var(--fit-divider);"></div>
       <div style="text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-red-400);">&euro;70</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Owed</div></div>
     </div>
+
+    <!-- Your packages — prepaid passes with this coach -->
+    <div class="fit-section-title--md">Your packages</div>
+    <div style="display:flex;flex-direction:column;gap:12px;padding:0 16px 22px;">
+      <!-- Healthy: 3 of 5 used -->
+      <div class="pkg-punch" data-a11y-id="athlete.coach-detail.package">
+        <div class="pkg-punch-head">
+          <div class="pkg-punch-ic" style="background:var(--fit-grad-type-personal);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg></div>
+          <div class="pkg-punch-tt">
+            <div class="pkg-punch-name">Tennis Training</div>
+            <div class="pkg-punch-coach">Personal &middot; 5-session pack</div>
+          </div>
+        </div>
+        <div class="pkg-dots-row">
+          <div class="pkg-dots">
+            <span class="pkg-dot pkg-dot--used"></span><span class="pkg-dot pkg-dot--used"></span><span class="pkg-dot pkg-dot--used"></span><span class="pkg-dot pkg-dot--left"></span><span class="pkg-dot pkg-dot--left"></span>
+          </div>
+          <span class="pkg-punch-left">2 left</span>
+        </div>
+        <div class="pkg-punch-meta">
+          <span class="pkg-punch-sub">3 of 5 used &middot; no expiry</span>
+          <button class="fit-btn fit-btn-secondary fit-btn-xs" onclick="window.location.href='../shared/profile.html'">Book next</button>
+        </div>
+      </div>
+      <!-- Running low: 4 of 5 used -->
+      <div class="pkg-punch pkg-punch--low" data-a11y-id="athlete.coach-detail.package">
+        <div class="pkg-punch-head">
+          <div class="pkg-punch-ic" style="background:var(--fit-grad-type-personal);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 8l8 8M16 8l-8 8"/></svg></div>
+          <div class="pkg-punch-tt">
+            <div class="pkg-punch-name">Padel Training</div>
+            <div class="pkg-punch-coach">Personal &middot; 5-session pack</div>
+          </div>
+        </div>
+        <div class="pkg-dots-row">
+          <div class="pkg-dots">
+            <span class="pkg-dot pkg-dot--used"></span><span class="pkg-dot pkg-dot--used"></span><span class="pkg-dot pkg-dot--used"></span><span class="pkg-dot pkg-dot--used"></span><span class="pkg-dot pkg-dot--left"></span>
+          </div>
+          <span class="pkg-lowpill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>1 left</span>
+        </div>
+        <div class="pkg-punch-meta">
+          <span class="pkg-punch-sub">4 of 5 used &middot; no expiry</span>
+          <button class="fit-btn fit-btn-secondary fit-btn-xs" onclick="window.location.href='../shared/profile.html'">Book last</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Cash owed — horizontal list (multiple debts possible). Hidden in no-debt state. -->
     <div class="cd-cash">
     <div class="fit-section-title--md-row">
