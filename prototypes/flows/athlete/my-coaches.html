@@ -164,6 +164,15 @@
   .pkg-lowpill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: rgba(247,201,72,0.15); color: var(--fit-yellow-600); white-space: nowrap; }
   .fit-dark .pkg-lowpill { color: var(--fit-yellow-400); }
   .pkg-lowpill svg { width: 12px; height: 12px; }
+  /* Cash pack awaiting the coach's payment confirmation — bookable, but unpaid */
+  .pkg-punch--pending { border: 1px dashed var(--fit-gray-500); }
+  .fit-light .pkg-punch--pending { background: transparent; box-shadow: none; border: 1px dashed var(--fit-gray-400); }
+  .fit-dark .pkg-punch--pending { border: 1px dashed var(--fit-gray-700); }
+  .pkg-pendpill { flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: rgba(120,120,128,0.16); color: var(--fit-text-secondary); white-space: nowrap; }
+  /* Progress bar (replaces punch dots — scales to any pack size) */
+  .pkg-bar { flex: 1; height: 8px; border-radius: 99px; background: var(--fit-divider); overflow: hidden; }
+  .pkg-bar-fill { height: 100%; border-radius: 99px; background: var(--fit-teal-500); }
+  .pkg-punch--low .pkg-bar-fill { background: var(--fit-yellow-400); }
 </style>
 </head>
 <body>
@@ -179,6 +188,7 @@
   <div class="label">My Coaches</div>
   <button class="active" onclick="go('s-my-coaches',this);setMcState('default')">My Coaches</button>
   <button onclick="go('s-coach-detail',this)">Coach detail</button>
+  <button onclick="openPkgDetailAth('tennis')">Package detail</button>
   <button onclick="go('s-coach-history',this)">Coach history</button>
   <button onclick="go('s-coach-note-editor',this)">Note editor</button>
   <button onclick="setCrMode('write');go('s-coach-review',this)">Review · write</button>
@@ -408,44 +418,61 @@
     <!-- Your packages — prepaid passes with this coach -->
     <div class="fit-section-title--md">Your packages</div>
     <div style="display:flex;flex-direction:column;gap:12px;padding:0 16px 22px;">
-      <!-- Healthy: 3 of 5 used -->
-      <div class="pkg-punch" data-a11y-id="athlete.coach-detail.package">
+      <!-- Healthy: 3 of 5 used · tap → pack detail -->
+      <div class="pkg-punch" data-a11y-id="athlete.coach-detail.package" style="cursor:pointer;" onclick="openPkgDetailAth('tennis')">
         <div class="pkg-punch-head">
           <div class="pkg-punch-ic" style="background:var(--fit-grad-type-personal);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg></div>
           <div class="pkg-punch-tt">
             <div class="pkg-punch-name">Tennis Training</div>
-            <div class="pkg-punch-coach">Personal &middot; 5-session pack</div>
+            <div class="pkg-punch-coach">Personal &middot; 2 packs</div>
           </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
         </div>
         <div class="pkg-dots-row">
-          <div class="pkg-dots">
-            <span class="pkg-dot pkg-dot--used"></span><span class="pkg-dot pkg-dot--used"></span><span class="pkg-dot pkg-dot--used"></span><span class="pkg-dot pkg-dot--left"></span><span class="pkg-dot pkg-dot--left"></span>
-          </div>
+          <div class="pkg-bar"><div class="pkg-bar-fill" style="width:80%;"></div></div>
           <span class="pkg-punch-left">2 left</span>
         </div>
         <div class="pkg-punch-meta">
-          <span class="pkg-punch-sub">3 of 5 used &middot; no expiry</span>
-          <button class="fit-btn fit-btn-secondary fit-btn-xs" onclick="window.location.href='../shared/profile.html'">Book next</button>
+          <span class="pkg-punch-sub">8 of 10 used &middot; 2 packs</span>
+          <button class="fit-btn fit-btn-secondary fit-btn-xs" onclick="event.stopPropagation();window.location.href='../shared/profile.html'">Book next</button>
         </div>
       </div>
       <!-- Running low: 4 of 5 used -->
-      <div class="pkg-punch pkg-punch--low" data-a11y-id="athlete.coach-detail.package">
+      <div class="pkg-punch pkg-punch--low" data-a11y-id="athlete.coach-detail.package" style="cursor:pointer;" onclick="openPkgDetailAth('padel')">
         <div class="pkg-punch-head">
           <div class="pkg-punch-ic" style="background:var(--fit-grad-type-personal);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 8l8 8M16 8l-8 8"/></svg></div>
           <div class="pkg-punch-tt">
             <div class="pkg-punch-name">Padel Training</div>
             <div class="pkg-punch-coach">Personal &middot; 5-session pack</div>
           </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
         </div>
         <div class="pkg-dots-row">
-          <div class="pkg-dots">
-            <span class="pkg-dot pkg-dot--used"></span><span class="pkg-dot pkg-dot--used"></span><span class="pkg-dot pkg-dot--used"></span><span class="pkg-dot pkg-dot--used"></span><span class="pkg-dot pkg-dot--left"></span>
-          </div>
+          <div class="pkg-bar"><div class="pkg-bar-fill" style="width:80%;"></div></div>
           <span class="pkg-lowpill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>1 left</span>
         </div>
         <div class="pkg-punch-meta">
           <span class="pkg-punch-sub">4 of 5 used &middot; no expiry</span>
-          <button class="fit-btn fit-btn-secondary fit-btn-xs" onclick="window.location.href='../shared/profile.html'">Book last</button>
+          <button class="fit-btn fit-btn-secondary fit-btn-xs" onclick="event.stopPropagation();window.location.href='../shared/profile.html'">Book last</button>
+        </div>
+      </div>
+      <!-- Cash pack pending the coach's payment confirmation — bookable now, unpaid -->
+      <div class="pkg-punch pkg-punch--pending" data-a11y-id="athlete.coach-detail.package" style="cursor:pointer;" onclick="openPkgDetailAth('basketball')">
+        <div class="pkg-punch-head">
+          <div class="pkg-punch-ic" style="background:var(--fit-grad-type-personal);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg></div>
+          <div class="pkg-punch-tt">
+            <div class="pkg-punch-name">Basketball Training</div>
+            <div class="pkg-punch-coach">Personal &middot; 5-session pack</div>
+          </div>
+          <span class="pkg-pendpill">Pending payment</span>
+        </div>
+        <div class="pkg-dots-row">
+          <div class="pkg-bar"><div class="pkg-bar-fill" style="width:0%;"></div></div>
+          <span class="pkg-punch-left">5 left</span>
+        </div>
+        <div class="pkg-punch-meta">
+          <span class="pkg-punch-sub">Pay John &euro;200 in person &middot; bookable now</span>
+          <button class="fit-btn fit-btn-secondary fit-btn-xs" onclick="event.stopPropagation();window.location.href='../shared/profile.html'">Book 1st</button>
         </div>
       </div>
     </div>
@@ -572,6 +599,41 @@
 </div>
 
 <!-- ==================== SCREEN: COACH TRAINING HISTORY (push) ==================== -->
+<!-- ===== ATHLETE: PACKAGE DETAIL — your redemption ledger for one pack ===== -->
+<div class="fit-phone fit-light" id="s-pkg-detail">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="athlete.package-detail.back" onclick="go('s-coach-detail', null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Package</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="pkg-punch" style="margin:4px 16px 14px;">
+      <div class="pkg-punch-head">
+        <div class="pkg-punch-ic" id="pkgd-ic" style="background:var(--fit-grad-type-personal);"></div>
+        <div class="pkg-punch-tt">
+          <div class="pkg-punch-name" id="pkgd-name">Tennis Training</div>
+          <div class="pkg-punch-coach" id="pkgd-sub">Personal &middot; 5-session pack</div>
+        </div>
+        <span id="pkgd-status"></span>
+      </div>
+      <div class="pkg-dots-row">
+        <div class="pkg-bar"><div class="pkg-bar-fill" id="pkgd-bar" style="width:60%;"></div></div>
+        <span class="pkg-punch-left" id="pkgd-left">2 left</span>
+      </div>
+      <div class="pkg-punch-meta">
+        <span class="pkg-punch-sub" id="pkgd-count">3 of 5 used &middot; no expiry</span>
+      </div>
+    </div>
+    <div id="pkgd-action" style="padding:0 16px 8px;"></div>
+    <div class="fit-section-title--md">Your sessions</div>
+    <div style="padding:0 16px;" id="pkgd-history"></div>
+    <div class="fit-section-title--md" style="margin-top:8px;">Purchases</div>
+    <div style="padding:0 16px 24px;" id="pkgd-purchase"></div>
+  </div>
+</div>
+
 <div class="fit-phone fit-light" id="s-coach-history">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
@@ -908,6 +970,91 @@ function setCdState(state) {
 function setCdDebt(has) {
   var el = document.getElementById('s-coach-detail');
   if (el) el.classList.toggle('cd-nodebt', !has);
+}
+
+// ===== Athlete package detail — your redemption ledger =====
+var ATH_SAMPLE = [
+  {d:'Mon, Apr 14 · 08:00', loc:'TNT Studio'}, {d:'Wed, Apr 9 · 08:00', loc:'TNT Studio'},
+  {d:'Thu, Apr 3 · 18:00', loc:'TNT Studio'}, {d:'Wed, Mar 26 · 08:00', loc:'TNT Studio'},
+  {d:'Fri, Mar 21 · 07:30', loc:'TNT Studio'}
+];
+var ATH_ICON = {
+  tennis: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg>',
+  padel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 8l8 8M16 8l-8 8"/></svg>',
+  basketball: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>'
+};
+// Each pack = one or more credit LOTS (repeat/upgrade purchases). Credits burn FIFO.
+var ATH_PACKS = {
+  tennis: {name:'Tennis Training', status:'active', lots:[
+    {n:5, total:'€110', bought:'Mar 15', method:'Card', paid:true, used:3, tag:'Renewal'},
+    {n:5, total:'€110', bought:'Mar 1', method:'Card', paid:true, used:5, tag:null}
+  ]},
+  padel: {name:'Padel Training', status:'low', lots:[
+    {n:5, total:'€110', bought:'Mar 2', method:'Card', paid:true, used:4, tag:null}
+  ]},
+  basketball: {name:'Basketball Training', status:'pending', lots:[
+    {n:5, total:'€200', bought:'2h ago', method:'Cash', paid:false, used:0, tag:null}
+  ]}
+};
+function pkgLotBadgeAth(tag){
+  if(!tag) return '';
+  return ' <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--fit-selection-gradient);color:var(--fit-teal-600);white-space:nowrap;">' + tag + '</span>';
+}
+function openPkgDetailAth(key){
+  var p = ATH_PACKS[key]; if(!p) return;
+  var totalN = 0, totalUsed = 0; p.lots.forEach(function(l){ totalN += l.n; totalUsed += l.used; });
+  var left = totalN - totalUsed, packs = p.lots.length;
+  var ic = document.getElementById('pkgd-ic');
+  ic.style.background = 'var(--fit-grad-type-personal)';
+  ic.innerHTML = ATH_ICON[key] || ATH_ICON.tennis;
+  document.getElementById('pkgd-name').textContent = p.name;
+  document.getElementById('pkgd-sub').textContent = packs > 1 ? ('Personal · ' + packs + ' packs · ' + totalN + ' sessions') : ('Personal · ' + totalN + '-session pack');
+  var bar = document.getElementById('pkgd-bar');
+  bar.style.width = Math.round(totalUsed / totalN * 100) + '%';
+  bar.style.background = p.status === 'low' ? 'var(--fit-yellow-400)' : 'var(--fit-teal-500)';
+  document.getElementById('pkgd-left').textContent = left + ' left';
+  document.getElementById('pkgd-count').textContent = totalUsed + ' of ' + totalN + ' used · ' + (packs > 1 ? packs + ' packs' : 'no expiry');
+  var st = document.getElementById('pkgd-status');
+  if(p.status === 'low') st.innerHTML = '<span class="pkg-lowpill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>' + left + ' left</span>';
+  else if(p.status === 'pending') st.innerHTML = '<span class="pkg-pendpill">Pending payment</span>';
+  else st.innerHTML = '';
+  document.getElementById('pkgd-action').innerHTML = '<button class="fit-btn fit-btn-primary" style="width:100%;border-radius:99px;" onclick="window.location.href=\'../shared/profile.html\'">' + (p.status === 'pending' ? 'Book your 1st session' : 'Book next session') + '</button>';
+  var h = document.getElementById('pkgd-history'); h.innerHTML = '';
+  if(totalUsed === 0){
+    h.innerHTML = '<div style="padding:14px 0;font-size:14px;color:var(--fit-text-tertiary);">No sessions used yet — book your first anytime.</div>';
+  } else {
+    for(var i=0;i<totalUsed;i++){
+      var s = ATH_SAMPLE[i % ATH_SAMPLE.length];
+      var last = i === totalUsed - 1;
+      h.innerHTML += '<div style="padding:14px 0;' + (last ? '' : 'border-bottom:1px solid var(--fit-divider);') + '">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">' +
+          '<div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">' + p.name + '</div>' +
+          '<span style="font-size:12px;font-weight:600;color:var(--fit-teal-500);">&minus;1 session</span>' +
+        '</div>' +
+        '<div style="font-size:12px;color:var(--fit-text-tertiary);">' + s.d + ' · ' + s.loc + '</div>' +
+      '</div>';
+    }
+  }
+  var pu = '';
+  p.lots.forEach(function(l, idx){
+    var lotLeft = l.n - l.used;
+    var last = idx === p.lots.length - 1;
+    var payline = l.paid
+      ? '<span style="font-size:12px;color:var(--fit-green-500);">Paid</span>'
+      : '<span style="font-size:12px;color:var(--fit-yellow-600);">Pending · pay John ' + l.total + ' in person</span>';
+    var remain = lotLeft <= 0 ? 'Used up' : lotLeft + ' left';
+    pu += '<div style="padding:14px 0;' + (last ? '' : 'border-bottom:1px solid var(--fit-divider);') + '">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">' +
+        '<div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">' + l.n + '-session pack' + pkgLotBadgeAth(l.tag) + '</div>' +
+        '<span style="font-size:14px;font-weight:600;color:var(--fit-text-primary);">' + l.total + '</span>' +
+      '</div>' +
+      '<div style="font-size:12px;color:var(--fit-text-tertiary);">' + l.bought + ' · ' + l.method + '</div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">' + payline +
+        '<span style="font-size:12px;color:var(--fit-text-tertiary);">' + remain + '</span></div>' +
+    '</div>';
+  });
+  document.getElementById('pkgd-purchase').innerHTML = pu;
+  go('s-pkg-detail', null);
 }
 
 // Athlete-side prototype defaults to LIGHT theme (role cue: athlete = light, coach = dark)
