@@ -393,6 +393,26 @@
   .bk-price-incl { display: none; font-size: 15px; font-weight: 600; color: var(--fit-teal-600); margin-left: 8px; }
   #booking-confirm-sheet.pm-pack .bk-price-incl { display: inline; }
   .bk-pack-link { display: block; width: 100%; margin-top: 12px; background: none; border: none; color: var(--fit-teal-600); font-family: var(--fit-font); font-size: 14px; font-weight: 500; cursor: pointer; }
+
+  /* ===== Package buy success + first-book handoff ===== */
+  .pkg-succ-ic { width: 56px; height: 56px; border-radius: 50%; margin: 4px auto 14px; display: flex; align-items: center; justify-content: center; background: var(--fit-selection-gradient); }
+  .pkg-succ-ic svg { width: 30px; height: 30px; color: var(--fit-teal-600); }
+  .pkg-succ-ic.pending { background: rgba(247,201,72,0.14); }
+  .pkg-succ-ic.pending svg { color: var(--fit-yellow-600); }
+  .pkg-succ-title { font-size: 20px; font-weight: 600; color: var(--fit-text-primary); text-align: center; }
+  .pkg-succ-sub { font-size: 14px; color: var(--fit-text-secondary); text-align: center; margin-top: 3px; }
+  .pkg-succ-dots { display: flex; justify-content: center; flex-wrap: wrap; gap: 9px; margin: 18px 0; }
+  .pkg-succ-dot { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--fit-teal-500); box-sizing: border-box; }
+  .pkg-succ-count { text-align: center; font-size: 15px; font-weight: 600; color: var(--fit-teal-600); margin: 16px 0; }
+  .pkg-succ-note { display: flex; align-items: flex-start; gap: 8px; padding: 11px 12px; margin-bottom: 16px; border-radius: 12px; background: rgba(247,201,72,0.1); }
+  .pkg-succ-note svg { width: 15px; height: 15px; color: var(--fit-yellow-600); flex-shrink: 0; margin-top: 1px; }
+  .pkg-succ-note span { font-size: 12px; color: var(--fit-text-secondary); line-height: 1.5; }
+  .pkg-succ-later { display: block; width: 100%; margin-top: 10px; background: none; border: none; color: var(--fit-text-secondary); font-family: var(--fit-font); font-size: 15px; font-weight: 500; cursor: pointer; padding: 8px 0; }
+  /* First-session banner atop the booking calendar */
+  .bk-first-banner { display: none; align-items: center; gap: 10px; margin: 10px 16px 2px; padding: 11px 14px; border-radius: 12px; background: var(--fit-selection-gradient); border: 1px solid var(--fit-teal-500); }
+  .bk-first-banner svg { width: 20px; height: 20px; color: var(--fit-teal-600); flex-shrink: 0; }
+  .bk-first-banner b { color: var(--fit-text-primary); font-weight: 600; }
+  .bk-first-banner div { font-size: 13px; color: var(--fit-text-secondary); line-height: 1.4; }
 </style>
 </head>
 <body>
@@ -449,6 +469,11 @@
     </div>
     <div class="fit-day-strip" data-fit-day-strip data-month="4" data-year="2026" data-today="10" data-selected="10" data-events="7:g,9:g,10:g,14:g,16:g,21:g,23:g,28:g,30:g">
       <div class="fit-day-strip-inner"></div>
+    </div>
+    <!-- First-session-from-pack banner (shown when arriving straight from a pack purchase) -->
+    <div class="bk-first-banner" id="bk-first-banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+      <div><b>Booking your 1st of 5</b> &middot; Basketball pack &mdash; included, no charge. Pick a free slot below.</div>
     </div>
     <!-- Pinned grid hint + legend (personal state only) — stays under the date header -->
     <div class="bk-grid-hint">
@@ -1555,6 +1580,23 @@
   </div>
   <div class="fit-snackbar" id="pkg-buy-snack">Pack reserved &middot; pay John in person to activate</div>
 
+  <!-- ===== Package buy SUCCESS sheet — celebrates + hands off to the first booking ===== -->
+  <div class="fit-sheet-overlay" id="pkg-success-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="pkg-succ-ic" id="pkg-succ-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+      <div class="pkg-succ-title" id="pkg-succ-title">5 sessions ready</div>
+      <div class="pkg-succ-sub" id="pkg-succ-sub">Basketball Training &middot; with John Miller</div>
+      <div class="pkg-succ-dots" id="pkg-succ-dots"></div>
+      <div class="pkg-succ-note" id="pkg-succ-note" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>Pay John &euro;200 in person. Your pack stays <b>pending</b> until he confirms the cash — you can still book sessions now; he approves each booking anyway.</span>
+      </div>
+      <button class="fit-btn fit-btn-primary" data-a11y-id="athlete.pack.success.book-first" onclick="pkgSuccBook()" style="border-radius:99px;">Book your first session</button>
+      <button class="pkg-succ-later" data-a11y-id="athlete.pack.success.later" onclick="pkgSuccLater()">I&rsquo;ll book later</button>
+    </div>
+  </div>
+
   <!-- ===== ATHLETE: SELF-PACED BOOKING CONFIRM (day-bound, pay from balance — no time slot) ===== -->
   <div class="fit-sheet-overlay" id="sp-book-sheet">
   <div class="fit-sheet">
@@ -2190,6 +2232,12 @@ function bkConfirmCta() {
     if (!s || s.state === 'full') return;
     openGroupConfirm(s.when, s.spots + ' spots available');
   } else {
+    // Arriving from a fresh pack purchase → default to pack redemption + first-session framing.
+    if (bkPackFirst) {
+      bkSetPack(true);
+      var sub = document.querySelector('#booking-confirm-sheet .bk-pack-s');
+      if (sub) sub.textContent = '1st of ' + pkgBuyN + ' · Basketball pack';
+    }
     document.getElementById('booking-confirm-sheet').classList.add('visible');
   }
 }
@@ -2275,17 +2323,63 @@ function pkgBuyPay(method){
   document.getElementById('pkg-buy-cash').classList.toggle('selected', method === 'cash');
   document.getElementById('pkg-buy-card').classList.toggle('selected', method === 'card');
   document.getElementById('pkg-buy-paytext').textContent = method === 'cash'
-    ? 'Pay John in person. Your sessions unlock once he confirms the cash — then book them anytime, no expiry.'
+    ? 'Pay John in person. Your pack stays pending until he confirms — you can still book sessions right away (he approves each booking anyway). No expiry.'
     : 'Charged to your card now. Your sessions are ready to book right away — anytime, no expiry.';
 }
 function pkgBuyConfirm(){
   document.getElementById('pkg-buy-sheet').classList.remove('visible');
+  pkgSuccMethod = pkgBuyMethod;
+  setTimeout(openPkgSuccess, 120);
+}
+
+// ===== Package buy success → first-book handoff =====
+var pkgSuccMethod = 'card';
+var bkPackFirst = false;
+function openPkgSuccess(){
+  var pending = pkgSuccMethod === 'cash';
+  var ic = document.getElementById('pkg-succ-ic');
+  ic.classList.toggle('pending', pending);
+  ic.innerHTML = pending
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+  document.getElementById('pkg-succ-title').textContent = pkgBuyN + (pending ? ' sessions reserved' : ' sessions ready');
+  document.getElementById('pkg-succ-note').style.display = pending ? 'flex' : 'none';
+  // Remaining-sessions visual: dots for small packs, a count line for big ones.
+  var dots = document.getElementById('pkg-succ-dots');
+  var count = document.getElementById('pkg-succ-count');
+  if(count) count.remove();
+  if(pkgBuyN <= 10){
+    dots.style.display = 'flex'; dots.innerHTML = '';
+    for(var i=0;i<pkgBuyN;i++){ var d=document.createElement('div'); d.className='pkg-succ-dot'; dots.appendChild(d); }
+  } else {
+    dots.style.display = 'none';
+    var c=document.createElement('div'); c.className='pkg-succ-count'; c.id='pkg-succ-count'; c.textContent = pkgBuyN + ' sessions ready to book'; dots.parentNode.insertBefore(c, dots.nextSibling);
+  }
+  document.getElementById('pkg-success-sheet').classList.add('visible');
+}
+function pkgSuccBook(){
+  document.getElementById('pkg-success-sheet').classList.remove('visible');
+  enterFirstBook(false);
+}
+function pkgSuccLater(){
+  document.getElementById('pkg-success-sheet').classList.remove('visible');
   var snack = document.getElementById('pkg-buy-snack');
-  snack.textContent = pkgBuyMethod === 'cash'
-    ? 'Pack reserved · pay John in person to activate'
-    : pkgBuyN + '-session pack purchased · ready to book';
+  snack.textContent = pkgSuccMethod === 'cash' ? 'Pack reserved · pay John in person' : pkgBuyN + '-session pack ready · book anytime';
   snack.classList.add('show');
   setTimeout(function(){ snack.classList.remove('show'); }, 2600);
+}
+// Land on the booking calendar in first-session-from-pack mode. showToast = auto-jump variant.
+function enterFirstBook(showToast){
+  bkPackFirst = true;
+  go('s-booking', null);
+  setBookingState('personal');
+  if(typeof setHV === 'function') setHV(false);
+  var b = document.getElementById('bk-first-banner');
+  if(b) b.style.display = 'flex';
+  if(showToast){
+    var snack = document.getElementById('booking-snackbar');
+    if(snack){ snack.textContent = pkgBuyN + '-pack active · pick your 1st session'; snack.classList.add('show'); setTimeout(function(){ snack.classList.remove('show'); }, 2600); }
+  }
 }
 function bkSetPack(on){
   var sheet = document.getElementById('booking-confirm-sheet');
