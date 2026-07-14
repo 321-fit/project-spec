@@ -1,8 +1,9 @@
 # Direct Messages (DM)
 
-> Status: Draft
+> Status: Approved
 > Prototype: [shared/messages.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/messages.html)
-> Last updated: 2026-06-23
+> Last updated: 2026-07-14
+> Supersedes the earlier `messenger.md` draft (session-cards-in-chat, voice, images/S3, broadcast channel, WebSocket backbone, bottom-nav tab — dropped or moved to the deferred list below).
 
 ## Overview
 
@@ -88,6 +89,9 @@ Mobile sockets die when the app is backgrounded/closed → **never the delivery 
 - Attachments / share-a-session in the composer (the "+" is hidden — flow TBD).
 - Typing indicators, read receipts, presence ("last seen") — Phase 2 (needs the realtime WS/SSE layer).
 - Realtime websocket transport (poll-on-open is enough for launch).
+- **In-chat session cards + book-from-chat** — structured `session_request` / `session_update` messages with inline Accept / Decline / Edit, reusing the canonical booking flow (no duplicate logic). Deferred (was core in the old Messenger draft).
+- **Voice messages** (hold-to-record, playback-before-send). Deferred.
+- **Coach broadcast channel** — 1→many announcements, athletes read-only, no composer. Deferred (was Messenger "V2").
 
 ## Platform notes
 See [architecture/design-system.md](../architecture/design-system.md). Bubble grammar matches the voice assistant (mine = faint brand tint, theirs = neutral surface). a11y ids: `messages.*` in [accessibility-identifiers.md](../architecture/accessibility-identifiers.md).
