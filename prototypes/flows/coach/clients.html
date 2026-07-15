@@ -231,11 +231,30 @@
   .pkg-punch-tt { flex: 1; min-width: 0; }
   .pkg-punch-name { font-size: 15px; font-weight: 600; color: var(--fit-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .pkg-punch-coach { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 1px; }
+
   .pkg-dots-row { display: flex; align-items: center; gap: 10px; }
-  .pkg-dots { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; flex: 1; }
-  .pkg-dot { width: 15px; height: 15px; border-radius: 50%; box-sizing: border-box; flex-shrink: 0; }
-  .pkg-dot--used { background: var(--fit-teal-500); }
-  .pkg-dot--left { background: transparent; border: 2px solid var(--fit-teal-500); opacity: 0.85; }
+  /* (.pkg-dot* punch dots removed 2026-07-15 — the bar replaced them and they had no consumers.) */
+
+  /* "See all" link — same values as .bal-seeall (athlete/balance-v2.html Recent → History).
+     Third consumer of this pattern now → candidate for promotion to fit-ui.css as .fit-seeall
+     (see architecture/design-system.md § Pending component extractions). */
+  .pkgd-seeall { display: inline-flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 500; color: var(--fit-teal-500); background: none; border: none; cursor: pointer; font-family: var(--fit-font); padding: 0; }
+  .pkgd-seeall svg { width: 14px; height: 14px; }
+
+  /* Tier picker in the "Sell a package" sheet — the same component the athlete buys with
+     (profile.html #pkg-buy-sheet), so a pack tier reads identically on both sides.
+     Tokens are theme-neutral, so no .fit-light split is needed. */
+  .pkg-buy-tier { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--fit-divider); border-radius: 14px; cursor: pointer; margin-bottom: 10px; }
+  .pkg-buy-tier.selected { border-color: var(--fit-teal-500); background: var(--fit-selection-gradient); }
+  .pkg-buy-tier-main { flex: 1; min-width: 0; }
+  .pkg-buy-tier-t { font-size: 15px; font-weight: 600; color: var(--fit-text-primary); }
+  .pkg-buy-tier-s { font-size: 13px; color: var(--fit-text-secondary); margin-top: 2px; }
+  .pkg-buy-tier-save { font-size: 12px; font-weight: 600; color: var(--fit-green-500); margin-top: 3px; }
+  .pkg-buy-radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--fit-gray-500); flex-shrink: 0; position: relative; }
+  .pkg-buy-tier.selected .pkg-buy-radio { border-color: var(--fit-teal-500); }
+  .pkg-buy-tier.selected .pkg-buy-radio:after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: var(--fit-teal-500); }
+  .cd-sell-group { font-size: 12px; font-weight: 600; color: var(--fit-text-tertiary); margin: 16px 0 8px; }
+  .cd-sell-group:first-child { margin-top: 0; }
   .pkg-punch-left { font-size: 14px; font-weight: 700; color: var(--fit-text-primary); white-space: nowrap; }
   .pkg-punch-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
   .pkg-punch-sub { font-size: 13px; color: var(--fit-text-secondary); }
@@ -258,6 +277,7 @@
   <!-- "Requests" sidebar entry removed 2026-06-02 — moved to dashboard.html Inbox 3-tab structure. -->
   <button onclick="go('s-client-detail',this)">Client Detail</button>
   <button onclick="openPkgDetail('basketball')">Package Detail</button>
+  <button onclick="openPkgDetail('basketball');openPkgHistory()">Package History</button>
   <button onclick="go('s-client-history',this)">Client History</button>
   <button onclick="go('s-client-selfpaced',this)">Client Self-paced</button>
   <button onclick="go('s-client-notes-editor',this)">Client Notes Editor</button>
@@ -614,68 +634,19 @@
     <!-- Packages (prepaid passes) — coach view: track credits, re-sell nudge, cash activation gate -->
     <div style="display:flex;justify-content:space-between;align-items:center;padding:0 16px;">
       <span class="fit-section-title--md" style="padding:0;margin:0;">Packages</span>
-      <button class="fit-icon-btn" data-a11y-id="coach.client-detail.package.sell" aria-label="Sell a package" onclick="document.getElementById('cd-sell-package-sheet').classList.add('visible')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      <button class="fit-icon-btn" data-a11y-id="coach.client-detail.package.sell" aria-label="Sell a package" onclick="openSellPackage()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;padding:12px 16px 24px;">
 
-      <!-- 1) Stacked packs — 2 lots of the same session (aggregate) · tap → pack detail -->
-      <div class="pkg-punch" data-a11y-id="coach.client-detail.package.open" style="cursor:pointer;" onclick="openPkgDetail('basketball')">
-        <div class="pkg-punch-head">
-          <div class="pkg-punch-ic" style="background:var(--fit-grad-type-personal);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 000 18M12 3a15 15 0 010 18"/></svg></div>
-          <div class="pkg-punch-tt">
-            <div class="pkg-punch-name">Basketball Training</div>
-            <div class="pkg-punch-coach">Personal &middot; 2 packs</div>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div class="pkg-dots-row">
-          <div class="pkg-bar"><div class="pkg-bar-fill" style="width:44%;"></div></div>
-          <span class="pkg-punch-left">14 left</span>
-        </div>
-        <div class="pkg-punch-meta">
-          <span class="pkg-punch-sub">11 of 25 used &middot; 2 packs</span>
-          <span style="font-size:13px;font-weight:500;color:var(--fit-teal-500);">Active</span>
-        </div>
-      </div>
+      <!-- Cards render from CLIENT_PACKS (see renderClientPacks) — one card per SESSION TYPE,
+           aggregating that type's credit lots. Rendering from data (not static markup) is what
+           lets "Sell a package" add a lot, and keeps "Mark received" from drifting from state. -->
+      <div id="cd-packs-list" style="display:flex;flex-direction:column;gap:10px;"></div>
 
-      <!-- 2) Low pack — 4 of 5 used → re-sell nudge -->
-      <div class="pkg-punch pkg-punch--low" data-a11y-id="coach.client-detail.package.open" style="cursor:pointer;" onclick="openPkgDetail('hiit')">
-        <div class="pkg-punch-head">
-          <div class="pkg-punch-ic" style="background:var(--fit-grad-type-group);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 12.5H11l-1 9.5 8.5-10.5H12l1-9.5z"/></svg></div>
-          <div class="pkg-punch-tt">
-            <div class="pkg-punch-name">HIIT Group Session</div>
-            <div class="pkg-punch-coach">Group &middot; 5-session pack</div>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div class="pkg-dots-row">
-          <div class="pkg-bar"><div class="pkg-bar-fill" style="width:80%;"></div></div>
-          <span class="pkg-lowpill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>1 left</span>
-        </div>
-        <div class="pkg-punch-meta">
-          <span class="pkg-punch-sub">4 of 5 used &middot; no expiry</span>
-          <button class="fit-btn fit-btn-secondary fit-btn-xs" data-a11y-id="coach.client-detail.package.renew" onclick="event.stopPropagation();pkgClientRenew(this)">Offer renewal</button>
-        </div>
-      </div>
-
-      <!-- 3) Cash-pending pack — bookable, unpaid -->
-      <div class="pkg-punch pkg-punch--pending" data-a11y-id="coach.client-detail.package.open" style="cursor:pointer;" onclick="openPkgDetail('yoga')">
-        <div class="pkg-punch-head">
-          <div class="pkg-punch-ic" style="background:var(--fit-grad-type-group);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8c0-2 3-3 8-3s8 1 8 3-3 3-8 3-8-1-8-3z"/><path d="M4 8v8c0 2 3 3 8 3s8-1 8-3V8"/></svg></div>
-          <div class="pkg-punch-tt">
-            <div class="pkg-punch-name">Yoga Morning Flow</div>
-            <div class="pkg-punch-coach">Group &middot; 10-session pack</div>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div class="pkg-dots-row">
-          <span class="pkg-punch-sub cd-pend-line" style="flex:1;">Cash not received yet &middot; you still approve each booking</span>
-          <span class="cd-pend-pill" style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--fit-surface-higher);color:var(--fit-text-tertiary);">Unpaid</span>
-        </div>
-        <div class="pkg-punch-meta">
-          <span class="pkg-punch-sub">&euro;200 &middot; 10 sessions</span>
-          <button class="fit-btn fit-btn-primary fit-btn-xs" data-a11y-id="coach.client-detail.package.mark-received" onclick="event.stopPropagation();pkgClientMarkPaid(this)">Mark received</button>
-        </div>
+      <!-- Empty: client holds no packs (the section header + its "+" still show — selling is the point) -->
+      <div id="cd-packs-empty" style="display:none;padding:8px 0 4px;">
+        <div style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;">No packages yet.</div>
+        <div style="font-size:13px;color:var(--fit-text-tertiary);line-height:1.5;margin-top:2px;">Sell Anna a pack so she prepays a block of sessions at a discount.</div>
       </div>
 
     </div>
@@ -871,26 +842,30 @@
       <div class="fit-sheet-title">Sell a package</div>
       <div style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;margin-bottom:20px;">Anna prepays for multiple sessions at a discount.</div>
 
-      <!-- Package tier picker -->
-      <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--fit-text-tertiary);margin-bottom:8px;">Package</div>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:22px;">
-        <label style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;background:var(--fit-surface-high);cursor:pointer;min-height:48px;"><input type="radio" name="cd-pkg-tier" value="bball-5" data-a11y-id="coach.client-detail.package.tier.bball-5" checked style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;"><span style="flex:1;min-width:0;"><span style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Basketball</span><span style="font-size:13px;color:var(--fit-text-tertiary);"> &middot; 5 sessions</span></span><span style="font-size:15px;font-weight:600;color:var(--fit-text-primary);">&euro;200</span></label>
-        <label style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;background:var(--fit-surface-high);cursor:pointer;min-height:48px;"><input type="radio" name="cd-pkg-tier" value="hiit-10" data-a11y-id="coach.client-detail.package.tier.hiit-10" style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;"><span style="flex:1;min-width:0;"><span style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">HIIT</span><span style="font-size:13px;color:var(--fit-text-tertiary);"> &middot; 10 sessions</span></span><span style="font-size:15px;font-weight:600;color:var(--fit-text-primary);">&euro;360</span></label>
-        <label style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;background:var(--fit-surface-high);cursor:pointer;min-height:48px;"><input type="radio" name="cd-pkg-tier" value="yoga-10" data-a11y-id="coach.client-detail.package.tier.yoga-10" style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;"><span style="flex:1;min-width:0;"><span style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Yoga Morning Flow</span><span style="font-size:13px;color:var(--fit-text-tertiary);"> &middot; 10 sessions</span></span><span style="font-size:15px;font-weight:600;color:var(--fit-text-primary);">&euro;200</span></label>
+      <div id="cd-sell-body">
+        <!-- Tiers render from COACH_OFFERS, grouped by session — same grammar as the coach's
+             Packages tab (card per session, tiers inside) and the athlete's buy sheet. -->
+        <div id="cd-sell-tiers" style="margin-bottom:12px;"></div>
+
+        <!-- Payment method -->
+        <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--fit-text-tertiary);margin-bottom:8px;">Payment method</div>
+        <div class="fit-selection-group" style="padding:0;margin-bottom:10px;">
+          <div class="fit-selection-chip selected" id="cd-sell-cash" data-a11y-id="coach.client-detail.package.pay.cash" onclick="cdSellPay('cash')"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h2M20 10h2M2 14h2M20 14h2"/><circle cx="12" cy="12" r="3"/></svg> Cash</div>
+          <div class="fit-selection-chip" id="cd-sell-card" data-a11y-id="coach.client-detail.package.pay.card" onclick="cdSellPay('card')"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:24px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <span id="cd-sell-paytext" style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.45;">Cash packs are bookable right away — you approve each booking anyway. Mark the cash received once it&rsquo;s in hand.</span>
+        </div>
+
+        <button class="fit-btn fit-btn-primary" id="cd-sell-cta" data-a11y-id="coach.client-detail.package.sell.confirm" onclick="sellPackage()">Sell package</button>
       </div>
 
-      <!-- Payment method -->
-      <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--fit-text-tertiary);margin-bottom:8px;">Payment method</div>
-      <div class="fit-selection-group" data-fit-selection="single" style="padding:0;margin-bottom:10px;">
-        <div class="fit-selection-chip selected" data-value="cash" data-a11y-id="coach.client-detail.package.pay.cash"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h2M20 10h2M2 14h2M20 14h2"/><circle cx="12" cy="12" r="3"/></svg> Cash</div>
-        <div class="fit-selection-chip" data-value="card" data-a11y-id="coach.client-detail.package.pay.card"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card</div>
+      <!-- No packages configured yet → nothing to sell; send the coach to build one -->
+      <div id="cd-sell-empty" style="display:none;">
+        <div style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;margin-bottom:20px;">You haven&rsquo;t set up any packages yet. Create one on a training session, then sell it here.</div>
+        <button class="fit-btn fit-btn-primary" data-a11y-id="coach.client-detail.package.sell.create" onclick="window.location.href='./sessions.html#packages'">Create a package</button>
       </div>
-      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:24px;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
-        <span style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.45;">Credits activate when you mark cash received.</span>
-      </div>
-
-      <button class="fit-btn fit-btn-primary" data-a11y-id="coach.client-detail.package.sell.confirm" onclick="document.getElementById('cd-sell-package-sheet').classList.remove('visible');showClientSnack('Package sold to Anna')">Sell package</button>
     </div>
   </div>
 
@@ -1073,11 +1048,38 @@
       </div>
     </div>
     <div id="pkgd-action" style="padding:0 16px 8px;"></div>
-    <!-- Redemption ledger -->
-    <div class="fit-section-title--md">Sessions used</div>
-    <div style="padding:0 16px;" id="pkgd-history"></div>
-    <div class="fit-section-title--md" style="margin-top:8px;">Purchases</div>
-    <div style="padding:0 16px 24px;" id="pkgd-purchase"></div>
+
+    <!-- ONE activity stream: purchases (+N credits) and redemptions (−1) are events on the same
+         credit account, so they read chronologically together. A separate Purchases section broke
+         at ~20 lots exactly as the log did — and per-lot status isn't actionable anyway (FIFO
+         picks the lot, not the user). Filtering lives on the History screen's chips. -->
+    <div class="fit-section-title--md-row">
+      <span class="fit-section-title--md">Activity</span>
+      <button class="pkgd-seeall" id="pkgd-seeall" data-a11y-id="coach.package-detail.see-all" onclick="openPkgHistory()">See all <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+    <div id="pkgd-history" style="padding-bottom:24px;"></div>
+  </div>
+</div>
+
+<!-- ===== COACH: PACK HISTORY — the full redemption log, off the detail screen ===== -->
+<div class="fit-phone fit-dark" id="s-pkg-history">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.package-history.back" onclick="openPkgDetail(pkgdKey)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Activity</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div style="padding:4px 16px 12px;font-size:13px;color:var(--fit-text-tertiary);" id="pkgh-sub"></div>
+    <!-- Canonical quick-chip axis (same as the balance History) — one tap to "just the purchases" -->
+    <div class="fit-filter-row" id="pkgh-chips">
+      <button class="fit-filter-chip active" data-f="all" data-a11y-id="coach.package-history.filter" onclick="pkgHistFilter('all',this)">All</button>
+      <button class="fit-filter-chip" data-f="use" data-a11y-id="coach.package-history.filter" onclick="pkgHistFilter('use',this)">Sessions</button>
+      <button class="fit-filter-chip" data-f="buy" data-a11y-id="coach.package-history.filter" onclick="pkgHistFilter('buy',this)">Purchases</button>
+      <button class="fit-filter-chip" data-f="ret" data-a11y-id="coach.package-history.filter" onclick="pkgHistFilter('ret',this)">Returned</button>
+    </div>
+    <div style="padding-bottom:24px;" id="pkgh-list"></div>
   </div>
 </div>
 
@@ -1573,6 +1575,21 @@
       <button onclick="setArchivedRow(false,this)">No archived yet</button>
     </div>
     <p>CRM-style client list. Root tab screen (no back arrow).</p><ul><li><strong>"+"</strong> icon → calendar-style drawer with 4 options (Create profile / Import from contacts / Invite to app / Invite to training), each with a description line</li><li><strong>"€50 owed"</strong> red badge (Mark S.) — client has unpaid cash session</li><li><strong>Deleted accounts are NOT in this active list</strong> — when an athlete deletes their account the relationship is effectively dead, so it surfaces under Archived &amp; Blocked → <strong>Blocked</strong> (terminal, no unblock), not here. History stays intact.</li><li><strong>"CRM" badge</strong> (Marta V.) — coach-created contact without app account. Teal-tinted pill, normal avatar color. Coach tracks sessions/cash manually; can later Invite to app to upgrade.</li><li>Tap client → Client Detail</li></ul><hr><p class="note"><strong>"+" drawer actions:</strong><br>• <strong>Create profile</strong> → CRM form (New Client screen)<br>• <strong>Import from contacts</strong> → bulk-add from phone book → Import Done → mass invite (see Import Contacts annotation)<br>• <strong>Invite to app</strong> → native share drawer with the coach's OneLink. No intermediate screen.<br>• <strong>Invite to training</strong> → select training template, then a deep link with the event attached.</p><hr><p class="note"><strong>Empty:</strong> fresh coach — «Add first client» CTA opens the same add-client sheet. <strong>Loading:</strong> 4 skeleton rows during initial fetch. <strong>Archived row</strong> at bottom is hidden when 0 archived+blocked — appears only after first use.</p></div>
+  <div class="ann" id="ann-s-pkg-history"><span class="ann-role coach">Coach</span><h3>Package History</h3>
+    <p>The full redemption log for one client's pack — every <code>−1 credit</code>, combined across lots in FIFO order. Reached from <strong>See all</strong>; back returns to the pack.</p>
+    <ul><li>Exists so the pack detail stays scannable: at 900 redemptions the log can't live inline without burying the purchases and the summary.</li><li>Rows are illustrative/sampled.</li></ul>
+  </div>
+  <div class="ann" id="ann-s-pkg-detail"><span class="ann-role coach">Coach</span><h3>Package Detail</h3>
+    <p>One client's pack of one session type, coach-side. Symmetric with the athlete's own view (<code>my-coaches.html</code> <code>#s-pkg-detail</code>) — same summary, same ledger, different action.</p>
+    <ul>
+      <li><strong>Summary leads with "14 left"</strong> and the bar is scoped to the <strong>current (unexhausted) pack</strong>, not lifetime — a lifetime denominator creeps to "900 of 920" and reads ~97% full for the best client, and can't separate "14 left" from "2 left". Lifetime lives in the Purchases header ("2 packs · €510"). Status is <strong>derived</strong> from the lots (Active / N left amber / Used up / Unpaid), never stored — a stored status goes stale on sell, mark-paid and redeem.</li>
+      <li><strong>Action</strong> is contextual: running-low or used-up → <strong>Offer renewal</strong>; unpaid cash → <strong>Mark payment received</strong> (writes to the data and re-renders, so the card and this screen can't disagree); healthy → none.</li>
+      <li><strong>One activity stream.</strong> A purchase (<code>+20</code>) and a redemption (<code>−1</code>) are events on the <em>same credit account</em>, so they read chronologically together on canonical <strong><code>.fit-txn</code></strong> rows (intent icon + name + sub + date 3rd line + amount) — the same grammar as Earnings. Detail shows the <strong>3 most recent + See all N</strong>.</li>
+      <li><strong>Why not a separate Purchases section</strong> (tried 2026-07-15, removed): it broke at ~20 lots exactly as the redemption log did, and <strong>per-lot status isn't actionable</strong> — FIFO picks which lot burns, not the user. The only actionable facts are <em>how many left</em> (summary) and <em>what was paid</em> (History → Purchases chip).</li>
+      <li><strong>History = quick chips</strong> <code>All · Sessions · Purchases</code> (canonical <code>.fit-filter-row</code>, same axis as the balance ledger). "How many packs and when" = one tap, and it holds at 46 lots.</li>
+      <li>Data is illustrative; the redemption rows are sampled.</li>
+    </ul>
+  </div>
   <div class="ann" id="ann-s-client-detail"><span class="ann-role coach">Coach</span><h3>Client Detail</h3>
     <div class="state-toggle">
       <button class="active" onclick="setClientDetailState('default',this)">Filled</button>
@@ -1589,7 +1606,7 @@
     <div class="state-toggle" style="margin-top:8px;">
       <button onclick="resetMarkPaidDemo()">Reset Mark Paid demo</button>
     </div>
-    <p>Full athlete profile from coach's perspective.</p><ul><li><strong>Header:</strong> avatar, name, location, sport chips — always visible (instant header, reused from list)</li><li><strong>Stats card:</strong> Sessions | Upcoming | Revenue | Owed. Fresh = all zeros in muted color.</li><li><strong>Pending Payments:</strong> section appears only when unpaid exists (hidden at 0). Tap <strong>Manage</strong> on a pending card → bottom-sheet drawer with 2 options: <em>Mark as paid</em> (Owed↓ + Revenue↑) or <em>Waive payment</em> (Owed↓ only, €0 income, status <code>payment_waived</code>, silent to athlete). Both terminal. Snackbar confirms; card fades; badge decrements. Last card cleared → whole section collapses. Same drawer pattern as <code>balance.html#s-txn-cash</code> Manage payment.</li><li><strong>Upcoming Sessions:</strong> carousel of cards; when empty → outline card with <strong>Schedule training</strong> CTA</li><li><strong>Notes:</strong> outline card (transparent bg + divider border). Tap anywhere opens full-screen editor. Empty variant shows pencil + <strong>Add notes</strong>.</li><li><strong>Training History →</strong> row hidden when 0 sessions</li><li><strong>⋯ menu</strong> (header right): floating iOS UIMenu pattern. Menu items scoped per client state:<br>&bull; <strong>Normal</strong> → Schedule training / Edit / Archive / Block<br>&bull; <strong>Deleted</strong> → Archive only (can't act on a gone account)<br>&bull; <strong>CRM</strong> → Invite to app / Invite to training / Edit / Archive (no Schedule — no push target; no Block — not in app anyway)</li><li><strong>Status banners</strong> at top: Archived (gray, Restore) / Blocked (red, Unblock) / Deleted (gray, date-stamped, no action).</li><li><strong>CRM indicator</strong>: small teal <code>CRM</code> pill inline next to name (same pattern as in Clients list). No banner — less visual noise. «Invite to app» action lives in ⋯ menu.</li></ul><hr><p class="note"><strong>Schedule training</strong> (⋯ menu + fresh-state Upcoming CTA) → navigates to <code>invite.html?mode=schedule&amp;origin=s-client-detail</code>. Reuses Select Training + Date/Time screens with Request-badge review instead of Invitation-badge. Send Request → back to Client Detail.</p></div>
+    <p>Full athlete profile from coach's perspective.</p><ul><li><strong>Header:</strong> avatar, name, location, sport chips — always visible (instant header, reused from list)</li><li><strong>Stats card:</strong> Sessions | Upcoming | Revenue | Owed. Fresh = all zeros in muted color.</li><li><strong>Pending Payments:</strong> section appears only when unpaid exists (hidden at 0). Tap <strong>Manage</strong> on a pending card → bottom-sheet drawer with 2 options: <em>Mark as paid</em> (Owed↓ + Revenue↑) or <em>Waive payment</em> (Owed↓ only, €0 income, status <code>payment_waived</code>, silent to athlete). Both terminal. Snackbar confirms; card fades; badge decrements. Last card cleared → whole section collapses. Same drawer pattern as <code>balance.html#s-txn-cash</code> Manage payment.</li><li><strong>Upcoming Sessions:</strong> carousel of cards; when empty → outline card with <strong>Schedule training</strong> CTA</li><li><strong>Notes:</strong> outline card (transparent bg + divider border). Tap anywhere opens full-screen editor. Empty variant shows pencil + <strong>Add notes</strong>.</li><li><strong>Packages:</strong> one card per <em>session type</em>, aggregating that type's credit lots (a repeat buy stacks as a lot, it doesn't add a card — credits burn FIFO). Status is <strong>derived</strong> from the lots: unpaid → dashed <em>Pending payment</em> + <strong>Mark received</strong> (bookable meanwhile — the coach approves each booking anyway); ≤1 left → amber + <strong>Offer renewal</strong>; 0 left → <em>Used up</em> + renewal. Tap → pack detail. Section <strong>+</strong> → <strong>Sell a package</strong>: tiers grouped by session with the same €/session + save% math the athlete sees, Cash/Card, live CTA. Empty client → "No packages yet"; coach with no packs → CTA into <code>sessions.html#packages</code>.</li><li><strong>Training History →</strong> row hidden when 0 sessions</li><li><strong>⋯ menu</strong> (header right): floating iOS UIMenu pattern. Menu items scoped per client state:<br>&bull; <strong>Normal</strong> → Schedule training / Edit / Archive / Block<br>&bull; <strong>Deleted</strong> → Archive only (can't act on a gone account)<br>&bull; <strong>CRM</strong> → Invite to app / Invite to training / Edit / Archive (no Schedule — no push target; no Block — not in app anyway)</li><li><strong>Status banners</strong> at top: Archived (gray, Restore) / Blocked (red, Unblock) / Deleted (gray, date-stamped, no action).</li><li><strong>CRM indicator</strong>: small teal <code>CRM</code> pill inline next to name (same pattern as in Clients list). No banner — less visual noise. «Invite to app» action lives in ⋯ menu.</li></ul><hr><p class="note"><strong>Schedule training</strong> (⋯ menu + fresh-state Upcoming CTA) → navigates to <code>invite.html?mode=schedule&amp;origin=s-client-detail</code>. Reuses Select Training + Date/Time screens with Request-badge review instead of Invitation-badge. Send Request → back to Client Detail.</p></div>
   <div class="ann" id="ann-s-client-history"><span class="ann-role coach">Coach</span><h3>Client History</h3>
     <div class="state-toggle">
       <button class="active" onclick="setClientHistoryState('default',this)">Filled</button>
@@ -1924,19 +1941,16 @@ function pkgClientRenew(btn){
   btn.textContent = 'Offer sent';
   btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'default';
 }
+// Writes to CLIENT_PACKS and re-renders — a DOM-only flip used to leave the data unpaid, so the
+// card said "Paid" while re-opening its detail still demanded payment.
 function pkgClientMarkPaid(btn){
+  var card = btn.closest('.pkg-punch');
+  var key = card ? card.getAttribute('data-pkg-key') : pkgdKey;
+  var p = CLIENT_PACKS[key]; if(!p) return;
+  p.lots.forEach(function(l){ if(!l.paid){ l.paid = true; l.method = 'Cash'; } });
   showClientSnack('Payment received · pack marked paid');
-  var card = btn.closest('.pkg-punch--pending');
-  if(card){
-    card.classList.remove('pkg-punch--pending');
-    var line = card.querySelector('.cd-pend-line'); if(line) line.textContent = 'Paid · 10 sessions ready to book';
-    var pill = card.querySelector('.cd-pend-pill'); if(pill){ pill.textContent = 'Paid'; pill.style.background = 'rgba(5,224,166,0.14)'; pill.style.color = 'var(--fit-teal-500)'; }
-    var b = card.querySelector('button[data-a11y-id*="mark-received"]'); if(b) b.outerHTML = '<span style="font-size:13px;font-weight:500;color:var(--fit-teal-500);">Paid</span>';
-  } else {
-    var st = document.getElementById('pkgd-status'); if(st) st.innerHTML = '<span style="font-size:13px;font-weight:500;color:var(--fit-teal-500);">Paid</span>';
-    var act = document.getElementById('pkgd-action'); if(act) act.innerHTML = '';
-    var pu = document.getElementById('pkgd-purchase'); if(pu){ var un = pu.querySelector('.pkgd-payline'); if(un){ un.style.color = 'var(--fit-green-500)'; un.textContent = 'Paid · Cash'; } }
-  }
+  renderClientPacks();
+  if(!card) openPkgDetail(key); // re-entered from the detail screen → re-render it in place
 }
 
 var PKG_ICON = {
@@ -1951,25 +1965,249 @@ var PKG_SAMPLE = [
 ];
 // Each pack = one or more credit LOTS (repeat/upgrade purchases). Credits burn FIFO.
 var CLIENT_PACKS = {
-  basketball: {name:'Basketball Training', type:'personal', status:'active', lots:[
-    {n:20, total:'€400', bought:'Apr 1', method:'Card', paid:true, used:6, tag:'Upgrade → 20-pack'},
-    {n:5,  total:'€110', bought:'Mar 1', method:'Card', paid:true, used:5, tag:null}
+  basketball: {name:'Basketball Training', type:'personal', returned:1, lots:[
+    {n:20, total:400, bought:'Apr 1', method:'Card', paid:true, used:6},
+    {n:5,  total:110, bought:'Mar 1', method:'Card', paid:true, used:5}
   ]},
-  hiit: {name:'HIIT Group Session', type:'group', status:'low', lots:[
-    {n:5, total:'€200', bought:'Mar 20', method:'Card', paid:true, used:4, tag:null}
+  hiit: {name:'HIIT Group Session', type:'group', lots:[
+    {n:5, total:200, bought:'Mar 20', method:'Card', paid:true, used:4}
   ]},
-  yoga: {name:'Yoga Morning Flow', type:'group', status:'pending', lots:[
-    {n:10, total:'€200', bought:'2h ago', method:'Cash', paid:false, used:0, tag:null}
+  yoga: {name:'Yoga Morning Flow', type:'group', lots:[
+    {n:10, total:200, bought:'2h ago', method:'Cash', paid:false, used:0}
   ]}
 };
-function pkgLotBadge(tag){
-  if(!tag) return '';
-  return ' <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--fit-selection-gradient);color:var(--fit-teal-500);white-space:nowrap;">' + tag + '</span>';
+// The coach's sellable offers = their packages (mirrors sessions.html PKG_TEMPLATES).
+// `single` feeds the per-session/discount math so a tier reads the same here as it does
+// in the coach's package editor and in the athlete's buy sheet.
+var COACH_OFFERS = [
+  {key:'basketball', name:'Basketball Training', type:'personal', single:25, tiers:[{n:5,total:110},{n:20,total:400}]},
+  {key:'hiit',       name:'HIIT Group Session',  type:'group',    single:25, tiers:[{n:10,total:200}]},
+  {key:'yoga',       name:'Yoga Morning Flow',   type:'group',    single:15, tiers:[{n:10,total:120}]}
+];
+var cdSell = { key:null, n:0, total:0, method:'cash' };
+
+// Status is DERIVED from the lots, never stored — a stored status silently goes stale on
+// sell / mark-paid / redeem, and had no 'depleted' case at all (a used-up pack rendered "Unpaid").
+function packState(p){
+  var n = 0, used = 0, unpaid = false, actN = 0, actUsed = 0, spend = 0;
+  p.lots.forEach(function(l){
+    n += l.n; used += l.used; spend += l.total;
+    if(!l.paid) unpaid = true;
+    // Only lots with credits still in them drive the bar — see `pct` below.
+    if(l.used < l.n){ actN += l.n; actUsed += l.used; }
+  });
+  var left = n - used;
+  var lowAt = actN ? Math.max(1, Math.ceil(actN * 0.2)) : 1;
+  return { n:n, used:used, left:left, packs:p.lots.length, spend:spend, unpaid:unpaid,
+           actN:actN, actUsed:actUsed,
+           // Bar is scoped to UNEXHAUSTED lots, not lifetime: a lifetime denominator creeps to
+           // "900 of 920" and reads ~97% full — nearly-done — for the most loyal client, and at
+           // that scale can't separate "14 left" from "2 left". Used-up lots live in Purchases.
+           pct: actN ? Math.round(actUsed / actN * 100) : 100,
+           lowAt: lowAt,
+           // "Running low" = 20% of the ACTIVE pack, floored at 1 — must match the notification
+           // milestone (notifications-catalog.md § 1.1), or the coach gets "Anna is running low"
+           // and opens a green card. A flat `left <= 1` warns on the LAST session of a 20-pack.
+           status: unpaid ? 'pending' : (left === 0 ? 'depleted' : (left <= lowAt ? 'low' : 'active')) };
 }
+
+function renderClientPacks(){
+  var list = document.getElementById('cd-packs-list');
+  if(!list) return;
+  var keys = Object.keys(CLIENT_PACKS);
+  document.getElementById('cd-packs-empty').style.display = keys.length ? 'none' : '';
+  list.innerHTML = keys.map(function(key){
+    var p = CLIENT_PACKS[key], st = packState(p);
+    var typeL = p.type === 'personal' ? 'Personal' : (p.type === 'group' ? 'Group' : 'Self-paced');
+    var sub = st.packs > 1 ? typeL + ' · ' + st.packs + ' packs' : typeL + ' · ' + p.lots[0].n + '-session pack';
+    var mod = st.status === 'pending' ? ' pkg-punch--pending' : (st.status === 'low' ? ' pkg-punch--low' : '');
+
+    var midRow, metaRight, metaLeft;
+    if(st.status === 'pending'){
+      var owed = p.lots.filter(function(l){ return !l.paid; }).reduce(function(a,l){ return a + l.total; }, 0);
+      midRow = '<span class="pkg-punch-sub cd-pend-line" style="flex:1;">Cash not received yet · you still approve each booking</span>' +
+               '<span class="cd-pend-pill" style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--fit-surface-higher);color:var(--fit-text-tertiary);">Unpaid</span>';
+      metaLeft = '€' + owed + ' · ' + st.n + ' sessions';
+      metaRight = '<button class="fit-btn fit-btn-primary fit-btn-xs" data-a11y-id="coach.client-detail.package.mark-received" onclick="event.stopPropagation();pkgClientMarkPaid(this)">Mark received</button>';
+    } else {
+      var leftEl = st.status === 'low'
+        ? '<span class="pkg-lowpill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>' + st.left + ' left</span>'
+        : '<span class="pkg-punch-left">' + (st.status === 'depleted' ? 'Used up' : st.left + ' left') + '</span>';
+      midRow = '<div class="pkg-bar"><div class="pkg-bar-fill" style="width:' + st.pct + '%;"></div></div>' + leftEl;
+      // Counter follows the bar: the CURRENT pack, not the lifetime total.
+      metaLeft = st.status === 'depleted'
+        ? st.used + ' of ' + st.n + ' used'
+        : st.actUsed + ' of ' + st.actN + ' used' + (st.packs > 1 ? ' · current pack' : ' · no expiry');
+      metaRight = (st.status === 'low' || st.status === 'depleted')
+        ? '<button class="fit-btn fit-btn-secondary fit-btn-xs" data-a11y-id="coach.client-detail.package.renew" onclick="event.stopPropagation();pkgClientRenew(this)">Offer renewal</button>'
+        : '<span style="font-size:13px;font-weight:500;color:var(--fit-teal-500);">Active</span>';
+    }
+
+    return '<div class="pkg-punch' + mod + '" data-pkg-key="' + key + '" data-a11y-id="coach.client-detail.package.open" style="cursor:pointer;" onclick="openPkgDetail(\'' + key + '\')">' +
+      '<div class="pkg-punch-head">' +
+        '<div class="pkg-punch-ic" style="background:var(--fit-grad-type-' + p.type + ');">' + (PKG_ICON[p.type] || PKG_ICON.personal) + '</div>' +
+        '<div class="pkg-punch-tt"><div class="pkg-punch-name">' + p.name + '</div><div class="pkg-punch-coach">' + sub + '</div></div>' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>' +
+      '</div>' +
+      '<div class="pkg-dots-row">' + midRow + '</div>' +
+      '<div class="pkg-punch-meta"><span class="pkg-punch-sub">' + metaLeft + '</span>' + metaRight + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// ----- Sell a package -----
+function cdSellRender(){
+  var wrap = document.getElementById('cd-sell-tiers');
+  var offers = COACH_OFFERS.filter(function(o){ return o.tiers.length; });
+  document.getElementById('cd-sell-empty').style.display = offers.length ? 'none' : '';
+  document.getElementById('cd-sell-body').style.display = offers.length ? '' : 'none';
+  var first = true, html = '';
+  offers.forEach(function(o){
+    html += '<div class="cd-sell-group">' + o.name + '</div>';
+    o.tiers.forEach(function(t){
+      var per = Math.round(t.total / t.n * 100) / 100;
+      var pct = o.single > 0 ? Math.round((1 - per / o.single) * 100) : 0;
+      var sel = first ? ' selected' : '';
+      if(first){ cdSell = {key:o.key, n:t.n, total:t.total, method:cdSell.method}; first = false; }
+      html += '<div class="pkg-buy-tier' + sel + '" data-a11y-id="coach.client-detail.package.tier"' +
+        ' onclick="cdSellTier(this,\'' + o.key + '\',' + t.n + ',' + t.total + ')">' +
+        '<div class="pkg-buy-tier-main">' +
+          '<div class="pkg-buy-tier-t">' + t.n + ' sessions</div>' +
+          '<div class="pkg-buy-tier-s">€' + t.total + ' · €' + per + ' / session</div>' +
+          (pct > 0 ? '<div class="pkg-buy-tier-save">Save ' + pct + '% vs €' + o.single + ' single</div>' : '') +
+        '</div><div class="pkg-buy-radio"></div></div>';
+    });
+  });
+  wrap.innerHTML = html;
+  cdSellCta();
+}
+function cdSellTier(el, key, n, total){
+  document.querySelectorAll('#cd-sell-tiers .pkg-buy-tier').forEach(function(t){ t.classList.remove('selected'); });
+  el.classList.add('selected');
+  cdSell.key = key; cdSell.n = n; cdSell.total = total;
+  cdSellCta();
+}
+function cdSellPay(method){
+  cdSell.method = method;
+  document.getElementById('cd-sell-paytext').textContent = method === 'cash'
+    ? 'Cash packs are bookable right away — you approve each booking anyway. Mark the cash received once it’s in hand.'
+    : 'Charged to Anna’s card now. Her sessions are ready to book right away.';
+  cdSellCta();
+}
+function cdSellCta(){
+  document.getElementById('cd-sell-cta').textContent = 'Sell ' + cdSell.n + ' sessions · €' + cdSell.total;
+}
+function openSellPackage(){
+  cdSellRender();
+  cdSellPay(cdSell.method);
+  document.getElementById('cd-sell-package-sheet').classList.add('visible');
+}
+// A repeat purchase of the same session type is a NEW LOT on the existing pack (decision #10,
+// credits burn FIFO) — not a second card. Only a new session type creates a card.
+function sellPackage(){
+  var o = COACH_OFFERS.find(function(x){ return x.key === cdSell.key; });
+  if(!o) return;
+  var paid = cdSell.method === 'card';
+  var existing = CLIENT_PACKS[cdSell.key];
+  var lot = {n:cdSell.n, total:cdSell.total, bought:'Just now', method:paid ? 'Card' : 'Cash', paid:paid, used:0};
+  if(existing) existing.lots.unshift(lot);
+  else CLIENT_PACKS[cdSell.key] = {name:o.name, type:o.type, lots:[lot]};
+  renderClientPacks();
+  document.getElementById('cd-sell-package-sheet').classList.remove('visible');
+  showClientSnack(paid
+    ? cdSell.n + '-session pack sold to Anna · card charged'
+    : cdSell.n + '-session pack sold · collect €' + cdSell.total + ' in cash');
+}
+
+
+// ===== One credit account = one event stream =====
+// Purchases (+N credits) and redemptions (−1) are events on the same ledger, so they render as
+// one chronological list of canonical .fit-txn rows (icon + title + sub + meta 3rd line + amount).
+// Order is derived from FIFO (a lot's redemptions sit between its purchase and the next lot's);
+// the dates are illustrative — the ORDER is what this demonstrates.
+var PKG_MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function pkgMockWhen(i){                       // i = 0 is the newest event
+  var d = new Date(2026, 3, 14);               // walk back ~3 days per event
+  d.setDate(d.getDate() - i * 3);
+  var dow = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+  return dow + ', ' + PKG_MON[d.getMonth()] + ' ' + d.getDate();
+}
+function pkgEvents(p){
+  var ev = [];
+  p.lots.slice().reverse().forEach(function(l){          // oldest lot first
+    ev.push({type:'buy', lot:l});
+    for(var i = 0; i < l.used; i++) ev.push({type:'use', loc: PKG_SAMPLE[i % PKG_SAMPLE.length].loc});
+  });
+  // A cancelled booking returns its credit (see session-packages.md #6) — illustrative sample.
+  if(p.returned) ev.push({type:'ret', loc: PKG_SAMPLE[0].loc});
+  ev.reverse();                                          // newest first
+  ev.forEach(function(e, i){ e.when = pkgMockWhen(i); });
+  return ev;
+}
+// Intent carries in the COLOUR (--in / --out / --info); the glyph stays domain-specific.
+// Maps 1:1 onto the balance ledger: buy = top-up, use = spend, returned = refund
+// (payments.md: "refund — --info blue icon, teal +"). Red is reserved for problems; a
+// returned credit isn't one.
+function pkgEventRow(e, p){
+  if(e.type === 'buy'){
+    var l = e.lot;
+    var pay = l.paid ? l.method + ' · Paid' : l.method + ' · <span style="color:var(--fit-yellow-600);font-weight:500;">Unpaid</span>';
+    return '<div class="fit-txn">' +
+      '<div class="fit-txn-icon fit-txn-icon--in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg></div>' +
+      '<div class="fit-txn-body"><div class="fit-txn-title">' + l.n + '-session pack</div>' +
+        '<div class="fit-txn-sub">' + pay + '</div>' +
+        '<div class="fit-txn-meta">' + e.when + ' · €' + l.total + '</div></div>' +
+      '<div class="fit-txn-amt fit-txn-amt--plus">+' + l.n + '</div>' +
+    '</div>';
+  }
+  if(e.type === 'ret'){
+    return '<div class="fit-txn">' +
+      '<div class="fit-txn-icon fit-txn-icon--info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 015 5v1"/></svg></div>' +
+      '<div class="fit-txn-body"><div class="fit-txn-title">' + p.name + '</div>' +
+        '<div class="fit-txn-sub">Returned &middot; booking cancelled</div>' +
+        '<div class="fit-txn-meta">' + e.when + ' · ' + e.loc + '</div></div>' +
+      '<div class="fit-txn-amt fit-txn-amt--plus">+1</div>' +
+    '</div>';
+  }
+  return '<div class="fit-txn">' +
+    '<div class="fit-txn-icon fit-txn-icon--out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/></svg></div>' +
+    '<div class="fit-txn-body"><div class="fit-txn-title">' + p.name + '</div>' +
+      '<div class="fit-txn-sub">' + e.loc + '</div>' +
+      '<div class="fit-txn-meta">' + e.when + ' · 08:00</div></div>' +
+    '<div class="fit-txn-amt fit-txn-amt--minus">&minus;1</div>' +
+  '</div>';
+}
+function pkgEventList(p, events){
+  if(!events.length) return '<div style="padding:14px 16px;font-size:14px;color:var(--fit-text-tertiary);">Nothing here yet.</div>';
+  return '<div class="fit-txn-group">' + events.map(function(e){ return pkgEventRow(e, p); }).join('') + '</div>';
+}
+var pkgHistF = 'all';
+function openPkgHistory(){
+  var p = CLIENT_PACKS[pkgdKey]; if(!p) return;
+  var st = packState(p);
+  document.getElementById('pkgh-sub').textContent = p.name + ' · ' + st.packs + (st.packs > 1 ? ' packs' : ' pack') + ' · €' + st.spend + ' · ' + st.used + ' of ' + st.n + ' credits used';
+  pkgHistF = 'all';
+  document.querySelectorAll('#pkgh-chips .fit-filter-chip').forEach(function(c){ c.classList.toggle('active', c.dataset.f === 'all'); });
+  pkgHistRender();
+  go('s-pkg-history', null);
+}
+function pkgHistFilter(f, btn){
+  pkgHistF = f;
+  btn.parentElement.querySelectorAll('.fit-filter-chip').forEach(function(c){ c.classList.remove('active'); });
+  btn.classList.add('active');
+  pkgHistRender();
+}
+function pkgHistRender(){
+  var p = CLIENT_PACKS[pkgdKey]; if(!p) return;
+  var ev = pkgEvents(p).filter(function(e){ return pkgHistF === 'all' || e.type === pkgHistF; });
+  document.getElementById('pkgh-list').innerHTML = pkgEventList(p, ev);
+}
+var pkgdKey = null; // which pack #s-pkg-detail is currently showing
 function openPkgDetail(key){
   var p = CLIENT_PACKS[key]; if(!p) return;
-  var totalN = 0, totalUsed = 0; p.lots.forEach(function(l){ totalN += l.n; totalUsed += l.used; });
-  var left = totalN - totalUsed, packs = p.lots.length;
+  pkgdKey = key;
+  var stt = packState(p);
+  var totalN = stt.n, totalUsed = stt.used, left = stt.left, packs = stt.packs, status = stt.status;
   var typeLabel = p.type === 'personal' ? 'Personal' : (p.type === 'group' ? 'Group' : 'Self-paced');
   var ic = document.getElementById('pkgd-ic');
   ic.style.background = 'var(--fit-grad-type-' + p.type + ')';
@@ -1977,53 +2215,26 @@ function openPkgDetail(key){
   document.getElementById('pkgd-name').textContent = p.name;
   document.getElementById('pkgd-sub').textContent = packs > 1 ? (typeLabel + ' · ' + packs + ' packs · ' + totalN + ' sessions') : (typeLabel + ' · ' + totalN + '-session pack');
   var bar = document.getElementById('pkgd-bar');
-  bar.style.width = Math.round(totalUsed / totalN * 100) + '%';
-  bar.style.background = p.status === 'low' ? 'var(--fit-yellow-400)' : 'var(--fit-teal-500)';
-  document.getElementById('pkgd-left').textContent = p.status === 'pending' ? totalN + ' ready' : left + ' left';
-  document.getElementById('pkgd-count').textContent = totalUsed + ' of ' + totalN + ' used · ' + (packs > 1 ? packs + ' packs' : 'no expiry');
+  bar.style.width = stt.pct + '%';
+  bar.style.background = status === 'low' ? 'var(--fit-yellow-400)' : 'var(--fit-teal-500)';
+  document.getElementById('pkgd-left').textContent = status === 'pending' ? totalN + ' ready' : (status === 'depleted' ? 'Used up' : left + ' left');
+  // Counter matches the bar — the CURRENT pack. Lifetime lives in the Purchases header.
+  document.getElementById('pkgd-count').textContent = status === 'depleted'
+    ? totalUsed + ' of ' + totalN + ' used'
+    : stt.actUsed + ' of ' + stt.actN + ' used' + (packs > 1 ? ' · current pack' : ' · no expiry');
   var st = document.getElementById('pkgd-status');
-  if(p.status === 'active') st.innerHTML = '<span style="font-size:13px;font-weight:500;color:var(--fit-teal-500);">Active</span>';
-  else if(p.status === 'low') st.innerHTML = '<span class="pkg-lowpill">' + left + ' left</span>';
+  if(status === 'active') st.innerHTML = '<span style="font-size:13px;font-weight:500;color:var(--fit-teal-500);">Active</span>';
+  else if(status === 'low') st.innerHTML = '<span class="pkg-lowpill">' + left + ' left</span>';
+  else if(status === 'depleted') st.innerHTML = '<span style="font-size:13px;font-weight:500;color:var(--fit-text-tertiary);">Used up</span>';
   else st.innerHTML = '<span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--fit-surface-higher);color:var(--fit-text-tertiary);">Unpaid</span>';
   var act = document.getElementById('pkgd-action');
-  if(p.status === 'low') act.innerHTML = '<button class="fit-btn fit-btn-secondary" style="width:100%;border-radius:99px;" onclick="pkgClientRenew(this)">Offer renewal</button>';
-  else if(p.status === 'pending') act.innerHTML = '<button class="fit-btn fit-btn-primary" style="width:100%;border-radius:99px;" onclick="pkgClientMarkPaid(this)">Mark payment received</button>';
+  if(status === 'low' || status === 'depleted') act.innerHTML = '<button class="fit-btn fit-btn-secondary" style="width:100%;border-radius:99px;" onclick="pkgClientRenew(this)">Offer renewal</button>';
+  else if(status === 'pending') act.innerHTML = '<button class="fit-btn fit-btn-primary" style="width:100%;border-radius:99px;" onclick="pkgClientMarkPaid(this)">Mark payment received</button>';
   else act.innerHTML = '';
-  var h = document.getElementById('pkgd-history'); h.innerHTML = '';
-  if(totalUsed === 0){
-    h.innerHTML = '<div style="padding:14px 0;font-size:14px;color:var(--fit-text-tertiary);">No sessions used yet — credits are ready to book.</div>';
-  } else {
-    for(var i=0;i<totalUsed;i++){
-      var s = PKG_SAMPLE[i % PKG_SAMPLE.length];
-      var last = i === totalUsed - 1;
-      h.innerHTML += '<div style="padding:14px 0;' + (last ? '' : 'border-bottom:1px solid var(--fit-divider);') + '">' +
-        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">' +
-          '<div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">' + p.name + '</div>' +
-          '<span style="font-size:12px;font-weight:600;color:var(--fit-teal-500);">&minus;1 credit</span>' +
-        '</div>' +
-        '<div style="font-size:12px;color:var(--fit-text-tertiary);">' + s.d + ' · ' + s.loc + '</div>' +
-      '</div>';
-    }
-  }
-  var pu = '';
-  p.lots.forEach(function(l, idx){
-    var lotLeft = l.n - l.used;
-    var last = idx === p.lots.length - 1;
-    var payline = l.paid
-      ? '<span class="pkgd-payline" style="font-size:12px;color:var(--fit-green-500);">Paid</span>'
-      : '<span class="pkgd-payline" style="font-size:12px;color:var(--fit-yellow-600);">Unpaid · ' + l.total + ' cash owed</span>';
-    var remain = lotLeft <= 0 ? 'Used up' : lotLeft + ' left';
-    pu += '<div style="padding:14px 0;' + (last ? '' : 'border-bottom:1px solid var(--fit-divider);') + '">' +
-      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">' +
-        '<div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">' + l.n + '-session pack' + pkgLotBadge(l.tag) + '</div>' +
-        '<span style="font-size:14px;font-weight:600;color:var(--fit-text-primary);">' + l.total + '</span>' +
-      '</div>' +
-      '<div style="font-size:12px;color:var(--fit-text-tertiary);">' + l.bought + ' · ' + l.method + '</div>' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">' + payline +
-        '<span style="font-size:12px;color:var(--fit-text-tertiary);">' + remain + '</span></div>' +
-    '</div>';
-  });
-  document.getElementById('pkgd-purchase').innerHTML = pu;
+  var PREVIEW = 3;
+  var events = pkgEvents(p);
+  document.getElementById('pkgd-seeall').style.display = events.length > PREVIEW ? '' : 'none';
+  document.getElementById('pkgd-history').innerHTML = pkgEventList(p, events.slice(0, PREVIEW));
   go('s-pkg-detail', null);
 }
 
@@ -2172,6 +2383,8 @@ function finishShare(channel) {
     showClientSnack(msg);
   }
 }
+
+renderClientPacks(); // seed the client's Packages section from CLIENT_PACKS
 
 // Deep-link via URL hash (e.g. clients.html#s-client-detail).
 (function() {

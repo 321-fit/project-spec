@@ -1,6 +1,6 @@
 # Self-paced Training (online / async)
 
-> Status: **Approved** — flow prototyped & reviewed, ready for task breakdown. (Deferred from v1: video library, packages/series, progress-over-time — see §9.)
+> Status: **Approved** — flow prototyped & reviewed, ready for task breakdown. (Deferred from v1: video library, progress-over-time — see §9. Packages are **no longer deferred** — they cover self-paced too, spec'd in [session-packages.md](./session-packages.md); see §8.)
 > Prototype: [flows/shared/self-paced.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/self-paced.html) (isolated module; screens split into real surfaces per §5)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
 > Last updated: 2026-07-02
@@ -115,7 +115,7 @@ Get ready (3-2-1, voiced)  →  WORK set  →  Rest (voiced countdown, auto-flow
 
 - Price lives on the **offering** (coach sets it, typically **below** their live rate). v1 = single price per offering (one generic offering for now).
 - Booking self-paced = simplified confirm (price + pay from balance, optional note) — **no time-slot grid** (no live time). Coach-initiated (athlete hasn't paid) → athlete's Welcome CTA is "Pay €X & start".
-- Packages = Phase 2 (separate block, applies to all training types).
+- **Packages apply to self-paced** like any other type — a pack is N sessions of one template, and the type doesn't change the mechanism. Specified separately in [session-packages.md](./session-packages.md) (decision #7); the base-session picker already lists self-paced offerings. *(Was "Phase 2" — written before the packages spec existed. Updated 2026-07-15.)*
 
 ---
 

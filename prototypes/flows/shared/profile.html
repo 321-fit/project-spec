@@ -1483,7 +1483,11 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
           <span style="flex:1;font-size:14px;color:var(--fit-text-secondary);">TNT Studio, Riga</span>
         </div>
-        <div class="pkg-buy-strip" data-a11y-id="athlete.booking.catalog.buy-pack" onclick="event.stopPropagation();openPkgBuy('Basketball Training')">
+        <!-- Upsell shows ONLY when the athlete holds no credits for this session. Once they own a
+             pack, re-pitching it is noise — running out is handled by the low/used-up milestone
+             notifications (notifications-catalog.md § 1.1), which land at the moment that matters
+             and deep-link straight back to this buy sheet. -->
+        <div class="pkg-buy-strip" id="pkg-buy-strip-basketball" data-a11y-id="athlete.booking.catalog.buy-pack" onclick="event.stopPropagation();openPkgBuy('Basketball Training')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
           <span class="pkg-buy-txt">Save with a 5-pack &middot; from &euro;40/session</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
@@ -1572,13 +1576,21 @@
       </div>
       <div style="display:flex;align-items:flex-start;gap:8px;padding:0 0 20px;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
-        <span id="pkg-buy-paytext" style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.5;">Pay John in person. Your sessions unlock once he confirms the cash — then book them anytime, no expiry.</span>
+        <span id="pkg-buy-paytext" style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.5;">Pay John in person. Your pack stays pending until he confirms &mdash; you can still book sessions right away (he approves each booking anyway). No expiry.</span>
+      </div>
+
+      <!-- Prepay disclaimer — applies to BOTH methods: a pack is paid straight to the coach and
+           the platform holds nothing back, so refunds are his call. Soft framing: set expectations,
+           don't scare. Reuses the canonical .fit-banner--info (same affordance as coach s-pending). -->
+      <div class="fit-banner fit-banner--info" style="margin:0 0 16px;" data-a11y-id="athlete.booking.buy-pack.prepay-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span>Paid upfront, directly to <span class="pkg-buy-coach">John</span>. Any refund for unused sessions is arranged with him.</span>
       </div>
 
       <button class="fit-btn fit-btn-primary" id="pkg-buy-cta" onclick="pkgBuyConfirm()" style="border-radius:99px;">Buy 5 sessions &middot; &euro;200</button>
     </div>
   </div>
-  <div class="fit-snackbar" id="pkg-buy-snack">Pack reserved &middot; pay John in person to activate</div>
+  <div class="fit-snackbar" id="pkg-buy-snack">Pack reserved &middot; pay John in person</div>
 
   <!-- ===== Package buy SUCCESS sheet — celebrates + hands off to the first booking ===== -->
   <div class="fit-sheet-overlay" id="pkg-success-sheet">
@@ -1851,7 +1863,13 @@
     </div>
   </div>
   <div class="ann" id="ann-s-reviews"><span class="ann-role athlete">Athlete</span><h3>All Reviews</h3><p>Full reviews screen pushed from Coach Profile v2 carousel or "Show all reviews".</p><ul><li><strong>Rating summary:</strong> large score + stars + breakdown bars (5→1)</li><li><strong>Category ratings:</strong> horizontal scroll chips (Technique, Communication, Punctuality, Motivation)</li><li><strong>Full reviews:</strong> vertical scroll, no line clamp, dividers between</li></ul></div>
-  <div class="ann" id="ann-s-book-sessions"><span class="ann-role athlete">Athlete</span><h3>Book Trainings</h3><p>Pushed from Coach Profile v2 "Book Training" CTA. <strong>Grouped by type</strong> (no tabs — 3–6 types, tabs were overkill). Empty types simply don't render (coach with no group → no Group section).</p><ul><li><strong>Type = colour</strong>: Personal <code>teal</code>, Group <code>blue</code>, Self-paced <code>violet</code> (header gradient only; Book CTA stays brand). Violet is a new token (<code>--fit-color-violet-*</code>) added for type differentiation — TODO promote to Figma.</li><li><strong>Compact cards, tap the whole card</strong> — no inline Book button (booking confirm is always a sheet anyway). Header (icon · title · sub · price · chevron) + one strip line. Mirrors the coach <code>sessions.html#s-list</code> card.</li><li><strong>Group</strong> — strip-right keeps availability ("Next Thu · 3/10"); special one-off = blue border + "Special · 5/20". Tap → group detail.</li><li><strong>Personal</strong> — location / home-visit strip. Tap → booking time-grid → confirm sheet.</li><li><strong>Self-paced</strong> — "do it anytime" strip, lower price. Tap → day-bound confirm sheet.</li><li>Vertical list throughout (no horizontal scroll)</li></ul></div>
+  <div class="ann" id="ann-s-book-sessions"><span class="ann-role athlete">Athlete</span><h3>Book Trainings</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setUpsellState('none',this)">No pack held</button>
+      <button onclick="setUpsellState('held',this)">Already holds a pack</button>
+    </div>
+    <p>Pushed from Coach Profile v2 "Book Training" CTA. <strong>Grouped by type</strong> (no tabs — 3–6 types, tabs were overkill). Empty types simply don't render (coach with no group → no Group section).</p><ul><li><strong>Type = colour</strong>: Personal <code>teal</code>, Group <code>blue</code>, Self-paced <code>violet</code> (header gradient only; Book CTA stays brand). Violet is a new token (<code>--fit-color-violet-*</code>) added for type differentiation — TODO promote to Figma.</li><li><strong>Compact cards, tap the whole card</strong> — no inline Book button (booking confirm is always a sheet anyway). Header (icon · title · sub · price · chevron) + one strip line. Mirrors the coach <code>sessions.html#s-list</code> card.</li><li><strong>Group</strong> — strip-right keeps availability ("Next Thu · 3/10"); special one-off = blue border + "Special · 5/20". Tap → group detail.</li><li><strong>Personal</strong> — location / home-visit strip. Tap → booking time-grid → confirm sheet.</li><li><strong>Self-paced</strong> — "do it anytime" strip, lower price. Tap → day-bound confirm sheet.</li><li>Vertical list throughout (no horizontal scroll)</li>
+      <li><strong>Pack upsell strip</strong> ("Save with a 5-pack") shows <strong>only when the athlete holds no credits</strong> for that session — re-pitching a pack you already own is noise. Running low is not this strip's job: the <strong>milestone notifications</strong> (<code>notifications-catalog.md</code> § 1.1 — fire at 20% of the pack, floored at 1, then again at 0) land at the moment that matters and deep-link straight back to this buy sheet.</li></ul></div>
 </div>
 
 <script src="../../lib/fit-ui.js"></script>
@@ -2308,6 +2326,21 @@ function openBookingConfirmHV(){ setHV(true); go('s-booking', null); setTimeout(
 
 // ===== Session packages — buy (prepaid pass) + redeem (burn a credit) =====
 var pkgBuyN = 5, pkgBuyTotal = 200, pkgBuyMethod = 'cash';
+// Credits the athlete already holds, per session (illustrative). The catalog upsell is
+// suppressed once they hold any: re-pitching a pack you already own is noise. Running out is
+// handled by the low / used-up milestone notifications (notifications-catalog.md § 1.1), which
+// fire at the moment that matters and deep-link back to this same buy sheet.
+var ATH_HELD = { 'Basketball Training': 0 };
+function renderPkgUpsell(){
+  var strip = document.getElementById('pkg-buy-strip-basketball');
+  if(strip) strip.style.display = ATH_HELD['Basketball Training'] > 0 ? 'none' : '';
+}
+// Annotation demo: flip between "no credits" (upsell shown) and "holds a pack" (upsell gone)
+function setUpsellState(state, btn){
+  if(btn){ btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); }
+  ATH_HELD['Basketball Training'] = state === 'held' ? 3 : 0;
+  renderPkgUpsell();
+}
 function openPkgBuy(name){
   var nm = document.getElementById('pkg-buy-name'); if (nm && name) nm.textContent = name;
   document.getElementById('pkg-buy-sheet').classList.add('visible');

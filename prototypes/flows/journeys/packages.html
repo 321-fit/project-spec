@@ -49,24 +49,42 @@
 <div class="j-head">
   <a class="j-back" href="../../index.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>All modules</a>
   <div class="j-title">Session packages — end-to-end</div>
-  <div class="j-sub">A package is a <strong>prepaid pass</strong> (gym-membership model): the coach sells N sessions of a template at a discount, the athlete pays the full amount upfront (cash or card), then <strong>redeems</strong> visits one booking at a time. The feature spans six screens across both roles — this map links each <strong>live screen</strong> (no copies) in flow order.</div>
+  <div class="j-sub">A package is a <strong>prepaid pass</strong> (gym-membership model): the coach sells N sessions of a template at a discount, the athlete pays the full amount upfront (cash or card), then <strong>redeems</strong> visits one booking at a time. The feature spans both roles across <strong>five prototypes</strong> — this map links each <strong>live screen</strong> (no copies) in flow order.</div>
   <div class="j-note">References, not duplicates — every step opens the canonical screen, so this never drifts from the source. Use the browser back button to return here.</div>
 </div>
 
-<!-- Locked model -->
+<!-- Locked model — keep in sync with specs/session-packages.md § 2 -->
 <div class="j-rules">
-  <div class="j-rule"><div class="j-rule-t">Prepaid, upfront</div><div class="j-rule-s">Full amount paid on purchase; coach paid immediately. Booking burns 1 credit — no charge at booking.</div></div>
-  <div class="j-rule"><div class="j-rule-t">Cash or card</div><div class="j-rule-s">Card = credits active instantly. Cash = credits activate when the coach marks payment received.</div></div>
-  <div class="j-rule"><div class="j-rule-t">No expiry</div><div class="j-rule-s">Unused sessions never lapse — keeps refunds simple and sidesteps gift-card expiry law.</div></div>
-  <div class="j-rule"><div class="j-rule-t">One type per pack</div><div class="j-rule-s">A pack = N sessions of one template (personal / group / self-paced). Refund of unused = manual coach action.</div></div>
+  <div class="j-rule"><div class="j-rule-t">Prepaid, upfront</div><div class="j-rule-s">Full amount on purchase, paid <strong>straight to the coach</strong> — the platform holds nothing back. Booking burns 1 credit — no charge at booking.</div></div>
+  <div class="j-rule"><div class="j-rule-t">Cash or card</div><div class="j-rule-s">Card = credits ready instantly. Cash = pack reads <strong>“Pending payment”</strong> until the coach marks it received — but credits are <strong>bookable right away</strong> (he approves every booking anyway). No redeem gate.</div></div>
+  <div class="j-rule"><div class="j-rule-t">No expiry</div><div class="j-rule-s">Unused sessions never lapse — sidesteps gift-card expiry law. Refund of unused = <strong>the coach’s call</strong>, said plainly in the buy sheet rather than implied as a guarantee.</div></div>
+  <div class="j-rule"><div class="j-rule-t">One type per pack</div><div class="j-rule-s">A pack = N sessions of one template (personal / group / self-paced), <strong>max 3 tiers</strong>. Repeat buys stack as separate lots; credits burn oldest-first (FIFO).</div></div>
 </div>
 
 <div class="j-sec">Coach sets it up</div>
 <div class="j-steps">
 
-  <a class="j-step" href="../coach/sessions.html#s-edit">
+  <a class="j-step" href="../coach/sessions.html#packages">
     <div class="j-num">1</div>
-    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Sell a session as a package</div><div class="j-step-desc">On the training-session template (Create or Edit) → <strong>Packages (optional)</strong> section. Add one or more tiers (e.g. 5 · €200 · €40/ea, 10 · €360 · €36/ea) — the per-session rate + discount vs the single price computes live. Expiry defaults to <strong>No expiry</strong>. Works on personal, group, and self-paced sessions.</div><div class="j-step-loc"><code>coach/sessions.html</code> · <code>#s-create</code> / <code>#s-edit</code></div></div>
+    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Packages tab</div><div class="j-step-desc">My training sessions → segmented <strong>[ Sessions | Packages ]</strong>. Packages are their own object, <strong>not</strong> a field on the template — one card per base session, tiers listed inside. Card <strong>body</strong> → Overview; card <strong>footer</strong> (“18 sold · 6 active” / “N running low”) → straight into Buyers. Empty state → “Create a package”.</div><div class="j-step-loc"><code>coach/sessions.html</code> · <code>#s-list</code> packages pane</div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+  <a class="j-step" href="../coach/sessions.html#pkg-pick">
+    <div class="j-num">2</div>
+    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Create — pick the base session</div><div class="j-step-desc">Header <strong>+</strong> (or the empty-state CTA) → step 1: choose the template the pack is built on. A pack is always N sessions of <strong>one</strong> session, so the base comes first — its single price is what the discount is measured against. Grouped Personal / Group / Self-paced.</div><div class="j-step-loc"><code>coach/sessions.html</code> · <code>#pkg-pick</code></div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+  <a class="j-step" href="../coach/sessions.html#pkg-editor">
+    <div class="j-num">3</div>
+    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Package detail — Overview | Buyers</div><div class="j-step-desc">Pure package, <strong>no template fields</strong>. <strong>Overview</strong> = base-session row + tiers as read-only cards (€/ea · save% · N sold, leader tagged <strong>“Best seller”</strong>). <strong>Buyers</strong> = who holds it + sessions left, running-low rows amber with inline <strong>Offer renewal</strong> + a bulk nudge. No expiry field — packs never lapse. Header trash deletes the pack.</div><div class="j-step-loc"><code>coach/sessions.html</code> · <code>#pkg-editor</code></div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+  <a class="j-step" href="../coach/sessions.html#pkg-tier-edit">
+    <div class="j-num">4</div>
+    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Edit one tier</div><div class="j-step-desc">A tier card’s <strong>pencil</strong> (or “+ Add package tier”) pushes its own screen: sessions stepper + € total + <strong>live math</strong> (€/session + save% vs the single price). Touches only that tier. <strong>Back = cancel</strong>, footer <strong>Save tier</strong> commits. A screen, not a sheet — the € total is typed, and a keyboard over a sheet buries both the math and Save. Max 3 tiers.</div><div class="j-step-loc"><code>coach/sessions.html</code> · <code>#pkg-tier-edit</code></div></div>
     <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
   </a>
 
@@ -76,19 +94,25 @@
 <div class="j-steps">
 
   <a class="j-step" href="../shared/profile.html#s-book-sessions">
-    <div class="j-num">2</div>
-    <div class="j-body"><span class="j-chip athlete">Athlete</span><div class="j-step-title">Discover &amp; buy a pack</div><div class="j-step-desc">Coach profile → Book training. A session that offers packs shows a teal <strong>“Save with a 5-pack · from €40/session”</strong> strip. Tap it → <strong>buy sheet</strong>: pick a tier, choose Cash or Card, confirm. Cash = “pay in person, unlocks when the coach confirms”; Card = ready immediately.</div><div class="j-step-loc"><code>shared/profile.html</code> · <code>#s-book-sessions</code> → buy sheet <code>#pkg-buy-sheet</code></div></div>
+    <div class="j-num">5</div>
+    <div class="j-body"><span class="j-chip athlete">Athlete</span><div class="j-step-title">Discover &amp; buy a pack</div><div class="j-step-desc">Coach profile → Book training. Packs are discovered <strong>in the context of a session</strong> (no separate Packages tab) — a session that offers them shows a teal <strong>“Save with a 5-pack · from €40/session”</strong> strip. Tap → <strong>buy sheet</strong>: tier + Cash/Card + a plain-spoken note that the money goes <strong>straight to the coach</strong> and any refund is arranged with him.</div><div class="j-step-loc"><code>shared/profile.html</code> · <code>#s-book-sessions</code> → buy sheet <code>#pkg-buy-sheet</code></div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+  <a class="j-step" href="../shared/profile.html#s-book-sessions">
+    <div class="j-num">6</div>
+    <div class="j-body"><span class="j-chip athlete">Athlete</span><div class="j-step-title">Bought → book your first</div><div class="j-step-desc">Confirm opens a <strong>success sheet</strong> that hands straight off to booking, instead of dropping the athlete on a dead end. Card = ✓ “N sessions ready”; cash = ⏳ “N reserved” + “pay in person — you can still book now”. CTA <strong>Book your first session</strong> lands on the calendar with a “Booking your 1st of 5” banner.</div><div class="j-step-loc"><code>shared/profile.html</code> · <code>#pkg-success-sheet</code> → <code>#s-booking</code> <code>.bk-first-banner</code></div></div>
     <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
   </a>
 
   <a class="j-step" href="../athlete/my-coaches.html#s-coach-detail">
-    <div class="j-num">3</div>
-    <div class="j-body"><span class="j-chip athlete">Athlete</span><div class="j-step-title">Track sessions left</div><div class="j-step-desc">My Coaches → coach detail → <strong>Your packages</strong>. Each pack is a punch-card: filled/hollow dots, “3 of 5 used · no expiry”, “2 left”. A pack running low flags <strong>amber “1 left”</strong>. “Book next” jumps back into booking.</div><div class="j-step-loc"><code>athlete/my-coaches.html</code> · <code>#s-coach-detail</code></div></div>
+    <div class="j-num">7</div>
+    <div class="j-body"><span class="j-chip athlete">Athlete</span><div class="j-step-title">Track sessions left</div><div class="j-step-desc">My Coaches → coach detail → <strong>Your packages</strong>: one card per session type — <strong>progress bar</strong> + “X of N used · Y left” (a bar, not punch dots — dots don’t survive a 20-pack). Running low → amber. Unpaid cash → dashed + “Pending payment · bookable now”. Tap → pack detail: redemption ledger + a <strong>Purchases</strong> row per lot (Renewal / Upgrade badges).</div><div class="j-step-loc"><code>athlete/my-coaches.html</code> · <code>#s-coach-detail</code> → <code>#s-pkg-detail</code></div></div>
     <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
   </a>
 
   <a class="j-step" href="../shared/profile.html#s-booking">
-    <div class="j-num">4</div>
+    <div class="j-num">8</div>
     <div class="j-body"><span class="j-chip athlete">Athlete</span><div class="j-step-title">Redeem — burn a credit</div><div class="j-step-desc">Booking a session you hold a pack for → the confirm sheet swaps payment for <strong>“Use 1 session from your pack”</strong> (price struck through → “Included in pack”), CTA becomes <strong>“Book · use 1 session”</strong>. A “Pay per session instead” link falls back to normal cash/card.</div><div class="j-step-loc"><code>shared/profile.html</code> · <code>#s-booking</code> → confirm sheet <code>.pm-pack</code></div></div>
     <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
   </a>
@@ -99,20 +123,20 @@
 <div class="j-steps">
 
   <a class="j-step" href="../coach/clients.html#s-client-detail">
-    <div class="j-num">5</div>
-    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">See client packs + re-sell</div><div class="j-step-desc">Client detail → <strong>Packages</strong>: the same punch-cards, coach-side. A running-low pack surfaces <strong>“Offer renewal”</strong> (the re-sell nudge — the differentiator). The section’s <strong>+</strong> opens “Sell a package” (pick tier + Cash/Card).</div><div class="j-step-loc"><code>coach/clients.html</code> · <code>#s-client-detail</code> → sell sheet <code>#cd-sell-package-sheet</code></div></div>
+    <div class="j-num">9</div>
+    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">See a client’s packs + re-sell</div><div class="j-step-desc">Client detail → <strong>Packages</strong>: the athlete’s view mirrored coach-side (same cards, same bar). A running-low pack surfaces <strong>“Offer renewal”</strong> — the re-sell nudge, and our differentiator (only TeamUp/FitBudd do it). Tap a card → pack detail: redemption ledger + Purchases per lot. The section’s <strong>+</strong> opens “Sell a package”.</div><div class="j-step-loc"><code>coach/clients.html</code> · <code>#s-client-detail</code> → <code>#s-pkg-detail</code> · sell sheet <code>#cd-sell-package-sheet</code></div></div>
     <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
   </a>
 
-  <a class="j-step" href="../coach/clients.html#s-client-detail">
-    <div class="j-num">6</div>
-    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Activate a cash package</div><div class="j-step-desc">A cash pack shows <strong>“Awaiting cash payment · Unpaid”</strong> and its credits stay locked until the coach taps <strong>“Mark received”</strong> → snackbar “Payment received · pack activated”. This gate stops an athlete redeeming an unpaid cash pack. Card packs skip this — active on purchase.</div><div class="j-step-loc"><code>coach/clients.html</code> · <code>#s-client-detail</code> (pending punch-card)</div></div>
+  <a class="j-step" href="../coach/dashboard.html#s-notifications">
+    <div class="j-num">10</div>
+    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Settle a cash pack</div><div class="j-step-desc">A cash pack is <strong>bookable from the moment it’s bought</strong> — there is <strong>no redeem gate</strong> (every booking needs the coach’s approval anyway, so blocking it twice was redundant friction). Visibility replaces the gate: an inbox notification on purchase, an “unpaid cash pack” note on the booking request he approves, and an <strong>Unpaid → Mark received</strong> marker on the card until he confirms.</div><div class="j-step-loc"><code>coach/dashboard.html</code> · <code>#s-notifications</code> · marker on <code>clients.html</code> <code>#s-client-detail</code></div></div>
     <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
   </a>
 
 </div>
 
-<div class="j-foot">Spec: <code>specs/payments.md</code> (packages) — to be written. Live screens: <code>coach/sessions.html</code> · <code>shared/profile.html</code> · <code>athlete/my-coaches.html</code> · <code>coach/clients.html</code>. Shared component: <code>.pkg-punch</code> punch-card (my-coaches + clients).</div>
+<div class="j-foot">Spec: <code>specs/session-packages.md</code>. Live screens: <code>coach/sessions.html</code> · <code>shared/profile.html</code> · <code>athlete/my-coaches.html</code> · <code>coach/clients.html</code> · <code>coach/dashboard.html</code>. Shared component: <code>.pkg-punch</code> pack card — a <strong>progress bar</strong> (<code>.pkg-bar</code>), not punch dots; theme-split page-local in both my-coaches (light) and clients (dark).</div>
 
 </body>
 </html>

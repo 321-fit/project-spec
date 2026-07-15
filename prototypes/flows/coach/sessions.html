@@ -596,6 +596,8 @@
   .ptv-edit { width: 34px; height: 34px; border-radius: 9px; border: none; background: transparent; color: var(--fit-text-tertiary); cursor: pointer; display: flex; align-items: center; justify-content: center; }
   .ptv-edit:hover { background: var(--fit-surface-high); color: var(--fit-text-primary); }
   .ptv-edit svg { width: 18px; height: 18px; }
+  /* Tier-edit screen: .pkg-price/.pkg-math were authored for sheet padding — inset them on a screen. */
+  .pkg-tier-form { margin: 0 16px; }
   .pkg-price { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
   .pkg-price-box {
     flex: 1; display: flex; align-items: center;
@@ -712,6 +714,7 @@
   <button onclick="backToPackages()">Packages tab</button>
   <button onclick="go('pkg-pick',this)">Pick session (create)</button>
   <button onclick="openPkgEditor('edit','basketball')">Package editor (edit)</button>
+  <button onclick="sidebarTierEdit(this)">Package tier edit</button>
   <div class="label">Other modules</div>
   <button onclick="window.location.href='./settings.html'">← Back to Settings</button>
   </div>
@@ -1279,7 +1282,7 @@
 
       <div class="fit-input-group" style="margin-top:20px;"><span class="fit-input-label">Package tiers</span></div>
       <div class="pkg-list" id="pkg-list-pkg-editor"></div>
-      <div class="pkg-add" onclick="pkgOpenTierSheet('add')" data-a11y-id="coach.package.editor.add-tier">
+      <div class="pkg-add" onclick="pkgOpenTierEdit('add')" data-a11y-id="coach.package.editor.add-tier">
         <div class="pkg-add-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div>
         <div><div class="pkg-add-label">Add package tier</div><div class="pkg-add-sub">e.g. a bigger pack at a deeper discount</div></div>
       </div>
@@ -1294,8 +1297,8 @@
           <div class="pk-buyer-av">AK</div>
           <div class="pk-buyer-tt">
             <div class="pk-buyer-name">Anna K.</div>
-            <div class="pk-buyer-sub">2 packs &middot; 11 of 25 used &middot; 14 left</div>
-            <div class="pk-prog"><div class="pk-prog-fill" style="width:44%;"></div></div>
+            <div class="pk-buyer-sub">2 packs &middot; 6 of 20 used &middot; 14 left</div>
+            <div class="pk-prog"><div class="pk-prog-fill" style="width:30%;"></div></div>
           </div>
         </div>
         <div class="pk-buyer" data-a11y-id="coach.package.buyer">
@@ -1366,25 +1369,6 @@
     </div>
   </div>
 
-  <!-- Tier drawer — add / edit ONE package tier in isolation (focused sub-task) -->
-  <div class="fit-sheet-overlay" id="pkg-tier-sheet" onclick="if(event.target===this)pkgCloseTierSheet()">
-    <div class="fit-sheet">
-      <div class="fit-sheet-handle" onclick="pkgCloseTierSheet()"></div>
-      <div style="font-size:18px;font-weight:500;color:var(--fit-text-primary);margin-bottom:4px;" id="pkg-tier-sheet-title">New package tier</div>
-      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:20px;">Based on <span id="pkg-tier-sheet-base">Basketball Training</span> &middot; <span id="pkg-tier-sheet-single">&euro;25</span> single</div>
-      <span class="fit-input-label">Number of sessions</span>
-      <div class="fit-stepper" data-fit-stepper data-value="5" data-min="2" data-max="50" id="pkg-tier-sheet-stepper" style="margin-bottom:14px;">
-        <button class="fit-stepper-btn" data-dir="-1">&minus;</button>
-        <div class="fit-stepper-value"><span data-stepper-display>5</span> <span class="fit-stepper-unit">sessions</span></div>
-        <button class="fit-stepper-btn" data-dir="1">+</button>
-      </div>
-      <div class="pkg-price"><div class="pkg-price-box"><span class="pkg-price-val" id="pkg-tier-sheet-price" contenteditable="true" data-placeholder="0" oninput="pkgSheetRecalc()"></span><span class="pkg-price-cur">&euro; total</span></div></div>
-      <div class="pkg-math" id="pkg-tier-sheet-math" style="margin-bottom:20px;">Set a total price to see the per-session rate.</div>
-      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" data-a11y-id="coach.package.tier.save" onclick="pkgSaveTier()">Save tier</button>
-      <button id="pkg-tier-sheet-remove" data-a11y-id="coach.package.tier.remove" onclick="pkgRemoveTierFromSheet()" style="display:none;width:100%;margin-top:10px;background:none;border:none;color:var(--fit-red-400);font-family:var(--fit-font);font-size:15px;font-weight:500;cursor:pointer;padding:8px 0;">Remove tier</button>
-    </div>
-  </div>
-
   <!-- Delete package sheet -->
   <div class="fit-sheet-overlay" id="pkg-delete-sheet">
     <div class="fit-sheet">
@@ -1400,6 +1384,56 @@
   <div class="fit-snackbar" id="pkg-snack"><span class="snack-dot" style="background:var(--fit-green-400);"></span><span id="pkg-snack-text">Renewal offer sent</span></div>
 
   <div class="fit-phone-footer fit-footer-btn" id="pkg-editor-footer"><button class="fit-btn fit-btn-primary" id="pkg-editor-save" onclick="backToPackages()">Create package</button></div>
+</div>
+
+<!-- ===== COACH: PACKAGE TIER EDIT (add / edit ONE tier) =====
+     Own screen, not a sheet: the € total is a typed field, and a keyboard over a bottom
+     sheet buries both the live math and Save. Back = cancel, footer Save tier commits. -->
+<div class="fit-phone fit-dark" id="pkg-tier-edit">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.package.tier.back" onclick="pkgCancelTierEdit()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title" id="pkg-tier-title">New package tier</span>
+      <button class="fit-icon-btn" id="pkg-tier-remove" data-a11y-id="coach.package.tier.remove" onclick="document.getElementById('pkg-tier-remove-sheet').classList.add('visible')" style="background:rgba(240,92,91,0.1);display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <!-- Base session context (read-only) — same row as the package Overview -->
+    <div class="pk-base">
+      <div class="pk-base-ic" id="pkg-tier-base-ic" style="background:var(--fit-grad-type-personal);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg></div>
+      <div class="pk-base-tt">
+        <div class="pk-base-name" id="pkg-tier-base-name">Basketball Training</div>
+        <div class="pk-base-sub"><span id="pkg-tier-base-single">&euro;25</span> single &middot; base session</div>
+      </div>
+      <span class="pk-base-tag">Based on</span>
+    </div>
+
+    <div class="fit-input-group" style="margin-top:20px;"><span class="fit-input-label">Number of sessions</span></div>
+    <div class="pkg-tier-form">
+      <div class="fit-stepper" data-fit-stepper data-value="5" data-min="2" data-max="50" id="pkg-tier-stepper">
+        <button class="fit-stepper-btn" data-dir="-1">&minus;</button>
+        <div class="fit-stepper-value"><span data-stepper-display>5</span> <span class="fit-stepper-unit">sessions</span></div>
+        <button class="fit-stepper-btn" data-dir="1">+</button>
+      </div>
+      <div class="pkg-price"><div class="pkg-price-box"><span class="pkg-price-val" id="pkg-tier-price" contenteditable="true" data-placeholder="0" oninput="pkgTierRecalc()"></span><span class="pkg-price-cur">&euro; total</span></div></div>
+      <div class="pkg-math" id="pkg-tier-math">Set a total price to see the per-session rate.</div>
+    </div>
+
+  </div>
+
+  <!-- Remove tier confirm — mirrors the "Delete package" sheet on the package screen -->
+  <div class="fit-sheet-overlay" id="pkg-tier-remove-sheet" onclick="if(event.target===this)this.classList.remove('visible')">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle" onclick="document.getElementById('pkg-tier-remove-sheet').classList.remove('visible')"></div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Remove this tier?</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:28px;">Athletes can no longer buy this pack size. Clients who already bought it keep their sessions until redeemed. The package&rsquo;s other tiers stay as they are.</div>
+      <button class="fit-btn fit-btn-destructive" style="border-radius:99px;margin-bottom:10px;" data-a11y-id="coach.package.tier.remove-confirm" onclick="document.getElementById('pkg-tier-remove-sheet').classList.remove('visible');pkgRemoveTier();">Remove tier</button>
+      <button class="fit-btn" style="border-radius:99px;background:transparent;color:var(--fit-text-secondary);" onclick="document.getElementById('pkg-tier-remove-sheet').classList.remove('visible');">Keep it</button>
+    </div>
+  </div>
+
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" data-a11y-id="coach.package.tier.save" onclick="pkgSaveTier()">Save tier</button></div>
 </div>
 
 
@@ -1472,6 +1506,16 @@
       <li>Back → returns to the Packages tab</li>
     </ul>
   </div>
+  <div class="ann" id="ann-pkg-tier-edit"><span class="ann-role coach">Coach</span><h3>Package tier edit</h3>
+    <p>Add or edit <strong>one tier</strong> of a package — a pack size and what it costs. Opened from the Overview card's <strong>pencil</strong> (edit) or <strong>"+ Add package tier"</strong> (add). Isolated to that single tier: the other tiers are untouched.</p>
+    <ul>
+      <li><strong>Screen, not a bottom sheet.</strong> The <strong>€ total</strong> is a typed field — a keyboard over a sheet buries both the live math and the Save button, and the deep-linked Remove disappears entirely. Focused input → pushed screen (same rule as OTP entry and the template form).</li>
+      <li><strong>Back = cancel</strong>, footer <strong>Save tier</strong> commits — nothing is written to the tier card until then. This also fixes the create flow's two competing Saves: this screen saves a <em>tier</em>, the package screen creates the <em>package</em>.</li>
+      <li><strong>Base session row</strong> repeated at the top (read-only) — the €25-single price is what the discount is measured against, so it must stay visible while typing.</li>
+      <li><strong>Live math</strong> under the price: €/session + <strong>save %</strong> vs the single price — the coach is tuning a discount ladder, not just entering a number.</li>
+      <li><strong>Header trash</strong> removes the tier (edit mode only, hidden on the last tier — a pack needs ≥1 tier) → confirm sheet. Same placement as the package screen's delete, so destructive never sits next to the footer's primary CTA. Existing buyers of that size keep their credits.</li>
+    </ul>
+  </div>
   <div class="ann" id="ann-pkg-editor"><span class="ann-role coach">Coach</span><h3>Package detail</h3>
     <div class="state-toggle">
       <button class="active" onclick="setBuyersState('has',this)">Buyers: has</button>
@@ -1479,10 +1523,10 @@
     </div>
     <p>In <strong>edit/detail</strong> mode a segmented <strong>[ Overview | Buyers ]</strong> splits defining the pack from managing its customers. In <strong>create</strong> mode (from Pick) there are no buyers yet, so the tabs + stats are hidden — just Overview.</p>
     <ul>
-      <li><strong>Overview is view-first.</strong> Under the base session row, tiers as <strong>read-only info cards</strong> (sessions · €total · €/ea · save% · N sold, leader tagged <strong>"Best seller"</strong>). <strong>Editing is per-tier via a drawer:</strong> a card's <strong>pencil</strong> or <strong>"+ Add"</strong> opens a focused bottom sheet (sessions stepper + € total + live math) with explicit <strong>Save tier</strong> (+ Remove when editing) — it touches only that one tier, not the others. Create mode has a "Create package" footer to finalise; detail saves each tier on drawer Save (no bulk footer). <strong>Max 3 tiers</strong> (market avg 2–3; more = choice paralysis); last tier's Remove is hidden.</li>
+      <li><strong>Overview is view-first.</strong> Under the base session row, tiers as <strong>read-only info cards</strong> (sessions · €total · €/ea · save% · N sold, leader tagged <strong>"Best seller"</strong>). <strong>Editing is per-tier on its own screen:</strong> a card's <strong>pencil</strong> or <strong>"+ Add"</strong> pushes <strong>Package tier edit</strong> — it touches only that one tier, not the others. Create mode has a "Create package" footer to finalise; detail saves each tier on the tier screen (no bulk footer). <strong>Max 3 tiers</strong> (market avg 2–3; more = choice paralysis); last tier's Remove is hidden.</li>
       <li><strong>Buyers</strong> — every athlete holding this pack + remaining sessions (progress bar). <strong>Running-low</strong> rows (≤1 left / used up) turn amber and get an inline <strong>Offer renewal</strong> (→ "Offer sent"); a bulk "renewal → all running low" sits at the bottom (→ "Renewal sent"). <strong>Zero state</strong> when nothing sold yet. Card footer "18 sold · 6 active" deep-links straight here.</li>
       <li><strong>No expiry</strong> — packs never expire (locked model — keeps refunds simple, defuses gift-card-expiry legal risk), so there's no expiry field.</li>
-      <li>Header trash deletes the pack; existing credit holders keep their sessions (refund is manual). Payment axis (cash/card) isn't set here — both always allowed; cash packs activate when the coach marks payment received.</li>
+      <li>Header trash deletes the pack; existing credit holders keep their sessions (refund is the coach's call — the athlete is told so at purchase). Payment axis (cash/card) isn't set here — both always allowed; a cash pack is <strong>bookable from purchase</strong> (no redeem gate) and only carries a "Pending payment" marker until the coach marks it received.</li>
     </ul>
     <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Why a separate flow</span>
     <div class="ann-detail">
@@ -1755,7 +1799,7 @@ function pkgTierViewInner(n, total, base, sold){
   return '<div class="ptv-main"><div class="ptv-top"><span class="ptv-n">' + n + ' sessions</span></div>' +
       '<div class="ptv-sub">' + sub + '</div></div>' +
     '<div class="ptv-right"><span class="ptv-total">' + (total > 0 ? '&euro;' + total : '&mdash;') + '</span>' +
-      '<button class="ptv-edit" aria-label="Edit tier" onclick="pkgOpenTierSheet(&quot;edit&quot;, this.closest(&quot;.pkg-tier&quot;))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button></div>';
+      '<button class="ptv-edit" aria-label="Edit tier" onclick="pkgOpenTierEdit(&quot;edit&quot;, this.closest(&quot;.pkg-tier&quot;))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button></div>';
 }
 
 // Render a tier container as a read-only card (reads data-n/data-total/data-sold off the element).
@@ -1793,33 +1837,42 @@ function updatePkgAdd(screen){
   if(add && list) add.style.display = list.querySelectorAll('.pkg-tier').length >= PKG_MAX_TIERS ? 'none' : '';
 }
 
-// ----- Tier drawer: add a new tier or edit one existing tier in isolation -----
+// ----- Tier edit screen: add a new tier or edit one existing tier in isolation -----
 var pkgEditingTier = null; // the .pkg-tier being edited, or null when adding
-function pkgOpenTierSheet(mode, tierEl){
+function pkgOpenTierEdit(mode, tierEl){
   var list = document.getElementById('pkg-list-pkg-editor');
   var count = list.querySelectorAll('.pkg-tier').length;
   if(mode === 'add' && count >= PKG_MAX_TIERS) return;
   pkgEditingTier = (mode === 'edit') ? tierEl : null;
-  document.getElementById('pkg-tier-sheet-title').textContent = mode === 'edit' ? 'Edit package tier' : 'New package tier';
-  document.getElementById('pkg-tier-sheet-base').textContent = document.getElementById('pkg-base-name').textContent;
-  document.getElementById('pkg-tier-sheet-single').innerHTML = document.getElementById('pkg-base-single').innerHTML;
+  document.getElementById('pkg-tier-title').textContent = mode === 'edit' ? 'Edit package tier' : 'New package tier';
+  // Mirror the package's base-session row so the screen carries its own context.
+  document.getElementById('pkg-tier-base-name').textContent = document.getElementById('pkg-base-name').textContent;
+  document.getElementById('pkg-tier-base-single').innerHTML = document.getElementById('pkg-base-single').innerHTML;
+  var baseIc = document.getElementById('pkg-base-ic');
+  var tierIc = document.getElementById('pkg-tier-base-ic');
+  tierIc.style.background = baseIc.style.background;
+  tierIc.innerHTML = baseIc.innerHTML;
   var n = tierEl ? (parseInt(tierEl.getAttribute('data-n')) || 5) : 5;
   var total = tierEl ? (parseFloat(tierEl.getAttribute('data-total')) || 0) : 0;
-  var stepper = document.getElementById('pkg-tier-sheet-stepper');
-  stepper.setAttribute('data-value', n);
-  var disp = stepper.querySelector('[data-stepper-display]'); if(disp) disp.textContent = n;
-  if(window.FitUI && FitUI.initAll) FitUI.initAll(stepper.parentNode);
-  document.getElementById('pkg-tier-sheet-price').textContent = total > 0 ? total : '';
+  // FitUI's stepper holds its value in a closure and refuses to re-init (el._fitStepper),
+  // so re-seeding data-value alone leaves the OLD value live (open a 20-tier, tap + → 7).
+  // Swapping in a clone drops that flag, and go()'s initAll re-reads data-value from scratch.
+  var stepper = document.getElementById('pkg-tier-stepper');
+  var fresh = stepper.cloneNode(true);
+  fresh.setAttribute('data-value', n);
+  var disp = fresh.querySelector('[data-stepper-display]'); if(disp) disp.textContent = n;
+  stepper.parentNode.replaceChild(fresh, stepper);
+  document.getElementById('pkg-tier-price').textContent = total > 0 ? total : '';
   // Remove shows only when editing an existing tier and more than one remains.
-  document.getElementById('pkg-tier-sheet-remove').style.display = (mode === 'edit' && count > 1) ? '' : 'none';
-  pkgSheetRecalc();
-  document.getElementById('pkg-tier-sheet').classList.add('visible');
+  document.getElementById('pkg-tier-remove').style.display = (mode === 'edit' && count > 1) ? '' : 'none';
+  go('pkg-tier-edit', null); // go() re-inits FitUI (stepper) on the newly visible screen
+  pkgTierRecalc();
 }
-function pkgSheetRecalc(){
-  var stepper = document.getElementById('pkg-tier-sheet-stepper');
+function pkgTierRecalc(){
+  var stepper = document.getElementById('pkg-tier-stepper');
   var n = parseInt(stepper.getAttribute('data-value')) || 0;
-  var total = parseFloat((document.getElementById('pkg-tier-sheet-price').textContent || '').replace(/[^0-9.]/g,'')) || 0;
-  var math = document.getElementById('pkg-tier-sheet-math');
+  var total = parseFloat((document.getElementById('pkg-tier-price').textContent || '').replace(/[^0-9.]/g,'')) || 0;
+  var math = document.getElementById('pkg-tier-math');
   if(!total || !n){ math.innerHTML = 'Set a total price to see the per-session rate.'; return; }
   var per = Math.round(total / n * 100) / 100;
   var html = '<span class="pkg-per">&euro;' + pkgFmt(per) + '</span> / session';
@@ -1828,13 +1881,13 @@ function pkgSheetRecalc(){
   math.innerHTML = html;
 }
 function pkgSaveTier(){
-  var stepper = document.getElementById('pkg-tier-sheet-stepper');
+  var stepper = document.getElementById('pkg-tier-stepper');
   var n = parseInt(stepper.getAttribute('data-value')) || 5;
-  var total = parseFloat((document.getElementById('pkg-tier-sheet-price').textContent || '').replace(/[^0-9.]/g,'')) || 0;
+  var total = parseFloat((document.getElementById('pkg-tier-price').textContent || '').replace(/[^0-9.]/g,'')) || 0;
   var list = document.getElementById('pkg-list-pkg-editor');
   var tier = pkgEditingTier;
   if(!tier){
-    if(list.querySelectorAll('.pkg-tier').length >= PKG_MAX_TIERS){ pkgCloseTierSheet(); return; }
+    if(list.querySelectorAll('.pkg-tier').length >= PKG_MAX_TIERS){ pkgBackToEditor(); return; }
     tier = document.createElement('div'); tier.className = 'pkg-tier'; list.appendChild(tier);
   }
   tier.setAttribute('data-n', n);
@@ -1842,15 +1895,26 @@ function pkgSaveTier(){
   pkgRenderTier(tier);
   pkgRecomputeBest();
   updatePkgAdd(document.getElementById('pkg-editor'));
-  pkgCloseTierSheet();
+  pkgBackToEditor();
 }
-function pkgRemoveTierFromSheet(){
+function pkgRemoveTier(){
   if(pkgEditingTier){ pkgEditingTier.remove(); pkgRecomputeBest(); updatePkgAdd(document.getElementById('pkg-editor')); }
-  pkgCloseTierSheet();
+  pkgBackToEditor();
 }
-function pkgCloseTierSheet(){
-  document.getElementById('pkg-tier-sheet').classList.remove('visible');
+// Back = cancel: nothing is written to the tier unless Save tier was tapped.
+function pkgCancelTierEdit(){ pkgBackToEditor(); }
+// Sidebar shortcut: the tier screen is only meaningful once a package has seeded it,
+// so route through the editor + a real tier instead of jumping to a blank screen.
+function sidebarTierEdit(btn){
+  openPkgEditor('edit', 'basketball');
+  pkgOpenTierEdit('edit', document.querySelector('#pkg-list-pkg-editor .pkg-tier'));
+  document.querySelectorAll('.sidebar button').forEach(function(b){ b.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
+}
+function pkgBackToEditor(){
   pkgEditingTier = null;
+  document.getElementById('pkg-tier-remove-sheet').classList.remove('visible');
+  go('pkg-editor', null);
 }
 
 document.addEventListener('DOMContentLoaded', function(){
@@ -1861,9 +1925,9 @@ document.addEventListener('DOMContentLoaded', function(){
     });
     list.querySelectorAll('.pkg-tier').forEach(recalcTier);
   });
-  // Tier drawer: the stepper drives live per-session math.
-  var ts = document.getElementById('pkg-tier-sheet');
-  if(ts) ts.addEventListener('fit:stepper', pkgSheetRecalc);
+  // Tier edit screen: the stepper drives live per-session math.
+  var ts = document.getElementById('pkg-tier-edit');
+  if(ts) ts.addEventListener('fit:stepper', pkgTierRecalc);
 });
 
 // ===== PACKAGES: tab switch + create/edit navigation =====
@@ -2016,12 +2080,28 @@ function openPkgEditor(mode, id, tab){
   pkgRecomputeBest();
   updatePkgAdd(screen);
   screen.setAttribute('data-mode', mode);
-  // Footer "Create package" only in create mode; detail saves per-tier via the drawer.
+  // Footer "Create package" only in create mode; detail saves per-tier on the tier screen.
   document.getElementById('pkg-editor-footer').style.display = (!wantBuyers && !isEdit) ? '' : 'none';
-  pkgCloseTierSheet();
+  pkgEditingTier = null;
   resetBuyers();
   go('pkg-editor', null);
 }
+
+// Deep-link via URL hash (the journeys/packages.html feature map links straight to these).
+// Package screens carry seeded state, so route them through their openers, not a bare go().
+(function(){
+  var h = (location.hash || '').replace('#','');
+  if(!h) return;
+  var seeded = {
+    'packages':      function(){ backToPackages(); },
+    'pkg-editor':    function(){ openPkgEditor('edit', 'basketball'); },
+    'pkg-tier-edit': function(){ sidebarTierEdit(null); }
+  };
+  if(seeded[h]){ seeded[h](); return; }
+  var target = document.getElementById(h);
+  if(!target || !target.classList.contains('fit-phone')) return;
+  go(h, document.querySelector('.sidebar button[onclick*="\'' + h + '\'"]'));
+})();
 
 // === MAP MODE TOGGLE ===
 var mapLocked = true;

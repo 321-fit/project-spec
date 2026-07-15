@@ -573,6 +573,21 @@ Disconnect a provider (Stripe or future). Only allowed if not default or another
 
 ## 7. Business rules
 
+### Session packages — where the money shows up *(new 2026-07-15)*
+
+A **session pack** (see [session-packages.md](./session-packages.md)) is a coach's prepaid bundle: the athlete pays the whole amount **upfront, straight to the coach**, then redeems credits one booking at a time. For this spec it is an **ordinary transaction**, not a new money surface:
+
+| Side | Where it appears |
+|---|---|
+| **Athlete** | **Recent** while fresh, then the **History** ledger — a normal `.fit-txn` row, filterable by the existing type chips. |
+| **Coach** | **Recent**, then the earnings **History** — same as any other earning. |
+
+- **Paid upfront, no hold.** Unlike a single session (balance reserved on booking → released 24h after completion), the pack's full amount goes to the coach at purchase and **the platform holds nothing back**. Escrow was considered and rejected — see `session-packages.md` #2 for the reasoning and the risk we knowingly carry (we are merchant of record, so **chargebacks land on the platform**, with no take rate to price them into).
+- **Redeeming a credit moves no money** — the booking is already paid for. Nothing appears in either ledger at booking time.
+- **Refund of unused credits is the coach's own arrangement**, not a platform mechanism: we hold no funds, so there is nothing for us to return. The athlete is told this plainly at purchase.
+- **Cash packs** behave like cash sessions: the money never touches the platform, so nothing enters the balance ledger. An **unpaid** cash pack is real debt and belongs in the athlete's **Owed** surface; the coach clears it with **Mark received**.
+- **The pack's own Activity/History is a *credit* ledger** and deliberately reuses this spec's intent vocabulary, so the two read alike: bought = `--in` (like a top-up), redeemed = `--out` (like a spend), **credit returned = `--info` + teal `+`** (exactly like a refund). Colours follow the convention, not intuition — a spend is gray, not red.
+
 ### Cancellation & refund policy
 
 | Scenario | Athlete refund | Coach earning |
@@ -582,6 +597,7 @@ Disconnect a provider (Stripe or future). Only allowed if not default or another
 | Coach cancels (any time) | 100% | None |
 | Athlete no-show (coach marks `missed`) | **0%** | **100%** (24h hold + weekly payout, same as completed) |
 | Cash session cancelled | N/A | N/A |
+| **Pack-funded session cancelled** | **1 credit returned** (no money moves) | None |
 
 **Tier 1 decisions baked in:**
 - **Q2 — Missed = 100% to coach (strict no-show forfeit):** Athletes who book and don't show forfeit the full amount. This protects coach time and discourages no-shows. Athlete may dispute via Support if extenuating circumstances (admin can override per Q10 dispute flow).

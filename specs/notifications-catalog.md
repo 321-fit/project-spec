@@ -8,7 +8,7 @@ The **single source of truth** for every notification the app sends — what tri
 
 When changing copy, **update this file first**, then mirror in `notification_template` DB via Alembic migration, then verify call sites pass exact `template_data` keys listed in the row.
 
-## 1. The catalog — 20 categories
+## 1. The catalog — 29 categories
 
 Each notification has two visible parts on the user's device:
 
@@ -41,6 +41,37 @@ Each notification has two visible parts on the user's device:
 | 19 | `referral_athlete_joined` *new 2026-05-22 — fills the referral gap* | `onboardingDone` | Athlete signs up via coach's referral/invite link (incl. the `crm_import` OneLink) AND completes onboarding | P · I | **Athlete joined** | `{athlete_name} joined 321Fit via your invite — ready to train.` | Coach → Clients → athlete detail | tap | `athlete_name` |
 | 20 | `crm_contact_joined` *new 2026-06-09 — contact import / phone-match path* | `onboardingDone` | A coach's existing **CRM contact** is auto-linked to a new app account via **phone-match** (the coach did not necessarily send a link) → relationship flips `crm → app` | P · I | **Contact joined** | `{athlete_name} from your contacts just joined 321Fit — now connected.` | Coach → Clients → athlete detail (upgraded) | tap | `athlete_name` |
 
+| 21 | `package_purchased_card_coach` *new 2026-07-15 — session packages* | `payment` | Athlete buys a pack by card (credits active instantly) | P · I | **Package sold** | `{athlete_name} bought a {pack_size}-session {session_name} pack — €{amount}.` | Coach → Clients → athlete detail → pack detail | tap | `athlete_name, pack_size, session_name, amount` |
+| 22 | `package_purchased_cash_coach` *new 2026-07-15 — session packages* | `payment` | Athlete buys a pack marked **cash** — coach must collect + confirm | P · I | **Cash package sold** | `{athlete_name} bought a {pack_size}-session {session_name} pack · Cash · €{amount} — collect in person, then mark received.` | Coach → Clients → athlete detail → pack detail | **action** | `athlete_name, pack_size, session_name, amount` |
+| 23 | `package_payment_confirmed_athlete` *new 2026-07-15 — session packages* | `payment` | Coach taps **Mark received** on a cash pack | P · I | **Payment confirmed** | `{coach_name} confirmed your €{amount} payment for the {session_name} pack.` | Athlete → My Coaches → coach detail → pack detail | tap | `coach_name, amount, session_name` |
+| 24 | `package_cash_overdue_coach` *new 2026-07-15 — session packages; mirrors #16* | `reminder` | Daily Celery beat: cash pack unpaid > 3 days | P · I | **Cash package unpaid** | `{athlete_name}'s {pack_size}-session pack (€{amount}) is still unpaid — mark as received?` | Coach → Clients → athlete detail → pack detail | **action** | `athlete_name, pack_size, amount` |
+| 25 | `package_running_low_athlete` *new 2026-07-15 — session packages* | `reminder` | `sessions_left` first drops to the **low threshold** (see § 1.1) | P · I | **Pack running low** | `{sessions_left} sessions left in your {session_name} pack with {coach_name}.` | Athlete → coach profile → Book training (pack buy sheet) | tap | `sessions_left, session_name, coach_name` |
+| 26 | `package_running_low_coach` *new 2026-07-15 — session packages; decision #8, the differentiator* | `reminder` | Same crossing as #25, coach side | P · I | **Client running low** | `{athlete_name} has {sessions_left} sessions left in their {session_name} pack.` | Coach → Clients → athlete detail → pack detail | tap | `athlete_name, sessions_left, session_name` |
+| 27 | `package_used_up_athlete` *new 2026-07-15 — session packages* | `reminder` | `sessions_left` hits **0** | P · I | **Pack finished** | `Your {session_name} pack with {coach_name} is used up — buy another to keep training.` | Athlete → coach profile → Book training (pack buy sheet) | tap | `session_name, coach_name` |
+| 28 | `package_used_up_coach` *new 2026-07-15 — session packages* | `reminder` | `sessions_left` hits **0**, coach side | P · I | **Client's pack finished** | `{athlete_name} used the last session of their {session_name} pack.` | Coach → Clients → athlete detail → pack detail | tap | `athlete_name, session_name` |
+| 29 | `package_renewal_offered_athlete` *new 2026-07-15 — the coach's manual nudge* | `reminder` | Coach taps **Offer renewal** (per-buyer or bulk). Rate-limited: **once per 7 days per pack** | P · I | **Renew your pack?** | `{coach_name} suggests renewing your {session_name} pack.` | Athlete → coach profile → Book training (pack buy sheet) | tap | `coach_name, session_name` |
+
+### 1.1 Package milestone rules *(new 2026-07-15)*
+
+Packs fire **two** notifications per cycle, both to **each side** (athlete + coach), plus the coach's optional manual nudge (#29).
+
+**Threshold = 20% of the active pack, floored at 1** — `low_at = max(1, ceil(active_pack_size × 0.2))`:
+
+| Pack | `low_at` | Notice at ~1 session/week |
+|---|---|---|
+| 5 | 1 | 1 week |
+| 10 | 2 | 2 weeks |
+| 20 | 4 | 1 month |
+
+A flat "1 left" doesn't scale: on a 20-pack it warns on the *last* session of twenty. The 5-pack — the common case — behaves exactly as before, so this is not a regression.
+
+- **Fire once per crossing.** #25/#26 fire when `sessions_left` **first** reaches `low_at`; they do **not** re-fire as it counts 1 down to 0. #27/#28 fire once at 0.
+- **Reset on top-up.** Buying another pack adds a lot and raises `sessions_left` → the cycle re-arms and can fire again later.
+- **Stacking is handled by the counter, not a special case.** `sessions_left` is the sum across all of that session type's lots (credits burn FIFO), so an athlete holding 14 across two packs is not "low".
+- **`active_pack_size`** = the size of the lot(s) still holding credits — the same denominator the UI bar uses. Exhausted lots don't drag the threshold.
+- **Manual ≠ automatic.** #29 is coach-initiated and independent of the milestone; it exists so a coach can pitch at their own moment ("renew now while the discount holds"). Rate-limited to **once per 7 days per pack** so a coach tapping repeatedly can't hammer the athlete on top of the automatic nudges.
+- **UI must use the same threshold.** The amber "running low" card state + inline **Offer renewal** key off `low_at`, not a hardcoded `1` — otherwise the coach gets "Anna is running low" and opens a green card. See `session-packages.md` § 4.4.
+
 ### Clearance tag legend
 
 | Tag | Meaning | Detail |
@@ -65,6 +96,8 @@ Backend `template_data` dict keys must match these literals exactly — the temp
 | `{new_date}` / `{new_time}` / `{old_date}` / `{old_time}` | Reschedule context (proposed new + previous values) | | Only the `_rescheduled_` templates need these. |
 | `{amount}` | Money with currency symbol | "€50" | Backend renames legacy `{sum}` → `{amount}` for consistency. |
 | `{rating}` | Review stars | "5" | Used in `new_review` only. |
+| `{pack_size}` | Sessions in the purchased pack (the lot), not the lifetime total | "5" | Session packages. Integer. |
+| `{sessions_left}` | Credits remaining across **all** of that session type's lots (they burn FIFO) | "2" | Session packages. Integer; drives the milestone rules in § 1.1. |
 | `{provider}` | "Google" or "Apple" calendar | "Google" | Used in `calendar_sync_needs_attention`. |
 
 **Deprecated** (do not use in new templates; migrate in BE-NOTIF-1):

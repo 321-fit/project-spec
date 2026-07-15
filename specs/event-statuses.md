@@ -237,6 +237,8 @@ Creates new event with `request`/`awaiting` state + cancels old. Body: `{ newSta
 ## 7. Business rules
 
 - **`cancelled` is terminal** — no coming back. Reschedule creates new event.
+- **Pack-funded events return the credit** *(new 2026-07-15, see [session-packages.md](./session-packages.md))*. An event booked with a **pack credit** carries no money reservation — the pack was paid upfront. Wherever this spec's transitions would **refund money to the athlete's balance**, they instead **return 1 credit** to the lot that supplied it: `declined`, `cancelled` (either side, per the normal policy), and the **48h auto-decline**. The event lifecycle itself is unchanged — a pack changes *what pays*, not *how the event behaves*.
+  - A **late-cancel / no-show** burn that the coach chooses to **forgive** is the *same operation* — a credit return. There is no separate "forgive" mechanism.
 - **Server state `review` is coach-only. Athlete view maps it to `finished` optimistically.** API serializer for athlete responses translates `review → finished`. If coach later marks `missed`, athlete view updates (push + next fetch). Decided in Tier 1 Q1 — see Flow 3 rationale.
 - **External events** (Google/Apple Calendar sync): separate status-less path. Rendered on calendar as read-only blocks; don't participate in booking lifecycle.
 - **Custom events** (coach-created time blocks, see [coach-calendar.md](./coach-calendar.md) Custom Event section): also status-less. Always displayed; can be deleted.
