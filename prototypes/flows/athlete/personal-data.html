@@ -410,7 +410,9 @@
   .fit-dark .avail-tp-wheels::before { background: var(--fit-black); }
   .avail-tp-wheels > * { position: relative; z-index: 1; }
 
-  /* ===== PD SELECTOR (TZ / Country / Languages) — push screen ===== */
+  /* Currency picker rows reuse the country/TZ selector shell; the symbol takes the flag slot. */
+  .cur-sym { width: 28px; flex-shrink: 0; text-align: center; font-size: 15px; font-weight: 600; color: var(--fit-text-secondary); }
+  /* ===== PD SELECTOR (TZ / Country / Languages / Currency) — push screen ===== */
   .pd-search-wrap { padding: 0 16px 16px; }
   .pd-search {
     display: flex; align-items: center; gap: 8px;
@@ -689,6 +691,7 @@
   <button onclick="go('s-notes-editor',this)">About Me Editor</button>
   <button onclick="go('s-tz-select',this)">Time Zone</button>
   <button onclick="go('s-country-select',this)">Home Country</button>
+  <button onclick="go('s-currency-select',this)">Currency</button>
   <button onclick="go('s-city-select',this)">Home City</button>
   <button onclick="go('s-lang-select',this)">Languages</button>
   <button onclick="go('s-personal-data',this);setTimeout(openDobPicker,100);">DOB Picker</button>
@@ -767,6 +770,11 @@
     <div class="fit-input-group" style="padding:0 16px;">
       <span class="fit-input-label">Home country</span>
       <div class="fit-input" style="cursor:pointer;" onclick="go('s-country-select',document.querySelector('[onclick*=s-country-select]'))"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:14px;"><rect x="1" y="5" width="22" height="14" rx="2"/></svg></span> <span id="pd-country-value">Poland</span><span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Currency</span>
+      <div class="fit-input" style="cursor:pointer;" data-a11y-id="athlete.personal-data.currency" onclick="go('s-currency-select',document.querySelector('[onclick*=s-currency-select]'))"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5a2.5 2.5 0 00-2.5-1.5c-1.4 0-2.5.9-2.5 2s1.1 2 2.5 2 2.5.9 2.5 2-1.1 2-2.5 2a2.5 2.5 0 01-2.5-1.5"/><path d="M12 6.5v11"/></svg></span> <span id="pd-currency-value">PLN &middot; Polish Złoty</span><span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+      <div style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.45;margin-top:6px;">Prefilled from your country. Prices across the app show in this currency.</div>
     </div>
     <div class="fit-input-group" style="padding:0 16px;">
       <span class="fit-input-label">Home city</span>
@@ -1017,7 +1025,9 @@
       </div>
     </div>
   </div>
-  <div class="fit-phone-content">
+  </div>
+
+<div class="fit-phone-content">
     <div class="pd-list" data-pd-list="country" data-pd-mode="single">
       <div class="cal-select-row" data-label="Argentina" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇦🇷</div><span style="flex:1;">Argentina</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
       <div class="cal-select-row" data-label="Australia" onclick="pdPickSingle(this,'country','pd-country-value')"><div class="cal-flag">🇦🇺</div><span style="flex:1;">Australia</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
@@ -1176,6 +1186,55 @@
 
 
 <!-- ==================== ANNOTATIONS ==================== -->
+<!-- ===== CURRENCY SELECT — clone of the country selector; one setting, see project_multi_currency ===== -->
+<div class="fit-phone fit-light" id="s-currency-select">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="athlete.currency-select.back" onclick="go('s-personal-data',document.querySelector('[onclick*=s-personal-data]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Currency</span>
+    </div>
+    <div class="pd-search-wrap">
+      <div class="pd-search" id="currency-search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="search" id="currency-search-input" placeholder="Search" autocomplete="off" oninput="filterPdList(this,'currency')"/>
+        <button class="pd-search-clear" onclick="clearPdSearch('currency')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="pd-list" data-pd-list="currency" data-pd-mode="single">
+      <div class="cal-select-row" data-label="AUD &middot; Australian Dollar" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">$</div><span style="flex:1;">AUD &middot; Australian Dollar</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="BRL &middot; Brazilian Real" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">R$</div><span style="flex:1;">BRL &middot; Brazilian Real</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="GBP &middot; British Pound" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">£</div><span style="flex:1;">GBP &middot; British Pound</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="CAD &middot; Canadian Dollar" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">$</div><span style="flex:1;">CAD &middot; Canadian Dollar</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="CNY &middot; Chinese Yuan" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">¥</div><span style="flex:1;">CNY &middot; Chinese Yuan</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="CZK &middot; Czech Koruna" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">Kč</div><span style="flex:1;">CZK &middot; Czech Koruna</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="DKK &middot; Danish Krone" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">kr</div><span style="flex:1;">DKK &middot; Danish Krone</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="EUR &middot; Euro" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">€</div><span style="flex:1;">EUR &middot; Euro</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="HKD &middot; Hong Kong Dollar" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">$</div><span style="flex:1;">HKD &middot; Hong Kong Dollar</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="HUF &middot; Hungarian Forint" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">Ft</div><span style="flex:1;">HUF &middot; Hungarian Forint</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="INR &middot; Indian Rupee" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">₹</div><span style="flex:1;">INR &middot; Indian Rupee</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="IDR &middot; Indonesian Rupiah" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">Rp</div><span style="flex:1;">IDR &middot; Indonesian Rupiah</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="JPY &middot; Japanese Yen" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">¥</div><span style="flex:1;">JPY &middot; Japanese Yen</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="MYR &middot; Malaysian Ringgit" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">RM</div><span style="flex:1;">MYR &middot; Malaysian Ringgit</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="MXN &middot; Mexican Peso" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">$</div><span style="flex:1;">MXN &middot; Mexican Peso</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="NZD &middot; New Zealand Dollar" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">$</div><span style="flex:1;">NZD &middot; New Zealand Dollar</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="NOK &middot; Norwegian Krone" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">kr</div><span style="flex:1;">NOK &middot; Norwegian Krone</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row selected" data-label="PLN &middot; Polish Złoty" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">zł</div><span style="flex:1;">PLN &middot; Polish Złoty</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="RUB &middot; Russian Ruble" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">₽</div><span style="flex:1;">RUB &middot; Russian Ruble</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="SGD &middot; Singapore Dollar" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">$</div><span style="flex:1;">SGD &middot; Singapore Dollar</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="ZAR &middot; South African Rand" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">R</div><span style="flex:1;">ZAR &middot; South African Rand</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="KRW &middot; South Korean Won" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">₩</div><span style="flex:1;">KRW &middot; South Korean Won</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="SEK &middot; Swedish Krona" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">kr</div><span style="flex:1;">SEK &middot; Swedish Krona</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="CHF &middot; Swiss Franc" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">Fr</div><span style="flex:1;">CHF &middot; Swiss Franc</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="THB &middot; Thai Baht" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">฿</div><span style="flex:1;">THB &middot; Thai Baht</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="TRY &middot; Turkish Lira" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">₺</div><span style="flex:1;">TRY &middot; Turkish Lira</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="cal-select-row" data-label="USD &middot; US Dollar" onclick="pdPickSingle(this,'currency','pd-currency-value')"><div class="cur-sym">$</div><span style="flex:1;">USD &middot; US Dollar</span><div class="cal-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+    </div>
+    <div class="pd-empty" id="currency-empty">Nothing found</div>
+  </div>
+
 <div class="ann-container">
   <div class="ann active" id="ann-s-personal-data"><span class="ann-role athlete">Athlete</span><h3>Personal Data</h3>
     <div class="state-toggle">
