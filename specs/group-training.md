@@ -2,9 +2,9 @@
 
 > Status: Approved
 > Prototypes (Phase 4 redesign): coach create/manage [coach/sessions.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/sessions.html) + [coach/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html) · schedule/publish [coach/invite.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/invite.html) · athlete discover/join [shared/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/profile.html) · athlete schedule [athlete/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/calendar.html). Group event detail: [group-event-detail.md](group-event-detail.md).
-> Last updated: 2026-07-01
+> Last updated: 2026-07-17
 
-> **Changelog 2026-07-01 — Template/schedule DECOUPLE.** A group template is now a *pure definition* (no days/time/recurrence), created exactly like a personal one. Scheduling is a **separate step** (calendar FAB → `invite.html?mode=schedule` → template chooser → drag-drop grid → **publish drawer**). One template → many placements. Recurrence trimmed to `Just this date` / `Weekly` (+ day chips) with `Ends: Ongoing / On date`. "On date" expands the drawer to the large detent + inline calendar. Weekly publish runs a **conflict review** over the 60-day generation window (own events hard-skipped, external "keep anyway"). See §1, §3, §3a, §"Overlap & Conflicts".
+> **Changelog 2026-07-17 — Reconciled to shipped model (template carries its own schedule).** The earlier "decoupled scheduling" model (template = pure definition + a separate `invite.html?mode=schedule` step + `/coach/group-templates/{id}/schedule/preview` + `/schedule` endpoints + `keep_external_dates[]`) was **never built**. Shipped reality: a group template **carries its schedule** (days + time + recurrence, or a one-off date) on the existing `/coach/training-sessions` resource — created with the shared `s-create` form documented in [session-creation.md](./session-creation.md). Saving a scheduled group template **auto-generates events 2 months ahead** (publish-at-create); a template may also be created as a **draft** (no schedule) and published later via `PUT`/`PATCH`. External-calendar conflicts are returned as `externalCalendarConflicts[]` on the create/publish response and resolved with `POST /coach/training-sessions/{id}/confirm-conflicts` (coach keeps or skips each date). **Different weekday-times = separate templates.** Recurrence = `Weekly` (+ day chips) with `Ends: Ongoing / On date` (`recurringEndDate`). See §1, §3a, §Data Model, §API Endpoints.
 
 ## Overview
 
@@ -51,13 +51,13 @@ Add group training sessions to 321Fit. Coaches create reusable templates with pa
 
 #### 1. Create Group Session (template = pure definition, NO schedule)
 
-> **DECOUPLED 2026-07-01.** The template no longer carries any schedule. It is a reusable definition, created with the **same** `s-create` form as a personal template — the group toggle only adds **max/min participants**. NO days, time, recurrence, or date pickers on the template form.
+> **Shipped model.** The group template **carries its schedule** on the shared `s-create` form (same form as a personal template): selecting Group reveals **max/min participants** plus the **schedule section** (Recurring days + start time, or a one-off date). See [session-creation.md](./session-creation.md) for the full form.
 
-The create / edit form is shared between personal and group templates and is documented in [session-creation.md](./session-creation.md). Fields: name, sport, location, duration, price/participant, payment method — plus (group only) max + optional min participants.
+The create / edit form is shared between personal and group templates and is documented in [session-creation.md](./session-creation.md). Fields: name, sport, location, duration, price/participant, payment method — plus (group only) max + optional min participants + schedule (days + time, or one-off date).
 
 **Group-specific behavior layered on top of the shared form:**
-- Selecting Group reveals **max participants** + optional **min participants** (threshold) — nothing else
-- Saving creates only the template. It generates **no events** — scheduling happens later (see §3a)
+- Selecting Group reveals **max participants** + optional **min participants** (threshold) + the **schedule section**
+- Saving a **scheduled** group template **auto-generates events 2 months ahead** (see §3a). A template saved with no schedule is a **draft**, published later
 - Lives in "My Sessions" beside personal templates
 
 #### 2. My Training Sessions
@@ -66,7 +66,7 @@ The list screen, edit-mode behavior, and impactful-vs-non-impactful change rules
 - Group templates: badge "Group · max 10", price shown as "€25/person"
 - Personal templates: badge "Personal"
 
-**Edit mode — `Scheduled dates` section (edit-only).** Lists every live placement of this template (recurring series + one-off "Special" events), each row → manage on calendar. A **"Schedule new dates"** CTA hands off to the scheduling flow (`invite.html?mode=schedule&origin=s-edit`). **Empty state:** a freshly created template with no placements shows a dashed "No dates scheduled yet · Add this template to your calendar below" card above the CTA.
+**Edit mode — `Scheduled dates` section (edit-only).** Lists every generated event of this template (`GET /coach/training-sessions/{id}/events` — recurring series + one-off "Special" events), each row → manage on calendar. To change the schedule the coach **edits the template's schedule fields** (days / time / recurrence) and picks a `scope` on save (per [session-creation.md](./session-creation.md) Flow 4) — there is no separate scheduling flow. **Empty state (draft template):** a template saved without a schedule shows a dashed "No dates scheduled yet · Add a schedule to publish events" card.
 
 #### 3. Calendar
 [Prototype screen: Calendar]
@@ -77,8 +77,8 @@ The list screen, edit-mode behavior, and impactful-vs-non-impactful change rules
 - Personal events: green left border + athlete name
 - Day strip wheel (horizontal scroll, today centered)
 - Today / Sync buttons in header
-- FAB "+" → bottom sheet: **"Schedule training"** (personal or group session) + "Block time off" (custom event). *(Was "Create Personal/Group/Custom Event" — replaced 2026-07-01: scheduling now goes through the template chooser, §3a.)*
-- "Schedule training" → `invite.html?mode=schedule` → template chooser → drag-drop grid → publish/invite (see §3a)
+- FAB "+" → bottom sheet: **"Schedule training"** (book a personal session for an athlete) + "Block time off" (custom event).
+- **Group events are not scheduled from the calendar FAB** — they are generated when the coach saves a scheduled group template (§1 / §3a). The FAB "Schedule training" path is the personal booking flow (see [booking-flow.md](./booking-flow.md)).
 - Long press on existing event → bottom sheet: View Details, Reschedule, Cancel
 - Current time indicator (teal line + dot)
 
@@ -93,24 +93,19 @@ The list screen, edit-mode behavior, and impactful-vs-non-impactful change rules
 - Cancel: warning "X participants will be notified and refunded"
 - Reschedule: then opens date/time picker
 
-#### 3a. Scheduling a session (template → calendar) — NEW 2026-07-01
-[Prototype: coach/invite.html]
+#### 3a. Scheduling group events (from the template)
+[Prototype: coach/sessions.html#s-create]
 
-Decoupled scheduling. Reached from the calendar FAB "Schedule training" **or** a template's "Schedule new dates" CTA in edit mode. One shared flow for personal + group, branched by template type.
+Group events are generated **from the template's own schedule** — there is no separate template→calendar step. Two paths:
 
-**Flow:**
-1. **Template chooser** (`s-invite-select`) — ONE list of all templates (personal + group). Tap selects + pushes to the grid. Empty (no templates) → jumps to `sessions.html#s-create`; loading = 2 skeleton cards.
-2. **Drag-drop time-grid** (`s-invite-time`) — reuses the athlete booking grid (`.fit-bk-*`, 96px = 1h). Tap a free band or drag the block (15-min snap); it snaps off any busy range to the nearest free slot (coach's own conflict = STRICT, can't place). Group branch hides the athlete-availability row (open event, no invitee). One template → **many placements** (Tue 12:00 + Fri 17:00 = two drops).
-3. **Confirm step** branches by type:
-   - **Personal** → invite (link) / schedule (in-app) confirm sheet.
-   - **Group** → **publish drawer** (`group-publish-sheet`), CTA **Publish** (open event, no invite).
+1. **Publish-at-create** — the coach fills the schedule section on `s-create` (Recurring days + start time, or a one-off date) and saves. `POST /coach/training-sessions` with `isGroup: true` + a complete schedule generates events for the next **2 months** synchronously.
+2. **Draft → publish** — the coach saves the template with **no** schedule (draft), then later adds the schedule and publishes via `PUT`/`PATCH /coach/training-sessions/{id}` (first publish generates the events; `scope` is **not** required on that first publish).
 
-**Group publish drawer:**
-- **Session summary** (name, time from the drop, location, max, price/person).
-- **Repeat:** `Just this date` / `Weekly`. Weekly reveals **day chips** (M–S, dropped weekday pre-selected, same time) — Publish is **disabled** until ≥1 day is selected.
-- **Ends:** `Ongoing` / `On date`. Picking **On date** expands the sheet to the **large detent** (`.presentationDetents([.medium,.large])`) and scrolls to an **inline month calendar** (native graphical `DatePicker` on device — no stacked picker sheet; maps to `training_event.recurrence_pattern_end_date`).
-- **Recurrence-aware copy** summarizing what will publish ("Publishes a weekly open session · Tue & Thu · 09:00 until Jul 23").
-- On **Publish** of a Weekly placement → **conflict review** (§"Overlap & Conflicts"). One-off publishes directly → snackbar → land on Calendar.
+**Recurrence** (schedule section): `Weekly` with **day chips** (M–S, multi-select, one start time) or a **one-off** date. `Ends: Ongoing` (open-ended, keeps rolling) or `On date` (`recurringEndDate`). Different weekday-times = **separate templates** (matches Google/Apple; one template = one weekly time).
+
+**Conflict handling on generate** (see §"Overlap & Conflicts"):
+- **Coach's own 321Fit event** overlap → **hard-skipped silently** (STRICT; can't double-book yourself). Not surfaced.
+- **External Google/Apple** overlap → **soft-skipped** and returned in `externalCalendarConflicts[]` on the response. The coach reviews and calls `POST /coach/training-sessions/{id}/confirm-conflicts` with `keptDates[]` / `skippedDates[]` to materialise the dates to keep.
 
 #### 4. Group Event Detail
 [Prototype screen: Event Detail]
@@ -249,33 +244,34 @@ Same calendar as coach but light theme.
 
 ### New/Modified Tables
 
-> **DECOUPLED 2026-07-01.** The template holds **no schedule** — drop `recurring_days` / `recurring_time` / `is_recurring` from `training_session`. Recurrence lives on the **event/placement** via the existing `training_event.recurrence_pattern` / `recurrence_pattern_end_date` / `recurrence_description` columns.
+> **Shipped model.** The **template** (`training_session`) carries the schedule: `is_recurring`, `recurring_days`, `recurring_time`, `recurring_until` (from `recurringEndDate`), plus a transient `oneOffDate` (used to place a single event, not persisted on the template). Generated events are rows in `training_event`; individual occurrences can be overridden/cancelled without breaking the series.
 
-**training_session (modified)** — group definition only
+**training_session (modified)** — group definition **+ schedule**
 | Field | Type | Description |
 |---|---|---|
 | is_group | boolean | false = personal, true = group |
 | max_participants | int, nullable | max athletes (group only) |
 | min_participants | int, nullable | min threshold (group only, optional) |
+| is_recurring | boolean | group only; true = Weekly series, false = one-off |
+| recurring_days | int[], nullable | 0=Mon … 6=Sun; required when publishing a recurring group template |
+| recurring_time | text, nullable | "HH:MM" start time; required when publishing a group template |
+| recurring_until | date, nullable | `recurringEndDate` — caps the series; null = ongoing |
 
-**training_event (modified)** — carries the schedule/recurrence
+**training_event (modified)** — a generated occurrence
 | Field | Type | Description |
 |---|---|---|
-| is_group_event | boolean | derived from session.is_group at placement time |
-| recurrence_pattern | text, nullable | **existing col** — `weekly` + day-of-week set; null = one-off |
-| recurrence_pattern_end_date | date, nullable | **existing col** — `Ends: On date`; null = ongoing |
-| recurrence_description | string, nullable | **existing col** — human-readable ("Tue & Thu · 09:00") |
-| override_datetime | datetime, nullable | for rescheduled individual recurring events |
-| cancelled_from_recurring | boolean | true if cancelled but chain continues |
+| is_group_event | boolean | derived from session.is_group at generation time |
+| override_datetime | datetime, nullable | for an individually-rescheduled occurrence in a recurring series |
+| cancelled_from_recurring | boolean | true if this occurrence was cancelled but the series continues |
 
 **group_event_participant (new)**
 | Field | Type | Description |
 |---|---|---|
-| id | uuid | primary key |
+| id | int | primary key |
 | training_event_id | FK | → training_event |
 | athlete_profile_id | FK | → athlete_profile |
 | registered_at | datetime | when athlete joined |
-| payment_status | enum | waiting / held / transferred / cash_unpaid / cash_paid |
+| payment_status | enum | held / transferred / cash_unpaid / cash_paid |
 | cancelled_at | datetime, nullable | when athlete cancelled |
 
 ### Key Queries
@@ -285,21 +281,29 @@ Same calendar as coach but light theme.
 
 ## API Endpoints
 
-> **DECOUPLED 2026-07-01.** Template create no longer generates events. Scheduling is a **separate** call (preview → commit) so the coach can review overlap conflicts before publishing. Recurrence lives on the **event/placement** (`training_event.recurrence_pattern` / `recurrence_pattern_end_date` / `recurrence_description` — already in schema), **not** on the template.
+> **Shipped model.** Group templates are **not** a separate resource — the existing `/coach/training-sessions` resource is extended with group + schedule fields (per [session-creation.md](./session-creation.md) §6). Creating/publishing a scheduled group template generates events synchronously; external-calendar conflicts are resolved with `confirm-conflicts`. There is **no** `/group-templates/…/schedule/preview` or `/schedule` resource. Full endpoint reference: [`poly-backend/docs/group-training-api.md`](../../poly-backend/docs/group-training-api.md).
 
 | Method | Path | Description |
 |---|---|---|
-| GET | `/coach/group-templates/` | List coach's group training templates |
-| POST | `/coach/group-templates/` | Create group template **only** (no events; max/min participants) |
-| POST | `/coach/group-templates/{id}/schedule/preview/` | **NEW** — dry-run: given start datetime + recurrence (`once`/`weekly` + days + ends `ongoing`/`on_date`), return occurrences in the 60-day window + conflicts split `own` (hard-skip) / `external` (soft) |
-| POST | `/coach/group-templates/{id}/schedule/` | **NEW** — commit a placement: same payload + `keep_external_dates[]` → generate events skipping own conflicts + non-kept external → returns created + skipped |
-| GET | `/coach/group-templates/{id}/events/` | List events (placements) for a template |
-| GET | `/athlete/coaches/{id}/group-trainings/` | Group templates on coach profile |
+| GET | `/coach/training-sessions/` | List coach's templates (personal + group) |
+| POST | `/coach/training-sessions/` | Create template; a scheduled group template auto-generates 2 months of events (draft with no schedule allowed) |
+| PUT / PATCH | `/coach/training-sessions/{id}/` | Edit / publish template; first publish of a draft generates events; `scope` for impactful edits |
+| POST | `/coach/training-sessions/{id}/confirm-conflicts/` | Resolve external-calendar conflicts (`keptDates[]` / `skippedDates[]`) → materialise kept occurrences |
+| GET | `/coach/training-sessions/{id}/events/` | List events (occurrences) generated from a template |
+| GET | `/athlete/coaches/{id}/group-trainings/` | Group templates on a coach profile, each with its soonest `nextEvent` + spot count |
 | GET | `/athlete/group-events/{id}/` | Group event detail with participants |
-| POST | `/athlete/group-events/{id}/join/` | Join group training |
+| GET | `/athlete/group-events/{id}/can-afford/` | Does the athlete's balance cover the fee? |
+| POST | `/athlete/group-events/{id}/join/` | Join group training (`paymentType`) |
 | DELETE | `/athlete/group-events/{id}/leave/` | Leave group training |
-| PATCH | `/coach/group-events/{id}/participants/{pid}/` | Mark cash payment |
-| DELETE | `/coach/group-events/{id}/participants/{pid}/` | Remove participant |
+| GET | `/coach/training-events/{id}/` | Coach group event detail (+ participants, note, share link) — see [group-event-detail.md](group-event-detail.md) |
+| PATCH | `/coach/training-events/{id}/participants/{athleteId}/` | Mark cash payment for a participant |
+| DELETE | `/coach/training-events/{id}/participants/{athleteId}/` | Remove a participant (refund + push) |
+| POST | `/coach/training-events/{id}/cancel/` | Cancel occurrence(s) (`recurringScope`: this / following / all) |
+| PUT | `/coach/training-events/{id}/reschedule/` | Reschedule occurrence(s) (`recurringScope`) |
+| POST | `/coach/training-events/{id}/complete/` | Complete event + trigger card transfers |
+| POST | `/coach/training-events/{id}/share-link/` | Mint / return the event's permanent share link |
+
+> `participants[].id` (coach detail) and the participant path param are the athlete **profile id** (integer) — see [group-event-detail.md](group-event-detail.md).
 
 ### Modified Endpoints
 
@@ -307,7 +311,6 @@ Same calendar as coach but light theme.
 |---|---|---|
 | GET | `{role}/training-events/` | Include group events with participant count |
 | GET | `coach/training-events/allowed-hours/` | Account for group event slot blocking |
-| PATCH | `{role}/training-events/{id}/change-status/` | Support recurring options (this/following/all) |
 
 ## Business Rules
 
@@ -337,16 +340,16 @@ Same calendar as coach but light theme.
 - External calendar events block availability (treated as busy)
 - External conflicts shown side-by-side in calendar
 
-**Recurring-publish conflict review (NEW 2026-07-01).** A `Weekly` placement projects the same time onto future weeks; some occurrences may overlap existing events. On Publish, the server (or client pre-check) evaluates occurrences **inside the 60-day generation window** and, if any collide, returns them for a **review step** (page 2 of the publish drawer — no stacked sheet):
-- **Coach's own 321Fit event** (personal/group) → **hard auto-skip** that occurrence. Cannot double-book yourself (canon STRICT). Shown with a "Skipped" tag, no toggle.
-- **External Google/Apple** busy → **soft**: default skip, per-date **"Keep anyway"** toggle (canon: external "resolves manually"). Toggling recomputes the "Publish N sessions" count.
+**Recurring-publish conflict review.** A `Weekly` schedule projects the same time onto future weeks; some occurrences may overlap existing events. On generate (create or first publish), the server evaluates occurrences **inside the 60-day generation window** and:
+- **Coach's own 321Fit event** (personal/group) → **hard auto-skip** that occurrence, **silently** (canon STRICT — cannot double-book yourself). Not surfaced to the coach.
+- **External Google/Apple** busy → **soft**: the free occurrences materialise immediately; conflicting ones are returned in `externalCalendarConflicts[]` for a **review step**. The coach keeps or skips each date and calls `POST /coach/training-sessions/{id}/confirm-conflicts` (`keptDates[]` / `skippedDates[]`).
 - **No per-occurrence time-shift** — athletes keep a stable weekly time. To use a skipped date, the coach manually frees their slot and adds an occurrence.
 - **Rolling generation** (day 61+ as the window advances): the daily job re-checks new occurrences, skips conflicts, and sends a low-priority push to the coach ("Recurring HIIT skipped Aug 20 — calendar conflict").
 
 ### Recurring Events
 - Auto-generate **60 days (2 months) ahead**, rolling window (daily check)
 - Weekly only (multi-day, single time — matches Google/Apple). Monthly / every-N-weeks / after-N-occurrences are **not** in V1
-- `Ends: Ongoing` (open-ended, keeps rolling) or `On date` (`recurrence_pattern_end_date`)
+- `Ends: Ongoing` (open-ended, keeps rolling) or `On date` (`recurring_until` / `recurringEndDate`)
 - Each generated occurrence is checked for overlap and **skipped** on conflict (see review above)
 - Individual event can be cancelled/rescheduled without affecting chain
 - Reschedule options: this only / this and following / all
@@ -467,7 +470,7 @@ All bottom sheets in the app follow these spacing and interaction rules:
 - Only for overridden events, not for the regular recurring instances
 
 ### Special Badge (one-off events)
-- Determined per **placement**: `training_event.recurrence_pattern IS NULL` (one-off `Just this date`) → "Special". Recurring placements have a non-null pattern. *(No template-level recurrence flag post-decouple.)*
+- Determined by the **template**: `training_session.is_recurring = false` (one-off `Just this date`) → "Special". Recurring templates have `is_recurring = true`.
 - Coach profile: one-off template card gets "Special" badge (brand cyan bg, small text) + subtle brand border highlight on the card
 - Calendar: one-off events look the same as recurring (no special indicator on timeline)
 
@@ -497,28 +500,28 @@ The delete sheet (Keep existing / Cancel all + warning + refund count) is docume
 
 ## Data Model Notes
 
-### One-off vs Recurring (per placement, post-decouple)
-- Determined per **placement/event**, not the template: `training_event.recurrence_pattern IS NULL` = one-off (`Just this date`), non-null = recurring (`Weekly`)
-- "Special" badge is a UI-only concept derived from this
-- One template → many placements (each its own pattern)
+### One-off vs Recurring (per template)
+- Determined by the **template**: `training_session.is_recurring = false` = one-off (`Just this date`), `true` = recurring (`Weekly`)
+- "Special" badge is a UI-only concept derived from `is_recurring = false`
+- One template = one weekly time; **different weekday-times = separate templates**
 
 ### Recurring Storage
-- Recurrence lives on the **event/placement** via existing `training_event` cols: `recurrence_pattern` (weekly + day-of-week set), `recurrence_pattern_end_date` (`Ends: On date`; null = ongoing), `recurrence_description` (human-readable)
+- Recurrence lives on the **template** (`training_session`): `recurring_days` (day-of-week set), `recurring_time` (single start time), `recurring_until` (`Ends: On date` = `recurringEndDate`; null = ongoing)
 - V1 = **Weekly only** (multi-day, single time). Monthly / bi-weekly / after-N-occurrences NOT in V1 — if ever needed, migrate to RFC 5545 RRULE
-- Different time per weekday = **separate placements** (matches Google/Apple)
+- Different time per weekday = **separate templates** (matches Google/Apple)
 
 ### API Scope Parameter
-- Existing `PATCH {role}/training-events/{id}/change-status/` extended with optional `scope` field:
-  - `scope: "this"` (default if omitted) — affects single event
-  - `scope: "following"` — this event + all future events in chain
-  - `scope: "all"` — all events of this template
-- Same scope parameter used for reschedule: `PUT /coach/training-events/{id}/reschedule/` with `{new_datetime, scope}`
-- Backward compatible — `scope` is optional, defaults to `"this"`
+- **Template edit** — `PUT`/`PATCH /coach/training-sessions/{id}/` takes a top-level `scope` (`following` / `all`) for impactful changes; omitted = template only (see [session-creation.md](./session-creation.md) §6)
+- **Per-occurrence cancel / reschedule** — dedicated endpoints take `recurringScope`:
+  - `POST /coach/training-events/{id}/cancel/` with `{recurringScope}`
+  - `PUT /coach/training-events/{id}/reschedule/` with `{datetimeStart, recurringScope}`
+  - `recurringScope: "this"` (single) / `"following"` (this + future) / `"all"` (whole series)
+- Backward compatible — scope fields are optional
 
-### Creating Events from Templates (scheduling — post-decouple)
-- Template create generates **no** events. A **placement** is scheduled separately: `POST /coach/group-templates/{id}/schedule/preview/` (dry-run → occurrences + conflicts) then `POST /coach/group-templates/{id}/schedule/` (commit with `keep_external_dates[]`)
-- Weekly placement → generate events **60 days** ahead, rolling daily; one-off → single event
-- **Conflict-skip:** own coach events = hard-skip that occurrence (STRICT); external Google/Apple = skip unless the coach chose "Keep anyway"; rolling job re-checks + low-pri push. See § Overlap & Conflicts
+### Creating Events from Templates (scheduling)
+- Saving a **scheduled** group template generates events synchronously: `POST /coach/training-sessions` (publish-at-create) or the first `PUT`/`PATCH` publish of a draft
+- Recurring → generate events **2 months (60 days)** ahead, rolling daily; one-off → single event
+- **Conflict-skip:** own coach events = hard-skip that occurrence (STRICT, silent); external Google/Apple = returned in `externalCalendarConflicts[]`, coach resolves via `POST /coach/training-sessions/{id}/confirm-conflicts`; rolling job re-checks + low-pri push. See § Overlap & Conflicts
 
 ## Migration & Compatibility
 

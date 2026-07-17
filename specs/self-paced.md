@@ -3,7 +3,7 @@
 > Status: **Approved** — flow prototyped & reviewed, ready for task breakdown. (Deferred from v1: video library, progress-over-time — see §9. Packages are **no longer deferred** — they cover self-paced too, spec'd in [session-packages.md](./session-packages.md); see §8.)
 > Prototype: [flows/shared/self-paced.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/self-paced.html) (isolated module; screens split into real surfaces per §5)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-07-02
+> Last updated: 2026-07-17
 > Implementation:
 > - iOS:     [321fit_ios/docs/self-paced-ios.md] (to be created during dev)
 > - Android: [321fit_android_new/docs/self-paced-android.md] (to be created during dev)
@@ -41,11 +41,11 @@
 
 ## 3. System stories
 
-- As the backend, **self-paced is a session type**; a fulfilled instance is a `training_event` with `delivery: self_paced` + ordered **steps**. Each step: name, optional video asset, **independent** `reps`/`sets` and `timer` targets (both, either, or neither — not mutually exclusive), optional `rest_after`, instructions.
+- As the backend, **self-paced is its own standalone entity** — a `self_paced_booking` row (NOT a `training_event` carrying a `delivery` discriminator, and there is **no unified** personal/group/self_paced session-type enum). A booking owns ordered **steps** (own `workout_step` rows). Each step: name, optional video asset, **independent** `reps`/`sets` and `timer` targets (both, either, or neither — not mutually exclusive), optional `rest_after`, instructions.
 - As the backend, the **offering** is a coach catalog item (name + price); booking it creates a request the coach fulfils.
-- As the backend, self-paced events are **day-bound, not time-bound**: the event carries a target **date** (no start time). It lands as a **default 1-hour event** in the athlete's calendar, freely reschedulable; the coach is notified **only on a day change** (same-day/time reschedule = silent). Events are **off the coach's calendar** (no live slot); they surface in the coach's async hub + the client's record.
+- As the backend, self-paced bookings are **day-bound, not time-bound**: the booking carries a target **date** (no start time). It lands as a **default 1-hour calendar event visible to the athlete ONLY** — a freely-reschedulable placeholder that is **never placed on the coach's calendar** (no live slot); the coach is notified **only on a day change** (same-day/time reschedule = silent). Rather than a calendar slot, the coach instead sees the **time the workout was completed** in their review/report. Bookings surface in the coach's async hub + the client's record. *(Intended model — fork P6; a backend task exists to build the athlete-only calendar placeholder.)*
 - As the backend, the athlete's **completion feedback is structured** (not a free star rating): `intensity` ∈ {too_easy, just_right, too_hard}, `technique` ∈ {struggled, ok, solid}, + optional note + optional clip. The coach's review carries a rating + feedback text.
-- As the backend, **no card hold at booking** — online payment is from the athlete's prepaid 321Fit balance (same model as `booking-flow.md`).
+- As the backend, **no card hold at booking** — online payment is typically from the athlete's prepaid 321Fit balance (same model as `booking-flow.md`). The offering also supports **cash** (card / cash / both), so online-prepaid is the default, not the only, method.
 
 ---
 
@@ -114,7 +114,7 @@ Get ready (3-2-1, voiced)  →  WORK set  →  Rest (voiced countdown, auto-flow
 ## 8. Pricing & payment
 
 - Price lives on the **offering** (coach sets it, typically **below** their live rate). v1 = single price per offering (one generic offering for now).
-- Booking self-paced = simplified confirm (price + pay from balance, optional note) — **no time-slot grid** (no live time). Coach-initiated (athlete hasn't paid) → athlete's Welcome CTA is "Pay €X & start".
+- Booking self-paced = simplified confirm (price + pay from balance, optional note) — **no time-slot grid** (no live time). The offering can accept **card / cash / both** — cash is allowed, it is not online-prepaid-only. Coach-initiated (athlete hasn't paid) → athlete's Welcome CTA is "Pay €X & start".
 - **Packages apply to self-paced** like any other type — a pack is N sessions of one template, and the type doesn't change the mechanism. Specified separately in [session-packages.md](./session-packages.md) (decision #7); the base-session picker already lists self-paced offerings. *(Was "Phase 2" — written before the packages spec existed. Updated 2026-07-15.)*
 
 ---
@@ -123,7 +123,7 @@ Get ready (3-2-1, voiced)  →  WORK set  →  Rest (voiced countdown, auto-flow
 
 **Locked (2026-06-12):**
 - **Comments thread = the session's home.** Review (coach) + Complete (athlete) are one-time **compose** screens that **post into the session's single thread**: the athlete submission (clip + structured feedback) and the coach review (rating + feedback) render as **anchor messages**, then both sides reply freely. Review→Finish lands in the thread; the player has a **Tell your coach** affordance into it. (Rejected: merging the review fully into a chat — rating-in-chat is less structured.)
-- **Day-bound, not time-bound.** Coach setup + athlete booking pick a **day** (date picker, no time). It lands as a **default 1-hour** athlete calendar event, freely reschedulable; **coach notified only on a day change**.
+- **Day-bound, not time-bound.** Coach setup + athlete booking pick a **day** (date picker, no time). It lands as a **default 1-hour calendar event visible to the athlete only** (never on the coach's calendar), freely reschedulable; **coach notified only on a day change**. The coach sees the **time the workout was completed** in their report instead of a calendar slot. *(Intended model — fork P6 resolved; a backend task exists to build the athlete-only calendar placeholder.)*
 - **Structured completion feedback** (replaces plain stars on the athlete side): intensity (too easy / just right / too hard, with a helper line on what the coach adjusts) + technique (struggled / OK / solid). Coach review still uses a rating + feedback text.
 - **Targets are independent** (Reps and Timer + Rest, not a one-of segment). Player plays them as a sequence (§7.1).
 - **Booking is not a new screen** — self-paced is a personal session **type**; it appears as a card in the existing Book training → Personal tab, "Self-paced · do it anytime" strip (not "Online" — avoids confusion with live online sessions), lower price.
@@ -142,7 +142,7 @@ Get ready (3-2-1, voiced)  →  WORK set  →  Rest (voiced countdown, auto-flow
 
 **Open / deferred:**
 - **Trial / free first self-paced session** per athlete — acquisition lever so an athlete can try the format once before paying. Deferred (design with pricing/packages, Phase 2).
-- **Backend data model** — exact `training_session` type + `training_event.delivery` + steps schema (incl. independent reps/timer/rest) + offering as a catalog item + structured-feedback enums + one-submission-per-session constraint. TBD with backend.
+- **Backend data model** — shipped as a **standalone `self_paced_booking` table** with its own `workout_step` rows (NOT a `training_event` with a `delivery` discriminator, and no unified personal/group/self_paced type enum) + offering as a catalog item + structured-feedback enums + one-submission-per-session constraint. Steps carry independent reps/timer/rest.
 - **Notifications** — new categories: assigned/ready · submitted · feedback/finished · new-comment · day-change · (optional) due reminder. To add to `notifications-catalog.md`.
 - **Coach video library** home — lives near session templates (coach Profile/Sessions); reuse across athletes is the scale lever.
 - **Component extraction** — inbox tabs + `.req-card` are inline-styled; extract to kit before integrating (see `architecture/design-system.md § Pending component extractions`).

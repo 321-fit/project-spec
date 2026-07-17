@@ -4,7 +4,7 @@
 > Prototype (coach): [flows/coach/sport-types.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/sport-types.html)
 > Prototype (athlete): [flows/athlete/sport-types.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/sport-types.html) — built 2026-06-30
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-30 (athlete variant built — closed list, no custom-sport creation)
+> Last updated: 2026-07-17
 > Implementation:
 > - iOS:     [321fit_ios/docs/sport-picker-ios.md] (to be created)
 > - Backend: [poly-backend/docs/sport-picker-backend.md] (to be created)
@@ -21,7 +21,7 @@
 
 321Fit uses a **closed list** of sports — coaches and athletes pick from a fixed taxonomy on onboarding and from profile settings. Sport ID is the join key for discovery, search, filter, suggestion feeds, and coach-athlete matching. Free-text sports are **not allowed**, by design — they would break every discovery surface (typos, synonyms, long-tail ID explosion).
 
-V1 ships **33 sports across 8 sections** (Fitness & Strength, Racket, Team & court, Combat, Endurance, Mind & body, Recovery & therapy, Other). Adding a sport = product decision + backend seed + icon — never a runtime user action.
+V1 ships **33 sports across 8 sections** (Fitness & Strength, Racket sports, Team & court, Combat & martial arts, Endurance & cardio, Mind & body, Recovery & therapy, Other). Section/sport strings above match the shipped seed migration verbatim. Adding a sport = product decision + backend seed + icon — never a runtime user action.
 
 The sport picker is a **multi-select push screen** with sticky search, sectioned grid layout, and a sticky save footer.
 
@@ -192,7 +192,7 @@ If a `GET /sports` taxonomy endpoint lands:
       "key":   "fitness_strength",
       "name":  "Fitness & Strength",
       "sports": [
-        { "id": 1, "name": "Fitness (gym)", "isGlobal": true, "iconKey": "fitness" }
+        { "id": 1, "name": "Fitness", "isGlobal": true, "iconKey": "fitness" }
       ]
     }
   ]
@@ -206,13 +206,13 @@ A `sectionKey` field on `SportTypeResponse` is the minimum required to group spo
 ## 7. Business rules
 
 ### Taxonomy (V1)
-33 sports across 8 sections (full list in memory `project_sport_taxonomy`):
-- **Fitness & Strength:** Fitness (gym), CrossFit, Functional training, HIIT, Weightlifting, Calisthenics
-- **Racket:** Tennis, Padel, Badminton, Squash, Table tennis
-- **Team & court:** Basketball, Football (soccer), Volleyball
-- **Combat / martial arts:** Boxing, Kickboxing / Muay Thai, MMA, BJJ, Karate
-- **Endurance / cardio:** Running, Cycling, Swimming, Triathlon
-- **Mind-body:** Yoga, Pilates, Stretching
+33 sports across 8 sections (strings below match the shipped seed migration verbatim; full list in memory `project_sport_taxonomy`):
+- **Fitness & Strength:** Fitness, CrossFit, Functional training, HIIT, Weightlifting, Calisthenics
+- **Racket sports:** Tennis, Padel, Badminton, Squash, Table tennis
+- **Team & court:** Basketball, Football, Volleyball
+- **Combat & martial arts:** Boxing, Muay Thai, MMA, BJJ, Karate
+- **Endurance & cardio:** Running, Cycling, Swimming, Triathlon
+- **Mind & body:** Yoga, Pilates, Stretching
 - **Recovery & therapy:** Massage, Sports massage, Physiotherapy
 - **Other:** Golf, Climbing, Skiing / Snowboarding, Dance
 
@@ -245,7 +245,7 @@ A `sectionKey` field on `SportTypeResponse` is the minimum required to group spo
 
 **Custom-sport flow (coach):** "Create custom sport" tile → drawer (name only) → chip with a placeholder icon in a "Your custom sports" section, selected for the coach. No "pending" state surfaced to the coach — moderation (approve/merge/reject) is invisible to them and doesn't change how they use the sport. Prototype: `flows/coach/sport-types.html`. a11y ids: `coach.sport-types.custom.create-trigger` / `.name` / `.confirm` / `.cancel`.
 
-**Backend gaps to confirm/build:** the admin (`321-admin`) reads `status` / `suggestedBy` / `suggestedAt` (+ `category` / `sortOrder`) from `/api/v1.0.0/sport-types`; the `sport_type` table today has only `name` / `is_global` / `icon_png` / `icon_svg`. Add the moderation/attribution columns + ensure discovery filters `is_global=true`.
+**Backend status (verified 2026-07-17, `origin/main`):** the closed list of 33 sports is **seeded** (migration `2026_06_11_0900_seed_sport_types_from_prototype.py`) and the moderation/attribution columns are **shipped** — `sport_type` now carries `category` / `sort_order` / `status` / `suggested_by` / `suggested_at` on top of `name` / `is_global` / `icon_png` / `icon_svg`, exposed via `/api/v1.0.0/sport-types` (read by `321-admin`) with a suggest-approve workflow. Remaining to confirm: discovery/match queries filter `is_global=true`.
 
 ### Sport ID stability
 - Sport IDs are **immutable** after seed — renaming a display name does NOT change the ID

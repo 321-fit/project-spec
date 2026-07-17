@@ -3,7 +3,7 @@
 > Status: Draft
 > Prototype: [flows/coach/settings.html#s-create](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html#s-create)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-04-27
+> Last updated: 2026-07-17
 > Implementation:
 > - iOS:     [321fit_ios/docs/session-creation-ios.md] (to be created)
 > - Backend: [poly-backend/docs/session-creation-backend.md] (to be created)
@@ -68,7 +68,7 @@ References to screen IDs are from `flows/coach/settings.html`.
 6. Training type chip = **Personal** (default) — group/schedule fields hidden
 7. **Duration** — tap → wheel-picker bottom sheet (HH:MM)
 8. **Price** — number input (currency from coach profile)
-9. **Payment method** chips: Cash (selected) / Card — multi-select
+9. **Payment method** chips: Card (selected) / Cash — multi-select (both may be enabled → `paymentType: "both"`)
 10. Save → validation → on success, return to `#s-edit` with new template card
 11. On any required-field empty → red border + label, snackbar "Please fill in required fields", auto-clear errors after 3s
 
@@ -176,11 +176,20 @@ Returns the coach's session templates (both personal and group).
 **Response 200:** array of `TrainingSession` (see Models).
 
 #### `POST /coach/training-sessions`
-Creates a new session template. If `isRecurring && isGroup`, server auto-generates events for the next 2 months (per group-training.md).
+Creates a new session template. If `isGroup` **and** a complete schedule is present, the server auto-generates events for the next 2 months (per group-training.md). Occurrences overlapping the coach's **own** events are hard-skipped silently; occurrences overlapping an **external** (Google/Apple) calendar event are soft-skipped and returned in the response's `externalCalendarConflicts[]` for coach review (resolve via `confirm-conflicts`, below). A **draft** group template (no `recurringDays` / `recurringTime` / `oneOffDate`) is accepted on create — scheduling is applied later on `PUT`/`PATCH` publish.
 
 **Body:** `CreateTrainingSessionRequest` (extension of existing).
-**Response 201:** created template.
+**Response 201:** created template, incl. `externalCalendarConflicts` (`null` when no external overlaps).
 **Response 422:** validation error with field-level details.
+
+#### `POST /coach/training-sessions/{id}/confirm-conflicts`
+Materialises the external-conflict occurrences the coach chose to keep after review. `keptDates` + `skippedDates` must partition **exactly** the pending `externalCalendarConflicts` (no overlap, no omissions). One-off templates also send `oneOffDate`.
+
+**Body:**
+```json
+{ "keptDates": ["2026-08-12"], "skippedDates": ["2026-08-19"], "oneOffDate": null }
+```
+**Response 200:** `{ "sessionId": 106, "createdEventCount": 1, "keptDates": [...], "skippedDates": [...] }`
 
 #### `GET /coach/training-sessions/{id}`
 Returns a single template.
@@ -191,20 +200,26 @@ Full replace. **Requires `scope` parameter when impactful fields change.**
 #### `PATCH /coach/training-sessions/{id}`
 Partial update. **Requires `scope` parameter when impactful fields change.**
 
-**Body (extension of existing `PatchTrainingSessionRequest`):**
+**Body (extension of existing `PatchTrainingSessionRequest`) — flat fields + top-level `scope`:**
 ```json
 {
-  "fields": { "trainingName": "...", "isRecurring": true /* etc */ },
-  "scope":  "this" | "following" | "all"
+  "trainingName": "...",
+  "isRecurring": true,
+  "recurringDays": [1, 3],
+  "recurringTime": "18:00",
+  "recurringEndDate": "2026-09-30",
+  "scope": "following" | "all"
 }
 ```
 
-- `scope` defaults to `this` if omitted (used for non-impactful updates only)
-- Server rejects with 422 if impactful fields present and `scope` missing or `this`
-- `following` = update template + future not-yet-generated occurrences
-- `all` = update template + all future already-generated events + notify affected participants
+- The template fields and `scope` are **siblings at the top level** — there is **no** nested `{ "fields": {…} }` wrapper.
+- `scope` **omitted** (or a non-impactful update) → template only; no ripple to already-materialised events.
+- `following` = update template + future not-yet-generated occurrences.
+- `all` = update template + all future already-materialised events (address / duration / time) + notify affected participants.
+- Server rejects with 422 if an impactful field changes on a template that **already has materialised events** and `scope` is missing.
+- **First publish** of a draft group template (schedule goes from empty → set, no events materialised yet) does **not** require `scope` even though `recurringTime` / `recurringDays` change.
 
-**Impactful field list** (server-authoritative): `duration`, `recurringTime`, `recurringDays`, `oneOffDate`, `address`.
+**Impactful field list** (server-authoritative): `duration`, `recurringTime`, `recurringDays`, `address`.
 
 **Response 200:** updated template + count of affected events + count of affected participants (so client can show in UI).
 
@@ -236,7 +251,7 @@ Existing fields (preserved):
 | `duration` | string | ISO-8601 duration or HH:MM:SS |
 | `price` | number? | nullable when `priceOnDemand: true` |
 | `priceOnDemand` | bool | "Contact for price" mode |
-| `paymentType` | string | `"cash"` or `"card"` — single value (multi-payment is V2) |
+| `paymentType` | string | `"cash"`, `"card"`, or `"both"` — multi-payment (`"both"`) is **shipped** |
 | `priceCurrency` | string | ISO-4217 |
 | `address` | `Address` reference | sourced from [location-picker.md](./location-picker.md) |
 
@@ -250,7 +265,9 @@ Existing fields (preserved):
 | `isRecurring` | bool | meaningful for `isGroup: true` |
 | `recurringDays` | array of int? | 0=Mon, 6=Sun; required when `isGroup && isRecurring` |
 | `recurringTime` | string? | "HH:MM" 24h; required when `isGroup && isRecurring` |
-| `oneOffDate` | string? | ISO date; required when `isGroup && !isRecurring` |
+| `recurringEndDate` | string? | ISO date "YYYY-MM-DD"; optional when `isGroup && isRecurring` — caps the recurring series (`null` = ongoing); must be ≥ coach-local today |
+| `oneOffDate` | string? | ISO date; required when `isGroup && !isRecurring`. **Transient** — not persisted on the template |
+| `externalCalendarConflicts` | array? | **Response-only.** Populated on group create-with-schedule or first publish when occurrences overlap an external (Google/Apple) calendar event; each entry `{ date, datetimeStart, datetimeEnd, blockingEventName, calendarName, eventSource }`. `null` when no external overlaps. Resolve via `POST …/confirm-conflicts` |
 | `createdAt` | string | ISO-8601 UTC |
 
 ---
@@ -269,7 +286,7 @@ Existing fields (preserved):
 | Min participants | 3 | hardcoded (group only, optional) |
 | Duration | empty | user picks via wheel |
 | Price | empty | user types |
-| Payment method | Cash selected | hardcoded |
+| Payment method | Card selected | hardcoded |
 | Schedule | Recurring | hardcoded (group only) |
 | Days | current weekday | system |
 | Date (one-off) | today | system |
@@ -359,7 +376,7 @@ Existing fields (preserved):
 
 ## 10. Open questions
 
-- [ ] **Payment method — single vs multi.** Backend baseline accepts a single `paymentType` string per template; the prototype shows multi-select chips ("Cash" + "Card" simultaneously). Either constrain UI to a single choice (radio, not chips) or extend backend to accept an array. **Owner:** product. Reco: keep UI multi (better coach UX), backend extend `paymentType: string` → `paymentTypes: array<string>` in Phase 4 — additive, backward compatible by accepting single strings.
+- [x] **Payment method — single vs multi.** **RESOLVED — multi is shipped.** The backend `paymentType` field accepts `"cash"`, `"card"`, or `"both"`; the UI keeps the multi-select chips (both may be enabled). No array migration was needed — `"both"` carries the multi case. Default selection = **Card** (see §7 Defaults).
 - [ ] Draft persistence for unsaved form (kill app mid-create) — MVP says no, V2 candidate. **Owner:** product.
 - [ ] Server-side availability data for time picker — should it include external calendar busy intervals? Currently only own-app events. **Owner:** product + [calendar-sync](./calendar-sync.md).
 - [ ] Time picker expansion behavior — accordion (one open at a time) vs all expanded? Prototype uses accordion. **Confirmed.**

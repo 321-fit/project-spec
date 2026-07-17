@@ -3,11 +3,13 @@
 > Status: Draft
 > Prototype: [flows/coach/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/profile.html) (coach-side `FitMaturityProgress` block, `cv-new-*` state variants) + [flows/shared/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/profile.html) (athlete-side new-coach badge)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md) — `FitMaturityProgress` (kit-aligned, lands 2026-05-11)
-> Last updated: 2026-05-12
+> Last updated: 2026-07-17
 > Implementation:
 > - iOS:     [321fit_ios/docs/coach-maturity-ios.md] (to be created)
 > - Backend: [poly-backend/docs/coach-maturity-backend.md] (to be created)
 > - Android: (future)
+
+> ⚠️ **Implementation status (verified 2026-07-17):** only the **graduation threshold** — `reviews_count < 1 OR sessions_count < 3` → new — is shipped and matches backend code. The following are **NOT yet built**, and the sections below describe intended (not shipped) behavior for them: the `maturityProgress {reviewsNeeded, sessionsNeeded}` countdown field, caching of `isNewCoach` on the coach record, event-driven recompute, the `sessions_logged_count` / backdated-session split, and the search `newCoachBoost` ranking multiplier (+ "New on 321Fit" carousel).
 
 ---
 
@@ -40,9 +42,9 @@ Defines the distinction between a **new** coach and an **established** coach on 
 
 ## 3. System Stories
 
-- As the backend, the new-vs-established decision is computed from two counters (reviews_count, sessions_count). Thresholds are hybrid: `reviews_count < 1 OR sessions_count < 3` → new.
-- As the backend, on every session completion or new review creation, the derived `isNewCoach` field must be re-computed and cached on the coach record.
-- As the athlete-side search / recommendations service, new-coach boost must apply as a ranking multiplier during the welcome window.
+- As the backend, the new-vs-established decision is computed from two counters (reviews_count, sessions_count). Thresholds are hybrid: `reviews_count < 1 OR sessions_count < 3` → new. **(Shipped.)**
+- As the backend, on every session completion or new review creation, the derived `isNewCoach` field must be re-computed and cached on the coach record. **(Not yet built — caching + event-driven recompute pending; the threshold is currently evaluated inline.)**
+- As the athlete-side search / recommendations service, new-coach boost must apply as a ranking multiplier during the welcome window. **(Not yet built — `newCoachBoost` pending.)**
 - As the coach-side profile screen, `isNewCoach` gates the badge + progress indicator display.
 
 ---
@@ -100,9 +102,9 @@ Two stable states + two derived views.
 
 Derived field on the coach record. Server-side recomputed on counter change.
 
-#### `CoachModel` — `maturityProgress: { reviewsNeeded: Int, sessionsNeeded: Int } | null`
+#### `CoachModel` — `maturityProgress: { reviewsNeeded: Int, sessionsNeeded: Int } | null` — **not yet built**
 
-Present only when `isNewCoach = true`. Zero values are valid (e.g., `reviewsNeeded: 0, sessionsNeeded: 2` means "got the review, need 2 more sessions"). Null when `isNewCoach = false`.
+Present only when `isNewCoach = true`. Zero values are valid (e.g., `reviewsNeeded: 0, sessionsNeeded: 2` means "got the review, need 2 more sessions"). Null when `isNewCoach = false`. **Pending:** the backend does not yet emit this field — the countdown copy on the coach profile depends on it.
 
 ### Endpoints
 
@@ -112,9 +114,9 @@ No new endpoints. Existing coach GET endpoints return these two fields as part o
 - `GET /coach/{id}` → includes `isNewCoach` (athlete-facing; `maturityProgress` omitted for privacy — only shown to the coach themselves)
 - `GET /athletes/discovery` → coach entries include `isNewCoach` for badge rendering
 
-### Search / recommendation
+### Search / recommendation — **not yet built**
 
-`GET /athletes/coaches/search` ranking algorithm applies a `newCoachBoost: 2.0` multiplier during result sort when `isNewCoach = true`. Tuneable via server config.
+`GET /athletes/coaches/search` ranking algorithm applies a `newCoachBoost: 2.0` multiplier during result sort when `isNewCoach = true`. Tuneable via server config. **Pending:** `newCoachBoost` is not implemented in the shipped search ranking.
 
 ---
 
@@ -125,7 +127,7 @@ No new endpoints. Existing coach GET endpoints return these two fields as part o
 - **Review spam guard:** reviews_count counts only reviews from distinct athlete accounts with at least 1 completed session. Protects against fake/bot reviews inflating the counter.
 - **Session count (`sessions_completed_count`, Tier 1 Q9):** counts only sessions in `finished` status that flowed through the full live lifecycle (`planned → review → finished`). **Excludes**:
   - `missed` and `cancelled` events.
-  - **Backdated events** (`backdated: true`) — these go into a separate `sessions_logged_count` for the coach's personal tracking only and never count toward maturity. Rationale: prevents a coach from logging fake past sessions to artificially graduate from `new` → `established`.
+  - **Backdated events** (`backdated: true`) — these go into a separate `sessions_logged_count` for the coach's personal tracking only and never count toward maturity. Rationale: prevents a coach from logging fake past sessions to artificially graduate from `new` → `established`. **(Not yet built — the `sessions_logged_count` / backdated-session split is a pending anti-abuse addition; the shipped counter does not yet segregate backdated events.)**
 - **Boost multiplier default: 2.0.** Configurable via feature flag. Welcomed discussion if A/B testing changes this.
 - **Carousel size:** 8 coaches max, sorted by most recent approval date. If fewer than 8 new coaches in the area, carousel hides.
 - **Region scoping:** carousel filters by athlete's location (same city / region). If fewer than 3 new coaches locally, falls back to country-wide.
@@ -152,7 +154,7 @@ No new endpoints. Existing coach GET endpoints return these two fields as part o
 
 - **iOS:** badge rendered as inline `FitBadge` component with `FitBadgeStyle.crm`-like teal-tint; progress indicator as `Text` row under stats.
 - **Android:** Compose equivalent `FitBadge(text = "New", style = FitBadgeStyle.Crm)`.
-- **Backend:** counters cached on `coach` table; boosts applied at search-service level; no client logic for ranking (server does it). Recomputation is event-driven (on `session.finished` / `review.created` events).
+- **Backend:** counters cached on `coach` table; boosts applied at search-service level; no client logic for ranking (server does it). Recomputation is event-driven (on `session.finished` / `review.created` events). **(Not yet built — caching on the coach record, the event-driven recompute, and the search-service boost are all pending; the shipped backend evaluates the threshold inline and applies no boost.)**
 - **Voice:** out of scope. Voice assistant does not surface maturity state.
 
 ---

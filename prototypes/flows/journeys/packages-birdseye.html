@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Bird's-eye: Session packages</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0a0a0a; --surface: #1E2126; --surface-high: #282D34;
+    --text: #FFFFFF; --text-secondary: #8B9099; --text-tertiary: #5C6370;
+    --brand-primary: #00A7D0; --brand-secondary: #00E29D;
+    --brand-gradient: linear-gradient(135deg, #00A7D0, #00E29D); --divider: #2E333A;
+    --coach: #00A7D0; --athlete: #00E29D;
+    --teal: #00E29D; --amber: #F5A623; --gray: #8B9099; --blue: #4A9DEC; --red: #FF5A5F;
+  }
+  body { font-family: 'Rubik', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 44px 24px 80px; display: flex; flex-direction: column; align-items: center; }
+  .wrap { max-width: 1060px; width: 100%; }
+  .b-back { font-size: 13px; color: var(--brand-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 18px; }
+  .b-title { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+  .b-sub { font-size: 15px; color: var(--text-secondary); line-height: 1.6; max-width: 760px; }
+  .b-links { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .b-link { font-size: 12px; color: var(--brand-primary); text-decoration: none; border: 1px solid var(--divider); border-radius: 8px; padding: 6px 11px; display: inline-flex; align-items: center; gap: 6px; }
+  .b-link:hover { border-color: var(--brand-primary); }
+  .b-link code { background: var(--surface-high); padding: 1px 5px; border-radius: 4px; color: var(--text-secondary); font-size: 11px; }
+
+  .sec-h { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); margin: 40px 0 14px; padding-left: 2px; }
+  .sec-h span { color: var(--text-secondary); text-transform: none; letter-spacing: 0; font-weight: 400; margin-left: 8px; }
+
+  /* Locked model */
+  .rules { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .rule { background: var(--surface); border: 1px solid var(--divider); border-radius: 12px; padding: 12px 14px; }
+  .rule-t { font-size: 12.5px; font-weight: 600; margin-bottom: 3px; }
+  .rule-s { font-size: 11.5px; color: var(--text-secondary); line-height: 1.5; }
+
+  /* Money flow */
+  .flow { background: var(--surface); border: 1px solid var(--divider); border-radius: 16px; padding: 22px 24px; }
+  .flow-row { display: flex; align-items: stretch; gap: 12px; flex-wrap: wrap; }
+  .flow-node { flex: 1; min-width: 150px; background: var(--surface-high); border-radius: 12px; padding: 13px 15px; position: relative; }
+  .flow-node.hl { box-shadow: inset 0 0 0 1px rgba(0,226,157,0.4); }
+  .flow-node.warn { box-shadow: inset 0 0 0 1px rgba(245,166,35,0.4); }
+  .flow-node-t { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .flow-node-s { font-size: 11.5px; color: var(--text-secondary); line-height: 1.45; }
+  .flow-tag { display: inline-block; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; padding: 1px 6px; border-radius: 5px; margin-top: 7px; }
+  .flow-arrow { align-self: center; color: var(--text-tertiary); font-size: 20px; flex: 0 0 auto; }
+  .flow-note { font-size: 12px; color: var(--text-tertiary); line-height: 1.55; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--divider); }
+  .flow-note strong { color: var(--text-secondary); }
+  .c- { color: var(--teal); } .a- { color: var(--amber); } .b- { color: var(--blue); } .g- { color: var(--gray); } .r- { color: var(--red); }
+  .bg-teal { background: rgba(0,226,157,0.15); color: var(--teal); }
+  .bg-amber { background: rgba(245,166,35,0.15); color: var(--amber); }
+  .bg-blue { background: rgba(74,157,236,0.15); color: var(--blue); }
+  .bg-red { background: rgba(255,90,95,0.15); color: var(--red); }
+
+  /* Matrix */
+  .matrix-scroll { overflow-x: auto; border: 1px solid var(--divider); border-radius: 16px; }
+  table.matrix { border-collapse: collapse; width: 100%; min-width: 900px; font-size: 12px; }
+  table.matrix th, table.matrix td { text-align: left; vertical-align: top; padding: 12px 13px; border-bottom: 1px solid var(--divider); border-right: 1px solid var(--divider); }
+  table.matrix th:last-child, table.matrix td:last-child { border-right: none; }
+  table.matrix tr:last-child td { border-bottom: none; }
+  table.matrix thead th { background: var(--surface-high); position: sticky; top: 0; font-size: 11px; }
+  .st-head { font-weight: 600; }
+  .st-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .st-sub { display: block; font-weight: 400; color: var(--text-tertiary); font-size: 10.5px; margin-top: 3px; line-height: 1.4; }
+  .row-h { background: var(--surface); font-weight: 600; font-size: 12px; width: 190px; }
+  .row-h .rh-file { display: block; font-weight: 400; color: var(--text-tertiary); font-size: 10.5px; margin-top: 3px; }
+  .row-h .rh-role { display: inline-block; font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; padding: 1px 5px; border-radius: 4px; margin-top: 5px; }
+  .role-coach { background: rgba(0,167,208,0.18); color: var(--coach); }
+  .role-ath { background: rgba(0,226,157,0.18); color: var(--athlete); }
+  .role-both { background: var(--surface-high); color: var(--text-secondary); }
+  table.matrix td { color: var(--text-secondary); line-height: 1.5; background: var(--surface); }
+  table.matrix td b { color: var(--text); font-weight: 600; }
+  td.na { color: var(--text-tertiary); text-align: center; background: #17191d; }
+  td.na::before { content: "—"; }
+  code { background: var(--surface-high); padding: 1px 5px; border-radius: 4px; color: var(--text-secondary); font-size: 11px; }
+
+  /* Screen inventory */
+  .inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .inv-col { background: var(--surface); border: 1px solid var(--divider); border-radius: 16px; padding: 18px 20px; }
+  .inv-role { font-size: 13px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .inv-role .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .inv-item { display: flex; gap: 11px; padding: 9px 0; border-bottom: 1px solid var(--divider); }
+  .inv-item:last-child { border-bottom: none; }
+  .inv-n { width: 22px; height: 22px; border-radius: 50%; background: var(--surface-high); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--text-secondary); flex-shrink: 0; margin-top: 1px; }
+  .inv-b { flex: 1; min-width: 0; }
+  .inv-t { font-size: 13px; font-weight: 600; }
+  .inv-t a { color: inherit; text-decoration: none; }
+  .inv-t a:hover { color: var(--brand-primary); }
+  .inv-d { font-size: 11.5px; color: var(--text-secondary); line-height: 1.45; margin-top: 2px; }
+  .inv-loc { font-size: 10.5px; color: var(--text-tertiary); margin-top: 4px; }
+  .inv-loc code { font-size: 10px; }
+
+  /* Data model */
+  .dm { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .dm-card { background: var(--surface); border: 1px solid var(--divider); border-radius: 12px; padding: 14px 16px; }
+  .dm-card.wide { grid-column: span 3; }
+  .dm-t { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .dm-t code { font-size: 12px; background: var(--surface-high); color: var(--brand-secondary); }
+  .dm-f { font-size: 11.5px; color: var(--text-secondary); line-height: 1.6; }
+  .dm-f code { font-size: 10.5px; }
+
+  /* Open questions */
+  .oq { background: var(--surface); border: 1px solid var(--divider); border-radius: 16px; padding: 20px 22px; }
+  .oq-item { display: flex; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--divider); font-size: 13px; line-height: 1.55; }
+  .oq-item:last-child { border-bottom: none; }
+  .oq-item .flag { flex-shrink: 0; font-size: 15px; line-height: 1.4; }
+  .oq-item b { color: var(--text); }
+  .oq-item .d { color: var(--text-secondary); }
+  .oq-blocker { color: var(--red); }
+
+  .foot { margin-top: 34px; font-size: 12px; color: var(--text-tertiary); line-height: 1.6; }
+  .foot code { background: var(--surface-high); padding: 1px 6px; border-radius: 5px; color: var(--text-secondary); }
+
+  @media (max-width: 720px) {
+    .rules { grid-template-columns: 1fr 1fr; }
+    .inv-grid { grid-template-columns: 1fr; }
+    .dm { grid-template-columns: 1fr; } .dm-card.wide { grid-column: span 1; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="b-back" href="../../index.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>All modules</a>
+  <div class="b-title">Session packages — bird's-eye view</div>
+  <div class="b-sub">The whole feature on one page: the money model, every <strong>state a pack can be in</strong> mapped against every <strong>surface that renders it</strong>, the full screen inventory for both roles, the proposed data model, and what still blocks it. Where <a href="packages.html" style="color:var(--brand-primary)">the journey map</a> walks the happy path in flow order, this is the coverage grid — built for the spec/dev/QA pass, not for a demo.</div>
+  <div class="b-links">
+    <a class="b-link" href="packages.html">→ Linear journey <span style="color:var(--text-tertiary)">(10 steps, flow order)</span></a>
+    <a class="b-link" href="https://321-fit.github.io/project-spec/specs/session-packages.md">Spec <code>session-packages.md</code></a>
+  </div>
+
+  <!-- ===================== LOCKED MODEL ===================== -->
+  <div class="sec-h">Locked model <span>the settled decisions everything below obeys — spec §2</span></div>
+  <div class="rules">
+    <div class="rule"><div class="rule-t">Prepaid, straight to coach</div><div class="rule-s">Full amount on purchase, paid to the coach — platform holds <strong>nothing</strong>. Booking burns 1 credit, no charge at booking. Escrow considered &amp; rejected (card would become worse than cash for the coach).</div></div>
+    <div class="rule"><div class="rule-t">Cash or card</div><div class="rule-s">Card → credits active instantly. Cash → pack reads <strong>Pending</strong> until coach marks received, but credits are <strong>bookable right away</strong> (he approves every booking anyway). No redeem gate.</div></div>
+    <div class="rule"><div class="rule-t">No expiry · refund = coach's call</div><div class="rule-s">Credits never lapse (sidesteps gift-card law). Refund of unused is <strong>not a platform mechanism</strong> — we hold no funds. Said plainly in the buy sheet, not implied as a guarantee.</div></div>
+    <div class="rule"><div class="rule-t">1 type · max 3 tiers · FIFO lots</div><div class="rule-s">A pack = N sessions of one template, ≤3 tiers. Repeat buys stack as separate lots; credits burn oldest-first. Low-balance nudge to <strong>both sides</strong> at 20% left.</div></div>
+  </div>
+
+  <!-- ===================== MONEY & CREDIT FLOW ===================== -->
+  <div class="sec-h">Money &amp; credit lifecycle <span>where the € goes and how a credit moves — spec §2, §8.1</span></div>
+  <div class="flow">
+    <div class="flow-row">
+      <div class="flow-node hl">
+        <div class="flow-node-t">Buy a pack</div>
+        <div class="flow-node-s">Athlete pays the full € for a tier (5·€110 / 20·€400).</div>
+        <span class="flow-tag bg-teal">€ → coach, no hold</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="flow-node-t">Credit lot</div>
+        <div class="flow-node-s"><code>{n, total, method, paid}</code>. Multiple lots per session type allowed (stacking).</div>
+        <span class="flow-tag bg-teal">N credits held</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node hl">
+        <div class="flow-node-t">Book → burn 1</div>
+        <div class="flow-node-s">Burns 1 credit from the oldest active lot (FIFO). Still a request; coach approves.</div>
+        <span class="flow-tag bg-teal">−1 credit · €0 charged</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node warn">
+        <div class="flow-node-t">Cancel / decline / 48h</div>
+        <div class="flow-node-s">Credit returns to the lot it came from — exactly as a paid session refunds to balance.</div>
+        <span class="flow-tag bg-blue">+1 credit back</span>
+      </div>
+    </div>
+    <div class="flow-note">
+      <strong>Cash unpaid</strong> → the €200 debt surfaces as <span class="bg-red" style="padding:1px 6px;border-radius:5px">Owed</span> on the athlete side + an <b>Unpaid → Mark received</b> marker coach-side; credits are still bookable. &nbsp;·&nbsp;
+      <strong>Cash paid</strong> → money went hand-to-hand, nothing in any balance (like cash sessions). &nbsp;·&nbsp;
+      <strong>Ledger intents reuse the balance vocabulary:</strong> buy = <span class="c- ">top-up (teal +N)</span>, redeem = <span class="g- ">spend (gray −1)</span>, return = <span class="b- ">refund (blue, teal +1)</span>. Red is reserved for real problems — a spend isn't one.
+    </div>
+  </div>
+
+  <!-- ===================== STATE × SURFACE MATRIX ===================== -->
+  <div class="sec-h">State × surface matrix <span>the 5 states a pack can be in × every surface that renders it</span></div>
+  <div class="matrix-scroll">
+  <table class="matrix">
+    <thead>
+      <tr>
+        <th class="row-h" style="background:var(--surface-high)">Surface ↓ &nbsp; State →</th>
+        <th class="st-head"><span class="st-dot" style="background:var(--teal)"></span>Active<span class="st-sub">paid, credits left</span></th>
+        <th class="st-head"><span class="st-dot" style="background:var(--amber)"></span>Running low<span class="st-sub">left ≤ max(1, ⌈size×0.2⌉)</span></th>
+        <th class="st-head"><span class="st-dot" style="background:var(--gray)"></span>Depleted<span class="st-sub">0 left</span></th>
+        <th class="st-head"><span class="st-dot" style="background:var(--amber)"></span>Pending cash<span class="st-sub">unpaid lot</span></th>
+        <th class="st-head"><span class="st-dot" style="background:var(--blue)"></span>Stacked<span class="st-sub">2+ lots, FIFO</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- List card -->
+      <tr>
+        <td class="row-h">List card <code>.pkg-punch</code><span class="rh-file">my-coaches · clients</span><span class="rh-role role-both">Both</span></td>
+        <td>Teal bar + <b>"X of N used · Y left"</b>, chevron → detail.</td>
+        <td><code>--low</code> amber bar + <b>.pkg-lowpill</b> "Y left"; coach card adds inline <b>Offer renewal</b>.</td>
+        <td>"Used up"; coach → <b>Offer renewal</b>, athlete → <b>Buy again</b>.</td>
+        <td><code>--pending</code> dashed border + <b>.pkg-pendpill</b> "Pending payment · bookable now"; coach → "Unpaid" + Mark received.</td>
+        <td>Subtitle <b>"· 2 packs"</b>; bar scoped to <b>current</b> lot; "Y left" = sum of all lots.</td>
+      </tr>
+      <!-- Pack detail summary -->
+      <tr>
+        <td class="row-h">Pack detail — summary<span class="rh-file">#s-pkg-detail</span><span class="rh-role role-both">Both</span></td>
+        <td>Leads with <b>"N left"</b> + current-pack bar; action = Book next.</td>
+        <td>Amber summary + "N left"; action = Offer renewal / Book next.</td>
+        <td>"Used up"; action = <b>Buy again</b> (athlete) / Offer renewal (coach).</td>
+        <td>Unpaid pill + <b>Mark received</b> (coach) / Pending + <b>Book 1st</b> (athlete, no Mark).</td>
+        <td>Summary aggregates all lots; bar = current lot only; lifetime moves to History header.</td>
+      </tr>
+      <!-- Activity / History -->
+      <tr>
+        <td class="row-h">Activity + History<span class="rh-file">#s-pkg-history</span><span class="rh-role role-both">Both</span></td>
+        <td>One <code>.fit-txn</code> stream: <b>+N</b> buy / <b>−1</b> redeem, 3 recent + See all. Chips <code>All·Sessions·Purchases·Returned</code>.</td>
+        <td colspan="1">Same stream — low has no distinct row; it's a summary/notification state.</td>
+        <td>Same stream; the final <b>−1</b> sits at top.</td>
+        <td>Purchase row reads <b>"Cash · Pending"</b> until confirmed.</td>
+        <td>Multiple <b>+N</b> purchase rows; <b>Purchases</b> chip isolates them (holds at 46 lots).</td>
+      </tr>
+      <!-- Buyers row -->
+      <tr>
+        <td class="row-h">Buyers row <code>.pk-buyer</code><span class="rh-file">sessions.html Buyers tab</span><span class="rh-role role-coach">Coach</span></td>
+        <td>Avatar + <b>"X of N used · Y left"</b> + progress bar.</td>
+        <td><code>--low</code> amber bar + inline <b>Offer renewal</b>; bulk "Offer renewal → N running low" at foot.</td>
+        <td>Used-up → amber + Offer renewal (counts into the bulk nudge).</td>
+        <td class="na"></td>
+        <td>Aggregate row: <b>"2 packs · 6 of 20 used · Y left"</b>.</td>
+      </tr>
+      <!-- Buy sheet / upsell -->
+      <tr>
+        <td class="row-h">Buy upsell + sheet<span class="rh-file">#pkg-buy-sheet</span><span class="rh-role role-ath">Athlete</span></td>
+        <td class="na"></td>
+        <td class="na"></td>
+        <td><b>Strip returns</b> (holds 0 credits) — "Save with a 5-pack"; milestone push also deep-links here.</td>
+        <td class="na"></td>
+        <td class="na"></td>
+      </tr>
+      <!-- Sell sheet -->
+      <tr>
+        <td class="row-h">Sell a package<span class="rh-file">#cd-sell-package-sheet</span><span class="rh-role role-coach">Coach</span></td>
+        <td colspan="5" style="color:var(--text-secondary)">State-independent (pre-purchase). Tiers grouped by session + €/session &amp; save% + Cash/Card + live CTA. Repeat buy of the same type → <b>appends a lot</b> (→ Stacked). Cash → opens <b>Pending</b>; card → <b>Active</b>.</td>
+      </tr>
+      <!-- Coach inbox -->
+      <tr>
+        <td class="row-h">Coach inbox<span class="rh-file">dashboard #s-notifications</span><span class="rh-role role-coach">Coach</span></td>
+        <td>Card buy → "Anna bought a 5-pack · Card · paid" activity note.</td>
+        <td>Milestone push "Anna is running low" (both sides).</td>
+        <td>Milestone push "Anna used up her pack" (both sides).</td>
+        <td>"Cash · €200 — collect &amp; mark received" + to-reply request carries <b>"unpaid 5-pack"</b> note.</td>
+        <td class="na"></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="foot" style="margin-top:12px">Upsell suppression: the buy strip shows only when the athlete holds <b>no</b> credits for that session — Active / Low / Pending all hide it (re-pitching an owned pack is noise; running out is the milestone push's job). It reappears only when Depleted. &nbsp;·&nbsp; <span style="color:var(--text-tertiary)">— = surface does not render this state.</span></div>
+
+  <!-- ===================== SCREEN INVENTORY ===================== -->
+  <div class="sec-h">Screen inventory <span>every live surface, by role — links open the canonical screen (no copies)</span></div>
+  <div class="inv-grid">
+    <!-- Coach -->
+    <div class="inv-col">
+      <div class="inv-role"><span class="dot" style="background:var(--coach)"></span>Coach — set up, track, re-sell, settle</div>
+      <div class="inv-item"><div class="inv-n">1</div><div class="inv-b"><div class="inv-t"><a href="../coach/sessions.html#packages">Packages tab</a></div><div class="inv-d">Segmented [ Sessions | Packages ]; cards grouped by base session. Footer drills into Buyers.</div><div class="inv-loc"><code>coach/sessions.html</code> · <code>#s-list</code></div></div></div>
+      <div class="inv-item"><div class="inv-n">2</div><div class="inv-b"><div class="inv-t"><a href="../coach/sessions.html#pkg-pick">Pick base session</a></div><div class="inv-d">Step 1 of create — choose the template the pack is built on.</div><div class="inv-loc"><code>coach/sessions.html</code> · <code>#pkg-pick</code></div></div></div>
+      <div class="inv-item"><div class="inv-n">3</div><div class="inv-b"><div class="inv-t"><a href="../coach/sessions.html#pkg-editor">Package editor — Overview / Buyers</a></div><div class="inv-d">Pure pack, no template fields. Tiers as read-only cards (Best-seller badge); Buyers = holders + sessions left + renewal.</div><div class="inv-loc"><code>coach/sessions.html</code> · <code>#pkg-editor</code></div></div></div>
+      <div class="inv-item"><div class="inv-n">4</div><div class="inv-b"><div class="inv-t"><a href="../coach/sessions.html#pkg-tier-edit">Tier edit</a></div><div class="inv-d">Push screen — stepper + € total + live math. Back = cancel, Save tier commits. Header trash removes.</div><div class="inv-loc"><code>coach/sessions.html</code> · <code>#pkg-tier-edit</code></div></div></div>
+      <div class="inv-item"><div class="inv-n">5</div><div class="inv-b"><div class="inv-t"><a href="../coach/clients.html#s-client-detail">Client packs + sell</a></div><div class="inv-d">Client detail → Packages (mirrors athlete view). Card → detail; section + → Sell a package sheet.</div><div class="inv-loc"><code>coach/clients.html</code> · <code>#s-client-detail</code> · <code>#cd-sell-package-sheet</code></div></div></div>
+      <div class="inv-item"><div class="inv-n">6</div><div class="inv-b"><div class="inv-t"><a href="../coach/clients.html#s-pkg-detail">Pack detail + history</a></div><div class="inv-d">Summary → Activity (3 recent) → See all → full stream + chips.</div><div class="inv-loc"><code>coach/clients.html</code> · <code>#s-pkg-detail</code> · <code>#s-pkg-history</code></div></div></div>
+      <div class="inv-item"><div class="inv-n">7</div><div class="inv-b"><div class="inv-t"><a href="../coach/dashboard.html#s-notifications">Inbox — settle cash</a></div><div class="inv-d">Cash-purchase note + to-reply booking request from an unpaid pack. No redeem gate — visibility replaces it.</div><div class="inv-loc"><code>coach/dashboard.html</code> · <code>#s-notifications</code></div></div></div>
+    </div>
+    <!-- Athlete -->
+    <div class="inv-col">
+      <div class="inv-role"><span class="dot" style="background:var(--athlete)"></span>Athlete — discover, buy, first-book, redeem, track</div>
+      <div class="inv-item"><div class="inv-n">1</div><div class="inv-b"><div class="inv-t"><a href="../shared/profile.html#s-book-sessions">Discover &amp; buy</a></div><div class="inv-d">Session-first: a "Save with a 5-pack" strip on a session that offers packs (hidden if credits held) → buy sheet: tier + Cash/Card + prepay disclaimer.</div><div class="inv-loc"><code>shared/profile.html</code> · <code>#s-book-sessions</code> · <code>#pkg-buy-sheet</code></div></div></div>
+      <div class="inv-item"><div class="inv-n">2</div><div class="inv-b"><div class="inv-t"><a href="../shared/profile.html#s-book-sessions">Buy success → first-book</a></div><div class="inv-d">Success sheet hands off to booking — card "N ready" / cash "N reserved · pay in person". CTA lands on the calendar with a "Booking your 1st of N" banner.</div><div class="inv-loc"><code>shared/profile.html</code> · <code>#pkg-success-sheet</code> · <code>.bk-first-banner</code></div></div></div>
+      <div class="inv-item"><div class="inv-n">3</div><div class="inv-b"><div class="inv-t"><a href="../shared/profile.html#s-booking">Redeem — burn a credit</a></div><div class="inv-d">Confirm sheet swaps payment for "Use 1 session from your pack"; price struck → "Included in pack". "Pay per session instead" fallback.</div><div class="inv-loc"><code>shared/profile.html</code> · <code>#s-booking</code> · <code>.pm-pack</code></div></div></div>
+      <div class="inv-item"><div class="inv-n">4</div><div class="inv-b"><div class="inv-t"><a href="../athlete/my-coaches.html#s-coach-detail">Track sessions left</a></div><div class="inv-d">My Coaches → coach detail → "Your packages": one card per session type, bar + "X of N used · Y left", Pending pill for unpaid cash.</div><div class="inv-loc"><code>athlete/my-coaches.html</code> · <code>#s-coach-detail</code></div></div></div>
+      <div class="inv-item"><div class="inv-n">5</div><div class="inv-b"><div class="inv-t"><a href="../athlete/my-coaches.html#s-pkg-detail">Pack detail + history</a></div><div class="inv-d">Same layout as coach: "N left" + bar → Activity → See all → full stream + chips. Depleted → "Buy again".</div><div class="inv-loc"><code>athlete/my-coaches.html</code> · <code>#s-pkg-detail</code> · <code>#s-pkg-history</code></div></div></div>
+      <div class="inv-item"><div class="inv-n">6</div><div class="inv-b"><div class="inv-t">Milestone nudges</div><div class="inv-d">Running-low + used-up pushes (both sides) deep-link back to the buy sheet. Threshold = 20% of the active pack, floored at 1.</div><div class="inv-loc"><code>notifications-catalog.md</code> · §1.1 · cats 25–29</div></div></div>
+    </div>
+  </div>
+
+  <!-- ===================== DATA MODEL ===================== -->
+  <div class="sec-h">Proposed data model <span>spec §8.1 — a PROPOSAL, not ratified against the live backend (see blockers)</span></div>
+  <div class="dm">
+    <div class="dm-card"><div class="dm-t"><code>package_offer</code></div><div class="dm-f">Coach's product.<br><code>coach_id</code>, <code>training_session_id</code> (template), <code>status</code></div></div>
+    <div class="dm-card"><div class="dm-t"><code>package_tier</code></div><div class="dm-f">Max 3 / offer. No expiry.<br><code>sessions_count</code>, <code>total_price{amount_minor, currency}</code>, <code>sold_count</code></div></div>
+    <div class="dm-card"><div class="dm-t"><code>package_credit_lot</code></div><div class="dm-f">One purchase. Multiple / type.<br><code>sessions_total/_used</code>, <code>payment_method</code>, <code>payment_status</code>, <code>price</code></div></div>
+    <div class="dm-card wide"><div class="dm-t"><code>package_redemption</code> &nbsp;·&nbsp; the burn</div><div class="dm-f">Booking a session burns 1 credit from the <b>oldest active lot (FIFO)</b>, linked to the training event — <b>no charge at booking</b>. Cancel / decline / 48h-expiry <b>returns</b> the credit to the lot it came from (FIFO preserved). Booking-confirm endpoint is <b>extended additively</b> to accept "pay with pack credit" — never a breaking change. Money on the wire = <code>{amount: int minor, currency}</code>.</div></div>
+  </div>
+
+  <!-- ===================== OPEN QUESTIONS ===================== -->
+  <div class="sec-h">What still blocks it <span>spec §9 — resolved items written into owning specs; these remain</span></div>
+  <div class="oq">
+    <div class="oq-item"><span class="flag">🔴</span><div><b class="oq-blocker">Legal check — the only hard blocker.</b> <span class="d">Two narrow questions for a lawyer: (1) may we sell prepaid packs with refund at the coach's discretion given the EU 14-day withdrawal right? (2) is the platform jointly liable for non-delivery when it processed the payment? If either is unacceptable → fall back to timed escrow (~14d) or caps + rolling reserve (both designed, neither built).</span></div></div>
+    <div class="oq-item"><span class="flag">🔴</span><div><b class="oq-blocker">Chargeback ownership.</b> <span class="d">We are merchant of record (funds flow through us, coach paid out by us) ⇒ disputes land on the platform, with zero revenue to offset (subscription, no take rate). A risk to accept knowingly — no backend task.</span></div></div>
+    <div class="oq-item"><span class="flag">⚙️</span><div><b>Backend model not ratified.</b> <span class="d">§8 is a proposal — confirm entity shapes + FIFO redemption &amp; FIFO return with the backend before creating issues. <b>Audit poly-backend code + docs vs this spec first.</b></span></div></div>
+    <div class="oq-item"><span class="flag">📋</span><div><b>Athlete → coach report / dispute channel doesn't exist.</b> <span class="d">Not a packages feature (an athlete can't report any coach today), but prepayment makes it urgent. It does not return money. Likely its own spec.</span></div></div>
+    <div class="oq-item"><span class="flag">📋</span><div><b>Coach aggregate pack revenue.</b> <span class="d">Sales-stats widget removed for now — revisit whether/where the coach sees total pack income (per-pack lifetime is on the History header).</span></div></div>
+  </div>
+
+  <div class="foot">
+    Spec: <code>specs/session-packages.md</code> · Cross-spec: <code>payments.md §7</code> · <code>booking-flow.md §8</code> · <code>event-statuses.md §7</code> · <code>clients-coaches.md §7</code> · <code>notifications-catalog.md §1.1</code>.<br>
+    Live screens: <code>coach/sessions.html</code> · <code>shared/profile.html</code> · <code>athlete/my-coaches.html</code> · <code>coach/clients.html</code> · <code>coach/dashboard.html</code>. Shared component: <code>.pkg-punch</code> (progress bar, not punch dots; theme-split page-local, light in my-coaches / dark in clients).
+  </div>
+
+</div>
+</body>
+</html>

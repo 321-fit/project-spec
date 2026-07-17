@@ -125,7 +125,7 @@ enum SettingsType: String, CaseIterable {
 **Location:** `ProfileTab/Settings/Options/CredentialsChange/`
 
 - Change email (with OTP verification + re-auth)
-- Change phone number (with OTP for ownership re-proof; **no re-auth** post-2026-05-11 — phone is a contact attribute, not a login method. See `authentication.md` § 2026-05-11 update.)
+- Change phone number (with OTP for ownership re-proof; phone is a login method + contact attribute, non-unique across accounts — see `authentication.md` § 2026-07-17 update. The 2026-05-11 "contact-only" decision was reversed.)
 - Change password (requires current password)
 - Create password (if social auth user)
 - Delete account
@@ -136,7 +136,7 @@ See [Authentication spec](authentication.md) and [Account Access spec](account-a
 
 **Location:** `ProfileTab/Settings/Options/AccountAccess/`
 
-- View linked authentication providers (Apple, Google, email). **Phone moved to a "Contact" section post-2026-05-11** — it's listed in the hub but not as a sign-in method.
+- View linked authentication providers (Apple, Google, email, **phone** — a sign-in method as shipped; the 2026-05-11 "Contact-only" move was reversed 2026-07-17, see `authentication.md`).
 - Add/remove sign-in methods
 
 ## Calendar Sync

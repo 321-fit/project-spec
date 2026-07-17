@@ -3,7 +3,7 @@
 > Status: In Progress
 > Prototype: [flows/coach/dashboard.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/dashboard.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-05-01
+> Last updated: 2026-07-17
 > Implementation:
 > - iOS:     [321fit_ios/docs/dashboard-ios.md] (to be created)
 > - Backend: [poly-backend/docs/dashboard-backend.md] (impl-doc) + [poly-backend/docs/dashboard-api.md] (endpoint reference)
@@ -150,7 +150,7 @@ Approved coach can edit profile fields that affect their searchability/bookabili
 
 1. Backend computes `isBookable: bool` derived flag on every snapshot:
    - Requires: ≥ 1 sport selected, ≥ 1 active session template, ≥ 1 available hour slot in next 14 days, profile approved.
-   - Stripe connection only required if any session has `paymentType: card`.
+   - **Stripe is NOT a bookability requirement** — the coach stays bookable without a connected Stripe account (card sessions simply can't clear until Stripe is connected). `stripe_required` is surfaced as a non-blocking **warning** (see below), never a `bookabilityIssue`.
 2. If `isBookable: false` → dashboard renders a `dash-warning-card` at the **top** of the screen, **above** the greeting/Next Session — non-dismissable.
 3. Card content:
    - Title: "You're hidden from search"
@@ -161,6 +161,8 @@ Approved coach can edit profile fields that affect their searchability/bookabili
    - Tier 2 tips are dismissable, optional, suggestion-grade.
    - Bookability warnings are non-dismissable, blocking (search hidden), required to clear.
 6. Bookability warnings render in **all** approved states (`dst-default`, `dst-quiet`, `dst-zero`, `dst-idle`, `dst-ready`) but **not** in pre-approval states (`dst-new`, `dst-under-review`, `dst-rejected`).
+
+**Non-blocking warnings (`warnings[]`) — shipped, separate from `bookabilityIssues[]`.** Every snapshot also carries a `warnings[]` array, distinct from the bookability list. These are advisory: the coach stays **bookable and visible in search** while any of them are present. `stripe_required` (no Stripe account connected, or card sessions can't yet clear) is the primary member — reclassified here from a bookability blocker to a warning per shipped backend behavior. Warnings render inline (below the greeting, not as the top non-dismissable card) and never hide the coach from search. Do not conflate `warnings[]` (advisory, stays bookable) with `bookabilityIssues[]` (blocking, hidden from search).
 
 ---
 
@@ -221,7 +223,8 @@ Client picks between `dst-loading` / `dst-error` based on snapshot availability 
 
 `CoachDashboardSnapshot` carries:
 - `state` — drives client rendering (`new`, `under_review`, `rejected`, `ready`, `idle`, `quiet`, `default`, `zero`)
-- `isBookable` + `bookabilityIssues[]` — Tier 1 Q5 derived flag and warning card content
+- `isBookable` + `bookabilityIssues[]` — Tier 1 Q5 derived flag and (blocking) warning card content — coach hidden from search while non-empty
+- `warnings[]` — shipped advisory array, **separate** from `bookabilityIssues[]`. Non-blocking; coach stays bookable/visible. Primary member `stripe_required` (see §11)
 - `greeting` — name + time-of-day + optional `todaySummary` (session count + total value as Money DTO)
 - `wizard` (only for `state=new`) — 6 steps, fixed order
 - `approvalStatus` (only for `state=under_review`) — submitted timestamp + SLA copy hint
@@ -292,7 +295,7 @@ For full sample payloads, per-field intent, and error responses, read [`dashboar
 - [x] ~~**Profile edit after approval breaks bookability:**~~ RESOLVED in Tier 1 Q5: stay approved, auto-hide from search via `isBookable` flag + non-dismissable warning cards.
 - [x] ~~**Tier 2 tip rotation algorithm:**~~ RESOLVED 2026-05-01: fixed priority `stripe → hours → video → bio` — first eligible by precondition (and dismissal counter < 3) wins. Recorded in §7 Business rules. Implemented in `backend/app/handlers/rest/coach/dashboard.py` (`_TIER2_TIP_PRIORITY` tuple).
 - [ ] **Retention of signals for deleted athletes:** if an athlete who left a review deletes their account, should the review still appear on dashboard? Current assumption: show as "review from a former client" (anonymized). **Owner:** product.
-- [ ] **Real-time refresh mechanism:** websocket vs push-notification vs long-polling. **Owner:** backend architecture.
+- [x] ~~**Real-time refresh mechanism:**~~ RESOLVED 2026-07-17: shipped model is **poll-on-foreground + pull-to-refresh** (re-fetch the snapshot on resume from background and on manual pull). Push-driven silent refresh is **deferred** (the §6 "Push / real-time" note stays aspirational). **Websockets are deliberately NOT used for the dashboard** — the WS stack exists only for messaging (DM); the dashboard intentionally stays poll-only.
 
 ---
 

@@ -5,7 +5,7 @@
 > - [flows/shared/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/profile.html) (athlete booking)
 > - [flows/coach/invite.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/invite.html) (coach invite + schedule)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-07-03
+> Last updated: 2026-07-17
 > Implementation:
 > - iOS:     [321fit_ios/docs/booking-flow-ios.md] (to be created)
 > - Android: [321fit_android/docs/booking-flow-android.md] (to be created)
@@ -232,12 +232,15 @@ Sheet content:
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| GET | `/api/v1.0.0/athlete/coaches/{id}/occupied-slots/?weekStart={d}&weekEnd={d}&exclude_event_id={id?}` | Coach week schedule (athlete booking) — **already in prod** |
-| GET | `/api/v1.0.0/coach/athletes/{id}/available-invite-slots/?weekStart={d}&weekEnd={d}` | Athlete week schedule (coach schedule mode) — **already in prod** |
-| GET | `/api/v1.0.0/athlete/coaches/{id}/group-sessions?template={id}` | Upcoming group instances for template |
-| POST | `/api/v1.0.0/athlete/booking-requests` | Athlete sends booking request (personal or group join) |
-| POST | `/api/v1.0.0/coach/invites` | Create external invite (returns share link) |
-| POST | `/api/v1.0.0/coach/schedule-requests` | Send schedule request to existing in-app athlete |
+| GET | `/api/v1.0.0/athlete/coaches/{id}/occupied-slots/?weekStart={d}&weekEnd={d}&exclude_event_id={id?}` | Coach busy week (athlete booking a Personal session) — **already in prod** |
+| GET | `/api/v1.0.0/athlete/coaches/{id}/available-booking-slots/?searchedDate={d}&duration={hh:mm}` | Coach bookable slots for a day (athlete booking) — **already in prod** |
+| GET | `/api/v1.0.0/athlete/coaches/{id}/group-trainings` | Coach's group templates, each with its soonest `nextEvent` (athlete group join) — **already in prod** |
+| POST | `/api/v1.0.0/athlete/training-events/` | Athlete sends a Personal booking request — **already in prod** |
+| POST | `/api/v1.0.0/athlete/group-events/{id}/join` | Athlete joins a specific group event — **already in prod** |
+| GET | `/api/v1.0.0/coach/athletes/{id}/available-booking-slots/?weekStart={d}&weekEnd={d}` | Athlete bookable slots (coach schedule mode) — **already in prod** |
+| GET | `/api/v1.0.0/coach/athletes/{id}/occupied-slots/?weekStart={d}&weekEnd={d}` | Athlete busy week (coach schedule mode) — **already in prod** |
+| POST | `/api/v1.0.0/coach/training-events/` | Coach creates the event — schedule mode (in-app athlete) or external invite — **already in prod** |
+| POST | `/api/v1.0.0/coach/training-events/{id}/share-link/` | Mint/return the event's permanent share link (external invite) — **already in prod** |
 
 **Dual availability is already supported by the wire format** — no new contract. The two week-schedule endpoints return `CoachScheduleResponse { schedule: { [date]: { coachWorkingHours[], occupiedSlots[] } } }`, and each `occupiedSlot` carries `ownerType` (`"requester"` = the person booking → render as a full `.fit-cal-event-*` tile; `"other"` = the counterparty/Google → render as an anonymized `.fit-cal-event-external` "Busy" tile). The grid maps `coachWorkingHours` → bookable band (gaps → hatched `.fit-bk-off`) and the two `ownerType`s → the two tile treatments. **Do not** add the previously-planned `available-slots?date` endpoint — these prod endpoints supersede it (memory: `feedback_keep_existing_endpoints`).
 

@@ -4,10 +4,10 @@
 > Prototype (coach): [flows/coach/personal-data.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/personal-data.html)
 > Prototype (athlete): [flows/athlete/personal-data.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/personal-data.html) — built 2026-06-30
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-30 (athlete variant built — see § 1)
+> Last updated: 2026-07-17 (backend impl-doc pointer repointed profile-api.md → me-api.md; athlete variant — see § 1)
 > Implementation:
 > - iOS:     [321fit_ios/docs/personal-data-ios.md] (to be created)
-> - Backend: [poly-backend/docs/profile-api.md] (to be created)
+> - Backend: [poly-backend/docs/me-api.md](../../poly-backend/docs/me-api.md)
 > - Android: [321fit_android/docs/personal-data-android.md] (to be created)
 
 **Scope note:** this spec covers the **coach-side** Personal Data screen reached from Settings root → Edit personal info. Same screen is used for the data points surfaced on the public coach profile (`coach-profile.md`) plus private operational fields (TZ, country, city, languages, DOB, gender).
@@ -185,7 +185,7 @@ Sheet stays open so user can retry pick without navigation.
 
 ## 6. API
 
-Canonical reference: [`poly-backend/docs/profile-api.md`](../../poly-backend/docs/profile-api.md) (to be created).
+Canonical reference: [`poly-backend/docs/me-api.md`](../../poly-backend/docs/me-api.md).
 
 Endpoints (extending existing per `feedback_backward_compat_endpoints`):
 

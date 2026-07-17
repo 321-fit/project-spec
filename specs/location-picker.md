@@ -3,10 +3,10 @@
 > Status: Draft
 > Prototype: [flows/coach/settings.html#s-locations](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html#s-locations)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-07-03
+> Last updated: 2026-07-17
 > Implementation:
 > - iOS:     [321fit_ios/docs/location-picker-ios.md] (to be created)
-> - Backend: [poly-backend/docs/location-picker-backend.md] (to be created)
+> - Backend: [poly-backend/docs/coach-locations-api.md](../../poly-backend/docs/coach-locations-api.md)
 > - Voice:   not applicable
 > - Android: [321fit_android/docs/location-picker-android.md] (when available)
 
@@ -155,7 +155,7 @@ References to screen IDs are from `flows/coach/settings.html`.
 
 ## 6. API
 
-> **Backend mapping note.** Existing poly-backend endpoint `/api/v1.0.0/coach/addresses` already handles in-person locations. Phase 4 **extends** this resource with a `type` discriminator (`"in_person"` / `"online"` / `"home_visit"`) and new optional fields per type, rather than introducing parallel endpoints. Existing rows are backfilled with `type: "in_person"`. No URL renames; iOS keeps using `coach/addresses`.
+> **Backend mapping note (shipped 2026-07-17).** Existing poly-backend endpoint `/api/v1.0.0/coach/addresses` handles all location kinds. The resource was extended **not** with a `type` discriminator but with **two boolean flags** — `is_online` and `is_home_visit` — plus per-kind optional fields. In-person is the implicit default (both flags false). No URL renames; iOS keeps using `coach/addresses`. See [poly-backend/docs/coach-locations-api.md](../../poly-backend/docs/coach-locations-api.md).
 
 ### Endpoints
 
@@ -168,7 +168,7 @@ Returns the coach's addresses (all types).
 #### `POST /coach/addresses`
 Creates a new address of any type. Server discriminates by `type`.
 **Body:** `Address` (without `id`, `createdAt`, `updatedAt`).
-**Response 201:** created entry. If `isDefault: true` and `type: "in_person"` → server atomically clears `isDefault` on previous default in-person.
+**Response 201:** created entry. If `isDefault: true` on an in-person location (`isOnline: false`, `isHomeVisit: false`) → server atomically clears `isDefault` on previous default in-person.
 
 #### `GET /coach/addresses/{id}`
 Returns a single address.
@@ -177,11 +177,11 @@ Returns a single address.
 Full replace.
 
 #### `PATCH /coach/addresses/{id}`
-Partial update. For `type: "in_person"` — `lat`/`lon`/`addressLine` immutable post-create (re-add to change). For `type: "online"` — `provider`/`url` editable. For `type: "home_visit"` — `travelBufferMinutes` editable.
+Partial update. For in-person (both flags false) — `lat`/`lon`/`addressLine` immutable post-create (re-add to change). For `is_online: true` — `platform`/`meetingLink` editable. For `is_home_visit: true` — `travelBufferMinutes` editable.
 
 #### `DELETE /coach/addresses/{id}`
-**Response 204:** deleted.
-**Response 409 — `TEMPLATE_DEPENDENCY`:**
+**Response 200:** deleted (no 204 override — the endpoint returns 200).
+**Response 409 — `TEMPLATE_DEPENDENCY`** *(intended; see § 7 — delete-guard **not yet enforced**, filed as a backend issue):*
 ```json
 { "error": "TEMPLATE_DEPENDENCY",
   "templates": [{ "id": 42, "name": "HIIT Group Session" }] }
@@ -201,25 +201,27 @@ Existing fields (preserved from current poly-backend `AddressResponse`):
 | `lon` | number | nullable when `type ≠ "in_person"` |
 | `addressLine` | string | nullable when `type ≠ "in_person"` |
 | `locationName` | string | display name, all types ("TNT Studio", "My Zoom Room", "Home Visit") |
-| `isDefault` | bool | meaningful for `type: "in_person"` only |
+| `isDefault` | bool | meaningful for in-person only (`isOnline: false`, `isHomeVisit: false`) |
 | `city` | string? | optional |
 | `countryCode` | string? | optional |
 | `description` | string? | optional |
 
-**New fields (Phase 4 extension):**
+**New fields (shipped extension — boolean flags, not a `type` enum):**
 
 | Field | Type | Notes |
 |---|---|---|
-| `type` | enum | `"in_person"` / `"online"` / `"home_visit"`. Backfill defaults existing rows to `"in_person"`. |
-| `provider` | enum? | `"zoom"` / `"meet"` / `"custom"` — only for `type: "online"` |
-| `url` | string? | HTTPS only; provider-domain validated for `zoom`/`meet`. Only for `type: "online"` |
-| `travelBufferMinutes` | int? | Only for `type: "home_visit"`. Applied before AND after each home-visit session |
-| `templateUsageCount` | int | derived; for delete warning |
+| `isOnline` | bool | `is_online`. Marks an online location. Default `false`. |
+| `isHomeVisit` | bool | `is_home_visit`. Marks the home-visit config. Default `false`. |
+| `platform` | enum? | `"zoom"` / `"google_meet"` / `"teams"` / `"custom"` — only when `isOnline: true` |
+| `meetingLink` | string? | meeting URL. Only when `isOnline: true`. (HTTPS/domain validation is intended but **not yet enforced** — see § 7.) |
+| `travelBufferMinutes` | int? | Only when `isHomeVisit: true`. Applied before AND after each home-visit session |
 
-**Discriminator behavior:**
-- `type: "in_person"` — `lat`, `lon`, `addressLine` required; `provider`/`url`/`travelBufferMinutes` ignored
-- `type: "online"` — `provider`, `url` required; `lat`/`lon`/`addressLine` null
-- `type: "home_visit"` — `travelBufferMinutes` required; `lat`/`lon`/`addressLine` null. **Singleton per coach** — only one home-visit address allowed (server enforces 409 on attempted second).
+> In-person is the implicit kind (`isOnline: false` AND `isHomeVisit: false`). There is **no** `templateUsageCount` field on the wire — the delete warning is driven by the 409 `TEMPLATE_DEPENDENCY` response once that guard ships.
+
+**Flag behavior:**
+- **In-person** (`isOnline: false`, `isHomeVisit: false`) — `lat`, `lon`, `addressLine` required; `platform`/`meetingLink`/`travelBufferMinutes` ignored
+- **Online** (`isOnline: true`) — `platform`, `meetingLink` required; `lat`/`lon`/`addressLine` null
+- **Home visit** (`isHomeVisit: true`) — `travelBufferMinutes` required; `lat`/`lon`/`addressLine` null. **Singleton per coach** — only one home-visit address allowed.
 
 ---
 
@@ -228,7 +230,7 @@ Existing fields (preserved from current poly-backend `AddressResponse`):
 - **Default in-person:** zero or one in-person locations marked default. Online and home-visit cannot be marked default.
 - **Default fallback for session creation:** `profile.addresses[0]` (= default in-person). If no default and no in-person → falls through to first online → home visit → empty state.
 - **Address immutability:** in-person address cannot be edited. Reason: prevents accidental mass-rename of an existing location used in templates.
-- **Online URL:** HTTPS required. For `zoom` validated against `*.zoom.us`; for `meet` against `meet.google.com`; `custom` only validated as well-formed HTTPS URL.
+- **Online URL:** HTTPS required. For `zoom` validated against `*.zoom.us`; for `google_meet` against `meet.google.com`; `teams`/`custom` validated as well-formed HTTPS URL. *(Intended behavior — meeting-URL validation is **not yet enforced** on the backend; filed as a backend issue. Field on the wire is `meetingLink`.)*
 - **Online link strategy (MVP):** **single permanent link per location**, not auto-generated per session. Per-session OAuth link generation is V2.
 - **Online URL athlete delivery:** push notification 15 min before session start (per `notifications` spec). URL also visible in event detail drawer at all times post-booking.
 - **Online URL change after bookings:** updated URL takes effect for all booked sessions. Server re-emits push with the new URL to affected athletes.
@@ -237,9 +239,9 @@ Existing fields (preserved from current poly-backend `AddressResponse`):
 - **Athlete address for home visit (UX, decided 2026-06-24, prototyped in `shared/profile.html`):** a home-visit session is just a normal **personal** session whose location the coach set to "home visit"; the athlete books it via the existing flow (`s-book-sessions` → `s-booking` → confirm sheet) — no separate format pick. The athlete's address is captured **in the booking confirm sheet**: if the athlete has a saved home address it is **pre-filled** (with Change); if not, the sheet shows **"Select your address"** and the **Send/Confirm CTA is blocked** until one is chosen (picker cloned from `s-loc-map`). Address captured at booking, not stored coach-side.
 - **Travel buffer enforcement:** calendar scheduling rejects sessions whose buffer overlaps with another session's slot.
 - **Travel buffer display (decided 2026-06-24, prototyped):** **coach calendar only** — rendered as a Google-Calendar-style attached commute block (hatched/dashed tile, car icon, "Travel · N min") immediately **before and after** the home-visit event (`.cal-travel-buffer` in `coach/calendar.html`). Stateless, not draggable, not tappable. **Athlete side: invisible** — the buffer only filters which slots the booking grid offers (server already excludes slots that would overlap the buffer); the athlete sees no buffer UI at all. (Coach event-detail line "🚗 N min travel buffer" + directions = follow-up.)
-- **Delete blocking:** location used in ≥ 1 active session template → 409 Conflict with template list. Client must reassign before retrying.
+- **Delete blocking:** location used in ≥ 1 active session template → 409 Conflict with template list. Client must reassign before retrying. *(Intended behavior — the delete-guard is **not yet enforced**; DELETE currently orphans dependent sessions. Filed as a backend issue.)*
 - **Cross-type sessions:** one session = one location. No "online OR in-person" hybrid in MVP.
-- **Default promotion on delete:** when default in-person is deleted, the **oldest-by-creation** remaining in-person becomes default automatically.
+- **Default promotion on delete:** when default in-person is deleted, the **oldest-by-creation** remaining in-person becomes default automatically. *(Intended behavior — **not yet enforced** on delete; filed as a backend issue.)*
 
 ---
 
@@ -263,7 +265,7 @@ Existing fields (preserved from current poly-backend `AddressResponse`):
 
 - **iOS:** map = MapKit (no extra dependency). Place autocomplete = Google Places SDK (already in project — see `321fit_ios/CLAUDE.md` GoogleMaps/Places). Picker mode of `#s-locations` returns selection via Coordinator.
 - **Android:** map = Maps Compose. Place autocomplete = Google Places API. Picker mode returns selection via NavController saved state.
-- **Backend:** location-template referential integrity enforced via FK; `templateUsageCount` derived per fetch (single COUNT query), not stored.
+- **Backend:** location-template referential integrity enforced via FK. Dependent-template count is **not emitted on the wire** (no `templateUsageCount` field) — the delete warning relies on the 409 `TEMPLATE_DEPENDENCY` payload once the delete-guard ships.
 - **Voice:** not applicable — locations are managed visually only.
 
 ---

@@ -2,13 +2,15 @@
 
 > Status: Approved
 > Companion to: [notifications.md](./notifications.md) (infrastructure — registration, delivery, inbox UI, routing internals)
-> Last updated: 2026-06-09
+> Last updated: 2026-07-17
 
 The **single source of truth** for every notification the app sends — what triggers it, who receives it, what copy lands in the push body / inbox row, what template variables backend must pass, where tap routes to.
 
 When changing copy, **update this file first**, then mirror in `notification_template` DB via Alembic migration, then verify call sites pass exact `template_data` keys listed in the row.
 
-## 1. The catalog — 29 categories
+## 1. The catalog — 40 backend categories
+
+> **Built count (2026-07-17 audit).** Backend `NotificationCategory` (poly-backend `enums.py`) ships **40** categories on `main`. This § 1 table documents the personal-training, reminder, money, and package notifications in full. The group-training, messaging, self-paced, invite/referral, and coach-moderation families are also shipped but **owned by their module specs** — they are registered in **§ 1.2** with pointers rather than duplicating their copy here, so this file still accounts for all 40 enum values. Rows still marked *spec-ahead* (Session Packages #21–29, reviews #11b/#18, `card_payment_cleared` #14, `payout_sent` #15, `crm_contact_joined` #20) are intentionally **not yet in the enum**.
 
 Each notification has two visible parts on the user's device:
 
@@ -31,14 +33,14 @@ Each notification has two visible parts on the user's device:
 | 10 | `training_session_successful_coach` | `payment` | Coach earns from completed session (money moves) | P · I | **Session complete** | `{session_name} with {athlete_name} on {date} completed. €{amount} added to your balance.` | Coach → Earnings → s-txn-earning (this earning) | tap | `session_name, athlete_name, date, amount` |
 | 11 | `training_session_successful_athlete` | `approved` | Session completed for athlete | P · I | **Session complete** | `{session_name} with {coach_name} on {date} completed.` | Athlete → Schedule (sheet, finished state) | tap | `session_name, coach_name, date` |
 | 11b | `review_prompt_athlete` *new 2026-06-05 — when reviews module ships* | `review` | ~24h (next day) after athlete's **first completed** session with a coach | P · I | **Leave a review** | `How was training with {coach_name}? Leave a review.` | Athlete → coach review composer (`s-coach-review`, full-screen modal). See [reviews.md](reviews.md) | tap | `coach_name` |
-| 12 | `session_reminder_1h` *new 2026-05-22* | `reminder` | Celery beat: 60 min before a planned session start | P · I | **Session in 1 hour** | `{session_name} with {other_name} starts in 1 hour at {time}.` | Either side → Schedule (sheet) | tap + time | `session_name, other_name, time` |
-| 13 | `session_reminder_10min` *new 2026-05-22 — off by default* | `reminder` | 10 min before a planned session start | P only (don't inbox-spam) | **Starting in 10 min** | `{session_name} starts in 10 min.` | Either side → Schedule (sheet) | tap + time | `session_name` |
+| 12 | `training_soon` ✅ **built** | `reminder` | Celery beat every 5 min (`app/tasks/training_soon.py`): an approved event starts within the next 10 min. Sent **once per event to both** athlete and coach. | P · I | **321Fit** *(shipped subject — copy-cleanup candidate)* | `Your training session starts in {minutes} minutes!` | Either side → Schedule (event sheet) | tap + time | `minutes` |
+| 13 | ~~`session_reminder_1h`~~ / ~~`session_reminder_10min`~~ ⚠️ **PHANTOM — not built** | `reminder` | *The planned 1h + 10-min reminder split never shipped.* Both enum values exist and are wired into the clearance service + the `mark reminders for past events as read` query, but **no Celery beat task produces them** — the only reminder that actually fires is `training_soon` (#12). Treat 1h/10min as unbuilt; do not reference them as live. | — | — | — | Either side → Schedule (sheet) | tap + time | — |
 | 14 | `card_payment_cleared` *new 2026-05-22* | `payment` | 24h Stripe hold released for an earning | P · I | **Payment cleared** | `€{amount} from {athlete_name} cleared and is now available.` | Coach → Earnings → s-txn-earning | tap | `amount, athlete_name` |
 | 15 | `payout_sent` *new 2026-05-22* | `payment` | Stripe `transfer.created` webhook | P · I | **Payout sent** | `Payout of €{amount} sent to your bank — arrives in 1-2 days.` | Coach → Earnings → s-txn-payout | tap | `amount` |
 | 16 | `cash_overdue` *new 2026-05-22* | `reminder` | Daily Celery beat: cash earning unpaid > 3 days | P · I | **Cash unpaid** | `{athlete_name}'s {session_name} on {date} is still unpaid — mark as paid?` | Coach → Earnings → s-txn-cash | **action** | `athlete_name, session_name, date` |
 | 17 | `calendar_sync_needs_attention` *new 2026-05-22 — spec'd in notifications.md § Calendar sync issue, template was missing* | `calendarSync` | OAuth refresh fail / app-specific password revoked / 2FA disabled | P · I | **Calendar sync issue** | `Reconnect {provider} Calendar to keep events synced.` | Coach/Athlete → Settings → Calendar Sync | **action** | `provider` |
 | 18 | `new_review` *new 2026-05-22 — when athlete-review module ships* | `review` | Athlete leaves a review on a finished session | P · I | **New review** | `{athlete_name} left you a {rating}★ review on {session_name}.` | Coach → Profile → Reviews carousel (anchor to new entry) | tap | `athlete_name, rating, session_name` |
-| 19 | `referral_athlete_joined` *new 2026-05-22 — fills the referral gap* | `onboardingDone` | Athlete signs up via coach's referral/invite link (incl. the `crm_import` OneLink) AND completes onboarding | P · I | **Athlete joined** | `{athlete_name} joined 321Fit via your invite — ready to train.` | Coach → Clients → athlete detail | tap | `athlete_name` |
+| 19 | `referred_athlete_joined` *new 2026-05-22 — fills the referral gap; enum literal is `referred_athlete_joined`* | `onboardingDone` | Athlete signs up via coach's referral/invite link (incl. the `crm_import` OneLink) AND completes onboarding | P · I | **Athlete joined** | `{athlete_name} joined 321Fit via your invite — ready to train.` | Coach → Clients → athlete detail | tap | `athlete_name` |
 | 20 | `crm_contact_joined` *new 2026-06-09 — contact import / phone-match path* | `onboardingDone` | A coach's existing **CRM contact** is auto-linked to a new app account via **phone-match** (the coach did not necessarily send a link) → relationship flips `crm → app` | P · I | **Contact joined** | `{athlete_name} from your contacts just joined 321Fit — now connected.` | Coach → Clients → athlete detail (upgraded) | tap | `athlete_name` |
 
 | 21 | `package_purchased_card_coach` *new 2026-07-15 — session packages* | `payment` | Athlete buys a pack by card (credits active instantly) | P · I | **Package sold** | `{athlete_name} bought a {pack_size}-session {session_name} pack — €{amount}.` | Coach → Clients → athlete detail → pack detail | tap | `athlete_name, pack_size, session_name, amount` |
@@ -72,13 +74,34 @@ A flat "1 left" doesn't scale: on a 20-pack it warns on the *last* session of tw
 - **Manual ≠ automatic.** #29 is coach-initiated and independent of the milestone; it exists so a coach can pitch at their own moment ("renew now while the discount holds"). Rate-limited to **once per 7 days per pack** so a coach tapping repeatedly can't hammer the athlete on top of the automatic nudges.
 - **UI must use the same threshold.** The amber "running low" card state + inline **Offer renewal** key off `low_at`, not a hardcoded `1` — otherwise the coach gets "Anna is running low" and opens a green card. See `session-packages.md` § 4.4.
 
+### 1.2 Shipped categories owned by other module specs *(added 2026-07-17)*
+
+These enum categories ship on backend `main` but their copy / triggers / routing are owned by the module specs below — registered here so this file accounts for the full 40, not duplicated. Update copy in the owning spec first.
+
+**Group training** → [group-training.md](group-training.md) · [group-event-detail.md](group-event-detail.md)
+- `group_event_full`, `group_event_below_minimum`, `group_event_reminder_coach`, `group_event_reminder_athlete`, `group_event_ended_coach`, `group_event_ended_athlete`, `group_event_payment_processed_athlete`
+
+**Messaging (DM)** → [messages.md](messages.md)
+- `new_message`, `new_group_message`
+
+**Self-paced training** → [self-paced.md](self-paced.md)
+- `self_paced_booked`, `self_paced_workout_sent`, `self_paced_submitted`, `self_paced_reviewed`, `self_paced_cancelled`, `self_paced_rescheduled`
+
+**Invites / referrals** → [clients-coaches.md](clients-coaches.md) · [deep-linking-referrals.md](deep-linking-referrals.md)
+- `athlete_accepted_invite`, `coach_accepted_invite` (proxy-accept for cash invites), `referred_coach_joined`, `coach_bulk_invite`, `coach_rejected_athlete`, `coach_removed_you_from_session`
+
+**Coach onboarding / moderation** → [coach-profile.md](coach-profile.md)
+- `coach_profile_approved`, `coach_profile_rejected`
+
+**Count check.** § 1 documents 15 shipped enum categories in full (#1–11 + `training_soon` #12 + `cash_overdue` #16 + `calendar_sync_needs_attention` #17 + `referred_athlete_joined` #19), plus the 2 phantom enum values (#13, unbuilt) = **17** enum values. § 1.2 registers the remaining **23**. 17 + 23 = **40**. (The other § 1 rows — #11b, #14, #15, #18, #20, #21–29 — are spec-ahead and not yet in the enum.)
+
 ### Clearance tag legend
 
 | Tag | Meaning | Detail |
 |---|---|---|
 | `tap` | User tap → row marked read. No other clearance path. | Default for informational notifications. |
 | `tap + state` | Tap marks read, AND server auto-marks-read when the underlying entity state changes. | Used for request / reschedule — when the related `training_event.status` flips to `planned` or `cancelled` (resolved another way), backend marks the unread notifications referencing that event as read so the coach doesn't get a stale unread badge. |
-| `tap + time` | Tap marks read, AND server auto-marks-read when the time-based context expires. | Used for `session_reminder_*` — a Celery beat pass marks unread reminders for events whose `datetime_start` is in the past. |
+| `tap + time` | Tap marks read, AND server auto-marks-read when the time-based context expires. | Used for `training_soon` (#12) — a Celery beat pass marks unread reminders for events whose `datetime_start` is in the past. |
 | `action` | Tap **does NOT** mark read (only opens the destination screen). Cleared only when the user performs the actual action (mark-paid / reconnect) — at which point server auto-marks-read. | Used for `cash_overdue` and `calendar_sync_needs_attention`. Reasoning: these are one-tap actions ("Mark as paid", "Reconnect"). Marking read on mere tap means coach opens screen, gets distracted, forgets — and the notification is gone from the badge with no action taken. The explicit-action-required pattern keeps the badge persistent until the work is done. |
 
 ## 2. Variables convention
@@ -160,7 +183,7 @@ The `Clearance` column in § 1 carries one of four tags. Detailed rules:
 
 Used for confirmations, status updates, money news, social signals. User tap (in inbox row or push from background) fires `POST /notifications/mark-read { notificationId }` — optimistic on client, badge decrements immediately. No other clearance path. If user never opens, notification sits read=false forever (acceptable noise — backend has no retention TTL in v1).
 
-11 of 19 categories use this: requests-resolved (#3, #4, #7), informational (#8, #9, #10, #11, #14, #15, #18, #19).
+These § 1 rows use it: requests-resolved (#3, #4, #7), informational (#8, #9, #10, #11, #14, #15, #18, #19). (The § 1.2 module-owned categories carry their own clearance tags in their owning specs.)
 
 ### `tap + state` — auto-clear when the underlying entity resolves
 
@@ -176,7 +199,7 @@ Backend implementation: in the handlers that mutate `EventApproval` status (Acce
 
 Used for reminders that lose relevance after their target moment passes. A daily Celery beat task scans unread notification rows of these categories whose linked `training_event.datetime_start` is now in the past, marks them read.
 
-Categories: `session_reminder_1h` (#12), `session_reminder_10min` (#13).
+Category: `training_soon` (#12). (The phantom `session_reminder_1h` / `session_reminder_10min` at #13 would use the same rule if ever built.)
 
 Implementation cost is minimal — single SQL update in the existing reminder beat task or a new tiny beat task at the same cadence.
 
@@ -205,7 +228,7 @@ No third state ("read but actionable") in v1 — the `action` tag's behavior (do
 
 ## 6. Kit type → routing (decoupled from backend categories)
 
-Backend has 19 `NotificationCategory` values; the iOS / Android Inbox kit collapses them to 13 visual variants. The mapping table + tap-routing rules live in [notifications.md § Type → icon / color mapping](./notifications.md#type--icon--color-mapping-kit-type-enum-decoupled-from-backend-targetroute) and [§ Tap routing](./notifications.md#tap-routing-sheet-vs-push). When adding a new category, pick an existing kit type if visual + route match; only invent a new kit type for genuinely new visual semantics.
+Backend has **40** `NotificationCategory` values; the iOS / Android Inbox kit collapses them to 13 visual variants. The mapping table + tap-routing rules live in [notifications.md § Type → icon / color mapping](./notifications.md#type--icon--color-mapping-kit-type-enum-decoupled-from-backend-targetroute) and [§ Tap routing](./notifications.md#tap-routing-sheet-vs-push). When adding a new category, pick an existing kit type if visual + route match; only invent a new kit type for genuinely new visual semantics.
 
 Kit types currently in the catalog: `request`, `reschedule`, `approved`, `cancelled`, `declined`, `expired`, `onboardingDone`, `calendarSync`, `videoReady`, `videoFailed`, `reminder`, `payment`, `review`.
 
@@ -228,5 +251,5 @@ Option B is the iOS-native pattern. v1.0 ships English-only push copy; backlog i
 
 ## 9. Open questions
 
-- Should `session_reminder_10min` be opt-in? Coaches running back-to-back sessions might find 10 prior pushes/day too noisy. **Default proposal:** off by default for v1, exposed as a Settings toggle ("Last-call reminder · 10 min before") in a future release.
-- Group event reminders for athletes (1h before joined group session) — covered by `session_reminder_1h` if backend treats `group_event` same as `personal_event` in the reminder query. Verify during BE-NOTIF-2 impl.
+- ~~Should `session_reminder_10min` be opt-in?~~ **Moot (2026-07-17):** the 1h/10min split was never built (see #13). Backend ships a single `training_soon` (10-min, both roles, always on). Revisit opt-in only if a configurable reminder is added later.
+- ~~Group event reminders for athletes (1h before joined group session)~~ **Resolved (2026-07-17):** backend ships dedicated `group_event_reminder_coach` / `group_event_reminder_athlete` categories (see § 1.2, owned by group-training.md), not a reused personal-session reminder.

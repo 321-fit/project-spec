@@ -3,13 +3,13 @@
 > Status: Draft
 > Prototype: [flows/athlete/dashboard.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/dashboard.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-05-12
+> Last updated: 2026-07-17
 > Implementation:
 > - iOS:     [321fit_ios/docs/athlete-dashboard-ios.md] (to be created)
 > - Android: [321fit_android/docs/athlete-dashboard-android.md] (to be created)
-> - Backend: [poly-backend/docs/athlete-dashboard-api.md] (to be created)
+> - Backend: [poly-backend/docs/athlete-dashboard.md](../../poly-backend/docs/athlete-dashboard.md)
 
-**Scope note:** this spec covers the **Home (Dashboard)** tab for athletes — tab 1 of 5 in athlete navigation. Mirrors coach Dashboard structurally (`dashboard.md`) but with athlete-specific content: balance instead of earnings, awaiting confirmation instead of pending client requests, recommended coaches carousel, activity teaser.
+**Scope note:** this spec covers the **Home (Dashboard)** tab for athletes — tab 1 of 5 in athlete navigation. Mirrors coach Dashboard structurally (`dashboard.md`) but with athlete-specific content: balance instead of earnings, awaiting confirmation instead of pending client requests, recently-viewed coaches, activity teaser. (A "Recommended coaches" carousel was removed 2026-06-05 — discovery lives in Search.)
 
 ---
 
@@ -19,7 +19,7 @@ Dashboard is the home tab — the first screen after onboarding and the default 
 
 1. **"How much money do I have?"** — Balance card pinned at top
 2. **"What's coming up?"** — Next training card + Awaiting confirmation list
-3. **"What's interesting?"** — Recommended coaches carousel + Recently viewed + Activity teaser
+3. **"What's interesting?"** — Recently viewed coaches + Activity teaser (the Recommended carousel was removed 2026-06-05; discovery now lives in Search)
 
 Three screens total in this module:
 - **`s-dashboard`** — main Home with 7 states
@@ -35,7 +35,6 @@ Three screens total in this module:
 - As an athlete, I want my balance visible the moment I open the app, so I know if I can book before browsing.
 - As an athlete, I want to see my next session at a glance with directions, so I can quickly act on the most urgent thing.
 - As an athlete, I want pending booking requests visible so I know what's awaiting coach approval and for how long.
-- As an athlete, I want a small selection of recommended coaches so I can discover without going to Search.
 - As an athlete, I want quick access to coaches I recently viewed (browsed but didn't book), so I can return to them.
 - As an athlete, I want to see my training streak and stats so I stay motivated.
 - As an athlete, I want notifications collected in one inbox so I can catch up after being offline.
@@ -49,11 +48,11 @@ Three screens total in this module:
 
 ## 3. System Stories
 
-- As the system, on first launch after onboarding I render the **Welcome state** with a 4-step setup checklist (Pick sports, Personal details, Top up balance, Find first coach).
+- As the system, on first launch after onboarding I render the **Welcome state** with a **2-step** server-tracked setup checklist: **Pick sports** and **Personal details**. (These are the only two steps the backend tracks for `wizard` completion. "Top up balance" and "Find first coach" may appear as soft prompts elsewhere but are **not** server-tracked wizard steps.)
+- As the system, the Home tab is assembled from **multiple per-block endpoints**, not one composed bundle: the core dashboard call returns only the counts + next event + payment report + wizard + self-paced blocks; **balance, recently-viewed, and activity-stats are fetched from their own endpoints** (see §6). The client renders each block as its data arrives.
 - As the system, I render the Balance card in `.alert` style (red border, red label) when balance is €0 AND there are pending booking requests requiring funds.
 - As the system, when athlete has 0 upcoming sessions, the Next training card switches to an empty CTA block (`Ready for your next session?` + Find a coach / My coaches actions).
 - As the system, the Awaiting confirmation list is hidden when 0 pending requests exist; visible with count when ≥1.
-- As the system, Recommended coaches are fetched from `GET /athlete/dashboard/recommended` using hybrid sport × location ranking. Empty sport types → fallback to "Top rated near you".
 - As the system, on offline first-fetch, I render the Error state with cached header banner + cached balance/next training cards.
 - As the system, on tab open, restore scroll position to top (don't preserve scroll across tab switches).
 
@@ -81,11 +80,11 @@ Reordered 2026-06-05 to mirror the coach Home module order (Next → Needs atten
 | State | When | Content |
 |---|---|---|
 | **Default** | Active athlete with bookings | All blocks above visible |
-| **Welcome** | First launch post-onboarding | Greeting + setup checklist (4 steps), no other blocks |
+| **Welcome** | First launch post-onboarding | Greeting + setup checklist (2 server-tracked steps: Pick sports, Personal details), no other blocks |
 | **Low balance** | Balance = €0 AND pending requests > 0 | Balance card in red alert mode + Needs-attention list (other blocks hidden) |
 | **Idle** | Has balance, 0 upcoming, no pending | Greeting + Next training empty CTA + Balance + Activity teaser |
 | **All zero** | Has balance, no bookings, no recent | Greeting + Next "Time for your next session" CTA + Balance (minimal) |
-| **Loading** | First fetch in flight | Skeleton cards for greeting, balance, next, recommended |
+| **Loading** | First fetch in flight | Skeleton cards for greeting, balance, next session, needs-attention |
 | **Error** | Offline first-fetch failure | Offline banner + cached greeting + cached balance + cached next training |
 
 ### Push: Sessions to rate (`s-rate-queue`)
@@ -122,7 +121,6 @@ Reached from the header **bell**. Reworked from a single "Notifications" list in
 - **`.dash-next`** — next training compact card with avatar + meta + when (teal)
 - **`.dash-next-empty`** — empty variant with CTA row (primary gradient + outline)
 - **`.pending-list`** + **`.pending-row`** — awaiting confirmation rows
-- **`.rec-scroll`** + **`.rec-card`** — recommended coaches horizontal carousel
 - **`.recent-list`** + **`.recent-row`** — recently viewed list rows
 - **`.activity-card`** + **`.activity-stat`** — activity teaser stat strip
 - **`.wiz-card`** + **`.wiz-item`** — Welcome state setup checklist (shared with coach onboarding wizard)
@@ -132,16 +130,22 @@ Reached from the header **bell**. Reworked from a single "Notifications" list in
 
 ## 6. API
 
+Home is assembled from **multiple per-block endpoints**, not one composed bundle. The core `GET /athlete/dashboard` call is deliberately narrow; balance, recently-viewed, and activity-stats each have their own endpoint and load independently.
+
 | Method | Endpoint | Purpose |
 |---|---|---|
-| GET | `/api/v1.0.0/athlete/dashboard` | Single bundle for Home — returns balance, next_training, pending_requests[], recommended_coaches[], recently_viewed[], activity_stats |
-| GET | `/api/v1.0.0/athlete/notifications` | Notifications inbox paginated |
-| POST | `/api/v1.0.0/athlete/notifications/mark-read` | Mark all read |
-| GET | `/api/v1.0.0/athlete/sessions/to-rate` | Sessions to rate queue (oldest first) |
-| POST | `/api/v1.0.0/athlete/sessions/{id}/rate` | Submit rating + review text |
-| POST | `/api/v1.0.0/athlete/sessions/{id}/skip-rate` | Dismiss rating prompt without rating |
+| GET | `/api/v1.0.0/athlete/dashboard` | Core Home block — returns **only** `{ pendingRequestsCount, pendingCardTotal, nextEvent, paymentReport, wizard, selfPaced }`. Does **not** carry balance / recommended / recently-viewed / activity-stats. |
+| GET | `/api/v1.0.0/athlete/balance` | Balance card (amount + last top-up) |
+| GET | `/api/v1.0.0/athlete/recently-viewed-coaches` | Recently-viewed coaches list |
+| GET | `/api/v1.0.0/athlete/activity-stats` | Activity teaser (sessions / hours / streak) |
+| GET | `/api/v1.0.0/athlete/recommended-coaches` | Recommended coaches (endpoint still shipped; **no longer rendered on Home** — carousel removed 2026-06-05, kept for Search/discovery) |
+| GET | `/api/v1.0.0/notifications` | Notifications inbox paginated |
+| POST | `/api/v1.0.0/notifications/mark-read` | Mark read |
+| GET | `/api/v1.0.0/athlete/training-events/unrated` | Sessions-to-rate queue (oldest first) |
+| POST | `/api/v1.0.0/athlete/training-events/{id}/rate` | Submit rating + review text |
+| POST | `/api/v1.0.0/athlete/training-events/{id}/skip-rating` | Dismiss rating prompt without rating |
 
-Detailed shapes live in `poly-backend/docs/athlete-dashboard-api.md` (to be created). Single-bundle dashboard endpoint is preferred over per-block calls to minimize first-fetch latency.
+Detailed shapes live in [`poly-backend/docs/athlete-dashboard.md`](../../poly-backend/docs/athlete-dashboard.md). Per-block calls are the shipped model (each block loads and refreshes independently) — the earlier "single bundle to minimize first-fetch latency" intent was **not** built that way.
 
 ---
 
@@ -151,7 +155,6 @@ Detailed shapes live in `poly-backend/docs/athlete-dashboard-api.md` (to be crea
 - **Balance card always visible.** Even at €0 — to keep the financial mental model consistent.
 - **Empty `next_training`** does NOT hide the section — it switches to the empty-CTA variant. The section header "Next training" stays visible so layout doesn't jump.
 - **Pending requests hidden when 0** — entire section + label removed to avoid empty placeholder.
-- **Recommended fallback** — if athlete has 0 sport types in Settings → fallback to "Top rated near you" using location signal only.
 - **Recently viewed cap** — show last 5 viewed in horizontal scroll, but only render if ≥1 exists. Cleared after 30 days.
 - **Activity teaser** — uses current calendar month. Stats: sessions, hours, current streak in weeks. Streak resets if athlete misses 2+ consecutive scheduled weeks.
 - **Notification badge** — numeric count if `unread_count >= 1`, "99+" cap. Hidden when 0.
@@ -165,16 +168,15 @@ Detailed shapes live in `poly-backend/docs/athlete-dashboard-api.md` (to be crea
 - **All sessions cancelled** — Idle state (has balance, no upcoming).
 - **Coach declines while athlete on Dashboard** — pending row in "Awaiting" list updates to "Declined · view reason" or is removed (real-time push or refresh on focus).
 - **Long coach name in pending row** — truncate with ellipsis to single line; tap reveals full detail in event view.
-- **Recommended carousel with 0 results** — collapse section entirely (don't render "No recommendations" — feels off).
 - **Sessions-to-rate with skipped items resurfacing** — items resurface 7 days after Skip. If skipped 3× → permanently dismissed.
 
 ---
 
 ## 9. Platform notes
 
-- **iOS:** SwiftUI `DashboardView` with `ScrollView`. Bell badge via `@State` from notifications service. Balance card uses `@StateObject` balance service for live updates. Recommended carousel = `ScrollView(.horizontal)`.
-- **Android:** Jetpack Compose `DashboardScreen` with `LazyColumn`. Bell via `Scaffold` topbar action. Recommended = `LazyRow`.
-- **Backend:** Single `/dashboard` endpoint composed from precomputed counters + cached recommendation list. 30s Redis TTL acceptable.
+- **iOS:** SwiftUI `DashboardView` with `ScrollView`. Bell badge via `@State` from notifications service. Balance card uses `@StateObject` balance service for live updates, fetched from its own `/athlete/balance` endpoint. Recently-viewed row = `ScrollView(.horizontal)` fed by `/athlete/recently-viewed-coaches`.
+- **Android:** Jetpack Compose `DashboardScreen` with `LazyColumn`. Bell via `Scaffold` topbar action. Recently-viewed = `LazyRow`.
+- **Backend:** **per-block** endpoints (`/athlete/dashboard` core block + separate `/athlete/balance`, `/athlete/recently-viewed-coaches`, `/athlete/activity-stats`) — not a single composed bundle. Each block is cheaply cacheable independently.
 - **Voice:** N/A — voice assistant lives on FAB (future).
 
 ---
@@ -192,7 +194,7 @@ Detailed shapes live in `poly-backend/docs/athlete-dashboard-api.md` (to be crea
 
 - **2026-05-12** — Balance card pinned at top (above Next training) — athlete's "fuel gauge" must be visible immediately.
 - **2026-05-12** — Balance displayed as plain € amount only, no "≈ N sessions left" approximation (confusing, depends on which coach's prices).
-- **2026-05-12** — Recommended uses hybrid sport × location ranking. Fallback to "Top rated near you" if sport types empty.
+- ~~**2026-05-12** — Recommended uses hybrid sport × location ranking. Fallback to "Top rated near you" if sport types empty.~~ **Superseded 2026-06-05** — Recommended carousel removed from Home (discovery → Search). The `/athlete/recommended-coaches` endpoint still exists for Search.
 - **2026-05-12** — Notifications inbox uses same pattern as coach-side (memory: `dashboard.md` notification grouping).
 - **2026-05-12** — Sessions-to-rate is a push screen (not bottom sheet) — list with multiple items, sticky scroll, mirrors coach `s-review-queue`.
 - **2026-05-12** — Recently viewed lives on Dashboard (NOT inside Search text overlay). Memory: `feedback_dashboard_recently_viewed`.

@@ -1,9 +1,9 @@
 # Event Status System & Push Notifications
 
-> Status: Approved (contract) / In Progress (implementation migration)
+> Status: Approved (contract) / In Progress — shipped as a **dual-field** model (`ApprovalStatus` + `PaymentStatus`), not the unified single enum. See § 5a.
 > Prototype: [flows/coach/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html) — all 6 states demo · [flows/athlete/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/calendar.html) — cross-role mirror
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md) — FitCalEvent, FitCalEventPill, FitRoleTag
-> Last updated: 2026-05-20
+> Last updated: 2026-07-17
 > Implementation:
 > - iOS:     [321fit_ios/docs/event-statuses-ios.md] (to be created)
 > - Backend: [poly-backend/docs/event-statuses-backend.md] (to be created — includes migration)
@@ -178,7 +178,32 @@ Backend migration runs once: maps all legacy values to canonical enum + updates 
 
 ---
 
+## 5a. Shipped reality (2026-07-17) — dual-field, not one enum
+
+The unified single 6-state enum described above (§ 5 / § 6) is the **product contract**, but it was **not shipped as one persisted enum**. What actually ships on `poly-backend` `main`:
+
+- **Persisted status = `ApprovalStatus`** on the `event_approval` table (one row per `training_event`), values: `pending / approved / declined / cancelled / auto_declined / invitation / rescheduled`.
+- **A separate persisted `PaymentStatus`** on the same row: `waiting_for_payment / money_on_hold / transfered_to_coach`. Payment is a **field**, not a status — exactly as the legacy-migration table above intends (`paid`/`cash` are NOT statuses).
+- **The 6-state names (`planned / request / awaiting / review / missed / finished`) are DERIVED, not stored.** The client/DTO layer computes the canonical presentation state on the fly from `ApprovalStatus` + the event's `datetime_end` + the `event_post_confirmation` record (coach review). Reference impl: `_canonical_event_status()` in the coach dashboard handler. So `review`/`finished`/`missed` are not columns — they are `approved` + past-end + (un)confirmed.
+
+**Mapping (shipped derivation):**
+
+| Derived canonical | Comes from |
+|---|---|
+| `request` | `ApprovalStatus.pending` (receiver view) |
+| `awaiting` | `ApprovalStatus.pending` / `invitation` / `rescheduled` (initiator view) |
+| `planned` | `ApprovalStatus.approved`, end time in the future |
+| `review` | `ApprovalStatus.approved`, past `datetime_end`, coach not yet confirmed |
+| `finished` | `ApprovalStatus.approved`, past `datetime_end`, coach confirmed |
+| `missed` / `cancelled` (hidden) | `ApprovalStatus.declined / cancelled / auto_declined` |
+
+**Reconciliation stance:** treat § 5 / § 6's single-enum wording as the *client-facing derived contract*; the *source of truth on the wire* is the `ApprovalStatus` + `PaymentStatus` dual field plus the derivation above. A future migration to one persisted `event_status` column remains optional backend work, not a shipped fact — do not spec it as done.
+
+---
+
 ## 6. API
+
+> **Shipped note (2026-07-17):** the enum below is the **client-facing derived** contract. On the wire it is not a single stored field — see § 5a. Endpoints are **role-scoped** (`/{coach|athlete}/training-events/...`), and the write verb is `PATCH .../change-status` carrying an `ApprovalStatus` value, **not** the flat `POST /events/{id}/accept|decline|cancel` originally drafted below. The accept/decline/cancel/review endpoints in this section are retained as the *intent*; the shipped equivalents are listed inline.
 
 ### Enum definition
 
@@ -193,35 +218,36 @@ type EventStatus =
   | "cancelled" // terminal, hidden from calendar views
 ```
 
-Fields on `TrainingEvent`:
-- `status`: `EventStatus`
+Fields on `TrainingEvent` (client-facing view; see § 5a for the shipped storage):
+- `status`: `EventStatus` — **derived** at the DTO layer from `ApprovalStatus` + `endAt` + post-confirmation, not a stored column
 - `type`: `"personal" | "group" | "custom" | "external"`
-- `endAt`: ISO8601
+- `endAt`: ISO8601 (backend `datetimeEnd`)
 - `cancelledAt`: ISO8601 | null (set when transitioning to cancelled)
 - `completedAt`: ISO8601 | null (set when transitioning to finished)
 
 ### Endpoints (status-related subset)
 
-#### `POST /coach/events/{id}/review`
+> **Shipped (2026-07-17).** All status writes go through **role-scoped** routes; the body carries an `ApprovalStatus` value (`approved` / `declined` / `cancelled`) plus an optional `paymentType`. The `accept`/`decline`/`cancel`/`review` verbs below are the *intent* — the shipped equivalent is noted under each.
 
-Marks event `review → finished` or `review → missed`. See [review-queue.md](./review-queue.md).
+#### `PATCH /{coach|athlete}/training-events/{id}/change-status`  *(shipped — replaces accept / decline / cancel)*
 
-#### `POST /events/{id}/accept`
+Body: `{ status, paymentType? }`, where `status ∈ approved | declined | cancelled` (coach is restricted to those three; invalid values → 400/422). Updates the `event_approval` row's `ApprovalStatus`.
+- `approved` = the drafted **accept** (`request → planned`). On card events this also schedules the money transfer at `datetimeEnd`.
+- `declined` = the drafted **decline** (`request → cancelled`, derived `missed`/hidden).
+- `cancelled` = the drafted **cancel** of a planned event (either party).
+Returns the updated `TrainingEventDetailResponse`.
 
-Transitions `request → planned`. Auth: receiver must be the current user. Returns updated event.
-**Response 409:** if event is not in `request` state.
+#### `POST /{coach|athlete}/training-events/{id}/post-confirm`  *(shipped — replaces the review resolution)*
 
-#### `POST /events/{id}/decline`
+Body: `{ confirm: bool, feedback?: string }`. Resolves a past-end (`review`) event: `confirm: true` → derived `finished`; `confirm: false` → derived `missed`. Writes the `event_post_confirmation` record that the § 5a derivation reads. See [review-queue.md](./review-queue.md).
 
-Transitions `request → cancelled`. Same auth rule.
+#### `PATCH /athlete/training-events/{id}/reschedule`  *(shipped)*
 
-#### `POST /events/{id}/cancel`
+Body: `{ datetimeStart, datetimeEnd, paymentType? }`. Reschedules the event (approval returns to the request/awaiting cycle). (Coach-side reschedule goes through `PATCH /coach/training-events/{id}`.)
 
-Transitions `planned → cancelled`. Either party can call.
+#### `DELETE /{coach|athlete}/training-events/{id}`  *(shipped)*
 
-#### `POST /events/{id}/reschedule`
-
-Creates new event with `request`/`awaiting` state + cancels old. Body: `{ newStartAt, newEndAt }`.
+Removes the event. **Athlete returns 200; coach returns 204.**
 
 #### Scheduled tasks (server-side)
 

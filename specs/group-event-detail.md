@@ -2,7 +2,7 @@
 
 > Status: Draft
 > Prototype: [coach/calendar.html#s-event](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html#s-event)
-> Last updated: 2026-05-25
+> Last updated: 2026-07-17
 
 The **coach-side full-screen detail** for a single group training event. Reached by tapping "View details" (or similar) from the group event drawer (`cal-event-sheet` group variant per [coach-calendar.md](./coach-calendar.md)). Surfaces everything a coach needs to manage their group session: participants list with remove + per-row actions, note to athletes (with edit), share/invite link, ⋯ menu with Reschedule / Cancel.
 
@@ -39,12 +39,12 @@ Personal events use the drawer-only pattern from coach-calendar.md § Flow 2 (no
 
 ## 3. System Stories
 
-- As the iOS / Android client, on `s-event` push entry (event_id route param), I call `GET /coach/events/{event_id}` to load full event detail + participants list.
+- As the iOS / Android client, on `s-event` push entry (event_id route param), I call `GET /coach/training-events/{event_id}` to load full event detail + participants list.
 - As the iOS / Android client, on participant row tap, I open a bottom-sheet with 3 actions (View profile / Send message / Remove) routed accordingly.
-- As the iOS / Android client, on swipe-left or × tap on a participant row, I add the row to a remove batch + show Undo snackbar; after 5s without Undo, I commit the batch via `DELETE /coach/events/{event_id}/participants/{athlete_id}` (one call per row in the batch). Undo cancels the timer + restores rows.
-- As the iOS / Android client, on Note edit Save, I `PATCH /coach/events/{event_id}` with `{ note: "..." }`. On Delete, same but with `note: null`.
+- As the iOS / Android client, on swipe-left or × tap on a participant row, I add the row to a remove batch + show Undo snackbar; after 5s without Undo, I commit the batch via `DELETE /coach/training-events/{event_id}/participants/{athlete_id}` (one call per row in the batch). Undo cancels the timer + restores rows.
+- As the iOS / Android client, on Note edit Save, I `PATCH /coach/training-events/{event_id}` with `{ note: "..." }`. On Delete, same but with `note: null`.
 - As the iOS / Android client, on Share tap, I generate a deep-link via the existing share link endpoint and pre-fill platform share intent with title + datetime + link.
-- As the backend, on `DELETE /coach/events/{event_id}/participants/{athlete_id}`, I refund the athlete (cancellation policy per [payments.md](./payments.md)) + decrement participant count + dispatch a notification to the removed athlete (`coach_removed_you_from_session` — new notification type).
+- As the backend, on `DELETE /coach/training-events/{event_id}/participants/{athlete_id}`, I refund the athlete (cancellation policy per [payments.md](./payments.md)) + decrement participant count + dispatch a notification to the removed athlete (`coach_removed_you_from_session` — new notification type).
 
 ## 4. Flows
 
@@ -54,7 +54,7 @@ Personal events use the drawer-only pattern from coach-calendar.md § Flow 2 (no
 2. `cal-event-sheet` drawer opens with status + footer actions (Reschedule / Cancel / Message etc.).
 3. **For group events**, the drawer footer additionally has a **"View details →"** button (or the entire drawer is wrapped as tappable to push → `s-event`). Recommend an explicit "View details" CTA for affordance clarity.
 4. Tap → push to `s-event` with `event_id` route param.
-5. Client calls `GET /coach/events/{event_id}` → renders all 4 zones.
+5. Client calls `GET /coach/training-events/{event_id}` → renders all 4 zones.
 
 ### Flow 2: Manage participants (tap, swipe, ×)
 
@@ -65,13 +65,13 @@ Personal events use the drawer-only pattern from coach-calendar.md § Flow 2 (no
 2. Alternative: swipe-left on row → reveal "Remove" red button → tap → adds row to remove batch + snackbar "1 athlete removed · Undo" (5s).
 3. Alternative: tap × button on row → same as swipe-left action (adds to batch).
 4. Multiple removes within 5s → snackbar count updates ("3 athletes removed · Undo"). Undo restores all.
-5. After 5s without Undo → batch commits: 1 API call per row to `DELETE /coach/events/{event_id}/participants/{athlete_id}`; participant count updates; refunds processed server-side.
+5. After 5s without Undo → batch commits: 1 API call per row to `DELETE /coach/training-events/{event_id}/participants/{athlete_id}`; participant count updates; refunds processed server-side.
 
 ### Flow 3: Edit note to athletes
 
 1. Coach taps the Note row (filled or empty state).
 2. `event-note-sheet` opens with textarea (200 char limit) + character counter + Save + Delete.
-3. Save → `PATCH /coach/events/{event_id}` with `{ note }` → close sheet → screen updates.
+3. Save → `PATCH /coach/training-events/{event_id}` with `{ note }` → close sheet → screen updates.
 4. Delete (only visible when note exists) → confirm? (cheap action — no confirm in v1) → same PATCH with `note: null`.
 5. **Notification to athletes** — when note changes, dispatch optional `coach_updated_session_note` push (low-priority — flag in spec but defer wiring to follow-up issue).
 
@@ -133,12 +133,12 @@ Live Swagger: https://polybackend-dev-test.up.railway.app/docs
 
 | Method | Path | Purpose | Status |
 |---|---|---|---|
-| `GET` | `/api/v1.0.0/coach/events/{event_id}` | Load event + participants (extended) | **Extend existing** with `participants[]` + `note` + `share_link` |
-| `PATCH` | `/api/v1.0.0/coach/events/{event_id}` | Update note (and other editable fields) | **Extend existing** PATCH to accept `note: string \| null` |
-| `DELETE` | `/api/v1.0.0/coach/events/{event_id}/participants/{athlete_id}` | Remove an athlete (refund per payments.md) | **NEW** |
-| `POST` | `/api/v1.0.0/coach/events/{event_id}/share-link` | Mint or retrieve the short link for this event | **NEW** (idempotent — returns existing short link if already minted) |
+| `GET` | `/api/v1.0.0/coach/training-events/{event_id}` | Load event + participants (extended) | **Extend existing** with `participants[]` + `note` + `share_link` |
+| `PATCH` | `/api/v1.0.0/coach/training-events/{event_id}` | Update note (and other editable fields) | **Extend existing** PATCH to accept `note: string \| null` |
+| `DELETE` | `/api/v1.0.0/coach/training-events/{event_id}/participants/{athlete_id}` | Remove an athlete (refund per payments.md) | **NEW** |
+| `POST` | `/api/v1.0.0/coach/training-events/{event_id}/share-link` | Mint or retrieve the short link for this event | **NEW** (idempotent — returns existing short link if already minted) |
 
-### Extended `GET /coach/events/{event_id}` response
+### Extended `GET /coach/training-events/{event_id}` response
 
 Add to existing response:
 ```json
@@ -148,7 +148,7 @@ Add to existing response:
   "share_link": "https://321.fit/e/xK3aB",
   "participants": [
     {
-      "id": "<athlete-uuid>",
+      "id": 372,
       "first_name": "Anna",
       "last_name": "Kowalski",
       "avatar_url": "<url>" | null,
@@ -161,9 +161,9 @@ Add to existing response:
 }
 ```
 
-Sort `participants` by `joined_at ASC` (most-recently-joined at bottom).
+Sort `participants` by `joined_at ASC` (most-recently-joined at bottom). Each `id` is the athlete **profile id** (integer, not a UUID) — it's the value passed to the participant DELETE/PATCH sub-routes.
 
-### `DELETE /coach/events/{event_id}/participants/{athlete_id}` behavior
+### `DELETE /coach/training-events/{event_id}/participants/{athlete_id}` behavior
 
 - Validates `event_id` belongs to the requesting coach AND `athlete_id` is currently a participant
 - Removes the participant + decrements stored `participant_count`
@@ -171,7 +171,7 @@ Sort `participants` by `joined_at ASC` (most-recently-joined at bottom).
 - Dispatches notification to the removed athlete — **new category** `coach_removed_you_from_session` (text proposal: "{coach_name} removed you from {session_name} on {date}.") — add to [`notifications-catalog.md`](./notifications-catalog.md) catalog in BE-GED-1
 - Returns 204 on success
 
-### `POST /coach/events/{event_id}/share-link` behavior
+### `POST /coach/training-events/{event_id}/share-link` behavior
 
 - Idempotent — returns existing short link if already minted; otherwise creates new entry in `event_share_link` table with `event_id`, `short_id` (5-char alphanumeric), `created_at`
 - Response: `{ short_link: "https://321.fit/e/xK3aB", short_id: "xK3aB" }`

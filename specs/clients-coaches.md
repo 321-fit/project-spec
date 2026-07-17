@@ -3,10 +3,10 @@
 > Status: Approved (contract) / In Progress (Archive/Block + CRM + Deleted migration + Contact import)
 > Prototype: [flows/coach/clients.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/clients.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-11
+> Last updated: 2026-07-17
 > Implementation:
-> - iOS:     [321fit_ios/docs/clients-coaches-ios.md] (to be created)
-> - Backend: [poly-backend/docs/clients-coaches-backend.md] (to be created — includes relationship model migration)
+> - iOS:     [321fit_ios/docs/clients-coaches-ios.md](../../321fit_ios/docs/clients-coaches-ios.md)
+> - Backend: [poly-backend/docs/clients-coaches-api.md](../../poly-backend/docs/clients-coaches-api.md) · [clients-coaches-backend.md](../../poly-backend/docs/clients-coaches-backend.md) (relationship model migration)
 > - Voice:   [voice_control/docs/clients-coaches-voice.md] (to be created)
 > - Android: (future)
 
@@ -66,7 +66,7 @@ This spec focuses on the **coach-side Clients tab** (the more complex half) and 
 3. List of connected clients, each row: avatar + name + last-session date + "€X owed" badge if outstanding cash.
 4. Special visual markers:
    - **CRM:** teal-tinted pill next to name
-   - ~~**Deleted:** muted avatar in active list~~ — **changed 2026-06-09:** deleted accounts no longer appear in the active list (relationship is effectively dead). They surface under **Archived & Blocked → Blocked** instead. See Flow 8.
+   - **Deleted:** muted avatar (0.45) + `Deleted` badge, rendered **in place**. A deleted account keeps its own `athlete_account_status` flag and its existing `relationship_state` (it is **not** reclassified as blocked), so an otherwise-active deleted client stays in this list as a muted terminal row. See Flow 8.
 5. Tap row → Client Detail screen.
 
 ### Flow 2: Pending requests inbox
@@ -105,7 +105,7 @@ The primary path for onboarding an offline roster.
    - First name (required)
    - Last name (optional — a CRM contact may be name-only)
    - Phone (optional; the single contact/match key — **email removed**)
-   - Sport (required — from closed 33-sport taxonomy)
+   - Sport (**optional** — from closed 33-sport taxonomy; a CRM/imported contact may be added before the coaching sport is known)
    - City (optional — free text)
    - Country (optional — picker; its own row, ISO 3166-1 alpha-2)
    - Timezone (optional — picker). **Defaults to the coach's timezone**; when the contact joins 321Fit and links, it switches to the athlete's own `selected_timezone`. Helps schedule online/self-paced clients across zones.
@@ -171,17 +171,17 @@ The primary path for onboarding an offline roster.
 2. Blocked segment → row with "Unblock" inline button → `PATCH` relationship → `{ state: "active" }`.
 3. Athlete can book again immediately.
 
-**Cash debt persists across archive/block (rule):** archiving or blocking **never clears** outstanding cash. The `€X owed` badge renders on the client's row in the **Archived/Blocked** list (same badge as the active list), and **Mark paid / Waive** stays available from the client's detail for bookkeeping. Settling the debt is independent of the relationship state.
+**Cash debt persists across archive/block (rule):** archiving or blocking **never clears** outstanding cash. The `€X owed` badge renders on the client's row in the **Archived/Blocked** list (same badge as the active list), and **Mark paid / Waive** stays available for bookkeeping — surfaced via the **Pending-Payments (Outstanding Cash) carousel** on Client Detail (Flow 10), **not** the ⋯ menu. Settling the debt is independent of the relationship state.
 
 ### Flow 8: Deleted athlete account
 
 1. Athlete deletes their 321Fit account (see [authentication.md](./authentication.md)).
 2. Backend sets `athlete.deleted_at = now`, emits event.
-3. Coach-side consequences (**changed 2026-06-09 — deleted ≈ blocked**):
-   - **No longer shown in the active Clients list.** A deleted account's relationship is effectively dead, so it surfaces under **Archived & Blocked → Blocked** tab as a **terminal entry**: muted avatar (0.45) + `Deleted` badge + "Account deleted · {date} · N sessions". **No unblock/restore action** — there's nothing to restore.
+3. Coach-side consequences (**shipped behavior — deleted is a muted status tracked in one place**):
+   - The relationship is retained with `athlete_account_status = deleted` layered over its existing `relationship_state`. The two fields stay **independent** — the backend does **NOT** reclassify a deleted account as `blocked`, and the block *action* is forbidden on a deleted account (`relationship_state.py`: "Cannot block a deleted athlete account"). Deleted accounts are stored in exactly one place (their own status flag), **not force-surfaced into the Blocked tab** — that earlier requirement is dropped.
+   - Wherever the relationship naturally surfaces, its row renders as a **terminal muted entry**: muted avatar (0.45) + `Deleted` badge + "Account deleted · {date} · N sessions". **No unblock/restore action** — there's nothing to restore.
    - Client Detail (opened from history): gray banner "This account was deleted · {date}" — no action button.
-   - Stats and history preserved; Mark Paid on outstanding cash still works for bookkeeping.
-   - **⚠️ Backend reconciliation needed:** grouping deleted under the Blocked tab is a **UI choice**. Backend keeps `athlete_account_status=deleted` separate from `relationship_state` and **forbids the block *action* on a deleted account** (`relationship_state.py`: "Cannot block a deleted athlete account"). So `GET /coach/clients?state=blocked` (or the client) must additionally surface `deleted` accounts in the Blocked tab **without** setting `relationship_state=blocked`.
+   - Stats and history preserved; outstanding cash still settles for bookkeeping — surfaced via the Pending-Payments carousel (Flow 7 / Flow 10), not the ⋯ menu.
 
 ### Archived & Blocked — per-tab zero states (added 2026-06-09)
 
@@ -200,7 +200,7 @@ Each segment empties **independently** (`#s-archived.arch-empty` / `.blk-empty`)
 
 **Referral credit = exactly one coach:** the coach whose OneLink the user actually opened (`origin: invite`). All other coaches whose stored phone matches get the relationship via `origin: auto_phone_match` — linked, but **not** referral-credited. This keeps the "who brought N users" metric unambiguous.
 
-**Origin tagging:** every linked relationship records `origin: "invite" | "auto_phone_match" | "manual" | "import"` (legacy `auto_email_match` retained read-only) for analytics and audit. `import` = created via bulk contact import; `manual` = single manual add.
+**Origin tagging:** every relationship records `origin: "invite" | "auto_phone_match" | "manual" | "import" | "booking"` (legacy `auto_email_match` retained read-only) for analytics and audit. `import` = created via bulk contact import; `manual` = single manual add; `booking` = relationship created organically when an athlete books the coach directly (no prior CRM record, invite, or phone match — the shipped default for marketplace bookings).
 
 **Coach notification (mandatory):** when a relationship flips `crm → app` — whether via OneLink signup OR phone-match — the owning coach gets a **"contact joined"** notification (see notifications-catalog.md). Tap → the now-upgraded Client Detail.
 
@@ -272,9 +272,9 @@ V2 follow-up tracks both surfaces as a separate ticket once the prototype gains 
 |---|---|---|
 | `app` | Athlete has an active app account | Normal state |
 | `crm` | No app account; coach created contact manually | Coach can log sessions + cash; no push/chat possible |
-| `deleted` | Athlete deleted their account | Soft-delete; coach retains record; **surfaced under Archived & Blocked → Blocked tab** (terminal, no actions); **not** in the active Clients list (changed 2026-06-09) |
+| `deleted` | Athlete deleted their account | Soft-delete; coach retains record; rendered **in place** as a muted terminal row (no actions). `athlete_account_status=deleted` is tracked independently of `relationship_state` — **not** reclassified as `blocked` nor force-moved to the Blocked tab |
 
-Stackable: a relationship can be `(active, crm)`, `(archived, deleted)`, `(blocked, deleted)`, etc. — but a `deleted` account is **never** rendered in the active list; it always appears in the Blocked tab regardless of the underlying relationship state.
+Stackable: a relationship can be `(active, crm)`, `(archived, deleted)`, `(blocked, deleted)`, etc. A `deleted` account is muted but stays under whatever `relationship_state` it already holds — the deletion does not move it between tabs.
 
 ### UI menu scoping per combined state
 
@@ -286,13 +286,15 @@ Client Detail `⋯` menu visibility, per (relationship_state × account_status):
 | Edit info | ✓ (App mode) | ✓ (CRM mode) | ✓ (App mode) | ✓ | ✓ |
 | Notes (private) | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Training history | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Mark Paid (cash) | ✓ | ✓ | ✓ | ✓ | — |
+| Mark Paid / Waive (cash) † | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Invite to app | — | ✓ (primary CTA to upgrade) | — | — | — |
 | Invite to training | ✓ | ✓ (deep-link signup path) | — | — | — |
 | Archive client | ✓ | ✓ | ✓ | — (already archived) | — |
 | Block athlete | ✓ | — (no app to block) | — | ✓ (already archived → can still block) | — (already blocked) |
 | Unblock | — | — | — | — | ✓ |
 | Restore (unarchive) | — | — | — | ✓ | — |
+
+† **Mark Paid / Waive is not a ⋯-menu item.** It is surfaced via the **Pending-Payments (Outstanding Cash) carousel** on Client Detail (Flow 10) and stays available in **every** state — including archived, blocked and deleted — so outstanding cash can always be settled for bookkeeping (see Flow 7). The ✓s above mean "the capability is reachable," not "shown in the ⋯ menu."
 
 ### Edit info — two modes (single screen, mode auto-derived from `athlete_account_status`)
 
@@ -323,7 +325,7 @@ Create a coach-managed CRM contact (manual, single).
   "firstName":      "string",
   "lastName":       "string" | null,
   "phone":          "+E164 string" | null,
-  "sport":          "sport_id",
+  "sport":          "sport_id" | null,             // optional — coaching sport may be unknown when the contact is added/imported
   "city":           "string" | null,
   "country":        "ISO-3166-1 alpha-2" | null,  // athlete_profile.country (default "US")
   "timezone":       "IANA tz string" | null,      // athlete_profile.selected_timezone; defaults to coach's tz
@@ -334,7 +336,7 @@ Create a coach-managed CRM contact (manual, single).
 > **Changed 2026-06-09 (additive/relaxed):** `email` field **removed** from CRM contacts — phone is the single match key (email-fallback match deprecated, see Flow 9). `lastName` is now **nullable** (contact/import may be first-name-only). `firstName` stays required. Existing stored emails are ignored for matching; not surfaced in the CRM edit form.
 > **Changed 2026-06-11 (additive):** `city` + `country` + `timezone` added to CRM create/edit (all optional; same on `PATCH /coach/crm-clients/{id}`). `timezone` **defaults to the coach's** at create, then flips to the athlete's own `selected_timezone` on CRM→app link (Flow 9).
 >
-> ⚠️ **Backend gap (verified 2026-06-11 in `crm_clients.py`):** `CreateCrmClientCommand`/`UpdateCrmClientCommand` don't yet expose `city`/`country`/`timezone` — though `athlete_profile` already has `country` + `selected_timezone` columns (geo work, commit `4bb3af1`). Backend must add them to the CRM command. Also still pending from 2026-06-09: the command still has `email` and still **requires** `last_name` — contradicts "email removed / last name optional" above. Three additive/relaxing backend changes needed.
+> ✅ **Backend status (audited 2026-07-17 against `origin/main`):** the geo fields (`city`/`country`/`timezone`) are **shipped** on `CreateCrmClientCommand`/`UpdateCrmClientCommand`, and the `email` input **was removed** — both earlier gaps are closed. **One item remains outstanding:** the command still **requires** `last_name`, which contradicts "last name optional" above. A backend issue is being filed to make `last_name` **nullable** and to add the `IMPORT` origin enum value. No other CRM-contract drift.
 
 **Response 200:** new `CoachClientRelationship` with `athlete_account_status: crm`, `relationship_state: active`, `origin: "manual"`.
 
@@ -368,7 +370,7 @@ type CoachAthleteRelationship = {
   athleteId:             UUID | null,        // null while athlete is CRM-only
   relationshipState:     "active" | "archived" | "blocked",  // coach-driven
   athleteAccountStatus:  "app" | "crm" | "deleted",
-  origin:                "invite" | "auto_phone_match" | "auto_email_match" | "manual" | "import",
+  origin:                "invite" | "auto_phone_match" | "auto_email_match" | "manual" | "import" | "booking",
   pausedByAthlete:       boolean,            // Q7 silent pause
   blockedByAthlete:      boolean,            // Q7 silent block
   pausedAt:              ISO8601 | null,
@@ -422,7 +424,7 @@ When coach initiates for an existing active-app client: `status: awaiting` (coac
 - **Block is coach-side + athlete-side discovery filter.** Athlete-facing: coach disappears from search. Booking attempts return generic error (no reveal).
 - **Block does NOT cancel existing events.** Coach handles manually.
 - **Credits survive every relationship change** *(new 2026-07-15, see [session-packages.md](./session-packages.md))*. Archiving, blocking or deleting a client does **not** void the session-pack credits they hold — they paid upfront and keep what they paid for. Voiding them would amount to confiscating prepaid money. Refunding unused credits stays a **deliberate coach action**, never a side-effect of a relationship change.
-- **CRM → app upgrade (Tier 1 Q6):** automatic on matched signup. Match priority: invite-token (exact) > phone E.164 (exact) > email (lowercase exact). Multi-coach same-phone → links to all coaches simultaneously (not a conflict — each coach gets their own relationship with the same athlete). Origin tagged on relationship: `invite | auto_phone_match | auto_email_match | manual`. Pre-existing CRM sessions + cash records attach to new app account; no data loss.
+- **CRM → app upgrade (Tier 1 Q6):** automatic on matched signup. Match priority: invite-token (exact) > phone E.164 (exact) > email (lowercase exact). Multi-coach same-phone → links to all coaches simultaneously (not a conflict — each coach gets their own relationship with the same athlete). Origin tagged on relationship: `invite | auto_phone_match | auto_email_match | manual | import | booking`. Pre-existing CRM sessions + cash records attach to new app account; no data loss.
 - **Athlete-initiated disconnect (Tier 1 Q7):** all silent. Coach receives NO push, NO inbox entry, NO reason. Pause shows as "Inactive Clients" with last-activity tag; Block shows as separate "Disconnected" row in Archived & Blocked screen (record-only, no actions). Future booking reactivates pause; block requires athlete-side unblock from Settings.
 - **Deleted athlete:** coach retains historical records. Deletion cascades via GDPR right-to-be-forgotten path separately (see authentication.md) — not automated from deletion event alone.
 - **CRM sessions are CASH only.** Since no app account → no Stripe. `POST /coach/events` enforces `paymentType: cash` for CRM relationships.

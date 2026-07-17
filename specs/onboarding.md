@@ -114,7 +114,7 @@ Earlier drafts of this spec included `gender`, `date of birth`, `weight`, `heigh
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `requestOTPCode(phone)` | Phone verification | Send OTP during onboarding — **ownership proof, not login** (post-2026-05-11) |
+| `requestOTPCode(phone)` | Phone verification | Send OTP — ownership proof; phone is also a login method (2026-05-11 "contact-only" reversed 2026-07-17) |
 | `confirm(code, phone)` | Phone verification | Verify OTP code; attaches phone to the already-created account as a contact attribute |
 | `setRole(UserRole)` | Role selection | Set athlete or coach role |
 | `setOnboarding()` | Mark started | Begin onboarding flow |
@@ -122,7 +122,7 @@ Earlier drafts of this spec included `gender`, `date of birth`, `weight`, `heigh
 
 Profile data is saved via standard profile update endpoints during each step.
 
-> **Phone OTP role (post-2026-05-11):** anti-spam ownership verification only. Account creation happens via email+password or social signup BEFORE this step. Phone is attached as an outreach attribute; it never establishes a login credential. Phone is required and verified, but non-unique across accounts (same phone may exist on multiple users).
+> **Phone OTP role (updated 2026-07-17):** ownership verification + anti-spam. Phone **is** a usable login method as shipped (the 2026-05-11 "contact-only, never a login credential" line was reversed — see `authentication.md`). Phone is verified but **non-unique** across accounts (same phone may exist on multiple users), so it isn't a unique account key. Verification is not a hard app-entry gate.
 
 ## Entry Points
 - After new account registration via email+password or social (Apple / Google)

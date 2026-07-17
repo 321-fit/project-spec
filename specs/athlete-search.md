@@ -3,11 +3,11 @@
 > Status: Draft
 > Prototype: [flows/athlete/search.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/search.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-26 (coach-card refinements: languages off cards, country flag in location, search shows city, My Coaches cash-owed badge — see §11)
+> Last updated: 2026-07-17 (backend impl-doc pointer relinked to shipped athlete-search-api.md; coach-card refinements — see §11)
 > Implementation:
 > - iOS:     [321fit_ios/docs/athlete-search-ios.md] (to be created)
 > - Android: [321fit_android/docs/athlete-search-android.md] (to be created)
-> - Backend: [poly-backend/docs/athlete-search-api.md] (to be created)
+> - Backend: [poly-backend/docs/athlete-search-api.md](../../poly-backend/docs/athlete-search-api.md)
 
 **Scope note:** this spec covers the **Search / Discover** tab in athlete navigation — the marketplace entry point where athletes find coaches. Coach profile and booking flow (downstream of tapping a coach card) live in `flows/shared/profile.html` and are covered by `coach-profile.md` / booking spec.
 
@@ -185,7 +185,7 @@ Single-tap = select + auto-apply + dismiss. No Apply button. From Landing, tappi
 | DELETE | `/api/v1.0.0/athlete/search/recent` | Clear recent searches (all) |
 | DELETE | `/api/v1.0.0/athlete/search/recent/{id}` | Remove individual recent search |
 
-Detailed request/response shapes live in `poly-backend/docs/athlete-search-api.md` (to be created). All endpoints follow backward-compatibility rule — additive only, no field removals, see `feedback_backward_compat_endpoints` memory.
+Detailed request/response shapes live in [`poly-backend/docs/athlete-search-api.md`](../../poly-backend/docs/athlete-search-api.md). All endpoints follow backward-compatibility rule — additive only, no field removals, see `feedback_backward_compat_endpoints` memory.
 
 **Backend note:** Recommended sort algorithm = hybrid weighted score: sport-match (0/1) × language-match (0/1) × city-match (0/1) × recent-activity-boost × rating. **No distance/PostGIS component** (removed 2026-06-11) — City/Country is the only location signal. Tuning lives in `poly-backend` config, not exposed to clients. See backend issue #335.
 

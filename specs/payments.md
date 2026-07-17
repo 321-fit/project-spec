@@ -4,10 +4,10 @@
 > Prototype (coach earnings): [flows/coach/balance.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/balance.html)
 > Prototype (athlete balance): [flows/athlete/balance.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/balance.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-26 (Revolut-style v2 explorations — `balance-v2.html` athlete + coach: see notes in Flow C1 / Flow H. Earlier: 2026-06-22 athlete top-up + auto top-up — Flows C2/C3/C4, PR #541–#543)
+> Last updated: 2026-07-17 (spec↔impl reconciliation — currency stance, `/coach/transactions/*` endpoint names, 24h-hold correction, payment-type Q closed, real backend docs. Earlier: 2026-06-26 Revolut-style v2 explorations — `balance-v2.html` athlete + coach: see notes in Flow C1 / Flow H; 2026-06-22 athlete top-up + auto top-up — Flows C2/C3/C4, PR #541–#543)
 > Implementation:
 > - iOS:     [321fit_ios/docs/payments-ios.md] (to be created)
-> - Backend: [poly-backend/docs/payments-backend.md] (to be created — includes earnings ledger migration)
+> - Backend: shipped across 4 docs — [coach-earnings-api.md](../../poly-backend/docs/coach-earnings-api.md), [athlete-balance-flow.md](../../poly-backend/docs/athlete-balance-flow.md), [balance-v2-api.md](../../poly-backend/docs/balance-v2-api.md), [coach-transactions-api.md](../../poly-backend/docs/coach-transactions-api.md). (MoneyDTO/int-minor migration off the current float wire format is a deferred backend refactor — not yet shipped.)
 > - Voice:   [voice_control/docs/payments-voice.md] (to be created — read-only access)
 > - Android: (future)
 
@@ -20,7 +20,8 @@ Two distinct money flows:
 - **Athlete side:** prepaid **balance** model. Top up via Stripe → funds held when a session is booked → released on completion or refunded on cancel per policy. Cash as alternative (no balance involvement).
 - **Coach side:** **earnings** accumulate from completed card sessions; paid out on a **coach-chosen schedule** (manual / daily / weekly / monthly — frequency only, default weekly Monday, free) or **manual Withdraw** (free for bank, 1% Stripe fee for debit card via Instant Payouts). The cadence is Stripe's **native account payout schedule**, set in-app — see [stripe-connect-onboarding.md § 5.5](./stripe-connect-onboarding.md). Stripe Connect (Custom accounts, native UI only) is the payout provider. Architecture supports additional providers (Revolut Merchant planned) behind a `PayoutAccount` abstraction. Onboarding + in-app control are covered in a focused spec: see [stripe-connect-onboarding.md](./stripe-connect-onboarding.md).
 
-Currency: **EUR** only in v1.
+Currency (shipped): funds are **stored in EUR** and converted **on the fly** for display via `/reference/exchange-rates`. Two lists differ by purpose — **display currencies = 4** (EUR / USD / GBP / AED, what a user's balance/prices render in) and **pricing currencies = 27** (what a coach may price a session in). The athlete ledger is kept in the user's currency; wire amounts are EUR-stored + converted.
+> **Fork (P4):** product wants the **DISPLAY** list widened from 4 → 27; tasks for that are already filed. Until they ship, display is **4** (EUR/USD/GBP/AED); pricing is already 27.
 
 This spec consolidates the previous "Payment User Flow" + "Revisited Payment Flow" and adds the **Coach Earnings rewrite** from `project_pending_spec_updates` #10 and `project_coach_balance_decisions`.
 
@@ -56,11 +57,11 @@ This spec consolidates the previous "Payment User Flow" + "Revisited Payment Flo
 ## 3. System Stories
 
 - As the backend, `coach_balance` is a **derived table** maintained via append-only transactions. Every mutation goes through `coach_transactions` first; cached balance updates are idempotent.
-- As the backend, every completed card session creates an `earning` transaction that enters a **24h hold** window. A scheduled `hold_release` transaction moves it to `available` after 24h.
-- As the backend, a per-minute sweep (`sweep_due_stripe_transfers_to_coach`) moves earnings whose 24h hold has cleared into the coach's Stripe **connected-account balance** via Stripe `transfers.create`. The subsequent **payout** (connected balance → coach bank) is executed by **Stripe on the coach's configured native payout schedule** (`settings.payouts.schedule`) — not by a 321Fit batch. Coach sets the frequency in-app (manual / daily / weekly / monthly; anchor stays Stripe default); `next_payout_at` is read back from Stripe via `account-status`.
+- As the backend (shipped), the Stripe **transfer to the coach's connected account happens immediately at session end** — the moment a completed card session's earning is booked, funds move to the coach's Stripe connected-account balance via `transfers.create`. The **24h hold is a coach-*ledger* window, applied *after* the transfer**: the `earning` Transaction enters `pending`, and a `hold_release` moves it `pending → available` 24h later. (The Stripe money is already at the coach; the ledger window only gates when 321Fit shows it as "available" to withdraw and covers cancellations/no-shows.)
+- As the backend, a **~5-minute beat** releases earnings whose 24h ledger window has elapsed (`pending → available`). The **payout** (connected balance → coach bank) is executed by **Stripe on the coach's configured native payout schedule** (`settings.payouts.schedule`) — not by a 321Fit batch. Coach sets the frequency in-app (manual / daily / weekly / monthly; anchor stays Stripe default); `next_payout_at` is read back from Stripe via `account-status`.
 - As the backend, Instant payout is a user-initiated call: same ledger flow, higher fee, same-day settlement (Stripe Instant Payouts).
 - As the client, the coach Earnings screen renders entirely from snapshot fields (`available`, `pending`, `payoutSchedule`, etc.) — no direct ledger queries in v1.
-- As the backend, the aggregated `pending` snapshot field is paired with a list endpoint `GET /coach/earnings/pending` returning the individual sessions contributing to that sum (event_id, title, athlete_name, completed_at, amount, clears_at). The list endpoint is required by the s-pending breakdown screen — the snapshot total alone is not enough.
+- As the backend, the aggregated `pending` snapshot field needs a paired list endpoint (proposed `GET /coach/transactions/pending`, or filtered `GET /coach/transactions?status=pending`) returning the individual sessions contributing to that sum (event_id, title, athlete_name, completed_at, amount, clears_at). This per-session breakdown is **not yet shipped** but is required by the s-pending breakdown screen — the snapshot total alone is not enough.
 - As the athlete client, balance top-up uses Stripe PaymentSheet (iOS native / Android Google Pay); never redirects to external web.
 - As the backend, Stripe webhooks update ledger state for async events (payment confirmations, Connect account updates, payout status).
 
@@ -167,7 +168,7 @@ Covered in detail in [stripe-connect-onboarding.md § 4](./stripe-connect-onboar
 
 Two-stage model (transfer is ours, payout is Stripe's):
 
-1. **Transfer (continuous, ours):** the per-minute `sweep_due_stripe_transfers_to_coach` task picks up earnings whose 24h hold cleared and calls Stripe `transfers.create` → funds land in the coach's connected-account balance.
+1. **Transfer (immediate, ours):** at **session end** the earning's Stripe `transfers.create` fires **right away** → funds land in the coach's connected-account balance. The 24h hold is **not** a gate on this transfer — it's a coach-ledger window applied *after* (see § 3): the ledger `earning` sits `pending`, and a ~5-min beat releases it to `available` 24h later. (The old "per-minute sweep picks up earnings whose 24h hold cleared, then transfers" model is inverted and no longer accurate.)
 2. **Payout (scheduled, Stripe's):** Stripe pays the connected balance out to the coach's bank on the coach's **native payout schedule** (`settings.payouts.schedule`), set in-app — default weekly Monday. Coach can change the frequency to daily, weekly, monthly, or manual (anchor stays Stripe default) (see [stripe-connect-onboarding.md § 5.5](./stripe-connect-onboarding.md)).
 3. `next_payout_at` (read from `account-status`) drives the "Next payout · {date}" line. Push notification on payout: "€480 is on its way to your bank. Typical arrival: 2 days."
 
@@ -302,7 +303,7 @@ Maps to prototype `flows/coach/balance.html#s-pending`. Replaces the old `pendin
 3. Sessions list — each row is a Card session completed but still in Stripe's 24h hold. Row shape mirrors Recent activity (`.earn-txn` + `.earn-txn-group`): icon + title + athlete · datetime + amount + "Clears {datetime}" subline. Tap row → `s-txn-earning` for the session's full detail.
 4. Footer — reminds when funds move to Available + next payout date.
 
-**API:** the existing `pending` field on `GET /coach/earnings` snapshot is just an aggregated total — this screen needs an additional list endpoint. Proposed: `GET /coach/earnings/pending` returning array of pending earning rows with `{event_id, title, athlete_name, completed_at, amount, clears_at}`. Same shape can be filtered out of an extended `/coach/transactions?status=pending` if a unified ledger endpoint is preferred — backend choice.
+**API:** the aggregated `pending` field lives on the shipped `GET /coach/transactions/summary` snapshot — just a total. This screen needs an additional list endpoint, **not yet shipped**. Proposed: `GET /coach/transactions/pending` returning array of pending earning rows with `{event_id, title, athlete_name, completed_at, amount, clears_at}`. Same shape can be filtered out of `/coach/transactions?status=pending` if a unified ledger endpoint is preferred — backend choice.
 
 **Scope:** Stripe 24h-hold breakdown only. "Upcoming sessions forecast" (cash + card future bookings — see § 10 Open questions Q1) is a separate, deferred screen — would live alongside or extend this one.
 
@@ -447,11 +448,11 @@ Covered in detail in [stripe-connect-onboarding.md § 3.2](./stripe-connect-onbo
 
 ### Coach endpoints (updated — rewrite from prior auto-payout model)
 
-#### `GET /coach/earnings`
+#### `GET /coach/transactions/summary`  ·  `GET /coach/balance`
 
-Returns dashboard snapshot.
+Returns the dashboard snapshot. **Shipped as the `/coach/transactions/*` family** (not the old `/coach/earnings`): `GET /coach/transactions/summary` carries the rich snapshot fields (`cashOwed`, `payoutSchedule`, `defaultProvider`, lifetime splits…), and `GET /coach/balance` carries the available/pending balance figures. Clients render the two swipe cards from these.
 
-**Response 200 — `CoachEarningsSnapshot`:**
+**Response 200 — `CoachEarningsSnapshot` (shape emitted by `/coach/transactions/summary`):**
 
 ```json
 {
@@ -473,7 +474,7 @@ Returns dashboard snapshot.
 
 `cashState` / `cardState` are derived enums for the Earnings screen swiper (see § 5). Client renders the two swipe cards directly from these — no monolithic `uiState` field.
 
-#### `GET /coach/earnings/history?from=YYYY-MM&to=YYYY-MM&method=all|cash|card`
+#### `GET /coach/transactions/history?from=YYYY-MM&to=YYYY-MM&method=all|cash|card`
 
 Monthly aggregated history for the Earnings History screen (`s-earnings-history`).
 
@@ -492,9 +493,9 @@ Monthly aggregated history for the Earnings History screen (`s-earnings-history`
 
 Lifetime totals are **net** (gross minus refunds, disputes, fees). Computed from `coach_transactions` ledger.
 
-#### `GET /coach/earnings/pending`
+#### `GET /coach/transactions/pending`  *(proposed — not shipped)*
 
-Pending breakdown — sessions whose Card payment cleared the athlete side but is still inside Stripe's 24h hold (not yet moved to coach Available). Used by Pending breakdown screen (`s-pending`, Flow J2).
+Pending breakdown — sessions whose Card payment cleared the athlete side but is still inside the **24h coach-ledger window** (transferred to Stripe at session end, not yet released to coach Available). Used by Pending breakdown screen (`s-pending`, Flow J2). **Not yet a shipped endpoint** (backend has no per-session pending breakdown route): build it under the `/coach/transactions/*` family, or repoint the screen to a **filtered list** `GET /coach/transactions?status=pending` — backend choice.
 
 **Response 200:**
 ```json
@@ -566,8 +567,8 @@ Disconnect a provider (Stripe or future). Only allowed if not default or another
 
 ### Scheduled tasks
 
-- **Weekly sweep:** every Monday 00:00 UTC. Celery beat.
-- **Hold release:** every 15 min, finds `earning` transactions > 24h old, creates `hold_release`.
+- **Stripe transfer:** fires **at session end** (event-driven, not a sweep) — the earning's `transfers.create` runs immediately. Payout to the coach's bank is then on Stripe's **native** payout schedule (not a 321Fit weekly batch — see Flow E).
+- **Hold release (ledger):** a **~5-minute beat** finds `earning` transactions whose 24h ledger window has elapsed and creates `hold_release` (`pending → available`). This gates ledger visibility only; the Stripe money already moved at session end.
 
 ---
 
@@ -606,11 +607,11 @@ A **session pack** (see [session-packages.md](./session-packages.md)) is a coach
 ### Coach earnings
 
 - **Threshold for auto-payout: €20 EUR.** Below threshold, available stays on coach's balance until next week pushes them over.
-- **24h hold window:** every completed card earning waits 24h before becoming available. Gives dispute window.
+- **24h hold window (coach *ledger*, not a transfer gate):** the Stripe transfer to the coach fires immediately at session end; the earning then sits `pending` in the coach ledger and a ~5-min beat releases it to `available` 24h later. The window gives a dispute buffer on *ledger availability* — it does not delay the Stripe transfer.
 - **Instant payout fee:** 1% + €0.50 minimum (subject to Stripe fee structure; update as needed).
 - **Weekly batch fee:** none in v1 (platform absorbs).
 - **Single default provider per coach** in v1. Multi-provider listing in UI but one active payout target.
-- **Currency:** EUR only. Multi-currency deferred.
+- **Currency (shipped):** funds are **EUR-stored** and converted on the fly for display via `/reference/exchange-rates`. **Display currencies = 4** (EUR/USD/GBP/AED); **pricing currencies = 27**. Not EUR-only. **Fork (P4):** product wants DISPLAY widened 4 → 27 — tasks already filed; until they ship, display stays 4.
 
 ### Athlete balance
 
@@ -708,8 +709,9 @@ Onboarding requires explicit consent capture before opening the Stripe SDK — s
 - [x] ~~**Coach-configurable cancellation window:**~~ RESOLVED in Tier 1 Q3: fixed 24h platform-wide in v1. Configurable per-coach deferred until product data demands.
 - [x] ~~**Dispute / chargeback flow:**~~ RESOLVED in Tier 1 Q10: balance-based internal ledger resolution + Stripe-native top-up chargebacks. Admin tool surfaces from Support tickets. v2: structured Resolution Center.
 - [x] ~~**Weekly sweep day:** Monday vs. Friday vs. coach-choice?~~ RESOLVED 2026-06-25: **coach-choice** of frequency (manual / daily / weekly / monthly) via Stripe native payout schedule, set in-app. Exact day/date deferred (dashboard-grade, low value). See [stripe-connect-onboarding.md § 5.5](./stripe-connect-onboarding.md).
+- [x] ~~**Session payment type — cash vs card vs both?**~~ RESOLVED (shipped): a training session's `paymentType` may be `cash`, `card`, **or `both`** — with `both`, the athlete picks the method at booking. `both` is live on the backend, so the earlier either/or framing is closed.
 - [ ] **Instant payout fee structure:** flat 1% + €0.50 or tiered? Align with Stripe pass-through. **Owner:** finance.
-- [ ] **Multi-currency support:** EUR only v1. When to add USD / GBP etc.? Depends on international rollout. **Owner:** growth.
+- [x] ~~**Multi-currency support:** EUR only v1.~~ SHIPPED (partial): funds EUR-stored + on-the-fly conversion via `/reference/exchange-rates`; **display = 4** (EUR/USD/GBP/AED), **pricing = 27**. Remaining fork (P4): widen **DISPLAY** 4 → 27 — tasks already filed. **Owner:** growth.
 - [ ] **Third-party payment** ("pay for a friend"): mentioned in legacy spec, not implemented. Scope? **Owner:** product.
 - [ ] **Revolut Merchant timing:** when second provider lands, do we let coaches switch mid-week (breaking the sweep)? **Owner:** backend architecture.
 - [ ] **Pending sessions view (no current screen):** there is no screen today that surfaces "booked but not yet completed" sessions — card sessions awaiting confirmation/completion + cash sessions in upcoming agenda. Coach loses visibility into "what's coming this week / tomorrow" from the money side. Decide: extend Earnings screen with a "Upcoming" section, or build a dedicated `s-upcoming` screen, or surface from Calendar with a money filter. **Owner:** product + design. Captured 2026-05-15.

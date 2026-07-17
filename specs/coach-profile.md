@@ -3,10 +3,10 @@
 > Status: Draft
 > Prototype: [flows/coach/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/profile.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-06-03
+> Last updated: 2026-07-17
 > Implementation:
 > - iOS:     [321fit_ios/docs/coach-profile-ios.md] (to be created)
-> - Backend: [poly-backend/docs/coach-profile-api.md] (to be created)
+> - Backend: [poly-backend/docs/coach-profile-2.0.md](../../poly-backend/docs/coach-profile-2.0.md)
 > - Android: [321fit_android/docs/coach-profile-android.md] (to be created)
 
 **Scope note:** this spec covers the **coach-side** profile module — the 5th tab in the coach bottom nav, served as a preview-as-athlete with in-place edit affordances. Athlete-side coach profile (when an athlete is viewing a coach) is the same visual layout — covered separately under discovery / booking flows.
@@ -41,11 +41,11 @@ A `cv-new` family of state classes drives the **new-coach** variant — see § 4
 
 ## 3. System Stories
 
-- As the system, when a coach opens the Profile tab, I render the public profile from `GET /coach/me` plus computed stats (rating / reviews / sessions / price-from), so the coach sees up-to-date numbers.
+- As the system, when a coach opens the Profile tab, I render the public profile from `GET /user/me` plus computed stats (rating / reviews / sessions / price-from), so the coach sees up-to-date numbers.
 - As the system, when stats are 0 (new coach), I render the zero-state stat strip (`—` / `0` / `0` / `from €25`) instead of hiding the row, so the layout stays consistent.
-- As the system, when `reviews_count < 1 OR sessions_count < 3`, I render the Maturity progress block; once both thresholds are met, the block auto-hides.
+- As the system, when `reviews_count < 1 OR sessions_count < 3`, I render the Maturity progress block; once both thresholds are met, the block auto-hides. (The graduation threshold is shipped; the `maturityProgress` countdown field that drives the "N more sessions" copy is **not yet built** — see `coach-maturity-model.md`.)
 - As the system, when the coach has no intro video AND no cover image, I render the brand-gradient + initials fallback on the hero so the screen is never visually empty.
-- As the system, when a coach taps a review card or the "Show all N reviews" terminal card, I push to `s-coach-reviews` with rating histogram + per-category averages + full review bodies.
+- As the system, when a coach taps a review card or the "Show all N reviews" terminal card, I push to `s-coach-reviews` with a single overall rating + full review bodies. (Per-category averages + the 5-bar histogram are **descoped to v2** — see § 4.)
 
 ---
 
@@ -57,7 +57,7 @@ A `cv-new` family of state classes drives the **new-coach** variant — see § 4
 2. **Hero media** — 16:9 aspect, edge-to-edge. Camera-overlay button top-right → `personal-data.html#pd-video-group` (anchor scroll to intro video field).
 3. **Identity row** — 80×80 brand-gradient avatar (with small camera pip) + name (24pt 600) + location (with map-pin icon). Whole row tappable → `personal-data.html`. New-coach badge appears next to the location line when `cv-new-*` state is active.
 4. **Stats strip** — `FitStatStrip` 4-column readout: Rating / Reviews / Sessions / Price from. Read-only, system-computed.
-5. **Maturity progress block** — `FitMaturityProgress`, rendered only in `cv-new-*` states. Auto-hides when graduation thresholds met.
+5. **Maturity progress block** — `FitMaturityProgress`, rendered only in `cv-new-*` states. Auto-hides when graduation thresholds met. **Pending:** the backend graduation threshold (`reviews_count < 1 OR sessions_count < 3`) is shipped, but the `maturityProgress {reviewsNeeded, sessionsNeeded}` countdown field, coach-record caching, `newCoachBoost`, and the "New on 321Fit" carousel are **not yet built** — see `coach-maturity-model.md`.
 6. **My Sports** — section title with edit pencil, sport chips below. Whole header tap → `sport-types.html`.
 7. **About Me** — section title with edit pencil, bio text with `fit-see-more` link. Whole header tap → `personal-data.html`.
 8. **Management tiles** (4× `fit-stat-tile`):
@@ -73,8 +73,8 @@ A `cv-new` family of state classes drives the **new-coach** variant — see § 4
 Reached from any review card or the "Show all N reviews" terminal card. Layout:
 
 1. Header — back chevron + "Reviews" title
-2. **Rating summary** — 36pt score + 5-star row + 42 reviews count + horizontal 5-bar histogram (5/4/3/2/1) showing distribution
-3. **Category ratings** — horizontal-scroll tiles: Technique / Communication / Punctuality / Motivation
+2. **Rating summary** — 36pt score + 5-star row + 42 reviews count (single **overall** rating). *v2:* horizontal 5-bar histogram (5/4/3/2/1) distribution — **descoped, not built** (needs per-star counts backend has no columns for).
+3. **Category ratings** (Technique / Communication / Punctuality / Motivation) — **descoped to v2, not built.** Backend stores a single overall rating only; per-category columns + `/coach/me/reviews/summary` are a v2 addition.
 4. Divider + "42 reviews" title
 5. **Full reviews list** — vertical scroll, no clamp on body text. Each entry: avatar + name + relative time + 5-star row + full body.
 
@@ -129,16 +129,15 @@ Visibility helpers (CSS-driven):
 
 ## 6. API
 
-Profile data is served by the existing coach profile endpoint (extended additively per `feedback_backward_compat_endpoints`). Canonical reference: [`poly-backend/docs/coach-profile-api.md`](../../poly-backend/docs/coach-profile-api.md) (to be created).
+Profile data is served by the existing self-profile + coach review endpoints (extended additively per `feedback_backward_compat_endpoints`). Canonical reference: [`poly-backend/docs/coach-profile-2.0.md`](../../poly-backend/docs/coach-profile-2.0.md).
 
 Endpoints used by this screen:
 
 | Endpoint | Purpose |
 |---|---|
-| `GET /coach/me` | Hero media, identity, sports, bio, languages, gender |
-| `GET /coach/me/stats` | Rating / Reviews / Sessions / Price-from (system-computed; may be merged into `GET /coach/me` response) |
+| `GET /user/me` | Hero media, identity, sports, bio, languages, gender + system-computed stats (rating / reviews / sessions / price-from). Self-profile read — there is no separate `GET /coach/me`/`GET /coach/me/stats`. |
 | `GET /coach/me/reviews?limit=10&cursor=...` | Reviews list for All Reviews push; first page reused for carousel preview |
-| `GET /coach/me/reviews/summary` | Per-category averages + 5-bar histogram counts |
+| ~~`GET /coach/me/reviews/summary`~~ | **v2, not built** — per-category averages + 5-bar histogram counts. Descoped; backend stores a single overall rating only (see § 4). |
 
 Existing fields used on this screen (no new endpoints created here):
 - `avatar_url`, `intro_video` (Mux upload — see [architecture/mux-integration.md](../architecture/mux-integration.md) for shape), `cover_image_url`
@@ -148,7 +147,7 @@ Existing fields used on this screen (no new endpoints created here):
 - `languages` (array of BCP-47 codes)
 - Computed stats: `rating_avg`, `reviews_count`, `sessions_count`, `price_from`
 
-For schema details and request/response samples, see `coach-profile-api.md`.
+For schema details and request/response samples, see `coach-profile-2.0.md`.
 
 ---
 
