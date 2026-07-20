@@ -33,8 +33,8 @@ Path root: `project-spec/prototypes/flows/`
 | `personal-data.html` | Personal data form | profile/data forms |
 | `sport-types.html` | Sport selection (+ custom for coach) | taxonomy pickers |
 | `calendar-sync.html` | Calendar sync (Google/Apple) | account-connect lists |
-| `invite.html` | Coach invite card | invite/share surfaces |
-| `invite-coach.html` | Invite-a-Coach (referral, placeholder) | — (deferred) |
+| `invite.html` | Coach → athlete booking/schedule (NOT the global invite) | booking/schedule-from-client |
+| `referral.html` | **Refer a coach** (referral program: offer + link + funnel + invites + See-all) | coach referral/reward surfaces |
 
 ### Athlete (`athlete/`)
 | File | What it is | Clone for… |
@@ -57,7 +57,7 @@ Path root: `project-spec/prototypes/flows/`
 | `auth.html` | Authentication (sign in/up) | auth surfaces |
 | `account-access.html` | Account access (email+password, re-auth, social) | security settings |
 | `onboarding.html` | Fullscreen post-signup flow (athlete 5 / coach 7 steps) | mandatory wizards |
-| `invite.html` | Global invite (canonical) | repoint here, don't fork |
+| `connect.html` | **Connect (QR)** — in-person nametag: My code / Scan + share (role-agnostic) | any connect/QR surface |
 | `messages.html` | DM messages | chat/thread surfaces |
 | `voice-assistant.html` | Voice assistant (canvas, athlete+coach views) | assistant surfaces |
 | `self-paced.html` | Self-paced training builder (WIP) | step-builder flows |

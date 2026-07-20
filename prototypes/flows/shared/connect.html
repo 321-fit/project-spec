@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Connect (QR)</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: var(--fit-font); background: #0a0a0a; display: flex; justify-content: center; align-items: flex-start; padding: 24px; min-height: 100vh; min-width: 900px; }
+  .sidebar { position: fixed; left: 24px; top: 24px; bottom: 24px; width: 200px; display: flex; flex-direction: column; }
+  .sidebar-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--fit-gray-600); padding: 0 8px; margin: 16px 0 8px; }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button { font-family: var(--fit-font); font-size: 14px; font-weight: 400; padding: 10px 12px; border-radius: 10px; border: none; background: transparent; color: var(--fit-gray-400); cursor: pointer; text-align: left; width: 100%; transition: all 0.15s; }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active { background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500; }
+  .ann-container { position: fixed; left: calc(50% + 195px + 48px); right: 24px; top: 24px; bottom: 24px; width: auto; overflow-y: auto; }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; } .ann.active { display: block; }
+  .ann-role { display: inline-block; font-size: 14px; font-weight: 500; padding: 4px 12px; border-radius: 8px; margin-bottom: 16px; background: rgba(5,224,166,0.15); color: var(--fit-teal-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann h4 { font-size: 14px; font-weight: 500; color: var(--fit-gray-300); margin: 14px 0 6px; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); margin-bottom: 10px; }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 6px; padding-left: 18px; font-size: 14px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 4px; }
+  .ann code { font-size: 13px; background: var(--fit-gray-900); padding: 1px 6px; border-radius: 5px; color: var(--fit-gray-300); }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  .state-toggle { display: inline-flex; gap: 0; border-radius: 6px; overflow: hidden; border: 1px solid var(--fit-gray-700); margin-bottom: 8px; flex-wrap: wrap; }
+  .state-toggle button { font-family: var(--fit-font); font-size: 12px; font-weight: 500; padding: 4px 10px; border: none; cursor: pointer; background: transparent; color: var(--fit-gray-400); transition: all 0.15s; }
+  .state-toggle button.active { background: var(--fit-gray-700); color: var(--fit-white); }
+
+  .fit-phone { display: none; } .fit-phone.active { display: flex; }
+  .fit-dark .fit-phone-header, .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-dark .fit-phone-footer, .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+
+  /* ===== Connect: panels ===== */
+  #s-connect .cn-panel { display: none; }
+  #s-connect.tab-code .cn-panel-code { display: block; }
+  #s-connect.tab-scan .cn-panel-scan { display: block; }
+  #s-connect .fit-snackbar .snack-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--fit-teal-500); flex-shrink: 0; }
+
+  /* ===== My code panel ===== */
+  .cn-wrap { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 20px 24px 28px; }
+  .cn-av { width: 64px; height: 64px; border-radius: 50%; background: var(--fit-brand-gradient); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 600; }
+  .cn-name { font-size: 22px; font-weight: 600; color: var(--fit-text-primary); margin-top: 12px; }
+  .cn-sub { font-size: 15px; color: var(--fit-text-secondary); line-height: 1.5; max-width: 300px; margin-top: 6px; }
+  .cn-qr { width: 232px; height: 232px; background: #fff; border-radius: 24px; margin: 24px 0 0; padding: 18px; box-shadow: 0 4px 24px rgba(0,0,0,0.18); }
+  .cn-qr svg { width: 100%; height: 100%; display: block; }
+  .cn-actions { display: flex; gap: 12px; width: 100%; max-width: 320px; margin-top: 24px; }
+  .cn-actions .fit-btn { flex: 1; }
+
+  /* ===== Scan panel (camera viewfinder — page-local novel visual) ===== */
+  .cn-scan { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 20px 24px 28px; }
+  .cn-viewport { position: relative; width: 260px; height: 260px; border-radius: 28px; overflow: hidden; margin-top: 8px;
+    background: radial-gradient(circle at 50% 40%, #2a2a2e 0%, #131316 80%); }
+  .fit-light .cn-viewport { background: radial-gradient(circle at 50% 40%, #3a3a40 0%, #1a1a1e 80%); }
+  .cn-vp-corner { position: absolute; width: 40px; height: 40px; border: 3px solid var(--fit-teal-500); }
+  .cn-vp-tl { top: 20px; left: 20px; border-right: none; border-bottom: none; border-top-left-radius: 12px; }
+  .cn-vp-tr { top: 20px; right: 20px; border-left: none; border-bottom: none; border-top-right-radius: 12px; }
+  .cn-vp-bl { bottom: 20px; left: 20px; border-right: none; border-top: none; border-bottom-left-radius: 12px; }
+  .cn-vp-br { bottom: 20px; right: 20px; border-left: none; border-top: none; border-bottom-right-radius: 12px; }
+  .cn-vp-line { position: absolute; left: 24px; right: 24px; height: 2px; background: var(--fit-teal-500); box-shadow: 0 0 12px var(--fit-teal-500); top: 50%; opacity: 0.9; animation: cnScan 2.2s ease-in-out infinite; }
+  @keyframes cnScan { 0%,100% { transform: translateY(-86px); } 50% { transform: translateY(86px); } }
+  .cn-scan-title { font-size: 18px; font-weight: 600; color: var(--fit-text-primary); margin-top: 24px; }
+  .cn-scan-sub { font-size: 15px; color: var(--fit-text-secondary); line-height: 1.5; max-width: 280px; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+    <button onclick="window.location.href='../../index.html'" style="display:flex;align-items:center;gap:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;padding:8px 12px;border-radius:10px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-gray-300);cursor:pointer;width:100%;margin-bottom:8px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      All modules
+    </button>
+  <div class="label">Screen</div>
+  <button class="active" onclick="go('s-connect',this)">Connect (QR)</button>
+  <div class="label">Viewer (role / theme)</div>
+  <button onclick="setViewer('athlete')">Athlete (light)</button>
+  <button onclick="setViewer('coach')">Coach (dark)</button>
+  </div>
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ==================== SCREEN: CONNECT ==================== -->
+<div class="fit-phone fit-light active tab-code" id="s-connect">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="connect.back" onclick="alert('Close — dismisses the Connect sheet/screen (entry: Profile / My Coaches / Clients)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <span class="fit-header-title">Connect</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <div class="fit-segmented" style="margin:12px 16px 8px;">
+      <button class="fit-segmented-tab selected" data-a11y-id="connect.tab.code" onclick="setCnTab('code',this)">My code</button>
+      <button class="fit-segmented-tab" data-a11y-id="connect.tab.scan" onclick="setCnTab('scan',this)">Scan</button>
+    </div>
+
+    <!-- PANEL: MY CODE -->
+    <div class="cn-panel cn-panel-code">
+      <div class="cn-wrap">
+        <div class="cn-av" id="cn-av">NC</div>
+        <div class="cn-name" id="cn-name">Natallia C.</div>
+        <div class="cn-sub" id="cn-sub">Let someone scan this to connect with you on 321Fit.</div>
+        <div class="cn-qr" data-a11y-id="connect.qr"><svg viewBox="0 0 116 116" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:var(--fit-teal-600);"><g fill="currentColor"><rect x="0" y="0" width="28" height="28" rx="5"/><rect x="6" y="6" width="16" height="16" rx="3" fill="#fff"/><rect x="10" y="10" width="8" height="8" rx="1"/><rect x="88" y="0" width="28" height="28" rx="5"/><rect x="94" y="6" width="16" height="16" rx="3" fill="#fff"/><rect x="98" y="10" width="8" height="8" rx="1"/><rect x="0" y="88" width="28" height="28" rx="5"/><rect x="6" y="94" width="16" height="16" rx="3" fill="#fff"/><rect x="10" y="98" width="8" height="8" rx="1"/><rect x="36" y="4" width="4" height="4"/><rect x="44" y="4" width="4" height="4"/><rect x="56" y="8" width="4" height="4"/><rect x="64" y="4" width="4" height="4"/><rect x="76" y="8" width="4" height="4"/><rect x="32" y="12" width="4" height="4"/><rect x="48" y="12" width="4" height="4"/><rect x="60" y="16" width="4" height="4"/><rect x="72" y="12" width="4" height="4"/><rect x="80" y="16" width="4" height="4"/><rect x="4" y="36" width="4" height="4"/><rect x="12" y="40" width="4" height="4"/><rect x="20" y="36" width="4" height="4"/><rect x="36" y="36" width="8" height="8"/><rect x="52" y="40" width="4" height="4"/><rect x="64" y="36" width="4" height="4"/><rect x="76" y="40" width="4" height="4"/><rect x="88" y="36" width="4" height="4"/><rect x="100" y="40" width="4" height="4"/><rect x="108" y="36" width="4" height="4"/><rect x="8" y="48" width="4" height="4"/><rect x="24" y="52" width="4" height="4"/><rect x="48" y="48" width="4" height="4"/><rect x="56" y="52" width="4" height="4"/><rect x="84" y="48" width="4" height="4"/><rect x="96" y="52" width="4" height="4"/><rect x="108" y="48" width="4" height="4"/><rect x="4" y="60" width="4" height="4"/><rect x="16" y="64" width="4" height="4"/><rect x="36" y="60" width="4" height="4"/><rect x="68" y="64" width="4" height="4"/><rect x="80" y="60" width="4" height="4"/><rect x="92" y="64" width="4" height="4"/><rect x="104" y="60" width="4" height="4"/><rect x="12" y="76" width="4" height="4"/><rect x="36" y="80" width="4" height="4"/><rect x="48" y="76" width="8" height="8"/><rect x="64" y="80" width="4" height="4"/><rect x="76" y="76" width="4" height="4"/><rect x="88" y="80" width="4" height="4"/><rect x="100" y="76" width="4" height="4"/><rect x="36" y="92" width="4" height="4"/><rect x="44" y="96" width="4" height="4"/><rect x="56" y="92" width="4" height="4"/><rect x="68" y="96" width="4" height="4"/><rect x="80" y="92" width="4" height="4"/><rect x="92" y="96" width="4" height="4"/><rect x="104" y="92" width="4" height="4"/><rect x="40" y="104" width="4" height="4"/><rect x="52" y="108" width="4" height="4"/><rect x="64" y="104" width="4" height="4"/><rect x="84" y="108" width="4" height="4"/><rect x="100" y="104" width="4" height="4"/></g><rect x="46" y="46" width="24" height="24" rx="6" fill="#fff"/><path d="M58 50l1.6 4.6L64 56l-4.4 1.4L58 62l-1.6-4.6L52 56l4.4-1.4z" fill="var(--fit-teal-600)"/></svg></div>
+        <div class="cn-actions">
+          <button class="fit-btn fit-btn-secondary" data-a11y-id="connect.copy" onclick="showCnSnack('Link copied')">Copy link</button>
+          <button class="fit-btn fit-btn-primary" data-a11y-id="connect.share" onclick="openCnShare()">Share</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL: SCAN -->
+    <div class="cn-panel cn-panel-scan">
+      <div class="cn-scan">
+        <div class="cn-viewport" data-a11y-id="connect.scan.viewport">
+          <span class="cn-vp-corner cn-vp-tl"></span>
+          <span class="cn-vp-corner cn-vp-tr"></span>
+          <span class="cn-vp-corner cn-vp-bl"></span>
+          <span class="cn-vp-corner cn-vp-br"></span>
+          <span class="cn-vp-line"></span>
+        </div>
+        <div class="cn-scan-title">Scan a code</div>
+        <div class="cn-scan-sub">Point your camera at someone&rsquo;s 321Fit code to connect instantly.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Native share drawer (OneLink) — reused pattern from invite/clients -->
+  <div class="fit-sheet-overlay" id="cn-share-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:600;margin-bottom:4px;">Share your code</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:14px;">Send your link — whoever opens it connects with you on 321Fit.</div>
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--fit-surface-high);margin-bottom:16px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/><path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>
+        <span id="cn-share-url" style="flex:1;min-width:0;font-size:13px;color:var(--fit-text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">321.fit/i/natallia</span>
+      </div>
+      <div class="fit-sheet-item" data-a11y-id="connect.share.whatsapp" onclick="finishCnShare('WhatsApp')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 01-12.6 7.4L3 21l2.1-5.4A8.5 8.5 0 1121 11.5z"/></svg>
+        WhatsApp
+      </div>
+      <div class="fit-sheet-item" data-a11y-id="connect.share.messages" onclick="finishCnShare('Messages')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Messages
+      </div>
+      <div class="fit-sheet-item" data-a11y-id="connect.share.copy" onclick="finishCnShare('copy')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        Copy link
+      </div>
+      <div class="fit-sheet-item" data-a11y-id="connect.share.more" onclick="finishCnShare('share')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+        More…
+      </div>
+      <button style="width:100%;height:50px;margin-top:12px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cn-share-sheet').classList.remove('visible')">Cancel</button>
+    </div>
+  </div>
+
+  <div class="fit-snackbar" id="cn-snackbar"><span class="snack-dot"></span><span class="snack-text" id="cn-snack-text">Link copied</span></div>
+</div>
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+  <div class="ann active" id="ann-s-connect"><span class="ann-role">Shared</span><h3>Connect (QR)</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setCnTab('code',this)">My code</button>
+      <button onclick="setCnTab('scan',this)">Scan</button>
+    </div>
+    <p><strong>Lightweight connect utility</strong> — the Instagram-nametag pattern. Purely &ldquo;we met in person, let&rsquo;s connect on 321Fit&rdquo;. Role-agnostic (athlete = light, coach = dark). <strong>No referral / reward content, no contacts import</strong> — those live on the coach Referral screen and in the Clients tab respectively.</p>
+    <p><strong>My code</strong> — avatar + name + QR (AppsFlyer OneLink) + Copy link / Share (native drawer). Symmetric with Scan: either side can show or scan.</p>
+    <p><strong>Scan</strong> — native camera viewport with framing corners; scans the other person&rsquo;s QR → resolves OneLink → connect. The scanline + corners are a page-local visual (<code>cn-vp-*</code>); on device this is the platform camera.</p>
+    <hr>
+    <h4>Entry points</h4>
+    <ul>
+      <li>Profile (both roles) — &ldquo;Show my code&rdquo; / share row</li>
+      <li>Athlete My Coaches — &ldquo;Invite a coach&rdquo; (connect your real-life coach)</li>
+      <li>Coach Clients — &ldquo;Add / connect&rdquo; a client in person</li>
+    </ul>
+    <p>Opened as a <strong>sheet or push</strong> from those surfaces; <code>×</code> dismisses.</p>
+    <hr>
+    <h4>Backend</h4>
+    <p><code>GET /me/referral-link</code> → <code>{ url, token }</code> (same OneLink token used everywhere). Scan resolves the token on the public <code>/i/&lt;token&gt;</code> landing → connect. All additive.</p>
+    <h4>a11y</h4>
+    <p><code>connect.*</code> scope — <code>connect.tab.code</code> / <code>connect.tab.scan</code> / <code>connect.qr</code> / <code>connect.copy</code> / <code>connect.share</code> / <code>connect.scan.viewport</code> / <code>connect.share.{whatsapp,messages,copy,more}</code>.</p>
+  </div>
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+function switchTheme(theme) {
+  document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.getElementById("theme-light").style.background = theme === "light" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-light").style.color = theme === "light" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.querySelectorAll(".fit-phone").forEach(function (p) {
+    if (theme === "light") { p.classList.remove("fit-dark"); p.classList.add("fit-light"); }
+    else { p.classList.remove("fit-light"); p.classList.add("fit-dark"); }
+  });
+}
+function go(id, btn) {
+  document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+function annTog(btn) { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+function setViewer(role, btn) {
+  switchTheme(role === 'coach' ? 'dark' : 'light');
+  if (role === 'coach') {
+    document.getElementById('cn-av').textContent = 'AT';
+    document.getElementById('cn-name').textContent = 'Andrei T.';
+    document.getElementById('cn-share-url').textContent = '321.fit/i/andrei';
+  } else {
+    document.getElementById('cn-av').textContent = 'NC';
+    document.getElementById('cn-name').textContent = 'Natallia C.';
+    document.getElementById('cn-share-url').textContent = '321.fit/i/natallia';
+  }
+  if (btn) annTog(btn);
+}
+function setCnTab(tab, btn) {
+  var s = document.getElementById('s-connect');
+  s.classList.remove('tab-code', 'tab-scan');
+  s.classList.add('tab-' + tab);
+  var seg = s.querySelector('.fit-segmented');
+  var map = { code: 0, scan: 1 };
+  var tabs = seg.querySelectorAll('.fit-segmented-tab');
+  tabs.forEach(function (t) { t.classList.remove('selected'); });
+  if (tabs[map[tab]]) tabs[map[tab]].classList.add('selected');
+  if (btn && btn.parentElement.classList.contains('state-toggle')) annTog(btn);
+}
+function openCnShare() { document.getElementById('cn-share-sheet').classList.add('visible'); }
+function finishCnShare(channel) {
+  document.getElementById('cn-share-sheet').classList.remove('visible');
+  showCnSnack(channel === 'copy' ? 'Link copied' : 'Opening ' + (channel === 'share' ? 'share sheet' : channel) + '…');
+}
+var _cnSnackTimer;
+function showCnSnack(msg) {
+  var sn = document.getElementById('cn-snackbar'), t = document.getElementById('cn-snack-text');
+  t.textContent = msg; sn.classList.add('show');
+  clearTimeout(_cnSnackTimer); _cnSnackTimer = setTimeout(function () { sn.classList.remove('show'); }, 1800);
+}
+// entry context: ?role=coach|athlete
+(function initRole() {
+  var r = new URLSearchParams(location.search).get('role');
+  setViewer(r === 'coach' ? 'coach' : 'athlete');
+})();
+</script>
+</body>
+</html>

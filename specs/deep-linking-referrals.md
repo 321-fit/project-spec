@@ -1,6 +1,6 @@
 # Deep Linking & Referrals
 
-> Last updated: 2026-06-09
+> Last updated: 2026-07-20
 
 ## Overview
 The app uses AppsFlyer OneLink for deep linking and referral tracking. Coaches can invite athletes via shareable links, and users can share training session invites. The referral system tracks who invited whom.
@@ -152,11 +152,22 @@ When an imported/CRM contact's relationship flips `crm → app` — via the OneL
 ### Already-on-321Fit at import time
 If an imported contact's phone already matches an existing app account, it's connected instantly as an `active app-account` relationship (`origin: auto_phone_match`) — no invite link needed for that row.
 
+## Connect (QR) + Coach Referral split — 2026-07-20
+
+The global invite screen was split into two prototypes along a **utility vs reward-program** axis. See `invite-coach.md` for the full coach-referral spec.
+
+- **Connect** — `flows/shared/connect.html`, **role-agnostic** in-person "nametag": **My code** (avatar + name + OneLink QR + Copy/Share drawer) / **Scan** (native camera). No contacts, no reward content. This is the athlete-side "Invite a friend" / "Invite a coach" destination and the coach's own-profile Share destination. a11y `connect.*`.
+- **Coach Referral** — `flows/coach/referral.html`, coach-only reward program with a Joined/Subscribed/Free-months **funnel**. Reward = **"1 free month when an invited coach subscribes"** (PLACEHOLDER; tiers/crediting deferred). a11y `referral.*`.
+
+**Additive backend delta (per `feedback_backward_compat_endpoints`):** the joined-list item (`GET /coach/me/invites` / referral connection) gains **`role`** (coach|athlete) + **`reward_status`** (joined|subscribed). Coach-subscription hook flips `reward_status → subscribed`, credits inviter `+1 month`, fires push `REFERRAL_SUBSCRIBED`. No renames/removals — existing `ReferralToken` / `ReferralConnection` shapes unchanged.
+
+**Entry points repointed:** coach Settings → `referral.html`; coach own-profile Share + athlete My Coaches/Settings → `connect.html`; visited coach profile Share (`shared/profile.html`) unchanged (forward-this-coach, not connect). Orphaned prototypes `shared/invite.html` + `coach/invite-coach.html` kept, marked in prototypes `INDEX.md`.
+
 ## Invite UI
 
 ### Settings → Invite Friend
 **Location:** `ProfileTab/Settings/Options/InviteFriend/`
-- Generate and share referral link
+- Generate and share referral link → now the **Connect** screen (QR + share); athlete "Invite a friend" and coach own-profile Share both land here
 - System share sheet (iOS native)
 - Separate views for athlete and coach roles
 

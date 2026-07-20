@@ -1,15 +1,40 @@
 # Invite a Coach (Coach Referral)
 
 > Status: Draft
-> Prototype: [flows/coach/invite-coach.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/invite-coach.html)
+> Prototype: [flows/coach/referral.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/referral.html) · connect: [flows/shared/connect.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/connect.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-05-12
+> Last updated: 2026-07-20
 > Implementation:
 > - iOS:     [321fit_ios/docs/invite-coach-ios.md] (to be created)
 > - Backend: [poly-backend/docs/referrals-api.md] (to be created)
 > - Android: [321fit_android/docs/invite-coach-android.md] (to be created)
 
 **Scope note:** this spec covers **coach-to-coach referral** — when a coach invites a coach-friend to join 321Fit. Distinct from athlete-side share-coach-to-friend (covered in `deep-linking-referrals.md`). The data model is shared (single `referrals` table), but the entry point, copy, and audience are coach-specific.
+
+---
+
+## RE-SPLIT into Connect (QR) + Coach Referral — 2026-07-20 (supersedes the 2026-06-23 unification below)
+
+The single global `invite.html` (3 tabs QR/Contacts/Invited) mixed two unrelated jobs. Re-split along a **utility vs reward-program** axis (a new meaningful axis — not undoing the earlier dedup):
+
+- **`flows/shared/connect.html`** — lightweight in-person "nametag" (Instagram pattern), **role-agnostic** (athlete light / coach dark). Segmented **My code** (avatar + name + OneLink QR + Copy/Share drawer) / **Scan** (native camera viewport). NO contacts import, NO referral/reward content. Purely "we met in person, let's connect". Canonically documented in `deep-linking-referrals.md`; a11y `connect.*`.
+- **`flows/coach/referral.html`** — this spec's screen. **Coach-only referral PROGRAM**, dark default, **one scrolling screen, sections not tabs**:
+  1. **Offer hero** — gift badge + "Invite a coach — get **1 free month** when they subscribe".
+  2. **Your referral link** — OneLink `321.fit/i/{coach}` + Copy + **Share** (native drawer = mass send; **NO contacts multi-select** — that's the Clients-tab import in `deep-linking-referrals.md`, not triplicated here).
+  3. **Funnel** — `Joined N · Subscribed M · +M free months`. This is the coach's **OWN reward** at a glance — never the referred coach's private business numbers.
+  4. **Recent invites** (last 3) — avatar + name + role/when + trailing status badge (`Subscribed ✓` teal = reward earned / `Joined` neutral). Coach-vs-athlete shown in the meta line.
+  5. **See all invites (N)** → push `s-referral-list` (flat, most-recent-first, no filter chips).
+  6. **Zero state** — "No one's joined yet" → Share your link.
+
+**Reward = "1 free month when an invited coach SUBSCRIBES" is a fixed PLACEHOLDER.** Reward tiers / final copy / how earned months are displayed & credited are a LATER product decision — the prototype proves the flow + funnel only. Athletes are free (`project_business_model`), so an **athlete joiner never triggers a reward** (shows `Joined`, no badge).
+
+**Athlete referral = OUT OF SCOPE** — no reward-funding model yet (session-credit deferred). Athletes only get **Connect**.
+
+**Entry points (repointed 2026-07-20):** Coach Settings "Invite to 321Fit" → **"Refer a coach"** → `referral.html` (a11y `coach.settings.refer`). Own coach Profile Share icon → **Connect** (old inline `profile-share-sheet` removed). Visited coach profile (`shared/profile.html`) Share → KEPT as plain forward-this-coach (guest ≠ connect). Athlete My Coaches + Settings → Connect. Second referral entry (Dashboard widget) added on `coach/dashboard.html`.
+
+**Additive backend delta vs § 6 below:** `GET /coach/me/invites` items gain **`role`** (coach|athlete) + **`reward_status`** (joined|subscribed) + funnel counts. Coach-subscription hook flips `reward_status → subscribed`, credits inviter `+1 month`, fires push `REFERRAL_SUBSCRIBED`. Reward-crediting logic (apply months / tiers / caps / fraud guards) deferred. All additive per `feedback_backward_compat_endpoints` — the flat MVP list still works without them. a11y scope `referral.*` (superseding the global `invite.*`).
+
+**Orphaned prototypes (kept, marked in INDEX):** `flows/shared/invite.html`, `flows/coach/invite-coach.html`. The `referrals` data model + endpoints in § 6 below still apply; the § 4 screen layout is superseded by the funnel screen above.
 
 ---
 
