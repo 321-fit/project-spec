@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Journey: Self-paced training</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0a0a0a; --surface: #1E2126; --surface-high: #282D34;
+    --text: #FFFFFF; --text-secondary: #8B9099; --text-tertiary: #5C6370;
+    --brand-primary: #00A7D0; --brand-secondary: #00E29D;
+    --brand-gradient: linear-gradient(135deg, #00A7D0, #00E29D); --divider: #2E333A;
+  }
+  body { font-family: 'Rubik', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 48px 24px; display: flex; flex-direction: column; align-items: center; }
+  .j-head { max-width: 720px; width: 100%; margin-bottom: 28px; }
+  .j-back { font-size: 13px; color: var(--brand-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 18px; }
+  .j-title { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+  .j-sub { font-size: 15px; color: var(--text-secondary); line-height: 1.6; }
+  .j-note { font-size: 13px; color: var(--text-tertiary); margin-top: 12px; line-height: 1.5; }
+  /* Locked decisions strip */
+  .j-rules { max-width: 720px; width: 100%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 26px; }
+  .j-rule { background: var(--surface); border: 1px solid var(--divider); border-radius: 12px; padding: 12px 14px; }
+  .j-rule-t { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .j-rule-s { font-size: 12px; color: var(--text-secondary); line-height: 1.45; }
+  .j-sec { max-width: 720px; width: 100%; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); margin: 8px 0 12px; padding-left: 2px; }
+  .j-steps { max-width: 720px; width: 100%; display: flex; flex-direction: column; gap: 12px; }
+  .j-step { display: flex; gap: 16px; background: var(--surface); border: 1px solid var(--divider); border-radius: 16px; padding: 18px 20px; text-decoration: none; color: inherit; transition: all 0.15s; }
+  .j-step:hover { border-color: var(--brand-primary); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+  .j-num { width: 30px; height: 30px; border-radius: 50%; background: var(--surface-high); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: var(--text-secondary); flex-shrink: 0; }
+  .j-body { flex: 1; min-width: 0; }
+  .j-chip { display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 8px; border-radius: 6px; margin-bottom: 6px; }
+  .j-chip.coach { background: rgba(0,167,208,0.15); color: var(--brand-primary); }
+  .j-chip.athlete { background: rgba(0,226,157,0.15); color: var(--brand-secondary); }
+  .j-step-title { font-size: 16px; font-weight: 600; }
+  .j-step-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-top: 3px; }
+  .j-step-loc { font-size: 12px; color: var(--text-tertiary); margin-top: 6px; }
+  .j-step-loc code { background: var(--surface-high); padding: 1px 6px; border-radius: 5px; color: var(--text-secondary); }
+  .j-open { font-size: 13px; color: var(--brand-primary); font-weight: 500; align-self: center; flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; }
+  .j-open svg { width: 14px; height: 14px; }
+  .j-foot { max-width: 720px; width: 100%; margin-top: 22px; font-size: 12px; color: var(--text-tertiary); line-height: 1.6; }
+  .j-foot code { background: var(--surface-high); padding: 1px 6px; border-radius: 5px; color: var(--text-secondary); }
+  @media (max-width: 560px) { .j-rules { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="j-head">
+  <a class="j-back" href="../../index.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>All modules</a>
+  <div class="j-title">Self-paced training — end-to-end</div>
+  <div class="j-sub">Self-paced is an <strong>online / async</strong> session: the coach offers a cheap generic template, the athlete books it for a <strong>day</strong> (no time slot), the coach <strong>builds a per-athlete workout</strong>, the athlete <strong>plays it step-by-step</strong> and submits proof, the coach <strong>reviews</strong> — and the per-session <strong>comments thread</strong> is the home for the whole exchange. Lifecycle: <strong>Requested → Ready → Submitted → Finished</strong>.</div>
+  <div class="j-note">References, not duplicates — every step opens the canonical surface, so this never drifts from the source. Use the browser back button to return here. &nbsp;·&nbsp; The screens still live in the isolated module <code>shared/self-paced.html#&lt;anchor&gt;</code> (split into real surfaces per <code>self-paced.md §5</code>); integration entry points below open their real screens.</div>
+</div>
+
+<!-- Locked model — keep in sync with specs/self-paced.md § 4 & § 9 -->
+<div class="j-rules">
+  <div class="j-rule"><div class="j-rule-t">Online / async · no time</div><div class="j-rule-s">Booked for a <strong>day</strong>, not a time slot — the card reads <strong>“Self-paced · do it anytime”</strong> (clock icon, deliberately not “Online”, to avoid confusion with live online sessions).</div></div>
+  <div class="j-rule"><div class="j-rule-t">Per-athlete setup</div><div class="j-rule-s">Every booking becomes a <strong>request</strong> the coach builds by hand — a <strong>master–detail</strong> builder (step list + focused step editor), not one long form and not a rigid wizard.</div></div>
+  <div class="j-rule"><div class="j-rule-t">Sequenced player</div><div class="j-rule-s">An exercise is a Freeletics-style sequence: <strong>Get-ready 3-2-1 (voiced) → work → rest (auto-flow)</strong>. One focus per phase, one action, voice cues, one thin progress bar.</div></div>
+  <div class="j-rule"><div class="j-rule-t">Thread = home</div><div class="j-rule-s">The per-session <strong>comments thread</strong> is where it lives — the athlete’s submission and the coach’s review are anchor messages, then free replies.</div></div>
+  <div class="j-rule"><div class="j-rule-t">Lives in existing surfaces</div><div class="j-rule-s">No new bell, no 4th tab. Requests + reviews go to the unified <strong>Inbox</strong>; Dashboard rows + Client Detail summary surface it. Athlete list is not a tab.</div></div>
+  <div class="j-rule"><div class="j-rule-t">Packages apply</div><div class="j-rule-s">A pack is N sessions of one template — self-paced is just a template type. Priced on the offering (below the live rate); card / cash / both. See <code>session-packages.md</code>.</div></div>
+</div>
+
+<div class="j-sec">Coach offers it</div>
+<div class="j-steps">
+
+  <a class="j-step" href="../coach/sessions.html#s-list">
+    <div class="j-num">1</div>
+    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Create a self-paced session</div><div class="j-step-desc">My training sessions → self-paced is a <strong>session type</strong> alongside Personal / Group (online-only). One generic offering with a <strong>slogan + price below the live rate</strong> — the athlete-facing catalog entry. No per-athlete content yet; that’s built after each booking.</div><div class="j-step-loc"><code>coach/sessions.html</code> · <code>#s-list</code> (self-paced type)</div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+  <a class="j-step" href="../shared/self-paced.html#s-offering">
+    <div class="j-num">2</div>
+    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Offering (catalog entry)</div><div class="j-step-desc">How the offering reads before anyone books — sport icon, <strong>“Self-paced · do it anytime”</strong> strip, short slogan, lower price. This is the template the athlete discovers in Book training.</div><div class="j-step-loc"><code>shared/self-paced.html</code> · <code>#s-offering</code></div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+</div>
+
+<div class="j-sec" style="margin-top:22px;">Athlete books it</div>
+<div class="j-steps">
+
+  <a class="j-step" href="../shared/self-paced.html#s-book">
+    <div class="j-num">3</div>
+    <div class="j-body"><span class="j-chip athlete">Athlete</span><div class="j-step-title">Book — pick a day, pay from balance</div><div class="j-step-desc">A card in the existing <strong>Book training → Personal tab</strong> (same <code>.v6d-card</code> as <code>profile.html#s-book-sessions</code>): sport icon + “Self-paced · do it anytime” + slogan + lower price. Book drawer = full description + <strong>day picker (no time grid)</strong> → simplified confirm, <strong>pay from balance</strong> (card / cash / both), optional note.</div><div class="j-step-loc"><code>shared/self-paced.html</code> · <code>#s-book</code> (real: <code>profile.html#s-book-sessions</code> Personal tab)</div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+</div>
+
+<div class="j-sec" style="margin-top:22px;">Coach sets up the workout (per athlete)</div>
+<div class="j-steps">
+
+  <a class="j-step" href="../coach/dashboard.html#s-dashboard">
+    <div class="j-num">4</div>
+    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Request lands — Dashboard + Inbox</div><div class="j-step-desc">A booking becomes a <strong>Requested</strong> item. It shows as a <code>.dash-action</code> row (“Self-paced · N to set up, N to review”) → the batch hub, and in the unified <strong>Inbox → To reply</strong> (reuses <code>.req-card</code> + a <strong>Self-paced</strong> tag). No new bell.</div><div class="j-step-loc"><code>coach/dashboard.html</code> · row <code>self-paced-hub</code> → <code>self-paced.html#s-queue</code></div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+  <a class="j-step" href="../shared/self-paced.html#s-queue">
+    <div class="j-num">5</div>
+    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Batch hub — Set up / Review / Active</div><div class="j-step-desc">Tabbed queue of all self-paced items filtered by state. <strong>Set up</strong> = Requested (build now), <strong>Review</strong> = Submitted (feedback due), <strong>Active</strong> = Ready (athlete doing it). Tap a Set-up item → the builder.</div><div class="j-step-loc"><code>shared/self-paced.html</code> · <code>#s-queue</code></div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+  <a class="j-step" href="../shared/self-paced.html#s-setup">
+    <div class="j-num">6</div>
+    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Setup builder (step list home)</div><div class="j-step-desc">One builder-home: workout title + welcome note + <strong>day to do it</strong> (date, no time) + a <strong>step list</strong> (compact drag-reorder cards with a target badge) + Add step + <strong>Send</strong>. Master screen of the master–detail pattern. Also the entry for coach-initiated <strong>Assign self-paced</strong> from Client Detail.</div><div class="j-step-loc"><code>shared/self-paced.html</code> · <code>#s-setup</code></div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+  <a class="j-step" href="../shared/self-paced.html#s-step">
+    <div class="j-num">7</div>
+    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Step editor (focused, “Step N of M ‹ ›”)</div><div class="j-step-desc">Each step opens its own screen: name · video [record / upload / library → optional <strong>Trim</strong>] · <strong>independent target toggles</strong> — <code>Reps × sets</code> and <code>Timer</code> can be on together, either, or neither (neither = just follow the video) · independent <code>Rest after</code> · instructions. Back = cancel, footer commits.</div><div class="j-step-loc"><code>shared/self-paced.html</code> · <code>#s-step</code> (+ shared <code>#s-trim</code> / <code>#s-upload</code>)</div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+</div>
+
+<div class="j-sec" style="margin-top:22px;">Athlete does it</div>
+<div class="j-steps">
+
+  <a class="j-step" href="../athlete/dashboard.html#s-dashboard">
+    <div class="j-num">8</div>
+    <div class="j-body"><span class="j-chip athlete">Athlete</span><div class="j-step-title">“Ready” shows up — Dashboard</div><div class="j-step-desc">Once the coach sends it the session is <strong>Ready</strong>. Day-bound <strong>overdue</strong> + <strong>due-today</strong> rows appear under “Needs your attention” (shown only when present) → the Welcome overview.</div><div class="j-step-loc"><code>athlete/dashboard.html</code> · rows <code>self-paced-overdue</code> / <code>self-paced-today</code> → <code>self-paced.html#s-welcome</code></div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+  <a class="j-step" href="../shared/self-paced.html#s-welcome">
+    <div class="j-num">9</div>
+    <div class="j-body"><span class="j-chip athlete">Athlete</span><div class="j-step-title">Welcome / intro (day + reschedule)</div><div class="j-step-desc">What’s inside · ~time · the day + a reschedule sheet. The plan/steps overview lives here (not on the player). Coach-initiated & unpaid → CTA is <strong>“Pay €X &amp; start”</strong>; otherwise <strong>Start</strong>.</div><div class="j-step-loc"><code>shared/self-paced.html</code> · <code>#s-welcome</code></div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+  <a class="j-step" href="../shared/self-paced.html#s-player">
+    <div class="j-num">10</div>
+    <div class="j-body"><span class="j-chip athlete">Athlete</span><div class="j-step-title">Player — sequenced phases</div><div class="j-step-desc">Full-bleed media on top, the single number that matters bottom-left (reps / timer / rest), name + gray <code>Next:</code> line, one thin segment bar. <strong>Get ready (3-2-1, voiced) → work → rest (voiced, auto-flow) → repeat per set → next exercise.</strong> One action per phase; header = × · voice · message coach.</div><div class="j-step-loc"><code>shared/self-paced.html</code> · <code>#s-player</code></div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+  <a class="j-step" href="../shared/self-paced.html#s-complete">
+    <div class="j-num">11</div>
+    <div class="j-body"><span class="j-chip athlete">Athlete</span><div class="j-step-title">Complete — feedback + optional clip → Submit</div><div class="j-step-desc">Structured feedback (first-time only) + an optional <strong>proof clip</strong> (same source sheet → Trim → Mux upload the coach uses for instruction clips) + a note. Submit flips the session to <strong>Submitted</strong> and posts into the thread.</div><div class="j-step-loc"><code>shared/self-paced.html</code> · <code>#s-complete</code></div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+</div>
+
+<div class="j-sec" style="margin-top:22px;">Coach reviews &amp; the thread</div>
+<div class="j-steps">
+
+  <a class="j-step" href="../shared/self-paced.html#s-review">
+    <div class="j-num">12</div>
+    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Review the submission → Finish</div><div class="j-step-desc">From Inbox → Review (or the batch hub): the athlete’s clips + note + a rating + written feedback. <strong>Finish</strong> flips the session to <strong>Finished</strong> and posts the review as an anchor message in the thread.</div><div class="j-step-loc"><code>shared/self-paced.html</code> · <code>#s-review</code></div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+  <a class="j-step" href="../shared/self-paced.html#s-comments">
+    <div class="j-num">13</div>
+    <div class="j-body"><span class="j-chip athlete">Both</span><div class="j-step-title">Comments thread = the session’s home</div><div class="j-step-desc">Submission + review are the <strong>anchor messages</strong>; after that it’s a free reply thread scoped to this one session. The durable record of the exchange — not a transient toast.</div><div class="j-step-loc"><code>shared/self-paced.html</code> · <code>#s-comments</code></div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+</div>
+
+<div class="j-sec" style="margin-top:22px;">Where it lives (integration entry points)</div>
+<div class="j-steps">
+
+  <a class="j-step" href="../coach/clients.html#s-client-detail">
+    <div class="j-num">14</div>
+    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Client Detail — summary + Assign + per-client screen</div><div class="j-step-desc">A compact <strong>summary card</strong> (To review / Active / Done counters) + <strong>Assign self-paced</strong> (coach-initiated → the setup builder). Tap the counters → a full <strong>per-client screen</strong> grouped by status (To review / Active / Done / Cancelled).</div><div class="j-step-loc"><code>coach/clients.html</code> · <code>#s-client-detail</code> → <code>self-paced.html#s-setup</code> · view-all <code>s-client-selfpaced</code></div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+  <a class="j-step" href="../shared/profile.html#s-coach-v2">
+    <div class="j-num">15</div>
+    <div class="j-body"><span class="j-chip athlete">Athlete</span><div class="j-step-title">Coach Detail link → My self-paced list</div><div class="j-step-desc">On the athlete’s coach detail, a light <strong>link row</strong> “Self-paced with &lt;coach&gt; · N sessions · N to do” → the athlete’s list. Deliberately a link, not a full mirror section — avoids two sources of truth.</div><div class="j-step-loc"><code>shared/profile.html</code> · row <code>self-paced-link</code> → <code>self-paced.html#s-list</code></div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+  <a class="j-step" href="../shared/self-paced.html#s-list">
+    <div class="j-num">16</div>
+    <div class="j-body"><span class="j-chip athlete">Athlete</span><div class="j-step-title">My self-paced (list)</div><div class="j-step-desc">The athlete’s own list of self-paced sessions grouped by status — surfaced from Dashboard + Coach Detail, <strong>not a tab</strong>. Coach-side history / video library are the mirror (<code>#s-history</code> / <code>#s-library</code>).</div><div class="j-step-loc"><code>shared/self-paced.html</code> · <code>#s-list</code></div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+</div>
+
+<div class="j-foot">Spec: <code>specs/self-paced.md</code> (Approved) · pricing/packages: <code>specs/session-packages.md</code>. Screens currently in the isolated module <code>shared/self-paced.html</code> (anchors <code>#s-offering · #s-book · #s-queue · #s-setup · #s-step · #s-welcome · #s-player · #s-complete · #s-review · #s-comments · #s-list</code>); integration entry points live on <code>coach/sessions.html · coach/dashboard.html · coach/clients.html · athlete/dashboard.html · shared/profile.html</code>. Shared status pills = <code>.sp-pill</code> (in <code>lib/fit-ui.css</code>). Deep-link: <code>self-paced.html#&lt;screen&gt;</code> opens that screen on load. &nbsp;·&nbsp; Companion journey: <a href="packages.html" style="color:var(--brand-primary)">Session packages</a>.</div>
+
+</body>
+</html>

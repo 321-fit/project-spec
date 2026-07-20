@@ -158,3 +158,4 @@ Get ready (3-2-1, voiced)  →  WORK set  →  Rest (voiced countdown, auto-flow
 - Notifications: [notifications-catalog.md](notifications-catalog.md)
 - Memory: `project_self_paced` (model + deferred thread decision)
 - Prototype: `flows/shared/self-paced.html` (isolated WIP; split into modules later)
+- Journey map: [`flows/journeys/self-paced.html`](../prototypes/flows/journeys/self-paced.html) — end-to-end walkthrough linking every live surface in flow order (Requested → Ready → Submitted → Finished)

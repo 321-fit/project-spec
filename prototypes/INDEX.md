@@ -64,7 +64,10 @@ Path root: `project-spec/prototypes/flows/`
 | `profile.html` | Coach profile (shared variant) | — |
 
 ### Journeys (`journeys/`)
-End-to-end annotated walkthroughs, not screens to clone. `home-visit.html` = booking-with-address journey.
+End-to-end annotated walkthroughs, not screens to clone. Each step links a **live** screen in flow order (no copies).
+- `home-visit.html` — booking-with-address journey.
+- `packages.html` — session packages end-to-end · `packages-birdseye.html` — state × surface matrix.
+- `self-paced.html` — self-paced training end-to-end (Requested → Ready → Submitted → Finished).
 
 ---
 
