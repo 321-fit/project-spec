@@ -178,6 +178,29 @@ Backend migration runs once: maps all legacy values to canonical enum + updates 
 
 ---
 
+## 5a. Shipped reality (2026-07-17) — dual-field, not one enum
+
+The unified single 6-state enum described above (§ 5 / § 6) is the **product contract**, but it was **not shipped as one persisted enum**. What actually ships on `poly-backend` `main`:
+
+- **Persisted status = `ApprovalStatus`** on the `event_approval` table (one row per `training_event`), values: `pending / approved / declined / cancelled / auto_declined / invitation / rescheduled`.
+- **A separate persisted `PaymentStatus`** on the same row: `waiting_for_payment / money_on_hold / transfered_to_coach`. Payment is a **field**, not a status — exactly as the legacy-migration table above intends (`paid`/`cash` are NOT statuses).
+- **The 6-state names (`planned / request / awaiting / review / missed / finished`) are DERIVED, not stored.** The client/DTO layer computes the canonical presentation state on the fly from `ApprovalStatus` + the event's `datetime_end` + the `event_post_confirmation` record (coach review). Reference impl: `_canonical_event_status()` in the coach dashboard handler. So `review`/`finished`/`missed` are not columns — they are `approved` + past-end + (un)confirmed.
+
+**Mapping (shipped derivation):**
+
+| Derived canonical | Comes from |
+|---|---|
+| `request` | `ApprovalStatus.pending` (receiver view) |
+| `awaiting` | `ApprovalStatus.pending` / `invitation` / `rescheduled` (initiator view) |
+| `planned` | `ApprovalStatus.approved`, end time in the future |
+| `review` | `ApprovalStatus.approved`, past `datetime_end`, coach not yet confirmed |
+| `finished` | `ApprovalStatus.approved`, past `datetime_end`, coach confirmed |
+| `missed` / `cancelled` (hidden) | `ApprovalStatus.declined / cancelled / auto_declined` |
+
+**Reconciliation stance:** treat § 5 / § 6's single-enum wording as the *client-facing derived contract*; the *source of truth on the wire* is the `ApprovalStatus` + `PaymentStatus` dual field plus the derivation above. A future migration to one persisted `event_status` column remains optional backend work, not a shipped fact — do not spec it as done.
+
+---
+
 ## 5b. Calendar visual language (updated 2026-07-24)
 
 Visual reference screen: **[flows/shared/calendar-legend.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/calendar-legend.html)** — every tile, block and zone in both themes, rendered from the canonical CSS classes (it cannot drift from the product). In-app the same screen is the opt-in `?` sheet in the calendar header (disclosure Layer 2).
@@ -242,29 +265,6 @@ Open: whether an off-hours drop should be *refused* at all, or allowed behind a 
 - Hour rules run to the true right edge; the left is offset by the time gutter (Apple Calendar convention). Content (tiles) keeps its gutter — background and rules bleed, content does not.
 - **Known divergence:** the booking/invite time-grid still paints outside-working-hours as a hatched `.fit-bk-off` zone (see [booking-flow.md](./booking-flow.md)). That grid is a *picker*, not the day surface, and was left as-is; if the hatch=busy rule is to hold app-wide, it should switch to the wash. Open.
 - **Athlete calendars have no off-hours shading**: an athlete has no availability, so there is nothing to grey out. Zones belong to the coach calendar and to booking grids, where the counterparty's hours constrain the choice.
-
----
-
-## 5a. Shipped reality (2026-07-17) — dual-field, not one enum
-
-The unified single 6-state enum described above (§ 5 / § 6) is the **product contract**, but it was **not shipped as one persisted enum**. What actually ships on `poly-backend` `main`:
-
-- **Persisted status = `ApprovalStatus`** on the `event_approval` table (one row per `training_event`), values: `pending / approved / declined / cancelled / auto_declined / invitation / rescheduled`.
-- **A separate persisted `PaymentStatus`** on the same row: `waiting_for_payment / money_on_hold / transfered_to_coach`. Payment is a **field**, not a status — exactly as the legacy-migration table above intends (`paid`/`cash` are NOT statuses).
-- **The 6-state names (`planned / request / awaiting / review / missed / finished`) are DERIVED, not stored.** The client/DTO layer computes the canonical presentation state on the fly from `ApprovalStatus` + the event's `datetime_end` + the `event_post_confirmation` record (coach review). Reference impl: `_canonical_event_status()` in the coach dashboard handler. So `review`/`finished`/`missed` are not columns — they are `approved` + past-end + (un)confirmed.
-
-**Mapping (shipped derivation):**
-
-| Derived canonical | Comes from |
-|---|---|
-| `request` | `ApprovalStatus.pending` (receiver view) |
-| `awaiting` | `ApprovalStatus.pending` / `invitation` / `rescheduled` (initiator view) |
-| `planned` | `ApprovalStatus.approved`, end time in the future |
-| `review` | `ApprovalStatus.approved`, past `datetime_end`, coach not yet confirmed |
-| `finished` | `ApprovalStatus.approved`, past `datetime_end`, coach confirmed |
-| `missed` / `cancelled` (hidden) | `ApprovalStatus.declined / cancelled / auto_declined` |
-
-**Reconciliation stance:** treat § 5 / § 6's single-enum wording as the *client-facing derived contract*; the *source of truth on the wire* is the `ApprovalStatus` + `PaymentStatus` dual field plus the derivation above. A future migration to one persisted `event_status` column remains optional backend work, not a shipped fact — do not spec it as done.
 
 ---
 
