@@ -68,6 +68,16 @@ End-to-end annotated walkthroughs, not screens to clone. Each step links a **liv
 - `home-visit.html` — booking-with-address journey.
 - `packages.html` — session packages end-to-end · `packages-birdseye.html` — state × surface matrix.
 - `self-paced.html` — self-paced training end-to-end (Requested → Ready → Submitted → Finished).
+- `group-training.html` — group training end-to-end (create → discover/join → manage roster + **invite existing/CRM/by-link** → settle/complete → feedback).
+
+### Lab (`lab/`)
+Token experiments, not product screens — never clone these for a feature.
+- `light-theme.html` — **light-theme fitting room.** Live screens (`athlete/my-coaches.html#s-coach-detail`
+  and `athlete/calendar.html#s-schedule`) cloned into one column per candidate light palette, with synced
+  scroll, per-column WCAG readouts and an accent-colour toggle. Two sets: *all palettes* (current + 5
+  strategies) and *A · what draws the edge* (one palette, three edge mechanisms — canvas only / hairline /
+  soft shadow), so the dense calendar grid gets tested too. Palettes live in the `VARIANTS` object at the
+  bottom of the file — edit there, everything (CSS, swatches, metrics) regenerates.
 
 ---
 

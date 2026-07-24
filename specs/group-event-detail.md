@@ -1,10 +1,12 @@
 # Group Event Detail
 
-> Status: Draft
-> Prototype: [coach/calendar.html#s-event](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html#s-event)
-> Last updated: 2026-07-17
+> Status: Implemented
+> Prototype: [coach/calendar.html#s-event](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html#s-event) · invite picker [#s-invite](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html#s-invite) · journey [group-training](https://321-fit.github.io/project-spec/prototypes/flows/journeys/group-training.html)
+> Last updated: 2026-07-24
 
-The **coach-side full-screen detail** for a single group training event. Reached by tapping "View details" (or similar) from the group event drawer (`cal-event-sheet` group variant per [coach-calendar.md](./coach-calendar.md)). Surfaces everything a coach needs to manage their group session: participants list with remove + per-row actions, note to athletes (with edit), share/invite link, ⋯ menu with Reschedule / Cancel.
+> **Changelog 2026-07-24 — Invite athletes = picker, not share-only.** The "Invite athletes" CTA + ⋯ item used to open the share-link sheet only, so a coach could not add an athlete who already exists in the app. It now opens a **client picker** (`#s-invite`): search + multi-select the coach's own athletes (already-joined rows disabled "In session"), **CRM contacts** selectable + badged, and a **"+" / "Invite someone not in the app"** row that opens the existing share-link sheet (invite by link). Selecting confirms **immediately, auto-accepted** — no pending state. Payment for coach-added participants (in-app **and** CRM, card- or cash-type session): **no upfront hold** — the fee is **owed** and settled after the session in the existing Event completion checkbox flow. Backend already supports the add (`POST /coach/training-events/{id}/participants` {relationshipId}, #790); the owed-settlement for coach-added incl. CRM is a **backend follow-up** (today CRM-only rows can't be settled). See §4 Flow 4, §6, §7.
+
+The **coach-side full-screen detail** for a single group training event. Reached by tapping "View details" (or similar) from the group event drawer (`cal-event-sheet` group variant per [coach-calendar.md](./coach-calendar.md)). Surfaces everything a coach needs to manage their group session: participants list with remove + per-row actions, note to athletes (with edit), **invite athletes (existing / CRM / by-link)**, ⋯ menu with Reschedule / Cancel.
 
 Distinct from the **drawer** (`cal-event-sheet`) which is a quick-glance status + footer-action sheet. The drawer answers "what's the state, what one action do I take now?". This full-screen answers "show me everything about this event, let me manage participants and content."
 
@@ -75,23 +77,35 @@ Personal events use the drawer-only pattern from coach-calendar.md § Flow 2 (no
 4. Delete (only visible when note exists) → confirm? (cheap action — no confirm in v1) → same PATCH with `note: null`.
 5. **Notification to athletes** — when note changes, dispatch optional `coach_updated_session_note` push (low-priority — flag in spec but defer wiring to follow-up issue).
 
-### Flow 4: Share session via deep-link
+### Flow 4: Invite athletes — picker (existing / CRM / by-link)
 
-1. Coach taps "Invite athletes" footer CTA OR opens ⋯ menu → "Invite athletes".
-2. `event-share-sheet` opens with:
-    - Pre-filled text preview: "Join my {session_name} — {date} at {time} · {location} · €{price} · {spots_left} spots left"
-    - Link row showing `321.fit/e/{short_id}` + Copy button
-    - Native-style share targets row (WhatsApp / Telegram / Instagram / Messages / More)
-3. Tap a share target → launch platform share intent with pre-filled text + link.
-4. Tap Copy → copies link to clipboard + transient "Copied" state on button.
-5. Done → close sheet.
+The **Invite athletes** footer CTA and the ⋯ menu item open the **invite picker** (`#s-invite`), a push screen — **not** the share sheet directly. The share sheet is now the *by-link* branch inside it.
+
+1. Coach taps **Invite athletes** (footer CTA) OR ⋯ menu → **Invite athletes** → push to `#s-invite`.
+2. Picker screen:
+    - **Search** field ("Search your clients").
+    - **"Invite someone not in the app"** accent row (leading **+**) — and a header **+** icon-button — open the `event-share-sheet` (by-link, see below).
+    - **Your clients** section — multi-select rows (avatar + name + sport). Athletes already registered for this event are **disabled** with an **"In session"** tag.
+    - **CRM contacts** section — the coach's contacts without an app account, **selectable**, each with a **"CRM" badge**.
+    - Inline note: *"Added athletes owe the fee — settled after the session in Event completion. No upfront charge."*
+    - Sticky footer **"Add · N selected"** (disabled until ≥1).
+3. Confirm → athletes are added to the roster **immediately, auto-accepted** (no pending, no athlete consent), the coach returns to `#s-event`, and a toast **"N athletes added"** shows. Each add is `POST /coach/training-events/{event_id}/participants` with the athlete's/CRM contact's `relationshipId`.
+4. Added **CRM** contacts render in the participants list with a **"CRM" badge**.
+
+**By-link branch (`event-share-sheet`)** — for people not in the app:
+- Pre-filled text preview: "Join my {session_name} — {date} at {time} · {location} · €{price} · {spots_left} spots left"
+- Link row showing `321.fit/e/{short_id}` + Copy button
+- Native-style share targets row (WhatsApp / Telegram / Instagram / Messages / More)
+- Tap a share target → platform share intent with the pre-filled text + link. Tap Copy → clipboard + transient "Copied".
 
 **Short link generation:** backend mints a short ID (`xK3aB` format) the first time the event is created; same link reused on every share. Append `event_id` to `referral_token` if you want per-coach attribution (out of scope for v1).
+
+**Payment for coach-added participants.** In-app **and** CRM, for **card- and cash-type** sessions alike: **no upfront hold** at add-time. The fee becomes **owed** and is settled after the session in the existing **Event completion** checkbox flow (`#s-cash`) — the coach ticks who paid, by fact (modelled like the cash rows, not auto-paid). ⚠️ **Backend follow-up:** today a coach-add lands at `waiting` and CRM-only rows (no `athlete_profile_id`) can't be settled — the settlement endpoint keys off the athlete profile id. To ship this model the backend must settle coach-added incl. CRM as **owed / `cash_unpaid`**, keyed by participant/relationship id. Tracked in a poly-backend issue.
 
 ### Flow 5: ⋯ overflow menu actions
 
 ⋯ menu has 3 items (per the prototype):
-- **Invite athletes** → opens `event-share-sheet` (same as Flow 4)
+- **Invite athletes** → pushes the invite picker `#s-invite` (Flow 4)
 - **Reschedule** → opens `cal-reschedule-sheet` (existing — reused from coach-calendar.md)
 - **Cancel training** (destructive) → opens `cal-cancel-sheet` (existing)
 
@@ -136,6 +150,7 @@ Live Swagger: https://polybackend-dev-test.up.railway.app/docs
 | `GET` | `/api/v1.0.0/coach/training-events/{event_id}` | Load event + participants (extended) | **Extend existing** with `participants[]` + `note` + `share_link` |
 | `PATCH` | `/api/v1.0.0/coach/training-events/{event_id}` | Update note (and other editable fields) | **Extend existing** PATCH to accept `note: string \| null` |
 | `DELETE` | `/api/v1.0.0/coach/training-events/{event_id}/participants/{athlete_id}` | Remove an athlete (refund per payments.md) | **NEW** |
+| `POST` | `/api/v1.0.0/coach/training-events/{event_id}/participants` | Add an existing in-app athlete **or CRM contact** to the roster (body `{ relationshipId }`), auto-accepted | **Shipped (#790)** — was undocumented; add to `group-training-api.md` |
 | `POST` | `/api/v1.0.0/coach/training-events/{event_id}/share-link` | Mint or retrieve the short link for this event | **NEW** (idempotent — returns existing short link if already minted) |
 
 ### Extended `GET /coach/training-events/{event_id}` response
@@ -171,6 +186,13 @@ Sort `participants` by `joined_at ASC` (most-recently-joined at bottom). Each `i
 - Dispatches notification to the removed athlete — **new category** `coach_removed_you_from_session` (text proposal: "{coach_name} removed you from {session_name} on {date}.") — add to [`notifications-catalog.md`](./notifications-catalog.md) catalog in BE-GED-1
 - Returns 204 on success
 
+### `POST /coach/training-events/{event_id}/participants` behavior (add — #790)
+
+- Body: `{ "relationshipId": <int> }` — the `coach_athlete_relationship` id of the athlete/CRM contact to add. One call per athlete (the picker fires N calls on confirm).
+- Validates the event belongs to the coach, is a group event, hasn't started, and isn't full (`409 EVENT_FULL`). Duplicate add of an already-active participant is a no-op.
+- Adds the participant **auto-accepted** — no pending state, no athlete confirmation.
+- **Payment:** coach-added participants take **no upfront hold**. Their fee is **owed**, settled after the session via the completion checkbox flow (`PATCH …/participants/{athleteId}` `mark_paid` / `waive`). ⚠️ **Backend gap:** today the add lands at `waiting` and CRM-only rows (`crm_client_id`, no `athlete_profile_id`) can't be settled because settlement keys off the athlete profile id — must be changed to settle coach-added incl. CRM as **owed / `cash_unpaid`**, keyed by participant/relationship id. Tracked in a poly-backend issue.
+
 ### `POST /coach/training-events/{event_id}/share-link` behavior
 
 - Idempotent — returns existing short link if already minted; otherwise creates new entry in `event_share_link` table with `event_id`, `short_id` (5-char alphanumeric), `created_at`
@@ -179,6 +201,8 @@ Sort `participants` by `joined_at ASC` (most-recently-joined at bottom). Each `i
 
 ## 7. Business rules
 
+- **Coach can add existing in-app athletes and CRM contacts** to the roster via the invite picker — added **auto-accepted** (no athlete consent), by `relationshipId`. External people are invited **by link** (share sheet), not added directly.
+- **Coach-added participants owe the fee, settled post-session** — no upfront hold at add-time; the amount is **owed** and ticked off in Event completion (`#s-cash`), same as cash rows. Applies to card- and cash-type sessions and to both in-app and CRM adds. (Contrast: an athlete who self-joins a card session gets a hold at join.)
 - **Coach can only remove athletes from their own events** — enforced by `event.coach_id == requester.id` check
 - **Refund policy** applies to removals — within window: full refund; outside window: partial or no refund per `payments.md § Flow G`
 - **Removed athletes get a push notification** + the event disappears from their calendar
@@ -243,9 +267,17 @@ All registered in [`architecture/accessibility-identifiers.md`](../architecture/
 - `coach.event-detail.participants.row.remove` — × button or swipe action
 - `coach.event-detail.participants.sheet.profile` / `.message` / `.remove` — bottom sheet actions
 - `coach.event-detail.undo` — Undo snackbar action
-- `coach.event-detail.share.cta` — footer "Invite athletes" CTA
+- `coach.event-detail.share.cta` — footer "Invite athletes" CTA (opens the picker `#s-invite`)
 - `coach.event-detail.share.sheet.copy` — Copy link button in share sheet
 - `coach.event-detail.share.sheet.target` — generic share target (disambiguate via platform name)
+
+Invite picker (`#s-invite`) — `coach.event-detail.invite.*` scope:
+- `coach.event-detail.invite.back` — back chevron
+- `coach.event-detail.invite.search` — search field
+- `coach.event-detail.invite.by-link` — "Invite someone not in the app" row / header + (opens share sheet)
+- `coach.event-detail.invite.row` — generic client row (disambiguate via athlete/relationship id)
+- `coach.event-detail.invite.crm-badge` — CRM badge on a CRM contact row
+- `coach.event-detail.invite.add-cta` — footer "Add · N selected"
 
 ## Related specs / references
 

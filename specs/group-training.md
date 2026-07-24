@@ -1,8 +1,10 @@
 # Group Training
 
 > Status: Approved
-> Prototypes (Phase 4 redesign): coach create/manage [coach/sessions.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/sessions.html) + [coach/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html) · schedule/publish [coach/invite.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/invite.html) · athlete discover/join [shared/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/profile.html) · athlete schedule [athlete/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/calendar.html). Group event detail: [group-event-detail.md](group-event-detail.md).
-> Last updated: 2026-07-17
+> Prototypes (Phase 4 redesign): coach create/manage [coach/sessions.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/sessions.html) + [coach/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html) · schedule/publish [coach/invite.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/invite.html) · athlete discover/join [shared/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/profile.html) · athlete schedule [athlete/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/calendar.html). Group event detail: [group-event-detail.md](group-event-detail.md). **End-to-end journey:** [group-training](https://321-fit.github.io/project-spec/prototypes/flows/journeys/group-training.html). Coach **invite picker** (add existing / CRM / by-link): [coach/calendar.html#s-invite](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html#s-invite).
+> Last updated: 2026-07-24
+
+> **Changelog 2026-07-24 — Coach invite picker + data-model reconciliation.** "Invite athletes" now opens a **client picker** (add existing in-app athletes / CRM contacts / by-link), not share-only — see [group-event-detail.md](group-event-detail.md) §4. Coach-added participants (incl. CRM) owe the fee, settled post-session (no upfront hold). Documented the shipped **add-participant** endpoint (`POST /coach/training-events/{id}/participants`, #790). Corrected the Data Model: `payment_status` has **6** values (added `waiting`, `cash_waived`), and `group_event_participant` has a nullable `athlete_profile_id` + `crm_client_id` (CRM participants, #790).
 
 > **Changelog 2026-07-17 — Reconciled to shipped model (template carries its own schedule).** The earlier "decoupled scheduling" model (template = pure definition + a separate `invite.html?mode=schedule` step + `/coach/group-templates/{id}/schedule/preview` + `/schedule` endpoints + `keep_external_dates[]`) was **never built**. Shipped reality: a group template **carries its schedule** (days + time + recurrence, or a one-off date) on the existing `/coach/training-sessions` resource — created with the shared `s-create` form documented in [session-creation.md](./session-creation.md). Saving a scheduled group template **auto-generates events 2 months ahead** (publish-at-create); a template may also be created as a **draft** (no schedule) and published later via `PUT`/`PATCH`. External-calendar conflicts are returned as `externalCalendarConflicts[]` on the create/publish response and resolved with `POST /coach/training-sessions/{id}/confirm-conflicts` (coach keeps or skips each date). **Different weekday-times = separate templates.** Recurrence = `Weekly` (+ day chips) with `Ends: Ongoing / On date` (`recurringEndDate`). See §1, §3a, §Data Model, §API Endpoints.
 
@@ -269,10 +271,13 @@ Same calendar as coach but light theme.
 |---|---|---|
 | id | int | primary key |
 | training_event_id | FK | → training_event |
-| athlete_profile_id | FK | → athlete_profile |
-| registered_at | datetime | when athlete joined |
-| payment_status | enum | held / transferred / cash_unpaid / cash_paid |
-| cancelled_at | datetime, nullable | when athlete cancelled |
+| athlete_profile_id | FK, **nullable** | → athlete_profile (null for a CRM-only participant) |
+| crm_client_id | FK, nullable | → crm_client (set when the coach added a CRM contact, #790). Exactly one of `athlete_profile_id` / `crm_client_id` is set |
+| registered_at | datetime | when athlete joined / was added |
+| payment_status | enum | `waiting` / `held` / `transferred` / `cash_unpaid` / `cash_paid` / `cash_waived` |
+| cancelled_at | datetime, nullable | when the registration was cancelled (soft-cancel; rows retained for history) |
+
+> **payment_status** shipped with 6 values (the earlier 4-value list was outdated): `waiting` (hold released / awaiting), `held` (card hold on join), `transferred` (card moved to coach post-completion), `cash_unpaid`, `cash_paid`, `cash_waived` (coach forgave the cash debt). Active registrations are those with `cancelled_at IS NULL` (partial-unique index on `(training_event_id, athlete_profile_id)` where active).
 
 ### Key Queries
 - Get available group events for template: `WHERE session_id = X AND datetime_start > now() AND cancelled = false`
@@ -296,7 +301,8 @@ Same calendar as coach but light theme.
 | POST | `/athlete/group-events/{id}/join/` | Join group training (`paymentType`) |
 | DELETE | `/athlete/group-events/{id}/leave/` | Leave group training |
 | GET | `/coach/training-events/{id}/` | Coach group event detail (+ participants, note, share link) — see [group-event-detail.md](group-event-detail.md) |
-| PATCH | `/coach/training-events/{id}/participants/{athleteId}/` | Mark cash payment for a participant |
+| POST | `/coach/training-events/{id}/participants/` | **Add** an existing in-app athlete **or CRM contact** to the roster (`{relationshipId}`), auto-accepted — see [group-event-detail.md](group-event-detail.md) (shipped #790, was undocumented) |
+| PATCH | `/coach/training-events/{id}/participants/{athleteId}/` | Settle a cash participant — `{action: mark_paid \| waive}` |
 | DELETE | `/coach/training-events/{id}/participants/{athleteId}/` | Remove a participant (refund + push) |
 | POST | `/coach/training-events/{id}/cancel/` | Cancel occurrence(s) (`recurringScope`: this / following / all) |
 | PUT | `/coach/training-events/{id}/reschedule/` | Reschedule occurrence(s) (`recurringScope`) |
@@ -320,6 +326,11 @@ Same calendar as coach but light theme.
 - Cannot join if: full, time conflict with own events, insufficient balance (card)
 - Card payment: hold on registration, transfer after completion
 - Cash: just registration, coach marks payment manually
+
+### Coach-added participants (invite picker)
+- The coach can **add** existing in-app athletes and **CRM contacts** to a group event from the invite picker (`#s-invite`) — added **auto-accepted** (no athlete consent, no pending). External people are invited **by link** (share sheet), not added directly. Full spec: [group-event-detail.md](group-event-detail.md) §4.
+- **No upfront hold** for coach-added participants (card- or cash-type session) — the fee is **owed** and settled after the session in the Event completion checkbox flow, like cash rows.
+- ⚠️ **Backend follow-up:** coach-adds currently land at `waiting` and CRM-only rows can't be settled (settlement keys off `athlete_profile_id`) — must settle coach-added incl. CRM as **owed / `cash_unpaid`**, keyed by participant/relationship id. Tracked in a poly-backend issue.
 
 ### Cancellation
 - **Athlete:** 24h+ before = free cancel + refund. <24h = penalty (same as personal)
