@@ -212,7 +212,7 @@ Rule: **light tints derive from the darker accent step at a higher alpha.**
 | Missed | red-400 @10% | red-400 @16% |
 | Off-hours wash | black @35% | `#3C3C43` @10% |
 
-Both columns land ~6–7 ΔL* off their own canvas. The same correction is owed to the generated tint tokens (`--fit-color-bg-*-light`), which currently mirror the dark hue at a *lower* alpha — that has to go through Figma → design-tokens first.
+Both columns land ~6–7 ΔL* off their own canvas. Landed in the token source 2026-07-24 (design-tokens `dfa9494`): `color.bg.*-{subtle,tinted}.light` in `tokens/color-semantic.json`, plus `color.text.secondary.light` → gray-600, `color.divider.light` → gray-200 and a two-layer `elevation.2.light`. Clients read it from the tokens; the prototype consumes the same vars rather than keeping its own copy.
 
 ### Day zones
 
