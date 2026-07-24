@@ -12,6 +12,7 @@
  *   [data-fit-sheet]          — bottom sheet (target id)
  *   [data-fit-day-strip]      — horizontal day wheel
  *   [data-fit-stepper]        — number stepper ± buttons
+ *   [data-fit-timeline-scroll]— 24h day grid: open on the working band
  *
  * Best practices applied:
  *   - Passive touch listeners where possible (scroll perf)
@@ -579,9 +580,51 @@
   }
 
   // ============================================================
+  // TIMELINE AUTOSCROLL
+  // Usage: <div class="fit-timeline" data-fit-timeline-scroll>
+  // The day grid is ALWAYS a full 00:00–24:00 so its height never depends on
+  // availability. That only works if the viewport opens on the useful part —
+  // so on init we scroll to the now-line when it's inside the working band,
+  // otherwise to the first hour that isn't marked .offhours (00:00 for a
+  // calendar with no off-hours at all).
+  // ============================================================
+  function initTimelineScroll(timeline) {
+    const scroller = timeline.closest('.fit-phone-content');
+    if (!scroller) return;
+
+    // A zone shorter than ~30 min can't fit its label — drop the text, keep
+    // the wash. Prevents half-hour gaps in a fragmented day from rendering
+    // clipped word fragments.
+    timeline.querySelectorAll('.fit-cal-offhours').forEach(zone => {
+      zone.classList.toggle('tight', zone.offsetHeight < 32);
+    });
+
+    const hours = timeline.querySelectorAll('.fit-hour');
+    let firstOpen = 0;
+    for (let i = 0; i < hours.length; i++) {
+      if (!hours[i].classList.contains('offhours')) { firstOpen = i; break; }
+    }
+    const hourH = hours.length ? hours[0].offsetHeight : 96;
+    let target = firstOpen * hourH;
+
+    // Prefer the now-line when "now" falls inside the open band — a coach
+    // opening the calendar mid-day wants today, not 06:00.
+    const now = timeline.querySelector('.fit-now-line');
+    if (now) {
+      const nowTop = parseInt(now.style.top, 10) || 0;
+      const lastOpen = hours.length
+        ? [...hours].reduce((acc, h, i) => h.classList.contains('offhours') ? acc : i, firstOpen)
+        : 23;
+      if (nowTop >= target && nowTop <= (lastOpen + 1) * hourH) target = nowTop - hourH;
+    }
+    scroller.scrollTop = Math.max(0, target - 8);
+  }
+
+  // ============================================================
   // INIT ALL
   // ============================================================
   function initAll(root) {
+    root.querySelectorAll('[data-fit-timeline-scroll]').forEach(initTimelineScroll);
     root.querySelectorAll('[data-fit-swipe]').forEach(initSwipe);
     root.querySelectorAll('.fit-sheet-overlay').forEach(initSheet);
     root.querySelectorAll('[data-fit-toggle]').forEach(initToggle);
@@ -826,6 +869,7 @@
   window.FitUI = {
     initAll,
     selectDay: fitDayStripToday,
+    scrollTimeline: initTimelineScroll,
     updateCounters,
     openEventSheet: openEventSheet
   };

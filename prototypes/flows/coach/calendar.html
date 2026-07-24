@@ -418,7 +418,13 @@
   </div>
   <div class="fit-phone-content">
     <div class="cal-view">
-      <div class="fit-timeline" style="height:auto;min-height:100%;">
+      <div class="fit-timeline" data-fit-timeline-scroll style="height:auto;min-height:100%;">
+        <div class="fit-hour offhours"><span class="fit-hour-label">00:00</span></div>
+        <div class="fit-hour offhours"><span class="fit-hour-label">01:00</span></div>
+        <div class="fit-hour offhours"><span class="fit-hour-label">02:00</span></div>
+        <div class="fit-hour offhours"><span class="fit-hour-label">03:00</span></div>
+        <div class="fit-hour offhours"><span class="fit-hour-label">04:00</span></div>
+        <div class="fit-hour offhours"><span class="fit-hour-label">05:00</span></div>
         <div class="fit-hour"><span class="fit-hour-label">06:00</span></div>
         <div class="fit-hour"><span class="fit-hour-label">07:00</span></div>
         <div class="fit-hour"><span class="fit-hour-label">08:00</span></div>
@@ -435,25 +441,33 @@
         <div class="fit-hour"><span class="fit-hour-label">19:00</span></div>
         <div class="fit-hour"><span class="fit-hour-label">20:00</span></div>
         <div class="fit-hour"><span class="fit-hour-label">21:00</span></div>
-        <div class="fit-hour"><span class="fit-hour-label">22:00</span></div>
+        <div class="fit-hour offhours"><span class="fit-hour-label">22:00</span></div>
+        <div class="fit-hour offhours"><span class="fit-hour-label">23:00</span></div>
 
-        <!-- Unavailable hours (before 06:00 and after 22:00 — coach availability) -->
-        <div class="fit-unavailable" style="top:0;height:0px;" title="Before available hours"></div>
-        <!-- Unavailable: 15:00-16:00 (blocked by external calendar) -->
-        <div class="fit-unavailable" style="top:864px;height:96px;" title="Blocked by external calendar"></div>
+        <!-- OFF-HOURS zones — outside the coach's available hours (06:00–22:00).
+             Flat wash + one label per zone; the grid itself is always a full
+             00:00–24:00 so day height never depends on availability. -->
+        <div class="fit-cal-offhours" data-a11y-id="coach.calendar.offhours.night" style="top:0;height:576px;" title="Outside your available hours">
+          <span class="fit-cal-offhours-label">Outside your hours</span>
+        </div>
+        <div class="fit-cal-offhours" data-a11y-id="coach.calendar.offhours.evening" style="top:2112px;height:192px;" title="Outside your available hours">
+          <span class="fit-cal-offhours-label">Outside your hours</span>
+        </div>
+        <!-- BLOCKED 15:00-16:00 — inside working hours, taken by external calendar (hatch) -->
+        <div class="fit-cal-blocked" style="top:1440px;height:96px;" title="Blocked by external calendar"></div>
 
         <!-- External calendar event (Google Calendar) — tap to open info sheet -->
-        <div class="fit-cal-event-external" onclick="document.getElementById('cal-external-sheet').classList.add('visible')" style="top:864px;height:96px;">
+        <div class="fit-cal-event-external" onclick="document.getElementById('cal-external-sheet').classList.add('visible')" style="top:1440px;height:96px;">
           <div style="font-weight:500;">Dentist appointment</div>
           <div style="opacity:0.7;">15:00 - 16:00 · Google</div>
         </div>
 
         <!-- Long-tap zone on empty slots (demo: tap to open FAB sheet) -->
-        <div data-fit-swipe data-fit-longpress data-fit-sheet="fab-sheet" onclick="document.getElementById('fab-sheet').classList.add('visible')" style="position:absolute;left:48px;right:8px;top:272px;height:96px;z-index:1;cursor:pointer;border-radius:8px;" title="Tap to create event"></div>
+        <div data-fit-swipe data-fit-longpress data-fit-sheet="fab-sheet" onclick="document.getElementById('fab-sheet').classList.add('visible')" style="position:absolute;left:48px;right:8px;top:848px;height:96px;z-index:1;cursor:pointer;border-radius:8px;" title="Tap to create event"></div>
 
         <!-- 11:00-12:00 CROSS-ROLE event — user's own booking as athlete with another coach.
              Standard tier (96px / 1h): title + (recipient · time) + location, role-tag badge bottom-right. -->
-        <div class="fit-cal-event-cross-role" data-a11y-id="coach.calendar.cross-role.tile" onclick="document.getElementById('cal-cross-role-sheet').classList.add('visible')" style="top:480px;height:96px;z-index:2;">
+        <div class="fit-cal-event-cross-role" data-a11y-id="coach.calendar.cross-role.tile" onclick="document.getElementById('cal-cross-role-sheet').classList.add('visible')" style="top:1056px;height:96px;z-index:2;">
           <div class="fit-cal-event-title">Tennis Training</div>
           <div class="fit-cal-event-meta">with Coach Mark S. · 11:00 – 12:00</div>
           <div class="fit-cal-event-loc">
@@ -467,10 +481,10 @@
         </div>
 
         <!-- Current time line (10:30) -->
-        <div class="fit-now-line" style="top:432px;"><div class="fit-now-dot"></div></div>
+        <div class="fit-now-line" style="top:1008px;"><div class="fit-now-dot"></div></div>
 
         <!-- 07:15-07:30 personal MISSED — past, explicit no-show -->
-        <div class="fit-cal-event fit-cal-event-personal missed" data-fit-longpress onclick="openEventSheet('missed')" style="top:120px;height:24px;cursor:pointer;display:flex;align-items:center;">
+        <div class="fit-cal-event fit-cal-event-personal missed" data-fit-longpress onclick="openEventSheet('missed')" style="top:696px;height:24px;cursor:pointer;display:flex;align-items:center;">
           <div class="fit-cal-event-title-row" style="width:100%;">
             <span class="fit-cal-event-title">Quick Stretch · 07:15</span>
             <span class="fit-cal-event-pill fit-cal-event-pill--missed">Missed</span>
@@ -478,7 +492,7 @@
         </div>
 
         <!-- 08:00-08:30 personal REVIEW — past, coach hasn't completed yet -->
-        <div class="fit-cal-event fit-cal-event-personal review" onclick="openEventSheet('review')" style="top:192px;height:48px;cursor:pointer;">
+        <div class="fit-cal-event fit-cal-event-personal review" onclick="openEventSheet('review')" style="top:768px;height:48px;cursor:pointer;">
           <div class="fit-cal-event-title-row">
             <span class="fit-cal-event-title">Express Boxing</span>
             <span class="fit-cal-event-pill fit-cal-event-pill--review">Review</span>
@@ -487,7 +501,7 @@
         </div>
 
         <!-- 09:00-09:45 group FINISHED — past, completed (opacity 0.5, no pill) -->
-        <div class="fit-cal-event fit-cal-event-group finished" data-fit-longpress data-fit-sheet="cal-event-sheet" style="top:288px;height:72px;cursor:grab;">
+        <div class="fit-cal-event fit-cal-event-group finished" data-fit-longpress data-fit-sheet="cal-event-sheet" style="top:864px;height:72px;cursor:grab;">
           <div class="fit-cal-event-title">Morning HIIT</div>
           <div class="fit-cal-event-meta">5/10 athletes · 09:00 – 09:45</div>
           <div class="fit-cal-event-loc">
@@ -497,7 +511,7 @@
         </div>
 
         <!-- 10:00-11:00 group — 60 MIN (standard) -->
-        <div class="fit-cal-event fit-cal-event-group" data-fit-longpress data-fit-sheet="cal-group-sheet" onclick="openGroupSheet('planned')" style="top:384px;height:96px;cursor:grab;">
+        <div class="fit-cal-event fit-cal-event-group" data-fit-longpress data-fit-sheet="cal-group-sheet" onclick="openGroupSheet('planned')" style="top:960px;height:96px;cursor:grab;">
           <div class="fit-cal-event-title">HIIT Group Session</div>
           <div class="fit-cal-event-meta">7/10 athletes · 10:00 – 11:00</div>
           <div class="fit-cal-event-loc">
@@ -507,7 +521,7 @@
         </div>
 
         <!-- 12:00-13:00 personal — 60 MIN (standard) -->
-        <div class="fit-cal-event fit-cal-event-personal" onclick="openEventSheet('planned')" style="top:576px;height:96px;cursor:pointer;">
+        <div class="fit-cal-event fit-cal-event-personal" onclick="openEventSheet('planned')" style="top:1152px;height:96px;cursor:pointer;">
           <div class="fit-cal-event-title">Basketball Training</div>
           <div class="fit-cal-event-meta">Mark S. · 12:00 – 13:00</div>
           <div class="fit-cal-event-loc">
@@ -517,7 +531,7 @@
         </div>
 
         <!-- 13:00-14:30 group FULL — 90 MIN (standard) -->
-        <div class="fit-cal-event fit-cal-event-group" data-fit-longpress data-fit-sheet="cal-event-sheet" style="top:672px;height:144px;cursor:grab;">
+        <div class="fit-cal-event fit-cal-event-group" data-fit-longpress data-fit-sheet="cal-event-sheet" style="top:1248px;height:144px;cursor:grab;">
           <div class="fit-cal-event-title">Yoga Morning Flow</div>
           <div class="fit-cal-event-meta">15/15 athletes · 13:00 – 14:30</div>
           <div class="fit-cal-event-loc">
@@ -527,7 +541,7 @@
         </div>
 
         <!-- 16:00-17:00 personal AWAITING (outgoing — coach sent, waiting for athlete) -->
-        <div class="fit-cal-event fit-cal-event-personal awaiting" data-fit-longpress onclick="openEventSheet('awaiting')" style="top:960px;height:96px;cursor:pointer;">
+        <div class="fit-cal-event fit-cal-event-personal awaiting" data-fit-longpress onclick="openEventSheet('awaiting')" style="top:1536px;height:96px;cursor:pointer;">
           <div class="fit-cal-event-title-row">
             <span class="fit-cal-event-title">Padel Training</span>
             <span class="fit-cal-event-pill fit-cal-event-pill--awaiting">Awaiting</span>
@@ -542,7 +556,7 @@
         <!-- 17:00-18:00 CUSTOM event ("My time") — coach's own calendar block,
              no athlete, no template, no status pill. Default name when user
              leaves title empty in s-block-time-off. -->
-        <div class="fit-cal-event fit-cal-event-custom" data-a11y-id="coach.calendar.custom.tile" onclick="document.getElementById('cal-custom-sheet').classList.add('visible')" style="top:1056px;height:96px;cursor:pointer;">
+        <div class="fit-cal-event fit-cal-event-custom" data-a11y-id="coach.calendar.custom.tile" onclick="document.getElementById('cal-custom-sheet').classList.add('visible')" style="top:1632px;height:96px;cursor:pointer;">
           <div class="fit-cal-event-title">My time</div>
           <div class="fit-cal-event-meta">17:00 – 18:00</div>
         </div>
@@ -552,7 +566,7 @@
              right annotation panel to see the red-tinted overlay + corner
              dot marker. Pairs with the external Google event 18:30-19:30
              below which appears only in overlap state. -->
-        <div class="fit-cal-event fit-cal-event-group" data-overlap-target data-fit-longpress data-fit-sheet="cal-event-sheet" style="top:1152px;height:96px;cursor:grab;">
+        <div class="fit-cal-event fit-cal-event-group" data-overlap-target data-fit-longpress data-fit-sheet="cal-event-sheet" style="top:1728px;height:96px;cursor:grab;">
           <div class="fit-cal-event-title">HIIT Group Session</div>
           <div class="fit-cal-event-meta">3/10 athletes · 18:00 – 19:00</div>
           <div class="fit-cal-event-loc">
@@ -564,17 +578,17 @@
         <!-- External events appearing only in overlap demo. Two of them
              show how multi-overlap renders + how drawer aggregates N events
              instead of just 2. Tap any → cal-overlap-sheet. -->
-        <div class="fit-cal-event-external" data-overlap-twin onclick="document.getElementById('cal-overlap-sheet').classList.add('visible')" style="display:none;top:1200px;height:96px;left:48px;right:50%;">
+        <div class="fit-cal-event-external" data-overlap-twin onclick="document.getElementById('cal-overlap-sheet').classList.add('visible')" style="display:none;top:1776px;height:96px;left:48px;right:50%;">
           <div style="font-weight:500;">Team dinner</div>
           <div style="opacity:0.7;">18:30 - 19:30 · Google</div>
         </div>
-        <div class="fit-cal-event-external" data-overlap-twin onclick="document.getElementById('cal-overlap-sheet').classList.add('visible')" style="display:none;top:1224px;height:96px;left:50%;right:8px;">
+        <div class="fit-cal-event-external" data-overlap-twin onclick="document.getElementById('cal-overlap-sheet').classList.add('visible')" style="display:none;top:1800px;height:96px;left:50%;right:8px;">
           <div style="font-weight:500;">Bar meetup</div>
           <div style="opacity:0.7;">18:45 - 19:45 · Google</div>
         </div>
 
         <!-- 19:30-20:30 personal REQUEST (incoming — athlete requested, coach needs action) -->
-        <div class="fit-cal-event fit-cal-event-personal request" onclick="openEventSheet('request')" style="top:1296px;height:96px;cursor:pointer;">
+        <div class="fit-cal-event fit-cal-event-personal request" onclick="openEventSheet('request')" style="top:1872px;height:96px;cursor:pointer;">
           <div class="fit-cal-event-title-row">
             <span class="fit-cal-event-title">Boxing Training</span>
             <span class="fit-cal-event-pill fit-cal-event-pill--request">Request</span>
@@ -588,11 +602,11 @@
 
         <!-- HOME VISIT 21:00–22:00 + travel buffers before/after (commute). Buffer = coach-side
              only; athlete never sees it (their session is just 21:00–22:00 at their address). -->
-        <div class="cal-travel-buffer" style="top:1392px;height:48px;" title="Travel time — commute to home visit">
+        <div class="cal-travel-buffer" style="top:1968px;height:48px;" title="Travel time — commute to home visit">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.6-1.5-1.9C18.7 10.5 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 002 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
           Travel · 30 min
         </div>
-        <div class="fit-cal-event fit-cal-event-personal" data-a11y-id="coach.calendar.homevisit.tile" onclick="openEventSheet('planned', {homeVisit:1})" style="top:1440px;height:96px;cursor:pointer;">
+        <div class="fit-cal-event fit-cal-event-personal" data-a11y-id="coach.calendar.homevisit.tile" onclick="openEventSheet('planned', {homeVisit:1})" style="top:2016px;height:96px;cursor:pointer;">
           <div class="fit-cal-event-title">Strength Training</div>
           <div class="fit-cal-event-meta">Anna M. · 21:00 – 22:00</div>
           <div class="fit-cal-event-loc">
@@ -600,7 +614,7 @@
             Home visit · Larnaca
           </div>
         </div>
-        <div class="cal-travel-buffer" style="top:1536px;height:48px;" title="Travel time — commute back">
+        <div class="cal-travel-buffer" style="top:2112px;height:48px;" title="Travel time — commute back">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.6-1.5-1.9C18.7 10.5 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 002 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
           Travel · 30 min
         </div>
@@ -1785,8 +1799,8 @@
       <button onclick="openGroupSheet('missed')">Group · Missed</button>
       <button onclick="openGroupSheet('finished')">Group · Finished</button>
     </div>
-    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Behavior details</span><div class="ann-detail"><h4>Day Navigation</h4><p><strong>Tap day</strong> on strip = instant switch. <strong>Swipe day strip</strong> = scroll. <strong>Swipe content</strong> left/right = page transition (Apple Calendar). Day strip auto-scrolls to selected day.</p><h4>Month View Toggle</h4><p><strong>"April 2026 ▼"</strong> — tap title + chevron expands month grid. Day strip replaced by full month calendar. Tap a day = collapse back to day strip with selected day. Same component across all calendar screens (Coach, Athlete, Booking, Invite).</p><h4>Drag & Drop</h4><p><strong>Long press event</strong> → event lifts, enters drag mode. Drag within same day only. Coach's own slot occupied → <strong>blocked</strong>. Unavailable zone → <strong>blocked</strong>. Participant conflicts → warning dialog "2 of 7 have conflicts. Move anyway?" Coach decides. Drop releases event at new time.</p><h4>Day Strip Dots</h4><p>p=personal (green), g=group (cyan), e=external (gray). At-a-glance overview.</p><h4>Unavailable Zones</h4><p>Hatched diagonal pattern = outside coach's available hours OR blocked by external calendar.</p><h4>External Events</h4><p>Imported from Google/Apple Calendar. Full-width, opacity 0.7, anonymized (title only).</p><h4>Cross-role Events</h4><p>A 321Fit event belonging to the user's OTHER role profile (e.g. Coach calendar showing a slot the user booked as an Athlete with another coach). Visually muted (opacity 0.75) with a dashed left stripe + small role tag in the corner to distinguish from external (which is solid stripe, no tag). Title shows sport name; meta line includes time and the OTHER party's name (e.g. "with Coach Mark S."). Tap → cross-role drawer with read-only event info + a primary CTA <strong>"Switch to athlete"</strong> (or "Switch to coach") that flips the active role and reopens the event in its proper full drawer. No drag, no actions on the tile itself — current role doesn't own this event.</p><h4>Event Status System (6 states)</h4><p>All non-Planned states share the same visual grammar: colored 10% bg tint + 1px perimeter + 3px left stripe + inline pill next to title. Pill appears inline (not absolute-positioned) — reads as part of the title. Colors map to semantic roles, not to coach/athlete roles.</p><ul><li><strong>Planned</strong> — teal (dark: teal-400 / light: teal-600) for personal, blue-400/600 for group. Base surface, no perimeter. No pill.</li><li><strong>Request</strong> (incoming, pre-event) — yellow-600 perimeter + 10% yellow bg + yellow pill "Request". Athlete asked, coach needs to Accept/Decline.</li><li><strong>Awaiting</strong> (outgoing, pre-event) — gray perimeter + subtle bg + gray pill "Awaiting". Coach sent request, waiting for athlete response. Muted because passive.</li><li><strong>Review</strong> (post-event, unfinalized) — same yellow visual as Request. Event ended, coach hasn't opened Completion screen yet. Yellow because coach action needed — consistent lane with Request.</li><li><strong>Missed</strong> — red-400 perimeter + 10% red bg + red pill "Missed". Explicit no-show or auto after N days without coach review.</li><li><strong>Finished</strong> — base card at opacity 0.5, no pill, no perimeter. Past events that coach confirmed via Completion flow. Time + fade are sufficient signal; pill would be redundant.</li></ul><p><strong>Group events</strong> use only 4 of these states: Planned, Review, Missed, Finished. Request and Awaiting don't apply — group is a template, athletes join without approval.</p><p><strong>Cancelled events</strong> disappear from calendar entirely (not a visible state). All visible statuses retained for 2 months, then archived.</p><h4>API</h4><p><code>GET {role}/training-events/?startDate&endDate</code><br><code>GET coach/training-events/allowed-hours/</code><br><code>PATCH {role}/training-events/{id}/change-status/</code></p></div>
-    <p style="margin-top:12px;">24-hour vertical timeline, 15-min grid snap.</p><ul><li><strong>Day strip</strong> — colored dots under days: 🟢 personal, 🔵 group, ⚫ external</li><li><strong>Group events</strong> — cyan border + badge "7/10"</li><li><strong>Personal events</strong> — green border + athlete name</li><li><strong>Status pills</strong> — inline with title (not absolute-positioned). Yellow = Request or Review (coach action needed), gray = Awaiting (passive wait), red = Missed, no pill = Planned or Finished. See Behavior details for full system.</li><li><strong>External events</strong> — gray, opacity, side-by-side with hatched unavailable zone</li><li><strong>Cross-role events</strong> — dashed-stripe muted tile + role tag (e.g. "Athlete"). Tap → drawer with read-only info + <strong>"Switch to athlete"</strong> CTA. See Behavior details.</li><li><strong>Unavailable hours</strong> — diagonal hatching overlay</li><li><strong>FAB "+"</strong> → sheet: Personal, Group, Custom event</li><li><strong>Long tap empty slot</strong> → same sheet, time prefilled</li><li><strong>Tap event</strong> → event action sheet (personal/group/invitation)</li><li><strong>Long press event</strong> → activates drag & drop (same day only)</li></ul></div>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Behavior details</span><div class="ann-detail"><h4>Day Navigation</h4><p><strong>Tap day</strong> on strip = instant switch. <strong>Swipe day strip</strong> = scroll. <strong>Swipe content</strong> left/right = page transition (Apple Calendar). Day strip auto-scrolls to selected day.</p><h4>Month View Toggle</h4><p><strong>"April 2026 ▼"</strong> — tap title + chevron expands month grid. Day strip replaced by full month calendar. Tap a day = collapse back to day strip with selected day. Same component across all calendar screens (Coach, Athlete, Booking, Invite).</p><h4>Drag & Drop</h4><p><strong>Long press event</strong> → event lifts, enters drag mode. Drag within same day only. Coach's own slot occupied → <strong>blocked</strong>. Unavailable zone → <strong>blocked</strong>. Participant conflicts → warning dialog "2 of 7 have conflicts. Move anyway?" Coach decides. Drop releases event at new time.</p><h4>Day Strip Dots</h4><p>p=personal (green), g=group (cyan), e=external (gray). At-a-glance overview.</p><h4>Off-hours vs Blocked zones</h4><p>The grid is <strong>always a full 00:00–24:00</strong> — day height never depends on availability, and the view auto-scrolls to the now-line (or to the first available hour) on open.</p><p><strong>Off-hours</strong> (<code>.fit-cal-offhours</code>) = outside the coach's available hours. Flat tonal wash, <strong>full-bleed edge to edge</strong> (time gutter included) and <strong>no radius</strong> — an inset rounded band reads as an object lying on the day, full-bleed reads as a state OF the day. Hour labels stay on top, dimmed. Calm enough to cover 8+ hours without visual noise.</p><p>Every contiguous zone carries its own centered <strong>“Outside your hours”</strong> label — a fragmented availability day (06–10, 12–14, 18–20) explains itself wherever the coach lands. No time range in the text: the ruler on the left already says it, and the short phrase repeats across many segments without becoming noise. Zones under 32px drop the label (it wouldn't fit) and keep the wash.</p><p><strong>Blocked</strong> (<code>.fit-cal-blocked</code>) = a slot inside working hours that is taken (external calendar, time off). Diagonal hatch — the hatch pattern is reserved for “busy” so it keeps exactly one meaning.</p><h4>External Events</h4><p>Imported from Google/Apple Calendar. Full-width, opacity 0.7, anonymized (title only).</p><h4>Cross-role Events</h4><p>A 321Fit event belonging to the user's OTHER role profile (e.g. Coach calendar showing a slot the user booked as an Athlete with another coach). Visually muted (opacity 0.75) with a dashed left stripe + small role tag in the corner to distinguish from external (which is solid stripe, no tag). Title shows sport name; meta line includes time and the OTHER party's name (e.g. "with Coach Mark S."). Tap → cross-role drawer with read-only event info + a primary CTA <strong>"Switch to athlete"</strong> (or "Switch to coach") that flips the active role and reopens the event in its proper full drawer. No drag, no actions on the tile itself — current role doesn't own this event.</p><h4>Event Status System (6 states)</h4><p>All non-Planned states share the same visual grammar: colored 10% bg tint + 1px perimeter + 3px left stripe + inline pill next to title. Pill appears inline (not absolute-positioned) — reads as part of the title. Colors map to semantic roles, not to coach/athlete roles.</p><ul><li><strong>Planned</strong> — teal (dark: teal-400 / light: teal-600) for personal, blue-400/600 for group. Base surface, no perimeter. No pill.</li><li><strong>Request</strong> (incoming, pre-event) — yellow-600 perimeter + 10% yellow bg + yellow pill "Request". Athlete asked, coach needs to Accept/Decline.</li><li><strong>Awaiting</strong> (outgoing, pre-event) — yellow-600 <strong>dashed</strong> perimeter, <strong>no fill</strong> + outlined yellow pill "Awaiting". Same “not confirmed yet” hue as Request but outline instead of fill: filled yellow = act on it, dashed outline = tentative, nothing to do. Previously gray-on-surface, which read as an ordinary Planned tile.</li><li><strong>Review</strong> (post-event, unfinalized) — same yellow visual as Request. Event ended, coach hasn't opened Completion screen yet. Yellow because coach action needed — consistent lane with Request.</li><li><strong>Missed</strong> — red-400 perimeter + 10% red bg + red pill "Missed". Explicit no-show or auto after N days without coach review.</li><li><strong>Finished</strong> — base card at opacity 0.5, no pill, no perimeter. Past events that coach confirmed via Completion flow. Time + fade are sufficient signal; pill would be redundant.</li></ul><p><strong>Group events</strong> use only 4 of these states: Planned, Review, Missed, Finished. Request and Awaiting don't apply — group is a template, athletes join without approval.</p><p><strong>Cancelled events</strong> disappear from calendar entirely (not a visible state). All visible statuses retained for 2 months, then archived.</p><h4>API</h4><p><code>GET {role}/training-events/?startDate&endDate</code><br><code>GET coach/training-events/allowed-hours/</code><br><code>PATCH {role}/training-events/{id}/change-status/</code></p></div>
+    <p style="margin-top:12px;">24-hour vertical timeline, 15-min grid snap.</p><ul><li><strong>Day strip</strong> — colored dots under days: 🟢 personal, 🔵 group, ⚫ external</li><li><strong>Group events</strong> — cyan border + badge "7/10"</li><li><strong>Personal events</strong> — teal 10% tint + teal stripe + athlete name (Group = blue tint + blue stripe). Same grammar in both themes: the tint carries the training type, the stripe reinforces it.</li><li><strong>Status pills</strong> — inline with title (not absolute-positioned). Filled yellow = Request or Review (coach action needed), dashed/outlined yellow = Awaiting (passive wait), red = Missed, no pill = Planned or Finished. See Behavior details for full system.</li><li><strong>External events</strong> — gray, opacity, side-by-side with the hatched <em>blocked</em> zone</li><li><strong>Cross-role events</strong> — dashed-stripe muted tile + role tag (e.g. "Athlete"). Tap → drawer with read-only info + <strong>"Switch to athlete"</strong> CTA. See Behavior details.</li><li><strong>Off-hours</strong> — full 00:00–24:00 grid; hours outside availability get a full-bleed flat wash + dimmed labels + a centered label per segment (hatch is reserved for “blocked”). Auto-scrolls to the working band on open.</li><li><strong>FAB "+"</strong> → sheet: Personal, Group, Custom event</li><li><strong>Long tap empty slot</strong> → same sheet, time prefilled</li><li><strong>Tap event</strong> → event action sheet (personal/group/invitation)</li><li><strong>Long press event</strong> → activates drag & drop (same day only)</li></ul></div>
   <div class="ann" id="ann-s-event"><span class="ann-role coach">Coach</span><h3>Group Event Detail</h3>
     <div class="state-toggle"><button class="active" onclick="toggleEventState('filled',this)">Filled</button><button onclick="toggleEventState('empty',this)">Empty</button></div>
     <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Invite &amp; deep-link</span>
@@ -2035,7 +2049,12 @@ function setCalState(state, btn) {
   // Apply selected state
   if (state === 'loading') {
     if (timeline) timeline.classList.add('loading');
-    document.getElementById('cal-loading').classList.add('show');
+    var spinner = document.getElementById('cal-loading');
+    spinner.classList.add('show');
+    // Grid is a full 24h now — park the spinner in whatever part of the day
+    // the coach is currently looking at instead of a fixed 06:00 offset.
+    var scroller = timeline && timeline.closest('.fit-phone-content');
+    if (scroller) spinner.style.top = (scroller.scrollTop + 120) + 'px';
   } else if (state === 'snackbar') {
     document.getElementById('cal-snackbar').classList.add('show');
   } else if (state === 'drag-group') {

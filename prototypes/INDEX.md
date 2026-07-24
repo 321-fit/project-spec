@@ -62,6 +62,7 @@ Path root: `project-spec/prototypes/flows/`
 | `voice-assistant.html` | Voice assistant (canvas, athlete+coach views) | assistant surfaces |
 | `self-paced.html` | Self-paced training builder (WIP) | step-builder flows |
 | `profile.html` | Coach profile (shared variant) | — |
+| `calendar-legend.html` | **Calendar legend** — every tile state, zone type + colour rules, both themes (`?` sheet from the calendar header) | any legend / key surface |
 
 ### Journeys (`journeys/`)
 End-to-end annotated walkthroughs, not screens to clone. Each step links a **live** screen in flow order (no copies).
@@ -102,6 +103,8 @@ component in `design-tokens/docs/components.md` (and live in `design-tokens/Sour
 | `.fit-toggle` | Switches | `FitToggle` |
 | `.fit-stepper` | Steppers | `FitStepper` |
 | `.fit-cal-*` | Calendar grid + event pills | `FitCalEvent`, `FitCalEventPill` |
+| `.fit-cal-offhours` | Outside-availability wash on the 24h grid (+ `.fit-hour.offhours` dims labels) | `FitCalOffHours` |
+| `.fit-cal-blocked` | Hatched "busy" zone inside working hours (external / time off) | `FitCalBlocked` |
 | `.fit-day-*` | Day strips / circles | `FitDayStrip` |
 | `.fit-availability-*` | Availability day cells | `FitAvailabilityDay` |
 | `.fit-avatar` | Avatars | `FitAvatar` |

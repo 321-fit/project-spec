@@ -407,7 +407,7 @@ Returns per-day event-type indicators for the month grid above the day strip.
 - [ ] **Month grid view:** currently expandable from date strip. Rich month view (full grid) as separate screen? **Owner:** design.
 - [ ] **Time-zone display while coach is traveling:** events stored UTC; spec says rendered in viewing user's local TZ. Edge: coach in Vienna books a session, then travels to Tokyo — does the session show as "14:00 Vienna" or "21:00 Tokyo"? Current behavior = device TZ. Open: should we offer a "lock to home TZ" preference? **Owner:** product.
 - [ ] **Cancelled events history:** cancelled events disappear from calendar entirely (2-month retention then archive). Per-athlete cancellation history exists in Clients module ([clients-coaches.md](./clients-coaches.md)). Global "all cancellations" timeline as a coach-side audit view — needed? **Owner:** design.
-- [ ] **Empty-day visual:** day with zero events renders an empty timeline with work-hours hatching. No CTA, no hint copy — minimum chrome. Confirm acceptable, or add subtle empty-state copy? **Owner:** design. *(2026-05-21: tentatively kept minimal — no CTA.)*
+- [ ] **Empty-day visual:** day with zero events renders an empty 00:00–24:00 timeline with the off-hours wash on the non-working bands (see [event-statuses.md § 5b](./event-statuses.md)). No CTA, no hint copy — minimum chrome. Confirm acceptable, or add subtle empty-state copy? **Owner:** design. *(2026-05-21: tentatively kept minimal — no CTA.)*
 
 ---
 

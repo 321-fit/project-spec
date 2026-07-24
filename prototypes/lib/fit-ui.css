@@ -894,8 +894,50 @@
 .fit-day-chip-dot.group { background: var(--fit-brand-primary); }
 .fit-day-chip-dot.external { background: var(--fit-text-tertiary); }
 
-/* Unavailable hours block on timeline */
-.fit-unavailable {
+/* ── Timeline zone overlays — TWO different meanings, two different fills ──
+   .fit-cal-offhours = outside the coach's available hours ("I don't work then").
+       Flat tonal wash: calm enough to cover 8+ hours of a 24h grid without
+       moire/noise while scrolling. One label per contiguous zone, top-left.
+   .fit-cal-blocked  = a slot INSIDE working hours that is taken (external
+       calendar event, time off). Diagonal hatch — the pattern stays exclusive
+       to "busy", so hatch keeps exactly one meaning across the app.
+   Both are non-interactive: taps fall through to the create-event layer. */
+.fit-cal-offhours {
+  /* Full-bleed edge to edge (time gutter included) and NO radius on purpose:
+     an inset rounded band reads as an object lying on the day, full-bleed
+     reads as a state OF the day. The inset+rounded look stays with
+     .fit-cal-blocked, so the two are told apart by shape, not just pattern. */
+  /* Bleeds THROUGH the host's horizontal padding to the true screen edge:
+     a background/state layer belongs to the surface, only content respects
+     the gutter (same rule Apple Calendar follows). The host declares its own
+     padding via --fit-cal-gutter, so nothing here hardcodes 16px. */
+  position: absolute;
+  left: calc(-1 * var(--fit-cal-gutter, 0px));
+  right: calc(-1 * var(--fit-cal-gutter, 0px));
+  background: rgba(0,0,0,0.35);
+  border-radius: 0; pointer-events: none; z-index: 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 4px 10px; overflow: hidden;
+}
+.fit-light .fit-cal-offhours { background: rgba(60,60,67,0.07); }
+/* Label repeats on EVERY zone — each band is independent, and the coach needs
+   the explanation wherever they land. Kept short (no time range: the ruler on
+   the left already says it) so it survives a fragmented availability day
+   without turning into noise. Zones under 32px hide it — see fit-ui.js. */
+.fit-cal-offhours-label {
+  font-size: 11px; font-weight: 500; color: var(--fit-text-tertiary);
+  white-space: nowrap;
+}
+.fit-cal-offhours.tight .fit-cal-offhours-label { display: none; }
+/* Hour rows covered by an off-hours zone — dim the label so the whole band
+   reads as one recessed area. The label must paint ABOVE the full-bleed wash,
+   hence the positioning (absolutely-positioned overlays otherwise cover
+   in-flow inline text). */
+.fit-hour.offhours .fit-hour-label {
+  opacity: 0.55; position: relative; z-index: 1;
+}
+
+.fit-cal-blocked {
   position: absolute; left: 48px; right: 8px;
   background: repeating-linear-gradient(
     -45deg, transparent, transparent 3px,
@@ -903,7 +945,7 @@
   );
   opacity: 0.3; border-radius: 6px; pointer-events: none;
 }
-.fit-light .fit-unavailable {
+.fit-light .fit-cal-blocked {
   background: repeating-linear-gradient(
     -45deg, transparent, transparent 3px,
     var(--fit-gray-300) 3px, var(--fit-gray-300) 4px
@@ -1010,6 +1052,11 @@
 .fit-hour {
   height: 96px; display: flex; align-items: flex-start;
   border-top: 1px solid var(--fit-divider);
+  /* The hour rule is part of the ruler, not content: it runs to the true
+     right edge (Apple Calendar), while the left is offset by the time gutter.
+     No-op on hosts that don't declare --fit-cal-gutter. */
+  margin-right: calc(-1 * var(--fit-cal-gutter, 0px));
+  padding-right: var(--fit-cal-gutter, 0px);
 }
 .fit-hour-label {
   font-size: 10px; color: var(--fit-text-tertiary);
@@ -1037,8 +1084,13 @@
   pointer-events: none;
 }
 .fit-cal-event:active { cursor: grabbing; }
+/* Personal = teal tint, Group = blue tint — the SAME grammar in both themes.
+   Dark used to give personal a neutral surface while group already had a blue
+   tint, so two training types were styled by different rules inside one theme;
+   the type colour also only existed as a 3px stripe, which is a weak signal
+   when scanning a packed day. Tint carries the type, stripe reinforces it. */
 .fit-cal-event-personal::before {
-  background: var(--fit-surface-high);
+  background: rgba(5,224,166,0.10);
   border-left: 3px solid var(--fit-teal-500);
 }
 .fit-light .fit-cal-event-personal::before {
@@ -1115,15 +1167,23 @@
   border-left: 3px solid var(--fit-yellow-600);
 }
 .fit-light .fit-cal-event.request::before { background: rgba(222,145,29,0.14); }
-/* Awaiting (outgoing) — coach sent, waiting for athlete */
+/* Awaiting (outgoing) — coach sent, waiting for athlete.
+   Same yellow "not confirmed yet" family as Request, but OUTLINE instead of
+   FILL: filled = act on it, dashed outline = tentative, nothing to do. Keeps
+   the yellow-fill scan ("what needs me today") clean while separating Awaiting
+   from Planned, which it used to blend into (border-only over the personal
+   surface read as an ordinary booked tile). */
 .fit-cal-event.awaiting::before {
-  border: 1px solid var(--fit-gray-400);
-  border-left: 3px solid var(--fit-gray-400);
+  background: transparent;
+  border: 1px dashed var(--fit-yellow-600);
+  border-left: 3px solid var(--fit-yellow-600);
 }
+/* Light: #F2F2F7 page needs a card body under the dashed outline, otherwise the
+   tile dissolves into the background. White fill = "empty/tentative card". */
 .fit-light .fit-cal-event.awaiting::before {
-  background: rgba(117,126,135,0.06);
-  border: 1px solid var(--fit-gray-500);
-  border-left: 3px solid var(--fit-gray-500);
+  background: rgba(255,255,255,0.70);
+  border: 1px dashed var(--fit-yellow-600);
+  border-left: 3px solid var(--fit-yellow-600);
 }
 /* Review (post-event, awaiting coach completion) — same visual lane as Request */
 .fit-cal-event.review::before {
@@ -1152,7 +1212,14 @@
 }
 .fit-cal-event-pill--request,
 .fit-cal-event-pill--review { background: var(--fit-yellow-600); }
-.fit-cal-event-pill--awaiting { background: var(--fit-gray-500); }
+/* Awaiting pill mirrors the tile: outline, not fill — same yellow hue as
+   Request, opposite weight. Padding drops 1px to absorb the border. */
+.fit-cal-event-pill--awaiting {
+  background: transparent;
+  color: var(--fit-yellow-600);
+  border: 1px solid var(--fit-yellow-600);
+  padding: 1px 5px;
+}
 .fit-cal-event-pill--missed { background: var(--fit-red-400); }
 /* Rescheduled indicator */
 .fit-cal-event-rescheduled::after {
@@ -1194,20 +1261,6 @@
   position: absolute; left: -4px; top: -3px;
   width: 8px; height: 8px; border-radius: 50%;
   background: var(--fit-brand-primary);
-}
-
-/* Unavailable zone (drag overlay) */
-.fit-unavailable {
-  position: absolute; left: 40px; right: 0;
-  background: rgba(240,92,91,0.08);
-  border: 1px dashed rgba(240,92,91,0.3);
-  border-radius: var(--fit-radius-sm);
-  z-index: 3; pointer-events: none; display: none;
-}
-.fit-unavailable-label {
-  position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 12px; color: rgba(240,92,91,0.6); font-weight: 500;
 }
 
 /* ============================================================
@@ -1855,7 +1908,9 @@
 .cal-cell.today.selected { border-color: transparent; }
 
 /* Calendar view wrapper */
-.cal-view { padding: 0 var(--fit-sp-4); padding-bottom: 40px; }
+/* --fit-cal-gutter tells full-bleed zone layers (.fit-cal-offhours) how much
+   horizontal padding they must break out of to reach the real screen edge. */
+.cal-view { padding: 0 var(--fit-sp-4); padding-bottom: 40px; --fit-cal-gutter: var(--fit-sp-4); }
 
 /* ============================================================
    TIME PICKER SLOTS (bottom sheet accordion)

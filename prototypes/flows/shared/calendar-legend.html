@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Calendar legend</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: var(--fit-font); background: #0a0a0a; display: flex; justify-content: center; align-items: flex-start; padding: 24px; min-height: 100vh; min-width: 900px; }
+  .sidebar { position: fixed; left: 24px; top: 24px; bottom: 24px; width: 200px; display: flex; flex-direction: column; }
+  .sidebar-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--fit-gray-600); padding: 0 8px; margin: 16px 0 8px; }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button { font-family: var(--fit-font); font-size: 14px; font-weight: 400; padding: 10px 12px; border-radius: 10px; border: none; background: transparent; color: var(--fit-gray-400); cursor: pointer; text-align: left; width: 100%; transition: all 0.15s; }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active { background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500; }
+  .ann-container { position: fixed; left: calc(50% + 195px + 48px); right: 24px; top: 24px; bottom: 24px; width: auto; overflow-y: auto; }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; } .ann.active { display: block; }
+  .ann-role { display: inline-block; font-size: 14px; font-weight: 500; padding: 4px 12px; border-radius: 8px; margin-bottom: 16px; background: rgba(5,224,166,0.15); color: var(--fit-teal-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann h4 { font-size: 14px; font-weight: 500; color: var(--fit-gray-300); margin: 18px 0 6px; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); margin-bottom: 10px; }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 6px; padding-left: 18px; font-size: 14px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 4px; }
+  .ann code { font-size: 13px; background: var(--fit-gray-900); padding: 1px 6px; border-radius: 5px; color: var(--fit-gray-300); }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  .ann table { border-collapse: collapse; width: 100%; margin: 8px 0 12px; font-size: 13px; }
+  .ann th, .ann td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--fit-gray-800, #1c1c1e); color: var(--fit-gray-400); vertical-align: top; }
+  .ann th { color: var(--fit-gray-300); font-weight: 500; }
+
+  .fit-phone { display: none; } .fit-phone.active { display: flex; }
+  .fit-dark .fit-phone-header, .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-dark .fit-phone-footer, .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+
+  /* ===== Legend rows =====
+     The swatches are REAL calendar tiles: the exact same .fit-cal-event*,
+     .fit-cal-offhours and .fit-cal-blocked classes the timeline uses. Only
+     positioning is neutralised here (the timeline places them absolutely).
+     A legend that re-declared its own colours would silently drift from the
+     calendar the first time a token changes — this one physically cannot. */
+  .lg-section { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px;
+    color: var(--fit-text-tertiary); padding: 18px 16px 8px; }
+  .lg-row { display: flex; gap: 12px; align-items: flex-start; padding: 0 16px 14px; }
+  .lg-swatch { width: 132px; flex-shrink: 0; position: relative; }
+  .lg-swatch .fit-cal-event,
+  .lg-swatch .fit-cal-event-external,
+  .lg-swatch .fit-cal-event-cross-role,
+  .lg-swatch .fit-cal-offhours,
+  .lg-swatch .fit-cal-blocked {
+    position: relative; left: auto; right: auto; top: auto;
+    min-height: 46px; height: auto; cursor: default;
+  }
+  /* the tile's visible card is a ::before with inset 0 0 3px 0 — keep that
+     bottom gap out of the row rhythm */
+  .lg-swatch .fit-cal-event { padding-bottom: calc(var(--fit-sp-2) + 3px); }
+  .lg-swatch .fit-cal-blocked { border-radius: 6px; }
+  .lg-text { flex: 1; min-width: 0; padding-top: 2px; }
+  .lg-name { font-size: 14px; font-weight: 500; color: var(--fit-text-primary); }
+  .lg-desc { font-size: 13px; line-height: 1.45; color: var(--fit-text-secondary); margin-top: 2px; }
+  .lg-note { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 3px; }
+  .lg-intro { font-size: 14px; line-height: 1.5; color: var(--fit-text-secondary); padding: 12px 16px 0; }
+  .lg-foot { font-size: 12px; line-height: 1.5; color: var(--fit-text-tertiary); padding: 8px 16px 24px; }
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+    <button onclick="window.location.href='../../index.html'" style="display:flex;align-items:center;gap:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;padding:8px 12px;border-radius:10px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-gray-300);cursor:pointer;width:100%;margin-bottom:8px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      All modules
+    </button>
+  <div class="label">Screen</div>
+  <button class="active" onclick="go('s-legend',this)">Calendar legend</button>
+  <div class="label">Related</div>
+  <button onclick="window.location.href='../coach/calendar.html'">Coach calendar &rarr;</button>
+  <button onclick="window.location.href='../athlete/calendar.html'">Athlete schedule &rarr;</button>
+  </div>
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ==================== SCREEN: LEGEND ==================== -->
+<!-- In-app this is the "?" entry from the calendar header (disclosure Layer 2):
+     opt-in reference, never an auto-popup. -->
+<div class="fit-phone fit-dark active" id="s-legend">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="shared.calendar-legend.close" onclick="alert('Close — dismisses the legend (entry: ? button in the calendar header)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <span class="fit-header-title">Calendar legend</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <p class="lg-intro">Two things carry meaning on the calendar: the <strong style="color:var(--fit-text-primary);">tint</strong> tells you what kind of event it is, the <strong style="color:var(--fit-text-primary);">border</strong> tells you whether it needs you.</p>
+
+    <!-- ─── Training type ─── -->
+    <div class="lg-section">Training type</div>
+
+    <div class="lg-row" data-a11y-id="shared.calendar-legend.row.personal">
+      <div class="lg-swatch">
+        <div class="fit-cal-event fit-cal-event-personal">
+          <div class="fit-cal-event-title">Basketball</div>
+          <div class="fit-cal-event-meta">Mark S.</div>
+        </div>
+      </div>
+      <div class="lg-text">
+        <div class="lg-name">Personal</div>
+        <div class="lg-desc">One-on-one session with a single athlete.</div>
+        <div class="lg-note">Teal tint + teal stripe.</div>
+      </div>
+    </div>
+
+    <div class="lg-row" data-a11y-id="shared.calendar-legend.row.group">
+      <div class="lg-swatch">
+        <div class="fit-cal-event fit-cal-event-group">
+          <div class="fit-cal-event-title">HIIT Group</div>
+          <div class="fit-cal-event-meta">7/10 athletes</div>
+        </div>
+      </div>
+      <div class="lg-text">
+        <div class="lg-name">Group</div>
+        <div class="lg-desc">Open session &mdash; athletes join without approval.</div>
+        <div class="lg-note">Blue tint + blue stripe.</div>
+      </div>
+    </div>
+
+    <!-- ─── Needs you ─── -->
+    <div class="lg-section">Needs you &mdash; filled yellow</div>
+
+    <div class="lg-row" data-a11y-id="shared.calendar-legend.row.request">
+      <div class="lg-swatch">
+        <div class="fit-cal-event fit-cal-event-personal request">
+          <div class="fit-cal-event-title-row">
+            <span class="fit-cal-event-title">Boxing</span>
+            <span class="fit-cal-event-pill fit-cal-event-pill--request">Request</span>
+          </div>
+        </div>
+      </div>
+      <div class="lg-text">
+        <div class="lg-name">Request</div>
+        <div class="lg-desc">Someone asked for this slot. Accept or decline it.</div>
+        <div class="lg-note">Auto-cancels after 48 h with no answer.</div>
+      </div>
+    </div>
+
+    <div class="lg-row" data-a11y-id="shared.calendar-legend.row.review">
+      <div class="lg-swatch">
+        <div class="fit-cal-event fit-cal-event-personal review">
+          <div class="fit-cal-event-title-row">
+            <span class="fit-cal-event-title">Yoga</span>
+            <span class="fit-cal-event-pill fit-cal-event-pill--review">Review</span>
+          </div>
+        </div>
+      </div>
+      <div class="lg-text">
+        <div class="lg-name">Review</div>
+        <div class="lg-desc">The session ended and you haven&rsquo;t confirmed it yet.</div>
+        <div class="lg-note">Coach only &mdash; athletes see the session as finished.</div>
+      </div>
+    </div>
+
+    <!-- ─── Waiting ─── -->
+    <div class="lg-section">Waiting &mdash; dashed yellow</div>
+
+    <div class="lg-row" data-a11y-id="shared.calendar-legend.row.awaiting">
+      <div class="lg-swatch">
+        <div class="fit-cal-event fit-cal-event-personal awaiting">
+          <div class="fit-cal-event-title-row">
+            <span class="fit-cal-event-title">Padel</span>
+            <span class="fit-cal-event-pill fit-cal-event-pill--awaiting">Awaiting</span>
+          </div>
+        </div>
+      </div>
+      <div class="lg-text">
+        <div class="lg-name">Awaiting</div>
+        <div class="lg-desc">You sent the request &mdash; the other side hasn&rsquo;t answered.</div>
+        <div class="lg-note">Same yellow, but outlined: nothing for you to do.</div>
+      </div>
+    </div>
+
+    <!-- ─── Past ─── -->
+    <div class="lg-section">Past</div>
+
+    <div class="lg-row" data-a11y-id="shared.calendar-legend.row.finished">
+      <div class="lg-swatch">
+        <div class="fit-cal-event fit-cal-event-personal finished">
+          <div class="fit-cal-event-title">Morning HIIT</div>
+          <div class="fit-cal-event-meta">Anna K.</div>
+        </div>
+      </div>
+      <div class="lg-text">
+        <div class="lg-name">Finished</div>
+        <div class="lg-desc">Done and confirmed. Faded, no badge.</div>
+      </div>
+    </div>
+
+    <div class="lg-row" data-a11y-id="shared.calendar-legend.row.missed">
+      <div class="lg-swatch">
+        <div class="fit-cal-event fit-cal-event-personal missed">
+          <div class="fit-cal-event-title-row">
+            <span class="fit-cal-event-title">Stretch</span>
+            <span class="fit-cal-event-pill fit-cal-event-pill--missed">Missed</span>
+          </div>
+        </div>
+      </div>
+      <div class="lg-text">
+        <div class="lg-name">Missed</div>
+        <div class="lg-desc">No-show &mdash; marked by the coach, or automatic after a few days without review.</div>
+      </div>
+    </div>
+
+    <!-- ─── Not a training ─── -->
+    <div class="lg-section">Not a training</div>
+
+    <div class="lg-row" data-a11y-id="shared.calendar-legend.row.custom">
+      <div class="lg-swatch">
+        <div class="fit-cal-event fit-cal-event-custom">
+          <div class="fit-cal-event-title">My time</div>
+          <div class="fit-cal-event-meta">17:00 &ndash; 18:00</div>
+        </div>
+      </div>
+      <div class="lg-text">
+        <div class="lg-name">Busy time</div>
+        <div class="lg-desc">Your own block &mdash; no athlete, no session. Athletes just see the slot as unavailable.</div>
+        <div class="lg-note">Neutral, no tint: it isn&rsquo;t a training.</div>
+      </div>
+    </div>
+
+    <div class="lg-row" data-a11y-id="shared.calendar-legend.row.external">
+      <div class="lg-swatch">
+        <div class="fit-cal-event-external">
+          <div style="font-weight:500;">Dentist</div>
+          <div style="opacity:0.7;">Google</div>
+        </div>
+      </div>
+      <div class="lg-text">
+        <div class="lg-name">External</div>
+        <div class="lg-desc">Pulled in from your Google or Apple calendar. Title only, nothing else is imported.</div>
+      </div>
+    </div>
+
+    <div class="lg-row" data-a11y-id="shared.calendar-legend.row.cross-role">
+      <div class="lg-swatch">
+        <div class="fit-cal-event-cross-role">
+          <div class="fit-cal-event-title">Tennis</div>
+          <span class="fit-cal-event-cross-role-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
+            Athlete
+          </span>
+        </div>
+      </div>
+      <div class="lg-text">
+        <div class="lg-name">Your other role</div>
+        <div class="lg-desc">A session that belongs to your athlete profile (or your coach profile). Muted with a dashed stripe and a role tag.</div>
+        <div class="lg-note">Tap it to switch roles and open it properly.</div>
+      </div>
+    </div>
+
+    <!-- ─── Day zones ─── -->
+    <div class="lg-section">Zones of the day</div>
+
+    <div class="lg-row" data-a11y-id="shared.calendar-legend.row.offhours">
+      <div class="lg-swatch">
+        <div class="fit-cal-offhours"><span class="fit-cal-offhours-label">Outside your hours</span></div>
+      </div>
+      <div class="lg-text">
+        <div class="lg-name">Outside your hours</div>
+        <div class="lg-desc">Outside the availability you set. The day always shows all 24 hours &mdash; these bands just sit back.</div>
+        <div class="lg-note">Flat wash, edge to edge.</div>
+      </div>
+    </div>
+
+    <div class="lg-row" data-a11y-id="shared.calendar-legend.row.blocked">
+      <div class="lg-swatch">
+        <div class="fit-cal-blocked" style="min-height:46px;"></div>
+      </div>
+      <div class="lg-text">
+        <div class="lg-name">Blocked</div>
+        <div class="lg-desc">Inside your working hours, but taken &mdash; by an external event or by time off.</div>
+        <div class="lg-note">Hatching always means &ldquo;busy&rdquo;, never &ldquo;off duty&rdquo;.</div>
+      </div>
+    </div>
+
+    <p class="lg-foot">Cancelled sessions disappear from the calendar completely &mdash; there is no greyed-out leftover to read.</p>
+
+  </div>
+</div>
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+  <div class="ann active" id="ann-s-legend">
+    <span class="ann-role">Both roles</span>
+    <h3>Calendar legend</h3>
+    <p>Opt-in reference sheet, reached from the <strong>?</strong> button in the calendar header (disclosure Layer 2 &mdash; the event drawer stays the primary teacher, this is never an auto-popup).</p>
+    <p class="note">Every swatch on this screen is a real tile: the same <code>.fit-cal-event*</code> / <code>.fit-cal-offhours</code> / <code>.fit-cal-blocked</code> classes the timeline renders, with positioning neutralised. A legend that re-declared its own colours would drift the first time a token changed.</p>
+
+    <h4>The two axes</h4>
+    <ul>
+      <li><strong>Tint = what it is.</strong> Teal personal, blue group, neutral for anything that isn&rsquo;t a training (busy time, external, other role).</li>
+      <li><strong>Border = does it need me.</strong> Filled yellow + solid perimeter = act. Dashed yellow + no fill = waiting, passive. No perimeter = nothing pending.</li>
+    </ul>
+
+    <h4>Statuses</h4>
+    <table>
+      <tr><th>State</th><th>Visual</th><th>Pill</th></tr>
+      <tr><td>Planned</td><td>type tint, no perimeter</td><td>&mdash;</td></tr>
+      <tr><td>Request</td><td>yellow-600 solid + 10% fill</td><td>filled</td></tr>
+      <tr><td>Awaiting</td><td>yellow-600 dashed, no fill</td><td>outlined</td></tr>
+      <tr><td>Review</td><td>yellow-600 solid + 10% fill</td><td>filled</td></tr>
+      <tr><td>Missed</td><td>red-400 + 10% fill</td><td>filled</td></tr>
+      <tr><td>Finished</td><td>type tint at opacity 0.5</td><td>&mdash;</td></tr>
+      <tr><td>Cancelled</td><td colspan="2">not rendered at all</td></tr>
+    </table>
+    <p class="note">Yellow is one lane, not two: Request (before) and Review (after) both mean &ldquo;coach, act&rdquo;. The pill text and the position relative to the now-line disambiguate &mdash; splitting yellow into two shades would only dilute it.</p>
+
+    <h4>Who sees what</h4>
+    <ul>
+      <li><strong>Coach</strong> &mdash; all states. <code>coach_confirmed</code> (proxy-accepted cash invite) renders exactly like Planned; the distinction is audit-only and surfaces in the drawer, not on the tile.</li>
+      <li><strong>Athlete</strong> &mdash; everything except Review: an athlete has no completion action, so the server state is mapped to Finished at the API layer.</li>
+      <li><strong>Group events</strong> &mdash; Planned / Review / Missed / Finished only. Request and Awaiting don&rsquo;t exist there: joining a group needs no handshake.</li>
+    </ul>
+
+    <h4>Zones</h4>
+    <ul>
+      <li><strong>Off-hours</strong> (<code>.fit-cal-offhours</code>) &mdash; outside availability. Flat wash, full-bleed to the screen edge, no radius, dimmed hour labels, one centered label per contiguous band. A state of the day, not an object on it.</li>
+      <li><strong>Blocked</strong> (<code>.fit-cal-blocked</code>) &mdash; taken inside working hours. Diagonal hatch, inset and rounded like a card. Hatch is reserved for &ldquo;busy&rdquo; so the pattern keeps exactly one meaning.</li>
+      <li>The grid is always <strong>00:00&ndash;24:00</strong>, so day height never depends on availability; the view auto-scrolls to the now-line, or to the first available hour.</li>
+      <li>Athlete calendars carry <strong>no</strong> off-hours shading &mdash; an athlete has no availability, so there is nothing to grey out.</li>
+    </ul>
+
+    <h4>Source of truth</h4>
+    <ul>
+      <li>Spec: <code>specs/event-statuses.md</code> &sect; 5 (states) and &sect; 5c (visual language)</li>
+      <li>CSS: <code>prototypes/lib/fit-ui.css</code> &mdash; <code>.fit-cal-event*</code>, <code>.fit-cal-offhours</code>, <code>.fit-cal-blocked</code></li>
+      <li>Native: <code>design-tokens/docs/components.md</code> &mdash; <code>FitCalEvent</code>, <code>FitCalEventPill</code>, <code>FitRoleTag</code></li>
+    </ul>
+  </div>
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+function go(id, btn) {
+  document.querySelectorAll('.fit-phone').forEach(function (s) { s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar button').forEach(function (b) { b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.ann').forEach(function (a) { a.classList.remove('active'); });
+  var ann = document.getElementById('ann-' + id);
+  if (ann) ann.classList.add('active');
+  FitUI.initAll(document.getElementById(id));
+}
+function switchTheme(theme) {
+  document.querySelectorAll('.fit-phone').forEach(function (p) {
+    p.classList.remove('fit-dark', 'fit-light');
+    p.classList.add('fit-' + theme);
+  });
+  var d = document.getElementById('theme-dark'), l = document.getElementById('theme-light');
+  var on = 'var(--fit-gray-700)', off = 'transparent';
+  d.style.background = theme === 'dark' ? on : off;
+  d.style.color = theme === 'dark' ? 'var(--fit-white)' : 'var(--fit-gray-400)';
+  l.style.background = theme === 'light' ? on : off;
+  l.style.color = theme === 'light' ? 'var(--fit-white)' : 'var(--fit-gray-400)';
+}
+</script>
+</body>
+</html>

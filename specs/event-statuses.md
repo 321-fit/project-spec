@@ -1,9 +1,9 @@
 # Event Status System & Push Notifications
 
 > Status: Approved (contract) / In Progress — shipped as a **dual-field** model (`ApprovalStatus` + `PaymentStatus`), not the unified single enum. See § 5a.
-> Prototype: [flows/coach/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html) — all 6 states demo · [flows/athlete/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/calendar.html) — cross-role mirror
+> Prototype: [flows/coach/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html) — all 6 states demo · [flows/athlete/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/calendar.html) — cross-role mirror · [flows/shared/calendar-legend.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/calendar-legend.html) — **visual legend** (all tiles + zones, both themes)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md) — FitCalEvent, FitCalEventPill, FitRoleTag
-> Last updated: 2026-07-17
+> Last updated: 2026-07-24
 > Implementation:
 > - iOS:     [321fit_ios/docs/event-statuses-ios.md] (to be created)
 > - Backend: [poly-backend/docs/event-statuses-backend.md] (to be created — includes migration)
@@ -137,7 +137,7 @@ The underlying event still has its own real status (Planned, Request, etc.) on t
 |---|---|---|---|---|---|---|
 | `planned` | Both | teal-500 (left stripe) | none (default) | "Confirmed session" | `request` (accept), `awaiting` (accept by other party), reschedule new | `cancelled`, `review` |
 | `request` | Receiver only | yellow-600 | "Request" | "Athlete requested this session" (coach-side) | new creation | `planned` (accept), `cancelled` (decline / 48h auto) |
-| `awaiting` | Creator only | gray-400 | "Awaiting" | "Waiting for athlete's response" | new creation (outgoing) | `planned` (other accepts), `cancelled` (other declines / 48h auto / creator cancels) |
+| `awaiting` | Creator only | yellow-600 **dashed, no fill** (see § 5b) | "Awaiting" (outlined) | "Waiting for athlete's response" | new creation (outgoing) | `planned` (other accepts), `cancelled` (other declines / 48h auto / creator cancels) |
 | `review` | Coach only (server state); athletes see this server state mapped to `finished` at the API layer | yellow-600 | "Review" | "Session ended — complete it" | `planned` (past endAt + payment-type delay) | `finished` (mark complete), `missed` (mark missed) |
 | `missed` | Both | red-400 | "Missed" | "Marked as missed" | `review` | (terminal, retained 2 months) |
 | `finished` | Both | teal-500 (0.5 opacity) | none | "Completed on {date}" | `review` | (terminal, retained indefinitely for history) |
@@ -175,6 +175,47 @@ Old statuses map to canonical:
 | `invitation` | NOT a status — invite link is a separate entity in deep-linking-referrals spec |
 
 Backend migration runs once: maps all legacy values to canonical enum + updates dependent tables.
+
+---
+
+## 5b. Calendar visual language (updated 2026-07-24)
+
+Visual reference screen: **[flows/shared/calendar-legend.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/calendar-legend.html)** — every tile, block and zone in both themes, rendered from the canonical CSS classes (it cannot drift from the product). In-app the same screen is the opt-in `?` sheet in the calendar header (disclosure Layer 2).
+
+### The two axes
+
+The calendar encodes exactly two things, and they never share a channel:
+
+| Channel | Answers | Values |
+|---|---|---|
+| **Fill / tint** | *What kind of thing is this?* | teal = personal training · blue = group training · neutral surface = not a training (busy time, external, other role) |
+| **Border** | *Does it need me?* | solid perimeter + 10% fill = act on it · dashed, no fill = pending on someone else · no perimeter = nothing outstanding |
+
+Consequences of keeping those separate:
+
+- **Awaiting is yellow, not gray.** It sits in the same "not confirmed yet" hue as Request, but outlined instead of filled — filled yellow means *you* act, dashed yellow means *you wait*. It used to be a gray perimeter over the normal surface, which read as an ordinary Planned tile.
+- **Yellow stays one lane.** Request (pre-event) and Review (post-event) share it; pill text and position relative to the now-line disambiguate. Splitting yellow into two shades would dilute the "act on this" signal.
+- **Personal events carry a teal tint in both themes.** Dark theme previously gave group a blue tint but left personal on a neutral surface, so two training types followed different rules inside one theme and the type lived only in a 3px stripe.
+- Because tint now means *type*, the neutral surface is free to mean *not a training* — busy time, external events and cross-role tiles are all readable at a glance without their labels.
+
+### Day zones
+
+| Zone | Means | Visual | Class |
+|---|---|---|---|
+| **Off-hours** | Outside the coach's availability | Flat tonal wash, **full-bleed to the screen edge**, no radius, dimmed hour labels, one centered label per contiguous band | `.fit-cal-offhours` (+ `.fit-hour.offhours`) |
+| **Blocked** | Inside working hours but taken (external event, time off) | Diagonal hatch, inset and rounded like a card | `.fit-cal-blocked` |
+
+- **Hatching means "busy" and nothing else.** Using it for both "I don't work then" and "that slot is taken" made the two indistinguishable; a calm wash covers the 8+ off-hours of a 24h day without moire, and the hatch keeps a single meaning.
+- **Shape carries the difference too:** a full-bleed, radius-free band reads as a *state of the day*; an inset, rounded block reads as an *object occupying a slot*.
+- Every contiguous band repeats the short label ("Outside your hours", no time range — the ruler already shows it) so a fragmented availability day explains itself wherever the user lands. Bands under 32px drop the label and keep the wash.
+
+### Grid
+
+- The day grid is **always 00:00–24:00**. Day height must never depend on availability — a grid that starts at the first available hour changes shape per coach and per day.
+- On open, the view **auto-scrolls** to the now-line when it falls inside the working band, otherwise to the first available hour. That is what makes a full 24h grid free of cost.
+- Hour rules run to the true right edge; the left is offset by the time gutter (Apple Calendar convention). Content (tiles) keeps its gutter — background and rules bleed, content does not.
+- **Known divergence:** the booking/invite time-grid still paints outside-working-hours as a hatched `.fit-bk-off` zone (see [booking-flow.md](./booking-flow.md)). That grid is a *picker*, not the day surface, and was left as-is; if the hatch=busy rule is to hold app-wide, it should switch to the wash. Open.
+- **Athlete calendars have no off-hours shading**: an athlete has no availability, so there is nothing to grey out. Zones belong to the coach calendar and to booking grids, where the counterparty's hours constrain the choice.
 
 ---
 
