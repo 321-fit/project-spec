@@ -143,6 +143,37 @@
 
 /* ============================================================
    THEME: LIGHT (Athlete) — apply class .fit-light
+
+   ── TINT RULE (2026-07-24) ────────────────────────────────────
+   A tinted surface must move AWAY from its canvas in luminance.
+   On the dark canvas (#1F2123) a bright accent at ~10-12% lightens the
+   surface and reads. On #F2F2F7 the same bright accent does almost nothing
+   — teal-500 at 8% lands 1.8 ΔL* off the canvas, versus 7.1 ΔL* for its
+   dark counterpart, i.e. 4× fainter. The old light overrides made this
+   worse by LOWERING the alpha (0.12 → 0.08).
+
+   Raising the alpha of the same bright accent is not the fix either: it
+   buys saturation, not separation (teal-500 needs 28% to reach 6 ΔL*, and
+   by then it reads as candy). Instead, light tints derive from the DARKER
+   accent step at a higher alpha:
+
+       light tint = accent-600 @ 16-20%   →  6-7 ΔL* off #F2F2F7
+       dark  tint = accent-500 @ 10-12%   →  6-7 ΔL* off #1F2123
+
+   teal-600 #08B48F · blue-600 #0A93BD · yellow-600 #DE911D · red-400 #F05C5B
+
+   TOKEN CANDIDATE — the same correction belongs in the generated tokens
+   (`--fit-color-bg-{brand,info,warning,error,success}-{subtle,tinted}-light`
+   currently mirror the dark hue at a lower alpha). fit-ui-tokens.css is
+   generated ("Do not edit directly"), so it has to land in Figma →
+   design-tokens first; these CSS overrides are the prototype-side preview.
+
+   ── EDGE / RAMP: variant D «через тень» (2026-07-24) ──────────
+   Canvas stays #F2F2F7. What changes: a real two-layer card shadow, the
+   divider a step darker, and secondary/tertiary text split into two steps
+   instead of both being gray-500. Snapped to EXISTING gray steps
+   (gray-200 / gray-600 / gray-500) so the decision needs no new colour in
+   Figma — only the shadow value is new.
    ============================================================ */
 .fit-light {
   --fit-screen-bg:        var(--fit-color-screen-light);
@@ -151,13 +182,25 @@
   --fit-surface-high:     var(--fit-color-surface-high-light);
   --fit-surface-higher:   var(--fit-color-surface-higher-light);
   --fit-text-primary:     var(--fit-color-text-primary-light);
-  --fit-text-secondary:   var(--fit-color-text-secondary-light);
+  /* D · ramp split — both used to resolve to gray-500, so light had no
+     three-step ramp at all. Secondary drops to gray-600 (5.5:1 on canvas,
+     AA), tertiary keeps gray-500 (3.7:1). TOKEN CANDIDATE: set
+     --fit-color-text-secondary-light to gray-600 upstream. */
+  --fit-text-secondary:   var(--fit-color-gray-600);
   --fit-text-tertiary:    var(--fit-color-text-tertiary-light);
   --fit-text-placeholder: var(--fit-color-text-placeholder-light);
   --fit-text-disabled:    var(--fit-color-text-disabled-light);
   --fit-text-on-brand:    var(--fit-color-text-on-brand-light);
   --fit-text-error:       var(--fit-color-text-error-light);
-  --fit-divider:          var(--fit-color-divider-light);
+  /* D · divider gray-100 → gray-200: 1.12:1 vs canvas was invisible, 1.40:1
+     reads. TOKEN CANDIDATE upstream. */
+  --fit-divider:          var(--fit-color-gray-200);
+  /* D · card edge. The old single 12px/7% blur read as a smudge rather than a
+     lift. Two layers: a 1px contact shadow that actually draws the edge, plus
+     a soft ambient one for depth. Declared once — the literal used to be
+     copy-pasted 9 times, and a second `.fit-light .fit-card` further down the
+     file silently won the cascade. */
+  --fit-elevation-card: 0 1px 3px rgba(0,0,0,0.10), 0 6px 16px rgba(0,0,0,0.08);
   --fit-border-focus:     var(--fit-color-border-focus-light);
   --fit-border-error:     var(--fit-color-border-error-light);
   --fit-bg-disabled:      var(--fit-color-bg-disabled-light);
@@ -372,12 +415,14 @@
 .fit-icon-plate--error   { background: rgba(240,92,91,0.12);  color: var(--fit-red-400); }
 .fit-icon-plate--brand   { background: rgba(5,224,166,0.12);  color: var(--fit-brand-primary); }
 .fit-icon-plate--neutral { background: var(--fit-surface-higher); color: var(--fit-text-secondary); }
-/* Light theme — slightly lighter alphas to remain legible on white surfaces */
-.fit-light .fit-icon-plate--info    { background: rgba(3,178,226,0.08); }
-.fit-light .fit-icon-plate--success { background: rgba(5,224,166,0.08); }
-.fit-light .fit-icon-plate--warning { background: rgba(247,201,72,0.10); }
-.fit-light .fit-icon-plate--error   { background: rgba(240,92,91,0.08); }
-.fit-light .fit-icon-plate--brand   { background: rgba(5,224,166,0.08); }
+/* Light theme — see the TINT RULE at the top of this file: darker accent step,
+   higher alpha. Lowering the alpha of a bright accent (the old 0.12 → 0.08)
+   made these plates all but disappear on #F2F2F7. */
+.fit-light .fit-icon-plate--info    { background: rgba(10,147,189,0.16); }
+.fit-light .fit-icon-plate--success { background: rgba(8,180,143,0.18); }
+.fit-light .fit-icon-plate--warning { background: rgba(222,145,29,0.18); }
+.fit-light .fit-icon-plate--error   { background: rgba(240,92,91,0.16); }
+.fit-light .fit-icon-plate--brand   { background: rgba(8,180,143,0.18); }
 
 /* Sticky footer button wrapper */
 .fit-footer-btn { padding: var(--fit-sp-3) var(--fit-sp-4) 32px; }
@@ -500,6 +545,13 @@
 .fit-badge-full { background: rgba(240,92,91,0.12); color: var(--fit-red-400); }
 .fit-badge-joined { background: rgba(0,226,157,0.12); color: var(--fit-green-500); }
 .fit-badge-pending { background: rgba(247,201,72,0.12); color: var(--fit-yellow-400); }
+/* Light theme — TINT RULE (darker step, higher alpha). These had no light
+   variant at all, so they carried the dark values onto #F2F2F7: `pending`
+   sat 1.7 dL* off the canvas, i.e. effectively invisible. */
+.fit-light .fit-badge-group   { background: rgba(10,147,189,0.16); }
+.fit-light .fit-badge-full    { background: rgba(240,92,91,0.16); }
+.fit-light .fit-badge-joined  { background: rgba(0,226,157,0.24); }
+.fit-light .fit-badge-pending { background: rgba(222,145,29,0.18); }
 .fit-badge-cash { color: var(--fit-yellow-400); font-weight: 500; }
 
 /* ============================================================
@@ -510,7 +562,7 @@
   border-radius: var(--fit-radius-lg); padding: var(--fit-sp-4);
 }
 .fit-dark .fit-card { background: var(--fit-surface-high); border: 1px solid var(--fit-gray-600); }
-.fit-light .fit-card { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+.fit-light .fit-card { background: var(--fit-white); box-shadow: var(--fit-elevation-card); }
 .fit-card-header {
   display: flex; justify-content: space-between; align-items: flex-start;
   margin-bottom: var(--fit-sp-3);
@@ -532,7 +584,7 @@
   border-radius: var(--fit-radius-lg); padding: var(--fit-sp-4);
 }
 .fit-dark .fit-ticket { background: var(--fit-surface-high); }
-.fit-light .fit-ticket { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+.fit-light .fit-ticket { background: var(--fit-white); box-shadow: var(--fit-elevation-card); }
 .fit-ticket-top {
   display: flex; justify-content: space-between; align-items: center;
   margin-bottom: var(--fit-sp-3);
@@ -919,7 +971,7 @@
   display: flex; align-items: center; justify-content: center;
   padding: 4px 10px; overflow: hidden;
 }
-.fit-light .fit-cal-offhours { background: rgba(60,60,67,0.07); }
+.fit-light .fit-cal-offhours { background: rgba(60,60,67,0.10); }
 /* Label repeats on EVERY zone — each band is independent, and the coach needs
    the explanation wherever they land. Kept short (no time range: the ruler on
    the left already says it) so it survives a fragmented availability day
@@ -936,6 +988,42 @@
 .fit-hour.offhours .fit-hour-label {
   opacity: 0.55; position: relative; z-index: 1;
 }
+
+/* ── Drag targeting mode ──────────────────────────────────────
+   While an event is being dragged the calendar has to answer one question:
+   can I drop here? Two decisions:
+
+   1. The ZONE stays a zone. It deepens (the boundary must be unmistakable
+      mid-drag) but does NOT turn red — flooding half the day with an error
+      colour while the user is merely moving something is alarm without
+      information, and it fights the tile they're actually looking at.
+   2. The VERDICT rides on the dragged TILE — `.invalid` turns it red-tinted
+      with a red perimeter. Same grammar as `.fit-bk-sel.invalid` in the
+      booking grid, so "red block = you can't put it there" is learned once.
+
+   Applies to any unavailable target: off-hours, blocked slots, occupied
+   slots. The snackbar names which one it was. */
+.fit-timeline.dragging .fit-cal-offhours { background: rgba(0,0,0,0.45); }
+.fit-light .fit-timeline.dragging .fit-cal-offhours { background: rgba(60,60,67,0.16); }
+.fit-timeline.dragging .fit-cal-blocked { opacity: 0.45; }
+/* Zone labels step aside mid-drag — a tile parked over a band would otherwise
+   have the band's caption reading through its semi-transparent fill. The
+   snackbar names the reason while dragging anyway. */
+.fit-timeline.dragging .fit-cal-offhours-label { visibility: hidden; }
+
+.fit-cal-event.dragging {
+  z-index: 10; cursor: grabbing;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.35));
+}
+.fit-light .fit-cal-event.dragging { filter: drop-shadow(0 6px 16px rgba(0,0,0,0.20)); }
+.fit-cal-event.dragging.invalid::before {
+  background: rgba(240,92,91,0.16);
+  border: 1px solid var(--fit-red-400);
+  border-left: 3px solid var(--fit-red-400);
+}
+.fit-light .fit-cal-event.dragging.invalid::before { background: rgba(240,92,91,0.20); }
+.fit-cal-event.dragging.invalid .fit-cal-event-title,
+.fit-cal-event.dragging.invalid .fit-cal-event-meta { color: var(--fit-red-400); }
 
 .fit-cal-blocked {
   position: absolute; left: 48px; right: 8px;
@@ -1094,7 +1182,7 @@
   border-left: 3px solid var(--fit-teal-500);
 }
 .fit-light .fit-cal-event-personal::before {
-  background: rgba(5,224,166,0.08);
+  background: rgba(8,180,143,0.18);   /* teal-600 — 6.2 dL* off canvas */
 }
 /* Custom event (coach's own calendar block — no athlete, no template).
    Distinct from cross-role (which is muted): custom IS the coach's own
@@ -1147,7 +1235,7 @@
   border-left: 3px solid var(--fit-blue-500);
 }
 .fit-light .fit-cal-event-group::before {
-  background: rgba(3,178,226,0.08);
+  background: rgba(10,147,189,0.16);   /* blue-600 — 6.7 dL* */
 }
 .fit-cal-event-title-row {
   display: flex; align-items: center; gap: 8px; margin-bottom: 2px;
@@ -1166,7 +1254,7 @@
   border: 1px solid var(--fit-yellow-600);
   border-left: 3px solid var(--fit-yellow-600);
 }
-.fit-light .fit-cal-event.request::before { background: rgba(222,145,29,0.14); }
+.fit-light .fit-cal-event.request::before { background: rgba(222,145,29,0.20); }
 /* Awaiting (outgoing) — coach sent, waiting for athlete.
    Same yellow "not confirmed yet" family as Request, but OUTLINE instead of
    FILL: filled = act on it, dashed outline = tentative, nothing to do. Keeps
@@ -1191,14 +1279,14 @@
   border: 1px solid var(--fit-yellow-600);
   border-left: 3px solid var(--fit-yellow-600);
 }
-.fit-light .fit-cal-event.review::before { background: rgba(222,145,29,0.14); }
+.fit-light .fit-cal-event.review::before { background: rgba(222,145,29,0.20); }
 /* Missed (no-show or auto after N days) */
 .fit-cal-event.missed::before {
   background: rgba(240,92,91,0.10);
   border: 1px solid var(--fit-red-400);
   border-left: 3px solid var(--fit-red-400);
 }
-.fit-light .fit-cal-event.missed::before { background: rgba(240,92,91,0.12); }
+.fit-light .fit-cal-event.missed::before { background: rgba(240,92,91,0.16); }
 /* Finished (coach completed Review) — faded base, no perimeter, stripe persists */
 .fit-cal-event.finished { opacity: 0.5; }
 /* Calendar event pill — inline status badge next to title */
@@ -1229,6 +1317,7 @@
   align-items: center; justify-content: center;
 }
 /* Special badge (one-off) */
+.fit-light .fit-badge-special { background: rgba(10,147,189,0.16); }
 .fit-badge-special {
   background: rgba(3,178,226,0.12); color: var(--fit-blue-500);
   font-size: 12px; font-weight: 500; padding: 2px 8px;
@@ -1237,6 +1326,13 @@
 
 /* Self-paced status pill — lifecycle badge (shared: self-paced flow + dashboard/clients/coach-detail entry points) */
 .sp-pill { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; padding: 3px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+/* Light theme — TINT RULE. Borders already carry these pills, but the fills
+   were dark-theme values and read as white chips on #F2F2F7. */
+.fit-light .sp-pill.assigned  { background: rgba(10,147,189,0.16); }
+.fit-light .sp-pill.scheduled { background: rgba(8,180,143,0.18); }
+.fit-light .sp-pill.submitted { background: rgba(222,145,29,0.18); }
+.fit-light .sp-pill.online    { background: rgba(10,147,189,0.16); }
+.fit-light .sp-pill.overdue   { background: rgba(240,92,91,0.16); }
 .sp-pill.assigned  { color: var(--fit-blue-500);      background: rgba(3,178,226,0.12);  border: 1px solid rgba(3,178,226,0.3); }
 .sp-pill.scheduled { color: var(--fit-teal-500);      background: rgba(5,224,166,0.10);  border: 1px solid rgba(5,224,166,0.3); }
 .sp-pill.submitted { color: var(--fit-yellow-600);    background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.3); }
@@ -1245,6 +1341,8 @@
 .sp-pill.overdue   { color: var(--fit-red-400);       background: rgba(240,92,91,0.12);  border: 1px solid rgba(240,92,91,0.3); }
 .sp-pill.refunded  { color: var(--fit-text-tertiary); background: var(--fit-surface-high); border: 1px solid var(--fit-divider); }
 
+/* Sits ON a tinted tile, so it must clear the tile, not the canvas. */
+.fit-light .fit-cal-event-badge { background: rgba(10,147,189,0.22); }
 .fit-cal-event-badge {
   position: absolute; top: 8px; right: 10px;
   font-size: 10px; font-weight: 600;
@@ -2181,10 +2279,10 @@
 .fit-light .fit-input::placeholder { color: #979EA5; }
 
 /* Light theme cards, tickets, spots (on #F2F2F7 screen bg) */
-.fit-light .fit-card { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
-.fit-light .fit-ticket { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
-.fit-light .fit-participants-card { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
-.fit-light .set-card { box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+.fit-light .fit-card { background: var(--fit-white); box-shadow: var(--fit-elevation-card); }
+.fit-light .fit-ticket { background: var(--fit-white); box-shadow: var(--fit-elevation-card); }
+.fit-light .fit-participants-card { background: var(--fit-white); box-shadow: var(--fit-elevation-card); }
+.fit-light .set-card { box-shadow: var(--fit-elevation-card); }
 .fit-light .fit-spots { background: var(--fit-gray-100); }
 .fit-light .fit-spots-fill { background: var(--fit-gray-200); }
 
@@ -2919,7 +3017,7 @@ svg.i-sm { width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;
    ============================================================ */
 .fit-txn-date { padding: 16px 16px 6px; font-size: 13px; color: var(--fit-text-tertiary); }
 .fit-txn-group { border-radius: 14px; overflow: hidden; margin: 0 16px 4px; }
-.fit-light .fit-txn-group { box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+.fit-light .fit-txn-group { box-shadow: var(--fit-elevation-card); }
 .fit-txn { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--fit-surface-high); cursor: pointer; }
 .fit-light .fit-txn { background: var(--fit-white); }
 .fit-txn + .fit-txn { border-top: 1px solid var(--fit-divider); }
@@ -2947,7 +3045,7 @@ svg.i-sm { width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;
 
 /* Detail key-value rows + detail hero — transaction / payout detail screens */
 .fit-kv-group { border-radius: 14px; overflow: hidden; margin: 0 16px; }
-.fit-light .fit-kv-group { box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+.fit-light .fit-kv-group { box-shadow: var(--fit-elevation-card); }
 .fit-kv { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; background: var(--fit-surface-high); }
 .fit-light .fit-kv { background: var(--fit-white); }
 .fit-kv + .fit-kv { border-top: 1px solid var(--fit-divider); }
@@ -2955,7 +3053,7 @@ svg.i-sm { width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;
 .fit-kv-value { font-size: 14px; color: var(--fit-text-primary); font-weight: 500; text-align: right; }
 .fit-kv-value.muted { color: var(--fit-text-tertiary); }
 .fit-detail-hero { margin: 0 16px; padding: 24px; border-radius: 16px; background: var(--fit-surface-high); display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.fit-light .fit-detail-hero { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+.fit-light .fit-detail-hero { background: var(--fit-white); box-shadow: var(--fit-elevation-card); }
 .fit-detail-hero-amt { font-size: 32px; font-weight: 600; letter-spacing: -0.5px; }
 .fit-detail-hero-amt.plus { color: var(--fit-teal-500); }
 .fit-detail-hero-amt.minus { color: var(--fit-text-primary); }
@@ -3046,7 +3144,7 @@ svg.i-sm { width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;
   background: var(--fit-surface-high);
   transition: opacity 0.2s ease, transform 0.2s ease, margin 0.2s ease, padding 0.2s ease, height 0.2s ease;
 }
-.fit-light .fit-request-card { box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+.fit-light .fit-request-card { box-shadow: var(--fit-elevation-card); }
 .fit-request-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; cursor: pointer; }
 .fit-request-card-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--fit-surface-higher); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 500; color: var(--fit-text-secondary); flex-shrink: 0; }
 .fit-request-card-name { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }

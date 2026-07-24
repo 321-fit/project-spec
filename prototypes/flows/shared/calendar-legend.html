@@ -294,6 +294,20 @@
       </div>
     </div>
 
+    <div class="lg-row" data-a11y-id="shared.calendar-legend.row.drag-invalid">
+      <div class="lg-swatch">
+        <div class="fit-cal-event fit-cal-event-personal dragging invalid">
+          <div class="fit-cal-event-title">Basketball</div>
+          <div class="fit-cal-event-meta">can&rsquo;t drop here</div>
+        </div>
+      </div>
+      <div class="lg-text">
+        <div class="lg-name">Can&rsquo;t move it there</div>
+        <div class="lg-desc">While you drag a session, the block itself turns red over any slot that won&rsquo;t take it &mdash; outside your hours, blocked, or already busy.</div>
+        <div class="lg-note">The zone stays a zone; only the thing you&rsquo;re moving says no.</div>
+      </div>
+    </div>
+
     <p class="lg-foot">Cancelled sessions disappear from the calendar completely &mdash; there is no greyed-out leftover to read.</p>
 
   </div>
@@ -339,6 +353,24 @@
       <li><strong>Blocked</strong> (<code>.fit-cal-blocked</code>) &mdash; taken inside working hours. Diagonal hatch, inset and rounded like a card. Hatch is reserved for &ldquo;busy&rdquo; so the pattern keeps exactly one meaning.</li>
       <li>The grid is always <strong>00:00&ndash;24:00</strong>, so day height never depends on availability; the view auto-scrolls to the now-line, or to the first available hour.</li>
       <li>Athlete calendars carry <strong>no</strong> off-hours shading &mdash; an athlete has no availability, so there is nothing to grey out.</li>
+    </ul>
+
+    <h4>Colour system &mdash; where the values live</h4>
+    <p>Tints are not one value per role, they are one value <em>per theme</em>. A tinted surface has to move away from its own canvas in luminance, and the canvases sit at opposite ends:</p>
+    <table>
+      <tr><th></th><th>dark</th><th>light</th></tr>
+      <tr><td>Personal</td><td>teal-500 @10%</td><td>teal-600 @18%</td></tr>
+      <tr><td>Group</td><td>blue-500 @12%</td><td>blue-600 @16%</td></tr>
+      <tr><td>Request / Review</td><td>yellow-600 @10%</td><td>yellow-600 @20%</td></tr>
+      <tr><td>Missed</td><td>red-400 @10%</td><td>red-400 @16%</td></tr>
+      <tr><td>Off-hours</td><td>black @35%</td><td><code>#3C3C43</code> @10%</td></tr>
+    </table>
+    <p class="note">Both columns land ~6&ndash;7 &Delta;L* off their canvas. The light column uses the <strong>darker accent step at a higher alpha</strong> &mdash; raising the alpha of the same bright accent buys saturation, not separation (teal-500 needs 28% to get there, and by then it reads as candy).</p>
+    <ul>
+      <li>Prototype: <code>lib/fit-ui.css</code> &mdash; <code>.fit-light</code> overrides, marked <code>TINT RULE</code>.</li>
+      <li>Tokens: <a href="https://github.com/321-fit/design-tokens/blob/main/tokens/color-semantic.json"><code>design-tokens/tokens/color-semantic.json</code></a> &mdash; <code>color.bg.*-{subtle,tinted}.{light,dark}</code>, <code>color.text.secondary.light</code>, <code>color.divider.light</code>. The light entries there still mirror the dark hue at a <em>lower</em> alpha; that is the correction owed upstream.</li>
+      <li>Elevation: <a href="https://github.com/321-fit/design-tokens/blob/main/tokens/elevation.json"><code>design-tokens/tokens/elevation.json</code></a> &mdash; the card edge is <code>elevation.2</code>; light now uses a two-layer shadow (<code>--fit-elevation-card</code>) instead of the single 12px/7% blur.</li>
+      <li>Native components: <a href="https://github.com/321-fit/design-tokens/blob/main/docs/components.md"><code>design-tokens/docs/components.md</code></a>.</li>
     </ul>
 
     <h4>Source of truth</h4>

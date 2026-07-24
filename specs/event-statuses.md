@@ -198,6 +198,22 @@ Consequences of keeping those separate:
 - **Personal events carry a teal tint in both themes.** Dark theme previously gave group a blue tint but left personal on a neutral surface, so two training types followed different rules inside one theme and the type lived only in a 3px stripe.
 - Because tint now means *type*, the neutral surface is free to mean *not a training* — busy time, external events and cross-role tiles are all readable at a glance without their labels.
 
+### Light-theme tints (2026-07-24)
+
+A tinted surface has to move **away from its canvas** in luminance. On the dark canvas a bright accent at 10–12% lightens the surface and reads; on `#F2F2F7` the same accent at 8% moves only 1.8 ΔL* (its dark counterpart moves 7.1) — the tile looks white. Raising the alpha of the *same bright* accent buys saturation, not separation.
+
+Rule: **light tints derive from the darker accent step at a higher alpha.**
+
+| | dark | light |
+|---|---|---|
+| Personal | teal-500 @10% | teal-600 @18% |
+| Group | blue-500 @12% | blue-600 @16% |
+| Request / Review | yellow-600 @10% | yellow-600 @20% |
+| Missed | red-400 @10% | red-400 @16% |
+| Off-hours wash | black @35% | `#3C3C43` @10% |
+
+Both columns land ~6–7 ΔL* off their own canvas. The same correction is owed to the generated tint tokens (`--fit-color-bg-*-light`), which currently mirror the dark hue at a *lower* alpha — that has to go through Figma → design-tokens first.
+
 ### Day zones
 
 | Zone | Means | Visual | Class |
@@ -208,6 +224,16 @@ Consequences of keeping those separate:
 - **Hatching means "busy" and nothing else.** Using it for both "I don't work then" and "that slot is taken" made the two indistinguishable; a calm wash covers the 8+ off-hours of a 24h day without moire, and the hatch keeps a single meaning.
 - **Shape carries the difference too:** a full-bleed, radius-free band reads as a *state of the day*; an inset, rounded block reads as an *object occupying a slot*.
 - Every contiguous band repeats the short label ("Outside your hours", no time range — the ruler already shows it) so a fragmented availability day explains itself wherever the user lands. Bands under 32px drop the label and keep the wash.
+
+### Drag targeting
+
+While an event is dragged, the calendar has to answer "can I drop here?". The verdict rides on the **dragged tile**, not on the day:
+
+- The dragged tile gets `.invalid` — red tint + red perimeter + red label — over any target that refuses it: outside available hours, blocked, or already occupied. Same grammar as `.fit-bk-sel.invalid` in the booking time-grid, so "red block = it can't go there" is learned once.
+- Off-hours bands deepen (`.fit-timeline.dragging .fit-cal-offhours`) so the boundary is unmistakable mid-drag, and their labels hide so a parked tile doesn't have the caption reading through it. The band does **not** turn red — flooding half the day with an error colour is alarm without information and competes with the tile the user is looking at.
+- The snackbar names the reason ("Outside your available hours" / "slot occupied"), which is what distinguishes the refusal types.
+
+Open: whether an off-hours drop should be *refused* at all, or allowed behind a confirm ("This is outside your available hours. Schedule anyway?"). Coaches do take the occasional early client; today the drop is blocked outright.
 
 ### Grid
 
