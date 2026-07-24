@@ -162,18 +162,21 @@
 
    teal-600 #08B48F · blue-600 #0A93BD · yellow-600 #DE911D · red-400 #F05C5B
 
-   TOKEN CANDIDATE — the same correction belongs in the generated tokens
-   (`--fit-color-bg-{brand,info,warning,error,success}-{subtle,tinted}-light`
-   currently mirror the dark hue at a lower alpha). fit-ui-tokens.css is
-   generated ("Do not edit directly"), so it has to land in Figma →
-   design-tokens first; these CSS overrides are the prototype-side preview.
+   APPROVED and landed in the token source, so prefer the semantic tokens over
+   a literal: `--fit-bg-{brand,info,warning,error,success}-{subtle,tinted}`
+   already carry the correct value per theme (design-tokens
+   `tokens/color-semantic.json`). Only reach for a literal where the calendar
+   deliberately diverges from a token — today that is the yellow lane, because
+   `bg.warning-*` is yellow-400 in dark while the status system uses yellow-600
+   in both themes.
 
    ── EDGE / RAMP: variant D «через тень» (2026-07-24) ──────────
    Canvas stays #F2F2F7. What changes: a real two-layer card shadow, the
    divider a step darker, and secondary/tertiary text split into two steps
    instead of both being gray-500. Snapped to EXISTING gray steps
-   (gray-200 / gray-600 / gray-500) so the decision needs no new colour in
-   Figma — only the shadow value is new.
+   (gray-200 / gray-600 / gray-500), so the only genuinely new value is the
+   shadow. All of it lives in the tokens now — this block is the rationale,
+   not a second source of truth.
    ============================================================ */
 .fit-light {
   --fit-screen-bg:        var(--fit-color-screen-light);
@@ -182,25 +185,17 @@
   --fit-surface-high:     var(--fit-color-surface-high-light);
   --fit-surface-higher:   var(--fit-color-surface-higher-light);
   --fit-text-primary:     var(--fit-color-text-primary-light);
-  /* D · ramp split — both used to resolve to gray-500, so light had no
-     three-step ramp at all. Secondary drops to gray-600 (5.5:1 on canvas,
-     AA), tertiary keeps gray-500 (3.7:1). TOKEN CANDIDATE: set
-     --fit-color-text-secondary-light to gray-600 upstream. */
-  --fit-text-secondary:   var(--fit-color-gray-600);
+  --fit-text-secondary:   var(--fit-color-text-secondary-light);
   --fit-text-tertiary:    var(--fit-color-text-tertiary-light);
   --fit-text-placeholder: var(--fit-color-text-placeholder-light);
   --fit-text-disabled:    var(--fit-color-text-disabled-light);
   --fit-text-on-brand:    var(--fit-color-text-on-brand-light);
   --fit-text-error:       var(--fit-color-text-error-light);
-  /* D · divider gray-100 → gray-200: 1.12:1 vs canvas was invisible, 1.40:1
-     reads. TOKEN CANDIDATE upstream. */
-  --fit-divider:          var(--fit-color-gray-200);
-  /* D · card edge. The old single 12px/7% blur read as a smudge rather than a
-     lift. Two layers: a 1px contact shadow that actually draws the edge, plus
-     a soft ambient one for depth. Declared once — the literal used to be
-     copy-pasted 9 times, and a second `.fit-light .fit-card` further down the
-     file silently won the cascade. */
-  --fit-elevation-card: 0 1px 3px rgba(0,0,0,0.10), 0 6px 16px rgba(0,0,0,0.08);
+  --fit-divider:          var(--fit-color-divider-light);
+  /* Card edge. Declared once — the literal used to be copy-pasted 9 times, and
+     a second `.fit-light .fit-card` further down the file silently won the
+     cascade. Value lives in design-tokens (`elevation.2.light`). */
+  --fit-elevation-card: var(--fit-elevation-2-light);
   --fit-border-focus:     var(--fit-color-border-focus-light);
   --fit-border-error:     var(--fit-color-border-error-light);
   --fit-bg-disabled:      var(--fit-color-bg-disabled-light);
@@ -1178,11 +1173,8 @@
    the type colour also only existed as a 3px stripe, which is a weak signal
    when scanning a packed day. Tint carries the type, stripe reinforces it. */
 .fit-cal-event-personal::before {
-  background: rgba(5,224,166,0.10);
+  background: var(--fit-bg-brand-subtle);
   border-left: 3px solid var(--fit-teal-500);
-}
-.fit-light .fit-cal-event-personal::before {
-  background: rgba(8,180,143,0.18);   /* teal-600 — 6.2 dL* off canvas */
 }
 /* Custom event (coach's own calendar block — no athlete, no template).
    Distinct from cross-role (which is muted): custom IS the coach's own
@@ -1231,11 +1223,8 @@
   z-index: 1;
 }
 .fit-cal-event-group::before {
-  background: rgba(3,178,226,0.12);
+  background: var(--fit-bg-info-subtle);
   border-left: 3px solid var(--fit-blue-500);
-}
-.fit-light .fit-cal-event-group::before {
-  background: rgba(10,147,189,0.16);   /* blue-600 — 6.7 dL* */
 }
 .fit-cal-event-title-row {
   display: flex; align-items: center; gap: 8px; margin-bottom: 2px;
@@ -1282,11 +1271,10 @@
 .fit-light .fit-cal-event.review::before { background: rgba(222,145,29,0.20); }
 /* Missed (no-show or auto after N days) */
 .fit-cal-event.missed::before {
-  background: rgba(240,92,91,0.10);
+  background: var(--fit-bg-error-subtle);
   border: 1px solid var(--fit-red-400);
   border-left: 3px solid var(--fit-red-400);
 }
-.fit-light .fit-cal-event.missed::before { background: rgba(240,92,91,0.16); }
 /* Finished (coach completed Review) — faded base, no perimeter, stripe persists */
 .fit-cal-event.finished { opacity: 0.5; }
 /* Calendar event pill — inline status badge next to title */
