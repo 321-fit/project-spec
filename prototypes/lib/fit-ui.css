@@ -976,6 +976,24 @@
   white-space: nowrap;
 }
 .fit-cal-offhours.tight .fit-cal-offhours-label { display: none; }
+/* «Disabled» is not a hue — it is loss of definition plus depth. A tint alone
+   reads as "a differently coloured band"; what makes a zone feel inert is that
+   the content under it recedes. So inside the band the hour rules drop to ~35%
+   and the band gets an inner shadow on both edges, which reads as a recessed
+   well rather than a fill.
+   Deliberately NOT a real backdrop blur: the only things under the band are
+   1px hairlines (blurring them just fades them — same result, GPU cost) and
+   10px hour labels, which the coach still has to read to navigate. On Android
+   `Modifier.blur` is also API 31+, so the signal would silently vanish on older
+   devices, and a live blur under a scrolling grid repaints every frame. */
+.fit-cal-offhours {
+  box-shadow: inset 0 7px 9px -7px rgba(0,0,0,0.55),
+              inset 0 -7px 9px -7px rgba(0,0,0,0.55);
+}
+.fit-light .fit-cal-offhours {
+  box-shadow: inset 0 7px 9px -7px rgba(0,0,0,0.14),
+              inset 0 -7px 9px -7px rgba(0,0,0,0.14);
+}
 /* Hour rows covered by an off-hours zone — dim the label so the whole band
    reads as one recessed area. The label must paint ABOVE the full-bleed wash,
    hence the positioning (absolutely-positioned overlays otherwise cover
@@ -983,6 +1001,11 @@
 .fit-hour.offhours .fit-hour-label {
   opacity: 0.55; position: relative; z-index: 1;
 }
+/* Hour rules inside the band: divider at ~35% (gray-700 dark / gray-200 light,
+   i.e. the same token, just faded). The labels keep their opacity — they are
+   the one thing that must stay readable in there. */
+.fit-hour.offhours { border-top-color: rgba(59,64,68,0.35); }
+.fit-light .fit-hour.offhours { border-top-color: rgba(204,207,210,0.45); }
 
 /* ── Drag targeting mode ──────────────────────────────────────
    While an event is being dragged the calendar has to answer one question:

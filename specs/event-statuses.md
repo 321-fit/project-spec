@@ -241,11 +241,13 @@ Both columns land ~6–7 ΔL* off their own canvas. Landed in the token source 2
 
 | Zone | Means | Visual | Class |
 |---|---|---|---|
-| **Off-hours** | Outside the coach's availability | Flat tonal wash, **full-bleed to the screen edge**, no radius, dimmed hour labels, one centered label per contiguous band | `.fit-cal-offhours` (+ `.fit-hour.offhours`) |
+| **Off-hours** | Outside the coach's availability | Flat tonal wash, **full-bleed to the screen edge**, no radius, one centered label per contiguous band. Inside the band the **hour rules drop to ~35%** and both edges carry an **inner shadow**, so the zone reads as a recessed well rather than a differently-coloured strip | `.fit-cal-offhours` (+ `.fit-hour.offhours`) |
 | **Blocked** | Inside working hours but taken (external event, time off) | Diagonal hatch, inset and rounded like a card | `.fit-cal-blocked` |
 
 - **Hatching means "busy" and nothing else.** Using it for both "I don't work then" and "that slot is taken" made the two indistinguishable; a calm wash covers the 8+ off-hours of a 24h day without moire, and the hatch keeps a single meaning.
 - **Shape carries the difference too:** a full-bleed, radius-free band reads as a *state of the day*; an inset, rounded block reads as an *object occupying a slot*.
+- **"Disabled" is loss of definition, not a hue.** A tint alone reads as "a differently coloured band" — what makes a zone feel inert is that the content under it recedes, so the rules inside it fade and the edges are recessed. Hour labels keep their contrast: they are the one thing still needed for navigation.
+- **Not a real backdrop blur**, deliberately. The only content under the band is 1px hairlines (blurring them merely fades them — same result at GPU cost) and 10px hour labels, which must stay readable. On Android `Modifier.blur` is API 31+, so the signal would silently disappear on older devices, and a live blur under a scrolling grid repaints every frame.
 - Every contiguous band repeats the short label ("Outside your hours", no time range — the ruler already shows it) so a fragmented availability day explains itself wherever the user lands. Bands under 32px drop the label and keep the wash.
 
 ### Drag targeting
