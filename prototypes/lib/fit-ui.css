@@ -989,18 +989,25 @@
 .fit-cal-offhours {
   box-shadow: inset 0 7px 9px -7px rgba(0,0,0,0.55),
               inset 0 -7px 9px -7px rgba(0,0,0,0.55);
+  /* A hair of blur on top of the recession — enough to take the edge off the
+     rules and hour labels underneath, not enough to make the labels unreadable
+     (1.6px already smudges "04:00"). Progressive enhancement ONLY: the faded
+     rules + recessed edges carry the meaning, so where this doesn't render
+     (Android below API 31 has no `Modifier.blur`) nothing is lost. */
+  backdrop-filter: blur(0.8px);
+  -webkit-backdrop-filter: blur(0.8px);
 }
 .fit-light .fit-cal-offhours {
   box-shadow: inset 0 7px 9px -7px rgba(0,0,0,0.14),
               inset 0 -7px 9px -7px rgba(0,0,0,0.14);
 }
-/* Hour rows covered by an off-hours zone — dim the label so the whole band
-   reads as one recessed area. The label must paint ABOVE the full-bleed wash,
-   hence the positioning (absolutely-positioned overlays otherwise cover
-   in-flow inline text). */
-.fit-hour.offhours .fit-hour-label {
-  opacity: 0.55; position: relative; z-index: 1;
-}
+/* Hour rows covered by an off-hours zone. The label sits UNDER the zone on
+   purpose — that is what puts it behind the wash and inside the blur, so the
+   whole band recedes together. It then needs its opacity raised to pay for the
+   wash now sitting on top: 35% black in dark (0.55 drops it too far — measured),
+   only ~10% in light, so light stays lower and keeps the muted look. */
+.fit-hour.offhours .fit-hour-label { opacity: 0.75; }
+.fit-light .fit-hour.offhours .fit-hour-label { opacity: 0.6; }
 /* Hour rules inside the band: divider at ~35% (gray-700 dark / gray-200 light,
    i.e. the same token, just faded). The labels keep their opacity — they are
    the one thing that must stay readable in there. */
