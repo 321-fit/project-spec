@@ -103,8 +103,8 @@ component in `design-tokens/docs/components.md` (and live in `design-tokens/Sour
 | `.fit-toggle` | Switches | `FitToggle` |
 | `.fit-stepper` | Steppers | `FitStepper` |
 | `.fit-cal-*` | Calendar grid + event pills | `FitCalEvent`, `FitCalEventPill` |
-| `.fit-cal-offhours` | Outside-availability wash on the 24h grid (+ `.fit-hour.offhours` dims labels) | `FitCalOffHours` |
-| `.fit-cal-blocked` | Hatched "busy" zone inside working hours (external / time off) | `FitCalBlocked` |
+| `.fit-cal-offhours` | Outside-availability wash on the 24h grid (+ `.fit-hour.offhours` fades rules/labels) | `FitTimeline` → OffHoursBand |
+| `.fit-cal-blocked` | Hatched "busy" zone inside working hours (external / time off) | `FitTimeline` → BlockedBand |
 | `.fit-day-*` | Day strips / circles | `FitDayStrip` |
 | `.fit-availability-*` | Availability day cells | `FitAvailabilityDay` |
 | `.fit-avatar` | Avatars | `FitAvatar` |
