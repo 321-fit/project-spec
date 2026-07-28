@@ -447,10 +447,15 @@
   <div class="fit-sheet-overlay" id="ath-event-sheet">
     <div class="fit-sheet" id="ath-event-body" data-event-state="planned" style="padding:8px 16px 40px;">
       <div class="fit-sheet-handle"></div>
-      <!-- Status header: descriptor + optional pill -->
+      <!-- Status header: descriptor + optional pill + message icon.
+           Message lives here (not in the footer) because it is available in every
+           state — mirror of the coach drawer (2026-07-28). -->
       <div class="fit-sheet-status-header">
         <div class="fit-sheet-descriptor" id="ath-ev-descriptor">Confirmed session</div>
         <span class="fit-cal-event-pill" id="ath-ev-pill" style="display:none;"></span>
+        <button class="fit-sheet-menu-btn" data-a11y-id="athlete.calendar.event.message" aria-label="Open chat" style="color:var(--fit-brand-primary);" onclick="window.location.href='../shared/messages.html'">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </button>
       </div>
 
       <!-- Awaiting-only: expiry note -->
@@ -494,9 +499,6 @@
 
       <!-- Footer variants — one visible per data-event-state -->
       <div class="fit-sheet-footer-variant ev-planned">
-        <button style="width:50px;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" aria-label="Message coach" onclick="window.location.href='../shared/messages.html'">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        </button>
         <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');document.getElementById('ath-reschedule-sheet').classList.add('visible');">Reschedule</button>
         <button class="fit-btn fit-btn-destructive" style="flex:1;height:50px;font-size:16px;" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');document.getElementById('ath-cancel-sheet').classList.add('visible');">Cancel</button>
       </div>
@@ -619,9 +621,11 @@
       <button onclick="openAthEvent('missed');annPick(this)">Missed</button>
       <button onclick="previewCoachConfirmedSheet();annPick(this)">Coach-confirmed</button>
     </div>
-    <p>Same calendar as coach, light theme, <strong>no drag &amp; drop</strong>. The event drawer reuses the coach&rsquo;s <strong>unified state-aware sheet</strong> (<code>data-event-state</code> + canonical <code>.fit-sheet-footer-variant</code> + status pills) — accept/decline happens <strong>right on the calendar</strong> (no deep-link into notifications).</p>
+    <p>Same calendar as coach, light theme. The event drawer reuses the coach&rsquo;s <strong>unified state-aware sheet</strong> (<code>data-event-state</code> + canonical <code>.fit-sheet-footer-variant</code> + status pills) — accept/decline happens <strong>right on the calendar</strong> (no deep-link into notifications).</p>
     <ul>
-      <li><strong>Planned</strong> — confirmed session. Footer: <em>Message coach</em> + <em>Reschedule</em> (sends a new time as a fresh request — coach must approve; current slot stays booked until then) + <em>Cancel</em> → cancel-with-refund sheet (free up to 24h, &euro; back to balance; within 24h = policy warning).</li>
+      <li><strong>Drag-reschedule — own 1-1 sessions only</strong> (revised 2026-07-28; the earlier &ldquo;no drag &amp; drop&rdquo; note is retired). The athlete drags a future personal session on the grid exactly like the coach does; the drop is a <strong>reschedule request</strong>, not a unilateral move — the event goes to <em>Awaiting</em> until the coach accepts, and the current slot stays booked meanwhile (<code>PATCH /athlete/training-events/{id}/reschedule</code>). <strong>Not draggable:</strong> group sessions (coach-owned — the coach drives group reschedules), external Google/Apple events, cross-role coach tiles, and anything in the past. Mid-drag the tile shows the <strong>coach&rsquo;s</strong> busy zones so you can&rsquo;t drop onto a slot they can&rsquo;t take; an invalid target paints the tile <code>.invalid</code> and the snackbar names the reason. Matches prod iOS <code>ScheduleViewModel.isDraggable</code>; shipped on Android in epic <code>321fit_android_new#122</code>.</li>
+      <li><strong>Header</strong> — descriptor + status pill + a <strong>message icon</strong> (revised 2026-07-28; it used to sit in the Planned footer). Messaging the coach works in every state, so it belongs to the sheet chrome, not to one state's action row — same rule on the coach drawer, where the header also carries the <code>⋯</code> action hub.</li>
+      <li><strong>Planned</strong> — confirmed session. Footer: <em>Reschedule</em> (sends a new time as a fresh request — coach must approve; current slot stays booked until then) + <em>Cancel</em> → cancel-with-refund sheet (free up to 24h, &euro; back to balance; within 24h = policy warning).</li>
       <li><strong>Request</strong> (yellow pill) — <em>coach scheduled this, you must respond</em>. Footer: <strong>Decline / Accept</strong> inline. (Same action also lives in the Inbox &ldquo;To reply&rdquo; tab — calendar is the time-view shortcut, [[project_inbox_unification]].)</li>
       <li><strong>Awaiting</strong> (dashed yellow tile + outlined yellow pill — tentative, not actionable) — <em>you requested, waiting on the coach</em>. Shows an expiry note (&ldquo;Expires in 22h — auto-cancelled &amp; refunded&rdquo;, the 48h window). Footer: <em>Cancel request</em>. Mirror of the Inbox &ldquo;Waiting&rdquo; tab.</li>
       <li><strong>Finished</strong> (faded) — footer <strong>Rate this session</strong> → star sheet. The written <em>review</em> is a separate follow-up notification the day after the first session (not here).</li>

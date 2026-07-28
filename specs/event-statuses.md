@@ -259,6 +259,15 @@ While an event is dragged, the calendar has to answer "can I drop here?". The ve
 - Off-hours bands deepen (`.fit-timeline.dragging .fit-cal-offhours`) so the boundary is unmistakable mid-drag, and their labels hide so a parked tile doesn't have the caption reading through it. The band does **not** turn red — flooding half the day with an error colour is alarm without information and competes with the tile the user is looking at.
 - The snackbar names the reason ("Outside your available hours" / "slot occupied"), which is what distinguishes the refusal types.
 
+**Who can drag what** (2026-07-28 — both roles drag; the grammar above is shared verbatim):
+
+| Role | Draggable | Drop means |
+|---|---|---|
+| Coach | own personal, group and custom events (future) | direct move for custom/blocked time; reschedule + notify for booked sessions (recurring gets this/following/all scope) |
+| Athlete | own **1-1 personal** sessions only (future) | **reschedule request** — event → `awaiting`, original slot held until the coach accepts (`PATCH /athlete/training-events/{id}/reschedule`) |
+
+Never draggable for either role: external Google/Apple events, cross-role tiles, past events. Group events are athlete-undraggable because a move ripples to every participant. The constraining availability while dragging is always the **counterparty's** on the athlete side and the **coach's own** on the coach side. See [athlete-schedule.md § Drag-reschedule](./athlete-schedule.md).
+
 Open: whether an off-hours drop should be *refused* at all, or allowed behind a confirm ("This is outside your available hours. Schedule anyway?"). Coaches do take the occasional early client; today the drop is blocked outright.
 
 ### Grid

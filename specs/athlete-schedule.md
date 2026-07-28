@@ -4,7 +4,7 @@
 > Prototype: [flows/athlete/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/calendar.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md) — FitCalEvent, FitCalEventPill, FitRoleTag
 > Related: [coach-calendar.md](./coach-calendar.md), [event-statuses.md](./event-statuses.md)
-> Last updated: 2026-06-30 (state-aware event drawer brought up to coach parity — Planned/Request/Awaiting/Finished/Missed; accept/decline on the calendar; rate-on-finish; cancel-with-refund — see "Event drawer" below)
+> Last updated: 2026-07-28 (athlete **drag-reschedule of own 1-1 sessions** documented — retires the earlier "no drag & drop" note; see "Drag-reschedule — athlete side")
 
 ## Overview
 Athletes use the same Schedule tab as coaches but with a different feature set. Athletes browse coach availability and send booking requests. They cannot create events directly — only request sessions that coaches must approve.
@@ -20,6 +20,8 @@ Athletes use the same Schedule tab as coaches but with a different feature set. 
 - As an athlete, I want to distinguish a confirmed session from one I've requested (Awaiting) or that a coach invited me to (Request), so I know if I owe anyone an answer.
 - As an athlete, I want my external Google/Apple Calendar events to block me out so I don't double-book myself with a training.
 - As an athlete, I want to tap a planned session and see the full detail (coach, time, location, price, payment method) + actions (cancel, message coach) without leaving the calendar context.
+- As an athlete, I want to drag one of my own 1-1 sessions to a new time on the grid and have it sent to the coach as a reschedule request, so moving a session is as direct as booking one — while my original slot stays held until they answer.
+- As an athlete, I want group sessions and my synced Google/Apple events to refuse the drag, so I can't imply a change I'm not allowed to make.
 - As an athlete, I want to leave a star rating after a session via a post-training sheet (triggered by push or tap on a finished event).
 - As an athlete who is also a coach, I want to see the coaching sessions on my OWN coach roster appear here too — muted, but tappable — so I don't double-book training time when I have an upcoming class to run. Switching to coach view from that tile should be one tap.
 
@@ -95,19 +97,41 @@ Athletes and coaches share the **same** `ScheduleView` and `ScheduleViewModel`. 
 ### What Athletes CAN'T Do (vs Coach)
 | Feature | Athlete | Coach |
 |---|---|---|
-| Drag & drop events | Own events only (today/future) | Own events |
+| Drag & drop events | Own **1-1** sessions only (future) — see below | Own events (personal + group + custom) |
 | Create events directly | No — sends request | Yes |
 | Create custom events | No | Yes |
 | Create events in past | No | Yes |
 | Manage work hours | No | Via settings |
 
+### Drag-reschedule — athlete side (2026-07-28)
+
+The athlete drags a session on the timeline exactly like the coach does, but the drop is a **reschedule request**, never a unilateral move: the event goes to **Awaiting** and the athlete keeps the original slot until the coach accepts. Endpoint: `PATCH /athlete/training-events/{id}/reschedule`.
+
+**Draggable predicate** (mirrors prod iOS `ScheduleViewModel.isDraggable`):
+`future && ownRole && type == Personal` — i.e. **own 1-1 sessions only**.
+
+Excluded, and why:
+
+| Not draggable | Reason |
+|---|---|
+| Group sessions | Coach-owned; a group move ripples across every participant, so the coach drives it (with this/following/all scope) |
+| External Google/Apple events | Not 321Fit entities — non-draggable for both roles |
+| Cross-role coach tiles (user is also a coach) | Read-only on this side; tap opens `ath-cross-role-sheet` → Switch to coach |
+| Anything in the past | Clamped by the shared scaffold for both roles |
+
+While dragging, the grid shows the **coach's** occupied/unavailable zones (the counterparty constrains the choice — the athlete has no availability of their own). An invalid target paints the dragged tile `.invalid` and the snackbar names the reason. Same drag grammar as the coach calendar — see [event-statuses.md § Drag targeting](./event-statuses.md).
+
+Shipped: Android epic `321fit_android_new#122` (step 4). iOS: already prod.
+
 ### Event drawer — states & actions (2026-06-30)
 
 Tapping an event opens a **unified, state-aware bottom drawer** — the athlete-side mirror of the coach's `cal-event-sheet`. It reuses the **canonical** status grammar (`fit-ui.css` `.fit-cal-event.request / .awaiting / .missed / .finished` tile tints + `.fit-cal-event-pill--*` pills) and the canonical `data-event-state` + `.fit-sheet-footer-variant` mechanism — shared verbatim with the coach calendar. **Accept/Decline happens right on the calendar** (no deep-link into the Inbox); the same action also lives in the Inbox "To reply" tab (`dashboard.html#s-notifications`) — the calendar is the time-view shortcut. See [event-statuses.md](./event-statuses.md) for the shared 6-state system.
 
+**Header (all states):** descriptor + status pill + a **message icon** opening the chat with the coach. Messaging works in every state, so it is sheet chrome rather than a state action — the footer below lists only the state's response. (Revised 2026-07-28; it previously sat inside the Planned footer.) Same rule on the coach drawer, whose header additionally carries the `⋯` action hub.
+
 | State | Tile | Drawer descriptor + pill | Footer actions |
 |---|---|---|---|
-| **Planned** | teal/blue, no pill | "Confirmed session" | Message coach · **Reschedule** (→ new request, coach approves; current slot held) · **Cancel** → cancel-with-refund sheet |
+| **Planned** | teal/blue, no pill | "Confirmed session" | **Reschedule** (→ new request, coach approves; current slot held) · **Cancel** → cancel-with-refund sheet |
 | **Request** (incoming — coach scheduled, athlete must respond) | yellow tint + "Request" pill | "Coach invited you" | **Decline / Accept** (inline) |
 | **Awaiting** (outgoing — athlete requested, waiting on coach) | gray + "Awaiting" pill | "Waiting for coach" + expiry note ("Expires in 22h — auto-cancelled & refunded", the 48h window) | **Cancel request** |
 | **Finished** | faded (opacity 0.5), no pill | "Completed" | **Rate this session** → star sheet |

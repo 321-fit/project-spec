@@ -65,11 +65,11 @@ Root tab screen, has the nav bar footer. Acts as both agenda view (for the coach
 1. Coach taps an event block on the timeline.
 2. `FitUI.openEventSheet(state: '<current>', event: {...})` → sheet slides up.
 3. Sheet content:
-   - Status header (descriptor + optional pill)
+   - Status header (descriptor + optional pill + **action slot**: message icon → chat with the athlete, and the `⋯` action hub → Edit details). Both are available in every state, which is exactly why they live in the header instead of the footer (revised 2026-07-28 — the message icon used to sit in the `planned` footer).
    - Avatar + athlete name (tap → opens their client detail via push)
    - Event info (title 18pt, time 14pt, location with location icon, price + payment badge)
-   - State-aware footer:
-     - `planned`: Message icon + Reschedule (secondary) + Cancel (destructive)
+   - State-aware footer — the state's response only:
+     - `planned`: Reschedule (secondary) + Cancel (destructive)
      - `request`: Decline (destructive) + Accept (primary)
      - `awaiting`: Cancel request (destructive-low)
      - `review`: Complete training (primary)
