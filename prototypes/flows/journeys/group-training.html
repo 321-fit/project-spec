@@ -51,36 +51,43 @@
 <div class="j-head">
   <a class="j-back" href="../../index.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>All modules</a>
   <div class="j-title">Group training — end-to-end</div>
-  <div class="j-sub">A coach creates a <strong>group template</strong> (2–50 spots, a fixed weekly time or a one-off date), the system <strong>auto-generates events 2 months ahead</strong>, and athletes <strong>discover &amp; join</strong> them from the coach profile with <strong>open registration</strong> (first come, first served — no approval). The coach manages the roster, invites more athletes, then <strong>settles &amp; completes</strong> after the session. This map links each <strong>live screen</strong> (no copies) in flow order.</div>
+  <div class="j-sub">A coach creates a <strong>group template</strong> (2–50 spots, no schedule), then <strong>places it on the calendar</strong> as a one-off date or a weekly recurrence — each placement is what athletes can actually book. Weekly placements <strong>auto-generate 2 months ahead</strong>. Athletes <strong>discover &amp; join</strong> those events from the coach profile with <strong>open registration</strong> (first come, first served — no approval). The coach manages the roster, invites more athletes, then <strong>settles &amp; completes</strong> after the session. This map links each <strong>live screen</strong> (no copies) in flow order.</div>
   <div class="j-note">References, not duplicates — every step opens the canonical screen, so this never drifts from the source. Use the browser back button to return here. &nbsp;·&nbsp; Specs: <a href="https://github.com/321-fit/project-spec/blob/main/specs/group-training.md" style="color:var(--brand-primary)">group-training.md</a> + <a href="https://github.com/321-fit/project-spec/blob/main/specs/group-event-detail.md" style="color:var(--brand-primary)">group-event-detail.md</a>.</div>
 </div>
 
 <!-- Locked model — keep in sync with specs/group-training.md -->
 <div class="j-rules">
+  <div class="j-rule"><div class="j-rule-t">Template ≠ schedule</div><div class="j-rule-s">A template is a reusable <strong>definition only</strong> — no days, no time, no recurrence. Dates are picked later, on the calendar. <strong>One template → many placements.</strong> A template with no placement is invisible to athletes — they never see templates, only events.</div></div>
   <div class="j-rule"><div class="j-rule-t">Open registration</div><div class="j-rule-s">No approval — <strong>first come, first served</strong>. Card = hold on join, transferred after completion. Cash = just register; coach settles by hand.</div></div>
   <div class="j-rule"><div class="j-rule-t">Coach-added = owed, auto-accepted</div><div class="j-rule-s">Athletes the coach adds via <strong>Invite</strong> (in-app <em>or</em> CRM) join instantly — no consent step, <strong>no upfront charge</strong>. Their fee is <strong>owed</strong> and ticked off in Event completion. CRM rows carry a <strong>“CRM” badge</strong>.</div></div>
   <div class="j-rule"><div class="j-rule-t">No waitlist in V1</div><div class="j-rule-s">Full session = the join button is disabled (<strong>“Training is Full”</strong>). No waitlist, no notify-when-a-spot-opens.</div></div>
-  <div class="j-rule"><div class="j-rule-t">Recurring = weekly, 60 days</div><div class="j-rule-s">Auto-generate <strong>2 months ahead</strong>, rolling daily. <strong>Weekly only</strong> (multi-day, one time). Different weekday-times = separate templates. Min threshold warns the coach 24h out — <strong>no auto-cancel</strong>.</div></div>
+  <div class="j-rule"><div class="j-rule-t">Recurring = weekly, 60 days</div><div class="j-rule-s">Auto-generate <strong>2 months ahead</strong>, rolling daily. <strong>Weekly only</strong> (multi-day, one time). Different weekday-times = separate <strong>placements</strong> of the same template. Min threshold warns the coach 24h out — <strong>no auto-cancel</strong>.</div></div>
 </div>
 
-<div class="j-sec">1 · Coach creates &amp; schedules</div>
+<div class="j-sec">1 &middot; Coach creates a template, then places it</div>
 <div class="j-steps">
 
   <a class="j-step" href="../coach/sessions.html#s-create">
     <div class="j-num">1</div>
-    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Create a group template</div><div class="j-step-desc">My sessions → shared create form. Selecting <strong>Group</strong> reveals <strong>max</strong> + optional <strong>min participants</strong> and the <strong>schedule section</strong> — recurring day-chips + a start time, or a one-off <strong>“Just this date”</strong>. Saving a scheduled template auto-generates events 2 months out; saving with no schedule = a <strong>draft</strong> published later.</div><div class="j-step-loc"><code>coach/sessions.html</code> · <code>#s-create</code> (Group mode)</div></div>
+    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Create a group template</div><div class="j-step-desc">My sessions &rarr; shared create form. Selecting <strong>Group</strong> reveals only <strong>max</strong> + optional <strong>min participants</strong>. A template is a <strong>pure definition and carries no schedule</strong> &mdash; no days, no time, no recurrence; the form says so: &ldquo;This is a reusable template. You&rsquo;ll pick dates &amp; times later when you schedule it on your calendar.&rdquo; Creating one generates <strong>nothing</strong> until it is placed.</div><div class="j-step-loc"><code>coach/sessions.html</code> &middot; <code>#s-create</code> (Group mode)</div></div>
     <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
   </a>
 
   <a class="j-step" href="../coach/sessions.html#s-list">
     <div class="j-num">2</div>
-    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">My sessions list</div><div class="j-step-desc">Group templates sit beside personal ones. Card badge reads <strong>“Group · max 10”</strong>, price shown as <strong>“€25/person”</strong>. Editing exposes the <strong>Scheduled dates</strong> section (every generated occurrence → manage on the calendar). One-off templates get a <strong>“Special”</strong> badge.</div><div class="j-step-loc"><code>coach/sessions.html</code> · <code>#s-list</code></div></div>
+    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">My sessions list</div><div class="j-step-desc">Group templates sit beside personal ones. Card badge reads <strong>&ldquo;Group &middot; max 10&rdquo;</strong>, price shown as <strong>&ldquo;&euro;25/person&rdquo;</strong>. The card shows <strong>no dates</strong> &mdash; those belong to placements. Editing exposes the <strong>Scheduled dates</strong> section: every live placement of this template (recurring series + one-off &ldquo;Special&rdquo; events), or <strong>&ldquo;No dates scheduled yet&rdquo;</strong> for a fresh one.</div><div class="j-step-loc"><code>coach/sessions.html</code> &middot; <code>#s-list</code> &rarr; <code>#s-edit</code></div></div>
+    <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+  </a>
+
+  <a class="j-step new" href="../coach/invite.html?mode=schedule">
+    <div class="j-num">3</div>
+    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Place it on the calendar</div><div class="j-step-desc">The step that turns a template into sessions. Entered from the calendar <strong>FAB &rarr; &ldquo;Schedule training&rdquo;</strong> or from a template&rsquo;s <strong>&ldquo;Schedule new dates&rdquo;</strong> CTA: one template chooser (personal + group) &rarr; drag-drop time grid &rarr; and for a group, the <strong>publish drawer</strong> instead of an invite: <strong>Just this date</strong> or <strong>Weekly</strong> (day-chips + <em>Ends: Ongoing / On date</em>), time taken from the drop. <strong>One template &rarr; many placements</strong> &mdash; the same template can run Tue 12:00 and Fri 17:00 as two separate drops. Publishing runs the <strong>conflict review</strong>: own-calendar clashes are hard-skipped, external Google/Apple ones offer <em>Keep anyway</em> per date.</div><div class="j-step-loc"><code>coach/invite.html</code> &middot; <code>?mode=schedule</code> &rarr; <code>#gp-review</code></div></div>
     <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
   </a>
 
   <a class="j-step" href="../coach/calendar.html#s-calendar">
-    <div class="j-num">3</div>
-    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Generated events on the calendar</div><div class="j-step-desc">Group events render with a <strong>cyan left border</strong> + a <strong>“7/10” participant badge</strong> (personal = green + athlete name). Group events are <strong>not</strong> created from the FAB — they come from the template. Own-calendar conflicts are hard-skipped; external Google/Apple overlaps come back as a review step.</div><div class="j-step-loc"><code>coach/calendar.html</code> · <code>#s-calendar</code></div></div>
+    <div class="j-num">4</div>
+    <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">The resulting events on the calendar</div><div class="j-step-desc">A placement is what athletes can actually book. Group events render with a <strong>cyan left border</strong> + a <strong>&ldquo;7/10&rdquo; participant badge</strong> (personal = green + athlete name). A <strong>weekly</strong> placement auto-generates <strong>2 months ahead, rolling daily</strong>; a one-off is a single event. Rolling generation re-checks conflicts and pushes the coach a low-priority note when it skips a date.</div><div class="j-step-loc"><code>coach/calendar.html</code> &middot; <code>#s-calendar</code></div></div>
     <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
   </a>
 
@@ -90,25 +97,25 @@
 <div class="j-steps">
 
   <a class="j-step" href="../shared/profile.html#s-group">
-    <div class="j-num">4</div>
+    <div class="j-num">5</div>
     <div class="j-body"><span class="j-chip athlete">Athlete</span><div class="j-step-title">Group detail (before joining)</div><div class="j-step-desc">On the coach profile the <strong>Group Trainings section comes first</strong>. Tapping a template opens the group detail: ticket card (coach, date/time, location, price), a <strong>spots bar</strong>, and a tappable participant list. Sticky CTA <strong>“Join Training · €25”</strong>. Time-conflict / insufficient-balance are handled inline.</div><div class="j-step-loc"><code>shared/profile.html</code> · <code>#s-group</code></div></div>
     <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
   </a>
 
   <a class="j-step" href="../shared/profile.html#s-booking">
-    <div class="j-num">5</div>
+    <div class="j-num">6</div>
     <div class="j-body"><span class="j-chip athlete">Athlete</span><div class="j-step-title">Booking calendar (this template)</div><div class="j-step-desc">Reuses the booking calendar filtered to <strong>this template's</strong> events — only dates with an occurrence are active (spots count in the circle); other dates greyed out. Tap a date → scroll to the event card → open group detail.</div><div class="j-step-loc"><code>shared/profile.html</code> · <code>#s-booking</code></div></div>
     <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
   </a>
 
   <a class="j-step" href="../shared/profile.html#s-joined">
-    <div class="j-num">6</div>
+    <div class="j-num">7</div>
     <div class="j-body"><span class="j-chip athlete">Athlete</span><div class="j-step-title">Joined</div><div class="j-step-desc">After a one-tap join + confirmation sheet: green <strong>“Joined”</strong> badge, the athlete pinned first with a <strong>“You”</strong> label, and a <strong>“Leave Training”</strong> button. Card = amount held from balance; cash = just registered.</div><div class="j-step-loc"><code>shared/profile.html</code> · <code>#s-joined</code></div></div>
     <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
   </a>
 
   <a class="j-step" href="../shared/profile.html#s-full">
-    <div class="j-num">7</div>
+    <div class="j-num">8</div>
     <div class="j-body"><span class="j-chip athlete">Athlete</span><div class="j-step-title">Full — no waitlist</div><div class="j-step-desc">Every spot taken → red <strong>“Full”</strong> badge, 100% bar, collapsed participant list, and a disabled <strong>“Training is Full”</strong> button. <strong>No waitlist in V1</strong> — the athlete picks another date.</div><div class="j-step-loc"><code>shared/profile.html</code> · <code>#s-full</code></div></div>
     <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
   </a>
@@ -119,13 +126,13 @@
 <div class="j-steps">
 
   <a class="j-step" href="../coach/calendar.html#s-event">
-    <div class="j-num">8</div>
+    <div class="j-num">9</div>
     <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Group event detail</div><div class="j-step-desc">Full-screen management: ticket card + spots bar, a <strong>note to athletes</strong> (edit sheet), participant list with <strong>swipe / × remove</strong> (Undo snackbar) and a per-row sheet (Profile / Message / Remove). ⋯ menu = Invite / Reschedule / Cancel. Coach-added CRM contacts show a <strong>“CRM” badge</strong> in the roster.</div><div class="j-step-loc"><code>coach/calendar.html</code> · <code>#s-event</code></div></div>
     <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
   </a>
 
   <a class="j-step new" href="../coach/calendar.html#s-invite">
-    <div class="j-num">9</div>
+    <div class="j-num">10</div>
     <div class="j-body"><span class="j-chip coach">Coach</span><span class="j-chip newtag">New</span><div class="j-step-title">Invite athletes — pick existing / CRM / by-link</div><div class="j-step-desc">The <strong>Invite athletes</strong> CTA (and ⋯ menu) now opens a <strong>client picker</strong>, not just a share sheet. Search + <strong>multi-select</strong> your own athletes (already-joined rows disabled with an “In session” tag); <strong>CRM contacts</strong> are selectable and badged. A <strong>“+”</strong> row / header button opens <strong>invite-by-link</strong> (the share sheet) for people not in the app. Confirm → athletes added to the roster instantly (auto-accepted), fee <strong>owed</strong> and settled post-session — no upfront charge.</div><div class="j-step-loc"><code>coach/calendar.html</code> · <code>#s-invite</code> → share sheet <code>#event-share-sheet</code></div></div>
     <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
   </a>
@@ -136,7 +143,7 @@
 <div class="j-steps">
 
   <a class="j-step" href="../coach/calendar.html#s-calendar">
-    <div class="j-num">10</div>
+    <div class="j-num">11</div>
     <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Reschedule / cancel / below-minimum</div><div class="j-step-desc">Long-press an event → the group drawer. <strong>Reschedule</strong> &amp; <strong>Cancel</strong> for a recurring series offer <strong>“This only / This &amp; following / All”</strong> (participants notified &amp; refunded on cancel). 24h before a thin session, the <strong>below-minimum</strong> sheet warns the coach — <strong>no auto-cancel</strong>, the coach decides. Drawers live on the calendar screen.</div><div class="j-step-loc"><code>coach/calendar.html</code> · <code>#s-calendar</code> → <code>#cal-reschedule-sheet</code> / <code>#cal-cancel-sheet</code> / min-threshold sheet</div></div>
     <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
   </a>
@@ -147,20 +154,20 @@
 <div class="j-steps">
 
   <a class="j-step" href="../coach/calendar.html#s-cash">
-    <div class="j-num">11</div>
+    <div class="j-num">12</div>
     <div class="j-body"><span class="j-chip coach">Coach</span><div class="j-step-title">Event completion — settle &amp; complete</div><div class="j-step-desc">After the session (push: “Training ended — review &amp; complete”). Card payers auto-show <strong>“Paid ✓”</strong>; <strong>cash and coach-added</strong> rows show a <strong>checkbox</strong> the coach ticks by fact (a live <strong>Paid X/Y</strong> counter). <strong>Complete Training</strong> is always active — it triggers card transfers; unpaid cash stays as an owed record.</div><div class="j-step-loc"><code>coach/calendar.html</code> · <code>#s-cash</code></div></div>
     <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
   </a>
 
   <a class="j-step" href="../athlete/calendar.html#s-schedule">
-    <div class="j-num">12</div>
+    <div class="j-num">13</div>
     <div class="j-body"><span class="j-chip athlete">Athlete</span><div class="j-step-title">Post-training feedback</div><div class="j-step-desc">After the event ends (push: “How was your training?”) a <strong>bottom sheet</strong> opens on the athlete's schedule: mini ticket + <strong>star rating (1–5)</strong> + a “Didn't happen? Report issue” link + Submit. Not a separate screen.</div><div class="j-step-loc"><code>athlete/calendar.html</code> · <code>#s-schedule</code> → post-training feedback sheet</div></div>
     <span class="j-open">Open <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
   </a>
 
 </div>
 
-<div class="j-foot">Specs: <code>specs/group-training.md</code> · <code>specs/group-event-detail.md</code>. Live screens: <code>coach/sessions.html</code> · <code>coach/calendar.html</code> · <code>shared/profile.html</code> · <code>athlete/calendar.html</code>. Backend: <code>poly-backend/docs/group-training-api.md</code>. &nbsp;·&nbsp; <strong>Follow-up:</strong> the Invite picker (step 9) needs the backend to settle coach-added participants — incl. CRM — as <strong>owed / cash_unpaid</strong>; today CRM-only rows can't be settled.</div>
+<div class="j-foot">Specs: <code>specs/group-training.md</code> · <code>specs/group-event-detail.md</code>. Live screens: <code>coach/sessions.html</code> · <code>coach/invite.html</code> · <code>coach/calendar.html</code> · <code>shared/profile.html</code> · <code>athlete/calendar.html</code>. Backend: <code>poly-backend/docs/group-training-api.md</code>. &nbsp;·&nbsp; <strong>Follow-up:</strong> the Invite picker (step 10) needs the backend to settle coach-added participants — incl. CRM — as <strong>owed / cash_unpaid</strong>; today CRM-only rows can't be settled.</div>
 
 </body>
 </html>
