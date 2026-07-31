@@ -3,7 +3,7 @@
 > Status: Draft
 > Prototype: [flows/coach/settings.html#s-locations](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html#s-locations)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-07-17
+> Last updated: 2026-07-31
 > Implementation:
 > - iOS:     [321fit_ios/docs/location-picker-ios.md] (to be created)
 > - Backend: [poly-backend/docs/coach-locations-api.md](../../poly-backend/docs/coach-locations-api.md)
@@ -32,7 +32,7 @@ Coach **weekly availability** (`flows/coach/available-hours.html`) is now **loca
 
 Coaches need to specify where their training happens. 321Fit supports three location types: **in-person** (a physical address — gym, studio, park), **online** (a video meeting URL), and **home visit** (coach travels to the athlete). Locations are managed in Settings, attached to session templates at creation time, and surfaced to athletes throughout the booking and session lifecycle.
 
-A coach can have many in-person locations with one default; one or more online locations; and one home-visit configuration.
+A coach can have many in-person locations, one or more online locations, and one home-visit configuration. **Exactly one location is the default, across all three types** — see §7.
 
 ---
 
@@ -40,7 +40,7 @@ A coach can have many in-person locations with one default; one or more online l
 
 ### Coach
 - As a coach, I want to add my gym/studio/park as a location so that athletes know where to come.
-- As a coach with multiple training spots, I want to mark one as my default so that creating new sessions is fast.
+- As a coach with several places I train, I want to mark one as my default — of any type — so that creating a session template is fast.
 - As a coach who teaches online, I want to register my Zoom/Meet/custom link so that athletes get a meeting URL automatically.
 - As a coach who travels to clients, I want to enable home visits with a travel buffer so that my calendar accounts for commute time.
 - As a coach, I want to delete a location and be warned which session templates depend on it so that I don't accidentally break my session catalog.
@@ -61,7 +61,7 @@ A coach can have many in-person locations with one default; one or more online l
 - As the backend, deletion of a location used by ≥ 1 active session template **must block** with a 409 conflict listing the dependent templates. Reassignment must happen before delete completes.
 - As the backend, the home-visit travel buffer must be applied to calendar scheduling automatically — preventing back-to-back home visit and studio sessions when the buffer would overlap.
 - As the backend, online location URLs must be re-emittable in push so that updated links reach athletes whose sessions are already booked.
-- As any client, default-flag changes must be atomic — at most one in-person location has `isDefault: true` at all times.
+- As any client, default-flag changes must be atomic — at most one location **of any type** has `isDefault: true` at all times, on create AND on edit.
 - As the booking client, for a **home-visit** session the confirm CTA must stay disabled until the athlete has selected an address (pre-filled from a saved address when available).
 - As the backend, the athlete's chosen home-visit address is attached to the **training_event** at booking time — it is not written to the coach's location records.
 
@@ -74,7 +74,7 @@ References to screen IDs are from `flows/coach/settings.html`.
 ### Flow 1: View locations
 1. Coach: Settings → "Training Locations" row → push `#s-locations`
 2. List grouped:
-   - **In-person** — cards (default badge on one)
+   - **In-person** — cards (default badge on the default location, wherever it lives)
    - **Online** — section header + "+ Add" icon button (right) + entries
    - **Home Visit** — section header + entry (or empty CTA)
 3. Tap any card → push to its edit screen
@@ -90,7 +90,7 @@ References to screen IDs are from `flows/coach/settings.html`.
 8. Coach types Location name (e.g. "TNT Studio")
 9. Toggles "Set as default location" (optional)
 10. Save → return to `#s-locations`, new entry appears
-11. If "Set as default" was on → previous default loses badge atomically
+11. If "Set as default" was on → the previous default loses its badge atomically, whatever type it was
 
 ### Flow 3: Edit an in-person location
 1. From `#s-locations` → tap an in-person card → push `#s-loc-form` pre-populated
@@ -119,11 +119,11 @@ References to screen IDs are from `flows/coach/settings.html`.
 6. Tap Delete:
    - If used in 0 templates → delete confirmed, return to `#s-locations`
    - If used in N templates → server returns 409, UI prompts to reassign first
-   - If default in-person deleted → next in-person (oldest by creation) inherits default flag automatically
+   - If the default location is deleted → the oldest remaining location (in-person first, then online, then home visit) inherits the default flag automatically
 
 ### Flow 7: Use location in session creation
 1. In Create Session flow → Location field is a chevron row showing current location name
-2. Default per `project_create_session_rules`: `profile.addresses[0]` (= default in-person)
+2. Default per `project_create_session_rules`: the location flagged `isDefault`, of whatever type
 3. Tap row → push `#s-locations` in **picker mode**
 4. Tap any location → return to Create Session with selection applied
 5. One session = one location. **No hybrid sessions** in MVP
@@ -168,7 +168,7 @@ Returns the coach's addresses (all types).
 #### `POST /coach/addresses`
 Creates a new address of any type. Server discriminates by `type`.
 **Body:** `Address` (without `id`, `createdAt`, `updatedAt`).
-**Response 201:** created entry. If `isDefault: true` on an in-person location (`isOnline: false`, `isHomeVisit: false`) → server atomically clears `isDefault` on previous default in-person.
+**Response 201:** created entry. If `isDefault: true` → the server atomically clears `isDefault` on the coach's previous default, **regardless of its type**. The same must happen on **update** — see §7.
 
 #### `GET /coach/addresses/{id}`
 Returns a single address.
@@ -201,7 +201,7 @@ Existing fields (preserved from current poly-backend `AddressResponse`):
 | `lon` | number | nullable when `type ≠ "in_person"` |
 | `addressLine` | string | nullable when `type ≠ "in_person"` |
 | `locationName` | string | display name, all types ("TNT Studio", "My Zoom Room", "Home Visit") |
-| `isDefault` | bool | meaningful for in-person only (`isOnline: false`, `isHomeVisit: false`) |
+| `isDefault` | bool | valid on any location type; at most one per coach |
 | `city` | string? | optional |
 | `countryCode` | string? | optional |
 | `description` | string? | optional |
@@ -227,8 +227,9 @@ Existing fields (preserved from current poly-backend `AddressResponse`):
 
 ## 7. Business rules
 
-- **Default in-person:** zero or one in-person locations marked default. Online and home-visit cannot be marked default.
-- **Default fallback for session creation:** `profile.addresses[0]` (= default in-person). If no default and no in-person → falls through to first online → home visit → empty state.
+- **One default, across all types:** at most one of the coach's locations carries `isDefault`, whatever its type. This is the whole point of the flag — it is what prefills the Location field when a coach creates a session template, so a second default makes the prefill ambiguous and the feature meaningless. The rule holds on **create and on update**: setting a new default must clear the previous one in the same operation.
+  - *Known defect (2026-07-31):* the backend enforces this on create (`unset_defaults`) but **not** on update, so editing a location and toggling the flag produces a second default. Reproduced on staging with an in-person and an online location both badged Default.
+- **Default fallback for session creation:** the location flagged `isDefault`. With no default set, fall through to the first in-person → first online → home visit → empty state.
 - **Address immutability:** in-person address cannot be edited. Reason: prevents accidental mass-rename of an existing location used in templates.
 - **Online URL:** HTTPS required. For `zoom` validated against `*.zoom.us`; for `google_meet` against `meet.google.com`; `teams`/`custom` validated as well-formed HTTPS URL. *(Intended behavior — meeting-URL validation is **not yet enforced** on the backend; filed as a backend issue. Field on the wire is `meetingLink`.)*
 - **Online link strategy (MVP):** **single permanent link per location**, not auto-generated per session. Per-session OAuth link generation is V2.
@@ -241,7 +242,7 @@ Existing fields (preserved from current poly-backend `AddressResponse`):
 - **Travel buffer display (decided 2026-06-24, prototyped):** **coach calendar only** — rendered as a Google-Calendar-style attached commute block (hatched/dashed tile, car icon, "Travel · N min") immediately **before and after** the home-visit event (`.cal-travel-buffer` in `coach/calendar.html`). Stateless, not draggable, not tappable. **Athlete side: invisible** — the buffer only filters which slots the booking grid offers (server already excludes slots that would overlap the buffer); the athlete sees no buffer UI at all. (Coach event-detail line "🚗 N min travel buffer" + directions = follow-up.)
 - **Delete blocking:** location used in ≥ 1 active session template → 409 Conflict with template list. Client must reassign before retrying. *(Intended behavior — the delete-guard is **not yet enforced**; DELETE currently orphans dependent sessions. Filed as a backend issue.)*
 - **Cross-type sessions:** one session = one location. No "online OR in-person" hybrid in MVP.
-- **Default promotion on delete:** when default in-person is deleted, the **oldest-by-creation** remaining in-person becomes default automatically. *(Intended behavior — **not yet enforced** on delete; filed as a backend issue.)*
+- **Default promotion on delete:** when the default location is deleted, the **oldest-by-creation** remaining location becomes default automatically. *(Intended behavior — **not yet enforced** on delete; filed as a backend issue.)*
 
 ---
 
