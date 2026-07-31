@@ -147,3 +147,19 @@ export const FRAMES = [
     })()`,
   },
 ];
+
+// -----------------------------------------------------------------------------
+// FEATURE GRAPHIC — Google Play only, 1024×500, required to publish.
+// Rendered by feature-graphic.html, exported by `node export-feature.mjs`.
+// Shown at the top of the Play listing and in editorial placements; it gets
+// cropped hard on some surfaces, so everything lives inside a centred safe area
+// and the copy is deliberately short (it's read at ~2cm wide on a phone).
+//   tagline : one line under the wordmark. Keep it under ~40 chars.
+//   accent  : key in ACCENTS — colour of the glow behind the wordmark.
+// -----------------------------------------------------------------------------
+export const FEATURE = {
+  W: 1024,
+  H: 500,
+  tagline: "Find a coach. Book. Train.",
+  accent: "teal",
+};

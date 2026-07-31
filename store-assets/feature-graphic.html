@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>321Fit — Google Play feature graphic</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #000; }
+
+  /* 1024×500 is Play's fixed feature-graphic size — not configurable on their side. */
+  .fg {
+    position: relative; overflow: hidden;
+    /* Same brand ramp as the screenshot frames (render.js), but re-weighted for a
+       wide short canvas: on 1024×500 the 158deg axis resolves almost entirely into
+       the teal end, which reads green next to the navy-dominant screenshots. Navy
+       holds ~3/4 of the field here so the whole listing reads as one family. */
+    background: linear-gradient(104deg, #0e3454 0%, #103a5c 44%, #0c4a58 80%, #0c574c 100%);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: #fff;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+
+  /* Accent glow behind the wordmark — same device as .sa-glow in render.js,
+     scaled down for the shorter canvas. */
+  .fg-glow {
+    position: absolute; right: -220px; bottom: -300px;
+    width: 860px; height: 860px; border-radius: 50%;
+    filter: blur(150px); opacity: 0.24; pointer-events: none;
+  }
+  /* Cooler counter-glow top-left so the field isn't a flat wash. */
+  .fg-glow-2 {
+    position: absolute; left: -200px; top: -300px;
+    width: 780px; height: 780px; border-radius: 50%;
+    background: radial-gradient(circle, #03b2e2 0%, rgba(0,0,0,0) 62%);
+    filter: blur(150px); opacity: 0.22; pointer-events: none;
+  }
+  /* Vignette keeps the edges dark so the graphic holds together when Play
+     crops or overlays it. */
+  .fg-vignette {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 42%, rgba(0,0,0,0.34) 100%);
+  }
+
+  .fg-content {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column; align-items: center;
+    /* Safe area — Play crops the outer edges on some surfaces. */
+    padding: 0 120px; text-align: center;
+  }
+
+  .fg-logo { display: block; width: 400px; height: auto; }
+  .fg-logo path { shape-rendering: geometricPrecision; }
+
+  /* Hairline gradient rule — ties the wordmark to the tagline without adding
+     another text element. */
+  .fg-rule {
+    width: 200px; height: 3px; margin: 40px 0 34px; border-radius: 3px;
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, #05e0a6 50%, rgba(255,255,255,0) 100%);
+    opacity: 0.85;
+  }
+
+  .fg-tagline {
+    margin: 0;
+    font-size: 46px; font-weight: 600; line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: rgba(255, 255, 255, 0.94);
+  }
+</style>
+</head>
+<body>
+<div class="fg" id="fg">
+  <div class="fg-glow" id="glow"></div>
+  <div class="fg-glow-2"></div>
+
+  <div class="fg-content">
+    <!-- Wordmark converted 1:1 from 321fit_android_new/app/src/main/res/drawable/logo.xml
+         (Android vector → SVG). Paths and gradient stops are unchanged, so this is the
+         exact in-app logo, not a redraw. -->
+    <svg class="fg-logo" viewBox="0 0 192 46" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="321Fit">
+      <defs>
+        <linearGradient id="fgPill" gradientUnits="userSpaceOnUse" x1="123.83" y1="8.52" x2="224.2" y2="31.85">
+          <stop offset="0" stop-color="#00A7D0"/>
+          <stop offset="1" stop-color="#00FF85"/>
+        </linearGradient>
+        <linearGradient id="fgDot" gradientUnits="userSpaceOnUse" x1="80.8" y1="34.73" x2="94.58" y2="36.49">
+          <stop offset="0" stop-color="#00A7D0"/>
+          <stop offset="1" stop-color="#00FF85"/>
+        </linearGradient>
+      </defs>
+      <path fill="#fff" d="M77.39,13.12L71,15.54C70.24,15.82 69.43,15.26 69.43,14.45V7.08C69.43,6.63 69.68,6.23 70.09,6.03L81.59,0.52H88.77C89.41,0.52 89.93,1.04 89.93,1.68V29.01C89.93,29.65 89.41,30.17 88.77,30.17H78.55C77.91,30.17 77.39,29.65 77.39,29.01V13.12Z"/>
+      <path fill="#fff" d="M35.69,2.52C35.69,1.97 36.07,1.5 36.6,1.39C41.62,0.36 46.79,-0.1 52.11,0.02V9.8C51.32,9.67 49.67,9.61 47.16,9.61C45.11,9.61 42.58,9.78 39.58,10.11L37,10.44C36.3,10.53 35.69,9.99 35.69,9.29V2.52ZM34.81,37.31C34.81,34.6 34.89,32.4 35.06,30.73C35.23,29.06 35.58,27.62 36.13,26.41C36.71,25.11 37.53,24.01 38.57,23.09C39.66,22.12 41.12,21.27 42.96,20.52L50.29,17.57C51.21,17.19 52.01,16.86 52.68,16.57C53.34,16.23 53.8,15.92 54.06,15.63C54.35,15.33 54.54,15 54.62,14.62C54.7,14.21 54.74,13.62 54.74,12.87V0.08C56.75,0.21 58.46,0.46 59.88,0.83C61.35,1.17 62.6,1.73 63.65,2.53C66.07,4.41 67.28,7.67 67.28,12.3C67.28,16.32 66.61,19.3 65.28,21.27C64.02,23.15 61.97,24.61 59.13,25.66L50.23,29.1C49.48,29.4 48.85,29.67 48.35,29.92C47.89,30.17 47.56,30.42 47.35,30.67C47.14,30.92 47.01,31.26 46.97,31.67C46.93,32.09 46.91,32.78 46.91,33.74V42.49C46.91,43.13 46.39,43.65 45.75,43.65H35.97C35.33,43.65 34.81,43.13 34.81,42.49V37.31ZM49.54,35.03C49.54,34.39 50.06,33.87 50.7,33.87H66.12C66.76,33.87 67.28,34.39 67.28,35.03V42.49C67.28,43.13 66.76,43.65 66.12,43.65H50.7C50.06,43.65 49.54,43.13 49.54,42.49V35.03Z"/>
+      <path fill="#fff" d="M0.25,2.47C0.25,1.92 0.64,1.44 1.18,1.34C5.78,0.46 10.19,0.02 14.42,0.02C14.82,0.02 15.18,0.02 15.49,0.03C16.09,0.04 16.55,0.54 16.55,1.14V8.48C16.55,9.18 15.94,9.72 15.24,9.68C14.45,9.63 13.53,9.61 12.47,9.61C11.43,9.61 9.95,9.65 8.02,9.73L1.52,10.36C0.84,10.43 0.25,9.89 0.25,9.21V2.47ZM19.56,30.67C19.56,29.75 19.47,29.04 19.31,28.54C19.18,28 18.93,27.58 18.55,27.29C17.93,26.87 16.53,26.66 14.35,26.66H7.46V17.07H14.35C15.44,17.07 16.3,17.03 16.92,16.94C17.55,16.86 18.03,16.69 18.37,16.44C18.7,16.19 18.91,15.86 18.99,15.44C19.12,14.98 19.18,14.29 19.18,13.37V0.27C23.69,0.73 26.95,1.88 28.96,3.72C30.97,5.51 31.97,8.06 31.97,11.36C31.97,14.41 31.36,16.71 30.15,18.26C28.98,19.81 27.1,20.89 24.51,21.52V21.77C27.23,22.4 29.17,23.38 30.34,24.72C31.68,26.3 32.34,28.77 32.34,32.11C32.34,35.62 31.51,38.28 29.84,40.07C27.92,42.12 24.49,43.4 19.56,43.9V30.67ZM14.79,44.15C12.49,44.15 9.86,43.98 6.9,43.65C4.44,43.4 2.44,43.13 0.9,42.83C0.37,42.73 0,42.26 0,41.72V34.98C0,34.29 0.6,33.75 1.29,33.82C5.83,34.31 9.91,34.56 13.54,34.56C14.16,34.56 14.88,34.54 15.69,34.5C16.36,34.47 16.92,35 16.92,35.66V43.04C16.92,43.63 16.47,44.12 15.88,44.14C15.57,44.14 15.2,44.15 14.79,44.15Z"/>
+      <path fill="url(#fgPill)" d="M102.18,0L187.17,0A4.83,4.83 0,0 1,192 4.83L192,40.62A4.83,4.83 0,0 1,187.17 45.45L102.18,45.45A4.83,4.83 0,0 1,97.35 40.62L97.35,4.83A4.83,4.83 0,0 1,102.18 0z"/>
+      <path fill="#fff" d="M169.18,36.67C168.86,36.67 168.6,36.41 168.6,36.09V15.07H158.38C158.06,15.07 157.8,14.81 157.8,14.49V9.67C157.8,9.35 158.06,9.09 158.38,9.09H184.8C185.12,9.09 185.38,9.35 185.38,9.67V14.49C185.38,14.81 185.12,15.07 184.8,15.07H174.58V36.09C174.58,36.41 174.32,36.67 174,36.67H169.18Z"/>
+      <path fill="#fff" d="M140.66,36.67C140.34,36.67 140.09,36.41 140.09,36.09V9.67C140.09,9.35 140.34,9.09 140.66,9.09H145.37C145.69,9.09 145.95,9.35 145.95,9.67V36.09C145.95,36.41 145.69,36.67 145.37,36.67H140.66Z"/>
+      <path fill="#fff" d="M104.82,36.67C104.5,36.67 104.24,36.41 104.24,36.09V9.67C104.24,9.35 104.5,9.09 104.82,9.09H129.14C129.46,9.09 129.72,9.35 129.72,9.67V14.49C129.72,14.81 129.46,15.07 129.14,15.07H110.26V19.89H125.35C125.67,19.89 125.93,20.15 125.93,20.47V25.29C125.93,25.61 125.67,25.87 125.35,25.87H110.26V36.09C110.26,36.41 110,36.67 109.68,36.67H104.82Z"/>
+      <path fill="url(#fgDot)" d="M78.45,32.68L88.67,32.68A1.16,1.16 0,0 1,89.83 33.83L89.83,42.49A1.16,1.16 0,0 1,88.67 43.65L78.45,43.65A1.16,1.16 0,0 1,77.29 42.49L77.29,33.83A1.16,1.16 0,0 1,78.45 32.68z"/>
+    </svg>
+
+    <div class="fg-rule"></div>
+    <p class="fg-tagline" id="tagline"></p>
+  </div>
+
+  <div class="fg-vignette"></div>
+</div>
+
+<script type="module">
+  import { FEATURE, ACCENTS } from "./config.js";
+
+  const accent = ACCENTS[FEATURE.accent] || ACCENTS.teal;
+  const fg = document.getElementById("fg");
+  fg.style.width = FEATURE.W + "px";
+  fg.style.height = FEATURE.H + "px";
+  document.getElementById("glow").style.background =
+    `radial-gradient(circle, ${accent} 0%, rgba(0,0,0,0) 60%)`;
+  document.getElementById("tagline").textContent = FEATURE.tagline;
+
+  window.__fgReady = true;
+</script>
+</body>
+</html>
