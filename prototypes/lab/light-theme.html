@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Light theme fitting room</title>
+<!--
+  LIGHT-THEME FITTING ROOM (lab — not a product screen, never clone this for a feature)
+
+  What it is: live screens rendered in N candidate light palettes, side by side.
+  - The phone markup in <template id="tpl-detail"> / <template id="tpl-calendar"> is a verbatim
+    copy of flows/athlete/my-coaches.html → #s-coach-detail and flows/athlete/calendar.html →
+    #s-schedule (their page-local CSS is copied below, with #s-coach-detail rewritten to
+    .s-coach-detail so it survives cloning). To refresh after those screens change:
+    re-copy the blocks — no other edits needed.
+  - Palettes live in the VARIANTS array at the bottom, grouped into SETS. That array is the
+    single source of truth: it generates the per-column CSS, the swatch strip and the WCAG readouts.
+  - Column 0 renders untouched (raw: true) = exactly what ships today. Every other column also
+    gives *all* surfaces one consistent edge via .lab-surface — that uniform edge is part of the
+    proposal, since today's inline-styled cards have no edge at all.
+-->
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: var(--fit-font); background: #141517; color: #F7F7F8;
+    padding: 20px 24px 32px; min-height: 100vh;
+  }
+
+  /* ===== Lab chrome ===== */
+  .lab-top { max-width: 1180px; margin-bottom: 22px; }
+  .lab-top h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.3px; }
+  .lab-top p { font-size: 14px; line-height: 1.6; color: var(--fit-gray-400); margin-top: 8px; }
+  .lab-top p strong { color: var(--fit-gray-200); font-weight: 500; }
+  .lab-controls { display: flex; align-items: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .lab-toggle {
+    display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+    font-size: 13px; font-weight: 500; color: var(--fit-gray-300);
+    background: #1F2123; border: 1px solid #2B2E31; border-radius: 99px;
+    padding: 7px 14px 7px 11px; user-select: none; transition: all .15s;
+  }
+  .lab-toggle:hover { border-color: #3B4044; color: var(--fit-white); }
+  .lab-toggle input { appearance: none; width: 15px; height: 15px; border-radius: 5px; border: 1.5px solid #5B6269; background: transparent; cursor: pointer; position: relative; flex-shrink: 0; }
+  .lab-toggle input:checked { background: var(--fit-teal-500); border-color: var(--fit-teal-500); }
+  .lab-toggle input:checked::after { content: ''; position: absolute; left: 4px; top: 1px; width: 4px; height: 8px; border: solid #111213; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+  .lab-hint { font-size: 12px; color: var(--fit-gray-600); }
+  .lab-seg { display: inline-flex; background: #1F2123; border: 1px solid #2B2E31; border-radius: 99px; padding: 3px; gap: 2px; }
+  .lab-seg button {
+    font-family: var(--fit-font); font-size: 13px; font-weight: 500; cursor: pointer;
+    border: none; background: transparent; color: var(--fit-gray-400);
+    padding: 5px 14px; border-radius: 99px; transition: all .15s;
+  }
+  .lab-seg button:hover { color: var(--fit-white); }
+  .lab-seg button.on { background: #333739; color: var(--fit-white); }
+  .lab-seg-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--fit-gray-600); margin-right: -4px; }
+
+  /* ===== Row of variants ===== */
+  .lab-row { display: flex; gap: 20px; align-items: flex-start; padding-bottom: 12px; }
+  .lab-col { width: 394px; flex-shrink: 0; }
+
+  .lab-head { margin-bottom: 14px; height: 190px; display: flex; flex-direction: column; }
+  .lab-name { font-size: 16px; font-weight: 600; color: var(--fit-white); display: flex; align-items: baseline; gap: 8px; }
+  .lab-tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; padding: 3px 7px; border-radius: 5px; background: #26292C; color: var(--fit-gray-400); }
+  .lab-note { font-size: 12.5px; line-height: 1.5; color: var(--fit-gray-500); margin-top: 6px; flex: 1; }
+
+  .lab-sw { display: flex; gap: 4px; margin-top: 10px; }
+  .lab-sw span { flex: 1; height: 22px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.10); position: relative; }
+  .lab-sw span::after { content: attr(data-l); position: absolute; left: 0; right: 0; bottom: -13px; font-size: 8px; text-align: center; color: var(--fit-gray-600); letter-spacing: 0.3px; }
+  .lab-metrics { display: flex; gap: 4px; margin: 22px 0 10px; }
+  .lab-m { flex: 1; border-radius: 6px; padding: 5px 4px 6px; text-align: center; background: #1B1D1F; border: 1px solid #26292C; }
+  .lab-m b { display: block; font-size: 13px; font-weight: 600; line-height: 1.2; }
+  .lab-m i { display: block; font-style: normal; font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--fit-gray-600); margin-top: 2px; }
+  .lab-m.good b { color: #51CA58; }
+  .lab-m.ok   b { color: #F7C948; }
+  .lab-m.bad  b { color: #F98585; }
+
+  /* ===== Phones ===== */
+  .lab-col .fit-phone { display: flex; border-color: #2B2E31; }
+  /* Card edge knobs — driven per variant (see generated CSS) */
+  .lab-col .lab-surface { box-shadow: var(--lab-card-shadow); border: var(--lab-card-border); }
+  .lab-col .lab-surface.lab-keep-border { border: 1px solid rgba(247,201,72,0.55); }
+
+  /* Accent-fix axis (global toggle) — darker semantic accents for light surfaces */
+  .lab-accents .lab-col .fit-phone {
+    --fit-teal-500: #08947A;
+    --fit-red-400:  #D33635;
+    --fit-yellow-600: #B4600F;
+    --fit-brand-primary: #0A93BD;
+  }
+
+  /* ===== Page-local CSS cloned from flows/athlete/my-coaches.html ===== */
+  /* ===== Coach card (reused from athlete/search.html — candidate to extract to fit-ui.css as fit-coach-card) ===== */
+  .coach-card { background: var(--fit-surface-high); border-radius: 16px; padding: 14px; cursor: pointer; transition: background 0.15s; }
+  .fit-light .coach-card { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+  .coach-card:hover { background: var(--fit-surface-higher); }
+  .fit-light .coach-card:hover { background: var(--fit-gray-50); }
+  .coach-top { display: flex; gap: 12px; align-items: flex-start; }
+  .coach-photo { width: 72px; height: 72px; border-radius: 50%; background: var(--fit-brand-gradient); color: var(--fit-white); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 600; flex-shrink: 0; overflow: hidden; position: relative; }
+  .coach-photo-grad-1 { background: linear-gradient(135deg,#06b6d4,#0ea5e9); }
+  .coach-photo-grad-2 { background: linear-gradient(135deg,#ef4444,#f59e0b); }
+  .coach-photo-grad-3 { background: linear-gradient(135deg,#8b5cf6,#ec4899); }
+  .coach-photo-grad-4 { background: linear-gradient(135deg,#10b981,#06b6d4); }
+  .coach-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .coach-name-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .coach-name { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .coach-fav { width: 32px; height: 32px; border-radius: 99px; background: transparent; border: none; cursor: pointer; color: var(--fit-text-tertiary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin: -6px -6px -6px 0; transition: color 0.15s, background 0.15s; }
+  .coach-fav svg { width: 20px; height: 20px; }
+  .coach-fav.saved { color: var(--fit-red-400); }
+  .coach-fav.saved svg { fill: currentColor; }
+  .coach-fav:hover { background: var(--fit-surface-higher); }
+  .fit-light .coach-fav:hover { background: var(--fit-gray-100); }
+  .coach-rating-row { display: flex; align-items: center; gap: 8px; font-size: 13px; flex-wrap: wrap; }
+  .coach-rating { display: inline-flex; align-items: center; gap: 4px; color: var(--fit-text-primary); font-weight: 500; }
+  .coach-rating svg { width: 12px; height: 12px; color: var(--fit-yellow-400, #facc15); }
+  .coach-rating-count { color: var(--fit-text-tertiary); font-weight: 400; }
+  .coach-rating-sep { width: 2px; height: 2px; border-radius: 50%; background: var(--fit-text-tertiary); }
+  .coach-sports { color: var(--fit-text-tertiary); font-size: 13px; }
+  /* Search-parity sub-rows (price + sports·langs meta) */
+  .coach-price { color: var(--fit-text-primary); font-weight: 500; }
+  .coach-price-from { color: var(--fit-text-tertiary); font-weight: 400; font-size: 12px; }
+  .coach-meta-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--fit-text-tertiary); flex-wrap: wrap; }
+  .coach-meta-row .dot { width: 2px; height: 2px; border-radius: 50%; background: var(--fit-text-tertiary); }
+  .coach-langs { display: inline-flex; gap: 2px; font-size: 11px; }
+  .coach-loc { display: inline-flex; align-items: center; gap: 4px; }
+  .coach-loc .coach-flag { font-size: 13px; line-height: 1; }
+  .coach-name-wrap { display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1; }
+  .coach-meta-row.loc-row { margin-top: 3px; }
+
+  /* ===== Invite-a-coach (dashed entry) ===== */
+  .mc-invite { display: flex; align-items: center; gap: 12px; margin: 0 16px; padding: 14px; border-radius: 16px; border: 1.5px dashed var(--fit-divider); cursor: pointer; }
+  .mc-invite-ic { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: rgba(5,224,166,0.16); color: var(--fit-teal-500); }
+  .mc-invite-ic svg { width: 20px; height: 20px; }
+  .mc-invite-t { font-size: 15px; font-weight: 600; color: var(--fit-text-primary); }
+  .mc-invite-s { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 1px; }
+
+  /* ===== Invite screen (QR + share + scan) ===== */
+
+  /* ===== My Coaches relationship row — relationship + CTA sits full-width below coach-top (where Search shows bio) ===== */
+  .mc-list { display: flex; flex-direction: column; gap: 10px; padding: 0 16px; }
+  .mc-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; min-height: 28px; }
+  .mc-rel { font-size: 13px; color: var(--fit-text-secondary); display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+  .mc-rel svg { width: 13px; height: 13px; flex-shrink: 0; color: var(--fit-text-tertiary); }
+  .mc-rel-muted { color: var(--fit-text-tertiary); }
+  .mc-rel-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--fit-yellow-600); flex-shrink: 0; }
+  .mc-sec-title { padding: 0 16px; margin: 20px 0 10px; }
+  .mc-sec-title:first-child { margin-top: 4px; }
+
+  /* Coach-detail screen states (default / loading / error) */
+  .s-coach-detail [data-cd-state] { display: none; }
+  .s-coach-detail.cd-default [data-cd-state="default"] { display: block; }
+  .s-coach-detail.cd-loading [data-cd-state="loading"] { display: block; }
+  .s-coach-detail.cd-error   [data-cd-state="error"]   { display: block; }
+  .s-coach-detail.cd-loading .fit-phone-footer,
+  .s-coach-detail.cd-error   .fit-phone-footer { display: none; }
+  .s-coach-detail.cd-nodebt .cd-cash { display: none; }
+  /* Coach-detail "Your review" — has-review / no-review-CTA / locked (can't yet) */
+  .s-coach-detail [data-review-state] { display: none; }
+  .s-coach-detail.dr-has    [data-review-state="has"]    { display: block; }
+  .s-coach-detail.dr-none   [data-review-state="none"]   { display: block; }
+  .s-coach-detail.dr-locked [data-review-state="locked"] { display: block; }
+  /* Review composer: trash (delete) only in edit mode; dim unselected stars; bordered text card */
+  #s-coach-review .cr-trash { display: none; }
+  #s-coach-review.cr-edit .cr-trash { display: flex; }
+  .cr-star.dim { fill: var(--fit-gray-300); }
+  .fit-dark .cr-star.dim { fill: var(--fit-gray-600); }
+  .cr-textcard {
+    width: 100%; min-height: 180px;
+    border: 1px solid var(--fit-divider); border-radius: 12px; padding: 12px 14px;
+    font-family: var(--fit-font); font-size: 16px; line-height: 1.6;
+    color: var(--fit-text-primary); outline: none; background: transparent;
+  }
+  .fit-light .cr-textcard { background: var(--fit-white); }
+  .cr-textcard:focus { border-color: var(--fit-teal-500); }
+
+  /* State visibility */
+  #s-my-coaches [data-mc-state] { display: none; }
+  #s-my-coaches.mc-default [data-mc-state="default"] { display: block; }
+  #s-my-coaches.mc-empty   [data-mc-state="empty"]   { display: block; }
+  #s-my-coaches.mc-loading [data-mc-state="loading"] { display: block; }
+  #s-my-coaches.mc-error   [data-mc-state="error"]   { display: block; }
+
+  /* ===== Package punch-card (prepaid pass tracker) — shared component ===== */
+  .pkg-punch { border: 1px solid var(--fit-divider); border-radius: 16px; padding: 16px; background: var(--fit-surface-high); }
+  .fit-light .pkg-punch { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.06); border: none; }
+  .pkg-punch--low { border: 1px solid rgba(247,201,72,0.5); }
+  .fit-light .pkg-punch--low { box-shadow: none; border: 1px solid rgba(247,201,72,0.55); }
+  .pkg-punch-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .pkg-punch-ic { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--fit-teal-600); }
+  .fit-dark .pkg-punch-ic { color: var(--fit-teal-300); }
+  .pkg-punch-ic svg { width: 20px; height: 20px; }
+  .pkg-punch-tt { flex: 1; min-width: 0; }
+  .pkg-punch-name { font-size: 15px; font-weight: 600; color: var(--fit-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pkg-punch-coach { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 1px; }
+
+  .pkg-dots-row { display: flex; align-items: center; gap: 10px; }
+  /* (.pkg-dot* punch dots removed 2026-07-15 — the bar replaced them; zero consumers.) */
+  /* "See all" — same values as .bal-seeall (balance-v2) / clients.html. Third+ consumer →
+     candidate for promotion to fit-ui.css as .fit-seeall. */
+  .pkgd-seeall { display: inline-flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 500; color: var(--fit-teal-600); background: none; border: none; cursor: pointer; font-family: var(--fit-font); padding: 0; }
+  .pkgd-seeall svg { width: 14px; height: 14px; }
+  .pkg-punch-left { font-size: 14px; font-weight: 700; color: var(--fit-text-primary); white-space: nowrap; }
+  .pkg-punch-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
+  .pkg-punch-sub { font-size: 13px; color: var(--fit-text-secondary); }
+  .pkg-lowpill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: rgba(247,201,72,0.15); color: var(--fit-yellow-600); white-space: nowrap; }
+  .fit-dark .pkg-lowpill { color: var(--fit-yellow-400); }
+  .pkg-lowpill svg { width: 12px; height: 12px; }
+  /* Cash pack awaiting the coach's payment confirmation — bookable, but unpaid */
+  .pkg-punch--pending { border: 1px dashed var(--fit-gray-500); }
+  .fit-light .pkg-punch--pending { background: transparent; box-shadow: none; border: 1px dashed var(--fit-gray-400); }
+  .fit-dark .pkg-punch--pending { border: 1px dashed var(--fit-gray-700); }
+  .pkg-pendpill { flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: rgba(120,120,128,0.16); color: var(--fit-text-secondary); white-space: nowrap; }
+  /* Progress bar (replaces punch dots — scales to any pack size) */
+  .pkg-bar { flex: 1; height: 8px; border-radius: 99px; background: var(--fit-divider); overflow: hidden; }
+  .pkg-bar-fill { height: 100%; border-radius: 99px; background: var(--fit-teal-500); }
+  .pkg-punch--low .pkg-bar-fill { background: var(--fit-yellow-400); }
+
+  /* ===== Page-local CSS cloned from flows/athlete/calendar.html ===== */
+  /* Prototype-specific */
+  .detail-participants { padding: 0 var(--fit-sp-4); }
+  #tp-slot-list::-webkit-scrollbar { display: none; }
+
+
+
+  /* Contenteditable placeholder */
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: var(--fit-text-placeholder);
+    pointer-events: none;
+  }
+
+  /* State toggle (filled/empty) */
+  .state-toggle {
+    display: inline-flex; gap: 0; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--fit-gray-700); margin-bottom: 12px;
+  }
+  .state-toggle button {
+    font-family: var(--fit-font); font-size: 12px; font-weight: 500;
+    padding: 4px 10px; border: none; cursor: pointer;
+    background: transparent; color: var(--fit-gray-400);
+    transition: all 0.15s;
+  }
+  .state-toggle button.active {
+    background: var(--fit-gray-700); color: var(--fit-white);
+  }
+  /* Empty state placeholder */
+  .fit-empty-state {
+    display: none; text-align: center; padding: 32px 20px;
+    color: var(--fit-text-tertiary); font-size: 14px; line-height: 1.5;
+  }
+  .fit-empty-state svg { width: 40px; height: 40px; margin-bottom: 12px; color: var(--fit-gray-600); }
+  .fit-empty-state-title { font-size: 16px; font-weight: 500; color: var(--fit-text-secondary); margin-bottom: 6px; }
+
+  /* Conditional fields animation */
+  #group-fields, #schedule-fields, #recurring-fields, #oneoff-fields {
+    will-change: max-height, opacity;
+  }
+
+  /* Light theme overrides for group training */
+  .fit-light .set-card { background: var(--fit-white); }
+  .fit-light .fit-card { background: var(--fit-white); }
+  .fit-light .fit-ticket { background: var(--fit-white); }
+  .fit-light .fit-participants-card { background: var(--fit-white); }
+  .fit-light .fit-spots { background: var(--fit-gray-100); }
+  .fit-light .fit-spots-fill { background: var(--fit-gray-200); }
+  .fit-light .fit-input { background: var(--fit-gray-100); }
+  .fit-light .fit-navbar { background: rgba(255,255,255,0.75); box-shadow: 0 0 24px rgba(0,0,0,0.15); }
+  .fit-light .fit-navbar-item { color: var(--fit-gray-400); }
+  .fit-light .fit-navbar-item.active { color: var(--fit-text-primary); }
+
+  /* Month grid day with event dot */
+  .mg-day { display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;cursor:pointer; }
+  .mg-day-num { font-size:14px;color:var(--fit-text-secondary);width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%; }
+  .mg-day.today .mg-day-num { color:var(--fit-brand-primary);font-weight:600; }
+  .mg-day.selected .mg-day-num { background:var(--fit-selection-gradient);border:1px solid var(--fit-teal-600);color:var(--fit-text-primary);font-weight:500; }
+  .mg-dots { display:flex;gap:2px;height:4px; }
+  .mg-dot { width:4px;height:4px;border-radius:50%; }
+  .mg-dot.p { background:var(--fit-teal-500); }
+  .mg-dot.g { background:var(--fit-brand-primary); }
+  .mg-dot.e { background:var(--fit-text-tertiary); }
+
+  /* Calendar header component (reusable) */
+  .fit-cal-header {
+    display: flex; align-items: center; gap: 4px; cursor: pointer;
+  }
+  .fit-cal-header-month { font-size: 16px; font-weight: 600; color: var(--fit-text-primary); }
+  .fit-cal-header-year { font-size: 16px; font-weight: 400; color: var(--fit-text-secondary); }
+  .fit-cal-chevron { transition: transform 0.2s; flex-shrink: 0; }
+
+  /* V6d card themes */
+  .v6d-card { background: var(--fit-surface-high); }
+  .fit-light .v6d-card { background: var(--fit-white) !important; box-shadow: 0 1px 12px rgba(0,0,0,0.12); }
+  .fit-light .v6d-card { box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+  .fit-light .v6d-icon-box { background: rgba(0,0,0,0.06) !important; }
+  .fit-light .v6d-icon-box svg { stroke: var(--fit-gray-900) !important; }
+  .fit-light .v6d-price { color: var(--fit-text-primary) !important; }
+  .fit-light .v6d-loc-strip { border-bottom-color: var(--fit-gray-200) !important; }
+  .fit-light .v6d-special-badge { background: rgba(0,0,0,0.08) !important; color: var(--fit-text-primary) !important; }
+  /* Alt 1 header: light theme */
+  .fit-light .v6d-header-neutral { background: var(--fit-gray-200) !important; }
+  .fit-light .v6d-header-neutral .v6d-icon-box { background: rgba(0,0,0,0.08) !important; }
+  /* Alt 2 header: light theme */
+  .fit-light .v6d-header-dense { background: linear-gradient(to right, rgba(10,147,189,0.25), rgba(5,224,166,0.25)) !important; }
+
+  /* Paid dimming + validation errors: in fit-ui.css */
+
+  /* ===== Schedule day-states (loading / empty / error) — mirrors coach/calendar.html cal-loading overlay ===== */
+  #s-schedule .sched-overlay {
+    position: absolute; top: 0; left: 0; right: 0;
+    display: none; flex-direction: column; align-items: center;
+    padding: 96px 24px 0; z-index: 15; text-align: center;
+  }
+  #s-schedule.sc-loading .sched-loading,
+  #s-schedule.sc-empty .sched-empty,
+  #s-schedule.sc-error .sched-error { display: flex; }
+  /* In any non-default state, hide event tiles + now-line but keep the hour grid */
+  #s-schedule.sc-loading .fit-timeline > *:not(.fit-hour):not(.sched-overlay),
+  #s-schedule.sc-empty .fit-timeline > *:not(.fit-hour):not(.sched-overlay),
+  #s-schedule.sc-error .fit-timeline > *:not(.fit-hour):not(.sched-overlay) { display: none !important; }
+  #s-schedule .sched-spinner {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2.5px solid var(--fit-gray-200); border-top-color: var(--fit-brand-primary);
+    animation: sched-spin 0.8s linear infinite;
+  }
+  @keyframes sched-spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="lab-top">
+  <h1>Light theme — примерочная</h1>
+  <p>
+    Один и тот же живой экран в нескольких палитрах светлой темы. Слева всегда — то, что в проде сейчас.
+    Смотрим четыре вещи: <strong>край карточки</strong> (карточка ↔ фон), <strong>разделители</strong>,
+    <strong>третичный текст</strong> (12px подписи) и <strong>акценты</strong> (teal / red суммы).
+    Цифры под названием — WCAG-коэффициенты контраста.
+    Набор <strong>«A · чем рисуем край»</strong> — это одна палитра A в трёх исполнениях: край рисует
+    только светлота холста / хайрлайн / минимальная тень. Переключи экран на <strong>Календарь</strong> —
+    там плотная сетка, и видно, что выдерживает, а что рассыпается.
+  </p>
+  <div class="lab-controls">
+    <span class="lab-seg-label">Набор</span>
+    <span class="lab-seg" id="seg-set">
+      <button data-v="all" class="on">Все палитры</button>
+      <button data-v="edge">A · чем рисуем край</button>
+    </span>
+    <span class="lab-seg-label">Экран</span>
+    <span class="lab-seg" id="seg-screen">
+      <button data-v="detail" class="on">Coach detail</button>
+      <button data-v="calendar">Календарь</button>
+    </span>
+    <label class="lab-toggle"><input type="checkbox" id="t-sync" checked> Синхронный скролл</label>
+    <label class="lab-toggle"><input type="checkbox" id="t-accents"> Чинить акценты</label>
+    <span class="lab-hint">↔ листай вбок</span>
+  </div>
+</div>
+
+<div class="lab-row" id="row"></div>
+
+<template id="tpl-detail">
+<div class="fit-phone fit-light cd-default dr-none" id="s-coach-detail">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="athlete.coach-detail.back" onclick="go('s-my-coaches', null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div data-cd-state="default">
+
+    <!-- Identity — whole row taps through to the public coach profile (chevron cue; handles long names). Name = .fit-identity-name (shown once, in body — Variant 1) -->
+    <div data-a11y-id="athlete.coach-detail.view-profile" onclick="window.location.href='../shared/profile.html'" style="display:flex;align-items:center;gap:16px;padding:8px 16px 18px;cursor:pointer;">
+      <div class="coach-photo coach-photo-grad-1">MR</div>
+      <div style="flex:1;min-width:0;">
+        <div class="fit-identity-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Maria Rodriguez</div>
+        <div class="coach-rating-row" style="margin-top:2px;">
+          <span class="coach-rating"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>4.9</span>
+          <span class="coach-rating-count">(47)</span>
+          <span class="coach-rating-sep"></span>
+          <span class="coach-sports">Tennis · Padel</span>
+        </div>
+      </div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+
+    <!-- Stats card: mirror of what the coach sees about the athlete -->
+    <div style="display:flex;justify-content:space-around;padding:14px 16px;margin:0 16px 24px;border-radius:12px;background:var(--fit-surface-high);">
+      <div style="text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">12</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Sessions</div></div>
+      <div style="width:1px;background:var(--fit-divider);"></div>
+      <div style="text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">14h</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Hours</div></div>
+      <div style="width:1px;background:var(--fit-divider);"></div>
+      <div style="text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">&euro;480</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Spent</div></div>
+      <div style="width:1px;background:var(--fit-divider);"></div>
+      <div style="text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-red-400);">&euro;70</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Owed</div></div>
+    </div>
+
+    <!-- Your packages — prepaid passes with this coach -->
+    <div class="fit-section-title--md">Your packages</div>
+    <div style="display:flex;flex-direction:column;gap:12px;padding:0 16px 22px;">
+      <!-- Healthy: 3 of 5 used · tap → pack detail -->
+      <div class="pkg-punch" data-a11y-id="athlete.coach-detail.package" style="cursor:pointer;" onclick="openPkgDetailAth('tennis')">
+        <div class="pkg-punch-head">
+          <div class="pkg-punch-ic" style="background:var(--fit-grad-type-personal);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg></div>
+          <div class="pkg-punch-tt">
+            <div class="pkg-punch-name">Tennis Training</div>
+            <div class="pkg-punch-coach">Personal &middot; 2 packs</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="pkg-dots-row">
+          <div class="pkg-bar"><div class="pkg-bar-fill" style="width:60%;"></div></div>
+          <span class="pkg-punch-left">2 left</span>
+        </div>
+        <div class="pkg-punch-meta">
+          <span class="pkg-punch-sub">3 of 5 used &middot; current pack</span>
+          <button class="fit-btn fit-btn-secondary fit-btn-xs" onclick="event.stopPropagation();window.location.href='../shared/profile.html'">Book next</button>
+        </div>
+      </div>
+      <!-- Running low: 4 of 5 used -->
+      <div class="pkg-punch pkg-punch--low" data-a11y-id="athlete.coach-detail.package" style="cursor:pointer;" onclick="openPkgDetailAth('padel')">
+        <div class="pkg-punch-head">
+          <div class="pkg-punch-ic" style="background:var(--fit-grad-type-personal);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 8l8 8M16 8l-8 8"/></svg></div>
+          <div class="pkg-punch-tt">
+            <div class="pkg-punch-name">Padel Training</div>
+            <div class="pkg-punch-coach">Personal &middot; 5-session pack</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="pkg-dots-row">
+          <div class="pkg-bar"><div class="pkg-bar-fill" style="width:80%;"></div></div>
+          <span class="pkg-lowpill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>1 left</span>
+        </div>
+        <div class="pkg-punch-meta">
+          <span class="pkg-punch-sub">4 of 5 used &middot; no expiry</span>
+          <button class="fit-btn fit-btn-secondary fit-btn-xs" onclick="event.stopPropagation();window.location.href='../shared/profile.html'">Book last</button>
+        </div>
+      </div>
+      <!-- Cash pack pending the coach's payment confirmation — bookable now, unpaid -->
+      <div class="pkg-punch pkg-punch--pending" data-a11y-id="athlete.coach-detail.package" style="cursor:pointer;" onclick="openPkgDetailAth('basketball')">
+        <div class="pkg-punch-head">
+          <div class="pkg-punch-ic" style="background:var(--fit-grad-type-personal);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg></div>
+          <div class="pkg-punch-tt">
+            <div class="pkg-punch-name">Basketball Training</div>
+            <div class="pkg-punch-coach">Personal &middot; 5-session pack</div>
+          </div>
+          <span class="pkg-pendpill">Pending payment</span>
+        </div>
+        <div class="pkg-dots-row">
+          <div class="pkg-bar"><div class="pkg-bar-fill" style="width:0%;"></div></div>
+          <span class="pkg-punch-left">5 left</span>
+        </div>
+        <div class="pkg-punch-meta">
+          <span class="pkg-punch-sub">Pay John &euro;200 in person &middot; bookable now</span>
+          <button class="fit-btn fit-btn-secondary fit-btn-xs" onclick="event.stopPropagation();window.location.href='../shared/profile.html'">Book 1st</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Self-paced with this coach — summary counters (mirror of coach's Client Detail), tap → My self-paced filtered to John -->
+    <div class="fit-section-title--md">Self-paced with John</div>
+    <div style="margin:0 16px 22px;border-radius:14px;overflow:hidden;background:var(--fit-surface-high);">
+      <div data-a11y-id="athlete.coach-detail.self-paced" onclick="window.location.href='../shared/self-paced.html?c=John#s-list'" style="display:flex;align-items:center;padding:16px 14px;cursor:pointer;">
+        <div style="flex:1;display:flex;">
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-red-400);">1</div><div style="font-size:12px;color:var(--fit-text-tertiary);">To do</div></div>
+          <div style="width:1px;background:var(--fit-divider);"></div>
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-yellow-600);">1</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Awaiting</div></div>
+          <div style="width:1px;background:var(--fit-divider);"></div>
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">6</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Done</div></div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-left:8px;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-top:1px solid var(--fit-divider);font-size:13px;color:var(--fit-text-secondary);">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--fit-red-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        Core stability &middot; overdue since Apr 15
+      </div>
+    </div>
+
+    <!-- Cash owed — horizontal list (multiple debts possible). Hidden in no-debt state. -->
+    <div class="cd-cash">
+    <div class="fit-section-title--md-row">
+      <span class="fit-section-title--md">Cash owed</span>
+      <span class="fit-badge fit-badge-danger">2</span>
+    </div>
+    <div data-a11y-id="athlete.coach-detail.owed" style="display:flex;gap:10px;padding:0 16px 22px;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;scroll-padding-left:16px;">
+      <div style="min-width:280px;padding:12px 14px;border-radius:14px;background:rgba(240,92,91,0.06);border:1px solid rgba(240,92,91,0.2);flex-shrink:0;scroll-snap-align:start;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Tennis Training</span>
+          <span style="font-size:14px;font-weight:500;color:var(--fit-red-400);">&euro;40</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;color:var(--fit-text-tertiary);">Apr 2 &middot; Cash</span>
+          <span style="font-size:12px;color:var(--fit-text-tertiary);">Pay in person</span>
+        </div>
+      </div>
+      <div style="min-width:280px;padding:12px 14px;border-radius:14px;background:rgba(240,92,91,0.06);border:1px solid rgba(240,92,91,0.2);flex-shrink:0;scroll-snap-align:start;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Padel Training</span>
+          <span style="font-size:14px;font-weight:500;color:var(--fit-red-400);">&euro;30</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;color:var(--fit-text-tertiary);">Mar 24 &middot; Cash</span>
+          <span style="font-size:12px;color:var(--fit-text-tertiary);">Pay in person</span>
+        </div>
+      </div>
+    </div>
+    </div><!-- /cd-cash -->
+
+    <!-- Upcoming — coach-style cards, tap → calendar event -->
+    <div class="fit-section-title--md">Upcoming</div>
+    <div data-a11y-id="athlete.coach-detail.upcoming" style="display:flex;gap:10px;padding:0 16px 22px;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;scroll-padding-left:16px;">
+      <div style="min-width:280px;padding:14px;border-radius:14px;background:var(--fit-surface-high);flex-shrink:0;scroll-snap-align:start;cursor:pointer;" onclick="window.location.href='calendar.html'">
+        <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);margin-bottom:4px;">Tennis Training</div>
+        <div style="font-size:12px;color:var(--fit-text-secondary);margin-bottom:4px;">Thu, Apr 10 &middot; 10:00 - 11:00</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;color:var(--fit-brand-primary);">TNT Studio</span>
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;40</span>
+        </div>
+      </div>
+      <div style="min-width:280px;padding:14px;border-radius:14px;background:var(--fit-surface-high);flex-shrink:0;scroll-snap-align:start;cursor:pointer;" onclick="window.location.href='calendar.html'">
+        <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);margin-bottom:4px;">Tennis Training</div>
+        <div style="font-size:12px;color:var(--fit-text-secondary);margin-bottom:4px;">Tue, Apr 15 &middot; 10:00 - 11:00</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;color:var(--fit-brand-primary);">TNT Studio</span>
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;40</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Private note about this coach (outline card → editor) -->
+    <div class="fit-section-title--md">My note</div>
+    <div data-a11y-id="athlete.coach-detail.note" style="margin:0 16px 22px;padding:14px;border-radius:12px;background:transparent;border:1px solid var(--fit-divider);font-size:14px;line-height:1.5;color:var(--fit-text-secondary);cursor:pointer;" onclick="go('s-coach-note-editor', null)">
+      Prefers morning courts. Great on backhand drills. Pays cash.
+    </div>
+
+    <!-- History link → push -->
+    <div data-a11y-id="athlete.coach-detail.history" style="margin:0 16px 22px;cursor:pointer;" onclick="go('s-coach-history', null)">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;border-radius:12px;background:var(--fit-surface-high);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          <span style="font-size:16px;color:var(--fit-text-primary);">Training history</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:14px;color:var(--fit-text-tertiary);">12 sessions</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Your review of this coach (per-coach, one, editable) -->
+    <div class="fit-section-title--md">Your review</div>
+
+    <!-- B. Review left -->
+    <div data-review-state="has" style="margin:0 16px 24px;padding:14px;border-radius:12px;background:var(--fit-surface-high);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span style="display:inline-flex;gap:2px;color:var(--fit-yellow-400);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+        </span>
+        <button data-a11y-id="athlete.coach-detail.edit-review" onclick="openReview('edit')" style="background:transparent;border:none;cursor:pointer;color:var(--fit-blue-500);font-family:var(--fit-font);font-size:13px;font-weight:500;">Edit</button>
+      </div>
+      <div style="font-size:14px;line-height:1.5;color:var(--fit-text-secondary);">Great coach — super structured sessions and really patient with technique. Highly recommend.</div>
+    </div>
+
+    <!-- A. No review yet, but ≥1 completed session (eligible) — CTA -->
+    <div data-review-state="none" style="margin:0 16px 24px;padding:16px;border-radius:12px;background:transparent;border:1px solid var(--fit-divider);text-align:center;">
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">How was training with Maria Rodriguez?</div>
+      <button class="fit-btn fit-btn-secondary" data-a11y-id="athlete.coach-detail.write-review" onclick="openReview('write')" style="display:inline-flex;width:auto;height:40px;padding:0 20px;">Write a review</button>
+    </div>
+
+    <!-- C. Can't review yet — no completed session -->
+    <div data-review-state="locked" style="margin:0 16px 24px;padding:16px;border-radius:12px;background:transparent;border:1px solid var(--fit-divider);text-align:center;">
+      <div style="font-size:13px;color:var(--fit-text-tertiary);line-height:1.5;">You can leave a review after your first completed session with Maria.</div>
+    </div>
+
+    </div><!-- /default -->
+
+    <!-- LOADING -->
+    <div data-cd-state="loading" style="padding-top:8px;">
+      <div style="display:flex;align-items:center;gap:16px;padding:8px 16px 24px;"><div class="sk-circle sk-shimmer" style="width:72px;height:72px;border-radius:50%;flex-shrink:0;"></div><div class="sk-lines" style="flex:1;"><div class="sk-line sk-shimmer" style="width:55%;"></div><div class="sk-line short sk-shimmer" style="width:35%;"></div></div></div>
+      <div class="sk-card" style="margin:0 16px 16px;height:64px;border-radius:12px;"></div>
+      <div class="sk-card" style="margin:0 16px 16px;height:120px;border-radius:14px;"></div>
+      <div class="sk-card" style="margin:0 16px 16px;height:64px;border-radius:12px;"></div>
+    </div>
+
+    <!-- ERROR -->
+    <div data-cd-state="error" style="padding-top:24px;">
+      <div class="fit-inline-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span class="fit-inline-error-body">Couldn't load this coach. Check your connection.</span>
+        <button class="fit-inline-error-retry" onclick="setCdState('default')">Retry</button>
+      </div>
+    </div>
+  </div>
+  <!-- Sticky Book -->
+  <div class="fit-phone-footer fit-footer-btn">
+    <button class="fit-btn fit-btn-primary" data-a11y-id="athlete.coach-detail.rebook" onclick="window.location.href='../shared/profile.html#s-book-sessions'">Book</button>
+  </div>
+</div>
+</template>
+
+<template id="tpl-calendar">
+<div class="fit-phone fit-light active" id="s-schedule">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header" style="justify-content:space-between;">
+      <div class="fit-cal-header" onclick="toggleMonthView('ath-month-grid')">
+        <span class="fit-cal-header-month">April</span>
+        <span class="fit-cal-header-year">2026</span>
+        <svg class="fit-cal-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div style="flex:1;"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="fit-icon-btn" style="font-size:12px;width:auto;padding:0 12px;border-radius:8px;color:var(--fit-blue-500);font-weight:500;font-family:var(--fit-font);background:var(--fit-surface-higher);" data-fit-sync>Today</button>
+        <button class="fit-icon-btn" style="background:var(--fit-surface-higher);" data-fit-sync><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15.36 6.36L3 16"/></svg></button>
+      </div>
+    </div>
+    <!-- Month grid (hidden by default) -->
+    <div id="ath-month-grid" style="display:none;padding:0 16px 12px;">
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;">
+        <span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">S</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">M</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">T</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">W</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">T</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">F</span><span style="font-size:12px;color:var(--fit-text-tertiary);padding:4px;">S</span>
+        <span></span><span></span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">1</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">2</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">3</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">4</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">5</span>
+        <span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">6</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">7</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">8</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">9</span><span style="font-size:14px;color:var(--fit-text-primary);padding:8px;font-weight:500;background:var(--fit-selection-gradient);border-radius:50%;border:1px solid var(--fit-teal-600);">10</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">11</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">12</span>
+        <span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">13</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">14</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">15</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">16</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">17</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">18</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">19</span>
+        <span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">20</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">21</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">22</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">23</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">24</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">25</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">26</span>
+        <span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">27</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">28</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">29</span><span style="font-size:14px;color:var(--fit-text-secondary);padding:8px;">30</span><span></span><span></span><span></span>
+      </div>
+    </div>
+    <div class="fit-day-strip" data-fit-day-strip data-month="4" data-year="2026" data-today="10" data-selected="10">
+      <div class="fit-day-strip-inner"></div>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="cal-view">
+      <div class="fit-timeline" style="height:auto;min-height:100%;">
+        <div class="fit-hour"><span class="fit-hour-label">06:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">07:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">08:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">09:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">10:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">11:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">12:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">13:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">14:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">15:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">16:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">17:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">18:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">19:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">20:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">21:00</span></div>
+        <div class="fit-hour"><span class="fit-hour-label">22:00</span></div>
+
+        <!-- Current time line -->
+        <div class="fit-now-line" style="top:432px;"><div class="fit-now-dot"></div></div>
+
+        <!-- 07:00-08:00 personal FINISHED (past, faded) → tap = Rate -->
+        <div class="fit-cal-event fit-cal-event-personal finished" onclick="openAthEvent('finished')" style="top:96px;height:96px;cursor:pointer;">
+          <div class="fit-cal-event-title">Strength Training</div>
+          <div class="fit-cal-event-meta">with Coach Sarah L. · 07:00 – 08:00</div>
+          <div class="fit-cal-event-loc">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            Wellness Studio
+          </div>
+        </div>
+
+        <!-- 10:00-11:00 group PLANNED (confirmed) -->
+        <div class="fit-cal-event fit-cal-event-group" onclick="openAthEvent('planned')" style="top:384px;height:96px;cursor:pointer;">
+          <div class="fit-cal-event-title">HIIT Group Session</div>
+          <div class="fit-cal-event-meta">with Coach John M. · 10:00 – 11:00</div>
+          <div class="fit-cal-event-loc">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            TNT Studio
+          </div>
+        </div>
+
+        <!-- 12:00-13:00 personal REQUEST (incoming — coach scheduled, athlete must Accept/Decline) -->
+        <div class="fit-cal-event fit-cal-event-personal request" onclick="openAthEvent('request')" style="top:576px;height:96px;cursor:pointer;">
+          <div class="fit-cal-event-title-row">
+            <span class="fit-cal-event-title">Basketball Training</span>
+            <span class="fit-cal-event-pill fit-cal-event-pill--request">Request</span>
+          </div>
+          <div class="fit-cal-event-meta">with Coach John M. · 12:00 – 13:00</div>
+          <div class="fit-cal-event-loc">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            TNT Studio
+          </div>
+        </div>
+
+        <!-- 17:00-18:00 personal AWAITING (outgoing — athlete requested, waiting on coach) -->
+        <div class="fit-cal-event fit-cal-event-personal awaiting" onclick="openAthEvent('awaiting')" style="top:1056px;height:96px;cursor:pointer;">
+          <div class="fit-cal-event-title-row">
+            <span class="fit-cal-event-title">Yoga Private</span>
+            <span class="fit-cal-event-pill fit-cal-event-pill--awaiting">Awaiting</span>
+          </div>
+          <div class="fit-cal-event-meta">with Coach Sarah L. · 17:00 – 18:00</div>
+          <div class="fit-cal-event-loc">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            Wellness Studio
+          </div>
+        </div>
+
+        <!-- 14:00-15:00 CROSS-ROLE — user is also a coach; this slot is a coaching session with their athletes. -->
+        <div class="fit-cal-event-cross-role" data-a11y-id="athlete.calendar.cross-role.tile" onclick="document.getElementById('ath-cross-role-sheet').classList.add('visible')" style="top:768px;height:96px;z-index:2;">
+          <div class="fit-cal-event-title">HIIT Group Session</div>
+          <div class="fit-cal-event-meta">7/10 athletes · 14:00 – 15:00</div>
+          <div class="fit-cal-event-loc">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            TNT Studio
+          </div>
+          <span class="fit-cal-event-cross-role-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/></svg>
+            Coach
+          </span>
+        </div>
+
+        <!-- ===== Day-state overlays (loading / empty / error) — toggled via #s-schedule.sc-* ===== -->
+        <div class="sched-overlay sched-loading"><div class="sched-spinner"></div></div>
+        <div class="sched-overlay sched-empty">
+          <div class="fit-empty-state" style="display:block;padding:0;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:52px;height:52px;color:var(--fit-gray-400);margin-bottom:14px;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <div class="fit-empty-state-title">Nothing scheduled</div>
+            <div class="fit-empty-state-sub">No sessions on this day. Book one with<br>your coach and it&rsquo;ll show up here.</div>
+            <button class="fit-btn fit-btn-primary" data-a11y-id="athlete.calendar.empty.find-coach" style="margin:18px auto 0;width:auto;padding:0 22px;height:44px;" onclick="window.location.href='my-coaches.html'">Find a coach</button>
+          </div>
+        </div>
+        <div class="sched-overlay sched-error">
+          <div class="fit-inline-error" style="align-self:stretch;margin:0;text-align:left;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+            <span class="fit-inline-error-body">Couldn&rsquo;t load your schedule. Check your connection.</span>
+            <button class="fit-inline-error-retry" data-a11y-id="athlete.calendar.error.retry" onclick="setSchedState('default')">Retry</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cross-role event sheet — symmetric mirror of coach's version: user-as-coach event shown on athlete calendar. -->
+  <div class="fit-sheet-overlay" id="ath-cross-role-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-status-header">
+        <div class="fit-sheet-descriptor">Coaching session</div>
+        <span class="fit-badge fit-badge-neutral" style="display:inline-flex;align-items:center;gap:4px;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/></svg>
+          Coach
+        </span>
+      </div>
+
+      <!-- Group icon + session name -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:rgba(3,178,226,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">HIIT Group Session</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);">You're the coach · 7 athletes joined</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        Thu, Apr 10 · 14:00 – 15:00
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          TNT Studio
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;25/person</span>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:24px;padding:12px;background:rgba(3,178,226,0.06);border:1px solid rgba(3,178,226,0.18);border-radius:10px;">
+        <svg style="width:18px;height:18px;flex-shrink:0;margin-top:1px;color:var(--fit-blue-500);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span style="font-size:13px;color:var(--fit-text-secondary);line-height:1.45;">This session is on your <strong style="color:var(--fit-text-primary);">coach profile</strong>. To manage participants, reschedule, or complete training — switch to coach view.</span>
+      </div>
+
+      <div style="display:flex;gap:10px;">
+        <button data-a11y-id="athlete.calendar.cross-role.close" style="flex:0 0 auto;padding:0 22px;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('ath-cross-role-sheet').classList.remove('visible');">Close</button>
+        <button class="fit-btn fit-btn-primary" data-a11y-id="athlete.calendar.cross-role.switch-role" style="flex:1;height:50px;font-size:16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;" onclick="document.getElementById('ath-cross-role-sheet').classList.remove('visible');">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115.36-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15.36 6.36L3 16"/></svg>
+          Switch to coach
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Athlete event sheet — unified, 5 states via data-event-state (mirrors the
+       coach cal-event-sheet pattern + canonical .fit-sheet-footer-variant). -->
+  <div class="fit-sheet-overlay" id="ath-event-sheet">
+    <div class="fit-sheet" id="ath-event-body" data-event-state="planned" style="padding:8px 16px 40px;">
+      <div class="fit-sheet-handle"></div>
+      <!-- Status header: descriptor + optional pill -->
+      <div class="fit-sheet-status-header">
+        <div class="fit-sheet-descriptor" id="ath-ev-descriptor">Confirmed session</div>
+        <span class="fit-cal-event-pill" id="ath-ev-pill" style="display:none;"></span>
+      </div>
+
+      <!-- Awaiting-only: expiry note -->
+      <div class="ev-await-only" style="display:none;margin:0 0 16px;padding:12px 14px;background:rgba(222,145,29,0.10);border-radius:12px;align-items:flex-start;gap:10px;">
+        <svg style="width:18px;height:18px;flex-shrink:0;margin-top:1px;color:var(--fit-yellow-600);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        <span style="font-size:13px;color:var(--fit-text-secondary);line-height:1.45;">Waiting for the coach to confirm. <strong style="color:var(--fit-text-primary);">Expires in 22h</strong> — auto-cancelled &amp; refunded if no response.</span>
+      </div>
+
+      <!-- Coach-confirmed inline note — planned only, shown when coach proxied the accept offline -->
+      <div class="ev-confirmed-note" style="display:none;margin:0 0 16px;padding:12px 14px;background:rgba(3,178,226,0.10);border-radius:12px;gap:10px;align-items:flex-start;">
+        <svg style="width:18px;height:18px;flex-shrink:0;margin-top:1px;color:var(--fit-blue-500);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <div style="font-size:13px;color:var(--fit-text-secondary);line-height:1.5;">
+          <div style="font-weight:500;color:var(--fit-text-primary);">Confirmed by Coach Mark on your behalf</div>
+          <div style="margin-top:2px;">Mark indicated you agreed to this session offline (Apr 14). Reach out if this doesn&rsquo;t look right.</div>
+        </div>
+      </div>
+
+      <!-- Coach avatar + name (tap → coach profile) -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;cursor:pointer;" onclick="window.location.href='../shared/profile.html'">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;" id="ath-ev-av">JM</div>
+        <div style="flex:1;"><div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);" id="ath-ev-coach">Coach John M.</div></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+
+      <!-- Event info -->
+      <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);margin-bottom:12px;" id="ath-ev-title">HIIT Group Session</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        <span id="ath-ev-time">Thu, Apr 10 · 10:00 – 11:00</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          <span id="ath-ev-loc">TNT Studio</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);" id="ath-ev-price">&euro;25</span>
+          <span class="fit-badge fit-badge-neutral" id="ath-ev-method">Balance</span>
+        </div>
+      </div>
+
+      <!-- Footer variants — one visible per data-event-state -->
+      <div class="fit-sheet-footer-variant ev-planned">
+        <button style="width:50px;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" aria-label="Message coach" onclick="window.location.href='../shared/messages.html'">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </button>
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');document.getElementById('ath-reschedule-sheet').classList.add('visible');">Reschedule</button>
+        <button class="fit-btn fit-btn-destructive" style="flex:1;height:50px;font-size:16px;" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');document.getElementById('ath-cancel-sheet').classList.add('visible');">Cancel</button>
+      </div>
+      <div class="fit-sheet-footer-variant ev-request">
+        <button class="fit-btn fit-btn-destructive" style="flex:1;height:50px;font-size:16px;" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');showAthToast('Request declined')">Decline</button>
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');showAthToast('Session confirmed')">Accept</button>
+      </div>
+      <div class="fit-sheet-footer-variant ev-awaiting">
+        <button style="flex:1;height:50px;border:1px solid var(--fit-red-400);border-radius:99px;background:transparent;color:var(--fit-red-400);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');showAthToast('Request cancelled')">Cancel request</button>
+      </div>
+      <div class="fit-sheet-footer-variant ev-finished">
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');document.getElementById('post-training-sheet').classList.add('visible')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Rate this session
+        </button>
+      </div>
+      <div class="fit-sheet-footer-variant ev-missed">
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');window.location.href='../shared/profile.html'">Book again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reschedule sheet (athlete) — creates a NEW request the coach must approve -->
+  <div class="fit-sheet-overlay" id="ath-reschedule-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Reschedule this session?</div>
+      <p style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;margin:6px 0 20px;">Pick a new time and we&rsquo;ll send it to your coach to approve — like a new request. Your <strong style="color:var(--fit-text-primary);">current slot stays booked</strong> until they confirm the new one.</p>
+      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="document.getElementById('ath-reschedule-sheet').classList.remove('visible');window.location.href='../shared/profile.html#s-book-sessions'">Choose a new time</button>
+      <button style="width:100%;height:46px;margin-top:8px;background:transparent;border:none;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:15px;font-weight:500;cursor:pointer;" onclick="document.getElementById('ath-reschedule-sheet').classList.remove('visible')">Keep current time</button>
+    </div>
+  </div>
+
+  <!-- Cancel-with-refund sheet (athlete) -->
+  <div class="fit-sheet-overlay" id="ath-cancel-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Cancel this session?</div>
+      <p style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;margin:6px 0 14px;">Free cancellation up to <strong style="color:var(--fit-text-primary);">24h</strong> before. <strong style="color:var(--fit-text-primary);">&euro;25</strong> will be refunded to your balance.</p>
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:18px;padding:10px;background:rgba(222,145,29,0.08);border-radius:8px;">
+        <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-yellow-600)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span style="font-size:12px;color:var(--fit-text-secondary);line-height:1.4;">Within 24h of the session, cancellation may be non-refundable depending on the coach&rsquo;s policy.</span>
+      </div>
+      <button class="fit-btn fit-btn-destructive" style="border-radius:99px;" onclick="document.getElementById('ath-cancel-sheet').classList.remove('visible');showAthToast('Session cancelled · €25 refunded')">Cancel session</button>
+      <button style="width:100%;height:46px;margin-top:8px;background:transparent;border:none;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:15px;font-weight:500;cursor:pointer;" onclick="document.getElementById('ath-cancel-sheet').classList.remove('visible')">Keep it</button>
+    </div>
+  </div>
+
+  <!-- Snackbar -->
+  <div class="fit-snackbar" id="ath-snackbar"><span class="snack-dot"></span><span class="snack-text" id="ath-snack-text">Done</span></div>
+
+  <!-- ===== state-conditional notes inside ath-event-sheet ===== -->
+  <style>
+    #ath-event-body[data-event-state="awaiting"] .ev-await-only { display: flex !important; }
+    #ath-event-body.is-coach-confirmed[data-event-state="planned"] .ev-confirmed-note { display: flex !important; }
+  </style>
+
+  <!-- Rate sheet — opens from a Finished event's "Rate this session" (the written
+       review is a separate follow-up notification the day after the first session). -->
+  <div class="fit-sheet-overlay" id="post-training-sheet" onclick="this.classList.remove('visible')">
+    <div class="fit-sheet" style="background:var(--fit-white);padding:8px 16px 40px;" onclick="event.stopPropagation()">
+      <div class="fit-sheet-handle" style="background:var(--fit-gray-200);"></div>
+      <div style="text-align:center;padding-top:8px;">
+        <!-- Mini ticket summary -->
+        <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:16px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--fit-brand-gradient);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--fit-white);font-weight:500;">JM</div>
+          <div style="text-align:left;">
+            <div style="font-size:16px;font-weight:500;color:var(--fit-gray-900);">HIIT Group Session</div>
+            <div style="font-size:12px;color:var(--fit-gray-400);">John Miller · Today, 10:00</div>
+          </div>
+          <span style="font-size:12px;font-weight:500;padding:3px 8px;border-radius:4px;background:rgba(0,226,157,0.12);color:var(--fit-green-500);margin-left:auto;">Done</span>
+        </div>
+
+        <div style="font-size:18px;font-weight:500;color:var(--fit-gray-900);margin-bottom:6px;">How was your training?</div>
+        <div style="font-size:14px;color:var(--fit-gray-400);margin-bottom:20px;">Your feedback helps coaches improve</div>
+
+        <!-- Star rating -->
+        <div style="display:flex;justify-content:center;gap:10px;margin-bottom:24px;" id="star-rating">
+          <svg class="star" onclick="rateStar(1)" viewBox="0 0 24 24" fill="none" stroke="#F7C948" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:36px;height:36px;cursor:pointer;transition:all 0.15s;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" onclick="rateStar(2)" viewBox="0 0 24 24" fill="none" stroke="#F7C948" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:36px;height:36px;cursor:pointer;transition:all 0.15s;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" onclick="rateStar(3)" viewBox="0 0 24 24" fill="none" stroke="#F7C948" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:36px;height:36px;cursor:pointer;transition:all 0.15s;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" onclick="rateStar(4)" viewBox="0 0 24 24" fill="none" stroke="#F7C948" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:36px;height:36px;cursor:pointer;transition:all 0.15s;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" onclick="rateStar(5)" viewBox="0 0 24 24" fill="none" stroke="#F7C948" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:36px;height:36px;cursor:pointer;transition:all 0.15s;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+
+        <div style="font-size:14px;color:var(--fit-gray-400);margin-bottom:20px;cursor:pointer;">Didn't happen? <span style="color:var(--fit-red-400);font-weight:500;">Report issue</span></div>
+
+        <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="document.getElementById('post-training-sheet').classList.remove('visible')">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="fit-phone-footer">
+    <div class="fit-navbar">
+      <div class="fit-navbar-item" onclick="window.location.href='dashboard.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>
+      <div class="fit-navbar-item" onclick="window.location.href='my-coaches.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg></div>
+      <div class="fit-navbar-item" aria-label="Assistant" onclick="alert('AI Assistant — coming soon')"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 14l.7 1.9L21.5 16.5l-1.8.6L19 19l-.7-1.9L16.5 16.5l1.8-.6z"/></svg></div>
+      <div class="fit-navbar-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      <div class="fit-navbar-item" onclick="window.location.href='profile.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+    </div>
+  </div>
+</div>
+</template>
+
+<script>
+/* ============================================================
+   PALETTES — единственный источник правды.
+   Правишь здесь → меняется CSS, свотчи и метрики.
+   ============================================================ */
+
+// Палитра A: холст на ступень глубже, divider gray-200, текстовая лестница разведена.
+// Все A-* колонки делят её и различаются ТОЛЬКО тем, чем нарисован край карточки.
+const A_VARS = {
+  '--fit-screen-bg': '#E9E9EE', '--fit-surface': '#FFFFFF', '--fit-surface-high': '#FFFFFF',
+  '--fit-surface-higher': '#F0F1F3', '--fit-surface-low': '#E0E2E5',
+  '--fit-text-primary': '#1F2123', '--fit-text-secondary': '#5B6269', '--fit-text-tertiary': '#6D757D',
+  '--fit-divider': '#D6D9DC'
+};
+
+const BASE = {
+  id: 'base', name: '0 · Сейчас', tag: 'baseline', raw: true,
+  note: 'Ровно как в проде: белое на #F2F2F7, divider gray-100. У карточек, собранных инлайном (статистика, self-paced, upcoming, история), края нет вообще — ни тени, ни рамки.',
+  vars: {
+    '--fit-screen-bg': '#F2F2F7', '--fit-surface': '#FFFFFF', '--fit-surface-high': '#FFFFFF',
+    '--fit-surface-higher': '#F7F7F8', '--fit-surface-low': '#E4E6E7',
+    '--fit-text-primary': '#1F2123', '--fit-text-secondary': '#757E87', '--fit-text-tertiary': '#757E87',
+    '--fit-divider': '#E4E6E7'
+  },
+  card: { shadow: '0 0 12px rgba(0,0,0,0.07)', border: 'none', borderColor: null }
+};
+
+const VARIANTS = {
+  /* ---- набор «все палитры»: пять стратегий против baseline ---- */
+  all: [
+    BASE,
+    {
+      id: 'a', name: 'A · Глубже холст', tag: 'минимальная правка',
+      note: 'Ничего не трогаем, кроме фона: холст уходит на ступень вниз (systemGray5), divider → gray-200, вторичный текст темнее. Белая карточка сама становится акцентом.',
+      vars: A_VARS,
+      card: { shadow: '0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06)', border: 'none', borderColor: null }
+    },
+    {
+      id: 'b', name: 'B · Белый холст + контур', tag: 'card-first',
+      note: 'Инверсия: фон белый, карточки отделяются рамкой, а не заливкой (Notion / Stripe). Плоско и «дёшево» по краске, но границы всегда однозначны.',
+      vars: {
+        '--fit-screen-bg': '#FFFFFF', '--fit-surface': '#FFFFFF', '--fit-surface-high': '#FFFFFF',
+        '--fit-surface-higher': '#F2F2F7', '--fit-surface-low': '#F2F2F7',
+        '--fit-text-primary': '#1F2123', '--fit-text-secondary': '#5B6269', '--fit-text-tertiary': '#757E87',
+        '--fit-divider': '#E4E6E7'
+      },
+      card: { shadow: 'none', border: '1px solid #CFD3D7', borderColor: '#CFD3D7' }
+    },
+    {
+      id: 'c', name: 'C · Холодный тинт', tag: 'бренд в нейтралях',
+      note: 'Нейтрали уводим в бренд-синий: холст #EDF0F4, текст сине-чёрный. Разделение идёт и по светлоте, и по тону — воздуха больше, характер появляется.',
+      vars: {
+        '--fit-screen-bg': '#EDF0F4', '--fit-surface': '#FFFFFF', '--fit-surface-high': '#FFFFFF',
+        '--fit-surface-higher': '#E7ECF2', '--fit-surface-low': '#E2E8EF',
+        '--fit-text-primary': '#16202B', '--fit-text-secondary': '#4E5A66', '--fit-text-tertiary': '#6B7885',
+        '--fit-divider': '#D3DAE1'
+      },
+      card: { shadow: '0 2px 10px rgba(16,32,48,0.08)', border: 'none', borderColor: null }
+    },
+    {
+      id: 'd', name: 'D · Через тень', tag: 'палитра та же',
+      note: 'Фон остаётся #F2F2F7 — чинится только «подъём»: настоящая двухслойная тень, divider gray-200, текстовая лестница разводится на три ступени.',
+      vars: {
+        '--fit-screen-bg': '#F2F2F7', '--fit-surface': '#FFFFFF', '--fit-surface-high': '#FFFFFF',
+        '--fit-surface-higher': '#EFF1F3', '--fit-surface-low': '#E4E6E7',
+        '--fit-text-primary': '#1F2123', '--fit-text-secondary': '#4B5158', '--fit-text-tertiary': '#6B7480',
+        '--fit-divider': '#CCCFD2'
+      },
+      card: { shadow: '0 1px 3px rgba(0,0,0,0.10), 0 6px 16px rgba(0,0,0,0.08)', border: 'none', borderColor: null }
+    },
+    {
+      id: 'e', name: 'E · Максимум контраста', tag: 'AA везде',
+      note: 'Жёсткий вариант: почти чёрный первичный текст, вторичный gray-700, рамка + тень у карточки. Читается при любом свете, но выглядит тяжелее и «системнее».',
+      vars: {
+        '--fit-screen-bg': '#EDEDF2', '--fit-surface': '#FFFFFF', '--fit-surface-high': '#FFFFFF',
+        '--fit-surface-higher': '#E4E6E7', '--fit-surface-low': '#DCDFE2',
+        '--fit-text-primary': '#111213', '--fit-text-secondary': '#3B4044', '--fit-text-tertiary': '#5B6269',
+        '--fit-divider': '#CCCFD2'
+      },
+      card: { shadow: '0 1px 2px rgba(0,0,0,0.05)', border: '1px solid #CCCFD2', borderColor: '#CCCFD2' }
+    }
+  ],
+
+  /* ---- набор «A · чем рисуем край»: одна палитра, три способа края ---- */
+  edge: [
+    BASE,
+    {
+      id: 'aflat', name: 'A₁ · Только холст', tag: 'ноль эффектов',
+      note: 'Никакой тени и никакой рамки — карточку держит одна светлота: белое на #E9E9EE. Масштабируется на что угодно, включая сетку календаря, и ничего не стоит по рендеру.',
+      vars: A_VARS,
+      card: { shadow: 'none', border: 'none', borderColor: null }
+    },
+    {
+      id: 'aline', name: 'A₂ · Хайрлайн', tag: 'край = 1px',
+      note: 'Светлота плюс волосяная рамка gray-200 — на полступени темнее внутренних разделителей. Тот же механизм, что уже работает в тёмной теме: там у .fit-card рамка gray-600, а не тень.',
+      vars: A_VARS,
+      card: { shadow: 'none', border: '1px solid #CCCFD2', borderColor: '#CCCFD2' }
+    },
+    {
+      id: 'asoft', name: 'A₃ · Минимальная тень', tag: 'один слой',
+      note: 'Светлота плюс один слой тени 1px/5% — не «парение», а лёгкая отбивка. На карточных экранах живо, на плотной сетке начинает шуметь.',
+      vars: A_VARS,
+      card: { shadow: '0 1px 3px rgba(0,0,0,0.05)', border: 'none', borderColor: null }
+    }
+  ]
+};
+
+/* ---------- contrast helpers (WCAG 2.1) ---------- */
+function rgb(hex) {
+  const h = hex.replace('#', '');
+  return [0, 2, 4].map(i => parseInt(h.substr(i, 2), 16) / 255);
+}
+function lum(hex) {
+  const [r, g, b] = rgb(hex).map(c => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+function ratio(a, b) {
+  const [l1, l2] = [lum(a), lum(b)].sort((x, y) => y - x);
+  return (l1 + 0.05) / (l2 + 0.05);
+}
+function grade(val, good, ok) {
+  return val >= good ? 'good' : val >= ok ? 'ok' : 'bad';
+}
+
+/* ---------- render ---------- */
+const row = document.getElementById('row');
+const styleEl = document.head.appendChild(document.createElement('style'));
+let setKey = 'all', screenKey = 'detail';
+
+function render() {
+  row.innerHTML = '';
+  let css = '';
+  const tpl = document.getElementById('tpl-' + screenKey);
+
+  VARIANTS[setKey].forEach(v => {
+    const decls = Object.entries(v.vars).map(([k, val]) => k + ':' + val + ';').join('');
+    css += '.lab-col.v-' + v.id + ' .fit-phone{' + decls +
+           '--lab-card-shadow:' + v.card.shadow + ';--lab-card-border:' + v.card.border + ';}\n';
+
+    const card = v.vars['--fit-surface-high'];
+    const screen = v.vars['--fit-screen-bg'];
+    const edge = Math.max(ratio(card, screen), v.card.borderColor ? ratio(v.card.borderColor, screen) : 0);
+    const div = ratio(v.vars['--fit-divider'], card);
+    const t3 = ratio(v.vars['--fit-text-tertiary'], card);
+    const t2 = ratio(v.vars['--fit-text-secondary'], card);
+
+    const col = document.createElement('div');
+    col.className = 'lab-col v-' + v.id;
+    col.innerHTML =
+      '<div class="lab-head">' +
+        '<div class="lab-name">' + v.name + '<span class="lab-tag">' + v.tag + '</span></div>' +
+        '<div class="lab-note">' + v.note + '</div>' +
+        '<div class="lab-sw">' +
+          '<span data-l="фон"    style="background:' + screen + '"></span>' +
+          '<span data-l="карта"  style="background:' + card + '"></span>' +
+          '<span data-l="выше"   style="background:' + v.vars['--fit-surface-higher'] + '"></span>' +
+          '<span data-l="линия"  style="background:' + v.vars['--fit-divider'] + '"></span>' +
+          '<span data-l="текст2" style="background:' + v.vars['--fit-text-secondary'] + '"></span>' +
+          '<span data-l="текст1" style="background:' + v.vars['--fit-text-primary'] + '"></span>' +
+        '</div>' +
+        '<div class="lab-metrics">' +
+          '<div class="lab-m ' + grade(edge, 1.18, 1.10) + '"><b>' + edge.toFixed(2) + '</b><i>край</i></div>' +
+          '<div class="lab-m ' + grade(div, 1.45, 1.30) + '"><b>' + div.toFixed(2) + '</b><i>линия</i></div>' +
+          '<div class="lab-m ' + grade(t3, 4.5, 3.5) + '"><b>' + t3.toFixed(1) + '</b><i>текст 3</i></div>' +
+          '<div class="lab-m ' + grade(t2, 4.5, 3.5) + '"><b>' + t2.toFixed(1) + '</b><i>текст 2</i></div>' +
+        '</div>' +
+      '</div>';
+
+    // clone the live screen
+    const phone = tpl.content.firstElementChild.cloneNode(true);
+    phone.removeAttribute('id');
+    phone.classList.add('s-coach-detail');           // keeps the cloned screen's own state CSS alive
+    phone.classList.remove('dr-none');
+    phone.classList.add('dr-has');
+    phone.querySelectorAll('[onclick]').forEach(e => e.removeAttribute('onclick'));
+    phone.querySelectorAll('style').forEach(e => e.remove());   // nested <style> would duplicate per column
+    // baseline renders untouched — every variant instead gives ALL surfaces one consistent edge
+    if (!v.raw) {
+      phone.querySelectorAll('.pkg-punch, .fit-card, .fit-ticket, .coach-card, [style*="--fit-surface-high"]').forEach(el => {
+        if (el.classList.contains('pkg-punch--pending')) return;
+        el.classList.add('lab-surface');
+        if (el.classList.contains('pkg-punch--low')) el.classList.add('lab-keep-border');
+      });
+    }
+    col.appendChild(phone);
+    row.appendChild(col);
+  });
+
+  styleEl.textContent = css;
+  wireScroll();
+}
+
+/* ---------- controls ---------- */
+let panes = [], syncing = false;
+function wireScroll() {
+  panes = [...document.querySelectorAll('.lab-col .fit-phone-content')];
+  panes.forEach(p => p.addEventListener('scroll', () => {
+    if (!document.getElementById('t-sync').checked || syncing) return;
+    syncing = true;
+    panes.forEach(o => { if (o !== p) o.scrollTop = p.scrollTop; });
+    requestAnimationFrame(() => { syncing = false; });
+  }));
+}
+function seg(id, cb) {
+  document.getElementById(id).addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    [...b.parentNode.children].forEach(x => x.classList.toggle('on', x === b));
+    cb(b.dataset.v);
+  });
+}
+seg('seg-set', v => { setKey = v; render(); });
+seg('seg-screen', v => { screenKey = v; render(); });
+document.getElementById('t-accents').addEventListener('change', e =>
+  document.body.classList.toggle('lab-accents', e.target.checked));
+
+render();
+</script>
+</body>
+</html>
