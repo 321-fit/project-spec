@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Training Template Detail</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--fit-font);
+    background: #0a0a0a;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 24px; min-height: 100vh;
+    min-width: 900px;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    left: 24px;
+    top: 24px; bottom: 24px; width: 200px;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-scroll {
+    flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+  }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--fit-gray-600);
+    padding: 0 8px; margin: 16px 0 8px;
+  }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button {
+    font-family: var(--fit-font); font-size: 14px; font-weight: 400;
+    padding: 10px 12px; border-radius: 10px; border: none;
+    background: transparent; color: var(--fit-gray-400);
+    cursor: pointer; text-align: left; width: 100%; transition: all 0.15s;
+  }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active {
+    background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500;
+  }
+
+  /* Annotations */
+  .ann-container {
+    position: fixed;
+    left: calc(50% + 195px + 48px); right: 24px;
+    top: 24px; bottom: 24px; width: auto;
+    overflow-y: auto;
+  }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; }
+  .ann.active { display: block; }
+  .ann-role {
+    display: inline-block; font-size: 14px; font-weight: 500;
+    padding: 4px 12px; border-radius: 8px; margin-bottom: 16px;
+  }
+  .ann-role.coach { background: rgba(3,178,226,0.15); color: var(--fit-blue-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 16px; line-height: 1.6; color: var(--fit-gray-400); }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 14px; padding-left: 18px; font-size: 16px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann ul li { margin-bottom: 6px; }
+  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
+  .ann .note { font-size: 14px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
+  .ann-detail {
+    margin-top: 8px; padding: 4px 0 4px 16px;
+    border-left: 2px solid var(--fit-brand-primary);
+    display: none;
+  }
+  .ann-detail.open { display: block; }
+  .ann-detail h4:first-child { margin-top: 0; }
+  .ann-detail h4 + p { margin-bottom: 12px; }
+  .ann-detail-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; color: var(--fit-blue-500); cursor: pointer;
+    margin-top: 12px; font-weight: 500;
+  }
+  .ann-detail-toggle svg { width: 14px; height: 14px; transition: transform 0.2s; }
+  .ann-detail-toggle.open svg { transform: rotate(90deg); }
+  .ann-detail h4 { font-size: 14px; font-weight: 500; color: var(--fit-gray-300); margin-bottom: 6px; }
+  .ann-detail p { font-size: 14px; line-height: 1.5; color: var(--fit-gray-500); margin-bottom: 8px; }
+  .ann-detail code { font-size: 12px; background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 3px; color: var(--fit-gray-400); }
+
+  /* Screen visibility */
+  .fit-phone { display: none; }
+  .fit-phone.active { display: flex; }
+
+  /* SVG icon defaults */
+  svg.i { width: 16px; height: 16px; vertical-align: middle; }
+
+  /* Dark/light header/footer bg */
+  .fit-dark .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-dark .fit-phone-footer { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
+  .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
+
+  /* State toggle (annotations) */
+  .state-toggle {
+    display: inline-flex; gap: 0; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--fit-gray-700); margin-bottom: 12px;
+  }
+  .state-toggle button {
+    font-family: var(--fit-font); font-size: 12px; font-weight: 500;
+    padding: 4px 10px; border: none; cursor: pointer;
+    background: transparent; color: var(--fit-gray-400);
+    transition: all 0.15s;
+  }
+  .state-toggle button.active { background: var(--fit-gray-700); color: var(--fit-white); }
+
+  /* Empty state placeholder */
+  .fit-empty-state {
+    text-align: center; padding: 40px 24px;
+    color: var(--fit-text-tertiary); font-size: 14px; line-height: 1.5;
+  }
+  .fit-empty-state svg.fes-illus { width: 56px; height: 56px; margin-bottom: 16px; color: var(--fit-gray-600); }
+  .fit-empty-state-title { font-size: 17px; font-weight: 500; color: var(--fit-text-secondary); margin-bottom: 6px; }
+  .fit-empty-state-sub { font-size: 14px; color: var(--fit-text-tertiary); margin-bottom: 20px; line-height: 1.5; }
+  .fit-light .fit-empty-state svg.fes-illus { color: var(--fit-gray-400); }
+
+  /* Light theme overrides (same set as sessions.html) */
+  .fit-light .fit-card { background: var(--fit-white); }
+  .fit-light .fit-input { background: var(--fit-gray-100); }
+
+  /* V6d card themes (shared with sessions.html list cards) */
+  .v6d-card { background: var(--fit-surface-high); }
+  .fit-light .v6d-card { background: var(--fit-white) !important; box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+  .fit-light .v6d-icon-box { background: rgba(0,0,0,0.06) !important; }
+  .fit-light .v6d-icon-box svg { stroke: var(--fit-gray-900) !important; }
+  .fit-light .v6d-price { color: var(--fit-text-primary) !important; }
+
+  /* ============================================================
+     TEMPLATE DETAIL (page-local, td-* prefix — see feedback_design_token_namespace)
+     ============================================================ */
+
+  /* --- Summary card: same shell as the list card, so the object reads continuous --- */
+  .td-summary { margin: 8px 16px 16px; border-radius: 16px; overflow: hidden; }
+  .td-summary-head { padding: 16px; display: flex; align-items: center; gap: 12px; }
+  .td-summary-name { font-size: 18px; font-weight: 600; line-height: 1.25; }
+  .td-summary-sub { font-size: 13px; opacity: 0.75; margin-top: 2px; }
+  .td-summary-price { font-size: 18px; font-weight: 600; color: var(--fit-white); text-align: right; }
+  .td-summary-price small { display: block; font-size: 12px; font-weight: 400; opacity: 0.75; }
+
+  .td-specs {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--fit-divider);
+  }
+  .td-spec { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .td-spec--full { grid-column: 1 / -1; }
+  .td-spec svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--fit-text-tertiary); }
+  .td-spec span { font-size: 14px; color: var(--fit-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .td-spec strong { color: var(--fit-text-primary); font-weight: 500; }
+
+  .td-edit-wrap { padding: 0 16px 16px; }
+
+  /* --- Section title with trailing action --- */
+  .td-sec {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding: 0 16px; margin: 4px 0 10px;
+  }
+  .td-sec-title { font-size: 16px; font-weight: 600; color: var(--fit-text-primary); }
+  .td-sec-action { font-size: 14px; font-weight: 500; color: var(--fit-brand-primary); cursor: pointer; }
+
+  /* --- Event row --- */
+  .td-ev {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; margin: 0 16px 8px;
+    border: 1px solid var(--fit-divider); border-radius: 14px;
+    cursor: pointer; background: transparent;
+  }
+  .fit-light .td-ev { background: var(--fit-white); border-color: transparent; box-shadow: 0 0 10px rgba(0,0,0,0.06); }
+  .td-ev-date {
+    width: 40px; flex-shrink: 0; text-align: center; line-height: 1.1;
+  }
+  .td-ev-dow { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--fit-text-tertiary); }
+  .td-ev-num { display: block; font-size: 18px; font-weight: 600; color: var(--fit-text-primary); }
+  .td-ev-body { flex: 1; min-width: 0; }
+  .td-ev-title { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .td-ev-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+  .td-ev-spots { font-size: 13px; font-weight: 500; color: var(--fit-text-secondary); flex-shrink: 0; }
+  .td-ev-spots.low { color: var(--fit-yellow-400); }
+  .td-ev-chev { flex-shrink: 0; width: 16px; height: 16px; color: var(--fit-text-tertiary); }
+  .td-ev.dim { opacity: 0.55; }
+
+  /* --- Series group: rule head + indented instances --- */
+  .td-series { margin: 0 16px 12px; border: 1px solid var(--fit-divider); border-radius: 16px; overflow: hidden; }
+  .fit-light .td-series { border-color: transparent; background: var(--fit-white); box-shadow: 0 0 10px rgba(0,0,0,0.06); }
+  .td-series-head { display: flex; align-items: center; gap: 12px; padding: 14px; }
+  .td-series-icon {
+    width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(3,178,226,0.15);
+  }
+  .td-series-icon svg { width: 18px; height: 18px; color: var(--fit-blue-500); }
+  .td-series-rule { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .td-series-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .td-series-all {
+    flex-shrink: 0; display: inline-flex; align-items: center; gap: 2px;
+    font-family: var(--fit-font); font-size: 13px; font-weight: 500;
+    color: var(--fit-brand-primary); background: transparent; border: none; cursor: pointer;
+    padding: 6px 0 6px 8px; position: relative;
+  }
+  /* Invisible hit-area expansion → 44px effective (HIG) */
+  .td-series-all::before { content: ""; position: absolute; top: -9px; right: -8px; bottom: -9px; left: -8px; }
+  .td-series-all svg { width: 14px; height: 14px; }
+  .td-series-body { padding: 0 14px 6px 14px; }
+  .td-inst {
+    display: flex; align-items: center; gap: 10px;
+    min-height: 48px; padding: 8px 0 8px 14px; cursor: pointer;
+    border-top: 1px solid var(--fit-divider);
+    position: relative;
+  }
+  .td-inst:active { background: rgba(255,255,255,0.04); }
+  .fit-light .td-inst:active { background: rgba(0,0,0,0.03); }
+  .td-inst::before {
+    content: ""; position: absolute; left: 4px; top: 0; bottom: 0;
+    width: 1px; background: var(--fit-divider);
+  }
+  .td-inst-date { font-size: 14px; color: var(--fit-text-primary); flex: 1; min-width: 0; }
+  .td-inst-date em { font-style: normal; color: var(--fit-text-tertiary); }
+
+  /* --- Attention row (exceptions surfaced above the fold) --- */
+  .td-attn {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; margin: 8px 0 10px 0;
+    border-radius: 10px; cursor: pointer;
+    background: rgba(247,201,72,0.08);
+    font-size: 13px; color: var(--fit-text-secondary);
+  }
+  .td-attn svg.lead { width: 16px; height: 16px; flex-shrink: 0; color: var(--fit-yellow-400); }
+  .td-attn-body { flex: 1; min-width: 0; }
+  .td-attn strong { display: block; color: var(--fit-text-primary); font-weight: 500; font-size: 14px; }
+  .td-attn-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .td-attn .chev { margin-left: auto; width: 14px; height: 14px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+
+  /* --- Month divider inside long lists --- */
+  .td-month {
+    font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px;
+    color: var(--fit-text-tertiary); padding: 6px 16px 8px;
+  }
+
+  /* --- Person row (personal bookings / self-paced athletes) --- */
+  .td-person {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; margin: 0 16px 8px;
+    border: 1px solid var(--fit-divider); border-radius: 14px; cursor: pointer;
+  }
+  .fit-light .td-person { background: var(--fit-white); border-color: transparent; box-shadow: 0 0 10px rgba(0,0,0,0.06); }
+  .td-person--attn { border-color: rgba(247,201,72,0.32); background: rgba(247,201,72,0.06); }
+  .td-person-body { flex: 1; min-width: 0; }
+  .td-person-name { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .td-person-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 3px; }
+  .td-person-right { flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+
+  /* Thin progress bar for self-paced completion */
+  .td-prog { height: 4px; border-radius: 2px; background: var(--fit-surface-high); margin-top: 7px; overflow: hidden; }
+  .fit-light .td-prog { background: var(--fit-gray-200); }
+  .td-prog-fill { height: 100%; border-radius: 2px; background: var(--fit-brand-primary); }
+
+  /* Avatar stack (clients using this session) */
+  .td-stack { display: flex; align-items: center; }
+  .td-stack .fit-avatar { margin-right: -8px; border: 2px solid var(--fit-surface-high); }
+  .fit-light .td-stack .fit-avatar { border-color: var(--fit-white); }
+  .td-stack-more {
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+    background: var(--fit-gray-700); color: var(--fit-text-secondary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 500; border: 2px solid var(--fit-surface-high);
+  }
+  .fit-light .td-stack-more { background: var(--fit-gray-200); border-color: var(--fit-white); }
+
+  /* Read-only field row (immutable training type) */
+  .td-locked {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 16px; padding: 16px;
+    border-radius: var(--fit-radius-md); background: var(--fit-surface-high);
+  }
+  .fit-light .td-locked { background: var(--fit-gray-100); }
+  .td-locked-value { flex: 1; font-size: 16px; color: var(--fit-text-primary); }
+  .td-locked svg { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .td-hint { font-size: 12px; line-height: 1.45; color: var(--fit-text-tertiary); margin: 8px 16px 16px; }
+
+  /* Generation-window footnote */
+  .td-note {
+    display: flex; align-items: flex-start; gap: 10px;
+    margin: 8px 16px 20px; padding: 12px 14px;
+    border: 1px solid var(--fit-divider); border-radius: 14px;
+  }
+  .td-note svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; color: var(--fit-text-tertiary); }
+  .td-note span { font-size: 13px; line-height: 1.45; color: var(--fit-text-secondary); }
+
+  /* Screen-scoped tab panes */
+  [data-td-pane] { display: none; }
+  [data-td-pane].on { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+    <button onclick="window.location.href='../../index.html'" style="display:flex;align-items:center;gap:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;padding:8px 12px;border-radius:10px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-gray-300);cursor:pointer;width:100%;margin-bottom:8px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      All modules
+    </button>
+
+  <div class="label">Template detail</div>
+  <button class="active" onclick="go('s-detail-group',this)">Group</button>
+  <button onclick="go('s-detail-personal',this)">Personal</button>
+  <button onclick="go('s-detail-selfpaced',this)">Self-paced</button>
+  <div class="label">Drill-down</div>
+  <button onclick="go('s-series',this)">Series detail</button>
+  <div class="label">Edit</div>
+  <button onclick="go('s-edit',this)">Edit template</button>
+  <div class="label">Other modules</div>
+  <button onclick="window.location.href='./sessions.html'">← My Sessions</button>
+  </div>
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<!-- ==================== PHONE ==================== -->
+
+<!-- ===================================================================
+     COACH: TEMPLATE DETAIL — GROUP
+     =================================================================== -->
+<div class="fit-phone fit-dark active" id="s-detail-group">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="window.location.href='./sessions.html#s-list'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">HIIT Group Session</span>
+      <button class="fit-icon-btn" data-a11y-id="coach.template.menu" onclick="tdMenu('menu-group',event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+    </div>
+  </div>
+
+  <div class="fit-phone-content">
+    <!-- ===== SUMMARY CARD — same shell as the My Sessions list card ===== -->
+    <div class="v6d-card td-summary">
+      <div class="td-summary-head" style="background:var(--fit-grad-type-group);">
+        <div class="v6d-icon-box" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M4.5 12H2M22 12h-2.5M12 4.5V2M12 22v-2.5"/></svg>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div class="td-summary-name">HIIT Group Session</div>
+          <div class="td-summary-sub">Group &middot; Fitness</div>
+        </div>
+        <div class="td-summary-price v6d-price">&euro;25<small>per person</small></div>
+      </div>
+      <div class="td-specs">
+        <div class="td-spec">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <span><strong>1h</strong></span>
+        </div>
+        <div class="td-spec">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg>
+          <span>max <strong>10</strong> &middot; min 3</span>
+        </div>
+        <div class="td-spec td-spec--full">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          <span>GYM Bro &middot; Vilnius</span>
+        </div>
+        <div class="td-spec td-spec--full">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+          <span>Cash &middot; Card</span>
+        </div>
+      </div>
+      <div class="td-edit-wrap">
+        <button class="fit-btn fit-btn-secondary" style="width:100%;" data-a11y-id="coach.template.edit" onclick="go('s-edit',document.querySelector('.sidebar [onclick*=s-edit]'))">Edit</button>
+      </div>
+    </div>
+
+    <!-- ===== STATS — same 3-col strip on all three types ===== -->
+    <div class="fit-stat-strip">
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">12</div><div class="fit-stat-strip-label">upcoming</div></div>
+      <div class="fit-stat-strip-divider"></div>
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">48</div><div class="fit-stat-strip-label">booked</div></div>
+      <div class="fit-stat-strip-divider"></div>
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value fit-stat-strip-value--accent">&euro;1,200</div><div class="fit-stat-strip-label">earned</div></div>
+    </div>
+
+    <!-- ===== PACKAGE CROSS-LINK (only when a pack exists on this template) ===== -->
+    <div style="padding:0 16px 20px;">
+      <button class="fit-stat-tile" data-a11y-id="coach.template.package" onclick="window.location.href='./sessions.html#pkg-editor'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;flex-shrink:0;"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+        <div class="fit-stat-tile-body">
+          <div class="fit-stat-tile-title">Sold as a package</div>
+          <div class="fit-stat-tile-sub">1 pack &middot; 6 active buyers</div>
+        </div>
+        <span class="fit-stat-tile-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+      </button>
+    </div>
+
+    <!-- ===== EVENTS ===== -->
+    <div class="td-sec"><span class="td-sec-title">Events</span></div>
+    <div class="fit-segmented">
+      <button class="fit-segmented-tab selected" data-a11y-id="coach.template.tab.upcoming" onclick="tdTab('s-detail-group','upcoming',this)">Upcoming</button>
+      <button class="fit-segmented-tab" data-a11y-id="coach.template.tab.past" onclick="tdTab('s-detail-group','past',this)">Past</button>
+    </div>
+
+    <!-- ---------- UPCOMING ---------- -->
+    <div data-td-pane="upcoming" class="on">
+
+      <!-- Recurring placement: rule head + 3 nearest instances + exceptions -->
+      <div class="td-series">
+        <div class="td-series-head">
+          <div class="td-series-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></div>
+          <div style="flex:1;min-width:0;">
+            <div class="td-series-rule">Tue &amp; Thu &middot; 18:00</div>
+            <div class="td-series-sub">Ongoing &middot; next 60 days &middot; GYM Bro</div>
+          </div>
+          <button class="td-series-all" data-a11y-id="coach.template.series.all" onclick="go('s-series',document.querySelector('.sidebar [onclick*=s-series]'))">17 dates<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+        </div>
+        <div class="td-series-body">
+          <div class="td-inst" onclick="window.location.href='./calendar.html'">
+            <span class="td-inst-date">Tue, Apr 15 &middot; <em>18:00</em></span>
+            <span class="td-ev-spots">3/10</span>
+            <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <div class="td-inst" onclick="window.location.href='./calendar.html'">
+            <span class="td-inst-date">Thu, Apr 17 &middot; <em>18:00</em></span>
+            <span class="td-ev-spots">7/10</span>
+            <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <div class="td-inst" onclick="window.location.href='./calendar.html'">
+            <span class="td-inst-date">Tue, Apr 22 &middot; <em>18:00</em></span>
+            <span class="td-ev-spots low">0/10</span>
+            <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+          <!-- Exceptions always surface, however far out they sit -->
+          <div class="td-attn" data-a11y-id="coach.template.series.attention" onclick="go('s-series',document.querySelector('.sidebar [onclick*=s-series]'));tdSeriesFilter('attn',null)">
+            <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+            <div class="td-attn-body">
+              <strong>2 dates need attention</strong>
+              <div class="td-attn-sub">1 moved &middot; 1 skipped (calendar conflict)</div>
+            </div>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- One-off placement — no series, stands alone -->
+      <div class="td-ev" onclick="window.location.href='./calendar.html'">
+        <div class="td-ev-date"><span class="td-ev-dow">Sat</span><span class="td-ev-num">19</span></div>
+        <div class="td-ev-body">
+          <div class="td-ev-title">10:00 &middot; 1h</div>
+          <div class="td-ev-sub">One-off <span class="fit-badge fit-badge-special" style="font-size:11px;padding:1px 7px;">Special</span></div>
+        </div>
+        <span class="td-ev-spots">5/10</span>
+        <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+
+      <div style="height:16px;"></div>
+    </div>
+
+    <!-- ---------- PAST ---------- -->
+    <div data-td-pane="past">
+      <div class="td-month">April 2026</div>
+      <div class="td-ev" onclick="window.location.href='./calendar.html'">
+        <div class="td-ev-date"><span class="td-ev-dow">Thu</span><span class="td-ev-num">10</span></div>
+        <div class="td-ev-body"><div class="td-ev-title">18:00 &middot; 1h</div><div class="td-ev-sub">8 attended &middot; &euro;200 collected</div></div>
+        <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="td-ev" onclick="window.location.href='./calendar.html'">
+        <div class="td-ev-date"><span class="td-ev-dow">Tue</span><span class="td-ev-num">8</span></div>
+        <div class="td-ev-body"><div class="td-ev-title">18:00 &middot; 1h</div><div class="td-ev-sub">6 attended &middot; &euro;150 collected</div></div>
+        <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="td-ev dim" onclick="window.location.href='./calendar.html'">
+        <div class="td-ev-date"><span class="td-ev-dow">Thu</span><span class="td-ev-num">3</span></div>
+        <div class="td-ev-body"><div class="td-ev-title">18:00 &middot; 1h</div><div class="td-ev-sub">Cancelled &middot; below minimum (2/3)</div></div>
+        <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="td-month">March 2026</div>
+      <div class="td-ev" onclick="go('s-series',document.querySelector('.sidebar [onclick*=s-series]'))">
+        <div class="td-ev-date" style="width:40px;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+        <div class="td-ev-body"><div class="td-ev-title">8 sessions</div><div class="td-ev-sub">62 attended &middot; &euro;1,550 collected</div></div>
+        <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div style="height:16px;"></div>
+    </div>
+
+    <!-- ---------- NEVER SCHEDULED (empty) ---------- -->
+    <div data-td-pane="never">
+      <div class="fit-empty-state">
+        <svg class="fes-illus" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="10" y="14" width="44" height="40" rx="6"/><path d="M10 24h44"/><path d="M22 10v8M42 10v8"/><path d="M28 38h8M32 34v8"/>
+        </svg>
+        <div class="fit-empty-state-title">Not scheduled yet</div>
+        <div class="fit-empty-state-sub">This template has no dates on your calendar.<br>Athletes can&rsquo;t book it until you schedule it.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⋯ menu: destructive + duplicate live here, not in the edit form -->
+  <div class="fit-context-menu-backdrop" id="menu-group-backdrop" onclick="tdMenuClose('menu-group')"></div>
+  <div class="fit-context-menu" id="menu-group" style="top:56px;right:12px;">
+    <div class="fit-context-menu-item" onclick="tdMenuClose('menu-group')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/></svg>
+      Duplicate
+    </div>
+    <div class="fit-context-menu-item" onclick="tdMenuClose('menu-group');window.location.href='./invite.html?mode=schedule&amp;origin=s-detail'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v4M10 16h4"/></svg>
+      Schedule dates
+    </div>
+    <div class="fit-context-menu-divider"></div>
+    <div class="fit-context-menu-item destructive" onclick="tdMenuClose('menu-group');document.getElementById('delete-template-sheet').classList.add('visible')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+      Delete template
+    </div>
+  </div>
+
+  <!-- Delete template sheet (moved here from the edit form) -->
+  <div class="fit-sheet-overlay" id="delete-template-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Delete &ldquo;HIIT Group Session&rdquo;?</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:28px;">This stops generating new dates. You currently have 12 upcoming events with 47 registrations.</div>
+      <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:28px;">
+        <label style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;cursor:pointer;min-height:48px;"><input type="radio" name="del-scope" value="keep" checked style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;"><span style="font-size:16px;">Keep existing events</span></label>
+        <label style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;cursor:pointer;min-height:48px;"><input type="radio" name="del-scope" value="cancel" style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;"><span style="font-size:16px;color:var(--fit-red-400);">Cancel all upcoming events</span></label>
+      </div>
+      <button class="fit-btn fit-btn-destructive" style="border-radius:99px;" onclick="document.getElementById('delete-template-sheet').classList.remove('visible');">Delete template</button>
+    </div>
+  </div>
+
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" data-a11y-id="coach.template.schedule" onclick="window.location.href='./invite.html?mode=schedule&amp;origin=s-detail'">Schedule dates</button></div>
+</div>
+
+
+<!-- ===================================================================
+     COACH: TEMPLATE DETAIL — PERSONAL
+     =================================================================== -->
+<div class="fit-phone fit-dark" id="s-detail-personal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="window.location.href='./sessions.html#s-list'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Basketball Training</span>
+      <button class="fit-icon-btn" onclick="tdMenu('menu-personal',event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+    </div>
+  </div>
+
+  <div class="fit-phone-content">
+    <div class="v6d-card td-summary">
+      <div class="td-summary-head" style="background:var(--fit-grad-type-personal);">
+        <div class="v6d-icon-box" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div class="td-summary-name">Basketball Training</div>
+          <div class="td-summary-sub">Personal &middot; Basketball</div>
+        </div>
+        <div class="td-summary-price v6d-price">&euro;50</div>
+      </div>
+      <div class="td-specs">
+        <div class="td-spec">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <span><strong>1h</strong></span>
+        </div>
+        <div class="td-spec">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 21v-1a7 7 0 0114 0v1"/></svg>
+          <span>1-on-1</span>
+        </div>
+        <div class="td-spec td-spec--full">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          <span>TNT Studio &middot; Vilnius</span>
+        </div>
+        <div class="td-spec td-spec--full">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+          <span>Cash &middot; Card</span>
+        </div>
+      </div>
+      <div class="td-edit-wrap">
+        <button class="fit-btn fit-btn-secondary" style="width:100%;" onclick="go('s-edit',document.querySelector('.sidebar [onclick*=s-edit]'))">Edit</button>
+      </div>
+    </div>
+
+    <div class="fit-stat-strip">
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">4</div><div class="fit-stat-strip-label">upcoming</div></div>
+      <div class="fit-stat-strip-divider"></div>
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">32</div><div class="fit-stat-strip-label">completed</div></div>
+      <div class="fit-stat-strip-divider"></div>
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value fit-stat-strip-value--accent">&euro;1,600</div><div class="fit-stat-strip-label">earned</div></div>
+    </div>
+
+    <!-- Clients using this template — the personal answer to "who is this for" -->
+    <div style="padding:0 16px 20px;">
+      <button class="fit-stat-tile" data-a11y-id="coach.template.clients" onclick="window.location.href='./clients.html'">
+        <div class="td-stack">
+          <div class="fit-avatar fit-avatar-sm">AK</div>
+          <div class="fit-avatar fit-avatar-sm">MR</div>
+          <div class="fit-avatar fit-avatar-sm">JD</div>
+          <div class="td-stack-more">+3</div>
+        </div>
+        <div class="fit-stat-tile-body" style="margin-left:12px;">
+          <div class="fit-stat-tile-title">6 clients</div>
+          <div class="fit-stat-tile-sub">book this session</div>
+        </div>
+        <span class="fit-stat-tile-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+      </button>
+    </div>
+
+    <div class="td-sec"><span class="td-sec-title">Bookings</span></div>
+    <div class="fit-segmented">
+      <button class="fit-segmented-tab selected" onclick="tdTab('s-detail-personal','upcoming',this)">Upcoming</button>
+      <button class="fit-segmented-tab" onclick="tdTab('s-detail-personal','past',this)">Past</button>
+    </div>
+
+    <!-- ---------- UPCOMING ---------- -->
+    <div data-td-pane="upcoming" class="on">
+      <div class="td-person" onclick="window.location.href='./calendar.html'">
+        <div class="fit-avatar fit-avatar-sm">AK</div>
+        <div class="td-person-body">
+          <div class="td-person-name">Anna Kovalenko</div>
+          <div class="td-person-sub">Tue, Apr 15 &middot; 18:00 &middot; TNT Studio</div>
+        </div>
+        <div class="td-person-right">
+          <span class="fit-badge fit-badge-joined">Paid</span>
+          <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+      <div class="td-person" onclick="window.location.href='./calendar.html'">
+        <div class="fit-avatar fit-avatar-sm">MR</div>
+        <div class="td-person-body">
+          <div class="td-person-name">Mike Reznik</div>
+          <div class="td-person-sub">Wed, Apr 16 &middot; 09:00 &middot; TNT Studio</div>
+        </div>
+        <div class="td-person-right">
+          <span class="fit-badge fit-badge-pending">Cash due</span>
+          <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+      <div class="td-person" onclick="window.location.href='./calendar.html'">
+        <div class="fit-avatar fit-avatar-sm">JD</div>
+        <div class="td-person-body">
+          <div class="td-person-name">Jonas Dapkus</div>
+          <div class="td-person-sub">Fri, Apr 18 &middot; 17:30 &middot; TNT Studio</div>
+        </div>
+        <div class="td-person-right">
+          <span class="fit-badge fit-badge-pending">Awaiting</span>
+          <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+      <div style="height:16px;"></div>
+    </div>
+
+    <!-- ---------- PAST ---------- -->
+    <div data-td-pane="past">
+      <div class="td-month">April 2026</div>
+      <div class="td-person" onclick="window.location.href='./clients.html#s-client-history'">
+        <div class="fit-avatar fit-avatar-sm">AK</div>
+        <div class="td-person-body">
+          <div class="td-person-name">Anna Kovalenko</div>
+          <div class="td-person-sub">Tue, Apr 8 &middot; 18:00 &middot; completed</div>
+        </div>
+        <div class="td-person-right"><span style="font-size:14px;font-weight:500;color:var(--fit-text-secondary);">&euro;50</span></div>
+      </div>
+      <div class="td-person" onclick="window.location.href='./clients.html#s-client-history'">
+        <div class="fit-avatar fit-avatar-sm">MR</div>
+        <div class="td-person-body">
+          <div class="td-person-name">Mike Reznik</div>
+          <div class="td-person-sub">Fri, Apr 4 &middot; 09:00 &middot; no-show</div>
+        </div>
+        <div class="td-person-right"><span style="font-size:14px;font-weight:500;color:var(--fit-text-tertiary);">&euro;0</span></div>
+      </div>
+      <div class="td-month">March 2026</div>
+      <div class="td-ev" onclick="window.location.href='./clients.html#s-client-history'">
+        <div class="td-ev-date" style="width:40px;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+        <div class="td-ev-body"><div class="td-ev-title">12 sessions</div><div class="td-ev-sub">5 clients &middot; &euro;600 earned</div></div>
+        <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div style="height:16px;"></div>
+    </div>
+  </div>
+
+  <div class="fit-context-menu-backdrop" id="menu-personal-backdrop" onclick="tdMenuClose('menu-personal')"></div>
+  <div class="fit-context-menu" id="menu-personal" style="top:56px;right:12px;">
+    <div class="fit-context-menu-item" onclick="tdMenuClose('menu-personal')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/></svg>
+      Duplicate
+    </div>
+    <div class="fit-context-menu-divider"></div>
+    <div class="fit-context-menu-item destructive" onclick="tdMenuClose('menu-personal')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+      Delete template
+    </div>
+  </div>
+
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" data-a11y-id="coach.template.book" onclick="window.location.href='./invite.html?mode=schedule&amp;origin=s-detail&amp;step=athlete'">Book with a client</button></div>
+</div>
+
+
+<!-- ===================================================================
+     COACH: TEMPLATE DETAIL — SELF-PACED
+     =================================================================== -->
+<div class="fit-phone fit-dark" id="s-detail-selfpaced">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="window.location.href='./sessions.html#s-list'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Tennis self-paced</span>
+      <button class="fit-icon-btn" onclick="tdMenu('menu-sp',event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+    </div>
+  </div>
+
+  <div class="fit-phone-content">
+    <div class="v6d-card td-summary">
+      <div class="td-summary-head" style="background:var(--fit-grad-type-selfpaced);">
+        <div class="v6d-icon-box" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div class="td-summary-name">Tennis self-paced</div>
+          <div class="td-summary-sub">Self-paced &middot; Tennis</div>
+        </div>
+        <div class="td-summary-price v6d-price">&euro;12</div>
+      </div>
+      <div class="td-specs">
+        <div class="td-spec">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <span>~<strong>15 min</strong></span>
+        </div>
+        <div class="td-spec">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 22h8M12 18v4"/></svg>
+          <span>Online</span>
+        </div>
+        <div class="td-spec td-spec--full">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+          <span>Paid from athlete balance &middot; no cash</span>
+        </div>
+      </div>
+      <div class="td-edit-wrap">
+        <button class="fit-btn fit-btn-secondary" style="width:100%;" onclick="go('s-edit',document.querySelector('.sidebar [onclick*=s-edit]'))">Edit</button>
+      </div>
+    </div>
+
+    <div class="fit-stat-strip">
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">2</div><div class="fit-stat-strip-label">to build</div></div>
+      <div class="fit-stat-strip-divider"></div>
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">16</div><div class="fit-stat-strip-label">sold</div></div>
+      <div class="fit-stat-strip-divider"></div>
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value fit-stat-strip-value--accent">&euro;192</div><div class="fit-stat-strip-label">earned</div></div>
+    </div>
+
+    <!-- Actionable first: what the coach owes -->
+    <div class="td-sec"><span class="td-sec-title">Needs your plan</span><span class="td-sec-action" onclick="window.location.href='../shared/self-paced.html#s-queue'">Open queue</span></div>
+    <div class="td-person td-person--attn" onclick="window.location.href='../shared/self-paced.html#s-setup'">
+      <div class="fit-avatar fit-avatar-sm">AK</div>
+      <div class="td-person-body">
+        <div class="td-person-name">Anna Kovalenko</div>
+        <div class="td-person-sub">Bought 2h ago &middot; waiting for the workout</div>
+      </div>
+      <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+    <div class="td-person td-person--attn" onclick="window.location.href='../shared/self-paced.html#s-setup'">
+      <div class="fit-avatar fit-avatar-sm">IP</div>
+      <div class="td-person-body">
+        <div class="td-person-name">Ivan Petrov</div>
+        <div class="td-person-sub">Bought yesterday &middot; waiting for the workout</div>
+      </div>
+      <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+
+    <div style="height:12px;"></div>
+
+    <div class="td-sec"><span class="td-sec-title">In progress</span><span class="fit-stat-strip-label" style="font-size:13px;">5</span></div>
+    <div class="td-person" onclick="window.location.href='../shared/self-paced.html#s-review'">
+      <div class="fit-avatar fit-avatar-sm">MR</div>
+      <div class="td-person-body">
+        <div class="td-person-name">Mike Reznik</div>
+        <div class="td-person-sub">3 of 8 workouts &middot; started Apr 12</div>
+        <div class="td-prog"><div class="td-prog-fill" style="width:38%;"></div></div>
+      </div>
+      <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+    <div class="td-person" onclick="window.location.href='../shared/self-paced.html#s-review'">
+      <div class="fit-avatar fit-avatar-sm">JD</div>
+      <div class="td-person-body">
+        <div class="td-person-name">Jonas Dapkus</div>
+        <div class="td-person-sub">7 of 8 workouts &middot; submitted for review</div>
+        <div class="td-prog"><div class="td-prog-fill" style="width:88%;"></div></div>
+      </div>
+      <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+
+    <div style="height:12px;"></div>
+
+    <!-- Completed collapses to one row — it's archive, not work -->
+    <div style="padding:0 16px 20px;">
+      <button class="fit-stat-tile" onclick="window.location.href='../shared/self-paced.html#s-history'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-green-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>
+        <div class="fit-stat-tile-body">
+          <div class="fit-stat-tile-title">Completed</div>
+          <div class="fit-stat-tile-sub">9 athletes finished this plan</div>
+        </div>
+        <span class="fit-stat-tile-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="fit-context-menu-backdrop" id="menu-sp-backdrop" onclick="tdMenuClose('menu-sp')"></div>
+  <div class="fit-context-menu" id="menu-sp" style="top:56px;right:12px;">
+    <div class="fit-context-menu-item" onclick="tdMenuClose('menu-sp')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/></svg>
+      Duplicate
+    </div>
+    <div class="fit-context-menu-divider"></div>
+    <div class="fit-context-menu-item destructive" onclick="tdMenuClose('menu-sp')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+      Delete template
+    </div>
+  </div>
+
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" onclick="window.location.href='./clients.html'">Offer to a client</button></div>
+</div>
+
+
+<!-- ===================================================================
+     COACH: SERIES DETAIL (one recurring placement)
+     =================================================================== -->
+<div class="fit-phone fit-dark" id="s-series">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-detail-group',document.querySelector('.sidebar [onclick*=s-detail-group]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Tue &amp; Thu &middot; 18:00</span>
+      <button class="fit-icon-btn" onclick="tdMenu('menu-series',event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+    </div>
+  </div>
+
+  <div class="fit-phone-content">
+    <!-- The rule itself, not the template -->
+    <div class="fit-card" style="margin-top:8px;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="td-series-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Every Tue &amp; Thu &middot; 18:00</div>
+          <div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:3px;">HIIT Group Session &middot; 1h &middot; GYM Bro</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--fit-divider);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <span style="font-size:14px;color:var(--fit-text-secondary);flex:1;">Ends: <strong style="color:var(--fit-text-primary);font-weight:500;">Ongoing</strong></span>
+        <button class="fit-btn fit-btn-secondary" style="width:auto;height:36px;padding:0 16px;font-size:14px;" data-a11y-id="coach.series.edit" onclick="document.getElementById('series-scope-sheet').classList.add('visible')">Edit schedule</button>
+      </div>
+    </div>
+
+    <!-- Quick-chip axis: everything vs the exceptions -->
+    <div class="fit-filter-row">
+      <button class="fit-filter-chip active" id="sf-all" onclick="tdSeriesFilter('all',this)">All 17</button>
+      <button class="fit-filter-chip" id="sf-attn" onclick="tdSeriesFilter('attn',this)">Needs attention 2</button>
+    </div>
+
+    <div class="td-month">April 2026</div>
+    <div class="td-ev" data-attn="0" onclick="window.location.href='./calendar.html'">
+      <div class="td-ev-date"><span class="td-ev-dow">Tue</span><span class="td-ev-num">15</span></div>
+      <div class="td-ev-body"><div class="td-ev-title">18:00 &middot; 1h</div><div class="td-ev-sub">GYM Bro</div></div>
+      <span class="td-ev-spots">3/10</span>
+      <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+    <div class="td-ev" data-attn="0" onclick="window.location.href='./calendar.html'">
+      <div class="td-ev-date"><span class="td-ev-dow">Thu</span><span class="td-ev-num">17</span></div>
+      <div class="td-ev-body"><div class="td-ev-title">18:00 &middot; 1h</div><div class="td-ev-sub">GYM Bro</div></div>
+      <span class="td-ev-spots">7/10</span>
+      <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+    <div class="td-ev" data-attn="1" onclick="window.location.href='./calendar.html'">
+      <div class="td-ev-date"><span class="td-ev-dow">Sat</span><span class="td-ev-num">19</span></div>
+      <div class="td-ev-body">
+        <div class="td-ev-title">11:00 &middot; 1h</div>
+        <div class="td-ev-sub"><span class="fit-badge fit-badge-info" style="font-size:11px;padding:1px 7px;">Moved</span> was Thu 18:00</div>
+      </div>
+      <span class="td-ev-spots">4/10</span>
+      <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+    <div class="td-ev" data-attn="0" onclick="window.location.href='./calendar.html'">
+      <div class="td-ev-date"><span class="td-ev-dow">Tue</span><span class="td-ev-num">22</span></div>
+      <div class="td-ev-body"><div class="td-ev-title">18:00 &middot; 1h</div><div class="td-ev-sub">GYM Bro</div></div>
+      <span class="td-ev-spots low">0/10</span>
+      <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+    <div class="td-ev dim" data-attn="1" onclick="window.location.href='./calendar.html'">
+      <div class="td-ev-date"><span class="td-ev-dow">Thu</span><span class="td-ev-num">24</span></div>
+      <div class="td-ev-body">
+        <div class="td-ev-title">18:00 &middot; 1h</div>
+        <div class="td-ev-sub"><span class="fit-badge fit-badge-warning" style="font-size:11px;padding:1px 7px;">Skipped</span> calendar conflict</div>
+      </div>
+      <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+    <div class="td-ev" data-attn="0" onclick="window.location.href='./calendar.html'">
+      <div class="td-ev-date"><span class="td-ev-dow">Tue</span><span class="td-ev-num">29</span></div>
+      <div class="td-ev-body"><div class="td-ev-title">18:00 &middot; 1h</div><div class="td-ev-sub">GYM Bro</div></div>
+      <span class="td-ev-spots">1/10</span>
+      <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+
+    <div class="td-month" data-attn="0">May 2026</div>
+    <div class="td-ev" data-attn="0" onclick="window.location.href='./calendar.html'">
+      <div class="td-ev-date"><span class="td-ev-dow">Thu</span><span class="td-ev-num">1</span></div>
+      <div class="td-ev-body"><div class="td-ev-title">18:00 &middot; 1h</div><div class="td-ev-sub">GYM Bro</div></div>
+      <span class="td-ev-spots">0/10</span>
+      <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+    <div class="td-ev" data-attn="0" onclick="window.location.href='./calendar.html'">
+      <div class="td-ev-date"><span class="td-ev-dow">Tue</span><span class="td-ev-num">6</span></div>
+      <div class="td-ev-body"><div class="td-ev-title">18:00 &middot; 1h</div><div class="td-ev-sub">GYM Bro</div></div>
+      <span class="td-ev-spots">0/10</span>
+      <svg class="td-ev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+
+    <!-- Why the list ends where it ends -->
+    <div class="td-note" data-attn="0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
+      <span>Dates are generated <strong>60 days ahead</strong> and roll forward daily. New ones appear automatically &mdash; the series has no end date.</span>
+    </div>
+  </div>
+
+  <div class="fit-context-menu-backdrop" id="menu-series-backdrop" onclick="tdMenuClose('menu-series')"></div>
+  <div class="fit-context-menu" id="menu-series" style="top:56px;right:12px;">
+    <div class="fit-context-menu-item" onclick="tdMenuClose('menu-series');document.getElementById('series-scope-sheet').classList.add('visible')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
+      Edit schedule
+    </div>
+    <div class="fit-context-menu-item" onclick="tdMenuClose('menu-series')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v4M10 16h4"/></svg>
+      Add a date
+    </div>
+    <div class="fit-context-menu-divider"></div>
+    <div class="fit-context-menu-item destructive" onclick="tdMenuClose('menu-series')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 8l8 8"/></svg>
+      Cancel series
+    </div>
+  </div>
+
+  <!-- Scope lives on the SERIES, not on the template form -->
+  <div class="fit-sheet-overlay" id="series-scope-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Edit schedule</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:28px;">Which dates should the change apply to?</div>
+      <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:28px;">
+        <label style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;cursor:pointer;min-height:48px;"><input type="radio" name="series-scope" value="future" checked style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;"><span style="font-size:16px;">This and all following</span></label>
+        <label style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;cursor:pointer;min-height:48px;"><input type="radio" name="series-scope" value="all" style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;"><span style="font-size:16px;">All dates in this series (17)</span></label>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:28px;padding:10px;background:rgba(247,201,72,0.08);border-radius:8px;">
+        <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-yellow-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span style="font-size:12px;color:var(--fit-text-secondary);line-height:1.4;">23 registered participants will be notified about the change.</span>
+      </div>
+      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="document.getElementById('series-scope-sheet').classList.remove('visible');">Continue</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===================================================================
+     COACH: EDIT TEMPLATE (cleaned — settings only)
+     =================================================================== -->
+<div class="fit-phone fit-dark" id="s-edit">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-detail-group',document.querySelector('.sidebar [onclick*=s-detail-group]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Edit training session</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="fit-input-group"><span class="fit-input-label">Training name</span><div class="fit-input" contenteditable="true" style="outline:none;cursor:text;">HIIT Group Session</div></div>
+    <div class="fit-input-group"><span class="fit-input-label">Sport type</span><div class="fit-input" style="cursor:pointer;" data-a11y-id="coach.session.sport" onclick="window.location.href='./sport-types.html'"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 7 0 10s-2.5 7 0 10"/></svg></span> Fitness<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div></div>
+    <div class="fit-input-group"><span class="fit-input-label">Location</span><div class="fit-input" style="cursor:pointer;" onclick="window.location.href='./locations.html'"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></span> GYM Bro<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div></div>
+
+    <!-- Training type is structural — read-only after creation -->
+    <div class="fit-input-group"><span class="fit-input-label">Training type</span></div>
+    <div class="td-locked" data-a11y-id="coach.session.type.locked">
+      <span class="fit-badge fit-badge-group">Group</span>
+      <span class="td-locked-value" style="font-size:14px;color:var(--fit-text-secondary);">Up to 10 athletes per session</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+    </div>
+    <div class="td-hint">Type can&rsquo;t be changed &mdash; it defines how the session is booked and paid for. Need a different type? <strong style="color:var(--fit-brand-primary);cursor:pointer;">Duplicate this session</strong>.</div>
+
+    <div class="fit-input-group"><span class="fit-input-label">Max participants</span>
+      <div class="fit-stepper" data-fit-stepper data-value="10" data-min="2" data-max="50" style="margin-top:8px;"><button class="fit-stepper-btn" data-dir="-1">&minus;</button><div class="fit-stepper-value"><span data-stepper-display>10</span> <span class="fit-stepper-unit">athletes</span></div><button class="fit-stepper-btn" data-dir="1">+</button></div>
+    </div>
+    <div class="fit-input-group"><span class="fit-input-label">Min participants <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <div class="fit-stepper" data-fit-stepper data-value="3" data-min="0" data-max="10" style="margin-top:8px;"><button class="fit-stepper-btn" data-dir="-1">&minus;</button><div class="fit-stepper-value"><span data-stepper-display>3</span> <span class="fit-stepper-unit">athletes</span></div><button class="fit-stepper-btn" data-dir="1">+</button></div>
+      <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;line-height:1.4;">If not met, you&rsquo;ll be notified 24h before to cancel or proceed.</div>
+    </div>
+
+    <div class="fit-input-group"><span class="fit-input-label">Duration</span></div>
+    <div class="fit-wheel-picker">
+      <div class="fit-wheel-col"><span class="fit-wheel-label">Hour</span><div class="fit-wheel-scroll"><div class="fit-wheel-item dim">0</div><div class="fit-wheel-item active">1</div><div class="fit-wheel-item dim">2</div></div><div class="fit-wheel-fade-top"></div><div class="fit-wheel-fade-bottom"></div></div>
+      <div class="fit-wheel-col"><span class="fit-wheel-label">Minutes</span><div class="fit-wheel-scroll"><div class="fit-wheel-item dim">0</div><div class="fit-wheel-item active">00</div><div class="fit-wheel-item dim">30</div></div><div class="fit-wheel-fade-top"></div><div class="fit-wheel-fade-bottom"></div></div>
+    </div>
+
+    <div class="fit-input-group"><span class="fit-input-label">Price per participant</span></div>
+    <div style="display:flex;align-items:center;gap:8px;margin:0 16px 16px;">
+      <div class="fit-input" contenteditable="true" style="flex:1;outline:none;cursor:text;">25</div>
+      <div style="font-size:16px;color:var(--fit-text-secondary);">&euro;</div>
+    </div>
+
+    <div class="fit-input-group"><span class="fit-input-label">Payment method</span></div>
+    <div class="fit-selection-group" data-fit-selection="multi">
+      <div class="fit-selection-chip selected" data-value="cash"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h2M20 10h2M2 14h2M20 14h2"/><circle cx="12" cy="12" r="3"/></svg> Cash</div>
+      <div class="fit-selection-chip selected" data-value="card"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card</div>
+    </div>
+
+    <div style="height:8px;"></div>
+  </div>
+
+  <!-- Impactful-change scope (settings only — schedule scope now lives on the series) -->
+  <div class="fit-sheet-overlay" id="edit-scope-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Apply changes</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:28px;">Location and price were changed</div>
+      <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:28px;">
+        <label style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;cursor:pointer;min-height:48px;"><input type="radio" name="edit-scope" value="future" checked style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;"><span style="font-size:16px;">Future events only</span></label>
+        <label style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;cursor:pointer;min-height:48px;"><input type="radio" name="edit-scope" value="all" style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;"><span style="font-size:16px;">All upcoming events (12)</span></label>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:28px;padding:10px;background:rgba(247,201,72,0.08);border-radius:8px;">
+        <svg style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="var(--fit-yellow-400)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span style="font-size:12px;color:var(--fit-text-secondary);line-height:1.4;">23 participants across affected events will be notified.</span>
+      </div>
+      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="document.getElementById('edit-scope-sheet').classList.remove('visible');">Apply changes</button>
+    </div>
+  </div>
+
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" onclick="document.getElementById('edit-scope-sheet').classList.add('visible');">Save</button></div>
+</div>
+
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+
+  <div class="ann active" id="ann-s-detail-group"><span class="ann-role coach">Coach</span><h3>Template detail &mdash; Group</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="tdPane('s-detail-group','upcoming',this)">Upcoming</button>
+      <button onclick="tdPane('s-detail-group','past',this)">Past</button>
+      <button onclick="tdPane('s-detail-group','never',this)">Never scheduled</button>
+    </div>
+    <p>Tapping a template in <strong>My Sessions</strong> now lands here, <strong>not in the edit form</strong>. Editing settings and managing what the template spawned are two different jobs &mdash; the old screen did both and buried the second one under a form.</p>
+    <ul>
+      <li><strong>Summary card</strong> reuses the list-card shell (same gradient header per type) so the object reads continuous from list &rarr; detail. Everything the coach set lives there read-only + one <strong>Edit</strong> button.</li>
+      <li><strong>Stats strip</strong> &mdash; same three columns on all three types (upcoming / booked / earned). One component, type-specific numbers.</li>
+      <li><strong>Events</strong> &mdash; segmented Upcoming | Past. Recurring placements render as a <strong>rule head + 3 nearest instances</strong>; one-off placements stand alone.</li>
+      <li><strong>Exceptions always surface</strong> &mdash; moved / skipped / zero-signup dates get an amber row even if they sit 5 weeks out. Normal dates stay collapsed.</li>
+      <li>Footer CTA <strong>Schedule dates</strong> &rarr; the existing scheduling flow (<code>invite.html?mode=schedule</code>).</li>
+    </ul>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Why the list is finite</span>
+    <div class="ann-detail">
+      <h4>Ongoing &ne; infinite</h4>
+      <p>A weekly placement with <code>Ends: Ongoing</code> is a <strong>rule</strong>. The engine materialises occurrences <strong>60 days ahead, rolling daily</strong> (canon: group-training decisions &mdash; matches the Google-sync window). So the list always has a bottom, and the sub-line says so out loud: <em>&ldquo;Ongoing &middot; next 60 days&rdquo;</em>. Without that label a coach reads the last row as the end of the series.</p>
+      <h4>Three levels, not two</h4>
+      <p><strong>Template</strong> (what I run: price, duration, capacity) &rarr; <strong>Series/placement</strong> (when it repeats) &rarr; <strong>Event</strong> (one date, its roster and money). Each level owns its own edits &mdash; which is why the apply-scope picker moved off the template form and onto the series.</p>
+      <h4>Never-scheduled state</h4>
+      <p>A freshly created template has zero placements. Athletes can&rsquo;t book it at all, so the empty state says that explicitly rather than showing a blank list.</p>
+      <h4>API</h4>
+      <p><code>GET /coach/training-sessions/{id}/</code> &middot; <code>GET /coach/training-events/?session_id={id}&amp;from=&amp;to=</code> grouped by <code>recurrence_pattern</code>.</p>
+    </div>
+  </div>
+
+  <div class="ann" id="ann-s-detail-personal"><span class="ann-role coach">Coach</span><h3>Template detail &mdash; Personal</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="tdPane('s-detail-personal','upcoming',this)">Upcoming</button>
+      <button onclick="tdPane('s-detail-personal','past',this)">Past</button>
+    </div>
+    <p>Same shell, different spawn. A personal template has <strong>no standalone events</strong> &mdash; it produces <strong>bookings with a specific athlete</strong>, so the lower section is a people list, not a date list.</p>
+    <ul>
+      <li><strong>Bookings</strong> &mdash; avatar + name + when + payment badge (Paid / Cash due / Awaiting). Tap &rarr; the event drawer on the calendar.</li>
+      <li><strong>Clients using this session</strong> &mdash; avatar stack tile &rarr; CRM filtered to this template. Answers &ldquo;is this offer working?&rdquo; at a glance.</li>
+      <li><strong>Past</strong> &mdash; recent bookings individually, older months collapsed to a summary row (12 sessions &middot; 5 clients &middot; &euro;600).</li>
+      <li>Footer CTA <strong>Book with a client</strong> enters the canonical booking flow at step 2 &mdash; the session is already picked, so only athlete + time are left (canon order session &rarr; athlete &rarr; time).</li>
+    </ul>
+  </div>
+
+  <div class="ann" id="ann-s-detail-selfpaced"><span class="ann-role coach">Coach</span><h3>Template detail &mdash; Self-paced</h3>
+    <p>Self-paced has no dates at all, so the &ldquo;what did this template spawn&rdquo; section becomes <strong>athletes and their progress</strong>. Ordered by what the coach owes, not chronology.</p>
+    <ul>
+      <li><strong>Needs your plan</strong> &mdash; amber rows: athletes who paid and are waiting for the workout to be built. This is a debt, so it sits at the top.</li>
+      <li><strong>In progress</strong> &mdash; completion bar (3 of 8 workouts), plus &ldquo;submitted for review&rdquo; when the ball is back in the coach&rsquo;s court.</li>
+      <li><strong>Completed</strong> collapses to a single tile &mdash; archive, not work.</li>
+      <li>Rows deep-link into the existing builder (<code>shared/self-paced.html</code> &rarr; queue / setup / review) instead of duplicating it here.</li>
+      <li>Stats strip reads <strong>to build / sold / earned</strong> &mdash; same component, self-paced vocabulary.</li>
+    </ul>
+    <p class="note">Location and cash payment are absent by design &mdash; self-paced is online-only, paid from the athlete&rsquo;s balance.</p>
+  </div>
+
+  <div class="ann" id="ann-s-series"><span class="ann-role coach">Coach</span><h3>Series detail</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="tdSeriesFilter('all',document.getElementById('sf-all'))">All</button>
+      <button onclick="tdSeriesFilter('attn',document.getElementById('sf-attn'))">Needs attention</button>
+    </div>
+    <p>The full date list for <strong>one recurring placement</strong> &mdash; opened from the series head&rsquo;s <em>&ldquo;17 dates&rdquo;</em>. The rule card at the top is the object being managed; the rows below are what it generated.</p>
+    <ul>
+      <li><strong>Month groups</strong> + lazy loading. Bounded by the 60-day generation window, with a footnote explaining why the list ends &mdash; and that new dates appear on their own.</li>
+      <li><strong>Quick-chip axis</strong>: All / Needs attention. One axis only (canon: ledger filter pattern) &mdash; the exceptions are the only filter a coach actually asks for.</li>
+      <li><strong>Exception badges</strong>: <em>Moved</em> (blue &mdash; time override), <em>Skipped</em> (amber &mdash; conflict auto-skip at generation), cancelled rows dimmed. Everything else is a plain row.</li>
+      <li><strong>Edit schedule</strong> opens the scope sheet here: <em>This and all following</em> / <em>All dates</em> &mdash; the Google-calendar convention, and the correct home for a scope question about dates.</li>
+      <li>⋯ carries <strong>Add a date</strong> and destructive <strong>Cancel series</strong>.</li>
+    </ul>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Scope moved off the template</span>
+    <div class="ann-detail">
+      <h4>Before</h4>
+      <p>The template edit form asked &ldquo;future events only / all upcoming&rdquo; for <em>every</em> impactful change, including schedule-shaped ones &mdash; while the dates themselves lived in a section on that same form.</p>
+      <h4>Now</h4>
+      <p>Settings changes (price, duration, location) keep their scope sheet on the edit form, because they genuinely fan out to already-generated events. <strong>Schedule</strong> changes (days, time, ends) get their scope on the series, where the coach can see the affected dates while deciding.</p>
+    </div>
+  </div>
+
+  <div class="ann" id="ann-s-edit"><span class="ann-role coach">Coach</span><h3>Edit template (cleaned)</h3>
+    <p>Reached from the summary card&rsquo;s <strong>Edit</strong>. Now a <strong>pure settings form</strong> &mdash; three things left it:</p>
+    <ul>
+      <li><strong>Training type is read-only.</strong> It decides capacity, location, payment methods and the whole booking model; switching it on a template with 12 events and 47 registrations isn&rsquo;t an edit, it&rsquo;s a different object. Shown as a locked row + hint, with <strong>Duplicate</strong> as the escape hatch.</li>
+      <li><strong>Scheduled dates section removed</strong> &mdash; it lives on the detail screen, where it can actually breathe (series grouping, exceptions, past).</li>
+      <li><strong>Header trash removed</strong> &mdash; deleting the template is an action on the object, so it sits in the detail&rsquo;s ⋯ menu, away from the form&rsquo;s primary Save.</li>
+      <li>Kept: prefilled fields, impactful-change scope sheet on Save, participant-notification warning.</li>
+    </ul>
+    <p class="note">Reference only &mdash; this screen replaces <code>sessions.html#s-edit</code> once approved. Nothing in <code>sessions.html</code> was modified.</p>
+  </div>
+
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+// === THEME SWITCH ===
+function switchTheme(theme) {
+  document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.getElementById("theme-light").style.background = theme === "light" ? "var(--fit-gray-700)" : "transparent";
+  document.getElementById("theme-light").style.color = theme === "light" ? "var(--fit-white)" : "var(--fit-gray-400)";
+  document.querySelectorAll(".fit-phone").forEach(function(phone) {
+    if (theme === "light") { phone.classList.remove("fit-dark"); phone.classList.add("fit-light"); }
+    else { phone.classList.remove("fit-light"); phone.classList.add("fit-dark"); }
+  });
+}
+
+// === NAVIGATION ===
+function go(id, btn) {
+  document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+  const ann = document.getElementById('ann-' + id);
+  if (ann) ann.classList.add('active');
+  FitUI.initAll(document.getElementById(id));
+}
+
+// === SEGMENTED TABS (scoped per screen) ===
+function tdTab(screenId, pane, btn) {
+  const ph = document.getElementById(screenId);
+  ph.querySelectorAll('.fit-segmented-tab').forEach(t => t.classList.remove('selected'));
+  if (btn) btn.classList.add('selected');
+  ph.querySelectorAll('[data-td-pane]').forEach(p => p.classList.toggle('on', p.dataset.tdPane === pane));
+}
+
+// Annotation state-toggle → drives the same panes (incl. states with no in-screen control)
+function tdPane(screenId, pane, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  const ph = document.getElementById(screenId);
+  ph.querySelectorAll('[data-td-pane]').forEach(p => p.classList.toggle('on', p.dataset.tdPane === pane));
+  // keep the in-screen segmented in sync (Upcoming / Past only)
+  const tabs = ph.querySelectorAll('.fit-segmented-tab');
+  tabs.forEach(t => t.classList.remove('selected'));
+  if (pane === 'upcoming' && tabs[0]) tabs[0].classList.add('selected');
+  if (pane === 'past' && tabs[1]) tabs[1].classList.add('selected');
+}
+
+// === SERIES FILTER (All / Needs attention) ===
+function tdSeriesFilter(mode, btn) {
+  const ph = document.getElementById('s-series');
+  ph.querySelectorAll('.fit-filter-chip').forEach(c => c.classList.remove('active'));
+  const chip = btn || document.getElementById(mode === 'attn' ? 'sf-attn' : 'sf-all');
+  if (chip) chip.classList.add('active');
+  ph.querySelectorAll('[data-attn]').forEach(row => {
+    row.style.display = (mode === 'attn' && row.dataset.attn !== '1') ? 'none' : '';
+  });
+}
+
+// === CONTEXT MENU (⋯) ===
+function tdMenu(id, e) {
+  if (e) e.stopPropagation();
+  document.getElementById(id).classList.add('visible');
+  document.getElementById(id + '-backdrop').classList.add('visible');
+}
+function tdMenuClose(id) {
+  document.getElementById(id).classList.remove('visible');
+  document.getElementById(id + '-backdrop').classList.remove('visible');
+}
+
+// === SHEET DISMISS (backdrop tap) ===
+document.querySelectorAll('.fit-sheet-overlay').forEach(function(ov) {
+  ov.addEventListener('click', function(e) { if (e.target === ov) ov.classList.remove('visible'); });
+});
+
+// === DEEP LINK (#s-detail-personal etc.) ===
+(function () {
+  const h = (location.hash || '').replace('#', '');
+  if (h && document.getElementById(h)) {
+    go(h, document.querySelector('.sidebar button[onclick*="\'' + h + '\'"]'));
+  } else {
+    FitUI.initAll(document.getElementById('s-detail-group'));
+  }
+})();
+</script>
+</body>
+</html>

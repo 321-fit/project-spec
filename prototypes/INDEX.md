@@ -23,6 +23,7 @@ Path root: `project-spec/prototypes/flows/`
 | `calendar.html` | Coach calendar (state-aware event drawer, 96px grid) | any calendar/schedule surface |
 | `clients.html` | Clients CRM (state matrix, Mark Paid, notes) | list-with-detail + context menus |
 | `sessions.html` | Training Sessions (templates) | create/edit template flows |
+| `session-detail.html` | **Template detail (view)** — group/personal/self-paced + series detail + cleaned edit (type read-only) | object-detail-then-edit screens |
 | `availability.html` | Availability hub (TZ, Time off, conflict drawer) | settings-hub-style screens |
 | `available-hours.html` | Weekly available-hours editor | day/time editors |
 | `locations.html` | Training locations (in-person/online/home-visit) | multi-item + default + maps |

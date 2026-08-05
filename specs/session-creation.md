@@ -12,6 +12,23 @@
 
 **Scope note:** this spec covers the **session template form** (Create + Edit + Delete + List). Group-specific business logic (auto-generation, registration, athlete flows) lives in [group-training.md](./group-training.md). This spec describes the form that is **shared** by personal and group templates; group fields appear conditionally.
 
+> **⚠️ Proposed change — prototyped, not yet approved (2026-08-05).**
+> [flows/coach/session-detail.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/session-detail.html)
+> introduces a **template detail (view) screen** between the list and the edit form. Sections 4 (Flow 4 / Flow 9)
+> and 8 below describe the *current* direct-to-edit behaviour and stay authoritative until this is signed off.
+> What the proposal changes:
+> - Tapping a template opens **detail**, not edit — summary card (read-only settings) + Edit button.
+> - Detail shows **what the template spawned**, per type: group → events (recurring series grouped under their
+>   rule + one-off placements); personal → bookings per athlete + clients using it; self-paced → athletes by
+>   plan state (needs plan / in progress / completed).
+> - **Training type becomes immutable** after creation (read-only row + Duplicate as the escape hatch) — it
+>   defines capacity, location, payment methods and the booking model.
+> - **Scheduled dates** section and the **Delete** action move out of the edit form (to detail + its ⋯ menu);
+>   the edit form is settings only.
+> - New **series detail** screen owns the full date list of one recurring placement, bounded by the 60-day
+>   rolling generation window, and hosts the schedule apply-scope picker (*this and following / all dates*).
+>   Settings-change scope stays on the edit form.
+
 ---
 
 ## 1. Overview
