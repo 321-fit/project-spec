@@ -204,8 +204,8 @@
 
   /* Section title with trailing hint.
      Vertical rhythm: 20px above a section, 12px below its title, 8px between rows. */
-  .cg-sec { display: flex; align-items: center; justify-content: space-between; min-height: 28px; padding: 0 16px; margin: 20px 0 12px; }
-  .cg-sec-title { font-size: 16px; font-weight: 600; color: var(--fit-text-primary); }
+  .cg-sec { display: flex; align-items: center; justify-content: space-between; min-height: 24px; padding: 0 16px; margin: 20px 0 6px; }
+  .cg-sec-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--fit-text-secondary); }
   .cg-sec-hint { font-size: 12px; color: var(--fit-text-tertiary); display: flex; align-items: center; gap: 4px; }
   .cg-sec-hint svg { width: 12px; height: 12px; }
   .cg-sec-action {
@@ -214,25 +214,6 @@
   }
   /* Invisible hit-area expansion → 44px effective (HIG) */
   .cg-sec-action::before { content: ""; position: absolute; top: -10px; right: -16px; bottom: -10px; left: 0; }
-
-  /* Action rows on group detail */
-  .cg-action {
-    display: flex; align-items: center; gap: 12px;
-    width: 100%; min-height: 52px; padding: 12px 16px;
-    background: transparent; border: none; cursor: pointer;
-    font-family: var(--fit-font); text-align: left;
-    border-bottom: 1px solid var(--fit-divider);
-  }
-  .cg-action:last-child { border-bottom: none; }
-  .cg-action:active { background: rgba(255,255,255,0.04); }
-  .fit-light .cg-action:active { background: rgba(0,0,0,0.03); }
-  .cg-action svg.lead { width: 20px; height: 20px; flex-shrink: 0; color: var(--fit-text-secondary); }
-  .cg-action-body { flex: 1; min-width: 0; }
-  .cg-action-title { display: block; font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
-  .cg-action-sub { display: block; font-size: 12px; color: var(--fit-text-tertiary); margin-top: 2px; }
-  .cg-action svg.chev { width: 16px; height: 16px; flex-shrink: 0; color: var(--fit-text-tertiary); }
-  .cg-actions-card { margin: 0 16px 4px; border-radius: var(--fit-radius-lg); overflow: hidden; background: var(--fit-surface-high); }
-  .fit-light .cg-actions-card { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
 
   /* Radio row inside a sheet (sheet canon: 48px rows, 12px gap) */
   .cg-radio {
@@ -243,42 +224,52 @@
   .cg-radio:active { background: rgba(255,255,255,0.04); }
   .fit-light .cg-radio:active { background: rgba(0,0,0,0.03); }
 
-  /* Session this group is on (recurring or one-off) */
-  .cg-sess {
-    display: flex; align-items: flex-start; gap: 12px;
-    margin: 0 16px 8px; padding: 12px 14px; min-height: 60px;
-    border: 1px solid var(--fit-divider); border-radius: var(--fit-radius-lg); cursor: pointer;
+  /* Identity strip — avatar stack + count, one line, no card */
+  .cg-ident { display: flex; align-items: center; gap: 12px; padding: 12px 16px 4px; }
+  .cg-ident-txt { font-size: 14px; color: var(--fit-text-secondary); }
+
+  /* ONE list-row component for schedule rows, member rows and the add row.
+     Everything on this screen is a row — that's what keeps it scannable. */
+  .cg-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 16px; min-height: 60px; cursor: pointer;
   }
-  .fit-light .cg-sess { border-color: transparent; background: var(--fit-white); box-shadow: 0 0 10px rgba(0,0,0,0.06); }
-  .cg-sess-icon {
-    width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+  .cg-row:active { background: rgba(255,255,255,0.04); }
+  .fit-light .cg-row:active { background: rgba(0,0,0,0.03); }
+  .cg-row-ic {
+    width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
     background: var(--fit-surface-high);
   }
-  .fit-light .cg-sess-icon { background: var(--fit-gray-100); }
-  .cg-sess-icon svg { width: 17px; height: 17px; color: var(--fit-text-secondary); }
-  .cg-sess-icon--rec { background: rgba(3,178,226,0.15); }
-  .cg-sess-icon--rec svg { color: var(--fit-blue-500); }
-  .cg-sess-body { flex: 1; min-width: 0; }
-  .cg-sess-title { display: block; font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
-  .cg-sess-sub { display: block; font-size: 13px; color: var(--fit-text-secondary); margin-top: 2px; }
-  .cg-sess-tag { display: block; font-size: 12px; color: var(--fit-text-tertiary); margin-top: 4px; }
-  .cg-sess .chev { flex-shrink: 0; margin-top: 8px; }
+  .fit-light .cg-row-ic { background: var(--fit-gray-100); }
+  .cg-row-ic svg { width: 18px; height: 18px; color: var(--fit-text-secondary); }
+  .cg-row-ic--rec { background: rgba(3,178,226,0.15); }
+  .cg-row-ic--rec svg { color: var(--fit-blue-500); }
+  .cg-row-ic--add { background: transparent; border: 1px dashed var(--fit-gray-600); }
+  .cg-row-ic--add svg { color: var(--fit-brand-primary); }
+  .cg-row-body { flex: 1; min-width: 0; }
+  .cg-row-title { display: block; font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .cg-row-sub { display: block; font-size: 12px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .cg-row-right { flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+  .cg-row .chev { flex-shrink: 0; }
+  .cg-row--link { min-height: 48px; }
+  .cg-row--link .cg-row-body { padding-left: 48px; }
+
+  /* Unread count on the header message button */
+  .cg-badge-dot {
+    position: absolute; top: -4px; right: -4px;
+    min-width: 18px; height: 18px; padding: 0 5px; border-radius: 99px;
+    background: var(--fit-brand-primary); color: var(--fit-white);
+    font-size: 11px; font-weight: 600; line-height: 18px; text-align: center;
+  }
 
   /* Schedule state switcher */
   [data-sched-state] { display: none; }
   #s-group-detail.sched-attached [data-sched-state="attached"],
   #s-group-detail.sched-none [data-sched-state="none"] { display: block; }
 
-  /* Member row */
-  .cg-member { display: flex; align-items: center; gap: 12px; padding: 10px 16px; min-height: 60px; cursor: pointer; }
-  .cg-member-body { flex: 1; min-width: 0; }
-  .cg-member-name { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
-  .cg-member-body > .cg-member-name { display: block; }
-  .cg-member-sub { display: block; font-size: 12px; color: var(--fit-text-tertiary); margin-top: 1px; }
-  .cg-member-right { flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
-  /* Edit mode: the WHOLE row is the remove target — a 28px minus is a mis-tap
-     waiting to happen. The minus stays as the affordance, the row does the work. */
+  /* Edit mode: the WHOLE row removes — a 28px minus is a mis-tap waiting to happen.
+     The minus stays as the affordance, the row does the work, Undo makes it safe. */
   .cg-remove {
     width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: none;
     align-items: center; justify-content: center;
@@ -286,10 +277,9 @@
   }
   .cg-remove svg { width: 14px; height: 14px; color: var(--fit-red-400); }
   #s-group-detail.cg-editing .cg-remove { display: flex; }
-  #s-group-detail.cg-editing .cg-member-right .chev { display: none; }
+  #s-group-detail.cg-editing .cg-member .chev { display: none; }
   #s-group-detail.cg-editing .cg-member { background: rgba(240,92,91,0.04); }
   #s-group-detail.cg-editing .cg-member:active { background: rgba(240,92,91,0.12); }
-  /* Adding is not removing — hide the add row while the list is armed to delete */
   #s-group-detail.cg-editing .cg-member--add { display: none; }
 
   /* Info note — outline card (feedback_note_block) */
@@ -425,7 +415,7 @@
           <div class="cg-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg></div>
           <div class="cg-card-body">
             <div class="cg-card-name">Morning</div>
-            <div class="cg-card-sub">8 people &middot; 3 not in the app</div>
+            <div class="cg-card-sub">8 members</div>
           </div>
           <div class="cg-card-right">
             <div class="cg-stack"><span class="cg-av">AK</span><span class="cg-av">MS</span><span class="cg-av">JD</span><span class="cg-av cg-av--more">+5</span></div>
@@ -453,7 +443,7 @@
           <div class="cg-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg></div>
           <div class="cg-card-body">
             <div class="cg-card-name">Zumba Thursday</div>
-            <div class="cg-card-sub">14 people &middot; 11 not in the app</div>
+            <div class="cg-card-sub">14 members</div>
           </div>
           <div class="cg-card-right">
             <div class="cg-stack"><span class="cg-av">MV</span><span class="cg-av">JS</span><span class="cg-av cg-av--more">+12</span></div>
@@ -537,116 +527,130 @@
     <div class="fit-header">
       <button class="fit-header-back" onclick="go('s-groups',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
       <span class="fit-header-title">Morning</span>
-      <button class="fit-icon-btn" onclick="cgMenu('menu-group',event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+      <div style="position:absolute;right:12px;display:flex;align-items:center;gap:6px;">
+        <button class="fit-icon-btn" data-a11y-id="coach.group.message" onclick="go('s-group-chat',null)" style="position:relative;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 01-11.6 7.2L3 21l1.8-6.4A8 8 0 1121 12z"/></svg>
+          <span class="cg-badge-dot">2</span>
+        </button>
+        <button class="fit-icon-btn" onclick="cgMenu('menu-group',event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+      </div>
     </div>
   </div>
 
   <div class="fit-phone-content">
-    <!-- Summary -->
-    <div class="fit-card" style="margin:8px 16px 12px;display:flex;align-items:center;gap:12px;">
-      <div class="cg-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg></div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Morning</div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:2px;">8 people &middot; 5 in the app &middot; 3 CRM</div>
-      </div>
-      <div class="cg-stack"><span class="cg-av">AK</span><span class="cg-av">MS</span><span class="cg-av cg-av--more">+6</span></div>
+    <!-- Identity strip — who this is, in one line. No card, no icon box. -->
+    <div class="cg-ident">
+      <div class="cg-stack"><span class="cg-av">AK</span><span class="cg-av">MS</span><span class="cg-av">LR</span><span class="cg-av cg-av--more">+5</span></div>
+      <span class="cg-ident-txt"><span id="cg-member-count">8</span> members</span>
     </div>
 
-    <!-- Actions — two, both about the group as a whole.
-         Inviting CRM members left this screen: it's a per-client action, and the
-         chat plate already offers it where the gap actually bites. -->
-    <div class="cg-actions-card">
-      <button class="cg-action" data-a11y-id="coach.group.add-to-session" onclick="window.location.href='./invite.html?mode=schedule&amp;origin=s-group-detail&amp;filter=group&amp;group=morning'">
-        <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v4M10 16h4"/></svg>
-        <span class="cg-action-body"><span class="cg-action-title">Add to a session</span><span class="cg-action-sub">Pick a group session, then a slot on your calendar</span></span>
-        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-      </button>
-      <button class="cg-action" data-a11y-id="coach.group.message" onclick="go('s-group-chat',null)">
-        <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 01-11.6 7.2L3 21l1.8-6.4A8 8 0 1121 12z"/></svg>
-        <span class="cg-action-body"><span class="cg-action-title">Message the group</span><span class="cg-action-sub">Group chat with the 5 app members</span></span>
-        <span class="cg-unread" style="margin-right:8px;">2</span>
-        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-      </button>
-    </div>
+    <!-- ===== SCHEDULE — rules first, then dates. One line each, capped. ===== -->
+    <div class="cg-sec"><span class="cg-sec-title">Schedule</span></div>
 
-    <!-- ===== SESSIONS this group is on — recurring AND one-off ===== -->
-    <div class="cg-sec"><span class="cg-sec-title">Sessions</span></div>
-
-    <!-- ATTACHED state -->
     <div data-sched-state="attached">
-      <div class="cg-sess" onclick="window.location.href='./session-detail.html#s-series'">
-        <div class="cg-sess-icon cg-sess-icon--rec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></div>
-        <div class="cg-sess-body">
-          <span class="cg-sess-title">HIIT Group Session</span>
-          <span class="cg-sess-sub">Tue &amp; Thu &middot; 18:00 &middot; GYM Bro</span>
-          <span class="cg-sess-tag">Everyone joins every date automatically</span>
-        </div>
+      <!-- A RULE: repeats, never ends, feeds the roster automatically -->
+      <div class="cg-row" onclick="window.location.href='./session-detail.html#s-series'">
+        <span class="cg-row-ic cg-row-ic--rec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></span>
+        <span class="cg-row-body">
+          <span class="cg-row-title">Tue &amp; Thu &middot; 18:00 &middot; HIIT</span>
+          <span class="cg-row-sub">Next: Tue, Apr 15 &middot; 3/10</span>
+        </span>
         <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </div>
-
-      <div class="cg-sess" onclick="window.location.href='./calendar.html'">
-        <div class="cg-sess-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
-        <div class="cg-sess-body">
-          <span class="cg-sess-title">Yoga Morning Flow</span>
-          <span class="cg-sess-sub">Sat, Apr 19 &middot; 10:00 &middot; GYM Bro</span>
-          <span class="cg-sess-tag">One-off &middot; 8 of this group on the roster</span>
-        </div>
+      <!-- A DATE: one-off -->
+      <div class="cg-row" onclick="window.location.href='./calendar.html'">
+        <span class="cg-row-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+        <span class="cg-row-body">
+          <span class="cg-row-title">Sat, Apr 19 &middot; 10:00 &middot; Yoga</span>
+          <span class="cg-row-sub">One-off &middot; 8/15</span>
+        </span>
+        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="cg-row cg-row--link" onclick="window.location.href='./calendar.html'">
+        <span class="cg-row-body"><span class="cg-row-title" style="color:var(--fit-brand-primary);">See all 12 dates</span></span>
         <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     </div>
 
-    <!-- NOT SCHEDULED state -->
     <div data-sched-state="none">
-      <div class="cg-note">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-        <span>Not on any session yet. <strong style="color:var(--fit-brand-primary);cursor:pointer;">Add to a session</strong> to put all 8 on a date &mdash; or <strong style="color:var(--fit-brand-primary);cursor:pointer;" onclick="document.getElementById('attach-series-sheet').classList.add('visible')">attach the group to a series you already run</strong>.</span>
+      <div class="cg-row" style="cursor:default;">
+        <span class="cg-row-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+        <span class="cg-row-body">
+          <span class="cg-row-title" style="color:var(--fit-text-secondary);font-weight:400;">Not scheduled yet</span>
+          <span class="cg-row-sub">Schedule a session, or attach the group to a series you already run</span>
+        </span>
       </div>
     </div>
 
-    <!-- Members — actions live in the ⋯ menu and in the row below the list,
-         never as two text links jammed together in the section header -->
+    <!-- ===== MEMBERS — everyone, no truncation ===== -->
     <div class="cg-sec">
-      <span class="cg-sec-title">Members <span id="cg-member-count" style="font-weight:400;color:var(--fit-text-tertiary);">8</span></span>
+      <span class="cg-sec-title">Members</span>
       <span class="cg-sec-action" id="cg-edit-link" data-a11y-id="coach.group.edit-members" onclick="cgEdit(this)">Edit</span>
     </div>
 
-    <div class="cg-member" onclick="cgMemberTap(this)">
-      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
-      <span class="imp-av">AK</span>
-      <span class="cg-member-body"><span class="cg-member-name">Anna Kowalski</span><span class="cg-member-sub">12 sessions &middot; &euro;580</span></span>
-      <span class="cg-member-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
-    </div>
-    <div class="cg-member" onclick="cgMemberTap(this)">
-      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
-      <span class="imp-av">MS</span>
-      <span class="cg-member-body"><span class="cg-member-name">Mark Schmidt</span><span class="cg-member-sub">8 sessions &middot; &euro;400</span></span>
-      <span class="cg-member-right"><span class="fit-badge fit-badge-danger">&euro;50 owed</span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
-    </div>
-    <div class="cg-member" onclick="cgMemberTap(this)">
-      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
-      <span class="imp-av">LR</span>
-      <span class="cg-member-body"><span style="display:flex;align-items:center;gap:6px;"><span class="cg-member-name">Lena Roth</span><span class="imp-tag crm">CRM</span></span><span class="cg-member-sub">Not in the app &middot; can&rsquo;t be messaged</span></span>
-      <span class="cg-member-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
-    </div>
-    <div class="cg-member" style="opacity:0.55;" onclick="cgMemberTap(this)">
-      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
-      <span class="imp-av">PW</span>
-      <span class="cg-member-body"><span style="display:flex;align-items:center;gap:6px;"><span class="cg-member-name">Paul Weber</span><span class="imp-tag client">Archived</span></span><span class="cg-member-sub">Skipped in group actions</span></span>
-      <span class="cg-member-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+    <!-- Add is the first row of the list (WhatsApp/Telegram grammar) -->
+    <div class="cg-row cg-member--add" data-a11y-id="coach.group.add-clients" onclick="go('s-group-add',null)">
+      <span class="cg-row-ic cg-row-ic--add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
+      <span class="cg-row-body"><span class="cg-row-title" style="color:var(--fit-brand-primary);">Add clients</span></span>
     </div>
 
-    <!-- Full-width add row — the reachable target, unlike a header link -->
-    <div class="cg-member cg-member--add" data-a11y-id="coach.group.add-clients" onclick="go('s-group-add',null)">
-      <span class="imp-av" style="background:transparent;border:1px dashed var(--fit-gray-600);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
-      <span class="cg-member-body"><span class="cg-member-name" style="color:var(--fit-brand-primary);">Add clients</span></span>
+    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
+      <span class="imp-av">AK</span>
+      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Anna Kowalski</span><span class="cg-row-sub">12 sessions &middot; &euro;580</span></span>
+      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
+      <span class="imp-av">MS</span>
+      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Mark Schmidt</span><span class="cg-row-sub">8 sessions &middot; &euro;400</span></span>
+      <span class="cg-row-right"><span class="fit-badge fit-badge-danger">&euro;50 owed</span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
+      <span class="imp-av">LR</span>
+      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Lena Roth <span class="imp-tag crm">CRM</span></span><span class="cg-row-sub">3 sessions &middot; &euro;120</span></span>
+      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
+      <span class="imp-av">JD</span>
+      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Julia Dent</span><span class="cg-row-sub">5 sessions &middot; &euro;250</span></span>
+      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
+      <span class="imp-av">SK</span>
+      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Sara Kim</span><span class="cg-row-sub">9 sessions &middot; &euro;450</span></span>
+      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
+      <span class="imp-av">MV</span>
+      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Marta Vega <span class="imp-tag crm">CRM</span></span><span class="cg-row-sub">4 sessions &middot; &euro;160</span></span>
+      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
+      <span class="imp-av">TN</span>
+      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Tom Novak</span><span class="cg-row-sub">2 sessions &middot; &euro;100</span></span>
+      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+    <div class="cg-row cg-member" style="opacity:0.55;" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
+      <span class="imp-av">PW</span>
+      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Paul Weber <span class="imp-tag client">Archived</span></span><span class="cg-row-sub">Skipped in group actions</span></span>
+      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
     </div>
 
     <div class="cg-note">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
-      <span>Groups are private &mdash; clients never see which groups they&rsquo;re in. Blocked and deleted clients drop out automatically; archived ones stay but are skipped in group actions.</span>
+      <span>Groups are private &mdash; clients never see which groups they&rsquo;re in.</span>
     </div>
     <div style="height:20px;"></div>
   </div>
+
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" data-a11y-id="coach.group.schedule" onclick="window.location.href='./invite.html?mode=schedule&amp;origin=s-group-detail&amp;filter=group&amp;group=morning'">Schedule a session</button></div>
 
   <div class="fit-snackbar" id="cg-remove-snack"><span class="snack-dot" style="background:var(--fit-red-400);"></span><span id="cg-remove-text">Anna removed from Morning</span><span class="snack-action" onclick="cgUndo()">Undo</span></div>
 
@@ -680,8 +684,7 @@
       <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:20px;">Yoga Morning Flow &middot; Sat, Apr 19 &middot; 10:00 &middot; GYM Bro</div>
 
       <div class="fit-input-group" style="padding:0;"><span class="fit-input-label">How often</span></div>
-      <!-- Three-way structural choice → radio rows, not chips: three chips don't
-           survive 390px, and canon already uses radios for scope questions. -->
+      <!-- Canon pair, same as invite.html#group-publish-sheet -->
       <div style="display:flex;flex-direction:column;gap:2px;margin:8px 0 12px;" id="gp-repeat">
         <label class="cg-radio" onclick="cgRepeat('once',this)">
           <input type="radio" name="gp-mode" checked style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;">
@@ -690,10 +693,6 @@
         <label class="cg-radio" onclick="cgRepeat('weekly',this)">
           <input type="radio" name="gp-mode" style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;">
           <span>Repeat weekly</span>
-        </label>
-        <label class="cg-radio" onclick="cgRepeat('existing',this)">
-          <input type="radio" name="gp-mode" style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;">
-          <span>Add to a series this group already runs</span>
         </label>
       </div>
 
@@ -707,10 +706,6 @@
             <div class="fit-selection-chip">Mon</div><div class="fit-selection-chip">Wed</div><div class="fit-selection-chip selected">Sat</div>
           </div>
           <div style="font-size:13px;color:var(--fit-text-tertiary);">Ends: <strong style="color:var(--fit-text-primary);font-weight:500;">Ongoing</strong> &middot; generated 60 days ahead.</div>
-        </div>
-        <div data-gp="existing" style="display:none;">
-          <div style="font-size:15px;color:var(--fit-text-primary);">HIIT &middot; Tue &amp; Thu 18:00</div>
-          <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:4px;line-height:1.45;">Saturday joins this series at 10:00. Only series this group already feeds are offered.</div>
         </div>
       </div>
 
@@ -790,26 +785,26 @@
 
     <div class="cg-sec"><span class="cg-sec-title">Clients</span></div>
 
-    <div class="cg-member" onclick="window.location.href='./clients.html#s-client-detail'">
+    <div class="cg-row" onclick="window.location.href='./clients.html#s-client-detail'">
       <span class="imp-av">MS</span>
-      <span class="cg-member-body"><span class="cg-member-name">Mark Schmidt</span><span class="cg-member-sub">HIIT &middot; Apr 2 &middot; 11 days ago</span></span>
-      <span class="cg-member-right">
+      <span class="cg-row-body"><span class="cg-row-title">Mark Schmidt</span><span class="cg-row-sub">HIIT &middot; Apr 2 &middot; 11d ago</span></span>
+      <span class="cg-row-right">
         <span class="fit-badge fit-badge-danger">&euro;50</span>
         <button class="fit-btn fit-btn-secondary" style="width:auto;height:36px;padding:0 12px;font-size:13px;" onclick="event.stopPropagation();cgPaid(this)">Mark paid</button>
       </span>
     </div>
-    <div class="cg-member" onclick="window.location.href='./clients.html#s-client-detail'">
+    <div class="cg-row" onclick="window.location.href='./clients.html#s-client-detail'">
       <span class="imp-av">TN</span>
-      <span class="cg-member-body"><span class="cg-member-name">Tom Novak</span><span class="cg-member-sub">Basketball &middot; Apr 8 &middot; 5 days ago</span></span>
-      <span class="cg-member-right">
+      <span class="cg-row-body"><span class="cg-row-title">Tom Novak</span><span class="cg-row-sub">Basketball &middot; Apr 8 &middot; 5d ago</span></span>
+      <span class="cg-row-right">
         <span class="fit-badge fit-badge-danger">&euro;50</span>
         <button class="fit-btn fit-btn-secondary" style="width:auto;height:36px;padding:0 12px;font-size:13px;" onclick="event.stopPropagation();cgPaid(this)">Mark paid</button>
       </span>
     </div>
-    <div class="cg-member" onclick="window.location.href='./clients.html#s-client-detail'">
+    <div class="cg-row" onclick="window.location.href='./clients.html#s-client-detail'">
       <span class="imp-av">LR</span>
-      <span class="cg-member-body"><span style="display:flex;align-items:center;gap:6px;"><span class="cg-member-name">Lena Roth</span><span class="imp-tag crm">CRM</span></span><span class="cg-member-sub">Zumba &middot; Apr 10 &middot; 3 days ago</span></span>
-      <span class="cg-member-right">
+      <span class="cg-row-body"><span class="cg-row-title">Lena Roth <span class="imp-tag crm">CRM</span></span><span class="cg-row-sub">Zumba &middot; Apr 10 &middot; 3d ago</span></span>
+      <span class="cg-row-right">
         <span class="fit-badge fit-badge-danger">&euro;40</span>
         <button class="fit-btn fit-btn-secondary" style="width:auto;height:36px;padding:0 12px;font-size:13px;" onclick="event.stopPropagation();cgPaid(this)">Mark paid</button>
       </span>
@@ -1026,41 +1021,46 @@
 
   <div class="ann" id="ann-s-group-detail"><span class="ann-role coach">Coach</span><h3>Group detail</h3>
     <div class="state-toggle">
-      <button class="active" onclick="cgSched('attached',this)">On sessions</button>
+      <button class="active" onclick="cgSched('attached',this)">Scheduled</button>
       <button onclick="cgSched('none',this)">Not scheduled</button>
     </div>
     <div class="state-toggle" style="margin-left:8px;">
       <button class="active" onclick="cgEditState(false,this)">View</button>
       <button onclick="cgEditState(true,this)">Edit members</button>
     </div>
-    <p>Two actions, then <strong>where this group trains</strong>, then who&rsquo;s in it.</p>
+    <p><strong>Everything on this screen is a row.</strong> The previous pass wrapped each action in a card with a
+    two-line description and each session in another card &mdash; ~200px spent on things a coach does daily and
+    already understands. Rebuilt on the grammar every messenger and contacts app uses for a set of people.</p>
     <ul>
-      <li><strong>Add to a session</strong> hands off to the existing scheduling flow &mdash;
-        <code>invite.html?mode=schedule</code> &rarr; session chooser (filtered to <strong>group</strong> templates)
-        &rarr; drag onto the time grid &rarr; the post-drop drawer. Adding a group to a session is the same act as
-        scheduling any session; the group only pre-fills the roster. <em>Sidebar &ldquo;Schedule drawer&rdquo; opens the last step.</em></li>
-      <li><strong>Sessions section</strong> answers &ldquo;is this group booked anywhere?&rdquo; for both kinds:
-        the recurring series it feeds (with days and time, tagged <em>everyone joins every date automatically</em>)
-        and one-off dates it was put on. Empty state offers both routes &mdash; schedule something new, or attach
-        the group to a series already running.</li>
-      <li><strong>Invite to the app left this screen.</strong> It&rsquo;s a per-client action; the chat plate already
-        raises it exactly where the gap bites, and the header count keeps it visible.</li>
-      <li><strong>Edit members: the whole row removes.</strong> A 28px minus next to a 60px row is a coin-flip on a
-        phone, so the minus stays as the affordance and the row does the work. Rows tint red while armed, the
-        Add row hides (adding is not removing), and every removal lands a <strong>snackbar with Undo</strong> &mdash;
-        which is what makes a big destructive target safe.</li>
-      <li>Blocked and deleted clients drop out on their own; archived stay visible but greyed and skipped by group actions.</li>
+      <li><strong>Actions moved to their canonical homes.</strong> Chat &rarr; icon in the header (with the unread
+      count, like any thread). Scheduling &rarr; the footer CTA, because it&rsquo;s the one thing a group exists for.
+      Rename / Delete / Add / Edit &rarr; ⋯. No action cards at all.</li>
+      <li><strong>Identity in one line</strong> &mdash; avatar stack + member count, no card, no icon box.</li>
+      <li><strong>Schedule separates the two kinds it used to blur.</strong> A <em>rule</em> (repeat icon, &ldquo;Tue &amp; Thu
+      18:00&rdquo;, next date underneath) and a <em>date</em> (calendar icon, one-off, spots). Both are single rows, capped
+      with <em>See all N dates</em>, so a group on twelve dates doesn&rsquo;t bury the members.</li>
+      <li><strong>Add clients is the first row of the member list</strong> &mdash; the WhatsApp/Telegram convention:
+      a plus where the next avatar would be. It&rsquo;s also in ⋯, and it hides while the list is armed for removal.</li>
+      <li><strong>Members are never truncated.</strong> The list is the point of the screen; making a coach tap
+      &ldquo;see all&rdquo; to view their own group would be silly.</li>
+      <li><strong>Edit: the whole row removes</strong>, rows tint red while armed, and every removal lands a
+      <strong>snackbar with Undo</strong> &mdash; that&rsquo;s what makes a big destructive target safe.</li>
     </ul>
-    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>The post-drop drawer</span>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Scheduling a group</span>
     <div class="ann-detail">
-      <h4>Same drawer, one more option</h4>
-      <p>The shipped drawer (<code>invite.html#group-publish-sheet</code>) asks <em>Just this date</em> / <em>Weekly</em> (+ day chips + Ends). Coming from a group it gains <strong>Add to a series</strong> &mdash; the series this group already feeds &mdash; so a coach adding Saturday to an existing Tue&amp;Thu group doesn&rsquo;t end up with two unrelated placements.</p>
-      <h4>Open question</h4>
-      <p>Canon says <em>different time per weekday = separate placement</em> (Google&rsquo;s model). So &ldquo;add Saturday 10:00 to a Tue&amp;Thu 18:00 series&rdquo; either bends that rule or creates a second placement under the same group. The drawer currently offers it; if we keep the Google model strictly, this option should only appear when the dropped time matches the series time.</p>
-      <h4>Roster consequence</h4>
-      <p>Everyone in the group lands auto-accepted with the fee owed (existing coach-added model), CRM contacts included. Capacity is stated, not enforced &mdash; over-capacity warns like a conflicting occurrence does.</p>
+      <h4>No new mechanic</h4>
+      <p>&ldquo;Schedule a session&rdquo; enters the shipped flow &mdash; <code>invite.html?mode=schedule</code> &rarr; session chooser
+      (filtered to <strong>group</strong> templates) &rarr; drop on the time grid &rarr; post-drop drawer. The group only
+      pre-fills the roster. <em>Sidebar &ldquo;Schedule drawer&rdquo; opens the last step.</em></p>
+      <h4>The drawer stays the canon pair</h4>
+      <p><em>Just this date</em> / <em>Repeat weekly</em> (day chips + Ends), exactly as it ships today, plus one line of
+      consequence: all 8 land auto-accepted with the fee owed, CRM contacts included, settled after the session.
+      The earlier &ldquo;add to an existing series&rdquo; option is gone &mdash; the group was already chosen a step earlier,
+      so it answered a question nobody asked.</p>
+      <h4>Where the roster is edited later</h4>
+      <p>Per-date changes belong to the event, not the group: the event&rsquo;s own Invite picker
+      (<code>calendar.html#s-invite</code>) gains a Groups section. One section in that file, not a screen here.</p>
     </div>
-    <p class="note">Adding a group to an <strong>already scheduled</strong> event is a different entry: the event&rsquo;s own Invite picker (<code>calendar.html#s-invite</code>) gains a Groups section. Not drawn here &mdash; it&rsquo;s one section in that file.</p>
   </div>
 
   <div class="ann" id="ann-s-group-smart"><span class="ann-role coach">Coach</span><h3>Smart group detail</h3>
