@@ -233,9 +233,9 @@
      Dark = surface fill (canon), light = soft shadow (feedback_card_styling). */
   .cg-card-list {
     margin: 0 16px 4px; border-radius: var(--fit-radius-lg); overflow: hidden;
-    background: var(--fit-surface-high);
+    border: 1px solid var(--fit-divider); background: transparent;
   }
-  .fit-light .cg-card-list { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+  .fit-light .cg-card-list { border-color: transparent; background: var(--fit-white); box-shadow: 0 0 10px rgba(0,0,0,0.06); }
   /* Inset hairline between rows, starting after the leading icon/avatar */
   .cg-card-list .cg-row + .cg-row::before {
     content: ""; position: absolute; left: 64px; right: 0; top: 0;
@@ -625,8 +625,8 @@
       <span class="cg-sec-action" id="cg-edit-link" data-a11y-id="coach.group.edit-members" onclick="cgEdit(this)">Edit</span>
     </div>
 
-    <div class="cg-card-list">
-    <!-- Add is the first row of the list (WhatsApp/Telegram grammar) -->
+    <!-- Members stay bare on the canvas: a people list reads as a list, not a block.
+         Only things that group (a rule and its dates) get an outline. -->
     <div class="cg-row cg-member--add" data-a11y-id="coach.group.add-clients" onclick="go('s-group-add',null)">
       <span class="cg-row-ic cg-row-ic--add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
       <span class="cg-row-body"><span class="cg-row-title" style="color:var(--fit-brand-primary);">Add clients</span></span>
@@ -679,8 +679,6 @@
       <span class="imp-av">PW</span>
       <span class="cg-row-body"><span class="cg-row-title cg-member-name">Paul Weber <span class="imp-tag client">Archived</span></span><span class="cg-row-sub">Skipped in group actions</span></span>
       <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
-    </div>
-
     </div>
 
     <div class="cg-note">
@@ -1166,9 +1164,11 @@
       Rename / Delete / Add / Edit &rarr; ⋯. No action cards at all.</li>
       <li><strong>No identity strip.</strong> The avatar row on top restated the member list two sections below it;
       the count moved to the <em>Members</em> header, where the people actually are.</li>
-      <li><strong>Rows sit in grouped cards</strong> with inset hairlines (iOS inset-grouped list). Bare rows on the
-      canvas read as loose text &mdash; the page needs edges. Dark = surface fill, light = soft shadow, per the
-      card rule.</li>
+      <li><strong>Edges are hybrid, matching <code>session-detail.html</code>:</strong> things that <em>group</em> get one
+      1px outline &mdash; the schedule block holds its rules, its one-off dates and the See-all row inside a single
+      contour, exactly like a series holds its instances there. Things that are just <em>a list of people</em> stay bare
+      on the canvas. A slab around eight members reads as a wall; a contour around the schedule gives the page its
+      edge. (Dark = hairline on transparent, light = white + soft shadow.)</li>
       <li><strong>Schedule separates the two kinds it used to blur.</strong> A <em>rule</em> (repeat icon, &ldquo;Tue &amp; Thu
       18:00&rdquo;, next date underneath) and a <em>date</em> (calendar icon, one-off, spots). <strong>Rules are always all
       shown</strong> &mdash; they&rsquo;re few and they explain everything else; one-off dates are capped. Toggle the second
