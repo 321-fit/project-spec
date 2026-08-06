@@ -234,6 +234,42 @@
   .cg-actions-card { margin: 0 16px 4px; border-radius: var(--fit-radius-lg); overflow: hidden; background: var(--fit-surface-high); }
   .fit-light .cg-actions-card { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
 
+  /* Radio row inside a sheet (sheet canon: 48px rows, 12px gap) */
+  .cg-radio {
+    display: flex; align-items: center; gap: 12px;
+    min-height: 48px; padding: 10px 12px; border-radius: 8px; cursor: pointer;
+  }
+  .cg-radio span { font-size: 16px; color: var(--fit-text-primary); line-height: 1.3; }
+  .cg-radio:active { background: rgba(255,255,255,0.04); }
+  .fit-light .cg-radio:active { background: rgba(0,0,0,0.03); }
+
+  /* Session this group is on (recurring or one-off) */
+  .cg-sess {
+    display: flex; align-items: flex-start; gap: 12px;
+    margin: 0 16px 8px; padding: 12px 14px; min-height: 60px;
+    border: 1px solid var(--fit-divider); border-radius: var(--fit-radius-lg); cursor: pointer;
+  }
+  .fit-light .cg-sess { border-color: transparent; background: var(--fit-white); box-shadow: 0 0 10px rgba(0,0,0,0.06); }
+  .cg-sess-icon {
+    width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--fit-surface-high);
+  }
+  .fit-light .cg-sess-icon { background: var(--fit-gray-100); }
+  .cg-sess-icon svg { width: 17px; height: 17px; color: var(--fit-text-secondary); }
+  .cg-sess-icon--rec { background: rgba(3,178,226,0.15); }
+  .cg-sess-icon--rec svg { color: var(--fit-blue-500); }
+  .cg-sess-body { flex: 1; min-width: 0; }
+  .cg-sess-title { display: block; font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .cg-sess-sub { display: block; font-size: 13px; color: var(--fit-text-secondary); margin-top: 2px; }
+  .cg-sess-tag { display: block; font-size: 12px; color: var(--fit-text-tertiary); margin-top: 4px; }
+  .cg-sess .chev { flex-shrink: 0; margin-top: 8px; }
+
+  /* Schedule state switcher */
+  [data-sched-state] { display: none; }
+  #s-group-detail.sched-attached [data-sched-state="attached"],
+  #s-group-detail.sched-none [data-sched-state="none"] { display: block; }
+
   /* Member row */
   .cg-member { display: flex; align-items: center; gap: 12px; padding: 10px 16px; min-height: 60px; cursor: pointer; }
   .cg-member-body { flex: 1; min-width: 0; }
@@ -241,15 +277,20 @@
   .cg-member-body > .cg-member-name { display: block; }
   .cg-member-sub { display: block; font-size: 12px; color: var(--fit-text-tertiary); margin-top: 1px; }
   .cg-member-right { flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+  /* Edit mode: the WHOLE row is the remove target — a 28px minus is a mis-tap
+     waiting to happen. The minus stays as the affordance, the row does the work. */
   .cg-remove {
     width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: none;
-    align-items: center; justify-content: center; cursor: pointer;
-    background: rgba(240,92,91,0.12); border: none; position: relative;
+    align-items: center; justify-content: center;
+    background: rgba(240,92,91,0.12); border: none; pointer-events: none;
   }
-  .cg-remove::before { content: ""; position: absolute; top: -8px; right: -8px; bottom: -8px; left: -8px; }
   .cg-remove svg { width: 14px; height: 14px; color: var(--fit-red-400); }
   #s-group-detail.cg-editing .cg-remove { display: flex; }
   #s-group-detail.cg-editing .cg-member-right .chev { display: none; }
+  #s-group-detail.cg-editing .cg-member { background: rgba(240,92,91,0.04); }
+  #s-group-detail.cg-editing .cg-member:active { background: rgba(240,92,91,0.12); }
+  /* Adding is not removing — hide the add row while the list is armed to delete */
+  #s-group-detail.cg-editing .cg-member--add { display: none; }
 
   /* Info note — outline card (feedback_note_block) */
   .cg-note {
@@ -308,7 +349,7 @@
   <button onclick="go('s-group-add',this)">Add clients</button>
   <div class="label">Downstream</div>
   <button onclick="go('s-group-chat',this)">Group chat</button>
-  <button onclick="go('s-event-picker',this)">Event picker + groups</button>
+  <button onclick="cgPublish()">Schedule drawer</button>
   <div class="label">Other modules</div>
   <button onclick="window.location.href='./clients.html'">← Clients</button>
   </div>
@@ -490,7 +531,7 @@
 <!-- ===================================================================
      COACH: GROUP DETAIL
      =================================================================== -->
-<div class="fit-phone fit-dark" id="s-group-detail">
+<div class="fit-phone fit-dark sched-attached" id="s-group-detail">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -511,11 +552,13 @@
       <div class="cg-stack"><span class="cg-av">AK</span><span class="cg-av">MS</span><span class="cg-av cg-av--more">+6</span></div>
     </div>
 
-    <!-- Actions -->
+    <!-- Actions — two, both about the group as a whole.
+         Inviting CRM members left this screen: it's a per-client action, and the
+         chat plate already offers it where the gap actually bites. -->
     <div class="cg-actions-card">
-      <button class="cg-action" data-a11y-id="coach.group.add-to-session" onclick="go('s-event-picker',null)">
+      <button class="cg-action" data-a11y-id="coach.group.add-to-session" onclick="window.location.href='./invite.html?mode=schedule&amp;origin=s-group-detail&amp;filter=group&amp;group=morning'">
         <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v4M10 16h4"/></svg>
-        <span class="cg-action-body"><span class="cg-action-title">Add to a session</span><span class="cg-action-sub">Pick a date &mdash; everyone joins the roster</span></span>
+        <span class="cg-action-body"><span class="cg-action-title">Add to a session</span><span class="cg-action-sub">Pick a group session, then a slot on your calendar</span></span>
         <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </button>
       <button class="cg-action" data-a11y-id="coach.group.message" onclick="go('s-group-chat',null)">
@@ -524,45 +567,69 @@
         <span class="cg-unread" style="margin-right:8px;">2</span>
         <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </button>
-      <button class="cg-action" onclick="window.location.href='./invite.html?mode=invite&amp;origin=s-group-detail'">
-        <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/><path d="M20 8v6M23 11h-6"/></svg>
-        <span class="cg-action-body"><span class="cg-action-title">Invite 3 to the app</span><span class="cg-action-sub">They&rsquo;ll join the chat once they accept</span></span>
-        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-      </button>
-      <button class="cg-action" data-a11y-id="coach.group.attach-series" onclick="document.getElementById('attach-series-sheet').classList.add('visible')">
-        <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
-        <span class="cg-action-body"><span class="cg-action-title">Attach to a recurring series</span><span class="cg-action-sub">Not attached</span></span>
-        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-      </button>
+    </div>
+
+    <!-- ===== SESSIONS this group is on — recurring AND one-off ===== -->
+    <div class="cg-sec"><span class="cg-sec-title">Sessions</span></div>
+
+    <!-- ATTACHED state -->
+    <div data-sched-state="attached">
+      <div class="cg-sess" onclick="window.location.href='./session-detail.html#s-series'">
+        <div class="cg-sess-icon cg-sess-icon--rec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></div>
+        <div class="cg-sess-body">
+          <span class="cg-sess-title">HIIT Group Session</span>
+          <span class="cg-sess-sub">Tue &amp; Thu &middot; 18:00 &middot; GYM Bro</span>
+          <span class="cg-sess-tag">Everyone joins every date automatically</span>
+        </div>
+        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+
+      <div class="cg-sess" onclick="window.location.href='./calendar.html'">
+        <div class="cg-sess-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+        <div class="cg-sess-body">
+          <span class="cg-sess-title">Yoga Morning Flow</span>
+          <span class="cg-sess-sub">Sat, Apr 19 &middot; 10:00 &middot; GYM Bro</span>
+          <span class="cg-sess-tag">One-off &middot; 8 of this group on the roster</span>
+        </div>
+        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+
+    <!-- NOT SCHEDULED state -->
+    <div data-sched-state="none">
+      <div class="cg-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <span>Not on any session yet. <strong style="color:var(--fit-brand-primary);cursor:pointer;">Add to a session</strong> to put all 8 on a date &mdash; or <strong style="color:var(--fit-brand-primary);cursor:pointer;" onclick="document.getElementById('attach-series-sheet').classList.add('visible')">attach the group to a series you already run</strong>.</span>
+      </div>
     </div>
 
     <!-- Members — actions live in the ⋯ menu and in the row below the list,
          never as two text links jammed together in the section header -->
     <div class="cg-sec">
-      <span class="cg-sec-title">Members <span style="font-weight:400;color:var(--fit-text-tertiary);">8</span></span>
+      <span class="cg-sec-title">Members <span id="cg-member-count" style="font-weight:400;color:var(--fit-text-tertiary);">8</span></span>
       <span class="cg-sec-action" id="cg-edit-link" data-a11y-id="coach.group.edit-members" onclick="cgEdit(this)">Edit</span>
     </div>
 
-    <div class="cg-member" onclick="window.location.href='./clients.html#s-client-detail'">
-      <button class="cg-remove" onclick="event.stopPropagation();cgRemove(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+    <div class="cg-member" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
       <span class="imp-av">AK</span>
       <span class="cg-member-body"><span class="cg-member-name">Anna Kowalski</span><span class="cg-member-sub">12 sessions &middot; &euro;580</span></span>
       <span class="cg-member-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
     </div>
-    <div class="cg-member" onclick="window.location.href='./clients.html#s-client-detail'">
-      <button class="cg-remove" onclick="event.stopPropagation();cgRemove(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+    <div class="cg-member" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
       <span class="imp-av">MS</span>
       <span class="cg-member-body"><span class="cg-member-name">Mark Schmidt</span><span class="cg-member-sub">8 sessions &middot; &euro;400</span></span>
       <span class="cg-member-right"><span class="fit-badge fit-badge-danger">&euro;50 owed</span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
     </div>
-    <div class="cg-member" onclick="window.location.href='./clients.html#s-client-detail'">
-      <button class="cg-remove" onclick="event.stopPropagation();cgRemove(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+    <div class="cg-member" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
       <span class="imp-av">LR</span>
       <span class="cg-member-body"><span style="display:flex;align-items:center;gap:6px;"><span class="cg-member-name">Lena Roth</span><span class="imp-tag crm">CRM</span></span><span class="cg-member-sub">Not in the app &middot; can&rsquo;t be messaged</span></span>
       <span class="cg-member-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
     </div>
-    <div class="cg-member" style="opacity:0.55;" onclick="window.location.href='./clients.html#s-client-detail'">
-      <button class="cg-remove" onclick="event.stopPropagation();cgRemove(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+    <div class="cg-member" style="opacity:0.55;" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
       <span class="imp-av">PW</span>
       <span class="cg-member-body"><span style="display:flex;align-items:center;gap:6px;"><span class="cg-member-name">Paul Weber</span><span class="imp-tag client">Archived</span></span><span class="cg-member-sub">Skipped in group actions</span></span>
       <span class="cg-member-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
@@ -580,6 +647,8 @@
     </div>
     <div style="height:20px;"></div>
   </div>
+
+  <div class="fit-snackbar" id="cg-remove-snack"><span class="snack-dot" style="background:var(--fit-red-400);"></span><span id="cg-remove-text">Anna removed from Morning</span><span class="snack-action" onclick="cgUndo()">Undo</span></div>
 
   <div class="fit-context-menu-backdrop" id="menu-group-backdrop" onclick="cgMenuClose('menu-group')"></div>
   <div class="fit-context-menu" id="menu-group" style="top:56px;right:12px;">
@@ -599,6 +668,58 @@
     <div class="fit-context-menu-item destructive" onclick="cgMenuClose('menu-group');document.getElementById('delete-group-sheet').classList.add('visible')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
       Delete group
+    </div>
+  </div>
+
+  <!-- ===== Post-drop confirm drawer (group flavour of invite.html#group-publish-sheet).
+       Reached after: Add to a session → pick a group session → drop it on the grid. ===== -->
+  <div class="fit-sheet-overlay" id="group-publish-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Publish session</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:20px;">Yoga Morning Flow &middot; Sat, Apr 19 &middot; 10:00 &middot; GYM Bro</div>
+
+      <div class="fit-input-group" style="padding:0;"><span class="fit-input-label">How often</span></div>
+      <!-- Three-way structural choice → radio rows, not chips: three chips don't
+           survive 390px, and canon already uses radios for scope questions. -->
+      <div style="display:flex;flex-direction:column;gap:2px;margin:8px 0 12px;" id="gp-repeat">
+        <label class="cg-radio" onclick="cgRepeat('once',this)">
+          <input type="radio" name="gp-mode" checked style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;">
+          <span>Just this date</span>
+        </label>
+        <label class="cg-radio" onclick="cgRepeat('weekly',this)">
+          <input type="radio" name="gp-mode" style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;">
+          <span>Repeat weekly</span>
+        </label>
+        <label class="cg-radio" onclick="cgRepeat('existing',this)">
+          <input type="radio" name="gp-mode" style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;">
+          <span>Add to a series this group already runs</span>
+        </label>
+      </div>
+
+      <!-- Fixed-height detail area — the sheet must not grow (frequency-picker canon) -->
+      <div style="min-height:96px;margin-bottom:16px;padding-left:32px;">
+        <div data-gp="once" style="font-size:13px;line-height:1.5;color:var(--fit-text-tertiary);">
+          A single event on Sat, Apr 19. Nothing repeats &mdash; add more dates any time.
+        </div>
+        <div data-gp="weekly" style="display:none;">
+          <div class="fit-selection-group" data-fit-selection="multi" style="margin:0 0 10px;padding:0;">
+            <div class="fit-selection-chip">Mon</div><div class="fit-selection-chip">Wed</div><div class="fit-selection-chip selected">Sat</div>
+          </div>
+          <div style="font-size:13px;color:var(--fit-text-tertiary);">Ends: <strong style="color:var(--fit-text-primary);font-weight:500;">Ongoing</strong> &middot; generated 60 days ahead.</div>
+        </div>
+        <div data-gp="existing" style="display:none;">
+          <div style="font-size:15px;color:var(--fit-text-primary);">HIIT &middot; Tue &amp; Thu 18:00</div>
+          <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:4px;line-height:1.45;">Saturday joins this series at 10:00. Only series this group already feeds are offered.</div>
+        </div>
+      </div>
+
+      <div class="cg-note cg-note--warn" style="margin:0 0 20px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg>
+        <span><strong>All 8 of Morning</strong> go on the roster, auto-accepted &mdash; 3 of them are CRM contacts. Fees become owed and settle after the session. 15 spots, so everyone fits.</span>
+      </div>
+
+      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="document.getElementById('group-publish-sheet').classList.remove('visible');">Publish</button>
     </div>
   </div>
 
@@ -876,81 +997,6 @@
 </div>
 
 
-<!-- ===================================================================
-     COACH: EVENT PICKER WITH GROUPS (extends calendar.html#s-invite)
-     =================================================================== -->
-<div class="fit-phone fit-dark" id="s-event-picker">
-  <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header">
-      <button class="fit-header-back" onclick="go('s-group-detail',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Add athletes</span>
-    </div>
-  </div>
-  <div class="fit-phone-content">
-    <div style="padding:8px 16px 12px;font-size:13px;color:var(--fit-text-tertiary);">HIIT Group Session &middot; Tue, Apr 15 &middot; 18:00 &middot; <strong style="color:var(--fit-text-secondary);font-weight:500;">3/10 spots</strong></div>
-
-    <div class="imp-search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <input type="text" placeholder="Search clients and groups">
-    </div>
-
-    <!-- Over-capacity warning: don't block, let the coach choose -->
-    <div class="cg-note cg-note--warn" id="cap-warn" style="display:none;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
-      <span><strong>2 over capacity.</strong> 7 free spots, 9 selected. Deselect someone or add them anyway and raise the limit on the event.</span>
-    </div>
-
-    <div class="cg-sec" style="margin-top:4px;"><span class="cg-sec-title">Groups</span></div>
-
-    <div class="cg-pick-group" id="pick-morning">
-      <div class="cg-pick-head">
-        <span class="imp-check" onclick="event.stopPropagation();cgPickList(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-        <div class="cg-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg></div>
-        <div style="flex:1;min-width:0;" onclick="cgPickExpand('pick-morning')">
-          <div class="cg-card-name">Morning</div>
-          <div class="cg-card-sub">8 people &middot; 1 already in this session</div>
-        </div>
-        <svg class="cg-pick-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" onclick="cgPickExpand('pick-morning')"><path d="M9 18l6-6-6-6"/></svg>
-      </div>
-      <div class="cg-pick-members">
-        <div class="imp-row" onclick="cgToggle(this)"><span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="imp-av">AK</span><span class="imp-body"><span class="imp-name-row"><span class="imp-name">Anna Kowalski</span></span></span></div>
-        <div class="imp-row" onclick="cgToggle(this)"><span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="imp-av">MS</span><span class="imp-body"><span class="imp-name-row"><span class="imp-name">Mark Schmidt</span></span></span></div>
-        <div class="imp-row" onclick="cgToggle(this)"><span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="imp-av">LR</span><span class="imp-body"><span class="imp-name-row"><span class="imp-name">Lena Roth</span><span class="imp-tag crm">CRM</span></span></span></div>
-        <div class="imp-row" aria-disabled="true"><span class="imp-check"></span><span class="imp-av">JD</span><span class="imp-body"><span class="imp-name-row"><span class="imp-name">Julia Dent</span><span class="imp-tag client">In session</span></span></span></div>
-      </div>
-    </div>
-
-    <div class="cg-pick-group" id="pick-beginners">
-      <div class="cg-pick-head">
-        <span class="imp-check" onclick="event.stopPropagation();cgPickList(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-        <div class="cg-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg></div>
-        <div style="flex:1;min-width:0;" onclick="cgPickExpand('pick-beginners')">
-          <div class="cg-card-name">Beginners</div>
-          <div class="cg-card-sub">12 people</div>
-        </div>
-        <svg class="cg-pick-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" onclick="cgPickExpand('pick-beginners')"><path d="M9 18l6-6-6-6"/></svg>
-      </div>
-      <div class="cg-pick-members">
-        <div class="imp-row" onclick="cgToggle(this)"><span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="imp-av">PW</span><span class="imp-body"><span class="imp-name-row"><span class="imp-name">Paul Weber</span></span></span></div>
-        <div class="imp-row" onclick="cgToggle(this)"><span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="imp-av">TN</span><span class="imp-body"><span class="imp-name-row"><span class="imp-name">Tom Novak</span></span></span></div>
-      </div>
-    </div>
-
-    <div class="cg-sec"><span class="cg-sec-title">All clients</span></div>
-    <div class="imp-row" onclick="cgToggle(this)"><span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="imp-av">SK</span><span class="imp-body"><span class="imp-name-row"><span class="imp-name">Sara Kim</span></span><span class="imp-sub">9 sessions</span></span></div>
-    <div class="imp-row" onclick="cgToggle(this)"><span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="imp-av">MV</span><span class="imp-body"><span class="imp-name-row"><span class="imp-name">Marta Vega</span><span class="imp-tag crm">CRM</span></span><span class="imp-sub">4 sessions</span></span></div>
-
-    <div class="cg-member" style="cursor:pointer;" onclick="window.location.href='./calendar.html'">
-      <span class="imp-av" style="background:transparent;border:1px dashed var(--fit-gray-600);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
-      <span class="cg-member-body"><span class="cg-member-name" style="color:var(--fit-brand-primary);">Invite someone not in the app</span><span class="cg-member-sub">Share a join link</span></span>
-    </div>
-    <div style="height:20px;"></div>
-  </div>
-  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" onclick="go('s-group-detail',null)"><span>Add <span id="pick-count">3</span> to the session</span></button></div>
-</div>
-
-
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
 
@@ -980,19 +1026,41 @@
 
   <div class="ann" id="ann-s-group-detail"><span class="ann-role coach">Coach</span><h3>Group detail</h3>
     <div class="state-toggle">
+      <button class="active" onclick="cgSched('attached',this)">On sessions</button>
+      <button onclick="cgSched('none',this)">Not scheduled</button>
+    </div>
+    <div class="state-toggle" style="margin-left:8px;">
       <button class="active" onclick="cgEditState(false,this)">View</button>
       <button onclick="cgEditState(true,this)">Edit members</button>
     </div>
-    <p>Summary, then the four things a group is <em>for</em>, then who&rsquo;s in it. Three of the four actions hand off to flows that already exist &mdash; this screen mostly wires them to a set of people instead of one person.</p>
+    <p>Two actions, then <strong>where this group trains</strong>, then who&rsquo;s in it.</p>
     <ul>
-      <li><strong>Add to a session</strong> &rarr; the event picker, with the group pre-expanded.</li>
-      <li><strong>Message the group</strong> &rarr; the group chat. Created <strong>lazily on first tap</strong>, not at group creation &mdash; otherwise Messages fills with empty threads from groups made only to schedule.</li>
-      <li><strong>Invite N to the app</strong> &rarr; the existing invite flow; accepted invitees fall into the chat by themselves.</li>
-      <li><strong>Attach to a recurring series</strong> &mdash; the payoff. Every date the engine generates 60 days out arrives with these people already on the roster, as coach-added: auto-accepted, fee owed, settled after the session.</li>
-      <li><strong>Members</strong> &mdash; tap a row for the client card. Adding lives in the ⋯ menu and in the full-width <em>Add clients</em> row under the list; <em>Edit</em> (alone in the section header, 44px hit area) reveals remove buttons. Two text links side by side in a header is a mis-tap generator, so only one survived.</li>
+      <li><strong>Add to a session</strong> hands off to the existing scheduling flow &mdash;
+        <code>invite.html?mode=schedule</code> &rarr; session chooser (filtered to <strong>group</strong> templates)
+        &rarr; drag onto the time grid &rarr; the post-drop drawer. Adding a group to a session is the same act as
+        scheduling any session; the group only pre-fills the roster. <em>Sidebar &ldquo;Schedule drawer&rdquo; opens the last step.</em></li>
+      <li><strong>Sessions section</strong> answers &ldquo;is this group booked anywhere?&rdquo; for both kinds:
+        the recurring series it feeds (with days and time, tagged <em>everyone joins every date automatically</em>)
+        and one-off dates it was put on. Empty state offers both routes &mdash; schedule something new, or attach
+        the group to a series already running.</li>
+      <li><strong>Invite to the app left this screen.</strong> It&rsquo;s a per-client action; the chat plate already
+        raises it exactly where the gap bites, and the header count keeps it visible.</li>
+      <li><strong>Edit members: the whole row removes.</strong> A 28px minus next to a 60px row is a coin-flip on a
+        phone, so the minus stays as the affordance and the row does the work. Rows tint red while armed, the
+        Add row hides (adding is not removing), and every removal lands a <strong>snackbar with Undo</strong> &mdash;
+        which is what makes a big destructive target safe.</li>
       <li>Blocked and deleted clients drop out on their own; archived stay visible but greyed and skipped by group actions.</li>
     </ul>
-    <p class="note">Groups are coach-private. Athletes never see them &mdash; the only visible consequence is the chat they get added to.</p>
+    <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>The post-drop drawer</span>
+    <div class="ann-detail">
+      <h4>Same drawer, one more option</h4>
+      <p>The shipped drawer (<code>invite.html#group-publish-sheet</code>) asks <em>Just this date</em> / <em>Weekly</em> (+ day chips + Ends). Coming from a group it gains <strong>Add to a series</strong> &mdash; the series this group already feeds &mdash; so a coach adding Saturday to an existing Tue&amp;Thu group doesn&rsquo;t end up with two unrelated placements.</p>
+      <h4>Open question</h4>
+      <p>Canon says <em>different time per weekday = separate placement</em> (Google&rsquo;s model). So &ldquo;add Saturday 10:00 to a Tue&amp;Thu 18:00 series&rdquo; either bends that rule or creates a second placement under the same group. The drawer currently offers it; if we keep the Google model strictly, this option should only appear when the dropped time matches the series time.</p>
+      <h4>Roster consequence</h4>
+      <p>Everyone in the group lands auto-accepted with the fee owed (existing coach-added model), CRM contacts included. Capacity is stated, not enforced &mdash; over-capacity warns like a conflicting occurrence does.</p>
+    </div>
+    <p class="note">Adding a group to an <strong>already scheduled</strong> event is a different entry: the event&rsquo;s own Invite picker (<code>calendar.html#s-invite</code>) gains a Groups section. Not drawn here &mdash; it&rsquo;s one section in that file.</p>
   </div>
 
   <div class="ann" id="ann-s-group-smart"><span class="ann-role coach">Coach</span><h3>Smart group detail</h3>
@@ -1034,19 +1102,7 @@
     </ul>
   </div>
 
-  <div class="ann" id="ann-s-event-picker"><span class="ann-role coach">Coach</span><h3>Event picker with groups</h3>
-    <div class="state-toggle">
-      <button class="active" onclick="cgCap(false,this)">Fits</button>
-      <button onclick="cgCap(true,this)">Over capacity</button>
-    </div>
-    <p>Extends the shipped picker (<code>calendar.html#s-invite</code>) with a <strong>Groups</strong> section above the flat client list. Same rules as before: everyone added is auto-accepted and owes the fee, settled after the session.</p>
-    <ul>
-      <li><strong>Group row = one checkbox for everyone</strong>, chevron expands to per-person control. Bulk without losing the ability to drop one person.</li>
-      <li>Members already on the roster show <em>In session</em> and are disabled &mdash; adding a group twice is harmless.</li>
-      <li><strong>Over capacity doesn&rsquo;t block.</strong> Amber note with the exact overflow; the coach deselects or raises the event limit. Same stance as skipped occurrences when publishing a series.</li>
-      <li>The by-link row stays at the bottom for people who aren&rsquo;t clients at all.</li>
-    </ul>
-  </div>
+</div>
 
 </div>
 
@@ -1130,26 +1186,9 @@ function cgRecount() {
     if (c) c.textContent = n + ' selected';
     if (cta) cta.textContent = n;
   });
-  const picked = document.querySelectorAll('#s-event-picker .imp-row.selected').length;
-  const pc = document.getElementById('pick-count');
-  if (pc) pc.textContent = picked;
 }
 
 // === PICKER: group select-all + expand ===
-function cgPickList(check) {
-  const group = check.closest('.cg-pick-group');
-  const on = !check.classList.contains('on');
-  check.classList.toggle('on', on);
-  check.parentElement.classList.toggle('selected', on);
-  group.querySelectorAll('.cg-pick-members .imp-row:not([aria-disabled="true"])').forEach(r => r.classList.toggle('selected', on));
-  group.classList.add('open');
-  cgRecount();
-}
-function cgPickExpand(id) { document.getElementById(id).classList.toggle('open'); }
-function cgCap(over, btn) {
-  if (btn) { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
-  document.getElementById('cap-warn').style.display = over ? 'flex' : 'none';
-}
 
 // === GROUP DETAIL: edit members ===
 function cgEdit(link) {
@@ -1164,10 +1203,54 @@ function cgEditState(on, btn) {
   const link = document.getElementById('cg-edit-link');
   if (link) link.textContent = on ? 'Done' : 'Edit';
 }
-function cgRemove(btn) {
-  const row = btn.closest('.cg-member');
+// In edit mode the whole row removes; otherwise it opens the client card.
+let cgLastRemoved = null;
+function cgMemberTap(row) {
+  const editing = document.getElementById('s-group-detail').classList.contains('cg-editing');
+  if (!editing) { window.location.href = './clients.html#s-client-detail'; return; }
+  cgRemoveRow(row);
+}
+function cgRemoveRow(row) {
+  const name = (row.querySelector('.cg-member-name') || {}).textContent || 'Client';
+  cgLastRemoved = row;
   row.style.transition = 'opacity 0.2s'; row.style.opacity = '0';
-  setTimeout(function () { row.style.display = 'none'; }, 200);
+  setTimeout(function () { row.style.display = 'none'; cgBumpCount(-1); }, 200);
+  const snack = document.getElementById('cg-remove-snack');
+  document.getElementById('cg-remove-text').textContent = name + ' removed from Morning';
+  snack.classList.add('show');
+  clearTimeout(window._cgSnackT);
+  window._cgSnackT = setTimeout(function () { snack.classList.remove('show'); cgLastRemoved = null; }, 4000);
+}
+function cgUndo() {
+  if (cgLastRemoved) {
+    cgLastRemoved.style.display = 'flex';
+    requestAnimationFrame(function () { cgLastRemoved.style.opacity = ''; cgBumpCount(1); cgLastRemoved = null; });
+  }
+  document.getElementById('cg-remove-snack').classList.remove('show');
+}
+function cgBumpCount(delta) {
+  const el = document.getElementById('cg-member-count');
+  if (!el) return;
+  el.textContent = Math.max(0, parseInt(el.textContent || '0', 10) + delta);
+}
+// Post-drop drawer (demo entry — in the real flow it opens after the grid drop)
+function cgPublish() {
+  go('s-group-detail', null);
+  setTimeout(function () { document.getElementById('group-publish-sheet').classList.add('visible'); }, 60);
+}
+function cgRepeat(mode, row) {
+  if (row) { const r = row.querySelector('input'); if (r) r.checked = true; }
+  document.querySelectorAll('[data-gp]').forEach(function (d) {
+    d.style.display = d.dataset.gp === mode ? 'block' : 'none';
+  });
+}
+
+// Annotation toggle: is this group on any session?
+function cgSched(state, btn) {
+  if (btn) { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+  const ph = document.getElementById('s-group-detail');
+  ph.classList.remove('sched-attached', 'sched-none');
+  ph.classList.add('sched-' + state);
 }
 
 // === SMART GROUP: mark paid ===

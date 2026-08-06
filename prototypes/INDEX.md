@@ -22,7 +22,7 @@ Path root: `project-spec/prototypes/flows/`
 | `dashboard.html` | Coach home / dashboard | any coach root tab |
 | `calendar.html` | Coach calendar (state-aware event drawer, 96px grid) | any calendar/schedule surface |
 | `clients.html` | Clients CRM (state matrix, Mark Paid, notes) | list-with-detail + context menus |
-| `client-groups.html` | **Client groups** — `Clients \| Groups` pane, group detail (+ series attach), smart groups, create / add-members (multi-select), group chat, event picker with groups | bulk-select + set-of-people surfaces |
+| `client-groups.html` | **Client groups** — `Clients \| Groups` pane, group detail (sessions the group is on + edit-members w/ undo), smart groups, create / add-members (multi-select), group chat, group-flavoured publish drawer | bulk-select + set-of-people surfaces |
 | `sessions.html` | Training Sessions (templates) | create/edit template flows |
 | `session-detail.html` | **Template detail (view)** — group/personal/self-paced + series detail + cleaned edit (type read-only) | object-detail-then-edit screens |
 | `availability.html` | Availability hub (TZ, Time off, conflict drawer) | settings-hub-style screens |
