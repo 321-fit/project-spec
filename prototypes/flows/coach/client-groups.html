@@ -353,6 +353,7 @@
   <button onclick="go('s-group-smart',this)">Smart group detail</button>
   <button onclick="go('s-group-create',this)">Create group</button>
   <button onclick="go('s-group-add',this)">Add clients</button>
+  <button onclick="go('s-group-rename',this)">Rename group</button>
   <div class="label">Downstream</div>
   <button onclick="go('s-group-chat',this)">Group chat</button>
   <button onclick="go('s-group-schedule',this)">Group schedule</button>
@@ -543,7 +544,7 @@
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
       <button class="fit-header-back" onclick="go('s-groups',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Morning</span>
+      <span class="fit-header-title cg-group-name">Morning</span>
       <div style="position:absolute;right:12px;display:flex;align-items:center;gap:6px;">
         <button class="fit-icon-btn" data-a11y-id="coach.group.message" onclick="go('s-group-chat',null)" style="position:relative;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 01-11.6 7.2L3 21l1.8-6.4A8 8 0 1121 12z"/></svg>
@@ -702,7 +703,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h9"/><circle cx="19" cy="18" r="2.5"/></svg>
       Edit members
     </div>
-    <div class="fit-context-menu-item" onclick="cgMenuClose('menu-group')">
+    <div class="fit-context-menu-item" data-a11y-id="coach.group.menu.rename" onclick="cgMenuClose('menu-group');go('s-group-rename',null);cgRenameFocus()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
       Rename group
     </div>
@@ -803,7 +804,7 @@
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
       <button class="fit-header-back" onclick="go('s-group-detail',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Morning &middot; schedule</span>
+      <span class="fit-header-title"><span class="cg-group-name">Morning</span> &middot; schedule</span>
     </div>
   </div>
 
@@ -1015,6 +1016,33 @@
 
 
 <!-- ===================================================================
+     COACH: RENAME GROUP — clone of shared/messages.html#s-group-rename
+     =================================================================== -->
+<div class="fit-phone fit-dark" id="s-group-rename">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header" style="justify-content:space-between;">
+      <button style="background:none;border:none;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);cursor:pointer;padding:8px 4px;" data-a11y-id="coach.group.rename.cancel" onclick="go('s-group-detail',null)">Cancel</button>
+      <span class="fit-header-title" style="position:static;transform:none;">Group name</span>
+      <button style="background:none;border:none;font-family:var(--fit-font);font-size:16px;font-weight:500;color:var(--fit-brand-primary);cursor:pointer;padding:8px 4px;" data-a11y-id="coach.group.rename.save" onclick="cgRenameSave()">Save</button>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+    <div class="fit-section-title" style="margin-top:14px;">Group name</div>
+    <div style="padding:0 16px;">
+      <input id="cg-rename-input" data-a11y-id="coach.group.rename.input" value="Morning" maxlength="40"
+             oninput="document.getElementById('cg-rename-count').textContent=this.value.length+'/40'"
+             style="width:100%;height:50px;border-radius:12px;border:1px solid var(--fit-divider);background:var(--fit-surface-high);padding:0 14px;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);outline:none;">
+      <div style="display:flex;justify-content:space-between;gap:12px;margin-top:8px;font-size:12px;color:var(--fit-text-tertiary);">
+        <span>Only you see group names &mdash; but the chat thread takes this name too.</span>
+        <span id="cg-rename-count">7/40</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===================================================================
      COACH: ADD CLIENTS TO AN EXISTING GROUP — same picker, no name field
      =================================================================== -->
 <div class="fit-phone fit-dark" id="s-group-add">
@@ -1022,7 +1050,7 @@
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
       <button class="fit-header-back" onclick="go('s-group-detail',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Add to Morning</span>
+      <span class="fit-header-title">Add to <span class="cg-group-name">Morning</span></span>
     </div>
   </div>
   <div class="fit-phone-content">
@@ -1087,7 +1115,7 @@
     <div class="fit-header" style="justify-content:space-between;">
       <button class="fit-header-back" onclick="go('s-group-detail',null)" style="position:static;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
       <div style="text-align:center;flex:1;">
-        <div class="fit-header-title" style="position:static;transform:none;">Morning</div>
+        <div class="fit-header-title cg-group-name" style="position:static;transform:none;">Morning</div>
         <div style="font-size:12px;color:var(--fit-text-tertiary);">5 members &middot; follows the group</div>
       </div>
       <button class="fit-icon-btn" onclick="window.location.href='../shared/messages.html#s-group-settings'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
@@ -1248,6 +1276,25 @@
     </ul>
   </div>
 
+  <div class="ann" id="ann-s-group-rename"><span class="ann-role coach">Coach</span><h3>Rename group</h3>
+    <p>A <strong>pushed screen</strong>, not an inline field in the header and not a sheet &mdash; and it&rsquo;s a straight
+    clone of <code>shared/messages.html#s-group-rename</code>, which already solves this exact problem for DM groups.</p>
+    <ul>
+      <li><strong>Why not inline in the header.</strong> The header has a back button, two icon buttons and a title
+      in ~360px; turning the title into a field leaves no room for Cancel/Save and no clear way to back out. It also
+      diverges between iOS and Android, where inline title editing isn&rsquo;t a native habit.</li>
+      <li><strong>Why not a sheet.</strong> The keyboard covers the bottom of a sheet &mdash; the same reason the
+      package tier editor is a screen (see <code>sessions.html</code>). Cancel/Save in the header stays reachable
+      above the keyboard.</li>
+      <li><strong>Opens focused, with the current name selected</strong> &mdash; one tap and you&rsquo;re typing the new
+      name, no cursor fiddling. Cancel discards, Save commits.</li>
+      <li><strong>40-char limit with a live counter</strong>, same as the DM group rename, so long names can&rsquo;t break
+      the header or the list card.</li>
+      <li>Hint states the consequence: groups are private, but the chat thread carries the name too &mdash; so renaming
+      is visible to members through the chat.</li>
+    </ul>
+  </div>
+
   <div class="ann" id="ann-s-group-chat"><span class="ann-role coach">Coach</span><h3>Group chat</h3>
     <p>The group thread from <code>shared/messages.html</code>, unchanged &mdash; only the two states that groups introduce are drawn here.</p>
     <ul>
@@ -1390,6 +1437,17 @@ function cgBumpCount(delta) {
   el.textContent = Math.max(0, parseInt(el.textContent || '0', 10) + delta);
 }
 // Post-drop drawer (demo entry — in the real flow it opens after the grid drop)
+// Rename opens with the field focused and the current name selected — one tap to retype
+function cgRenameFocus() {
+  const i = document.getElementById('cg-rename-input');
+  setTimeout(function () { i.focus(); i.select(); }, 60);
+}
+function cgRenameSave() {
+  const name = (document.getElementById('cg-rename-input').value || '').trim() || 'Morning';
+  document.querySelectorAll('.cg-group-name').forEach(function (el) { el.textContent = name; });
+  go('s-group-detail', null);
+}
+
 function cgPublish() {
   go('s-group-detail', null);
   setTimeout(function () { document.getElementById('group-publish-sheet').classList.add('visible'); }, 60);
