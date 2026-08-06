@@ -10,6 +10,22 @@
 > - Voice:   [voice_control/docs/clients-coaches-voice.md] (to be created)
 > - Android: (future)
 
+> **⚠️ Proposed addition — prototyped, not yet approved (2026-08-06).**
+> [flows/coach/client-groups.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/client-groups.html)
+> adds **client groups**: a named set of clients (app accounts and CRM contacts side by side, keyed by
+> `relationship_id` exactly like event participants). Nothing in this spec changes until it's signed off.
+> What it proposes:
+> - Clients tab gains a `Clients | Groups` segment. A group has a name, members, a chat and a schedule.
+> - **Smart groups** (owes money · new this month · package running low · not in the app · inactive 30d) live in
+>   the same pane with computed membership — all five derive from signals already on screen today.
+> - **Schedule a session for the whole group** = the existing schedule flow (`invite.html?mode=schedule`,
+>   filtered to group templates); the group only pre-fills the roster (coach-added → auto-accepted, fee owed).
+> - A group can **feed a recurring series** — every date the engine generates 60 days out arrives with the roster.
+> - **Group chat mirrors membership** both ways, created lazily on first Message; CRM members can't join a DM
+>   thread and are surfaced with an invite plate instead of being dropped silently.
+> - Blocked/deleted members drop out automatically; archived stay visible but are skipped by group actions.
+> - Backend: new `client_group` + membership table; smart groups are server-side queries, not stored membership.
+
 ---
 
 ## 1. Overview
