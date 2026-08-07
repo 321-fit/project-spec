@@ -199,7 +199,36 @@ Other backend behaviour worth knowing:
 
 ---
 
-### 2.7 Time off
+### 2.7 Coach-added participants: enrolled or invited (project-spec#34)
+
+| Coach adds | Result |
+|---|---|
+| CRM contact | enrolled, owes the fee — there is no app for them to accept in |
+| athlete with an account | **invited**: spot held, owes nothing, waits for their answer |
+
+`inviteStatus` on both participant DTOs (`pending` / `accepted` / `declined`) — a roster
+where everyone looks the same cannot show who has not answered.
+
+```
+GET  /athlete/group-events/invites            what is waiting on me
+POST /athlete/group-events/{id}/invite/accept  → accepted, fee becomes owed
+POST /athlete/group-events/{id}/invite/decline → declined, spot freed, coach notified
+                                                 409 INVITE_ANSWERED on a second answer
+```
+
+Decided behaviour, worth carrying to iOS verbatim:
+
+- **A pending invite holds the spot** — it stays on the active roster, so `spotsTaken`
+  counts it and there is no second concept.
+- **Owing starts on acceptance.** Pending is `waiting`; accepting moves it to `cash_unpaid`.
+- **Declining notifies the coach** (`athlete_declined_group_invite`) — they picked that
+  athlete by hand.
+- **No expiry yet** — a pending invite holds its spot until the day.
+
+On Android the invitation is answered in the Inbox **Waiting** tab, above the outgoing
+requests: those wait on somebody else, an invitation waits on you.
+
+### 2.8 Time off
 
 A day inside a time-off has **no working hours** — `allowed-hours` returns `[]`, so the
 coach's own calendar shades the whole day and nothing can be booked into it. That holds
@@ -210,7 +239,7 @@ Creating a time-off with "cancel and notify" cancels, **per occurrence**, only t
 inside the window — 1-on-1 bookings *and* group sessions, with refunds and a push each.
 The recurrence rule is never touched: cancelling a fortnight must not end a weekly series.
 
-### 2.8 Day off vs external calendars
+### 2.9 Day off vs external calendars
 
 The day-off screen must ignore entries synced from Google/Apple. They are the coach's own
 commitments, not bookings, and letting one count replaced "Day off · Edit availability"
@@ -220,11 +249,6 @@ with a timeline of things nobody can book.
 
 These are open on the backend/product side. iOS should not try to build around them.
 
-0. **Coach-added group participants are auto-accepted for everyone.** The rule should be:
-   CRM contact → enrolled; app athlete → invited, and it waits for them to accept. The
-   notification exists; the waiting does not, and the athlete has nowhere to answer.
-   Designed and blocked on four questions in project-spec#34 — **do not build the coach
-   half without the athlete half**, an invite nobody can accept is worse than today.
 1. **Cash 1-on-1 sessions send no "session ended" push** — poly-backend#886.
    Card sessions get `TRAINING_SESSION_SUCCESSFUL_*`, but those fire from the money
    transfer, not from the session ending, so cash never triggers anything. The push
