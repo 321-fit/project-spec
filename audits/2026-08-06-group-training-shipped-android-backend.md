@@ -196,6 +196,11 @@ Other backend behaviour worth knowing:
 - **CRM participants** resolve to a real identity on a group roster; the participant
   `id` is the athlete profile id, or the participant row id for a CRM contact, with
   `isCrm` saying which.
+- **A template edit must not rewrite its placement.** `PUT /training-sessions/{id}` only
+  copies the template's schedule columns onto the primary placement when the request
+  actually changed the schedule. Before that, a rename after a series reschedule dragged
+  the placement back to the old time and the generator materialised the old times a second
+  time — two chains of events on one schedule, two sessions on the same day.
 
 ---
 
@@ -256,6 +261,56 @@ actually changed the schedule. Otherwise a rename after a series reschedule drag
 placement back to the old time and the generator materialised a second chain of events —
 two sessions on the same day, one schedule.
 
+### 2.7a The athlete side of a group session (built 2026-08-07)
+
+**Booking is a calendar, not a list.** Tapping a group template opens the same week-strip +
+month grid as personal booking, dotted on the dates the coach actually placed the session;
+picking a date shows that date's sessions, and the pages swipe like the calendar. There is
+nothing to drag: a group session is where the coach put it. A full date still appears, as
+`Full · 16/16`, not clickable. `GET /athlete/group-events?sessionId=` carries
+`sessionPlacementId`, `isRecurring` and `recurrenceLabel` for the marking.
+
+**Every scope question is the same question.** Joining, leaving and (coach-side) removing a
+date of a repeating schedule ask *Just this date* / *Every Saturday and Sunday* — two
+full-width selectable cards stacked in the sheet, narrower option preselected, each carrying
+its own consequence line. Weekday labels come from the backend singular; the client says
+"Every {label}".
+
+| Act | Endpoint | Reach |
+|---|---|---|
+| join | `POST /athlete/group-events/{id}/join?allFuture=` | one session per date; full / clashing / already-joined dates are skipped, not fatal |
+| leave | `DELETE /athlete/group-events/{id}/leave?allFuture=` | this date on; earlier dates untouched; held money for later dates refunded whole |
+| coach removes | `DELETE /coach/training-events/{id}/participants/{athleteId}?allFuture=` | same reach, same refund rule |
+
+**Ask only when there is something to ask.** `mySeriesDatesAhead` (athlete calendar events +
+group detail) and `seriesDatesAhead` (coach participant rows) count the LATER dates of the
+same placement the person is actually on. Zero → no scope question at all. Unanswered
+invitations do not count: a held spot is not a date they joined.
+
+**Joining is not a request.** Group events never appear in the coach's pending requests —
+they used to arrive as `invitation` approvals and rendered as Decline/Accept cards for the
+coach's own session. The coach gets `athlete_joined_group_event` (one push per join, not one
+per date) and can remove the athlete afterwards, through a confirm sheet.
+
+**A successful join hands over to the calendar** on the booked date and time, exactly as a
+personal booking does.
+
+**The athlete cannot open another athlete's profile** — participant rows carry no chevron and
+no tap.
+
+### 2.7b Money on a repeating card session
+
+A "yes" to a series does not empty the balance. Later dates are created `waiting`; the daily
+`charge_group_reservations` task draws each one about a week ahead into `held`. A balance
+that no longer covers the next date produces one `group_reservation_unfunded` push per
+session, deep-linking to Top up, while there is still a week to act. Cash is unchanged: owed
+in person, per date.
+
+Accepting a coach's invitation follows the same rule — it used to mark every date
+`cash_unpaid` regardless of how the session is paid for.
+
+**Open:** nothing auto-cancels an unfunded spot. The rule for reclaiming it is undecided.
+
 ### 2.8 Time off
 
 A day inside a time-off has **no working hours** — `allowed-hours` returns `[]`, so the
@@ -310,6 +365,7 @@ These are open on the backend/product side. iOS should not try to build around t
 | #876 | athlete catalogue driven by placed events |
 | #877 | `availabilitySkipped` |
 | #887 (open) | `session_placement` — a template can be scheduled more than once; `sessionPlacementId` on events; `recurringScope` on event edit; "this and following" acts on the placement, not the template |
+| #887 (open) | also: invitations reach forward and hold seats; `allFuture` on join / leave / remove; weekly reserve for card-paid series; group events out of the coach's pending requests |
 
 Prototypes: `prototypes/flows/coach/session-detail.html`,
 `prototypes/flows/coach/calendar.html` (`#s-cash`),
