@@ -225,6 +225,15 @@ Decided behaviour, worth carrying to iOS verbatim:
   athlete by hand.
 - **No expiry yet** — a pending invite holds its spot until the day.
 
+- **An invitation into a repeating schedule reaches forward.** Inviting an athlete to
+  one date invites them from that date on: the anchor row is that date, every later
+  occurrence of the same placement gets a *pending hold* so the seats cannot be taken
+  while the athlete decides, and dates before the invited one are untouched. Inviting
+  the same athlete again to that schedule is refused (`ALREADY_INVITED`) while it is
+  unanswered. "Just this date", declining, and the coach revoking all release the holds.
+- **The athlete is still asked once.** `GET /athlete/group-events/invites` returns
+  anchors only, and the athlete's calendar draws the anchor date alone until they
+  answer — the holds are the coach's reach, not sessions the athlete agreed to.
 - **Accepting a repeating schedule asks how far the yes reaches.** The invitation is
   always for one date — nothing is drawn on dates nobody agreed to. On accept, a sheet
   offers *Just this date* / *Every one of these — Tuesdays and Thursdays*
