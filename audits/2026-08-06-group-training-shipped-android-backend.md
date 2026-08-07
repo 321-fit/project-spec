@@ -144,6 +144,13 @@ action on that tile will ask. Read `isRecurring` **on the event** — the templa
 flag only says the template has *a* repeating schedule, which would mark a one-off placed
 from the same template.
 
+**A scheduling can be named.** `session_placement.label` is optional and displayed as
+`Template (label)` — parentheses, not a dash: a dash reads as part of the name, collides
+with templates that already contain one, and truncates worse. Composed on read, so
+renaming reaches dates that already exist. **A one-off is a placement too** — publishing
+"just this date" must go through `POST /{id}/placements` with `oneOffDate`, not create a
+bare event, or there is nothing to name and no link back to a schedule.
+
 **Capacity is per date.** `training_event.max_participants` / `min_participants` override
 the template's; NULL inherits. They travel with `recurringScope` like any other field, and
 the group event edit shows them.
