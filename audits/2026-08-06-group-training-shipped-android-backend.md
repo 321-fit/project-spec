@@ -130,6 +130,24 @@ own, and moving a series is Reschedule.
 `sessionPlacementId` on the event (list **and** detail) is how the client knows there is
 a series to ask about. Null → a one-off → save straight through, no sheet.
 
+**The sheet**: Cancel + Confirm, not a lone "Continue" — it commits, and backing out must
+not depend on the handle or the backdrop.
+
+**Refresh after a scoped action.** "Following" and "all" rewrite dates the coach is not
+looking at. Refetching only the visible day makes a move that worked look like it failed
+the moment they swipe — the rest of the week is cached and keeps the old times. Drop the
+whole day cache when the scope reaches past today.
+
+**A repeating date is marked.** The calendar tile carries a small ⟳; without it a series
+occurrence and a one-off are indistinguishable, and the difference decides what every
+action on that tile will ask. Read `isRecurring` **on the event** — the template's own
+flag only says the template has *a* repeating schedule, which would mark a one-off placed
+from the same template.
+
+**Capacity is per date.** `training_event.max_participants` / `min_participants` override
+the template's; NULL inherits. They travel with `recurringScope` like any other field, and
+the group event edit shows them.
+
 ### 2.4 Event completion
 
 - Cash ticks are **staged locally and committed on Complete**. They used to POST per
