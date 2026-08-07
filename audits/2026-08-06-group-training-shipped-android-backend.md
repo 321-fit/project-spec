@@ -225,8 +225,27 @@ Decided behaviour, worth carrying to iOS verbatim:
   athlete by hand.
 - **No expiry yet** — a pending invite holds its spot until the day.
 
-On Android the invitation is answered in the Inbox **Waiting** tab, above the outgoing
-requests: those wait on somebody else, an invitation waits on you.
+- **Accepting a repeating schedule asks how far the yes reaches.** The invitation is
+  always for one date — nothing is drawn on dates nobody agreed to. On accept, a sheet
+  offers *Just this date* / *Every one of these — Tuesdays and Thursdays*
+  (`?allFuture=true`). `isRecurring` + `recurrenceLabel` ride on the invite list, the
+  group detail and the calendar event so the copy is the same wherever it is asked.
+- **"Every one of these" means one session per date.** Later dates of the placement are
+  joined one per calendar day in the coach's timezone (the occurrence matching the
+  invited time wins), and a *pending* invitation on a later date of the same schedule is
+  answered by that same yes — leaving it in To reply would ask again for a date already
+  agreed to.
+
+On Android the invitation is answered in the Inbox **To reply** tab: coach-initiated
+invitations wait on you, athlete-initiated requests wait on somebody else (Waiting).
+The same Decline/Join pair appears on the calendar drawer and on the session's own
+screen, where the state reads **Invited** — no payment line, since nothing is owed yet.
+
+**Template edits must not rewrite a placement.** `PUT /training-sessions/{id}` only
+copies the template's schedule columns onto the primary placement when the request
+actually changed the schedule. Otherwise a rename after a series reschedule dragged the
+placement back to the old time and the generator materialised a second chain of events —
+two sessions on the same day, one schedule.
 
 ### 2.8 Time off
 
