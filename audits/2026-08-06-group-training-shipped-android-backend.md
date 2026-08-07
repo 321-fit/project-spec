@@ -364,8 +364,8 @@ These are open on the backend/product side. iOS should not try to build around t
 | #875, #881, #883 | `spotsTaken` / `participants` / `eventStatus` / `paymentStatus` / real `isPaid` |
 | #876 | athlete catalogue driven by placed events |
 | #877 | `availabilitySkipped` |
-| #887 (open) | `session_placement` — a template can be scheduled more than once; `sessionPlacementId` on events; `recurringScope` on event edit; "this and following" acts on the placement, not the template |
-| #887 (open) | also: invitations reach forward and hold seats; `allFuture` on join / leave / remove; weekly reserve for card-paid series; group events out of the coach's pending requests |
+| #887 (merged) | `session_placement` — a template can be scheduled more than once; `sessionPlacementId` on events; `recurringScope` on event edit; "this and following" acts on the placement, not the template |
+| `dev2` (merged direct, branch `feat/858-session-placements`) | invitations reach forward and hold seats; `allFuture` on join / leave / remove; `mySeriesDatesAhead` / `seriesDatesAhead`; weekly reserve for card-paid series (`charge_group_reservations`); group events out of the coach's pending requests; `athlete_joined_group_event` + `group_reservation_unfunded` templates |
 
 Prototypes: `prototypes/flows/coach/session-detail.html`,
 `prototypes/flows/coach/calendar.html` (`#s-cash`),
