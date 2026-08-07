@@ -199,10 +199,32 @@ Other backend behaviour worth knowing:
 
 ---
 
+### 2.7 Time off
+
+A day inside a time-off has **no working hours** — `allowed-hours` returns `[]`, so the
+coach's own calendar shades the whole day and nothing can be booked into it. That holds
+whether or not the coach chose to cancel the existing bookings: kept events still render,
+the rest of the day is closed.
+
+Creating a time-off with "cancel and notify" cancels, **per occurrence**, only the dates
+inside the window — 1-on-1 bookings *and* group sessions, with refunds and a push each.
+The recurrence rule is never touched: cancelling a fortnight must not end a weekly series.
+
+### 2.8 Day off vs external calendars
+
+The day-off screen must ignore entries synced from Google/Apple. They are the coach's own
+commitments, not bookings, and letting one count replaced "Day off · Edit availability"
+with a timeline of things nobody can book.
+
 ## 4. Known gaps — not built anywhere yet
 
 These are open on the backend/product side. iOS should not try to build around them.
 
+0. **Coach-added group participants are auto-accepted for everyone.** The rule should be:
+   CRM contact → enrolled; app athlete → invited, and it waits for them to accept. The
+   notification exists; the waiting does not, and the athlete has nowhere to answer.
+   Designed and blocked on four questions in project-spec#34 — **do not build the coach
+   half without the athlete half**, an invite nobody can accept is worse than today.
 1. **Cash 1-on-1 sessions send no "session ended" push** — poly-backend#886.
    Card sessions get `TRAINING_SESSION_SUCCESSFUL_*`, but those fire from the money
    transfer, not from the session ending, so cash never triggers anything. The push
