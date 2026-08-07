@@ -2,6 +2,7 @@
 
 > Date: 2026-08-06 · Scope: group training, template detail, event completion, review queue
 > Android: `321fit_android_new` `main` @ `eb4546a` + open PR #144 · Backend: `poly-backend` `dev2` + open PR #887
+> Last updated: 2026-08-07
 > Purpose: everything below exists on Android and on the backend and **does not exist on iOS**. This is the parity list.
 
 Read this before writing the iOS tickets. It records what was actually built,
@@ -98,19 +99,50 @@ POST /api/v1.0.0/coach/training-events/{id}/post-confirm   { confirm, feedback }
      confirm=false → missed
 ```
 
-### 2.3 Event completion
+### 2.3 Scope: every change to a recurring session asks how far it reaches
+
+A group occurrence belongs to a **placement**, so any change to one raises the same
+question: this date, this and following, or all. iOS must ask it in all four places —
+they were each answered differently on Android before this was fixed, and that
+inconsistency is the bug to avoid, not a detail.
+
+| Where | What it does |
+|---|---|
+| Drawer → Reschedule | asks (already did) |
+| Drawer → Cancel | asks (already did) |
+| Drawer → **Edit details** | asks; group occurrences are editable at all only since this |
+| **Drag** a block on the grid | asks on drop; dismissing returns the block to its original time, and nothing is sent |
+| Template edit (impact sheet) | "only future" vs "all N events" — the answer is the scope, not decoration |
+
+Endpoints:
+
+```
+PATCH /coach/training-events/{id}   { …fields…, recurringScope: "this"|"following"|"all" }
+POST  /coach/training-events/{id}/cancel      { recurringScope }
+POST  /coach/training-events/{id}/reschedule  { recurringScope }
+PUT   /coach/training-sessions/{id}           { …fields…, scope: "this"|"following"|"all" }
+```
+
+On `PATCH`, only what the session *is* travels across the series — comment, location,
+name, price, currency, payment type, note. Datetimes never do: each occurrence owns its
+own, and moving a series is Reschedule.
+
+`sessionPlacementId` on the event (list **and** detail) is how the client knows there is
+a series to ask about. Null → a one-off → save straight through, no sheet.
+
+### 2.4 Event completion
 
 - Cash ticks are **staged locally and committed on Complete**. They used to POST per
   tap, which made a mis-tap an irreversible settlement.
 - Header is the gradient card from `calendar.html#s-cash`.
 
-### 2.4 Template type is fixed after creation
+### 2.5 Template type is fixed after creation
 
 The edit form let a coach flip Personal ⇄ Group on a template that already had
 events; nothing downstream honoured it, so the form was lying. The control is gone —
 type is chosen at creation only.
 
-### 2.5 Past group events are read-only
+### 2.6 Past group events are read-only
 
 Edit — from the menu and from the calendar drawer chevron — is blocked for anything
 that started before today.
@@ -168,7 +200,7 @@ These are open on the backend/product side. iOS should not try to build around t
 | #134 | unopenable events, silent publish skips, template carrying a schedule |
 | #140 | CRM participant vanished from the roster; "In session" never matched |
 | #141 | list fields, template detail, completion fixes, locked template type |
-| #144 (open) | review queue; publish switched to placements; Choose-session `+` in the top bar |
+| #144 (open) | review queue; publish switched to placements; Choose-session `+` in the top bar; scope on edit/drag/template-edit; own events stop reading as "outside your hours"; template detail shows every schedule |
 
 **Backend** — `poly-backend`
 
@@ -178,7 +210,7 @@ These are open on the backend/product side. iOS should not try to build around t
 | #875, #881, #883 | `spotsTaken` / `participants` / `eventStatus` / `paymentStatus` / real `isPaid` |
 | #876 | athlete catalogue driven by placed events |
 | #877 | `availabilitySkipped` |
-| #887 (open) | `session_placement` — a template can be scheduled more than once |
+| #887 (open) | `session_placement` — a template can be scheduled more than once; `sessionPlacementId` on events; `recurringScope` on event edit; "this and following" acts on the placement, not the template |
 
 Prototypes: `prototypes/flows/coach/session-detail.html`,
 `prototypes/flows/coach/calendar.html` (`#s-cash`),
