@@ -2,11 +2,34 @@
 
 > Status: Approved
 > Prototypes (Phase 4 redesign): coach create/manage [coach/sessions.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/sessions.html) + [coach/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html) · schedule/publish [coach/invite.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/invite.html) · athlete discover/join [shared/profile.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/profile.html) · athlete schedule [athlete/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/athlete/calendar.html). Group event detail: [group-event-detail.md](group-event-detail.md). **End-to-end journey:** [group-training](https://321-fit.github.io/project-spec/prototypes/flows/journeys/group-training.html). Coach **invite picker** (add existing / CRM / by-link): [coach/calendar.html#s-invite](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html#s-invite).
-> Last updated: 2026-07-24
+> Last updated: 2026-08-10
 
 > **Changelog 2026-07-24 — Coach invite picker + data-model reconciliation.** "Invite athletes" now opens a **client picker** (add existing in-app athletes / CRM contacts / by-link), not share-only — see [group-event-detail.md](group-event-detail.md) §4. Coach-added participants (incl. CRM) owe the fee, settled post-session (no upfront hold). Documented the shipped **add-participant** endpoint (`POST /coach/training-events/{id}/participants`, #790). Corrected the Data Model: `payment_status` has **6** values (added `waiting`, `cash_waived`), and `group_event_participant` has a nullable `athlete_profile_id` + `crm_client_id` (CRM participants, #790).
 
 > **Changelog 2026-07-17 — Reconciled to shipped model (template carries its own schedule).** The earlier "decoupled scheduling" model (template = pure definition + a separate `invite.html?mode=schedule` step + `/coach/group-templates/{id}/schedule/preview` + `/schedule` endpoints + `keep_external_dates[]`) was **never built**. Shipped reality: a group template **carries its schedule** (days + time + recurrence, or a one-off date) on the existing `/coach/training-sessions` resource — created with the shared `s-create` form documented in [session-creation.md](./session-creation.md). Saving a scheduled group template **auto-generates events 2 months ahead** (publish-at-create); a template may also be created as a **draft** (no schedule) and published later via `PUT`/`PATCH`. External-calendar conflicts are returned as `externalCalendarConflicts[]` on the create/publish response and resolved with `POST /coach/training-sessions/{id}/confirm-conflicts` (coach keeps or skips each date). **Different weekday-times = separate templates.** Recurrence = `Weekly` (+ day chips) with `Ends: Ongoing / On date` (`recurringEndDate`). See §1, §3a, §Data Model, §API Endpoints.
+
+> ## ⚠️ Model status — read before implementing (2026-08-10)
+>
+> Two models are described in this file's changelogs and both exist in the codebase. This is the authority:
+>
+> | | Template carries its schedule (days/time/recurrence) | Decoupled: template = definition, placement = separate step |
+> |---|---|---|
+> | **Where** | shipped backend `/coach/training-sessions`; iOS #317 | canon since 2026-07-01; all Phase-4 prototypes; iOS #371; Android #134 |
+> | **Status** | live in prod, clients depend on it | **the target**; backend not built — [poly-backend#858](https://github.com/321-fit/poly-backend/issues/858) (open, unassigned) |
+>
+> **Rules until #858 lands:**
+> 1. **New UI is built to the decoupled model.** A template form must carry **no** days/time/recurrence — scheduling
+>    is a separate step (session chooser → time grid → publish drawer), and one template → many placements.
+> 2. **Existing clients keep the shipped contract** — do not remove schedule fields from the live create payload
+>    until the backend accepts the decoupled shape. Additive only, per the backward-compatibility rule.
+> 3. The **2026-07-17 changelog below is a record of shipped reality, not a decision.** It reconciled this spec back
+>    to the old model; it does not override the 2026-07-01 decoupling decision.
+> 4. Coach-side surfaces built on the decoupled model: `sessions.html` (`#s-create`, `#s-list`, `#s-detail-*`,
+>    `#s-series`, `#s-edit`) and `invite.html` (`#s-invite-select` → `#s-invite-time` → `#group-publish-sheet`).
+>
+> **iOS drift to fix:** #317 shipped the old create form (schedule fields inside the template) *and* #371 shipped the
+> new chooser → grid → publish flow. Both are closed, so the device currently offers two ways to create a group
+> session. The old path must be retired when #858 lands.
 
 ## Overview
 

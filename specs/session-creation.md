@@ -1,9 +1,9 @@
 # Session Creation (Coach)
 
 > Status: Draft
-> Prototype: [flows/coach/settings.html#s-create](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html#s-create)
+> Prototype: [flows/coach/sessions.html#s-create](https://321-fit.github.io/project-spec/prototypes/flows/coach/sessions.html#s-create)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-07-17
+> Last updated: 2026-08-10
 > Implementation:
 > - iOS:     [321fit_ios/docs/session-creation-ios.md] (to be created)
 > - Backend: [poly-backend/docs/session-creation-backend.md] (to be created)
@@ -13,9 +13,12 @@
 **Scope note:** this spec covers the **session template form** (Create + Edit + Delete + List). Group-specific business logic (auto-generation, registration, athlete flows) lives in [group-training.md](./group-training.md). This spec describes the form that is **shared** by personal and group templates; group fields appear conditionally.
 
 > **⚠️ Proposed change — prototyped, not yet approved (2026-08-05).**
-> [flows/coach/session-detail.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/session-detail.html)
-> introduces a **template detail (view) screen** between the list and the edit form. Sections 4 (Flow 4 / Flow 9)
-> and 8 below describe the *current* direct-to-edit behaviour and stay authoritative until this is signed off.
+> [flows/coach/sessions.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/sessions.html)
+> now carries a **template detail (view) screen** between the list and the edit form
+> (`#s-detail-group` · `#s-detail-personal` · `#s-detail-selfpaced` · `#s-series`, plus the cleaned `#s-edit`).
+> Sections 4 (Flow 4 / Flow 9) and 8 below describe the *current* direct-to-edit behaviour and stay
+> authoritative until this is signed off. The standalone `session-detail.html` draft was folded into
+> `sessions.html` on 2026-08-10 — there is one file per module again.
 > What the proposal changes:
 > - Tapping a template opens **detail**, not edit — summary card (read-only settings) + Edit button.
 > - Detail shows **what the template spawned**, per type: group → events (recurring series grouped under their
@@ -74,7 +77,7 @@ The form's complexity comes from **conditional field visibility** (Personal vs G
 
 ## 4. Flows
 
-References to screen IDs are from `flows/coach/settings.html`.
+References to screen IDs are from `flows/coach/sessions.html` (the module was split out of `settings.html` in Phase 4; `#s-edit` below means the **list** screen in the old numbering — it is `#s-list` today, and `#s-edit` is now the settings-only edit form).
 
 ### Flow 1: Create personal session
 1. Coach: My Training Sessions (`#s-edit`) → tap FAB "+" → push `#s-create`
@@ -408,8 +411,8 @@ Existing fields (preserved):
 - [sport-picker.md](./sport-picker.md) — Sport field picker (TO BE WRITTEN)
 - [coach-calendar.md](./coach-calendar.md) — Calendar FAB entry point
 - [onboarding-wizard.md](./onboarding-wizard.md) — "Create your first session" wizard step entry
-- Prototype: [flows/coach/settings.html#s-create](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html#s-create)
-- Prototype: [flows/coach/settings.html#s-edit](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html#s-edit)
+- Prototype: [flows/coach/sessions.html#s-create](https://321-fit.github.io/project-spec/prototypes/flows/coach/sessions.html#s-create)
+- Prototype: [flows/coach/sessions.html#s-list](https://321-fit.github.io/project-spec/prototypes/flows/coach/sessions.html#s-list)
 - Memory: `project_create_session_rules` (defaults, validation, side-effects), `project_group_training_decisions` (group-specific behavior)
 - Components: `FitInput` (with chevron variant for picker rows), `FitSelectionGroup` (single mode for Personal/Group + Recurring/One-off; multi mode for payment Cash/Card), `FitButton`, `FitToggle`. All in `design-tokens/docs/components.md`.
 - Native pickers (per `feedback_native_pickers`): wheel duration picker = SwiftUI `Picker(.wheel)` / Android `wheeltimepicker` Gradle module; time picker bottom sheet = custom layout in SwiftUI `.sheet` / Compose `ModalBottomSheet`; date picker = SwiftUI `DatePicker` / Material 3 `DatePicker`.

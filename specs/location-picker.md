@@ -1,7 +1,7 @@
 # Locations (Coach)
 
 > Status: Draft
-> Prototype: [flows/coach/settings.html#s-locations](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html#s-locations)
+> Prototype: [flows/coach/locations.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/locations.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
 > Last updated: 2026-07-31
 > Implementation:
@@ -321,7 +321,7 @@ Consolidated view of the full home-visit feature across roles. A home-visit trai
 - [profile-settings.md](./profile-settings.md) — Settings hub entry point
 - [coach-calendar.md](./coach-calendar.md) — display location in calendar event details
 - [notifications.md](./notifications.md) — online URL push delivery (TBD when notifications fully specced)
-- Prototype: [flows/coach/settings.html#s-locations](https://321-fit.github.io/project-spec/prototypes/flows/coach/settings.html#s-locations)
+- Prototype: [flows/coach/locations.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/locations.html)
 - Memory: `project_locations_decisions` (decisions source), `project_create_session_rules` (Location default rule)
 - Components: `FitInput` (with chevron variant for picker rows), `FitIconBtn`, `FitSheet` (delete confirm), `FitButton`, `FitToggle` (default flag), `FitSelectionGroup` (single mode for online provider Zoom/Meet/Custom). All in `design-tokens/docs/components.md`.
 - Native (per `feedback_native_pickers`): map place picker = `MapKit` + Google Places SDK (iOS) / Maps Compose + Google Places API (Android); current-location button uses OS geolocation prompt.
