@@ -29,6 +29,10 @@
 >   they're already in pre-checked, so one screen both adds and removes (commits on Save; CTA reads
 >   "Add to N groups" / "Save changes"). **Create a new group** sits above the list and starts it with this
 >   client. Smart groups are not listed — computed membership.
+> - Pills never wrap to a second row: **2 shown + `+N`** (opens the same membership screen). With pills present
+>   the add affordance is an icon-only `＋`; with none it keeps the "Add to group" label, since nothing else
+>   explains the section. **Add to group** is also in the ⋯ menu — hidden for `deleted` (nothing to group) and
+>   for `blocked` (a shadow-banned client must not be pulled into a session or a chat by a bulk action).
 > - Backend: new `client_group` + membership table; smart groups are server-side queries, not stored membership.
 
 ---

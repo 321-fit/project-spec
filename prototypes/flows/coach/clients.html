@@ -170,6 +170,16 @@
   .cd-grp svg { width: 14px; height: 14px; color: var(--fit-text-tertiary); flex-shrink: 0; }
   .cd-grp--add { color: var(--fit-brand-primary); border-style: dashed; }
   .cd-grp--add svg { color: var(--fit-brand-primary); }
+  /* Names truncate rather than push the row into a second line */
+  .cd-grp-name { max-width: 108px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* Overflow counter — opens the same membership screen */
+  .cd-grp--more { color: var(--fit-text-secondary); padding: 0 10px; }
+  /* With pills present the add affordance is icon-only (constant width);
+     with none it keeps its label, because then nothing else explains the section */
+  #cd-groups.has-groups .cd-grp--add span { display: none; }
+  #cd-groups.has-groups .cd-grp--add { padding: 0 9px; }
+  #cd-groups.no-groups .cd-grp:not(.cd-grp--add) { display: none; }
+  #cd-groups.no-groups .cd-grp--more { display: none; }
   /* invisible hit-area expansion → 44px effective (HIG) */
   .cd-grp { position: relative; }
   .cd-grp::before { content: ""; position: absolute; top: -6px; right: -4px; bottom: -6px; left: -4px; }
@@ -547,19 +557,20 @@
     </div>
 
     <!-- Groups this client is in — read from the group module, editable from here -->
-    <div class="cd-grp-row" id="cd-groups">
+    <div class="cd-grp-row has-groups" id="cd-groups">
       <span class="cd-grp-label">Groups</span>
       <span class="cd-grp" data-a11y-id="coach.client.group" onclick="window.location.href='./client-groups.html#s-group-detail'">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg>
-        Morning
+        <span class="cd-grp-name">Morning</span>
       </span>
       <span class="cd-grp" onclick="window.location.href='./client-groups.html#s-group-detail'">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg>
-        Beginners
+        <span class="cd-grp-name">Beginners</span>
       </span>
+      <span class="cd-grp cd-grp--more" id="cd-grp-more" style="display:none;" onclick="window.location.href='./client-groups.html#s-add-to-group'">+4</span>
       <span class="cd-grp cd-grp--add" data-a11y-id="coach.client.add-to-group" onclick="window.location.href='./client-groups.html#s-add-to-group'">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-        Add to group
+        <span>Add to group</span>
       </span>
     </div>
 
@@ -909,6 +920,10 @@
     <div class="fit-context-menu-item" data-menu-item="schedule" onclick="closeClientMenu();location.href='../coach/invite.html?mode=schedule&amp;origin=s-client-detail#s-invite-select'">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v4M10 16h4"/></svg>
       Schedule training
+    </div>
+    <div class="fit-context-menu-item" data-menu-item="add-to-group" onclick="closeClientMenu();location.href='./client-groups.html#s-add-to-group'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg>
+      Add to group
     </div>
     <div class="fit-context-menu-item" data-menu-item="invite-app" style="display:none;" onclick="closeClientMenu();openInviteShare('single')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/><path d="M20 8v6M23 11h-6"/></svg>
@@ -1630,6 +1645,11 @@
       <button onclick="setClientDetailState('fresh',this)">Fresh</button>
       <button onclick="setClientDetailState('loading',this)">Loading</button>
     </div>
+    <div class="state-toggle" style="margin-left:8px;">
+      <button class="active" onclick="cdGroups('few',this)">2 groups</button>
+      <button onclick="cdGroups('many',this)">6 groups</button>
+      <button onclick="cdGroups('none',this)">No groups</button>
+    </div>
     <div class="state-toggle" style="margin-top:8px;">
       <button class="active" onclick="setClientBanner('none',this)">No banner</button>
       <button onclick="setClientBanner('archived',this)">Archived</button>
@@ -2292,20 +2312,34 @@ function setClientBanner(state, btn) {
   // schedule:  hidden on deleted, crm (no push-target)
   // invite-app, invite-training: visible only on crm
   // edit:      hidden on deleted
+  // add-to-group: hidden on deleted (nothing to group) and blocked (a shadow-banned
+  //            client must not be pulled into a session or a chat by a bulk action)
   // block:     hidden on deleted, crm (nothing to block)
   // divider + archive: always visible
   var visibility = {
-    'none':     { schedule:1, 'invite-app':0, 'invite-training':0, edit:1, divider:1, archive:1, block:1 },
-    'archived': { schedule:1, 'invite-app':0, 'invite-training':0, edit:1, divider:1, archive:1, block:1 },
-    'blocked':  { schedule:1, 'invite-app':0, 'invite-training':0, edit:1, divider:1, archive:1, block:1 },
-    'deleted':  { schedule:0, 'invite-app':0, 'invite-training':0, edit:0, divider:0, archive:1, block:0 },
-    'crm':      { schedule:0, 'invite-app':1, 'invite-training':1, edit:1, divider:1, archive:1, block:0 }
+    'none':     { schedule:1, 'add-to-group':1, 'invite-app':0, 'invite-training':0, edit:1, divider:1, archive:1, block:1 },
+    'archived': { schedule:1, 'add-to-group':1, 'invite-app':0, 'invite-training':0, edit:1, divider:1, archive:1, block:1 },
+    'blocked':  { schedule:1, 'add-to-group':0, 'invite-app':0, 'invite-training':0, edit:1, divider:1, archive:1, block:1 },
+    'deleted':  { schedule:0, 'add-to-group':0, 'invite-app':0, 'invite-training':0, edit:0, divider:0, archive:1, block:0 },
+    'crm':      { schedule:0, 'add-to-group':1, 'invite-app':1, 'invite-training':1, edit:1, divider:1, archive:1, block:0 }
   }[state] || {};
   var menu = document.getElementById('client-menu');
   Object.keys(visibility).forEach(function(key){
     var el = menu.querySelector('[data-menu-item="' + key + '"]');
     if (el) el.style.display = visibility[key] ? '' : 'none';
   });
+}
+
+// Groups pills: 2 shown, the rest collapse into +N. Never a second row —
+// the section is context, not the point of the screen.
+function cdGroups(state, btn) {
+  if (btn) { btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); }
+  var row = document.getElementById('cd-groups');
+  var more = document.getElementById('cd-grp-more');
+  row.classList.remove('has-groups', 'no-groups');
+  if (state === 'none') { row.classList.add('no-groups'); more.style.display = 'none'; }
+  else if (state === 'many') { row.classList.add('has-groups'); more.style.display = ''; more.textContent = '+4'; }
+  else { row.classList.add('has-groups'); more.style.display = 'none'; }
 }
 
 // Reset demo (annotation button): restore all cards + stats to default
