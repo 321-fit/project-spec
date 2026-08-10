@@ -157,6 +157,23 @@
   .fit-light .fit-navbar-item { color: var(--fit-gray-400); }
   .fit-light .fit-navbar-item.active { color: var(--fit-text-primary); }
 
+  /* ===== Group pills on the client card ===== */
+  .cd-grp-row { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px 24px; align-items: center; }
+  .cd-grp-label { width: 100%; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--fit-text-secondary); margin-bottom: 8px; }
+  .cd-grp {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 32px; padding: 0 12px; border-radius: 99px; cursor: pointer;
+    border: 1px solid var(--fit-divider); background: transparent;
+    font-family: var(--fit-font); font-size: 14px; color: var(--fit-text-primary);
+  }
+  .fit-light .cd-grp { background: var(--fit-white); border-color: transparent; box-shadow: 0 0 8px rgba(0,0,0,0.06); }
+  .cd-grp svg { width: 14px; height: 14px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .cd-grp--add { color: var(--fit-brand-primary); border-style: dashed; }
+  .cd-grp--add svg { color: var(--fit-brand-primary); }
+  /* invisible hit-area expansion → 44px effective (HIG) */
+  .cd-grp { position: relative; }
+  .cd-grp::before { content: ""; position: absolute; top: -6px; right: -4px; bottom: -6px; left: -4px; }
+
   /* ===== Add-client drawer rows (calendar-style: title + description) ===== */
   .add-client-row { display: flex; align-items: flex-start; gap: 14px; padding: 14px 4px; cursor: pointer; border-bottom: 1px solid var(--fit-divider); }
   .add-client-row:last-child { border-bottom: none; }
@@ -527,6 +544,23 @@
     <div style="display:flex;gap:6px;padding:0 16px 24px;">
       <span class="fit-sport-chip" style="margin:0;"><svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>basketball</span>
       <span class="fit-sport-chip" style="margin:0;"><svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>fitness</span>
+    </div>
+
+    <!-- Groups this client is in — read from the group module, editable from here -->
+    <div class="cd-grp-row" id="cd-groups">
+      <span class="cd-grp-label">Groups</span>
+      <span class="cd-grp" data-a11y-id="coach.client.group" onclick="window.location.href='./client-groups.html#s-group-detail'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg>
+        Morning
+      </span>
+      <span class="cd-grp" onclick="window.location.href='./client-groups.html#s-group-detail'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg>
+        Beginners
+      </span>
+      <span class="cd-grp cd-grp--add" data-a11y-id="coach.client.add-to-group" onclick="window.location.href='./client-groups.html#s-add-to-group'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Add to group
+      </span>
     </div>
 
     <!-- Status banners (hidden by default, toggleable via annotation) -->

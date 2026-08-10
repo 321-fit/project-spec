@@ -354,6 +354,7 @@
   <button onclick="go('s-group-create',this)">Create group</button>
   <button onclick="go('s-group-add',this)">Add clients</button>
   <button onclick="go('s-group-rename',this)">Rename group</button>
+  <button onclick="go('s-add-to-group',this)">Client → groups</button>
   <div class="label">Downstream</div>
   <button onclick="go('s-group-chat',this)">Group chat</button>
   <button onclick="go('s-group-schedule',this)">Group schedule</button>
@@ -1043,6 +1044,64 @@
 
 
 <!-- ===================================================================
+     COACH: ADD ONE CLIENT TO GROUPS — reached from the client card
+     =================================================================== -->
+<div class="fit-phone fit-dark" id="s-add-to-group">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="window.location.href='./clients.html#s-client-detail'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Anna&rsquo;s groups</span>
+    </div>
+  </div>
+
+  <div class="fit-phone-content">
+    <!-- Create-new sits above the list, same grammar as "Add clients" inside a group -->
+    <div class="cg-row" data-a11y-id="coach.client.create-group" onclick="go('s-group-create',null)">
+      <span class="cg-row-ic cg-row-ic--add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
+      <span class="cg-row-body">
+        <span class="cg-row-title" style="color:var(--fit-brand-primary);">Create a new group</span>
+        <span class="cg-row-sub">Anna will be its first member</span>
+      </span>
+    </div>
+
+    <div class="cg-sec"><span class="cg-sec-title">Your groups</span></div>
+
+    <div id="cg-membership-list">
+      <div class="imp-row selected" data-in="1" onclick="cgMembershipToggle(this)" data-name="Morning">
+        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+        <span class="cg-row-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg></span>
+        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Morning</span></span><span class="imp-sub">8 members &middot; Tue &amp; Thu 18:00</span></span>
+      </div>
+      <div class="imp-row selected" data-in="1" onclick="cgMembershipToggle(this)" data-name="Beginners">
+        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+        <span class="cg-row-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg></span>
+        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Beginners</span></span><span class="imp-sub">12 members</span></span>
+      </div>
+      <div class="imp-row" data-in="0" onclick="cgMembershipToggle(this)" data-name="Zumba Thursday">
+        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+        <span class="cg-row-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg></span>
+        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Zumba Thursday</span></span><span class="imp-sub">14 members</span></span>
+      </div>
+      <div class="imp-row" data-in="0" onclick="cgMembershipToggle(this)" data-name="Sat tennis">
+        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+        <span class="cg-row-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg></span>
+        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Sat tennis</span></span><span class="imp-sub">6 members &middot; Sat 10:00</span></span>
+      </div>
+    </div>
+
+    <div class="cg-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 01-11.6 7.2L3 21l1.8-6.4A8 8 0 1121 12z"/></svg>
+      <span>Joining a group with a chat adds Anna to that chat; leaving removes her. Smart groups aren&rsquo;t listed &mdash; their membership is calculated.</span>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" id="cg-membership-cta" data-a11y-id="coach.client.groups.save" onclick="window.location.href='./clients.html#s-client-detail'"><span>Save</span></button></div>
+</div>
+
+
+<!-- ===================================================================
      COACH: ADD CLIENTS TO AN EXISTING GROUP — same picker, no name field
      =================================================================== -->
 <div class="fit-phone fit-dark" id="s-group-add">
@@ -1295,6 +1354,26 @@
     </ul>
   </div>
 
+  <div class="ann" id="ann-s-add-to-group"><span class="ann-role coach">Coach</span><h3>Client &rarr; groups</h3>
+    <p>Opened from the <strong>Add to group</strong> pill on the client card. The gap it closes: groups were only
+    visible from the group side, so from a client you couldn&rsquo;t see &mdash; or change &mdash; where they belong.</p>
+    <ul>
+      <li><strong>One screen adds and removes.</strong> Rows start <em>checked</em> for the groups the client is
+      already in, so the screen shows membership rather than an empty add-only list. Unchecking leaves the group.
+      Nothing commits until Save, which is what makes the two-way behaviour safe.</li>
+      <li><strong>The CTA states what will happen:</strong> <em>Add to 2 groups</em> when you only added,
+      <em>Save changes</em> as soon as a removal is in the set, plain <em>Save</em> when nothing changed.</li>
+      <li><strong>Create a new group is the first row</strong>, above the list &mdash; same grammar as
+      <em>Add clients</em> inside a group. It pushes the create screen with this client already selected, so
+      &ldquo;start a group around this person&rdquo; is two taps.</li>
+      <li><strong>Smart groups are absent by design</strong> &mdash; their membership is computed, you can&rsquo;t hand-add
+      to &ldquo;Owes money&rdquo;. Stated in the note so the omission doesn&rsquo;t read as a bug.</li>
+      <li>The note also spells out the chat consequence, because that&rsquo;s the one thing the athlete actually sees.</li>
+    </ul>
+    <p class="note">On the client card the groups render as <strong>pills</strong> (tap &rarr; that group) plus a dashed
+    <em>Add to group</em> pill. A client in no group shows only the dashed pill &mdash; no empty section.</p>
+  </div>
+
   <div class="ann" id="ann-s-group-chat"><span class="ann-role coach">Coach</span><h3>Group chat</h3>
     <p>The group thread from <code>shared/messages.html</code>, unchanged &mdash; only the two states that groups introduce are drawn here.</p>
     <ul>
@@ -1446,6 +1525,19 @@ function cgRenameSave() {
   const name = (document.getElementById('cg-rename-input').value || '').trim() || 'Morning';
   document.querySelectorAll('.cg-group-name').forEach(function (el) { el.textContent = name; });
   go('s-group-detail', null);
+}
+
+// Membership editor: rows start checked for the groups the client is already in,
+// so one screen both adds and removes. Nothing commits until Save.
+function cgMembershipToggle(row) {
+  row.classList.toggle('selected');
+  const rows = [...document.querySelectorAll('#cg-membership-list .imp-row')];
+  const added = rows.filter(r => r.classList.contains('selected') && r.dataset.in === '0').length;
+  const removed = rows.filter(r => !r.classList.contains('selected') && r.dataset.in === '1').length;
+  const cta = document.querySelector('#cg-membership-cta span');
+  if (removed > 0) cta.textContent = 'Save changes';
+  else if (added > 0) cta.textContent = 'Add to ' + added + (added === 1 ? ' group' : ' groups');
+  else cta.textContent = 'Save';
 }
 
 function cgPublish() {

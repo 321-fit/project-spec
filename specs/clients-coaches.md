@@ -24,6 +24,11 @@
 > - **Group chat mirrors membership** both ways, created lazily on first Message; CRM members can't join a DM
 >   thread and are surfaced with an invite plate instead of being dropped silently.
 > - Blocked/deleted members drop out automatically; archived stay visible but are skipped by group actions.
+> - **From the client side** (added 2026-08-11): Client Detail shows the client's groups as pills (tap → that
+>   group) plus a dashed **Add to group** pill → a membership screen listing every manual group with the ones
+>   they're already in pre-checked, so one screen both adds and removes (commits on Save; CTA reads
+>   "Add to N groups" / "Save changes"). **Create a new group** sits above the list and starts it with this
+>   client. Smart groups are not listed — computed membership.
 > - Backend: new `client_group` + membership table; smart groups are server-side queries, not stored membership.
 
 ---
