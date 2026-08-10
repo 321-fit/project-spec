@@ -310,6 +310,7 @@
   .inv-row.selected .inv-check { background: var(--fit-teal-500); border-color: var(--fit-teal-500); }
   .inv-check svg { width: 13px; height: 13px; color: #fff; opacity: 0; }
   .inv-row.selected .inv-check svg { opacity: 1; }
+  .inv-av.group { border-radius: 10px; background: var(--fit-surface-high); color: var(--fit-text-secondary); }
   .inv-av { width: 40px; height: 40px; border-radius: 50%; background: var(--fit-gray-600); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; color: var(--fit-white); flex-shrink: 0; }
   .inv-body { flex: 1; min-width: 0; }
   .inv-name-row { display: flex; align-items: center; gap: 6px; }
@@ -1413,6 +1414,22 @@
       <span class="inv-note-text">Added athletes <strong>owe the fee</strong> &mdash; settled after the session in <strong>Event completion</strong>. No upfront charge.</span>
     </div>
 
+    <!-- Groups — a whole cohort on this date in one tap (project-spec#33).
+         Ticking a group ticks its members below, so the coach sees who is going on. -->
+    <div class="inv-sec">Groups</div>
+    <div id="inv-groups">
+      <div class="inv-row" data-a11y-id="coach.event-detail.invite.group" data-members="Ivan Petrov,Nina Alvarez,Omar Haddad" onclick="invToggleGroup(this)">
+        <span class="inv-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+        <span class="inv-av group"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M22 20v-2a4 4 0 0 0-3-3.87"/></svg></span>
+        <span class="inv-body"><span class="inv-name-row"><span class="inv-name">Tuesday crew</span></span><span class="inv-sub">8 members</span></span>
+      </div>
+      <div class="inv-row" data-members="Grace Miller,Luca Bianchi" onclick="invToggleGroup(this)">
+        <span class="inv-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+        <span class="inv-av group"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M22 20v-2a4 4 0 0 0-3-3.87"/></svg></span>
+        <span class="inv-body"><span class="inv-name-row"><span class="inv-name">Morning boxing</span></span><span class="inv-sub">5 members</span></span>
+      </div>
+    </div>
+
     <!-- Your clients (in-app) -->
     <div class="inv-sec">Your clients</div>
     <div id="inv-list">
@@ -1931,10 +1948,27 @@ function invToggle(row) {
   row.classList.toggle('selected');
   invRefreshCount();
 }
+// A group is a shortcut over the list below, not a second way to add people: it ticks
+// its own members, so what the coach confirms is always a set of names they can see.
+function invToggleGroup(row) {
+  row.classList.toggle('selected');
+  var on = row.classList.contains('selected');
+  (row.dataset.members || '').split(',').filter(Boolean).forEach(function(name){
+    document.querySelectorAll('#inv-list .inv-row').forEach(function(r){
+      if (r.dataset.name !== name || r.getAttribute('aria-disabled') === 'true') return;
+      r.classList.toggle('selected', on);
+    });
+  });
+  invRefreshCount();
+}
 function invFilter(q) {
   q = (q || '').toLowerCase();
   document.querySelectorAll('#inv-list .inv-row').forEach(function(r){
     var name = (r.dataset.name || '').toLowerCase();
+    r.style.display = name.indexOf(q) === -1 ? 'none' : 'flex';
+  });
+  document.querySelectorAll('#inv-groups .inv-row').forEach(function(r){
+    var name = (r.querySelector('.inv-name').textContent || '').toLowerCase();
     r.style.display = name.indexOf(q) === -1 ? 'none' : 'flex';
   });
 }
@@ -1943,6 +1977,7 @@ function invConfirm() {
   if (!n) return;
   // Clear selection so the picker resets for next time
   invSelectedRows().forEach(function(r){ r.classList.remove('selected'); });
+  document.querySelectorAll('#inv-groups .inv-row.selected').forEach(function(r){ r.classList.remove('selected'); });
   invRefreshCount();
   // Back to event detail + confirmation toast (added athletes owe the fee, settled post-session)
   go('s-event', document.querySelector('.sidebar button[onclick*=s-event]'));
