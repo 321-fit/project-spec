@@ -2,15 +2,20 @@
 
 > Status: Approved
 > Companion to: [notifications.md](./notifications.md) (infrastructure — registration, delivery, inbox UI, routing internals)
-> Last updated: 2026-07-17
+> Last updated: 2026-08-10
 
 The **single source of truth** for every notification the app sends — what triggers it, who receives it, what copy lands in the push body / inbox row, what template variables backend must pass, where tap routes to.
 
 When changing copy, **update this file first**, then mirror in `notification_template` DB via Alembic migration, then verify call sites pass exact `template_data` keys listed in the row.
 
-## 1. The catalog — 40 backend categories
+## 1. The catalog — 50 backend categories
 
-> **Built count (2026-07-17 audit).** Backend `NotificationCategory` (poly-backend `enums.py`) ships **40** categories on `main`. This § 1 table documents the personal-training, reminder, money, and package notifications in full. The group-training, messaging, self-paced, invite/referral, and coach-moderation families are also shipped but **owned by their module specs** — they are registered in **§ 1.2** with pointers rather than duplicating their copy here, so this file still accounts for all 40 enum values. Rows still marked *spec-ahead* (Session Packages #21–29, reviews #11b/#18, `card_payment_cleared` #14, `payout_sent` #15, `crm_contact_joined` #20) are intentionally **not yet in the enum**.
+> **Built count (2026-08-10 re-audit against `poly-backend@origin/main`).** `NotificationCategory` ships **50** categories. This § 1 table documents the personal-training, reminder, money and package notifications in full; the group-training, messaging, self-paced, invite/referral and coach-moderation families are registered in **§ 1.2** with pointers to their owning specs. Rows still *spec-ahead* (not in the enum): reviews #11b/#18, `card_payment_cleared` #14, `payout_sent` #15, `crm_contact_joined` #20.
+>
+> **Changed since the 2026-07-17 audit — three drifts found and fixed here:**
+> 1. **Session Packages #21–29 shipped.** All nine `package_*` categories are in the enum, routed and sent from `package_notify.py`. They were still marked "intentionally not yet in the enum".
+> 2. **`coach_updated_training` was documented nowhere** — shipped with a template migration (#728), routed to the athlete, wired into clearance. Now row #9b below.
+> 3. **Three enum values are dead code:** `coach_profile_approved`, `coach_profile_rejected`, `coach_rejected_athlete` exist in the enum but are never emitted from any handler / service / task. Marked in § 1.2.
 
 Each notification has two visible parts on the user's device:
 
@@ -30,6 +35,7 @@ Each notification has two visible parts on the user's device:
 | 7 | `pending_request_auto_declined` | `expired` | 48h timeout on a pending request | P · I | **Request expired** | `Request for {session_name} with {other_name} on {date} expired — auto-declined after 48h.` | Recipient → Clients → athlete detail (or Coaches → coach detail) | tap | `session_name, other_name, date` |
 | 8 | `athlete_onboarding_completed` | `onboardingDone` | Athlete finishes onboarding and is connected to coach (NOT referral path) | P · I | **Athlete joined** | `{athlete_name} just joined 321Fit and is ready to train with you.` | Coach → Clients → athlete detail | tap | `athlete_name` |
 | 9 | `training_event_cancelled` | `cancelled` | Session cancelled by either side | P · I | **Session cancelled** | `{sender_name} cancelled {session_name} on {date} at {time}.` | Recipient → Schedule (sheet, cancelled state) | tap | `sender_name, session_name, date, time` |
+| 9b | `coach_updated_training` *(shipped #728, documented 2026-08-10)* | `approved` | Coach edits a planned event's **location or price** (not time — a time move is a reschedule, #5/#6). Event returns to pending, athlete must re-confirm | P · I | **Session updated** | `{coach_name} updated {session_name}. Please re-confirm.` | Athlete → Schedule (sheet, pending state) | tap + state | `coach_name, session_name` |
 | 10 | `training_session_successful_coach` | `payment` | Coach earns from completed session (money moves) | P · I | **Session complete** | `{session_name} with {athlete_name} on {date} completed. €{amount} added to your balance.` | Coach → Earnings → s-txn-earning (this earning) | tap | `session_name, athlete_name, date, amount` |
 | 11 | `training_session_successful_athlete` | `approved` | Session completed for athlete | P · I | **Session complete** | `{session_name} with {coach_name} on {date} completed.` | Athlete → Schedule (sheet, finished state) | tap | `session_name, coach_name, date` |
 | 11b | `review_prompt_athlete` *new 2026-06-05 — when reviews module ships* | `review` | ~24h (next day) after athlete's **first completed** session with a coach | P · I | **Leave a review** | `How was training with {coach_name}? Leave a review.` | Athlete → coach review composer (`s-coach-review`, full-screen modal). See [reviews.md](reviews.md) | tap | `coach_name` |
@@ -76,7 +82,13 @@ A flat "1 left" doesn't scale: on a 20-pack it warns on the *last* session of tw
 
 ### 1.2 Shipped categories owned by other module specs *(added 2026-07-17)*
 
-These enum categories ship on backend `main` but their copy / triggers / routing are owned by the module specs below — registered here so this file accounts for the full 40, not duplicated. Update copy in the owning spec first.
+These enum categories ship on backend `main` but their copy / triggers / routing are owned by the module specs below — registered here so this file accounts for the full 50, not duplicated. Update copy in the owning spec first.
+
+> ⚠️ **Two delegations are currently hollow — the copy exists in neither file:**
+> - **Self-paced (6 categories).** `self-paced.md` § "Notifications" says the categories are *"to add to `notifications-catalog.md`"*, while this file says self-paced.md owns them. Nobody wrote the copy; the templates that ship are whatever the migration seeded.
+> - **Group training (7 categories).** `group-training.md` § Notifications has a trigger table, but it predates this catalog: prose copy with emoji, no enum keys, no `{variables}`, and 9 rows against 7 enum values. It cannot be used as a template source as-is.
+>
+> Fixing either means writing catalog-grammar copy for 13 shipped notifications — tracked, not done here.
 
 **Group training** → [group-training.md](group-training.md) · [group-event-detail.md](group-event-detail.md)
 - `group_event_full`, `group_event_below_minimum`, `group_event_reminder_coach`, `group_event_reminder_athlete`, `group_event_ended_coach`, `group_event_ended_athlete`, `group_event_payment_processed_athlete`
@@ -91,9 +103,10 @@ These enum categories ship on backend `main` but their copy / triggers / routing
 - `athlete_accepted_invite`, `coach_accepted_invite` (proxy-accept for cash invites), `referred_coach_joined`, `coach_bulk_invite`, `coach_rejected_athlete`, `coach_removed_you_from_session`
 
 **Coach onboarding / moderation** → [coach-profile.md](coach-profile.md)
-- `coach_profile_approved`, `coach_profile_rejected`
+- `coach_profile_approved`, `coach_profile_rejected` — ⚠️ **dead code**: in the enum, never emitted. Either wire them to the moderation flow or drop them from the enum.
+- `coach_rejected_athlete` (listed under Invites above) — ⚠️ same: never emitted.
 
-**Count check.** § 1 documents 15 shipped enum categories in full (#1–11 + `training_soon` #12 + `cash_overdue` #16 + `calendar_sync_needs_attention` #17 + `referred_athlete_joined` #19), plus the 2 phantom enum values (#13, unbuilt) = **17** enum values. § 1.2 registers the remaining **23**. 17 + 23 = **40**. (The other § 1 rows — #11b, #14, #15, #18, #20, #21–29 — are spec-ahead and not yet in the enum.)
+**Count check (2026-08-10).** § 1 documents **26** enum values in full: #1–11 + `coach_updated_training` #9b + `training_soon` #12 + the 2 phantom reminders #13 + `cash_overdue` #16 + `calendar_sync_needs_attention` #17 + `referred_athlete_joined` #19 + the 9 `package_*` rows #21–29. § 1.2 registers the remaining **24**. 26 + 24 = **50**. (§ 1 rows #11b, #14, #15, #18, #20 are spec-ahead and not in the enum.)
 
 ### Clearance tag legend
 
