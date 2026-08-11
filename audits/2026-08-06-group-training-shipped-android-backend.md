@@ -236,9 +236,16 @@ Decided behaviour, worth carrying to iOS verbatim:
   while the athlete decides, and dates before the invited one are untouched. Inviting
   the same athlete again to that schedule is refused (`ALREADY_INVITED`) while it is
   unanswered. "Just this date", declining, and the coach revoking all release the holds.
-- **The athlete is still asked once.** `GET /athlete/group-events/invites` returns
-  anchors only, and the athlete's calendar draws the anchor date alone until they
-  answer — the holds are the coach's reach, not sessions the athlete agreed to.
+- **The athlete is still asked once — in the design.** ⚠️ **Corrected 2026-08-11 by the
+  reference stand:** `GET /athlete/group-events/invites` does **not** return anchors. It
+  returns **one invitation per held date** — a weekly session produced eight cards — with
+  no `seriesDatesAhead`, no `sessionPlacementId` and no anchor flag, so nothing on the wire
+  says the eight belong together and the scope question cannot be posed from this payload.
+  `GET /coach/training-events/pending-invites` has the same shape: eight rows, `pendingCount: 1`
+  on each. The capability is intact — `accept?allFuture=true` answers
+  `{"status":"accepted","joinedFutureDates":"7"}` and clears all eight in one call — only the
+  reporting hides the series. Backend fix needed before iOS builds this screen; see the
+  stand's OBSERVATIONS B93.
 - **Accepting a repeating schedule asks how far the yes reaches.** The invitation is
   always for one date — nothing is drawn on dates nobody agreed to. On accept, a sheet
   offers *Just this date* / *Every one of these — Tuesdays and Thursdays*
