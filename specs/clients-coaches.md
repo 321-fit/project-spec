@@ -10,30 +10,24 @@
 > - Voice:   [voice_control/docs/clients-coaches-voice.md] (to be created)
 > - Android: (future)
 
-> **⚠️ Proposed addition — prototyped, not yet approved (2026-08-06).**
-> [flows/coach/client-groups.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/client-groups.html)
-> adds **client groups**: a named set of clients (app accounts and CRM contacts side by side, keyed by
-> `relationship_id` exactly like event participants). Nothing in this spec changes until it's signed off.
-> What it proposes:
+> **Client groups — built (2026-08-11).** Shipped on the backend (`poly-backend` `dev2`) and Android;
+> iOS parity is 321fit_ios#479. Prototype:
+> [flows/coach/client-groups.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/client-groups.html) ·
+> Hand-off: [audits/2026-08-11-client-groups-shipped-android-backend.md](../audits/2026-08-11-client-groups-shipped-android-backend.md) ·
+> API: `poly-backend/docs/clients-coaches-api.md` § Client groups.
+> What it is: a named set of clients (app accounts and CRM contacts side by side, keyed by
+> `relationship_id` exactly like event participants).
 > - Clients tab gains a `Clients | Groups` segment. A group has a name, members, a chat and a schedule.
-> - **Smart groups** (owes money · new this month · package running low · not in the app · inactive 30d) live in
->   the same pane with computed membership — all five derive from signals already on screen today.
-> - **Schedule a session for the whole group** = the existing schedule flow (`invite.html?mode=schedule`,
->   filtered to group templates); the group only pre-fills the roster (coach-added → auto-accepted, fee owed).
-> - A group can **feed a recurring series** — every date the engine generates 60 days out arrives with the roster.
+> - **Smart groups** (owes money · new this month · package running low · inactive 30d) live in the same
+>   pane with computed membership. *"Not in the app" was dropped* — a CRM contact is not a cohort to act on,
+>   and an individual cohort with nobody in it does not render.
+> - **Schedule a session for the whole group** = the existing schedule flow, filtered to group templates;
+>   the group only pre-fills the roster (coach-added → CRM enrolled, app athletes invited).
+> - A group can **feed a recurring series** — `groupId` on placement create; every date the engine generates
+>   arrives with the roster.
 > - **Group chat mirrors membership** both ways, created lazily on first Message; CRM members can't join a DM
 >   thread and are surfaced with an invite plate instead of being dropped silently.
-> - Blocked/deleted members drop out automatically; archived stay visible but are skipped by group actions.
-> - **From the client side** (added 2026-08-11): Client Detail shows the client's groups as pills (tap → that
->   group) plus a dashed **Add to group** pill → a membership screen listing every manual group with the ones
->   they're already in pre-checked, so one screen both adds and removes (commits on Save; CTA reads
->   "Add to N groups" / "Save changes"). **Create a new group** sits above the list and starts it with this
->   client. Smart groups are not listed — computed membership.
-> - Pills never wrap to a second row: **2 shown + `+N`** (opens the same membership screen). With pills present
->   the add affordance is an icon-only `＋`; with none it keeps the "Add to group" label, since nothing else
->   explains the section. **Add to group** is also in the ⋯ menu — hidden for `deleted` (nothing to group) and
->   for `blocked` (a shadow-banned client must not be pulled into a session or a chat by a bulk action).
-> - Backend: new `client_group` + membership table; smart groups are server-side queries, not stored membership.
+> - **From a client's card**: group pills, and one screen that both adds and removes.
 
 ---
 
