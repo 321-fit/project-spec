@@ -236,16 +236,22 @@ Decided behaviour, worth carrying to iOS verbatim:
   while the athlete decides, and dates before the invited one are untouched. Inviting
   the same athlete again to that schedule is refused (`ALREADY_INVITED`) while it is
   unanswered. "Just this date", declining, and the coach revoking all release the holds.
-- **The athlete is still asked once — in the design.** ⚠️ **Corrected 2026-08-11 by the
-  reference stand:** `GET /athlete/group-events/invites` does **not** return anchors. It
-  returns **one invitation per held date** — a weekly session produced eight cards — with
-  no `seriesDatesAhead`, no `sessionPlacementId` and no anchor flag, so nothing on the wire
-  says the eight belong together and the scope question cannot be posed from this payload.
-  `GET /coach/training-events/pending-invites` has the same shape: eight rows, `pendingCount: 1`
-  on each. The capability is intact — `accept?allFuture=true` answers
-  `{"status":"accepted","joinedFutureDates":"7"}` and clears all eight in one call — only the
-  reporting hides the series. Backend fix needed before iOS builds this screen; see the
-  stand's OBSERVATIONS B93.
+- **The athlete is still asked once — in the design, and eight times in practice.**
+  ⚠️ **Found by the reference stand 2026-08-11, diagnosis corrected 2026-08-12.** A weekly
+  group session produced **eight invitations** for one athlete: eight cards on
+  `GET /athlete/group-events/invites`, eight rows on `GET /coach/training-events/pending-invites`.
+  Both readers are correct — each filters on `invite_anchor`, and the coach's query even
+  carries the comment *"anchors only — the held seats on later dates are one ask, not five"*.
+  **The writer sets the flag wrong:** the rolling generator seeds every occurrence with
+  `invite_anchor=is_app_athlete` (`group_event_generation.py:648`), so every date becomes its
+  own anchor. The manual path is right — `AddParticipantHandler` anchors the invited date and
+  `_hold_rest_of_series` writes `invite_anchor=False` on the rest — so this only bites where a
+  **client group is attached to a schedule** and the generator does the seating. The
+  introducing migration also backfilled `invite_anchor = TRUE` for every pending row, so
+  existing data is affected too.
+  The model itself works: `accept?allFuture=true` answers `{"status":"accepted","joinedFutureDates":"7"}`
+  and clears all eight in one call. **Fix the generator (and the backfilled rows) before iOS
+  builds this screen** — the payload it sees today cannot pose the scope question.
 - **Accepting a repeating schedule asks how far the yes reaches.** The invitation is
   always for one date — nothing is drawn on dates nobody agreed to. On accept, a sheet
   offers *Just this date* / *Every one of these — Tuesdays and Thursdays*
