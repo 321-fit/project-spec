@@ -263,6 +263,16 @@ Detailed payloads + response shapes go to `poly-backend/docs/booking-flow-api.md
 - **Dual availability** — the bookable surface is the counterparty's working hours **minus** the union of both parties' busy ranges. A start is valid only if `[start, start+duration]` overlaps no busy range. On an invalid drop the client snaps to the nearest free start; the Book CTA stays disabled until valid. The backend re-validates on Send (race guard, see §9) — the client grid is an optimistic convenience, not the authority.
 - **Unknown counterparty calendar** — coach **invite** mode (external athlete) has no athlete schedule, so only the coach's own busy + working hours are shown; the athlete overlay is hidden. Coach **schedule** mode (in-app athlete) shows both.
 - **Group session full** — locked row, no tap, "Full · 10/10" label in red. Athlete cannot join.
+- **Travel buffer: the grid owns it, and the two sides are not symmetric** *(added 2026-08-11 — this
+  rule is what android#133 cost us)*. For a home-visit session the coach's commute is blocked before
+  and after the event ([location-picker.md](./location-picker.md)):
+  - **Coach side** — the booking grid must **not** pass `sessionId` to `available-booking-slots`.
+    With it the server pre-carves the candidate session's commute *and* the grid applies it again,
+    painting unlabelled grey bands around every neighbouring event. `coach/athletes/{id}/occupied-slots`
+    returns each event's **raw** window; the grid expands it.
+  - **Athlete side** — the mirror endpoint `athlete/coaches/{id}/occupied-slots` returns the window
+    **already expanded**. Expanding it again is the same double-count in reverse, and a home-visit
+    event renders with the commute inside its own displayed times. The athlete never sees buffer UI.
 
 ---
 

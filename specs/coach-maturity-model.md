@@ -7,7 +7,7 @@
 > Implementation:
 > - iOS:     [321fit_ios/docs/coach-maturity-ios.md] (to be created)
 > - Backend: [poly-backend/docs/coach-maturity-backend.md] (to be created)
-> - Android: (future)
+> - Android: partial — `isNewCoach` consumed; maturity progress / boost not built
 
 > ⚠️ **Implementation status (verified 2026-07-17):** only the **graduation threshold** — `reviews_count < 1 OR sessions_count < 3` → new — is shipped and matches backend code. The following are **NOT yet built**, and the sections below describe intended (not shipped) behavior for them: the `maturityProgress {reviewsNeeded, sessionsNeeded}` countdown field, caching of `isNewCoach` on the coach record, event-driven recompute, the `sessions_logged_count` / backdated-session split, and the search `newCoachBoost` ranking multiplier (+ "New on 321Fit" carousel).
 
@@ -110,7 +110,7 @@ Present only when `isNewCoach = true`. Zero values are valid (e.g., `reviewsNeed
 
 No new endpoints. Existing coach GET endpoints return these two fields as part of the coach record.
 
-- `GET /coach/me` → includes `isNewCoach`, `maturityProgress`
+- `GET /user/me` → includes `isNewCoach`. *(Corrected 2026-08-11 — there is no `GET /coach/me`; the self-profile read is `/user/me`. `maturityProgress` is still unbuilt, per § below.)*
 - `GET /coach/{id}` → includes `isNewCoach` (athlete-facing; `maturityProgress` omitted for privacy — only shown to the coach themselves)
 - `GET /athletes/discovery` → coach entries include `isNewCoach` for badge rendering
 

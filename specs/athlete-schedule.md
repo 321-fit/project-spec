@@ -41,10 +41,13 @@ Fully implemented in iOS and backend. Voice assistant supports athlete booking v
 
 ## Components
 
-### Backend
-- Athlete events: `GET/POST/PUT/DELETE /athlete/training-events`
+### Backend *(paths corrected 2026-08-11 against shipped Android + backend)*
+- Athlete events: `GET /athlete/training-events/?start_date&end_date` — date-ranged, **not** `?date=`;
+  plus `POST` (book), `PATCH /{id}/change-status/`, `PATCH /{id}/reschedule/`
 - Coach availability: `GET /athlete/coaches/{id}/available-booking-slots`
-- Coach occupied slots: `GET /athlete/events/coaches/{id}/occupied-slots`
+- Coach occupied slots: `GET /athlete/coaches/{id}/occupied-slots` — **not** `/athlete/events/coaches/…`.
+  ⚠️ Unlike the coach-side twin, this one returns each event's window **already expanded** by the
+  coach's travel buffer — the athlete grid must not expand it again ([booking-flow.md § 8](./booking-flow.md))
 - Pending requests: `GET /athlete/pending-requests`
 
 ### iOS
@@ -186,7 +189,7 @@ When selecting a slot, the system shows:
 
 Data sources:
 - `GET /athlete/coaches/{id}/available-booking-slots` — coach's free slots
-- `GET /athlete/events/coaches/{id}/occupied-slots` — coach's busy times
+- `GET /athlete/coaches/{id}/occupied-slots` — coach's busy times (travel buffer already applied)
 - Athlete's own events (fetched locally)
 
 ## Event Lifecycle (Athlete Perspective)

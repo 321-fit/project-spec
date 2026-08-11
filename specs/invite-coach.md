@@ -168,9 +168,9 @@ All additive per `feedback_backward_compat_endpoints`.
 
 | Endpoint | Purpose |
 |---|---|
-| `GET /coach/me/referral-link` | Returns `{ url: "https://321fit.app/i/jm-r3F7q9", token: "jm-r3F7q9" }`. Same value across all calls per coach (stable token). |
-| `GET /coach/me/invites?limit=20&cursor=...` | Paginated list of joined coaches: `[{invitee_id, invitee_initials, invitee_name, joined_at}]`, most-recent-first. **Status field NOT included in response on MVP** — adds it in Phase 2. |
-| `POST /referrals/track-open` | Fired from public landing page at `321fit.app/i/<token>`. Funnel analytics only — does not create a referral row. Body: `{ token, referrer, ts }`. |
+| `GET /referral-token` | **Shipped** (was specced as `GET /coach/me/referral-link`) — returns the coach's stable referral token, which the client assembles into the OneLink URL. *Corrected 2026-08-11.* |
+| `GET /coach/me/invites?limit=20&cursor=...` | ⚠️ **Not deployed** (poly-backend#832, re-checked 2026-08-11). Android calls it and renders the failure explicitly, so "nobody joined yet" never masquerades as "shipped and empty". Until it lands, the joined list has no data source. |
+| `POST /referrals/track-open` | **Not built.** The shipped attribution path is `GET|POST /process-referral` plus AppsFlyer's own funnel data. |
 | Signup endpoint (existing) | Accepts new optional param `referral_token: String`. When present, server resolves token → inviter, creates `referrals` row with `invitee_user_id = newUser.id`, `status = joined`. |
 
 ### Phase 2 endpoints (NOT in MVP)

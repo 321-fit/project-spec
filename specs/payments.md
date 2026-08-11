@@ -9,7 +9,7 @@
 > - iOS:     [321fit_ios/docs/payments-ios.md] (to be created)
 > - Backend: shipped across 4 docs — [coach-earnings-api.md](../../poly-backend/docs/coach-earnings-api.md), [athlete-balance-flow.md](../../poly-backend/docs/athlete-balance-flow.md), [balance-v2-api.md](../../poly-backend/docs/balance-v2-api.md), [coach-transactions-api.md](../../poly-backend/docs/coach-transactions-api.md). (MoneyDTO/int-minor migration off the current float wire format is a deferred backend refactor — not yet shipped.)
 > - Voice:   [voice_control/docs/payments-voice.md] (to be created — read-only access)
-> - Android: (future)
+> - Android: **shipped** — balance, earnings, transactions (see the ⚠️ in Flow J: cash settlement in Earnings is local-only)
 
 ---
 
@@ -84,7 +84,7 @@ This spec consolidates the previous "Payment User Flow" + "Revisited Payment Flo
 ### Flow B — Athlete: Book session with balance
 
 1. Athlete selects training session (price = €50).
-2. `GET /athlete/balance/can-afford` returns `true`.
+2. `GET /athlete/training-events/{id}/can-afford` returns `true`.
 3. Athlete confirms → booking request created (see [event-statuses.md](./event-statuses.md)).
 4. Coach accepts → backend:
    - Transitions event to `planned`
@@ -135,7 +135,7 @@ Balance is the **money hub**: the hero **Top up** (and the tappable **Auto top-u
 
 ### Flow C2 — Athlete: Top up — One-time & Automatic (single screen) — 2026-06-22
 
-One screen (`s-top-up`) with a **`.fit-segmented` switch** at the top — **One-time** and **Automatic** are mutually exclusive modes. A single footer CTA drives the action (no sheet-on-sheet, no inline toggle clutter). Backend: `POST /athlete/balance/replenish`.
+One screen (`s-top-up`) with a **`.fit-segmented` switch** at the top — **One-time** and **Automatic** are mutually exclusive modes. A single footer CTA drives the action (no sheet-on-sheet, no inline toggle clutter). Backend: `POST /balance-replenishment`. *(Corrected 2026-08-11.)*
 
 **One-time tab:**
 1. **Amount** — `.fit-selection-chip` €50 / €100 + **Custom** (`type=text inputmode=decimal`, no spinners). Footer **Top up €X**.
@@ -252,10 +252,24 @@ Maps to prototype `flows/coach/balance.html#s-txn-cash`.
 
 **Entry points:** tap any `data-method="cash"` txn in Recent activity, or tap an athlete in Clients → Cash owed list (filter on Clients screen, future spec). Both routes land on `s-txn-cash`.
 
-**API:**
-- `POST /api/v1.0.0/coach/transactions/{id}/mark-paid` (existing) → sets `status=received`.
-- `POST /api/v1.0.0/coach/transactions/{id}/waive` (**new**) → sets `status=payment_waived`. Body empty. Returns updated txn.
-- Both reject (400) if txn is not `method=cash` or already in non-`unpaid` state (race).
+**API — corrected 2026-08-11.** `POST /coach/transactions/{id}/mark-paid` and `/waive` were specced as
+"existing" and "new". **Neither exists.** Cash is settled **on the event, not on the transaction**,
+and there are three shipped paths depending on what is being settled:
+
+| What | Endpoint |
+|---|---|
+| A 1-on-1 cash session | `POST /coach/training-events/{id}/submit-cash-payment/` |
+| One participant of a group session | `PATCH /coach/training-events/{id}/participants/{athleteId}` with `{ action: "mark_paid" \| "waive" }` |
+| A prepaid pack sold for cash | `POST /coach/package-lots/{id}/mark-cash-received` |
+
+So **waive exists only for group participants**; there is no waive for a 1-on-1 session, and no
+transaction-scoped settlement at all. Either the ledger gets its own settlement endpoints, or the
+Earnings screen has to settle through the event it came from — this is the open half of Flow J.
+
+⚠️ **Android currently pretends.** Earnings → cash transaction → *Mark paid* / *Waive* mutates local
+state and **never calls the server** (`CashEarningDetailV2ViewModel.settle()`), which is the same
+defect the 2026-07-17 audit found on iOS. The coach sees "Paid", the money stays owed. The paths that
+do work are the client detail and the event drawer, both of which go through the endpoints above.
 
 ### Flow J1.5 — Coach-confirmed events (2026-06-02 — new)
 
@@ -272,24 +286,51 @@ Maps to prototype `flows/coach/dashboard.html#s-notifications` → Waiting tab �
    - **Edit invite details** — pushes to event editor; saving re-pings the athlete via PATCH.
    - **Cancel invite** — destructive withdraw (same as inline Cancel button).
 4. Confirmation sheet copy: "Confirm Anna attended this session? Use only if you've agreed offline. Anna will see this confirmation when she next opens 321Fit. Cash debt activates as normal."
-5. Coach taps **Confirm for athlete** → `POST /api/v1.0.0/coach/training-events/{id}/coach-confirm` → backend transitions `training_event.status` from `coachInvited` to **`coach_confirmed`** (new enum value, separate from regular `confirmed`).
+5. Coach taps **Confirm for athlete** → `PATCH /coach/training-events/{id}/change-status` with
+   **`{"status": "approved"}`**. *(Rewritten 2026-08-11.)* There is no `/coach-confirm` endpoint and
+   none is needed: the handler stamps `approver_profile_id = coach_id` on any coach-side change, and
+   the response builder derives **`isCoachConfirmed = (approver == coach)`** — so approving as the
+   coach *is* the proxy-accept, and the flag comes back already set.
+   ⚠️ Android currently sends the literal `"coach_confirmed"`, which the handler rejects (`approved |
+   declined | cancelled` only), and fires its success snackbar **before** the call — every attempt is
+   a silent 400 (321fit_android_new#147).
+
 6. Side effects:
-   - Event flows through regular lifecycle (`coach_confirmed` → `review` after end time → `finished` after coach Completion).
+   - Event flows through the regular lifecycle (`approved` → `review` after end time → `finished` after coach Completion), carrying `isCoachConfirmed`.
    - Cash transaction created in `unpaid` state at lifecycle's `finished` moment, same as regular flow.
-   - Audit trail: `training_event.coach_confirmed_at` timestamp + `training_event.coach_confirmed_by_user_id` recorded for dispute resolution.
+   - Audit trail: the approval row's `approver_profile_id` **is** the record — it holds the coach's profile id on a proxy-accept, which is what `isCoachConfirmed` reads.
    - Athlete receives **no push** (silent).
 7. Next time athlete opens the event sheet, an informational blue note appears above View Details: "Confirmed by Coach Mark on your behalf. Mark indicated you agreed to this session offline (Apr 14). Reach out to your coach if this doesn't look right."
 
-**Eligibility:**
-- Allowed when: `payment_type = cash` AND `training_event.status = coachInvited` AND `coach_id = current_user.coach_id`.
-- Allowed **immediately after invite is sent** (no wait for scheduled time). Rationale: coach often agrees offline before sending the invite.
+**Eligibility — decided 2026-08-11, and currently NOT enforced.**
 
-**Backend status enum extension:**
-- `training_event.status` adds `coach_confirmed` value, positioned in the lifecycle between `coachInvited` and `review`.
-- Status appears in dispute/history queries as `coach_confirmed` (not collapsed to `confirmed`) so legal / Support can prove athlete consented offline rather than in-app.
+Today the server lets **any** coach approve **any** pending event of theirs on the athlete's behalf,
+with no restriction whatsoever. The gate we want:
+
+- **Cash only.** `payment_type = cash` → allowed. `card` and `package` → **rejected**: that money and
+  those credits belong to the athlete, and a coach must not spend them by proxy.
+- **`both` collapses to cash.** A coach confirming on someone's behalf cannot also choose to drain
+  their balance, so proxy-accept fixes the event to cash. *(Assumption, flagged — `both` was not named
+  in the decision; the alternative is to reject it and force the coach to pick cash first.)*
+- Plus the obvious: the event is pending, and it belongs to the calling coach.
+- Allowed **immediately after the invite is sent** — no wait for the scheduled time. A coach usually
+  agrees offline before sending anything.
+
+CRM clients need no special case: their sessions are cash-only by rule
+([clients-coaches.md](./clients-coaches.md)), so they fall inside the gate automatically.
+
+Backend work: [poly-backend#890](https://github.com/321-fit/poly-backend/issues/890).
+
+**Backend status enum extension — dropped 2026-08-11.**
+A stored `coach_confirmed` status (plus `coach_confirmed_at` / `coach_confirmed_by_user_id`) was the
+original design. It is **not needed**: the approval row already records *who* approved, and the fact
+is derived from it on every read. A second representation of the same truth only has to be kept in
+sync. Dispute queries answer the same question by asking whether the approver was the coach.
 
 **API:**
-- `POST /api/v1.0.0/coach/training-events/{id}/coach-confirm` → body empty. Returns updated event with `status=coach_confirmed`. Rejects (400) if eligibility check fails; (404) if event not found / not owned by caller.
+- `PATCH /api/v1.0.0/coach/training-events/{id}/change-status` `{"status": "approved"}` → returns the
+  updated event with `isCoachConfirmed: true`. Will reject (400) once the cash gate above lands;
+  (404) if the event is not found or not owned by the caller. No dedicated endpoint.
 
 ### Flow J2 — Coach: Pending breakdown (2026-05-20 — new)
 
@@ -425,12 +466,12 @@ Covered in detail in [stripe-connect-onboarding.md § 3.2](./stripe-connect-onbo
 ### Athlete endpoints
 
 - `GET /athlete/balance` → `{ amount, blocked, currency }`
-- `GET /athlete/balance/can-afford?sessionId=...` → `{ canAfford: bool }`
+- `GET /athlete/training-events/{id}/can-afford` (and `/athlete/group-events/{id}/can-afford`, `/coach/training-sessions/{id}/can-afford`) → `{ canAfford: bool }`. *(Corrected 2026-08-11 — there is no `/athlete/balance/can-afford`; affordability is asked per booking target, not per balance.)*
 - `POST /balance-replenishment` → initiates Stripe PaymentSheet intent
 - `GET /athlete/transactions-history?type=&method=&search=&offset=&limit=` → paginated ledger. Already supports **type** (`spend|topup|refund`) + **payment method** (`card|cash`) + free-text `search` (verified on `main` 2026-07-13). Items carry `id, title, amount, currency, datetime, coach{id,firstName,lastName,avatar}, type, paymentMethod`.
   - **ADD (additive, 2026-07-13):** optional **`from` / `to`** (ISO date) range params so the History **This month** scope resolves **server-side** — consistent with the Search screen where every filter is backend-driven. Type/method/search are already server-side; this closes the date axis. ⚠️ list `datetime` = transaction `created_at` while the monthly aggregate keys on session `datetime_end` — align the range semantics (or key both on the same field) so the drill-down total reconciles to the `monthlySummary.spent` tile.
-- **NEW (additive, 2026-07-13)** `GET /athlete/owed` → flat cross-coach list of completed **unpaid cash** sessions the athlete still owes for. Each item: `{ eventId, coach{id,name,avatar}, trainingType, datetime, amount, currency, paymentType: "cash" }`. Building blocks exist (`list_athlete_coach_cash_owed`, `MyCoachesStatsResponse.owedByCoach[]`) — this is the global (all-coach) variant. Feeds `s-owed`; rows → existing `GET /athlete/transactions-history/spend/{eventId}` for `s-owed-detail`.
-- **NEW (additive, 2026-07-13)** `GET /athlete/booked` → flat cross-coach list of **upcoming, already-paid** sessions whose funds are **held** from balance. Each item: `{ eventId, coach{id,name,avatar}, trainingType, datetime, amount, currency, paidFromBalance: true }`. Global variant of `list_athlete_coach_upcoming`, scoped to money-on-hold. Feeds `s-booked`; rows → the spend-detail endpoint for `s-booked-detail`.
+- **SHIPPED as `GET /athlete/owed-sessions`** (+ `/{id}` detail) — *path corrected 2026-08-11, was specced as `/athlete/owed`* → flat cross-coach list of completed **unpaid cash** sessions the athlete still owes for. Each item: `{ eventId, coach{id,name,avatar}, trainingType, datetime, amount, currency, paymentType: "cash" }`. Building blocks exist (`list_athlete_coach_cash_owed`, `MyCoachesStatsResponse.owedByCoach[]`) — this is the global (all-coach) variant. Feeds `s-owed`; rows → existing `GET /athlete/transactions-history/spend/{eventId}` for `s-owed-detail`.
+- **SHIPPED as `GET /athlete/booked-sessions`** (+ `/{id}` detail) — *path corrected 2026-08-11, was specced as `/athlete/booked`* → flat cross-coach list of **upcoming, already-paid** sessions whose funds are **held** from balance. Each item: `{ eventId, coach{id,name,avatar}, trainingType, datetime, amount, currency, paidFromBalance: true }`. Global variant of `list_athlete_coach_upcoming`, scoped to money-on-hold. Feeds `s-booked`; rows → the spend-detail endpoint for `s-booked-detail`.
 - `GET /athlete/balance` → already returns the widget aggregates: `analytics.{owed,owedSessions,booked,bookedSessions,totalSpent,totalSpentCurrency}` + `monthlySummary.{spent,spentCard,spentCash,sessions}` + `blocked` (held total). No change needed. ⚠️ **Doc drift:** `poly-backend/docs/athlete-balance-flow.md` still documents the old `BalanceResponse.thisMonth` shape — live code returns `monthlySummary` + `analytics`. Update the doc as part of this work.
 - `GET /athlete/payment-details` / `PUT /athlete/payment-details` → saved cards (legacy)
 
@@ -530,7 +571,7 @@ Paginated transactions. `type` optional filter (earnings / payouts / refunds). `
 
 Detail view.
 
-#### `POST /coach/transactions/{id}/mark-paid`
+#### `POST /coach/transactions/{id}/mark-paid` *(proposed — does NOT exist, see Flow J)*
 
 Mark a cash earning as received (Flow J). Idempotent — already-received returns 204.
 
@@ -552,7 +593,7 @@ Initiate Instant payout.
 
 `POST /coach/stripe/consent` and `POST /coach/stripe/connect/session` — defined in [stripe-connect-onboarding.md § 6](./stripe-connect-onboarding.md#6-api).
 
-#### `DELETE /coach/payout-accounts/{id}`
+#### `DELETE /coach/payout-methods/{id}` *(the module is `payout-methods`, not `payout-accounts` — corrected 2026-08-11)*
 
 Disconnect a provider (Stripe or future). Only allowed if not default or another provider connected.
 

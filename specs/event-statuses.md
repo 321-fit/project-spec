@@ -109,11 +109,22 @@ The underlying event still has its own real status (Planned, Request, etc.) on t
 
 **Why optimistic mapping (vs showing athletes the `review` state):** athletes have no action to take during review — exposing the in-progress confirmation creates UX noise. The rare correction (coach marks missed) is acceptable cost for the common case (clean "session done" UX for athlete).
 
-### Flow 4: Reschedule (from any state)
+### Flow 4: Reschedule (from any state) — corrected 2026-08-11 against shipped code
 
-1. Either party taps reschedule on event sheet → opens date/time picker.
-2. Confirm → new event created in `request`/`awaiting` state (same Flow 1 lifecycle). Old event transitions to `cancelled`.
-3. Push: "The {coach_name/athlete_name} has requested to reschedule the training session."
+1. Either party moves the event: the drawer's Reschedule, or a drag on the timeline
+   ([coach-calendar.md](./coach-calendar.md) Flow 4 · [athlete-schedule.md](./athlete-schedule.md)).
+2. **The event is updated in place — no new event, nothing cancelled.** What moves is the approval row:
+   - was `approved` and a **dry field** changed (`datetime` / `address` / `price`) → `rescheduled`,
+     and the counterparty must re-confirm;
+   - anything else → `pending`;
+   - **CRM client → stays `approved`** — no app, so no one to re-confirm. This is why a coach's
+     reschedule of a CRM booking is silent.
+3. A note-only edit is free: no status change, no re-confirmation.
+4. Push splits by cause: `coach_rescheduled_training` when the time moved, `coach_updated_training`
+   when another dry field did — mirrored to WhatsApp where the recipient allows it.
+5. **Group events carry a scope** (`This session only` / `This and all following` / `All sessions`)
+   and the response names the participants who now clash; they are notified and refunded, the rest
+   are moved.
 
 ### Flow 5: Cancellation of planned event
 
@@ -169,7 +180,7 @@ Old statuses map to canonical:
 | `pending` (receiver side, legacy naming overload) | `request` | The same underlying record; view depends on who's asking |
 | `approved` | `planned` | |
 | `declined`, `cancelled`, `auto_declined` | `cancelled` | All terminal non-completion states collapse |
-| `rescheduled` | `cancelled` (original) + `request`/`awaiting` (new event) | Reschedule always creates a new event, cancels old |
+| `rescheduled` | `awaiting` (same event) | **Corrected 2026-08-11.** Reschedule does **not** create a new event: the event is updated in place and its approval row moves — an `approved` event whose time / location / price changed goes to `ApprovalStatus.rescheduled`, anything else to `pending`. Nothing is cancelled. See Flow 4 |
 | `successful` / `completed` | `finished` | |
 | `paid`, `cash` | NOT a status — payment is a separate field on the event (see [payments.md](./payments.md)) |
 | `invitation` | NOT a status — invite link is a separate entity in deep-linking-referrals spec |

@@ -97,7 +97,10 @@ Badges in MVP appear only on **Clients** (`clients_pending`) and **Messages** (`
 
 ## 6. API
 
-### `GET /api/v1.0.0/navigation/badges`
+### `GET /api/v1.0.0/navigation/badges` — ⚠️ **does not exist (checked 2026-08-11)**
+
+No badge-aggregation endpoint was ever built. Clients compose their badges from the per-module counts they already fetch (`/notifications/count`, dashboard `pendingActions`, messaging unread). Treat the shape below as a proposal.
+
 
 ```json
 {

@@ -8,7 +8,7 @@
 > Implementation:
 > - iOS:     [321fit_ios/docs/onboarding-wizard-ios.md] (to be created)
 > - Backend: [poly-backend/docs/onboarding-wizard-backend.md] (to be created)
-> - Android: (future)
+> - Android: partial — post-signup onboarding exists; the step-progress wizard in this spec does not
 
 ---
 
@@ -134,7 +134,10 @@ Each step row has one of three visual states:
 
 ### Endpoints
 
-#### `GET /coach/onboarding/progress`
+#### `GET /coach/onboarding/progress` — ⚠️ **not built (checked 2026-08-11)**
+
+The shipped onboarding surface is `PATCH|PUT /user/onboarding/setup` and `/user/onboarding/complete`; there is no per-step progress resource. Step completion is derived client-side from the profile.
+
 
 Returns current wizard state.
 

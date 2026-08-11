@@ -194,10 +194,10 @@ Endpoints (extending existing per `feedback_backward_compat_endpoints`):
 | `GET /coach/me` | Initial load — all editable fields + computed metadata including `intro_video` object |
 | `PUT /coach/me` | Save form (one round-trip with all changed fields). Does NOT carry video bytes. |
 | `PUT /me/upload-avatar` | Existing — avatar binary upload (multipart). Add 401 re-auth flow handler. |
-| `PUT /me/upload-cover` | NEW — cover image binary upload (multipart), same shape as avatar |
-| `POST /me/intro-video/upload-url` | NEW — request a Mux direct-upload. Returns `{upload_id, upload_url}`. See [mux-integration.md § 5.3](../architecture/mux-integration.md). |
-| `POST /me/intro-video/uploaded` | NEW — client signals PUT completed. Backend marks `mux_status: "uploading_done"` (transient pre-webhook). |
-| `DELETE /me/intro-video` | NEW — remove the asset on Mux + clear coach record. |
+| `PUT /coach/cover-media/cover-photo` | **Shipped** (was specced as `PUT /me/upload-cover`) — cover image upload; `DELETE` on the same path removes it. *Corrected 2026-08-11.* |
+| `POST /coach/cover-media/profile-video/upload-url` | **Shipped** (was specced as `/me/intro-video/upload-url`) — request a Mux direct-upload. See [mux-integration.md § 5.3](../architecture/mux-integration.md). |
+| `POST /coach/cover-media/profile-video/complete` | **Shipped** (was specced as `/me/intro-video/uploaded`) — client signals the upload finished. |
+| `DELETE /coach/cover-media/profile-video` | **Shipped** (was specced as `DELETE /me/intro-video`) — removes the Mux asset + clears the coach record. |
 | `POST /webhooks/mux` | NEW — backend webhook receiver (not a client endpoint). Drives the state machine. |
 | `PUT /me/update-timezone` | Existing — separate endpoint kept |
 

@@ -167,17 +167,23 @@ scope ('occurrence' | 'series'), hidden_at
 - `external_event_id` is the stable Google/Apple event ID. For recurring series, Google exposes both `id` (instance) and `recurringEventId` (parent). v1 stores per-instance.
 - Hidden events are **filtered server-side** out of the day endpoint payload before sending to client — clients never see the hidden event. This keeps client logic clean and respects role boundary (athletes never see coach's hidden list).
 
-**Endpoints** — see [poly-backend/docs/calendar-sync-api.md](../../poly-backend/docs/calendar-sync-api.md):
+**Endpoints** — ⚠️ **none of the three exist (verified against the backend 2026-08-11).** There is no
+`/coach/calendar` router at all, so per-event hide, unhide and the hidden list are **entirely
+unbuilt** — as is everything downstream of them: the *"Ignore external events"* bulk action and the
+overlap drawer's secondary path ([coach-calendar.md § 4c](./coach-calendar.md)). Keep as target design;
+do not schedule client work against it until the backend lands. Reference:
+[poly-backend/docs/calendar-sync-api.md](../../poly-backend/docs/calendar-sync-api.md).
+
 - `POST /v1.0.0/coach/calendar/external-events/{external_event_id}/hide` — body `{ scope: "occurrence" }` (v1 only supports occurrence). Returns 204.
 - `DELETE /v1.0.0/coach/calendar/external-events/{external_event_id}/hide` — unhide. Returns 204.
 - `GET /v1.0.0/coach/calendar/external-events/hidden` — list, paginated. ⚠️ **2026-06-03: the "Hidden events" management section was removed from the Account-detail screen (over-complex). This endpoint currently has no UI consumer.** Unhide is now only via the transient **Undo snackbar** right after hiding; there is no permanent "recover hidden event" surface. **Open decision:** drop per-event hide entirely, or relocate the recovery list elsewhere (see open question). Auto-cleanup unchanged: backend drops stale entries when the underlying event is deleted at source.
 
 **Entry points (UI):**
 1. **External event drawer** (tap external tile on schedule) → footer button "Hide from schedule" (destructive-tinted, with eye-off icon). Closes drawer + shows snackbar "Hidden '{title}' · Undo" (5s). This is the **surgical** path for muting a specific event.
-2. **Overlap drawer** secondary action **"Ignore external events"** → backend loops POST `.../external-events/{id}/hide` for every external event in the current conflict group (bulk hide). Snackbar "Ignored N events from this slot · Undo". After bulk hide, client recomputes overlap → own event tile loses the `.overlapped` marker. This is the **bulk** path for resolving a conflict from the external side without granular decisions. See [coach-calendar.md § 4c Event overlap rendering](./coach-calendar.md#4c-event-overlap-rendering-added-2026-05-21).
+2. ~~**Overlap drawer** secondary action **"Ignore external events"** (bulk hide).~~ **Retired 2026-08-11** — the overlap sheet is now a disambiguation list with no actions of its own ([coach-calendar.md § 4c](./coach-calendar.md)). With it goes the only shipped consumer of per-event hide; if hiding an external event is wanted, it comes back through `cal-external-sheet`, one event at a time.
 3. **Hidden events list** (Settings → Calendar Sync → Account detail → footer section "Hidden events (N)") → per-row Unhide button. Empty state when count = 0 ("No events hidden from this account").
 
-A bulk endpoint (e.g. POST `.../external-events/hide-batch` with id list) can land in Phase 2 to reduce N round-trips on "Ignore external events" — current per-id loop is acceptable for typical N=1–4 conflict groups.
+~~A bulk hide-batch endpoint for "Ignore external events".~~ Moot — the bulk action was retired 2026-08-11 (see above).
 
 **Behavior:**
 - Hide is **non-destructive** — event still exists in Google/Apple, only invisible in 321Fit.

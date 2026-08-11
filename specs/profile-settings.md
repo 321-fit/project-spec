@@ -114,11 +114,31 @@ enum SettingsType: String, CaseIterable {
 
 ## Available Hours (Coach)
 
-**Location:** `ProfileTab/Settings/Options/AvailableHours/`
+**Location:** Profile / Settings → **Availability** (hub) → Available hours.
+*(Expanded 2026-08-11 from a four-bullet stub to what shipped on Android + backend —
+`GET/PUT /coach/schedule/`.)*
 
-- Set weekly work schedule
-- Day-of-week + start time + end time
-- Affects booking slot availability
+**Availability is a hub, not a row.** One card leads to three things that used to be scattered:
+weekly hours, per-day location, and [Time off](./vacation-mode.md). The hub shows a derived summary
+(active days, the coach's zone with its GMT offset) — derived, never stored, so it can't disagree
+with the editor.
+
+**The weekly editor:**
+
+- Seven day rows, each **on/off**, each holding **one or more intervals** — a split day (morning +
+  evening) is the normal case, not an edge case.
+- Minimum interval **30 minutes**; validation is live per interval: *end before start*, *too short*,
+  *overlaps another interval on the same day*. Save is blocked while any row is invalid.
+- **One in-person location per day** — a pill on the day row opening a picker of the coach's
+  locations. The wire carries an address **per interval**; the product decision is one per day, so
+  the client writes the day's choice onto every interval on save. Per-interval locations (different
+  gym morning vs evening) are deliberately deferred — see [location-picker.md](./location-picker.md).
+- **All days off** is allowed but banners: with no hours, nobody can book.
+- Times are the coach's own zone, stated on screen. Dirty-state discard confirm on back.
+
+**Consumers.** These hours are what the booking grid washes out as off-hours, what
+`training-events/allowed-hours` answers per date, and what a drag on the calendar is validated
+against ([coach-calendar.md](./coach-calendar.md)).
 
 ## Account & Password
 

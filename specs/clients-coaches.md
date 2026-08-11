@@ -8,7 +8,7 @@
 > - iOS:     [321fit_ios/docs/clients-coaches-ios.md](../../321fit_ios/docs/clients-coaches-ios.md)
 > - Backend: [poly-backend/docs/clients-coaches-api.md](../../poly-backend/docs/clients-coaches-api.md) · [clients-coaches-backend.md](../../poly-backend/docs/clients-coaches-backend.md) (relationship model migration)
 > - Voice:   [voice_control/docs/clients-coaches-voice.md] (to be created)
-> - Android: (future)
+> - Android: **shipped** — clients list + detail, CRM create/edit, contact import, client groups (PR #146)
 
 > **Client groups — built (2026-08-11).** Shipped on the backend (`poly-backend` `dev2`) and Android;
 > iOS parity is 321fit_ios#479. Prototype:
@@ -93,8 +93,8 @@ This spec focuses on the **coach-side Clients tab** (the more complex half) and 
 1. Tap bell → `#s-requests` push screen.
 2. Cards for each pending `request` (see [event-statuses.md](./event-statuses.md)).
 3. Each card: athlete avatar + name + training name + date/time + price + Decline (destructive medium) + Accept (primary).
-4. Accept → `POST /events/{id}/accept` → event becomes `planned`; card fades out; snackbar confirmation.
-5. Decline → destructive confirmation (optional) → `POST /events/{id}/decline` → card fades; snackbar.
+4. Accept → `PATCH /coach/training-events/{id}/change-status` with `{status: "approved"}` → event becomes `planned`; card fades out; snackbar confirmation. *(Path corrected 2026-08-11 — there is no `/events/{id}/accept`; the accepted values are `approved | declined | cancelled` and nothing else.)*
+5. Decline → destructive confirmation (optional) → same endpoint with `{status: "declined"}` → card fades; snackbar.
 6. Empty state: illustration + "All caught up" + "New training requests from athletes will appear here."
 7. **Avatar / row tap** → push Client Detail (`#s-client-detail`) for that athlete. **No separate "athlete profile" screen exists** — from the coach's perspective, athlete profile IS Client Detail. The same screen the Clients-list tap reaches; this inbox is just an additional entry point. The avatar in the Client Detail header itself is decorative (no tap — already on this athlete's profile).
 
@@ -154,7 +154,7 @@ The primary path for onboarding an offline roster.
    - Select training template
    - Select date/time
    - Review with comment (300 char max; shown as note-block on athlete's Request sheet)
-3. Send → `POST /coach/events` with `type: personal, status: awaiting` (coach-side) — athlete sees it as `request`.
+3. Send → `POST /coach/training-events/` (coach-side) — athlete sees it as `request`. *(Path corrected 2026-08-11 — `/coach/events` never existed.)*
 4. Athlete accepts → event becomes `planned`.
 5. After Send → return to Client Detail with snackbar "Request sent".
 
@@ -243,7 +243,7 @@ Each segment empties **independently** (`#s-archived.arch-empty` / `.blk-empty`)
 ### Flow 10: Mark Paid (cash) from Client Detail
 
 1. On Client Detail, in Outstanding Cash carousel: cards for each unpaid session, each with `€X owed`.
-2. Tap `Mark paid` on a card → `POST /coach/payments/cash-paid` with event_id.
+2. Tap `Mark paid` on a card → `POST /coach/training-events/{id}/submit-cash-payment/`. *(Corrected 2026-08-11 — `/coach/payments/cash-paid` does not exist; see [payments.md](./payments.md) Flow J for all three shipped settlement paths.)*
 3. Optimistic fade; snackbar "Marked paid · Undo" (10s).
 
 ### Flow 11: Athlete-initiated disconnect (Tier 1 Q7 — silent for ALL athlete-side actions)
@@ -359,7 +359,10 @@ Create a coach-managed CRM contact (manual, single).
 
 **Response 200:** new `CoachClientRelationship` with `athlete_account_status: crm`, `relationship_state: active`, `origin: "manual"`.
 
-#### `POST /coach/crm-clients/bulk` (NEW — contact import)
+#### `POST /coach/crm-clients/import` (contact import)
+
+> **Path corrected 2026-08-11** — this was specced as `/coach/crm-clients/bulk`; the shipped route is
+> **`/import`**, and it is what Android calls.
 
 Bulk-create CRM contacts from the coach's address book (Flow 3d).
 
@@ -380,7 +383,29 @@ Bulk-create CRM contacts from the coach's address book (Flow 3d).
 
 **Response 200:** `{ created: int, linked: int, skipped: int }` + the created/linked relationship records.
 
-The bulk **invite** is not a backend call — it's a client-side native share of the coach's OneLink (see deep-linking-referrals.md).
+#### `POST /coach/check-contacts` (shipped, was unspecced)
+
+The dedup/match pass in Flow 3d step 2 is **server-side**, not client-side as this spec implied.
+Body `{ phones: [...] }` → `{ existingPhones, crmPhones, clientPhones }`, i.e. *has an app account* /
+*already a CRM contact of mine* / *already an active client of mine* — which is exactly the three
+row states the import list renders. The client never has to guess from its own data.
+
+#### `POST /coach/bulk-invite` — ⛔ built on the backend, **deliberately not used**
+
+Takes `{ contacts: [{name, phone}] }` and sends the invites server-side (SMS / push / WhatsApp),
+returning `{ sentSms, sentPush, sentWhatsapp, failed, skipped, total }`.
+
+**Decision (owner, 2026-08-11): the coach shares — the endpoint is retired.** *Invite all N* opens the
+native share drawer with the coach's own OneLink (`c=crm_import`), which is what Flow 3d specifies and
+what Android ships. Rationale is the promise in Flow 3d step 1: *we never message contacts
+automatically — sending is always coach-initiated*. An invite that arrives from the coach's own
+WhatsApp is also the one people answer.
+
+**No client may call `bulk-invite`** — not iOS, not Android. The endpoint can be dropped on the next
+backend cleanup pass; it is listed here so it isn't rediscovered in six months and mistaken for the
+intended path.
+
+The bulk **invite** is therefore not a backend call today — it's a client-side native share of the coach's OneLink (see deep-linking-referrals.md).
 
 **Relationship model fields (Q6 + Q7 additions):**
 ```typescript
@@ -416,7 +441,7 @@ Change relationship state.
 
 **Response 200:** updated relationship record.
 
-#### `POST /coach/events` (with schedule mode)
+#### `POST /coach/training-events/` (with schedule mode)
 
 Extended for coach-initiated scheduling — see [coach-calendar.md](./coach-calendar.md) and [event-statuses.md](./event-statuses.md).
 
@@ -446,7 +471,7 @@ When coach initiates for an existing active-app client: `status: awaiting` (coac
 - **CRM → app upgrade (Tier 1 Q6):** automatic on matched signup. Match priority: invite-token (exact) > phone E.164 (exact) > email (lowercase exact). Multi-coach same-phone → links to all coaches simultaneously (not a conflict — each coach gets their own relationship with the same athlete). Origin tagged on relationship: `invite | auto_phone_match | auto_email_match | manual | import | booking`. Pre-existing CRM sessions + cash records attach to new app account; no data loss.
 - **Athlete-initiated disconnect (Tier 1 Q7):** all silent. Coach receives NO push, NO inbox entry, NO reason. Pause shows as "Inactive Clients" with last-activity tag; Block shows as separate "Disconnected" row in Archived & Blocked screen (record-only, no actions). Future booking reactivates pause; block requires athlete-side unblock from Settings.
 - **Deleted athlete:** coach retains historical records. Deletion cascades via GDPR right-to-be-forgotten path separately (see authentication.md) — not automated from deletion event alone.
-- **CRM sessions are CASH only.** Since no app account → no Stripe. `POST /coach/events` enforces `paymentType: cash` for CRM relationships.
+- **CRM sessions are CASH only.** Since no app account → no Stripe. `POST /coach/training-events/` enforces `paymentType: cash` for CRM relationships.
 - **Single blocking relationship at a time** is fine (one coach blocks one athlete). Multiple coaches can independently block the same athlete.
 - **Notes (private, coach-only)** persist across all state changes including deletion.
 - **Relationship ownership:** only the coach side can modify relationship state. Athletes disconnect by deleting their coach from "My Coaches" on their side, which creates a separate record change (see athlete-schedule.md).

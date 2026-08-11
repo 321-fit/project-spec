@@ -334,7 +334,26 @@ reason (optional, nullable string)
 
 ## API Endpoints
 
-### New
+> **Reality check, 2026-08-11.** Everything under "New" below is **still unbuilt** — the whole re-auth
+> namespace, the email-change pair, disconnect, the availability probe and the delete-preflight do not
+> exist. What ships today, and what a client actually has to call:
+>
+> | Need | Shipped endpoint |
+> |---|---|
+> | List methods | `GET /user/me/login-methods` |
+> | Add Apple / Google / email | `POST /user/me/login-methods/{apple\|google\|email}` |
+> | Add / change phone | `POST /user/me/login-methods/phone/send-otp` → `.../phone/confirm` |
+> | Change password | `POST /auth/password/change` |
+> | Reset password (unauthenticated) | `POST /auth/password/reset/request` → `/auth/password/reset/confirm` |
+> | Generic OTP | `POST /auth/otp/send` → `/auth/otp/confirm` |
+> | Delete the account | `DELETE /user/me` — **no preflight, no re-auth token, no 30-day purge window** |
+>
+> Note the shape difference, not just the paths: there is **no re-auth token anywhere**, and
+> **no disconnect endpoint** — a linked provider cannot be removed. The delete-blocker screen
+> (`s-delete-blockers`) has no data source, so a client either drops it or computes the blockers
+> itself from balance/sessions. Treat the section below as the target design.
+
+### New *(target — none of these exist yet)*
 
 **Re-auth (issue token):**
 - `POST /auth/reauth/password` — body: `{ password, context }` → 200 with re-auth token

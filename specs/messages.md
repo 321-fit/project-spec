@@ -70,7 +70,10 @@ All bodies are **camelCase**; base path is `/api/v1.0.0/messages`. Full request/
 
 **Rate limits:** `POST …/messages` is throttled per user (currently **30 / 10s**); group writes — group-create + add-participants — have a separate budget (**20 / 60s**). Over-limit → `429` with a `Retry-After` header; the limiter fails open. 1:1 open is idempotent and unthrottled.
 
-**Not yet shipped (proposed):** `GET /messages/unread-count` (dedicated header-badge total — the client currently sums per-conversation `unreadCount` from the list) and `GET /messages/recipients?q=` (people-picker source). Both are tied to the eligibility decision below — see [BACKEND #1 / P1] in the audit.
+**Re-checked 2026-08-11:** `GET /messages/recipients?q=` **has shipped** since the July audit — the
+people-picker has its source. `GET /messages/unread-count` is still **not built**, so the header badge
+stays a client-side sum of per-conversation `unreadCount`. Only the second one is still tied to the
+eligibility decision below.
 
 ### Messaging eligibility (open) {#messaging-eligibility-open}
 

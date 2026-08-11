@@ -8,11 +8,17 @@
 > Prototype (coach inbox): [flows/coach/dashboard.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/dashboard.html)
 > Feature map: [flows/journeys/packages.html](https://321-fit.github.io/project-spec/prototypes/flows/journeys/packages.html)
 > Related specs: [payments.md](./payments.md) · [session-creation.md](./session-creation.md) · [booking-flow.md](./booking-flow.md) · [clients-coaches.md](./clients-coaches.md) · [notifications-catalog.md](./notifications-catalog.md)
-> Last updated: 2026-07-15
+> Last updated: 2026-08-11 (implementation pointers reconciled — [audit](../audits/2026-08-11-specs-vs-android.md))
 > Implementation:
 > - iOS:     321fit_ios/docs/session-packages-ios.md (to be created)
-> - Android: 321fit_android/docs/session-packages-android.md (to be created)
-> - Backend: poly-backend/docs/session-packages-api.md (to be created)
+> - Android: not built
+> - Backend: **shipped, and the doc exists** — [poly-backend/docs/session-packages-api.md](../../poly-backend/docs/session-packages-api.md).
+>   Live surface: coach `package-offers` (+ `/tiers`, `/sell`, `/buyers`, `/offer-renewal`),
+>   `package-lots/{id}/mark-cash-received`, `coach/clients/{id}/packages[/{offerId}[/history]]`;
+>   athlete `coaches/{id}/packages[/{offerId}[/history]]` and
+>   `coaches/{id}/training-sessions/{sessionId}/package-offer`.
+>   The spec's own status stays **Draft** on purpose — the UX is still shaping, and the backend
+>   arriving first is exactly the reference-stand order, not a signal that the design is settled.
 
 ---
 

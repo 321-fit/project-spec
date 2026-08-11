@@ -274,7 +274,7 @@ Screen `s-stripe-withdraw`. Reachable only when payout schedule = Manual.
 - 3 quick chips: €50 / €100 / All
 - Destination row: current default external account (Bank or Card)
 - ETA copy: "1–2 business days" (bank) / "Under 30 minutes · 1% fee" (card)
-- Confirm → `POST /coach/stripe-onboarding/payout` body `{ amount, currency }` → toast "Withdrawal requested" → back to `s-stripe` with refreshed Available
+- Confirm → `POST /coach/payouts/instant` body `{ amount, providerKey }` → toast "Withdrawal requested" → back to `s-stripe` with refreshed Available. *(Corrected 2026-08-11 — `/coach/stripe-onboarding/payout` does not exist; the shipped withdraw route is `/coach/payouts/instant`, and `GET /coach/stripe-onboarding/payouts` lists past ones.)*
 
 **Minimum €20** enforced both client + server side. Below-min input shows warn banner + disables Confirm.
 
@@ -310,7 +310,7 @@ See **[poly-backend/docs/stripe-onboarding-frontend-guide.md](https://github.com
 | `PATCH /external-account/{id}` | Set as default | Body `{default_for_currency: true}` |
 | `DELETE /external-account/{id}` | Remove | Backend blocks when last + returns `409 last_external_account` |
 | `PATCH /payout-schedule` | Set payout cadence | Body `{schedule}` ∈ `manual` · `daily` · `weekly` · `monthly` (app sends no anchor). Live on `main`; needs anchor-handling fix (see §5.5) |
-| `POST /payout` | Manual Withdraw | Body `{amount, currency}`; min €20 enforced server side |
+| `POST /coach/payouts/instant` | Manual Withdraw | Body `{amount, providerKey}`; min €20 enforced server side. *Path corrected 2026-08-11 (was `/payout`).* |
 | `GET /payouts` | History list | Query `?limit=20&before=<cursor>`; returns `{items, next_cursor, lifetime_total}` |
 | `DELETE /account` | Disconnect | Clears `stripe_account_id`; cancels future card events with refund (if disconnect-anyway from `active-events` variant) |
 

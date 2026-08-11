@@ -3,12 +3,12 @@
 > Status: Approved (contract) / In Progress (event sheet + custom event migration)
 > Prototype: [flows/coach/calendar.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-07-03
+> Last updated: 2026-08-11 (reconciled with shipped Android — see [audits/2026-08-11-specs-vs-android.md](../audits/2026-08-11-specs-vs-android.md) § Cluster 1)
 > Implementation:
 > - iOS:     [321fit_ios/docs/coach-calendar-ios.md] (to be created)
 > - Backend: [poly-backend/docs/coach-calendar-backend.md] (to be created)
 > - Voice:   [voice_control/docs/coach-calendar-voice.md] (to be created)
-> - Android: (future)
+> - Android: **shipped** — one calendar shared by both roles (epic #122), PRs #121 / #123 / #124 / #131
 
 ---
 
@@ -95,15 +95,31 @@ Root tab screen, has the nav bar footer. Acts as both agenda view (for the coach
 - **Pick athlete** (`s-schedule-pick-athlete`) — search-first list of recent clients + "Invite by phone" CTA (Appsflyer OneLink SMS for non-321Fit recipients per [deep-linking-referrals.md](./deep-linking-referrals.md)). Only reachable in Personal mode.
 - **Pick template** (`s-schedule-pick-template`) — list of coach's session templates filtered by parent's Training type toggle (Personal vs Group). "+ Create new template" inline CTA routes to `sessions.html#s-create` with matching type preselected.
 
-### Flow 4: Reschedule via drag & drop (same day)
+### Flow 4: Reschedule via drag & drop (same day) — rewritten 2026-08-11 to shipped Android
 
-1. Coach long-presses a `planned` event → event lifts slightly (haptic feedback on iOS).
-2. Drag → event follows pointer, visual indicators:
-   - Unavailable zones (existing events, external events, out-of-work-hours) shown with red tint
-   - Drop indicator snaps to 15-minute grid
-3. Drop on valid slot → confirm sheet "Reschedule to {new time}?" → on confirm, create new event at new time with `awaiting`/`request` state; old event → `cancelled`.
-4. Drop on invalid (conflict) → snackbar "Slot conflicts with another event"; event snaps back.
-5. Cross-day drag not supported in v1.
+1. Coach long-presses a draggable event (personal · group · custom — never external, never cross-role)
+   → the tile lifts, haptic on grab.
+2. On drag start the client loads the **counterparty's** busy ranges for the day on screen
+   (`GET /coach/athletes/{id}/occupied-slots/`) — only a 1-1 event has a counterparty to check.
+   Group events are handled by their participants' conflicts after the move; custom events have none.
+3. Drag → the tile follows the pointer, snapping to the 15-minute grid. An invalid target paints the
+   tile invalid and the snackbar **names the reason**: `outside working hours` / `slot occupied` /
+   `the athlete is busy`. Paging is disabled while a drag is in flight — that is what keeps drag
+   same-day without a separate rule.
+4. **Drop, personal:** commits **optimistically and in place** — no confirm sheet. `PUT /coach/training-events/{id}/`
+   with the new window. The event is not recreated; its **approval row** moves instead (see Flow 12
+   and [event-statuses.md § 5a](./event-statuses.md)). On failure the tile snaps back to its original
+   position and the server's message is shown.
+5. **Drop, group:** opens the **recurring-scope sheet** first — *This session only · This and all
+   following · All sessions*. The tile sits at the new time while the sheet is up and **nothing
+   reaches the server** until a scope is chosen; dismissing puts the tile back. Confirm →
+   `PUT /coach/training-events/{id}/reschedule` with the scope.
+   *Why the asymmetry:* dragging used to move one occurrence silently while Reschedule from the
+   drawer always asked — the same action answered differently depending on how it was started.
+6. **After a group move** the server returns the participants who now clash. The client shows
+   *"Scheduling conflicts — these athletes now have another session at this time. Reach out to them."*
+   The move is not rolled back; the coach resolves it person by person.
+7. Cross-day drag not supported in v1 — cross-day rescheduling goes through the drawer.
 
 ### Flow 5: Busy time (custom event — 2026-05-20 prototype landed; renamed from "Block time off" 2026-07-03)
 
@@ -161,18 +177,18 @@ All 6 variants share the same DOM structure (avatar row + info + footer). Only t
    - Event was cancelled / deleted between push send and tap → toast "This session is no longer scheduled" and stay on Calendar at the relevant day.
    - User on Athlete role but push references a Coach event (or vice versa) → cross-role drawer; never auto-switches role silently.
 
-### Flow 11: Resolve overlap with external calendar event (2026-05-21 added)
+### Flow 11: Two events in the same slot (rewritten 2026-08-11)
 
-When a coach connects Google/Apple Calendar AFTER they already have 321Fit bookings, an external event may collide with a planned 321Fit session. We can't prevent this at create time (external event predates our awareness), so we surface it visually.
+An external event may collide with a planned 321Fit session — we can't prevent it at create time,
+because the external event predates our awareness of it. We surface it and get out of the way.
 
-1. Day events endpoint returns both 321Fit events + external events for the day. Client computes overlap by interval intersection (matches iOS `ScheduleManager.overlapped: [Int: Set<Int>]`).
-2. Each tile in an overlap gets the `.overlapped` modifier (canonical lib class, also `.overlapped` on `FitCalEvent` component): red-tinted gradient overlay (#705959 → #BB7F7F, matches iOS `Theme.Gradient.overlappedEvent`) + corner-dot marker.
-3. Tap on either overlapped tile → `cal-overlap-sheet` opens:
-   - Status header "Time conflict" + Overlap badge.
-   - Both events listed (ours + theirs) with times.
-   - Info banner: "External events can't be edited here. Reschedule your training in 321Fit, or open Google Calendar to move the other event."
-   - Footer actions: primary "Reschedule {our event}" (opens existing reschedule sheet), secondary "Open in Google Calendar" (deep-link to native app).
-4. No automatic resolution. Two consenting changes are needed: either we reschedule our event or coach moves the external event in Google. The drawer surfaces both options; we don't pick.
+1. Both events render with the `.overlapped` marker (red wash + corner dot).
+2. Tapping either one opens `cal-overlap-sheet`: *"N events at this time. Tap one to open."*
+3. Picking a row opens **that event's own drawer** — where Reschedule / Cancel (ours) or
+   "Hide from schedule" (external) already live.
+
+The sheet exists because stacked tiles are hard to hit, not because the app resolves the clash.
+See § 4c for the decision that retired the conflict-resolution drawer.
 
 ### Flow 9: Tap a cross-role event → switch role
 
@@ -192,7 +208,38 @@ An event created from a Training Session is its **own entity**: it inherits the 
 
 **Not template edit:** this edits one occurrence only. Template editing (applies to future / all events, with its own Future/All scope sheet) lives in `sessions.html#s-edit` — don't conflate.
 
-**Open before dev-ready:** re-confirm should fire only when a dry field actually changed AND the event is confirmed (request / pending or note-only → no re-confirm); recurring scope on Save (This / This+following / All), layered like Reschedule; group edit must gate participant-affecting changes (refunds), like group reschedule.
+**Shipped rules (2026-08-11 — these three were listed as open; the backend answers all of them):**
+
+- **Re-confirm fires only on a dry-field change**, and the dry set is `datetime · address · price/currency`.
+  Duration travels *as* the datetime, not as a field of its own; a note-only edit changes nothing.
+- **The event is not recreated — its approval row moves.** Approved + dry change → `RESCHEDULED`;
+  anything else → `PENDING`. See [event-statuses.md § 5a](./event-statuses.md).
+- **A CRM client is exempt**: they don't have the app and cannot answer a re-confirm, so the event
+  stays `APPROVED` and the athlete-side notification is skipped.
+- **Recurring scope on Save exists** (`recurring_scope` on `PUT`) and ripples only the fields that
+  describe *what the session is* — never the datetimes, which each occurrence owns. Moving a whole
+  series is Reschedule, with its own grid.
+- **The notification splits by cause**: `coach_rescheduled_training` when the time moved,
+  `coach_updated_training` otherwise — mirrored to WhatsApp when the athlete allows it.
+
+**Still open:** group edit must gate participant-affecting changes (refunds), the way group
+reschedule does.
+
+### Flow 13: Group session below its minimum — documented 2026-08-11 (shipped Android)
+
+A group template can carry an optional **minimum** alongside its max ([session-creation.md](./session-creation.md)).
+When an upcoming group event hasn't reached it, the coach is pushed
+([group-training.md](./group-training.md) § notifications) and the decision is taken **on the calendar**,
+in a sheet:
+
+- Title *"Minimum not reached"*, subtitle `{session} · {N}h remaining` — the hours are what makes
+  this actionable rather than informational.
+- Participants row: `{joined} / {min} min · {max} max`.
+- Body: *"N of M athletes joined. You can still run the session with current participants or cancel."*
+- Actions: **Proceed with N athletes** (primary) · **Cancel Training** (destructive) — the same
+  cancel path as the drawer, so a recurring group event still asks for its scope.
+
+The sheet never blocks: doing nothing leaves the session as it is.
 
 ---
 
@@ -246,39 +293,46 @@ When the active user has BOTH roles (coach + athlete), events from the OTHER rol
 
 ---
 
-## 4c. Event overlap rendering (added 2026-05-21)
+## 4c. Event overlap rendering (rewritten 2026-08-11 — decision taken)
 
-Overlap = two events occupying the same time window on the same coach's calendar. Backend prevents new overlaps between our events at create time (`_has_time_conflict` in `coach/training_events.py` returns 400). External events (Google/Apple) **cannot be prevented** — they may pre-exist when coach connects calendar post-factum. The client surfaces these overlaps visually instead.
+**Decision (owner, 2026-08-11): the disambiguation list is canon; the conflict-resolution drawer is
+dropped.** The earlier design — "Time conflict" header, Yours/Google badges, a Reschedule primary and
+an **Ignore external events** secondary hitting `POST /coach/calendar/external-events/{id}/hide` — is
+retired, not deferred. It needed a `/coach/calendar` router that does not exist on any backend, and
+the problem it solved is not the problem coaches actually have here.
 
-**Detection (client-side):** day events endpoint returns all events for the day. Client computes overlaps by interval intersection between any two events (matches iOS `ScheduleManager.overlapped: [Int: Set<Int>]`). No backend overlap field on the response — purely client-derived.
+Overlap = two events occupying the same window on the same coach's calendar. The backend blocks
+overlaps between **our** events at create time (`_has_time_conflict` → 400). External Google/Apple
+events **cannot** be prevented — they may pre-date the calendar connection. So overlap is a rendering
+concern, and the only thing the app owes the coach is (a) seeing it and (b) being able to open either
+event.
 
-**Visual marker:** `.overlapped` modifier on the tile (canonical lib class + `FitCalEvent` component prop):
-- Red-tinted gradient overlay (#705959 → #BB7F7F, muted brown-red — matches iOS `Theme.Gradient.overlappedEvent`)
-- Small corner-dot marker (8pt circle, top-right of tile) with red gradient + 1.5pt screen-bg ring so it reads against dense tiles
-- Works on top of any tile type (Personal / Group / External / Cross-role / Custom) — additive, doesn't replace the underlying type color
+**Detection (client-side).** The day's events are intersected pairwise; there is no overlap field on
+the wire. Matches iOS `ScheduleManager.overlapped: [Int: Set<Int>]`.
 
-**Entry point:** coach scrolls the timeline → sees the red-tinted overlay + corner dot on conflicting tiles → taps **any one of them** (own event or external) → `cal-overlap-sheet` opens. Tap-of-overlapped own-event **short-circuits** the regular event drawer (cal-event-sheet / cal-group-sheet) in favor of the conflict drawer; from there, Reschedule action can still hand off to the rescheduling flow.
+**Visual marker** — `.overlapped` on the tile (lib class + `FitCalEvent` prop):
+- red-tinted gradient overlay (#705959 → #BB7F7F, matching iOS `Theme.Gradient.overlappedEvent`);
+- an 8pt corner dot, top-right, with a 1.5pt screen-bg ring so it reads on dense tiles;
+- additive over any tile type (Personal / Group / External / Cross-role / Custom).
 
-**Drawer (`cal-overlap-sheet`):** Supports **N events** in the conflict group, not just 2.
+**Sheet (`cal-overlap-sheet`) — a disambiguation list, nothing more.** Tapping any tile in an overlap
+group opens *"Overlapping events · N events at this time. Tap one to open."* Each row opens that
+event's own drawer, where the real actions already live (Reschedule, Cancel, Hide from schedule for an
+external). Supports arbitrary N; the 95% case is 2.
 
-- Status header "Time conflict" + Overlap badge
-- Hero row: dynamic count copy ("N events overlap") + combined start–end time + date
-- **Scrollable event list** (max-height 280pt) — each row shows the event icon + name + "Yours" / "Google" / "Apple" badge inline + individual time. Badge clarifies which events are coach-editable vs read-only. Rows are read-only here — surgical per-event hide is **not** exposed in the overlap drawer (would be visual overload + drawer is for resolving conflict, not granular calendar management). Coach who wants to surgically mute a specific external event taps that tile directly on the schedule → uses "Hide from schedule" in `cal-external-sheet`.
-- Info banner: external events are read-only here
-- Footer actions adapt to group composition — **two buttons** in the common case:
-    - **Primary** (reschedule our event):
-        - 1 own event in group → "Reschedule {name}" — direct (opens existing reschedule sheet)
-        - 2+ own events → "Reschedule one of your events" → opens reschedule picker (which event first)
-    - **Secondary** (resolve conflict from the external side): **"Ignore external events"**
-        - One tap → backend calls POST `/v1.0.0/coach/calendar/external-events/{id}/hide` **for each external** in the current overlap group → all those externals disappear from the schedule → client recomputes overlap → our event tile drops its `.overlapped` marker → drawer closes → snackbar "Ignored N events from this slot · Undo" (5s). Undo restores all of them at once and re-applies the marker.
-        - 0 external in group (rare race-condition case, all events are ours) → secondary hidden; reschedule picker is the only path
-        - Per-occurrence in v1 (recurring noise re-appears next week — coach can re-Ignore, or disable the source calendar in Settings → Calendar Sync via existing `isActive` toggle, or wait for Phase 2 series scope when backend exposes `recurringEventId`)
+**Why this and not conflict resolution.** Two stacked tiles are physically hard to hit — that is the
+coach's actual complaint. Everything the conflict drawer offered was a second copy of an action that
+already exists one tap deeper, and the "Ignore external events" bulk-hide additionally hid the
+individual externals with no permanent recovery path (the Hidden-events screen was dropped
+2026-06-03). One list that routes to the real drawers beats a parallel action surface.
 
-**Bulk hide vs surgical hide trade-off:** the bulk action removes the conflict marker but also hides the *individual* externals (one-shot per occurrence). ⚠️ Recovery via Settings → Calendar Sync → Account detail → "Hidden events" was **removed 2026-06-03** (section dropped as over-complex); for now the only undo is the transient snackbar right after hiding — permanent recovery is an open decision (see [google-apple-calendar.md](./google-apple-calendar.md) hide endpoints). Time-window-scoped acknowledgement (where externals remain visible but the marker silently clears) was considered and rejected for v1 — introduces a new backend primitive (`acknowledged_overlap_at` on training event) AND visually confusing (coach sees external in the same window without overlap styling and starts doubting whether the slot is free). Phase 2 may revisit.
+**Still true, and unchanged:** no automatic resolution. Either reschedule ours in 321Fit or move
+theirs in the owning calendar; the app never picks.
 
-**No automatic resolution.** Two consenting changes are needed: either reschedule our events in 321Fit, or coach moves the external ones in their owning calendar. The drawer surfaces both options; the system doesn't pick.
-
-**Realistic group sizes:** the 95% case is **2 events** (1 ours + 1 external). 3-4 events happen when multiple Google events land in the same window (e.g. "Team dinner" + "Bar meetup" both in the evening). 5+ rare; the scrollable list handles arbitrary N.
+**Consequence for calendar sync:** per-event hide, unhide and the hidden list
+([google-apple-calendar.md](./google-apple-calendar.md)) lose their only shipped consumer. They remain
+unbuilt; if per-event hide is wanted later it comes back through `cal-external-sheet`, not through
+overlap.
 
 **a11y prefix:** `coach.calendar.overlap.*`.
 
@@ -301,63 +355,33 @@ Timeline-level states that do exist:
 
 ## 6. API
 
+> **Corrected 2026-08-11.** This section used to document `GET /coach/calendar?date=`,
+> `GET /coach/month-dots?month=` and a `/coach/events` CRUD family. **None of them exist** — the
+> module is `/coach/training-events/`, and the calendar is built from a date-ranged list plus the
+> coach's allowed hours. (Android still carries dead Retrofit declarations for the two phantom
+> endpoints; filed for removal.) Full per-endpoint reference:
+> [poly-backend/docs/group-training-api.md](https://github.com/321-fit/poly-backend/blob/main/docs/group-training-api.md)
+> for the group half.
+
 ### Endpoints
 
-#### `GET /coach/calendar?date=YYYY-MM-DD`
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/coach/training-events/?start_date&end_date` | every fetch the calendar does — one day, a week strip, or a month of dots, by widening the range |
+| `GET` | `/coach/training-events/allowed-hours/?searched_date` | the coach's working window for that date → drives the off-hours wash and the drag guard |
+| `GET` | `/coach/athletes/{id}/occupied-slots/` | the counterparty's busy ranges, loaded when a drag starts. Returns each event's **raw** window — unlike the athlete-side twin, which returns it already expanded by the travel buffer |
+| `POST` | `/coach/training-events/` | create a personal or group event (Flow 3) |
+| `POST` | `/coach/training-events/create-custom/` | Busy time (Flow 5) |
+| `PUT` | `/coach/training-events/{id}/` | edit **and** personal reschedule — in place, never a new event. Accepts `recurring_scope` (Flow 12) |
+| `PUT` | `/coach/training-events/{id}/reschedule` | group reschedule; takes `recurring_scope`, returns the participants who now clash |
+| `POST` | `/coach/training-events/{id}/cancel` | group cancel; takes `recurring_scope` |
+| `PATCH` | `/coach/training-events/{id}/change-status/` | accept / decline / cancel a personal event from the drawer |
+| `DELETE` | `/coach/training-events/{id}/` | custom events — full deletion, not cancellation |
+| `POST` | `/coach/training-events/{id}/complete/` · `/submit-cash-payment/` · `/post-confirm/` | completion, see [review-queue.md](./review-queue.md) |
 
-Returns day-worth of events + availability metadata for the coach.
-
-**Response 200 — `CoachCalendarDay`:**
-
-```json
-{
-  "date":            "2026-04-24",
-  "timezone":        "Europe/Vienna",
-  "workHours":       { "startMin": 480, "endMin": 1200 },
-  "events": [
-    {
-      "id":           UUID,
-      "type":         "personal" | "group" | "custom" | "external",
-      "status":       EventStatus,
-      "startAt":      ISO8601,
-      "endAt":        ISO8601,
-      "title":        "Tennis training",
-      "athlete":      AthleteSummary | null,   // null for custom / external
-      "location":     "Court A" | null,
-      "price":        50.0 | null,
-      "currency":     "EUR" | null,
-      "paymentType":  "card" | "cash" | null,
-      "externalSource": "google" | "apple" | null
-    },
-    ...
-  ],
-  "unavailableBlocks": [
-    { "startMin": 720, "endMin": 780, "reason": "athlete_busy" | "external" }
-  ]
-}
-```
-
-#### `GET /coach/month-dots?month=YYYY-MM`
-
-Returns per-day event-type indicators for the month grid above the day strip.
-
-**Response 200:**
-```json
-{
-  "2026-04-10": ["personal"],
-  "2026-04-11": ["personal", "group", "external"],
-  ...
-}
-```
-
-#### Event CRUD (status-aware)
-
-- `POST /coach/events` — create new event (personal, group, or custom)
-- `PATCH /coach/events/{id}` — update event (title, time, location, etc.)
-- `POST /coach/events/{id}/reschedule` — creates new event in `awaiting`, cancels old
-- `POST /events/{id}/cancel` — see [event-statuses.md](./event-statuses.md)
-- `POST /coach/events/{id}/review` — mark complete / missed, see [review-queue.md](./review-queue.md)
-- `DELETE /coach/events/{id}` — custom events only; full deletion (not cancellation)
+**No day-bundle endpoint exists.** Work hours, events and the athlete's occupancy are three separate
+calls the client composes — the "composite day query" in § 9 was never built and is a backend
+proposal, not shipped behaviour.
 
 ---
 
@@ -391,8 +415,13 @@ Returns per-day event-type indicators for the month grid above the day strip.
 **Native UI conventions:** see [architecture/design-system.md § Native theming contract](../architecture/design-system.md#native-theming-contract). Don't duplicate cross-platform UI rules here — only platform-specific deviations below.
 
 - **iOS:** SwiftUI `ScrollView` with absolute-positioned event blocks (using `.offset(y:)`). HorizonCalendar for date navigation. Long-press gesture for drag mode. Haptic: `.medium` on grab, `.light` on drop.
-- **Android:** Compose LazyColumn for hour rows + `Box` for absolute positioning of events. Material 3 bottom sheet for event detail.
-- **Backend:** Day-worth query is a composite (events + work_hours + external + athlete busy). Benefits from materialized view per coach updated on event CUD.
+- **Android (shipped):** one paged calendar body serves **both roles** (epic #122) — the role supplies
+  a config object (draggable predicate, tile type, recipient label, commute overlays, off-hours copy),
+  not a screen of its own. Neighbouring days render behind the pager while you swipe; paging is
+  disabled during a drag. Sheets are `FitSheet`, never Material 3.
+- **Backend:** there is no day-bundle endpoint — events, allowed hours and the counterparty's
+  occupancy are three calls. A composite day query (+ per-coach materialized view) remains a
+  proposal; don't spec it as shipped.
 - **Voice:** `get_my_training_events(date)` returns same shape as calendar API. Voice reads aggregated summary ("3 sessions today — 10:30, 14:00, 18:00").
 
 ---

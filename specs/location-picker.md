@@ -228,7 +228,11 @@ Existing fields (preserved from current poly-backend `AddressResponse`):
 ## 7. Business rules
 
 - **One default, across all types:** at most one of the coach's locations carries `isDefault`, whatever its type. This is the whole point of the flag — it is what prefills the Location field when a coach creates a session template, so a second default makes the prefill ambiguous and the feature meaningless. The rule holds on **create and on update**: setting a new default must clear the previous one in the same operation.
-  - *Known defect (2026-07-31):* the backend enforces this on create (`unset_defaults`) but **not** on update, so editing a location and toggling the flag produces a second default. Reproduced on staging with an in-person and an online location both badged Default.
+  - ~~*Known defect (2026-07-31):* the backend enforces this on create but not on update.~~
+    **Fixed — re-checked 2026-08-11:** `UpdateAddressHandler` now calls `unset_defaults` before
+    setting the flag, so PUT and PATCH behave like create. Delete-promotion (oldest remaining
+    inherits) is implemented too. The **delete-guard** (409 when a template still points at the
+    location) is the one part still missing — deleting continues to orphan session templates.
 - **Default fallback for session creation:** the location flagged `isDefault`. With no default set, fall through to the first in-person → first online → home visit → empty state.
 - **Address immutability:** in-person address cannot be edited. Reason: prevents accidental mass-rename of an existing location used in templates.
 - **Online URL:** HTTPS required. For `zoom` validated against `*.zoom.us`; for `google_meet` against `meet.google.com`; `teams`/`custom` validated as well-formed HTTPS URL. *(Intended behavior — meeting-URL validation is **not yet enforced** on the backend; filed as a backend issue. Field on the wire is `meetingLink`.)*

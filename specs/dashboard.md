@@ -8,7 +8,7 @@
 > - iOS:     [321fit_ios/docs/dashboard-ios.md] (to be created)
 > - Backend: [poly-backend/docs/dashboard-backend.md] (impl-doc) + [poly-backend/docs/dashboard-api.md] (endpoint reference)
 > - Voice:   [voice_control/docs/dashboard-voice.md] (to be created — minimal, reuses subset)
-> - Android: (future)
+> - Android: **shipped** — coach dashboard V2 (PR #143 unified error handling)
 > API reference: [poly-backend/docs/dashboard-api.md](../../poly-backend/docs/dashboard-api.md) — canonical per-endpoint doc (replaces deprecated OpenAPI fragment)
 > Live API (dev-test): `https://polybackend-dev-test.up.railway.app` — Swagger path TBD pending instance bootstrap
 

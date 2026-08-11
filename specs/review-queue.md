@@ -7,7 +7,7 @@
 > Implementation:
 > - iOS:     [321fit_ios/docs/review-queue-ios.md] (to be created)
 > - Backend: [poly-backend/docs/review-queue-backend.md] (to be created)
-> - Android: (future)
+> - Android: **shipped** — review queue built on the training-events list + post-confirm
 
 ---
 
@@ -61,10 +61,10 @@ Two entry points (Tier 1 Q8 — payment-type-aware push):
 
 1. Coach taps row action `Mark complete` (primary brand-gradient button)
 2. Row fades + slides out (220 ms) — optimistic UI
-3. Server `POST /coach/events/{id}/review` with `{outcome: "complete"}` fires
+3. Server `POST /coach/training-events/{id}/post-confirm` with `{confirm: true}` fires
 4. Success → server-side: event status → `finished`; coach earnings eligible for payout; push notification to athlete (optional: "Session confirmed as complete")
 5. Bottom snackbar appears: `Sarah — marked complete · Undo` (4 sec)
-6. Tap Undo → reverses optimistic hide, sends `POST /coach/events/{id}/review/undo`; server-side restores to `review` state
+6. Tap Undo → reverses the optimistic hide **client-side**; there is no `review/undo` endpoint, so Undo only works while the request has not been sent
 
 ### Flow 3: Mark missed
 
@@ -116,7 +116,14 @@ Note: no dedicated error state here — inline banner via snackbar on network fa
 
 ### Endpoints
 
-#### `GET /coach/events?status=review`
+> **Paths corrected 2026-08-11.** There is no `/coach/events` module and no `/review` action. Shipped:
+> the review queue is `GET /coach/training-events/?startDate&endDate` filtered client-side on *approved +
+> past end + not yet coach-confirmed*, and the outcome is written with
+> **`POST /coach/training-events/{id}/post-confirm`** `{confirm: bool, feedback?}` (group sessions use
+> `POST /coach/training-events/{id}/complete/`). **There is no undo endpoint** — the Undo below is
+> client-side only, so the optimistic window is the whole feature.
+
+#### `GET /coach/events?status=review` *(as specced — not the shipped path)*
 
 Returns list of events in `review` state for the authenticated coach.
 

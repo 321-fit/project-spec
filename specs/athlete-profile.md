@@ -99,7 +99,7 @@ Aggregate stats + content are composed from existing endpoints (verify against l
 | Need | Endpoint |
 |---|---|
 | Identity / sports / bio / metrics | `GET /me`, `GET /athlete/sports` ([profile-settings.md](./profile-settings.md)) |
-| Aggregate stats (sessions / hours / this-month) | derived from training-events history (endpoint TBD — may need a `GET /athlete/profile-stats`). `sessions`/`hours` = lifetime; `sessionsThisMonth` = completed sessions where `start` is in the current calendar month (athlete's timezone) |
+| Aggregate stats (sessions / hours / this-month) | **shipped** as `GET /athlete/activity-stats` (*corrected 2026-08-11 — the spec's `/athlete/profile-stats` was never built under that name*). `sessions`/`hours` = lifetime; `sessionsThisMonth` = completed sessions where `start` is in the current calendar month (athlete's timezone) |
 | My coaches count | [clients-coaches.md](./clients-coaches.md) athlete relationships |
 | Balance figure on tile | `GET /athlete/balance` ([payments.md](./payments.md)) |
 | Calendar sync status | [calendar-sync.md](./calendar-sync.md) |

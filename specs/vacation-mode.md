@@ -1,13 +1,41 @@
 # Vacation Mode / Time Off
 
-> Status: Draft (v1 scope intentionally narrow) — prototyped 2026-06-23
+> Status: **Coach side shipped** (Android + backend) · athlete-facing half unbuilt — see § 0
 > Prototype: [flows/coach/availability.html](https://321-fit.github.io/project-spec/prototypes/flows/coach/availability.html) → Time off · also `flows/coach/available-hours.html#timeoff`
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-07-03
+> Last updated: 2026-08-11 (reconciled with shipped Android + backend — [audits/2026-08-11-specs-vs-android.md](../audits/2026-08-11-specs-vs-android.md) § Cluster 2)
 > Implementation:
-> - iOS:     [321fit_ios/docs/vacation-mode-ios.md] (to be created)
-> - Backend: [poly-backend/docs/vacation-mode-backend.md] (to be created)
-> - Android: (future)
+> - iOS:     not built — this is an iOS gap, not a future feature
+> - Backend: **shipped** — `/coach/time-off` (list · history · calendar · conflicts · update · cancel · end)
+> - Android: **shipped** — hub card, list, setup with conflict step, history (PR #137)
+
+---
+
+## 0. Shipped reality (2026-08-11) — read this before the rest
+
+The feature exists on the coach side and does **not** match the endpoint names or the single-record
+model this spec was written against. Corrections, in order of how much they change:
+
+1. **The module is `/coach/time-off`, not `/coach/vacation`.** Every path in § 6 below was renamed.
+2. **Multiple time-offs are allowed** — any number, as long as they don't **overlap** (`409` if they
+   do). "Single active vacation per coach" is wrong: the list is paginated and has a history twin.
+   Cancelling and ending are **different endpoints**, because they mean different things to the
+   record (`cancelled` vs `ended`).
+3. **The deferred "auto-cancel existing bookings" question is shipped.** `create` takes
+   `existingBookingsAction: "keep" | "cancel_and_notify"`, and the coach is asked in the setup flow —
+   *"Bookings in these dates"* → **Keep them** (*existing sessions stay, only new bookings pause*) or
+   **Cancel & notify** (*those athletes will be notified and refunded · this can't be undone*).
+   Group sessions are cancelled through their own path, since a group event has no athlete of its own
+   and used to survive the coach's holiday untouched.
+4. **Reason chips shipped as message pre-fill** — 🏖 Vacation · 🤕 Injury · 🏆 Competition · Personal.
+   They write a sentence into the 160-char client message; reason is still not a stored field.
+5. **The athlete-facing half does not exist.** No DTO carries time off to an athlete: there is no
+   `vacationStatus` on a coach, no "Paused until" badge, no info sheet. What actually happens:
+   the coach's free slots come back **empty** for those dates, and a booking attempt is rejected with
+   a **plain `400` whose message is the coach's own client message** — not the specced
+   `409 COACH_ON_VACATION` with `returnDate`. A client cannot render "back on the 19th" from that.
+   → the structured error + the profile badge are the open work here, and the spec below still
+   describes the target.
 
 ---
 
@@ -141,7 +169,26 @@ Transitions:
 
 ## 6. API
 
-### Endpoints
+### Shipped endpoints (corrected 2026-08-11)
+
+| Method | Path | What |
+|---|---|---|
+| `POST` | `/coach/time-off` | create. Body `{ startDate, endDate, clientMessage?, existingBookingsAction }`. Returns the record **plus `conflictingBookings[]`** — the sessions that sit inside the window, so the coach sees what they just kept or cancelled |
+| `GET` | `/coach/time-off?offset&limit` | current + scheduled, paginated |
+| `GET` | `/coach/time-off/history?offset&limit` | ended / cancelled, most recent first |
+| `GET` | `/coach/time-off/calendar?startDate&endDate` | the days a range is covered by time off — for painting the calendar |
+| `GET` | `/coach/time-off/conflicts?startDate&endDate` | bookings inside a **candidate** window, before committing to it |
+| `PUT` | `/coach/time-off/{id}` | edit dates / message |
+| `POST` | `/coach/time-off/{id}/cancel` | drop a scheduled one — it never happened |
+| `POST` | `/coach/time-off/{id}/end` | end an active one early — it happened, just shorter |
+
+**Validation as implemented:** `endDate > startDate` · `startDate ≥ today` · message ≤ 160 chars ·
+**overlap with an existing time-off → `409`**. There is no 90-day cap.
+
+`cancel` and `end` are deliberately separate: the history screen shows an **outcome pill**, and
+*Cancelled* and *Ended* are different answers to "what happened to this".
+
+### Target shape, not shipped (kept for the athlete-side work)
 
 #### `GET /coach/vacation`
 
@@ -229,7 +276,9 @@ Client uses this to render the pause message + disable CTA.
 
 ## 7. Business rules
 
-- **One active vacation per coach v1.** Scheduling a second while one is active → error (client guards).
+- ~~**One active vacation per coach v1.**~~ **Corrected 2026-08-11:** any number of time-offs, as long
+  as they don't **overlap** — the server answers `409` on an overlapping range. The list screen shows
+  active first, then scheduled; past ones live behind the history link.
 - **Cannot end a vacation in the past.** Editing existing vacation dates is allowed as long as `newEndAt ≥ now` (can't retroactively erase a vacation that's already happened).
 - **Existing bookings preserved.** Vacation does NOT auto-cancel `Planned` events in its window. Coach handles manually if they can't honor.
 - **Not shown to athletes beforehand.** A `scheduled` vacation is invisible to athletes until it activates. Prevents anchoring / pre-announcement pressure.
@@ -268,10 +317,14 @@ Client uses this to render the pause message + disable CTA.
 
 - [ ] **Placement decision: on Available Hours screen vs. separate Settings row?** Current draft: **separate row** under Coaching section. Cleaner semantics (vacation = time-off, available hours = recurring pattern). **Owner:** design.
 - [ ] **Recurring vacations** (e.g., "every Christmas week"): deferred to v2. **Owner:** product.
-- [ ] **Multiple upcoming vacations** (schedule two at once): deferred. 1 active max v1. **Owner:** product.
+- [x] ~~**Multiple upcoming vacations**~~ — **shipped**: any number, non-overlapping.
 - [ ] **Proactive notification to recent clients** when vacation starts: "Your coach is on vacation until …". Helpful or spammy? **Owner:** product.
-- [ ] **Auto-cancel pre-existing bookings option:** some coaches may want to wipe schedule. Toggle "Cancel all existing bookings in this window"? Deferred to v2. **Owner:** product.
-- [ ] **History log:** "Coach vacation 2026-04-10 to 2026-04-17" visible in Settings? Useful for pattern analysis. Low priority. **Owner:** data.
+- [x] ~~**Auto-cancel pre-existing bookings option**~~ — **shipped** as `existingBookingsAction`, asked
+  in the setup flow (Keep them / Cancel & notify, with the refund warning). See § 0.
+- [x] ~~**History log**~~ — **shipped**: `GET /coach/time-off/history` + a read-only history screen with
+  an outcome pill (Ended / Cancelled).
+- [ ] **The athlete never learns why** — no badge, no return date, and the booking rejection is an
+  untyped `400` carrying the coach's message. Needs the structured error + profile badge. **Owner:** product/backend.
 - [ ] **Athlete-facing copy variations:** "On vacation" vs "On time off" vs "Paused" — pick one consistently. Current draft uses mix. **Owner:** copy / brand.
 
 ---
