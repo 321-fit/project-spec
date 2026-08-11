@@ -112,8 +112,9 @@ The coach picks **one calendar** from any of their connected Google accounts as 
 `s-write-target-picker` (new push screen):
 - Lists **all calendars across all connected Google accounts**, grouped by account email (12px uppercase tertiary subheader per group).
 - Each row uses canonical `.cal-select-row` styling — color dot (Google calendar color) + name + check icon when selected.
-- **Single-select radio** — always exactly one calendar selected. No "None" option, no Save / Cancel.
-- **Instant-set + back** pattern — tap any row → check animates to the new row → toast "Default destination updated" → back gesture returns to `s-calsync` with refreshed selector. Matches iOS native Settings → Sound → Ringtone interaction.
+- **Single-select with deselect** — at most one calendar selected. Tapping the already-selected calendar **deselects** it (no write target → app events are not pushed to any Google Calendar). No Save / Cancel.
+- **Instant-set + back** pattern — tap any row → check animates to the new row (or clears) → toast "Default destination updated" → back gesture returns to `s-calsync` with refreshed selector. Matches iOS native Settings → Sound → Ringtone interaction.
+- **Empty state on root screen:** when no write target is selected, the selector row shows "Not selected" in tertiary text color (same layout — Google icon + "Not selected" + chevron). Tappable → opens picker.
 
 **First-time hint** (under the root selector): inline info pill "Auto-selected on first connect. Tap to choose a different calendar." Shown only on initial post-connect state, dismisses on first tap of selector. Persisted server-side as `coach_settings.write_target_hint_dismissed` boolean.
 
@@ -124,6 +125,7 @@ The coach picks **one calendar** from any of their connected Google accounts as 
 - New field on `coach_settings`: `default_writing_calendar_id` — opaque reference like `{ provider: "google", account_id: <uuid>, calendar_id: <Google calendarId string> }`. Replaces the deprecated `default_writing_account_id`.
 - **On first Google connect:** backend fetches `calendarList.list` → picks the **first calendar in response** (Google returns the primary email-bound calendar first by default) → stores as `default_writing_calendar_id`.
 - **On subsequent connects:** don't change the existing default. New calendars appear in the picker but selection stays where the coach left it.
+- **On deselect (clear write target):** user taps the already-selected calendar in picker → `PATCH` with `calendar_id: null` → backend sets `target_calendar_id = null`. New 321Fit events are NOT pushed to any Google Calendar until user selects one again.
 - **On disconnect of the account holding the default:** auto-fallback to the first calendar of the first remaining connected account. Show toast "Default destination moved to {calendar} ({email})".
 - **No "321 Fit" calendar created anywhere** — neither auto on connect nor lazy on default change. We write into what the coach already has.
 - Endpoint: `PATCH /v1.0.0/coach/calendar-sync/default-writing-calendar { account_id, calendar_id }` — additive, idempotent. Validates that account_id is owned by requester + calendar_id exists in that account's most-recent `calendarList.list`.
@@ -201,6 +203,58 @@ do not schedule client work against it until the backend lands. Reference:
 - As the backend, when the day endpoint is called, I filter out events whose `external_event_id` appears in `hidden_external_event` for the requesting user, so clients never see hidden events.
 - As the backend, when a hide is requested for an event that's already hidden, I return 204 idempotently, so retries from flaky clients don't error.
 - As the backend, after each Google/Apple sync pass, I drop `hidden_external_event` rows whose `external_event_id` is no longer in the source — auto-cleanup of stale entries, so the Hidden events list doesn't accumulate ghosts over time.
+
+### 4d. Recurring events as RRULE (added 2026-07-28)
+
+**Problem:** Recurring training sessions (group events) were pushed to Google Calendar as individual events — one per occurrence. Users had to delete them one by one when cancelling a series.
+
+**Solution:** When a `TrainingEvent` belongs to a recurring `TrainingSession`, the backend creates **one** Google Calendar event with an RFC 5545 `recurrence` rule (RRULE) instead of N individual events. Google Calendar auto-expands recurring events into instances.
+
+#### RRULE generation
+
+Built from `TrainingSession` fields:
+- `recurring_days: list[int]` (0=Mon..6=Sun) → `BYDAY=MO,WE,FR`
+- `recurring_until: date | None` → `UNTIL=YYYYMMDDTHHMMSSZ` (omitted if unbounded)
+- Always `FREQ=WEEKLY`
+
+Example: session on Mon/Wed/Fri until Dec 31 → `RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;UNTIL=20261231T235959Z`
+
+#### Creation flow
+
+1. First `TrainingEvent` of a recurring session triggers creation of the recurring Google Calendar event
+2. Subsequent events of the same session → skipped (already covered by RRULE)
+3. The link row stores `google_calendar_recurring_event_id = base_event_id` to detect existing recurring events
+4. Non-recurring events continue to create individual Google Calendar events (no change)
+
+#### Cancel / reschedule of individual occurrences
+
+Google Calendar instance IDs follow the pattern `{baseEventId}_{YYYYMMDDTHHMMSS}Z` where the datetime is the original start time.
+
+| Action | Scope | Google Calendar operation |
+|---|---|---|
+| Cancel occurrence | `this` | Delete the specific instance by computed instance ID |
+| Cancel series | `following` | Cancel each affected instance individually |
+| Cancel all | `all` | Delete the base recurring event (removes all instances) |
+| Reschedule occurrence | `this` | Update the specific instance's start/end |
+| Reschedule series | `following` / `all` | Update each affected instance individually |
+| Delete session | — | Delete the base recurring event |
+
+All operations are best-effort: failures are logged but never block the domain transaction.
+
+**Fallback:** If no recurring Google Calendar event is found for a session (e.g., events created before this feature), the system falls back to the previous behavior (delete/update individual event links).
+
+#### Backend files
+- `calendar_event_creator.py` — RRULE builder + recurring event creation logic
+- `calendar_event_recurring_ops.py` — cancel/reschedule/delete recurring instances
+- `google_calendar.py` (contract + infra) — `recurrence` parameter on `create_event`
+- `group_event_lifecycle.py` — cancel/reschedule handlers with recurring support
+- `training_sessions.py` — session deletion with recurring cleanup
+
+### 4e. System calendars and push notifications (added 2026-07-28)
+
+Google system calendars (holidays, week numbers, contacts' birthdays, etc.) do not support push notification channels (`events.watch`). The Google API returns `HttpError 400` with reason `pushNotSupportedForRequestedResource`.
+
+**Behavior:** `ensure_calendar_watch` catches this specific error, logs it as INFO, and returns `False` (no watch registered). This is a normal condition — these calendars are synced via periodic pull only, not push. No Sentry alert, no Temporal failure.
 
 ### 5. Initial Sync After Connection
 
