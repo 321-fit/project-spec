@@ -2,7 +2,7 @@
 
 > Date: 2026-08-06 · Scope: group training, template detail, event completion, review queue
 > Android: `321fit_android_new` `main` @ `eb4546a` + open PR #144 · Backend: `poly-backend` `dev2` + open PR #887
-> Last updated: 2026-08-07
+> Last updated: 2026-08-11
 > Purpose: everything below exists on Android and on the backend and **does not exist on iOS**. This is the parity list.
 
 Read this before writing the iOS tickets. It records what was actually built,
@@ -370,6 +370,71 @@ These are open on the backend/product side. iOS should not try to build around t
 Prototypes: `prototypes/flows/coach/session-detail.html`,
 `prototypes/flows/coach/calendar.html` (`#s-cash`),
 `prototypes/flows/coach/dashboard.html` (`#s-review-queue`).
+
+---
+
+## 7. Added 2026-08-11 — the second pass on group sessions
+
+Everything in this section shipped on Android + backend **after** the list above.
+It is all parity work for iOS.
+
+### 7.1 An unanswered invitation is visible outside the event
+
+The invitation model (§ *invitations reach forward*) had one blind spot: the only
+place an outstanding invitation appeared was inside the event, in grey text under
+the athlete's name.
+
+- **In the roster** the row carries a `Pending` badge — "waiting on them" is the
+  one thing a coach scanning a roster must see without reading it.
+- **On the dashboard**, `pendingActions.groupInvites` → `{ count, eventCount, eventId }`.
+  A count, not a row per person: inviting sixteen people should not produce
+  sixteen lines. **Anchors only**, so a series invitation counts as the one ask
+  it is.
+- Tapping it opens the session when `eventCount == 1`, and otherwise the list:
+  `GET /coach/training-events/pending-invites` → one row per session with
+  `pendingCount`, soonest first. iOS should draw those rows with the **event card
+  it already has** — the list is a list of sessions.
+
+### 7.2 Reschedule and Cancel from the event's ⋯ menu
+
+Both were hints pointing at the calendar. They are now the flows that already
+exist: Reschedule opens the same time-grid every other entry point opens; Cancel
+asks the same scope question the calendar drawer asks (this / this and following
+/ all) and makes the same call, refunds included. No new endpoints —
+`PUT /coach/training-events/{id}/reschedule` and
+`POST /coach/training-events/{id}/cancel`.
+
+### 7.3 Next session includes group sessions — both dashboards
+
+Both widgets asked "which event has this person on it", and a group session has
+nobody on it in that sense: the coach's query required `athlete_profile_id`, and
+the athlete's asked for events whose athlete is them, while their membership
+lives on the **seat**. A coach whose next hour was a group class saw the 1-on-1
+after it; so did the athlete.
+
+Fixed server-side. Unanswered invitations stay out — a seat you have not accepted
+is not your next session. `nextSession` gained **`isGroupEvent`**, **`spotsTaken`**,
+**`spotsTotal`**: iOS should render the group plate and "Group · 3/16" rather than
+an avatar with "?" in it.
+
+### 7.4 A whole group onto a date that already exists
+
+`POST /coach/training-events/{id}/participants/group` with `{ groupId }` →
+`{ eventId, added, alreadyIn, skippedFull, spotsTaken, spotsTotal }`. Same
+semantics per member as adding by hand (CRM enrolled, app athlete invited with
+the forward hold). **Nobody who cannot be added fails the call** — a full date, or
+somebody already on it, comes back as a count. On Android this is a **Groups
+section at the top of the invite picker**: ticking a group ticks its members
+below, so the coach confirms a set of names they can see.
+
+### 7.5 Smaller corrections worth copying
+
+- The group's date list carries `spotsTaken` / `spotsTotal`; a schedule carries
+  `recurringUntil` and `upcomingCount`.
+- The booking grid stops naming "Athlete busy" when no such band is drawn — a
+  group session has no counterpart.
+- Publishing a schedule lands back on the template detail, which **re-reads on
+  resume**; it used to show the template as it was before the dates existed.
 
 ---
 
