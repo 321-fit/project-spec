@@ -1,6 +1,6 @@
 # Session packages — shipped on Android · hand-off for iOS
 
-Date: 2026-08-12, athlete half added 2026-08-13 · Author: pairing session with Yuri
+Date: 2026-08-12 · athlete half 2026-08-13 · **group packs 2026-08-14** · Author: pairing session with Yuri
 Spec: [`specs/session-packages.md`](../specs/session-packages.md) ·
 API: [`poly-backend/docs/session-packages-api.md`](https://github.com/321-fit/poly-backend/blob/main/docs/session-packages-api.md) ·
 Android impl-doc: [`321fit_android_new/docs/session-packages-android.md`](https://github.com/321-fit/321fit_android_new/blob/main/docs/session-packages-android.md)
@@ -21,11 +21,18 @@ what is now real, what iOS has to build to match, and the traps that cost time o
 | Athlete: pack tracking + pack detail | ✅ | ✅ **new** | ⬜ |
 | Athlete: catalog strip, buy sheet, success step | ✅ | ✅ **new** | ⬜ |
 | Athlete: redeem a credit at booking | ✅ | ✅ **new** | ⬜ |
-| Group / self-paced packs | ❌ 422 by design | n/a | n/a |
+| **Group packs** — sell, buy, join/accept with credits, reserve, returns | ✅ **new** | ✅ **new** | ⬜ |
+| Self-paced packs | ❌ 422 by design | n/a | n/a |
 
-The backend has been complete since late July except for two read-side gaps we closed
-ourselves (poly-backend #899 / #900 — on `dev2`, **not yet on main**). Android is issues
-#114–#119. **iOS has none of it.**
+Personal packs are **merged to main** on both sides (android #149 + #151, poly-backend via
+the `dev2 → main` round trip). **Group packs are on `feat/group-session-packages`** in both
+repos, not yet merged. **iOS has none of it.**
+
+Group packs needed schema: `group_event_participant.payment_type` (what the athlete chose,
+so a series knows it renews on credits), `GroupPaymentStatus.pack`, and
+`package_redemption.athlete_profile_id` with the unique key moved to (event, athlete). Two
+hand-written migrations — `--autogenerate` against a working database picks up drift from
+other branches and proposes dropping unrelated tables.
 
 ## 2. What iOS needs to build (coach)
 
@@ -55,6 +62,30 @@ Screens, in the order they depend on each other:
 5. **Redeem at booking** — struck price + "Included in pack", the redeem block, CTA
    "Book · use 1 session", and the two-way toggle with "Pay per session instead".
 
+## 2b. What iOS needs to build (group packs, 2026-08-14)
+
+Group money is a **per-date weekly reserve**, not an upfront charge, so a credit behaves
+differently from the personal case. The five product decisions behind this are in
+`memory: project_group_packs_decisions`; the mechanics iOS has to match:
+
+| Moment | What happens |
+|---|---|
+| Athlete joins or accepts an invitation with `paymentType=package` | that date is reserved now → **one credit burns now**, seat → `pack` |
+| Later dates of the same series | seat → `waiting`; the weekly reserve draws one credit each, ~a week ahead |
+| Reserve runs with an empty pack | seat stays and becomes `cash_unpaid`; **both sides** are pushed; nobody is dropped |
+| Coach cancels the date | credit returned whole |
+| Athlete leaves >24 h before | credit returned; inside the window the seat is spent (there is no half a credit) |
+
+**The athlete arms the payment, never the coach.** A coach's invitation is an offer; the
+*accept* is what spends a credit. iOS must therefore ask how it will be paid **in the accept
+drawer** — Android reuses its join sheet for this and points the inbox card at the session
+rather than accepting in place, so there is one drawer where the decision lives.
+
+**Refusals are loud**: `400` with `code: NO_PACKAGE_CREDITS` when the pack is empty, plain
+`400` when the coach sells no pack for that template. Do not fall back silently — the old
+behaviour let a `both`-payment template accept `package` and create a seat that owed nothing
+and burned nothing.
+
 ## 3. Contract notes that are easy to get wrong
 
 - **Every tier write returns the whole offer** (`POST`/`PATCH`/`DELETE …/tiers`), because
@@ -72,6 +103,14 @@ Screens, in the order they depend on each other:
   `sessionsLeft` sums every lot. A lifetime denominator drifts to "900 of 920".
 - **Cash is not a gate.** A cash pack is bookable from purchase; `mark-cash-received` only
   updates visibility. Do not block redemption.
+- **`coachId` on a group event is the coach *profile* id**, and every athlete→coach endpoint
+  — packs included — keys on the **user** id. Use the `coachUserId` field added 2026-08-14.
+  Asking with the profile id 404s silently, and the pack simply never appears.
+- **A group seat's payment is not the event's payment.** The session is priced once and
+  settled per athlete: `paymentType` says how the template can be paid, `myPaymentStatus`
+  says how *this* seat was. Showing the first tells a pack holder to bring cash.
+- **`package_redemption` is unique per (event, athlete)**, not per event — a group date has
+  a seat per athlete and each spends its own credit.
 - **Renewal is rate-limited 1 / 7 days per (athlete, pack)**: per-buyer repeat → `429`,
   bulk repeat → `200 {"sent":0,"skippedRateLimited":1}`. Treat both as "already nudged",
   not as an error.
@@ -134,6 +173,22 @@ Recorded here because they are not in the prototype and iOS should match rather 
 - **One buy surface.** "Purchase pack" on a used-up pack routes to the catalog with the sheet
   already open, rather than growing a second buy screen.
 
+### Group-pack decisions (2026-08-14)
+
+- **A pack wears the colour of the session it is built on** — teal personal, blue group,
+  violet self-paced. Every payload now carries `baseKind`; packs shipped personal-only and
+  every card was hard-coded teal, which made the first group pack look personal.
+- **"Owed" has one definition**, in `services/cash_owed.py`: finished 1-on-1 cash sessions +
+  group seats on dates that already happened + packs bought for cash and unsettled. A
+  **future** date is an obligation, not a debt. Seven surfaces read it — both dashboards,
+  the clients list and profile, the athlete's coach detail, my-coaches, and the "Owes money"
+  cohort. iOS should not recompute any half of it locally.
+- **The cash-owed *list* and the *total* must agree.** They did not: the list showed packs
+  and sessions while the total counted seats too, so "Owed €300" sat above €240 of cards.
+- **The coach's headline counts only people they can open.** A debt from somebody with no
+  relationship is logged, not shown — a "collect from N clients" row that cannot be tapped
+  through is a dead end.
+
 ## 7. Also shipped in the same branch (client profile parity)
 
 The coach's client profile now mirrors the athlete's view of a coach: **chat moved from the
@@ -153,6 +208,14 @@ strip → success step → first booking; booked again from the pack detail and 
 covered session's card. All three opened with coach, session, place and price filled in and
 redemption pre-selected; the ledger came back naming the session, the place and its date;
 the strip flipped from the pitch to "Your pack · 9 of 10 left".
+
+Group packs, on the local stand (2026-08-14): coach creates an offer on a group template →
+athlete buys 10 credits for cash → joins one date with `paymentType=package` (seat `pack`,
+1 credit) → joins another with `allFuture` (2 seats `pack`, 13 `waiting`, still 2 credits
+spent) → reserve sweep over 120 days: `charged=8 unfunded=5`, the five seats past the empty
+pack became `cash_unpaid` with a push to both sides. Athlete leaves a date >24 h out →
+credit back (10→9); coach cancels another → `refundedParticipants: 1` (9→8). Invitation
+accepted from the inbox with a credit → seat `accepted / pack / package`.
 
 Two backend quirks found on the way, neither blocking, both worth knowing on iOS:
 `POST /athlete/training-events` rejects a naive `datetimeStart` with a detail-free 400 (send
