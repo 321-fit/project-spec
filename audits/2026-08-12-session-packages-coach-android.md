@@ -189,6 +189,30 @@ Recorded here because they are not in the prototype and iOS should match rather 
   relationship is logged, not shown — a "collect from N clients" row that cannot be tapped
   through is a dead end.
 
+### Money decisions (2026-08-14, second pass)
+
+- **Undo on "mark paid" is a deferred send, not a reversal.** The call waits out the undo
+  window (6 s) and Undo cancels it; past the window Undo is a no-op and the screen keeps
+  agreeing with the server. There is deliberately **no unmark endpoint** — settling writes
+  the lot, the coach's earning *and* a "payment confirmed" push to the athlete, and a push
+  cannot be unsent; an athlete told "actually, not received" is worse off than one told
+  nothing. Android's Undo used to roll back only its own state while the server kept the
+  payment; do not port that shape. The wait must outlive the screen (leaving is not
+  undoing), and the host's Owed figure must refresh when the call lands, not when the coach
+  taps — refreshing on the tap puts the debt straight back under a card already showing as
+  paid. Applies to both 1-on-1 sessions and packs.
+- **A group credit is spent per date, by the weekly reserve** — never a whole series at
+  once. Accepting "every Tuesday and Thursday" with a pack marks only the anchor `pack`;
+  later dates go `waiting` with `paymentType: package`, and the reserve turns each into a
+  credit or into cash owed with a warning to both sides. Marking them all `pack` up front
+  claimed dates were paid from a pack a single credit had emptied — no redemption, no debt.
+- **Say what the pack covers when the scope is "every date".** "Use 1 session · 0 left" is
+  true of the first date and silent about the rest; the sheet adds a line naming the per-date
+  draw and the price once the credits run out.
+- **Notifications carry `trainingEventDatetime`** (additive, optional). Without it a tap on
+  "cancelled on Aug 22" opens *today* — an event id alone does not say which day to show.
+  iOS's push routing has the same gap today.
+
 ## 7. Also shipped in the same branch (client profile parity)
 
 The coach's client profile now mirrors the athlete's view of a coach: **chat moved from the
