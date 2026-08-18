@@ -3,1420 +3,62 @@ window.FIT_BOARD = {
   "generated": "2026-08-18",
   "modules": [
     {
-      "file": "flows/coach/availability.html",
-      "label": "Availability (coach)",
-      "role": "coach",
-      "slug": "coach-availability",
+      "file": "flows/shared/auth.html",
+      "label": "Authentication",
+      "role": "shared",
+      "slug": "shared-auth",
       "screens": [
         {
-          "id": "s-availability-hub",
-          "hash": "9717f30bd78f",
-          "title": "Availability",
-          "inApp": "Availability",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "Reached from Settings → Availability (single card). Hub-of-cards (Calendly/Cal.com pattern) grouping everything that affects the coach’s schedule.",
-          "external": [
-            "./settings.html",
-            "./available-hours.html",
-            "./available-hours.html#timeoff"
-          ],
-          "shots": [
-            {
-              "file": "coach-availability__s-availability-hub.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/coach/settings.html",
-              "label": "Settings",
-              "id": "s-settings"
-            }
-          ]
-        },
-        {
-          "id": "s-tz-select",
-          "hash": "d3dadabed462",
-          "title": "Time zone",
-          "inApp": "Time zone",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Searchable single-select list (canonical cal-select-row + pd-list). Pick → returns to the hub and updates the value. Embedded here so Availability owns the field.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-availability__s-tz-select.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-availability-hub",
-          "to": "s-tz-select",
-          "back": false
-        },
-        {
-          "from": "s-tz-select",
-          "to": "s-availability-hub",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/coach/available-hours.html",
-      "label": "Available Hours",
-      "role": "coach",
-      "slug": "coach-available-hours",
-      "screens": [
-        {
-          "id": "s-availability",
-          "hash": "e7c817c44451",
-          "title": "Available Hours",
-          "inApp": "Available hours",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "Coach's weekly schedule — when athletes can book training sessions. Applies indefinitely until edited. New accounts are seeded with Mon–Sun 07:00–22:00 so the screen opens populated rather than empty. Each day is a card:",
-          "external": [
-            "./locations.html"
-          ],
-          "shots": [
-            {
-              "file": "coach-available-hours__s-availability.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/coach/availability.html",
-              "label": "Availability (coach)",
-              "id": "s-availability-hub"
-            },
-            {
-              "file": "flows/coach/profile.html",
-              "label": "Coach Profile",
-              "id": "s-coach-profile"
-            }
-          ]
-        },
-        {
-          "id": "s-vacation-start",
-          "hash": "2bec2bd9d730",
-          "title": "Time off · edit form",
-          "inApp": "Time off",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-available-hours__s-vacation-start.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-time-off",
-          "hash": "abdedfdb35dd",
-          "title": "Time off",
-          "inApp": "Time off",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Main screen stays lean: only current time-offs — Active first (amber), then Scheduled/upcoming — as compact cards (dates + status pill on one line, client message truncated below), then the dashed + Add time off. None: e",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-available-hours__s-time-off.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 1
-        },
-        {
-          "id": "s-time-off-history",
-          "hash": "3b8be437b445",
-          "title": "Time off · history",
-          "inApp": "Past time off",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Read-only archive of ended/cancelled time-offs, pushed from the See all &rsaquo; row on s-time-off. Keeps the main screen lean while preserving records (useful for the coach's own reference and for disputes with athletes",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-available-hours__s-time-off-history.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 2
-        },
-        {
-          "id": "s-booking-rules",
-          "hash": "349411a5767c",
-          "title": "Booking rules (WIP)",
-          "inApp": "Booking rules",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Reached from Settings → Availability → Booking rules (deep-link available-hours.html#rules). Standard scheduling controls (Calendly/Cal.com/Acuity): minimum notice, booking window, buffer, max/day.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-available-hours__s-booking-rules.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 3
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-vacation-start",
-          "to": "s-availability",
-          "back": true
-        },
-        {
-          "from": "s-time-off",
-          "to": "s-availability",
-          "back": true
-        },
-        {
-          "from": "s-time-off",
-          "to": "s-vacation-start",
-          "back": true
-        },
-        {
-          "from": "s-time-off",
-          "to": "s-time-off-history",
-          "back": true
-        },
-        {
-          "from": "s-time-off-history",
-          "to": "s-time-off",
-          "back": true
-        },
-        {
-          "from": "s-booking-rules",
-          "to": "s-availability",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/coach/balance-v2.html",
-      "label": "Coach Earnings v2 (Revolut)",
-      "role": "coach",
-      "slug": "coach-balance-v2",
-      "screens": [
-        {
-          "id": "s-earnings",
-          "hash": "3dfeade4fea6",
-          "title": "Earnings",
-          "inApp": "Earnings",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "v2 of balance.html (kept for rollback). Keeps the original two swipe cards (Cash + Card) — the analytics-widget experiment was reverted. What v2 changes vs the original: unified Recent, sticky history search/chips, canon",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-balance-v2__s-earnings.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0
-        },
-        {
-          "id": "s-pending",
-          "hash": "765e9a436079",
-          "title": "Pending breakdown",
-          "inApp": "Pending",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Tap-target replacement for the old pending-info-sheet (the 10×10 ⓘ icon was effectively unreachable on touch).",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-balance-v2__s-pending.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-transactions",
-          "hash": "203116e5848d",
-          "title": "Transactions",
-          "inApp": "Transactions",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Full chronological ledger: earnings, payouts, refunds. Grouped by month. Filter chips at top.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-balance-v2__s-transactions.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 0
-        },
-        {
-          "id": "s-txn-earning",
-          "hash": "847de9d9aab6",
-          "title": "Earning Detail",
-          "inApp": "Earning",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Drill-down on a single earning. Amount up top with status pill (Pending / Available / Paid out).",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-balance-v2__s-txn-earning.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 1
-        },
-        {
-          "id": "s-txn-cash",
-          "hash": "3240ba61bf3a",
-          "title": "Cash Detail",
-          "inApp": "Cash earning",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Per-session detail for a cash earning. Same scaffolding as the Card variant (hero + session + payment) but with cash-specific semantics: no 24h hold, no payout reference, no platform fee — just &laquo;has the athlete han",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-balance-v2__s-txn-cash.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 2
-        },
-        {
-          "id": "s-earnings-history",
-          "hash": "ae70eb74c65e",
-          "title": "Earnings History",
-          "inApp": "Earnings history",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Unified earnings history — one screen for \"how much did I earn each month\" across Cash + Card (+ future providers). Built on existing patterns: .fit-detail-hero for lifetime, .earn-section per year, .fit-kv-group for mon",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-balance-v2__s-earnings-history.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 4,
-          "order": 0
-        },
-        {
-          "id": "s-txn-payout",
-          "hash": "916252fd2bb6",
-          "title": "Payout Detail",
-          "inApp": "Payout",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Batched payout — shows all included earnings. Amount neutral (not minus red; payout isn't \"bad\").",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-balance-v2__s-txn-payout.webp",
-              "label": ""
-            }
-          ],
-          "level": 3,
-          "order": 0
-        },
-        {
-          "id": "s-methods",
-          "hash": "bfa5e2dc04a7",
-          "title": "Payout Methods",
-          "inApp": "Payout methods",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Managing connected payout providers. Default receives weekly batch (and future Instant) payouts. Others are backup.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-balance-v2__s-methods.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 4,
-          "order": 1
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-earnings",
-          "to": "s-pending",
-          "back": false
-        },
-        {
-          "from": "s-earnings",
-          "to": "s-txn-earning",
-          "back": false
-        },
-        {
-          "from": "s-earnings",
-          "to": "s-txn-cash",
-          "back": false
-        },
-        {
-          "from": "s-pending",
-          "to": "s-earnings",
-          "back": true
-        },
-        {
-          "from": "s-pending",
-          "to": "s-txn-earning",
-          "back": true
-        },
-        {
-          "from": "s-transactions",
-          "to": "s-earnings",
-          "back": true
-        },
-        {
-          "from": "s-transactions",
-          "to": "s-txn-earning",
-          "back": true
-        },
-        {
-          "from": "s-transactions",
-          "to": "s-txn-payout",
-          "back": false
-        },
-        {
-          "from": "s-txn-earning",
-          "to": "s-transactions",
-          "back": false
-        },
-        {
-          "from": "s-txn-cash",
-          "to": "s-transactions",
-          "back": false
-        },
-        {
-          "from": "s-earnings-history",
-          "to": "s-earnings",
-          "back": true
-        },
-        {
-          "from": "s-txn-payout",
-          "to": "s-transactions",
-          "back": true
-        },
-        {
-          "from": "s-methods",
-          "to": "s-earnings",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/coach/balance.html",
-      "label": "Coach Earnings",
-      "role": "coach",
-      "slug": "coach-balance",
-      "screens": [
-        {
-          "id": "s-earnings",
-          "hash": "38d2d70d4632",
-          "title": "Earnings",
-          "inApp": "Earnings",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "Earnings — coach-side of money, two independent income streams shown as swipeable cards. Default visible: Cash (always active, every coach gets some). Swipe right &rarr; Card (via Stripe). Why Cash default: works from da",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-balance__s-earnings.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0
-        },
-        {
-          "id": "s-pending",
-          "hash": "0e1c050e7426",
-          "title": "Pending breakdown",
-          "inApp": "Pending",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Tap-target replacement for the old pending-info-sheet (the 10×10 ⓘ icon was effectively unreachable on touch).",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-balance__s-pending.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-transactions",
-          "hash": "5052d39a08ec",
-          "title": "Transactions",
-          "inApp": "Transactions",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Full chronological ledger: earnings, payouts, refunds. Grouped by month. Filter chips at top.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-balance__s-transactions.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 0
-        },
-        {
-          "id": "s-txn-earning",
-          "hash": "0a35f8d3b57d",
-          "title": "Earning Detail",
-          "inApp": "Earning",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Drill-down on a single earning. Amount up top with status pill (Pending / Available / Paid out).",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-balance__s-txn-earning.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 1
-        },
-        {
-          "id": "s-txn-cash",
-          "hash": "07062ad065fe",
-          "title": "Cash Detail",
-          "inApp": "Cash earning",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Per-session detail for a cash earning. Same scaffolding as the Card variant (hero + session + payment) but with cash-specific semantics: no 24h hold, no payout reference, no platform fee — just &laquo;has the athlete han",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-balance__s-txn-cash.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 2
-        },
-        {
-          "id": "s-earnings-history",
-          "hash": "6d7a94aac63f",
-          "title": "Earnings History",
-          "inApp": "Earnings history",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Unified earnings history — one screen for \"how much did I earn each month\" across Cash + Card (+ future providers). Built on existing patterns: .fit-detail-hero for lifetime, .earn-section per year, .fit-kv-group for mon",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-balance__s-earnings-history.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 0
-        },
-        {
-          "id": "s-txn-payout",
-          "hash": "8334a6b91705",
-          "title": "Payout Detail",
-          "inApp": "Payout",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Batched payout — shows all included earnings. Amount neutral (not minus red; payout isn't \"bad\").",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-balance__s-txn-payout.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 3
-        },
-        {
-          "id": "s-methods",
-          "hash": "9e7edd1176e8",
-          "title": "Payout Methods",
-          "inApp": "Payout methods",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Managing connected payout providers. Default receives weekly batch (and future Instant) payouts. Others are backup.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-balance__s-methods.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 1
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-earnings",
-          "to": "s-pending",
-          "back": false
-        },
-        {
-          "from": "s-earnings",
-          "to": "s-txn-earning",
-          "back": false
-        },
-        {
-          "from": "s-earnings",
-          "to": "s-txn-cash",
-          "back": false
-        },
-        {
-          "from": "s-earnings",
-          "to": "s-txn-payout",
-          "back": false
-        },
-        {
-          "from": "s-pending",
-          "to": "s-earnings",
-          "back": true
-        },
-        {
-          "from": "s-pending",
-          "to": "s-txn-earning",
-          "back": true
-        },
-        {
-          "from": "s-transactions",
-          "to": "s-earnings",
-          "back": true
-        },
-        {
-          "from": "s-transactions",
-          "to": "s-txn-earning",
-          "back": true
-        },
-        {
-          "from": "s-transactions",
-          "to": "s-txn-payout",
-          "back": true
-        },
-        {
-          "from": "s-txn-earning",
-          "to": "s-transactions",
-          "back": false
-        },
-        {
-          "from": "s-txn-cash",
-          "to": "s-transactions",
-          "back": false
-        },
-        {
-          "from": "s-earnings-history",
-          "to": "s-earnings",
-          "back": true
-        },
-        {
-          "from": "s-txn-payout",
-          "to": "s-transactions",
-          "back": false
-        },
-        {
-          "from": "s-methods",
-          "to": "s-earnings",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/coach/calendar-sync.html",
-      "label": "Calendar Sync",
-      "role": "coach",
-      "slug": "coach-calendar-sync",
-      "screens": [
-        {
-          "id": "s-calsync",
-          "hash": "be114ad597f2",
-          "title": "Calendar Sync",
-          "inApp": "Calendar sync",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "Restructured 2026-06-01. Two distinct sections:",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-calendar-sync__s-calsync.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/coach/settings.html",
-              "label": "Settings",
-              "id": "s-settings"
-            },
-            {
-              "file": "flows/athlete/profile.html",
-              "label": "Athlete · Profile",
-              "id": "s-profile"
-            }
-          ]
-        },
-        {
-          "id": "s-cal-detail",
-          "hash": "48cc2d0f4177",
-          "title": "Google Detail",
-          "inApp": "Google Calendar",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Dedicated screen per Google account. 4 states via toggle (Normal / Fetch Failed / Sync Error / Auth Expired).",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-calendar-sync__s-cal-detail.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-write-target-picker",
-          "hash": "604490bc24e9",
-          "title": "Write Target Picker",
-          "inApp": "Calendar to add events to",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "New 2026-06-01. Push screen reached from \"Calendar to add events to\" on s-calsync. Single-select radio: lists all calendars from all connected Google accounts grouped by account email subheader.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-calendar-sync__s-write-target-picker.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 1
-        },
-        {
-          "id": "s-apple-connect",
-          "hash": "0e2ab4b7d4bd",
-          "title": "Apple Connect (hidden v1)",
-          "inApp": "Apple Calendar",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "CalDAV connection. Apple ID + app-specific password.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-calendar-sync__s-apple-connect.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 2
-        },
-        {
-          "id": "s-apple-detail",
-          "hash": "9a3d7ae8c790",
-          "title": "Apple Detail (hidden v1)",
-          "inApp": "Apple Calendar",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Apple-specific error states differ from Google.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-calendar-sync__s-apple-detail.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 2,
-          "order": 0
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-calsync",
-          "to": "s-apple-connect",
-          "back": false
-        },
-        {
-          "from": "s-calsync",
-          "to": "s-cal-detail",
-          "back": false
-        },
-        {
-          "from": "s-calsync",
-          "to": "s-write-target-picker",
-          "back": false
-        },
-        {
-          "from": "s-write-target-picker",
-          "to": "s-calsync",
-          "back": true
-        },
-        {
-          "from": "s-apple-detail",
-          "to": "s-apple-connect",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/coach/calendar.html",
-      "label": "Coach Calendar",
-      "role": "coach",
-      "slug": "coach-calendar",
-      "screens": [
-        {
-          "id": "s-calendar",
-          "hash": "11631bbc7c9e",
-          "title": "Cross-role drawer",
+          "id": "s-role-pick",
+          "hash": "9f7be7d3e3ea",
+          "title": "Role pick",
           "inApp": "",
           "status": "canon",
           "theme": "dark",
           "entry": true,
-          "note": "Behavior detailsDay NavigationTap day on strip = instant switch. Swipe day strip = scroll. Swipe content left/right = page transition (Apple Calendar). Day strip auto-scrolls to selected day.",
-          "external": [
-            "./invite.html?mode=schedule&origin=s-calendar"
-          ],
-          "shots": [
-            {
-              "file": "coach-calendar__s-calendar.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/coach/client-groups.html",
-              "label": "Client Groups",
-              "id": "s-group-schedule"
-            },
-            {
-              "file": "flows/coach/profile.html",
-              "label": "Coach Profile",
-              "id": "s-coach-profile"
-            },
-            {
-              "file": "flows/coach/sessions.html",
-              "label": "Training templates",
-              "id": "s-series"
-            }
-          ]
-        },
-        {
-          "id": "s-event",
-          "hash": "85d26212fb06",
-          "title": "Event Detail",
-          "inApp": "HIIT Group Session",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Invite & deep-link Share linkGenerated on-demand via Appsflyer OneLink when coach taps Invite — not pre-generated for all future events. Short URL (321.fit/e/xK3aB) carries event_id in attribution params.",
+          "note": "Entry screen for first-time install. Two ways forward: I'm a Coach (primary gradient) or I'm an Athlete (secondary outlined). Role is captured client-side and threaded through to sign-up / sign-in.",
           "external": [],
           "shots": [
             {
-              "file": "coach-calendar__s-event.webp",
+              "file": "shared-auth__s-role-pick.webp",
               "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-invite",
-          "hash": "e79cfdb9c445",
-          "title": "Invite athletes",
-          "inApp": "Invite athletes",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-calendar__s-invite.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 1
-        },
-        {
-          "id": "s-cash",
-          "hash": "54bdfc1b6258",
-          "title": "Event Completion",
-          "inApp": "Event completion",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Entry & flowEntry pointPush notification after event end time: \"Training ended. Tap to review and complete.\" Deep links to this screen.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-calendar__s-cash.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 2
-        },
-        {
-          "id": "s-block-time-off",
-          "hash": "88ae94c174eb",
-          "title": "Busy time form",
-          "inApp": "Busy time",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Secondary FAB action. Coach creates a custom calendar block — no athlete, no training session template. Renders on timeline as muted block, blocks athlete booking calendars for this slot. Renamed from \"Block time off\" to",
-          "external": [
-            "./available-hours.html#timeoff"
-          ],
-          "shots": [
-            {
-              "file": "coach-calendar__s-block-time-off.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 3
-        },
-        {
-          "id": "s-event-edit",
-          "hash": "a0f7a2a9cfa7",
-          "title": "Edit details",
-          "inApp": "Edit event",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "",
-          "external": [
-            "./locations.html"
-          ],
-          "shots": [
-            {
-              "file": "coach-calendar__s-event-edit.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 2,
-          "order": 0
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-calendar",
-          "to": "s-block-time-off",
-          "back": false
-        },
-        {
-          "from": "s-calendar",
-          "to": "s-invite",
-          "back": false
-        },
-        {
-          "from": "s-calendar",
-          "to": "s-event",
-          "back": false
-        },
-        {
-          "from": "s-calendar",
-          "to": "s-cash",
-          "back": false
-        },
-        {
-          "from": "s-event",
-          "to": "s-invite",
-          "back": true
-        },
-        {
-          "from": "s-invite",
-          "to": "s-event",
-          "back": true
-        },
-        {
-          "from": "s-block-time-off",
-          "to": "s-calendar",
-          "back": true
-        },
-        {
-          "from": "s-event-edit",
-          "to": "s-calendar",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/coach/client-groups.html",
-      "label": "Client Groups",
-      "role": "coach",
-      "slug": "coach-client-groups",
-      "screens": [
-        {
-          "id": "s-groups",
-          "hash": "784751e2ee52",
-          "title": "Clients | Groups",
-          "inApp": "Clients",
-          "status": "shipped",
-          "theme": "dark",
-          "entry": true,
-          "note": "A group is a named set of clients — app accounts and CRM contacts side by side, exactly like the participants of an event (the add-participant endpoint already keys off relationshipId, so both kinds go down one path).",
-          "external": [
-            "./clients.html#s-client-detail"
-          ],
-          "shots": [
-            {
-              "file": "coach-client-groups__s-groups.webp",
-              "label": ""
-            },
-            {
-              "file": "coach-client-groups__s-groups__empty.webp",
-              "label": "No groups yet"
             }
           ],
           "level": 0,
           "order": 0
         },
         {
-          "id": "s-group-detail",
-          "hash": "bf3fd3013f32",
-          "title": "Group detail",
-          "inApp": "Morning",
-          "status": "shipped",
-          "theme": "dark",
-          "entry": false,
-          "note": "Everything on this screen is a row. The previous pass wrapped each action in a card with a two-line description and each session in another card — ~200px spent on things a coach does daily and already understands. Rebuil",
-          "external": [
-            "./sessions.html#s-series",
-            "./calendar.html",
-            "./invite.html?mode=schedule&origin=s-group-detail&filter=group&group=morning"
-          ],
-          "shots": [
-            {
-              "file": "coach-client-groups__s-group-detail.webp",
-              "label": ""
-            },
-            {
-              "file": "coach-client-groups__s-group-detail__editing.webp",
-              "label": "Edit mode — tap a row to remove"
-            },
-            {
-              "file": "coach-client-groups__s-group-detail__no-schedule.webp",
-              "label": "Not on any session"
-            },
-            {
-              "file": "coach-client-groups__s-group-detail__drawer.webp",
-              "label": "Schedule drawer — one-off or weekly"
-            }
-          ],
-          "level": 1,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/coach/clients.html",
-              "label": "Coach Clients",
-              "id": "s-client-detail"
-            }
-          ]
-        },
-        {
-          "id": "s-group-schedule",
-          "hash": "f48c4cfa5981",
-          "title": "Group schedule",
-          "inApp": "Morning",
-          "status": "shipped",
-          "theme": "dark",
-          "entry": false,
-          "note": "Every date this group is on, in one place. Same shape as the series detail in session-detail.html, because the question is the same — when does this run? — only the filter is the group instead of one placement.",
-          "external": [
-            "./sessions.html#s-series",
-            "./calendar.html"
-          ],
-          "shots": [
-            {
-              "file": "coach-client-groups__s-group-schedule.webp",
-              "label": ""
-            },
-            {
-              "file": "coach-client-groups__s-group-schedule__recurring-only.webp",
-              "label": "Filtered to recurring"
-            }
-          ],
-          "level": 2,
-          "order": 0
-        },
-        {
-          "id": "s-group-smart",
-          "hash": "18df7b4a3d2d",
-          "title": "Smart group detail",
-          "inApp": "Owes money",
-          "status": "shipped",
-          "theme": "dark",
-          "entry": false,
-          "note": "Same screen shape as a manual group, minus everything that implies hand-picked membership: no Add, no Edit, no attach-to-series. The note says out loud where the membership comes from and how people leave it.",
-          "external": [
-            "./clients.html#s-client-detail"
-          ],
-          "shots": [
-            {
-              "file": "coach-client-groups__s-group-smart.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 1
-        },
-        {
-          "id": "s-group-create",
-          "hash": "50ad3098eee4",
-          "title": "Create group",
-          "inApp": "New group",
-          "status": "shipped",
-          "theme": "dark",
-          "entry": false,
-          "note": "Name + multi-select over all clients. The row component is the one from contact import (imp-) — same checkbox, avatar, tag grammar, so “pick people” looks the same everywhere in the app.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-client-groups__s-group-create.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 2
-        },
-        {
-          "id": "s-group-rename",
-          "hash": "372be2c4c1fa",
-          "title": "Rename group",
-          "inApp": "Group name",
-          "status": "shipped",
-          "theme": "dark",
-          "entry": false,
-          "note": "A pushed screen, not an inline field in the header and not a sheet — and it’s a straight clone of shared/messages.html#s-group-rename, which already solves this exact problem for DM groups.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-client-groups__s-group-rename.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 1
-        },
-        {
-          "id": "s-add-to-group",
-          "hash": "3f5165fa8463",
-          "title": "Client → groups",
-          "inApp": "Anna’s groups",
-          "status": "shipped",
-          "theme": "dark",
-          "entry": false,
-          "note": "Opened from the Add to group pill on the client card. The gap it closes: groups were only visible from the group side, so from a client you couldn’t see — or change — where they belong.",
-          "external": [
-            "./clients.html#s-client-detail"
-          ],
-          "shots": [
-            {
-              "file": "coach-client-groups__s-add-to-group.webp",
-              "label": ""
-            }
-          ],
-          "level": 3,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/coach/clients.html",
-              "label": "Coach Clients",
-              "id": "s-client-detail"
-            }
-          ]
-        },
-        {
-          "id": "s-group-add",
-          "hash": "baab418a5a0d",
-          "title": "Add clients",
-          "inApp": "Add to Morning",
-          "status": "shipped",
-          "theme": "dark",
-          "entry": false,
-          "note": "Same picker as Create, minus the name field — the group already has a name, and re-asking for it makes the coach wonder whether they’re about to make a second group.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-client-groups__s-group-add.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 2
-        },
-        {
-          "id": "s-group-chat",
-          "hash": "2c81d6492c3c",
-          "title": "Group chat",
-          "inApp": "Morning",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "The group thread from shared/messages.html, unchanged — only the two states that groups introduce are drawn here.",
-          "external": [
-            "../shared/messages.html#s-group-settings",
-            "./invite.html?mode=invite&origin=s-group-chat"
-          ],
-          "shots": [
-            {
-              "file": "coach-client-groups__s-group-chat.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 3
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-groups",
-          "to": "s-group-detail",
-          "back": false
-        },
-        {
-          "from": "s-groups",
-          "to": "s-group-smart",
-          "back": false
-        },
-        {
-          "from": "s-groups",
-          "to": "s-group-create",
-          "back": false
-        },
-        {
-          "from": "s-group-detail",
-          "to": "s-groups",
-          "back": true
-        },
-        {
-          "from": "s-group-detail",
-          "to": "s-group-chat",
-          "back": false
-        },
-        {
-          "from": "s-group-detail",
-          "to": "s-group-schedule",
-          "back": false
-        },
-        {
-          "from": "s-group-detail",
-          "to": "s-group-add",
-          "back": false
-        },
-        {
-          "from": "s-group-detail",
-          "to": "s-group-rename",
-          "back": false
-        },
-        {
-          "from": "s-group-schedule",
-          "to": "s-group-detail",
-          "back": true
-        },
-        {
-          "from": "s-group-smart",
-          "to": "s-groups",
-          "back": true
-        },
-        {
-          "from": "s-group-create",
-          "to": "s-groups",
-          "back": true
-        },
-        {
-          "from": "s-group-create",
-          "to": "s-group-detail",
-          "back": true
-        },
-        {
-          "from": "s-group-rename",
-          "to": "s-group-detail",
-          "back": true
-        },
-        {
-          "from": "s-add-to-group",
-          "to": "s-group-create",
-          "back": true
-        },
-        {
-          "from": "s-group-add",
-          "to": "s-group-detail",
-          "back": true
-        },
-        {
-          "from": "s-group-chat",
-          "to": "s-group-detail",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/coach/clients.html",
-      "label": "Coach Clients",
-      "role": "coach",
-      "slug": "coach-clients",
-      "screens": [
-        {
-          "id": "s-clients",
-          "hash": "a28856a39ede",
-          "title": "Clients",
-          "inApp": "Clients",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "CRM-style client list. Root tab screen (no back arrow).",
-          "external": [
-            "../coach/invite.html?mode=invite&origin=s-clients#s-invite-select"
-          ],
-          "shots": [
-            {
-              "file": "coach-clients__s-clients.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/coach/profile.html",
-              "label": "Coach Profile",
-              "id": "s-coach-profile"
-            },
-            {
-              "file": "flows/coach/sessions.html",
-              "label": "Training templates",
-              "id": "s-detail-selfpaced"
-            }
-          ]
-        },
-        {
-          "id": "s-client-detail",
-          "hash": "f78fe4227308",
-          "title": "Client Detail",
+          "id": "s-signup-entry",
+          "hash": "ac02e0815ef7",
+          "title": "Sign-up · methods",
           "inApp": "",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "Full athlete profile from coach's perspective.",
-          "external": [
-            "./client-groups.html#s-group-detail",
-            "./client-groups.html#s-add-to-group",
-            "../shared/self-paced.html#s-setup",
-            "../coach/invite.html?mode=schedule&origin=s-client-detail#s-invite-select",
-            "./sessions.html#packages",
-            "../coach/invite.html?mode=invite&origin=s-client-detail#s-invite-select"
-          ],
+          "note": "3 sign-up methods stacked: Email (primary), Apple (black pill), Google (secondary). Email first as the explicit / least-friction path; Apple iOS-only.",
+          "external": [],
           "shots": [
             {
-              "file": "coach-clients__s-client-detail.webp",
+              "file": "shared-auth__s-signup-entry.webp",
               "label": ""
             }
           ],
           "level": 1,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/coach/client-groups.html",
-              "label": "Client Groups",
-              "id": "s-add-to-group"
-            }
-          ]
+          "order": 0
         },
         {
-          "id": "s-client-selfpaced",
-          "hash": "01011e1c22c7",
-          "title": "Client Self-paced",
-          "inApp": "Self-paced",
+          "id": "s-signup-email",
+          "hash": "7cb207eba712",
+          "title": "Sign-up · email",
+          "inApp": "",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "",
-          "external": [
-            "../shared/self-paced.html#s-review",
-            "../shared/self-paced.html#s-comments"
-          ],
+          "note": "Email + password with inline password-rules list. Posts to backend → advances to phone OTP step (next batch).",
+          "external": [],
           "shots": [
             {
-              "file": "coach-clients__s-client-selfpaced.webp",
+              "file": "shared-auth__s-signup-email.webp",
               "label": ""
             }
           ],
@@ -1424,18 +66,18 @@ window.FIT_BOARD = {
           "order": 0
         },
         {
-          "id": "s-pkg-detail",
-          "hash": "59cd4ec4e0ba",
-          "title": "Package Detail",
-          "inApp": "Package",
+          "id": "s-signin-entry",
+          "hash": "c624988be30d",
+          "title": "Sign-in · methods",
+          "inApp": "",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "One client's pack of one session type, coach-side. Symmetric with the athlete's own view (my-coaches.html #s-pkg-detail) — same summary, same ledger, different action.",
+          "note": "Mirror of sign-up entry — same 3 providers stacked. Difference: a \"Last used on this device\" indicator (teal dot caption) lives under whichever method the user last signed in with on this device. Bumps tap-target predict",
           "external": [],
           "shots": [
             {
-              "file": "coach-clients__s-pkg-detail.webp",
+              "file": "shared-auth__s-signin-entry.webp",
               "label": ""
             }
           ],
@@ -1444,18 +86,18 @@ window.FIT_BOARD = {
           "order": 0
         },
         {
-          "id": "s-pkg-history",
-          "hash": "8407cd310be1",
-          "title": "Package History",
-          "inApp": "Activity",
+          "id": "s-signin-email",
+          "hash": "7ce2e8202bc4",
+          "title": "Sign-in · email",
+          "inApp": "",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "The full redemption log for one client's pack — every −1 credit, combined across lots in FIFO order. Reached from See all; back returns to the pack.",
+          "note": "Email + password. Posts to backend → on success, lands on main app. On 401 → inline error banner above CTA. \"Forgot password?\" link below Sign in button leads into the 3-step recovery flow.",
           "external": [],
           "shots": [
             {
-              "file": "coach-clients__s-pkg-history.webp",
+              "file": "shared-auth__s-signin-email.webp",
               "label": ""
             }
           ],
@@ -1464,101 +106,18 @@ window.FIT_BOARD = {
           "order": 1
         },
         {
-          "id": "s-client-history",
-          "hash": "a59493b6c616",
-          "title": "Client History",
-          "inApp": "Training history",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Full training history with athlete.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-clients__s-client-history.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 1,
-          "inFrom": [
-            {
-              "file": "flows/coach/sessions.html",
-              "label": "Training templates",
-              "id": "s-detail-personal"
-            }
-          ]
-        },
-        {
-          "id": "s-archived",
-          "hash": "11201fefd21d",
-          "title": "Archived & Blocked",
-          "inApp": "Archived & Blocked",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "List of clients removed from active Clients tab — by archive (soft) or block (hard).",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-clients__s-archived.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 1
-        },
-        {
-          "id": "s-client-notes-editor",
-          "hash": "273abc6705d9",
-          "title": "Client Notes Editor",
+          "id": "s-forgot-email",
+          "hash": "4ce5578f2309",
+          "title": "Step 1 · enter email",
           "inApp": "",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "Full-screen editor for coach's private notes about an athlete. Same pattern as About Me editor — Cancel / title / Save header, contenteditable body, no character counter.",
+          "note": "First step of password recovery. Single email field + Send code CTA.",
           "external": [],
           "shots": [
             {
-              "file": "coach-clients__s-client-notes-editor.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 2
-        },
-        {
-          "id": "s-create-client",
-          "hash": "edd2533838d0",
-          "title": "Create Client",
-          "inApp": "New client",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "CRM card for athletes without app account.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-clients__s-create-client.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 2
-        },
-        {
-          "id": "s-crm-addr-pick",
-          "hash": "d2b49d5e3d84",
-          "title": "s-crm-addr-pick",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-clients__s-crm-addr-pick.webp",
+              "file": "shared-auth__s-forgot-email.webp",
               "label": ""
             }
           ],
@@ -1567,18 +126,18 @@ window.FIT_BOARD = {
           "order": 2
         },
         {
-          "id": "s-crm-addr-form",
-          "hash": "4c5d3423c165",
-          "title": "Home address",
-          "inApp": "Home address",
+          "id": "s-forgot-otp",
+          "hash": "122056fd5385",
+          "title": "Step 2 · OTP code",
+          "inApp": "",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "",
+          "note": "6-digit code entry. Page-local au-otp-boxes + au-otp-box (same pattern as account-access.html's otp-box — promoted to fit-ui.css if it recurs in 3rd prototype).",
           "external": [],
           "shots": [
             {
-              "file": "coach-clients__s-crm-addr-form.webp",
+              "file": "shared-auth__s-forgot-otp.webp",
               "label": ""
             }
           ],
@@ -1587,18 +146,18 @@ window.FIT_BOARD = {
           "order": 3
         },
         {
-          "id": "s-import-contacts",
-          "hash": "f356a07726f0",
-          "title": "Import Contacts",
-          "inApp": "Import contacts",
+          "id": "s-forgot-new",
+          "hash": "7d9669549bf1",
+          "title": "Step 3 · new password",
+          "inApp": "",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "Bulk-add clients from the phone address book. Opened from the Add-client drawer → OS asks for Contacts permission.",
+          "note": "Final step: set a new password. Same password-rules list as sign-up. On Save → backend updates credentials, signs user in automatically, lands on main app.",
           "external": [],
           "shots": [
             {
-              "file": "coach-clients__s-import-contacts.webp",
+              "file": "shared-auth__s-forgot-new.webp",
               "label": ""
             }
           ],
@@ -1607,278 +166,227 @@ window.FIT_BOARD = {
           "order": 4
         },
         {
-          "id": "s-import-done",
-          "hash": "d3561274fb01",
-          "title": "Import Done",
+          "id": "s-phone-enter",
+          "hash": "c0812320f242",
+          "title": "Phone · enter number",
           "inApp": "",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "Confirmation after a bulk import + the entry point to the mass invite.",
+          "note": "After email/password sign-up succeeds, user must add and verify a phone number to continue. Phone is not a login credential per authentication.md § 2026-05-11 update — it's an outreach attribute used for booking reminder",
           "external": [],
           "shots": [
             {
-              "file": "coach-clients__s-import-done.webp",
+              "file": "shared-auth__s-phone-enter.webp",
               "label": ""
             }
           ],
           "orphan": true,
           "level": 3,
           "order": 5
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-clients",
-          "to": "s-client-detail",
-          "back": false
         },
         {
-          "from": "s-clients",
-          "to": "s-archived",
-          "back": false
-        },
-        {
-          "from": "s-clients",
-          "to": "s-create-client",
-          "back": false
-        },
-        {
-          "from": "s-client-detail",
-          "to": "s-client-selfpaced",
-          "back": false
-        },
-        {
-          "from": "s-client-detail",
-          "to": "s-client-notes-editor",
-          "back": false
-        },
-        {
-          "from": "s-client-detail",
-          "to": "s-client-history",
-          "back": false
-        },
-        {
-          "from": "s-client-detail",
-          "to": "s-create-client",
-          "back": true
-        },
-        {
-          "from": "s-client-selfpaced",
-          "to": "s-client-detail",
-          "back": true
-        },
-        {
-          "from": "s-pkg-detail",
-          "to": "s-client-detail",
-          "back": true
-        },
-        {
-          "from": "s-client-notes-editor",
-          "to": "s-client-detail",
-          "back": true
-        },
-        {
-          "from": "s-crm-addr-pick",
-          "to": "s-crm-addr-form",
-          "back": true
-        },
-        {
-          "from": "s-crm-addr-form",
-          "to": "s-crm-addr-pick",
-          "back": true
-        },
-        {
-          "from": "s-import-contacts",
-          "to": "s-clients",
-          "back": true
-        },
-        {
-          "from": "s-import-done",
-          "to": "s-clients",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/coach/dashboard.html",
-      "label": "Coach Dashboard",
-      "role": "coach",
-      "slug": "coach-dashboard",
-      "screens": [
-        {
-          "id": "s-dashboard",
-          "hash": "354e1876bdf5",
-          "title": "Dashboard",
-          "inApp": "Home",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "Answers “what do I need to know right now?” — not an analytics panel. Deep financial view lives in Earnings, full agenda in Calendar.",
-          "external": [
-            "../shared/messages.html?role=coach",
-            "../shared/self-paced.html#s-queue"
-          ],
-          "shots": [
-            {
-              "file": "coach-dashboard__s-dashboard.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/coach/profile.html",
-              "label": "Coach Profile",
-              "id": "s-coach-profile"
-            }
-          ]
-        },
-        {
-          "id": "s-review-queue",
-          "hash": "18943a3c3ea0",
-          "title": "Sessions to review",
-          "inApp": "Sessions to review",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Triage queue for sessions in Review state — events that ended but coach hasn’t marked complete or missed yet.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-dashboard__s-review-queue.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-notifications",
-          "hash": "f74d91e195ec",
-          "title": "Notifications inbox",
-          "inApp": "Inbox",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Unified Inbox. Replaces the legacy split where Clients had its own bell + s-requests inbox alongside Dashboard notifications. Coach now has ONE bell → ONE inbox with 3 tabs.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-dashboard__s-notifications.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 1
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-dashboard",
-          "to": "s-notifications",
-          "back": false
-        },
-        {
-          "from": "s-dashboard",
-          "to": "s-review-queue",
-          "back": false
-        },
-        {
-          "from": "s-review-queue",
-          "to": "s-dashboard",
-          "back": true
-        },
-        {
-          "from": "s-notifications",
-          "to": "s-dashboard",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/coach/invite.html",
-      "label": "Coach Invite",
-      "role": "coach",
-      "slug": "coach-invite",
-      "screens": [
-        {
-          "id": "s-schedule-pick-athlete",
-          "hash": "938e0c103c7a",
-          "title": "Pick athlete (schedule)",
-          "inApp": "Choose athlete",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-invite__s-schedule-pick-athlete.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-invite-select",
-          "hash": "f9ec033ac53b",
-          "title": "Select Training",
-          "inApp": "Select training",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "Step 1 of both Invite and Schedule flows. One list of all templates — the flow branches by template type on tap.",
-          "external": [
-            "../coach/settings.html#s-create"
-          ],
-          "shots": [
-            {
-              "file": "coach-invite__s-invite-select.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/coach/calendar.html",
-              "label": "Coach Calendar",
-              "id": "s-calendar"
-            },
-            {
-              "file": "flows/coach/client-groups.html",
-              "label": "Client Groups",
-              "id": "s-group-chat"
-            },
-            {
-              "file": "flows/coach/clients.html",
-              "label": "Coach Clients",
-              "id": "s-client-detail"
-            },
-            {
-              "file": "flows/coach/sessions.html",
-              "label": "Training templates",
-              "id": "s-detail-personal"
-            }
-          ]
-        },
-        {
-          "id": "s-invite-time",
-          "hash": "faf141bb9dc6",
-          "title": "Date & Time (Personal)",
+          "id": "s-phone-otp",
+          "hash": "4321752c6343",
+          "title": "Phone · OTP code",
           "inApp": "",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "Step 2 for personal training. Choose when.",
+          "note": "Verify phone ownership. Same OTP component pattern as forgot password (au-otp-boxes / au-otp-box) — promoted to fit-ui.css when a 3rd consumer appears.",
           "external": [],
           "shots": [
             {
-              "file": "coach-invite__s-invite-time.webp",
+              "file": "shared-auth__s-phone-otp.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 6
+        },
+        {
+          "id": "s-country-picker",
+          "hash": "ce96db3ede3c",
+          "title": "Country picker",
+          "inApp": "Country or region",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Re-used screen for any flow that needs to pick a country / dial code. Currently the only consumer in this prototype is the phone signup chip. Same screen is also re-used in account-access (change phone) and in Personal D",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-auth__s-country-picker.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 7
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-role-pick",
+          "to": "s-signup-entry",
+          "back": false
+        },
+        {
+          "from": "s-signup-entry",
+          "to": "s-role-pick",
+          "back": true
+        },
+        {
+          "from": "s-signup-entry",
+          "to": "s-signup-email",
+          "back": false
+        },
+        {
+          "from": "s-signup-email",
+          "to": "s-signup-entry",
+          "back": true
+        },
+        {
+          "from": "s-signin-entry",
+          "to": "s-role-pick",
+          "back": true
+        },
+        {
+          "from": "s-signin-entry",
+          "to": "s-signin-email",
+          "back": true
+        },
+        {
+          "from": "s-signin-entry",
+          "to": "s-signup-entry",
+          "back": true
+        },
+        {
+          "from": "s-signin-email",
+          "to": "s-signin-entry",
+          "back": true
+        },
+        {
+          "from": "s-signin-email",
+          "to": "s-forgot-email",
+          "back": true
+        },
+        {
+          "from": "s-signin-email",
+          "to": "s-signup-entry",
+          "back": true
+        },
+        {
+          "from": "s-forgot-email",
+          "to": "s-signin-email",
+          "back": true
+        },
+        {
+          "from": "s-forgot-email",
+          "to": "s-forgot-otp",
+          "back": true
+        },
+        {
+          "from": "s-forgot-otp",
+          "to": "s-forgot-email",
+          "back": true
+        },
+        {
+          "from": "s-forgot-otp",
+          "to": "s-forgot-new",
+          "back": true
+        },
+        {
+          "from": "s-forgot-new",
+          "to": "s-forgot-otp",
+          "back": true
+        },
+        {
+          "from": "s-phone-enter",
+          "to": "s-signup-email",
+          "back": true
+        },
+        {
+          "from": "s-phone-enter",
+          "to": "s-country-picker",
+          "back": true
+        },
+        {
+          "from": "s-phone-enter",
+          "to": "s-phone-otp",
+          "back": true
+        },
+        {
+          "from": "s-phone-otp",
+          "to": "s-phone-enter",
+          "back": true
+        },
+        {
+          "from": "s-country-picker",
+          "to": "s-phone-enter",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/shared/onboarding.html",
+      "label": "Onboarding flow",
+      "role": "shared",
+      "slug": "shared-onboarding",
+      "screens": [
+        {
+          "id": "s-onb-personal",
+          "hash": "a0858718799e",
+          "title": "Personal data1/6",
+          "inApp": "",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "Avatar + first name + last name + bio. Matches live iOS — gender / DOB / weight / height intentionally dropped (deferred to Settings).",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-onboarding__s-onb-personal.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-onb-sports",
+          "hash": "b0330df7472f",
+          "title": "Sports2/6",
+          "inApp": "",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Multi-select sectioned grid (delta vs live iOS — flat grid there, our spec calls for taxonomy).",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-onboarding__s-onb-sports.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-onb-location",
+          "hash": "3fa6a36059ee",
+          "title": "Location3/6",
+          "inApp": "",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "4 push-rows: TZ + country + city + languages. Home City retained vs live iOS — useful for search-radius defaults.",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-onboarding__s-onb-location.webp",
               "label": ""
             }
           ],
@@ -1887,18 +395,18 @@ window.FIT_BOARD = {
           "order": 1
         },
         {
-          "id": "s-invite-review",
-          "hash": "45703a3b7c3e",
-          "title": "Invite Review",
-          "inApp": "Review & Send",
+          "id": "s-onb-gym",
+          "hash": "0af167480c90",
+          "title": "Gym Location4/6",
+          "inApp": "",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "Step 3 of Invite flow — coach shares deep link with someone not yet in the app.",
+          "note": "Hub for managing locations. Empty state = subtitle + outlined Add CTA. Filled state = list of cards above the Add CTA. Tap a card → opens location form for editing.",
           "external": [],
           "shots": [
             {
-              "file": "coach-invite__s-invite-review.webp",
+              "file": "shared-onboarding__s-onb-gym.webp",
               "label": ""
             }
           ],
@@ -1907,741 +415,58 @@ window.FIT_BOARD = {
           "order": 2
         },
         {
-          "id": "s-schedule-review",
-          "hash": "046613cdfafc",
-          "title": "Schedule: Review Request",
-          "inApp": "Review request",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Step 3 of Schedule training flow — coach proposes a session to an existing in-app client. Reuses the invite screens; differs only here.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-invite__s-schedule-review.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 3
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-invite-time",
-          "to": "s-invite-select",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/coach/locations.html",
-      "label": "Training Locations",
-      "role": "coach",
-      "slug": "coach-locations",
-      "screens": [
-        {
-          "id": "s-locations",
-          "hash": "92e03c2a1a56",
-          "title": "Training Locations",
-          "inApp": "Training locations",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "Three location types + two usage modes.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-locations__s-locations.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/coach/available-hours.html",
-              "label": "Available Hours",
-              "id": "s-availability"
-            },
-            {
-              "file": "flows/coach/calendar.html",
-              "label": "Coach Calendar",
-              "id": "s-event-edit"
-            },
-            {
-              "file": "flows/coach/profile.html",
-              "label": "Coach Profile",
-              "id": "s-coach-profile"
-            },
-            {
-              "file": "flows/coach/sessions.html",
-              "label": "Training templates",
-              "id": "s-edit"
-            }
-          ]
-        },
-        {
-          "id": "s-loc-map",
-          "hash": "ee8b01088bf0",
-          "title": "Add In-person",
+          "id": "s-onb-gym-map",
+          "hash": "8eff18c5ed6b",
+          "title": "↳ Add In-personsub",
           "inApp": "Add location",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "Search-first approach with smart suggestions.",
+          "note": "Search-first approach copied verbatim from coach/locations.html#s-loc-map, re-namespaced under onboarding.flow.gym.map.*.",
           "external": [],
           "shots": [
             {
-              "file": "coach-locations__s-loc-map.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-loc-pick",
-          "hash": "a87f933f9191",
-          "title": "Pick on Map",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Fullscreen map with two modes. Tap the pill to toggle.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-locations__s-loc-pick.webp",
+              "file": "shared-onboarding__s-onb-gym-map.webp",
               "label": ""
             }
           ],
           "orphan": true,
-          "level": 3,
-          "order": 0
-        },
-        {
-          "id": "s-loc-form",
-          "hash": "a79e96197ade",
-          "title": "Location Details",
-          "inApp": "Location details",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Used for both create and edit location.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-locations__s-loc-form.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 0
-        },
-        {
-          "id": "s-loc-homevisit",
-          "hash": "c9543a753a30",
-          "title": "Home Visit",
-          "inApp": "Home visit",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Settings for home visit training type.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-locations__s-loc-homevisit.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 1
-        },
-        {
-          "id": "s-loc-online",
-          "hash": "becc05fda0b8",
-          "title": "Add Online",
-          "inApp": "Add online location",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Form for virtual meeting location.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-locations__s-loc-online.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 2
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-locations",
-          "to": "s-loc-map",
-          "back": false
-        },
-        {
-          "from": "s-locations",
-          "to": "s-loc-online",
-          "back": false
-        },
-        {
-          "from": "s-locations",
-          "to": "s-loc-homevisit",
-          "back": false
-        },
-        {
-          "from": "s-loc-map",
-          "to": "s-loc-form",
-          "back": false
-        },
-        {
-          "from": "s-loc-pick",
-          "to": "s-loc-map",
-          "back": true
-        },
-        {
-          "from": "s-loc-pick",
-          "to": "s-loc-form",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/coach/personal-data.html",
-      "label": "Personal Data",
-      "role": "coach",
-      "slug": "coach-personal-data",
-      "screens": [
-        {
-          "id": "s-personal-data",
-          "hash": "44e4f0aa5936",
-          "title": "DOB Picker",
-          "inApp": "Personal data",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "Intro video states (Mux)",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-personal-data__s-personal-data.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/coach/profile.html",
-              "label": "Coach Profile",
-              "id": "s-coach-profile"
-            },
-            {
-              "file": "flows/coach/settings.html",
-              "label": "Settings",
-              "id": "s-settings"
-            },
-            {
-              "file": "flows/athlete/dashboard.html",
-              "label": "Athlete Dashboard",
-              "id": "s-dashboard"
-            }
-          ]
-        },
-        {
-          "id": "s-notes-editor",
-          "hash": "7eb4b2b9de1c",
-          "title": "About Me Editor",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Full-screen text editor. Cancel/Save header. Reusable for About Me and Notes fields.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-personal-data__s-notes-editor.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-tz-select",
-          "hash": "597d0a5123ea",
-          "title": "Time Zone",
-          "inApp": "Time zone",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Full-screen push from Personal Data. Single-select — tap row auto-dismisses back to Personal Data with the new value.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-personal-data__s-tz-select.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 1
-        },
-        {
-          "id": "s-country-select",
-          "hash": "bc372b0a2c89",
-          "title": "Home Country",
-          "inApp": "Home country",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Full-screen push from Personal Data. Same pattern as Time Zone — single-select, auto-dismiss.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-personal-data__s-country-select.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 2
-        },
-        {
-          "id": "s-city-select",
-          "hash": "b659a5431130",
-          "title": "Home City",
-          "inApp": "Home city",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Full-screen push from Personal Data. Same pattern as Country — single-select, auto-dismiss, sticky search.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-personal-data__s-city-select.webp",
-              "label": ""
-            }
-          ],
           "level": 1,
           "order": 3
         },
         {
-          "id": "s-lang-select",
-          "hash": "b7f5d1a0e833",
-          "title": "Languages",
-          "inApp": "Languages",
+          "id": "s-onb-gym-pick",
+          "hash": "c650d3a06e38",
+          "title": "↳ Pick on Mapsub",
+          "inApp": "",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "Full-screen push from Personal Data. Multi-select — tap toggles row, Save commits all changes.",
+          "note": "Fullscreen map with locked / unlocked pin modes. Pill at top toggles. Bottom card shows reverse-geocoded address + Confirm.",
           "external": [],
           "shots": [
             {
-              "file": "coach-personal-data__s-lang-select.webp",
+              "file": "shared-onboarding__s-onb-gym-pick.webp",
               "label": ""
             }
           ],
+          "orphan": true,
           "level": 1,
           "order": 4
         },
         {
-          "id": "s-currency-select",
-          "hash": "e1bca28ac8b1",
-          "title": "Currency",
-          "inApp": "Currency",
+          "id": "s-onb-gym-form",
+          "hash": "16f3e6cd6cc9",
+          "title": "↳ Location Detailssub",
+          "inApp": "Location details",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "",
+          "note": "Final step before save. Map preview + selected address + name + description + default toggle.",
           "external": [],
           "shots": [
             {
-              "file": "coach-personal-data__s-currency-select.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 5
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-personal-data",
-          "to": "s-notes-editor",
-          "back": false
-        },
-        {
-          "from": "s-personal-data",
-          "to": "s-tz-select",
-          "back": false
-        },
-        {
-          "from": "s-personal-data",
-          "to": "s-country-select",
-          "back": false
-        },
-        {
-          "from": "s-personal-data",
-          "to": "s-currency-select",
-          "back": false
-        },
-        {
-          "from": "s-personal-data",
-          "to": "s-city-select",
-          "back": false
-        },
-        {
-          "from": "s-personal-data",
-          "to": "s-lang-select",
-          "back": false
-        },
-        {
-          "from": "s-tz-select",
-          "to": "s-personal-data",
-          "back": true
-        },
-        {
-          "from": "s-country-select",
-          "to": "s-personal-data",
-          "back": true
-        },
-        {
-          "from": "s-city-select",
-          "to": "s-personal-data",
-          "back": true
-        },
-        {
-          "from": "s-currency-select",
-          "to": "s-personal-data",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/coach/profile.html",
-      "label": "Coach Profile",
-      "role": "coach",
-      "slug": "coach-profile",
-      "screens": [
-        {
-          "id": "s-coach-profile",
-          "hash": "f5821d4bdc39",
-          "title": "Coach Profile",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "Tab 5 of 5. Preview of the public-facing profile as athletes see it, with tap-to-edit on every section. Top-right ⚙️ gear pushes to Settings (secondary entry; primary entry is in-place edits here).",
-          "external": [
-            "../shared/connect.html?role=coach",
-            "./settings.html",
-            "./personal-data.html#pd-video-group",
-            "./personal-data.html",
-            "./sport-types.html",
-            "./sessions.html",
-            "./locations.html",
-            "./available-hours.html",
-            "./dashboard.html",
-            "./clients.html",
-            "./calendar.html"
-          ],
-          "shots": [
-            {
-              "file": "coach-profile__s-coach-profile.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0
-        },
-        {
-          "id": "s-coach-reviews",
-          "hash": "fed77ca4caec",
-          "title": "All Reviews",
-          "inApp": "Reviews",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Push from Profile — tapping any review card or \"Show all N reviews\" opens this vertical scroll. Same atom-set as athlete-side s-reviews in shared/profile.html (kit candidate: extract to FitReviewSummary + FitReviewList l",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-profile__s-coach-reviews.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-coach-profile",
-          "to": "s-coach-reviews",
-          "back": false
-        },
-        {
-          "from": "s-coach-reviews",
-          "to": "s-coach-profile",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/coach/referral.html",
-      "label": "Refer a Coach",
-      "role": "coach",
-      "slug": "coach-referral",
-      "screens": [
-        {
-          "id": "s-referral",
-          "hash": "b7f4919984ed",
-          "title": "Refer a coach",
-          "inApp": "Refer a coach",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "Coach-only referral program — grow the platform, earn a reward. Distinct from shared/connect.html (in-person QR connect) and from the Clients-tab contacts import (mass-invite as CRM clients). One scrolling screen, sectio",
-          "external": [
-            "./settings.html"
-          ],
-          "shots": [
-            {
-              "file": "coach-referral__s-referral.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/coach/settings.html",
-              "label": "Settings",
-              "id": "s-settings"
-            }
-          ]
-        },
-        {
-          "id": "s-referral-list",
-          "hash": "e53df9e873de",
-          "title": "All invites (push)",
-          "inApp": "Your invites",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Push from See all invites. Flat scrollable list — every joiner with role/when + status badge. No filter chips (kept simple; add a status filter only if the list volume demands it later).",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-referral__s-referral-list.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-referral",
-          "to": "s-referral-list",
-          "back": false
-        },
-        {
-          "from": "s-referral-list",
-          "to": "s-referral",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/coach/sessions.html",
-      "label": "Training templates",
-      "role": "coach",
-      "slug": "coach-sessions",
-      "screens": [
-        {
-          "id": "s-create",
-          "hash": "1c713572dea5",
-          "title": "Create Session",
-          "inApp": "Training session setup",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "Unified template form for personal and group — a reusable definition, no dates/times. Group-only fields (max/min participants) hide/show with animation on type toggle.",
-          "external": [
-            "./sport-types.html",
-            "./locations.html"
-          ],
-          "shots": [
-            {
-              "file": "coach-sessions__s-create.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/coach/profile.html",
-              "label": "Coach Profile",
-              "id": "s-coach-profile"
-            }
-          ]
-        },
-        {
-          "id": "s-list",
-          "hash": "20b058057159",
-          "title": "My Sessions",
-          "inApp": "My training sessions",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Two tabs via a segmented control: Sessions (templates) and Packages (prepaid packs). Packages were moved out of the template form into their own flow — a pack is a separate credit-ledger object, not a template field.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-sessions__s-list.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/coach/sessions.html",
-              "label": "Training templates",
-              "id": "s-detail-selfpaced"
-            }
-          ]
-        },
-        {
-          "id": "s-detail-group",
-          "hash": "4c884ba44105",
-          "title": "Detail — Group",
-          "inApp": "HIIT Group Session",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Tapping a template in My Sessions now lands here, not in the edit form. Editing settings and managing what the template spawned are two different jobs — the old screen did both and buried the second one under a form.",
-          "external": [
-            "./sessions.html#s-list",
-            "./sessions.html#pkg-editor",
-            "./calendar.html",
-            "./invite.html?mode=schedule&origin=s-detail"
-          ],
-          "shots": [
-            {
-              "file": "coach-sessions__s-detail-group.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 1
-        },
-        {
-          "id": "s-detail-personal",
-          "hash": "09c25491e047",
-          "title": "Detail — Personal",
-          "inApp": "Basketball Training",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Same shell, different spawn. A personal template has no standalone events — it produces bookings with a specific athlete, so the lower section is a people list, not a date list.",
-          "external": [
-            "./sessions.html#s-list",
-            "./clients.html",
-            "./calendar.html",
-            "./clients.html#s-client-history",
-            "./invite.html?mode=schedule&origin=s-detail&step=athlete"
-          ],
-          "shots": [
-            {
-              "file": "coach-sessions__s-detail-personal.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 2
-        },
-        {
-          "id": "s-detail-selfpaced",
-          "hash": "fce86fd10ce8",
-          "title": "Detail — Self-paced",
-          "inApp": "Tennis self-paced",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Self-paced has no dates at all, so the “what did this template spawn” section becomes athletes and their progress. Ordered by what the coach owes, not chronology.",
-          "external": [
-            "./sessions.html#s-list",
-            "../shared/self-paced.html#s-queue",
-            "../shared/self-paced.html#s-setup",
-            "../shared/self-paced.html#s-review",
-            "../shared/self-paced.html#s-history",
-            "./clients.html"
-          ],
-          "shots": [
-            {
-              "file": "coach-sessions__s-detail-selfpaced.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 3
-        },
-        {
-          "id": "s-series",
-          "hash": "2caf28952e83",
-          "title": "Series detail",
-          "inApp": "Tue & Thu · 18:00",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "The full date list for one recurring placement — opened from the series head’s “17 dates”. The rule card at the top is the object being managed; the rows below are what it generated.",
-          "external": [
-            "./calendar.html"
-          ],
-          "shots": [
-            {
-              "file": "coach-sessions__s-series.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 4,
-          "inFrom": [
-            {
-              "file": "flows/coach/client-groups.html",
-              "label": "Client Groups",
-              "id": "s-group-schedule"
-            }
-          ]
-        },
-        {
-          "id": "s-edit",
-          "hash": "d200ce9678bb",
-          "title": "Edit template",
-          "inApp": "Edit training session",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Reached from the summary card’s Edit. Now a pure settings form — three things left it:",
-          "external": [
-            "./sport-types.html",
-            "./locations.html"
-          ],
-          "shots": [
-            {
-              "file": "coach-sessions__s-edit.webp",
+              "file": "shared-onboarding__s-onb-gym-form.webp",
               "label": ""
             }
           ],
@@ -2650,18 +475,18 @@ window.FIT_BOARD = {
           "order": 5
         },
         {
-          "id": "pkg-pick",
-          "hash": "774489500847",
-          "title": "Pick session (create)",
-          "inApp": "Choose a session",
+          "id": "s-onb-gym-online",
+          "hash": "aef4fde3de3a",
+          "title": "↳ Add Onlinesub",
+          "inApp": "Add online location",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "Step 1 of package creation. A pack is always based on one session, so the coach picks the base template first. Reuses the My Sessions card style as a selectable picker.",
+          "note": "Platform picker (Zoom / Meet / Teams / Custom) + meeting link + optional display name + optional description + default toggle.",
           "external": [],
           "shots": [
             {
-              "file": "coach-sessions__pkg-pick.webp",
+              "file": "shared-onboarding__s-onb-gym-online.webp",
               "label": ""
             }
           ],
@@ -2670,2229 +495,173 @@ window.FIT_BOARD = {
           "order": 6
         },
         {
-          "id": "pkg-editor",
-          "hash": "d101a2f8f10b",
-          "title": "Package detail",
-          "inApp": "New package",
+          "id": "s-onb-gym-homevisit",
+          "hash": "9a495476e4b0",
+          "title": "↳ Home Visitsub",
+          "inApp": "Home visit",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "In edit/detail mode a segmented [ Overview | Buyers ] splits defining the pack from managing its customers. In create mode (from Pick) there are no buyers yet, so the tabs + stats are hidden — just Overview.",
+          "note": "Coach travels to athlete. Athlete's address provided at booking time. Travel buffer blocks time on either side of the session in coach's calendar.",
           "external": [],
           "shots": [
             {
-              "file": "coach-sessions__pkg-editor.webp",
+              "file": "shared-onboarding__s-onb-gym-homevisit.webp",
               "label": ""
             }
           ],
+          "orphan": true,
           "level": 1,
-          "order": 7,
-          "inFrom": [
-            {
-              "file": "flows/coach/sessions.html",
-              "label": "Training templates",
-              "id": "s-detail-group"
-            }
-          ]
+          "order": 7
         },
         {
-          "id": "pkg-tier-edit",
-          "hash": "9d164afd51d6",
-          "title": "Package tier edit",
-          "inApp": "New package tier",
+          "id": "s-onb-sessions",
+          "hash": "8ed8c5a91616",
+          "title": "Training Session5/6",
+          "inApp": "",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "Add or edit one tier of a package — a pack size and what it costs. Opened from the Overview card's pencil (edit) or \"+ Add package tier\" (add). Isolated to that single tier: the other tiers are untouched.",
+          "note": "Coach creates ≥1 bookable session. Empty state = Add only; filled state = list of session cards + pencil edit.",
           "external": [],
           "shots": [
             {
-              "file": "coach-sessions__pkg-tier-edit.webp",
+              "file": "shared-onboarding__s-onb-sessions.webp",
               "label": ""
             }
           ],
           "orphan": true,
           "level": 1,
           "order": 8
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-list",
-          "to": "s-detail-personal",
-          "back": true
         },
         {
-          "from": "s-list",
-          "to": "s-detail-group",
-          "back": true
-        },
-        {
-          "from": "s-list",
-          "to": "s-detail-selfpaced",
-          "back": true
-        },
-        {
-          "from": "s-list",
-          "to": "s-create",
-          "back": true
-        },
-        {
-          "from": "s-list",
-          "to": "pkg-pick",
-          "back": true
-        },
-        {
-          "from": "s-detail-group",
-          "to": "s-edit",
-          "back": true
-        },
-        {
-          "from": "s-detail-group",
-          "to": "s-series",
-          "back": true
-        },
-        {
-          "from": "s-detail-personal",
-          "to": "s-edit",
-          "back": true
-        },
-        {
-          "from": "s-detail-selfpaced",
-          "to": "s-edit",
-          "back": true
-        },
-        {
-          "from": "s-series",
-          "to": "s-detail-group",
-          "back": true
-        },
-        {
-          "from": "s-edit",
-          "to": "s-detail-group",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/coach/settings.html",
-      "label": "Settings",
-      "role": "coach",
-      "slug": "coach-settings",
-      "screens": [
-        {
-          "id": "s-settings",
-          "hash": "f912a720432d",
-          "title": "Settings root",
-          "inApp": "Settings",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "Coach: Profile, Calendar, Payments, Account.",
-          "external": [
-            "./personal-data.html",
-            "./referral.html",
-            "./availability.html",
-            "./calendar-sync.html",
-            "../shared/account-access.html?role=coach"
-          ],
-          "shots": [
-            {
-              "file": "coach-settings__s-settings.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/coach/availability.html",
-              "label": "Availability (coach)",
-              "id": "s-availability-hub"
-            },
-            {
-              "file": "flows/coach/profile.html",
-              "label": "Coach Profile",
-              "id": "s-coach-profile"
-            },
-            {
-              "file": "flows/coach/referral.html",
-              "label": "Refer a Coach",
-              "id": "s-referral"
-            },
-            {
-              "file": "flows/shared/account-access.html",
-              "label": "Account Access",
-              "id": "s-hub"
-            }
-          ]
-        }
-      ],
-      "edges": []
-    },
-    {
-      "file": "flows/coach/sport-types.html",
-      "label": "Sport Types",
-      "role": "coach",
-      "slug": "coach-sport-types",
-      "screens": [
-        {
-          "id": "s-sport-types",
-          "hash": "017cffb65b1e",
-          "title": "Sport Types",
-          "inApp": "Sport types",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "Push screen opened from Sport types set-card in Settings. Curated list of 33 sports across 8 sections, + coach-created custom sports (see below).",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-sport-types__s-sport-types.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/coach/profile.html",
-              "label": "Coach Profile",
-              "id": "s-coach-profile"
-            },
-            {
-              "file": "flows/coach/sessions.html",
-              "label": "Training templates",
-              "id": "s-edit"
-            },
-            {
-              "file": "flows/athlete/dashboard.html",
-              "label": "Athlete Dashboard",
-              "id": "s-dashboard"
-            },
-            {
-              "file": "flows/athlete/profile.html",
-              "label": "Athlete · Profile",
-              "id": "s-profile"
-            },
-            {
-              "file": "flows/athlete/search.html",
-              "label": "Athlete Search",
-              "id": "s-search-error"
-            }
-          ]
-        }
-      ],
-      "edges": []
-    },
-    {
-      "file": "flows/coach/stripe.html",
-      "label": "Stripe Connect",
-      "role": "coach",
-      "slug": "coach-stripe",
-      "screens": [
-        {
-          "id": "s-stripe",
-          "hash": "7f70d7ac5a33",
-          "title": "Stripe Connect",
-          "inApp": "Stripe",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "2 lifecycle states only: Not set up vs Connected. \"Verifying\" and \"Action needed\" are sub-modes inside Connected, not separate lifecycle states — Stripe lets the account exist (and accept card payments) even while payout",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-stripe__s-stripe.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0
-        },
-        {
-          "id": "s-stripe-onb-confirm",
-          "hash": "82525bf971b2",
-          "title": "Onboarding — Confirm info",
-          "inApp": "Your info",
+          "id": "s-onb-session-create",
+          "hash": "d9a4f5ebd3f3",
+          "title": "↳ Session setupsub",
+          "inApp": "Training session setup",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "Step 1 of 3. Two-line rows (label on top, value below) for proper mobile tap targets (~68px each). Every row tappable → push to dedicated edit screen (or open DOB wheel). All fields editable.",
+          "note": "Full create form copied from coach/sessions.html#s-create. Re-namespaced under onboarding.flow.session.create.*.",
           "external": [],
           "shots": [
             {
-              "file": "coach-stripe__s-stripe-onb-confirm.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-stripe-onb-edit-name",
-          "hash": "0a7ec183a3e0",
-          "title": "Edit Name",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Push screen with Cancel + Save in header (iOS-style). First + last name inputs. Reused for both Stripe onboarding and Profile editing — same canonical pattern.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-stripe__s-stripe-onb-edit-name.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 0
-        },
-        {
-          "id": "s-stripe-onb-edit-email",
-          "hash": "b98eec51619a",
-          "title": "Edit Email",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Single email input. Replaces email field on Stripe Custom account + saves to coach_profile.contact_email (different from sign-in email — that's separate in Account Access).",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-stripe__s-stripe-onb-edit-email.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 1
-        },
-        {
-          "id": "s-stripe-onb-edit-phone",
-          "hash": "625aa63a1983",
-          "title": "Edit Phone",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Country code dropdown + phone number input. Standard iOS phone picker. Stripe may text a verification code during onboarding.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-stripe__s-stripe-onb-edit-phone.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 2
-        },
-        {
-          "id": "s-stripe-onb-edit-country",
-          "hash": "5dd4106068c6",
-          "title": "Edit Country",
-          "inApp": "Country",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Search + scrollable country list. Currently-selected country has teal name + ✓ tick. Warn banner at top: \"Changing country resets verification — you'll re-upload ID after this.\" Tap row → toast + save + pop back.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-stripe__s-stripe-onb-edit-country.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 3
-        },
-        {
-          "id": "s-stripe-onb-edit-address",
-          "hash": "ec0c4bb5511c",
-          "title": "Edit address",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Push screen with 4 inputs (street + apt + city + postal) + read-only country pill. Info banner: \"Your business address — what Stripe sends on tax forms. Often your home address.\" Save → updates auto.address + pops back t",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-stripe__s-stripe-onb-edit-address.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 4
-        },
-        {
-          "id": "s-stripe-onb-id",
-          "hash": "0255061e4acb",
-          "title": "Onboarding — Verification",
-          "inApp": "Verification",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Step 2 of 3. Document type segmented control at top (Passport = 1 tile, ID / Driver's license = 2 tiles front+back) + always-visible info banner + single Continue (no Skip).",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-stripe__s-stripe-onb-id.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 1
-        },
-        {
-          "id": "s-stripe-onb-bank",
-          "hash": "e008b21c168d",
-          "title": "Onboarding — Payout destination",
-          "inApp": "Payout destination",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Step 3 of 3. Same Bank ↔ Debit card segmented control as the post-onboarding Add method screen — consistency keeps coaches from learning two slightly different UIs.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-stripe__s-stripe-onb-bank.webp",
+              "file": "shared-onboarding__s-onb-session-create.webp",
               "label": ""
             }
           ],
           "orphan": true,
-          "level": 3,
-          "order": 0
+          "level": 1,
+          "order": 9
         },
         {
-          "id": "s-stripe-bank-add",
-          "hash": "977c7edb2b91",
-          "title": "Add payout method",
-          "inApp": "Add payout method",
+          "id": "s-onb-calendar",
+          "hash": "4a19c2a210e0",
+          "title": "Calendar sync6/6",
+          "inApp": "",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "Unified form for bank and debit card. Segmented control at top switches between them. Fields swap, holder + country shared. Optional \"Set as default\" checkbox below.",
+          "note": "Last step. No explicit Skip — Finish completes without connecting.",
           "external": [],
           "shots": [
             {
-              "file": "coach-stripe__s-stripe-bank-add.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 2
-        },
-        {
-          "id": "s-stripe-bank-detail",
-          "hash": "a525fab14fcf",
-          "title": "Payout method detail",
-          "inApp": "Payout method",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Works for both bank and card. Icon + sub-text swap by type. 2 actions: Set as default (when non-default), Remove (destructive). Remove sheet has 3 variants: last (block + nudge to Add another), default (warn + name fallb",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-stripe__s-stripe-bank-detail.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 3
-        },
-        {
-          "id": "s-stripe-withdraw",
-          "hash": "ee81c22cc947",
-          "title": "Withdraw",
-          "inApp": "Withdraw",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Manual mode only. Large amount input + 3 quick chips. Destination = default bank. Below-minimum (< €20) shows warn banner + disables Confirm. ETA copy below.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-stripe__s-stripe-withdraw.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 4
-        },
-        {
-          "id": "s-stripe-payouts",
-          "hash": "e7542b91755c",
-          "title": "Payouts history",
-          "inApp": "Payouts",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Lifetime payouts grouped by month + lifetime summary card. Tap row → reuses #s-txn-payout in balance.html. 3 statuses with color coding: Completed (teal), In transit (blue), Failed · retried (red).",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-stripe__s-stripe-payouts.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 5
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-stripe",
-          "to": "s-stripe-onb-id",
-          "back": false
-        },
-        {
-          "from": "s-stripe",
-          "to": "s-stripe-bank-detail",
-          "back": false
-        },
-        {
-          "from": "s-stripe",
-          "to": "s-stripe-bank-add",
-          "back": false
-        },
-        {
-          "from": "s-stripe",
-          "to": "s-stripe-withdraw",
-          "back": false
-        },
-        {
-          "from": "s-stripe",
-          "to": "s-stripe-payouts",
-          "back": false
-        },
-        {
-          "from": "s-stripe",
-          "to": "s-stripe-onb-confirm",
-          "back": false
-        },
-        {
-          "from": "s-stripe-onb-confirm",
-          "to": "s-stripe",
-          "back": true
-        },
-        {
-          "from": "s-stripe-onb-confirm",
-          "to": "s-stripe-onb-edit-name",
-          "back": false
-        },
-        {
-          "from": "s-stripe-onb-confirm",
-          "to": "s-stripe-onb-edit-email",
-          "back": false
-        },
-        {
-          "from": "s-stripe-onb-confirm",
-          "to": "s-stripe-onb-edit-phone",
-          "back": false
-        },
-        {
-          "from": "s-stripe-onb-confirm",
-          "to": "s-stripe-onb-edit-country",
-          "back": false
-        },
-        {
-          "from": "s-stripe-onb-confirm",
-          "to": "s-stripe-onb-edit-address",
-          "back": false
-        },
-        {
-          "from": "s-stripe-onb-confirm",
-          "to": "s-stripe-onb-id",
-          "back": true
-        },
-        {
-          "from": "s-stripe-onb-edit-name",
-          "to": "s-stripe-onb-confirm",
-          "back": true
-        },
-        {
-          "from": "s-stripe-onb-edit-email",
-          "to": "s-stripe-onb-confirm",
-          "back": true
-        },
-        {
-          "from": "s-stripe-onb-edit-phone",
-          "to": "s-stripe-onb-confirm",
-          "back": true
-        },
-        {
-          "from": "s-stripe-onb-edit-country",
-          "to": "s-stripe-onb-confirm",
-          "back": true
-        },
-        {
-          "from": "s-stripe-onb-edit-address",
-          "to": "s-stripe-onb-confirm",
-          "back": true
-        },
-        {
-          "from": "s-stripe-onb-id",
-          "to": "s-stripe-onb-confirm",
-          "back": true
-        },
-        {
-          "from": "s-stripe-onb-bank",
-          "to": "s-stripe-onb-id",
-          "back": true
-        },
-        {
-          "from": "s-stripe-bank-add",
-          "to": "s-stripe",
-          "back": true
-        },
-        {
-          "from": "s-stripe-bank-detail",
-          "to": "s-stripe",
-          "back": true
-        },
-        {
-          "from": "s-stripe-bank-detail",
-          "to": "s-stripe-bank-add",
-          "back": true
-        },
-        {
-          "from": "s-stripe-withdraw",
-          "to": "s-stripe",
-          "back": true
-        },
-        {
-          "from": "s-stripe-payouts",
-          "to": "s-stripe",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/athlete/balance-v2.html",
-      "label": "Athlete · Balance v2 (Revolut)",
-      "role": "athlete",
-      "slug": "athlete-balance-v2",
-      "screens": [
-        {
-          "id": "s-balance",
-          "hash": "dc3d23ac2ee7",
-          "title": "Error",
-          "inApp": "Balance",
-          "status": "canon",
-          "theme": "light",
-          "entry": true,
-          "note": "v2 — Revolut-style dashboard. Variant of balance.html (kept intact for rollback). The list-first layout is replaced by: one Balance card → analytics widgets → Recent preview → full history on its own screen.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-balance-v2__s-balance.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0
-        },
-        {
-          "id": "s-history",
-          "hash": "1329dbfc6484",
-          "title": "Transactions (History)",
-          "inApp": "Transactions",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Full ledger, pushed from Balance (See all / any widget). Canonical .fit-txn* rows, date-grouped.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-balance-v2__s-history.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-history-filter",
-          "hash": "7e1d0a267378",
-          "title": "Filter history",
-          "inApp": "Filter history",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Push screen from the History funnel. Built on the canonical Search-filter kit — .filter-body / .filter-section (20px rhythm + dividers) / .filter-section-title / .filter-chip / .filter-sticky-cta — so spacing matches the",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-balance-v2__s-history-filter.webp",
+              "file": "shared-onboarding__s-onb-calendar.webp",
               "label": ""
             }
           ],
           "orphan": true,
-          "level": 3,
-          "order": 0
-        },
-        {
-          "id": "s-top-up",
-          "hash": "af8cd146ce49",
-          "title": "Loading",
-          "inApp": "Top up",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "One screen, two modes via a .fit-segmented switch at top — One-time and Automatic are mutually exclusive. No sheet-on-sheet, no inline toggle mess; a single footer CTA drives the action.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-balance-v2__s-top-up.webp",
-              "label": ""
-            }
-          ],
           "level": 1,
-          "order": 1
-        },
-        {
-          "id": "s-txn-spend",
-          "hash": "4ecedae637e0",
-          "title": "Session payment (card)",
-          "inApp": "Session payment",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Tap a card spend row → this detail. Canonical .fit-detail-hero (Card pill) + .fit-kv-group. Money came from Balance → status Paid, shows Paid from / Balance after.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-balance-v2__s-txn-spend.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 2
-        },
-        {
-          "id": "s-txn-spend-cash",
-          "hash": "700c6fb4a397",
-          "title": "Session payment (cash)",
-          "inApp": "Session payment",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Tap a cash spend row → this detail (separate screen, not the card one). Cash pill; the money is not taken from balance (paid in person), so there's no \"Paid from / Balance after\". Status = Paid (teal) — a cash session la",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-balance-v2__s-txn-spend-cash.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 3
-        },
-        {
-          "id": "s-txn-topup",
-          "hash": "8453bcccaba0",
-          "title": "Top-up",
-          "inApp": "Top-up",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Money in. .fit-detail-hero (teal +amount) + .fit-kv-group: method · amount · balance after · reference. Get receipt (PDF — TBD).",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-balance-v2__s-txn-topup.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 4
-        },
-        {
-          "id": "s-txn-refund",
-          "hash": "dcfc82d55409",
-          "title": "Refund",
-          "inApp": "Refund",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Money back in (to balance). .fit-detail-hero (teal +amount, info badge, method pill top-right) + .fit-kv-group: reason · coach · original session · refunded-to + an outline .txn-note that explains the reason.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-balance-v2__s-txn-refund.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 0
-        },
-        {
-          "id": "s-owed",
-          "hash": "15de0010635c",
-          "title": "Owed sessions (list)",
-          "inApp": "Owed",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Reached from the red Owed analytics widget. Lists the completed cash sessions the athlete still owes for — canonical .fit-txn rows (coach + Cash pill · session · when · red amount), grouped under a warn .fit-detail-hero ",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-balance-v2__s-owed.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 5
-        },
-        {
-          "id": "s-owed-detail",
-          "hash": "4f01c6dad409",
-          "title": "Owed session (detail)",
-          "inApp": "Session payment",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Same shape as the cash-payment detail (s-txn-spend-cash) but pre-settlement: Cash pill, red amount, warn Owed badge, Status = Owed (red), and a pay-in-person .txn-note instead of a receipt confirmation. No \"Paid from / B",
-          "external": [
-            "../shared/messages.html"
-          ],
-          "shots": [
-            {
-              "file": "athlete-balance-v2__s-owed-detail.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 1
-        },
-        {
-          "id": "s-booked",
-          "hash": "779e5237420d",
-          "title": "Booked sessions (list)",
-          "inApp": "Booked",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Reached from the Booked analytics widget. Lists the athlete's upcoming, already-paid sessions whose money is held from balance — canonical .fit-txn rows (coach · session · when · amount) under an info (blue) .fit-detail-",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-balance-v2__s-booked.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 6
-        },
-        {
-          "id": "s-booked-detail",
-          "hash": "36c078d4f7d9",
-          "title": "Booked session (detail)",
-          "inApp": "Booked session",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Money-view of one upcoming session (mirrors s-owed-detail): Booked badge, Paid from Balance, Status = Held until session (blue), and a hold/refund .txn-note.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-balance-v2__s-booked-detail.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 2
+          "order": 10
         }
       ],
       "edges": [
         {
-          "from": "s-balance",
-          "to": "s-top-up",
-          "back": false
-        },
-        {
-          "from": "s-balance",
-          "to": "s-history",
-          "back": false
-        },
-        {
-          "from": "s-balance",
-          "to": "s-booked",
-          "back": false
-        },
-        {
-          "from": "s-balance",
-          "to": "s-owed",
-          "back": false
-        },
-        {
-          "from": "s-balance",
-          "to": "s-txn-spend",
-          "back": false
-        },
-        {
-          "from": "s-balance",
-          "to": "s-txn-topup",
-          "back": false
-        },
-        {
-          "from": "s-balance",
-          "to": "s-txn-spend-cash",
-          "back": false
-        },
-        {
-          "from": "s-history",
-          "to": "s-balance",
+          "from": "s-onb-gym",
+          "to": "s-onb-gym-form",
           "back": true
         },
         {
-          "from": "s-history",
-          "to": "s-txn-spend",
+          "from": "s-onb-gym",
+          "to": "s-onb-gym-map",
           "back": true
         },
         {
-          "from": "s-history",
-          "to": "s-txn-topup",
+          "from": "s-onb-gym-map",
+          "to": "s-onb-gym",
           "back": true
         },
         {
-          "from": "s-history",
-          "to": "s-txn-spend-cash",
+          "from": "s-onb-gym-map",
+          "to": "s-onb-gym-form",
           "back": true
         },
         {
-          "from": "s-history",
-          "to": "s-txn-refund",
-          "back": false
-        },
-        {
-          "from": "s-history-filter",
-          "to": "s-history",
+          "from": "s-onb-gym-map",
+          "to": "s-onb-gym-pick",
           "back": true
         },
         {
-          "from": "s-top-up",
-          "to": "s-balance",
+          "from": "s-onb-gym-pick",
+          "to": "s-onb-gym-map",
           "back": true
         },
         {
-          "from": "s-txn-spend",
-          "to": "s-balance",
+          "from": "s-onb-gym-pick",
+          "to": "s-onb-gym-form",
           "back": true
         },
         {
-          "from": "s-txn-spend-cash",
-          "to": "s-balance",
+          "from": "s-onb-gym-form",
+          "to": "s-onb-gym-pick",
           "back": true
         },
         {
-          "from": "s-txn-topup",
-          "to": "s-balance",
+          "from": "s-onb-gym-form",
+          "to": "s-onb-gym-map",
           "back": true
         },
         {
-          "from": "s-txn-refund",
-          "to": "s-balance",
+          "from": "s-onb-gym-form",
+          "to": "s-onb-gym-online",
           "back": true
         },
         {
-          "from": "s-owed",
-          "to": "s-balance",
+          "from": "s-onb-gym-form",
+          "to": "s-onb-gym-homevisit",
           "back": true
         },
         {
-          "from": "s-owed",
-          "to": "s-owed-detail",
-          "back": false
-        },
-        {
-          "from": "s-owed-detail",
-          "to": "s-owed",
+          "from": "s-onb-gym-form",
+          "to": "s-onb-gym",
           "back": true
         },
         {
-          "from": "s-booked",
-          "to": "s-balance",
+          "from": "s-onb-gym-online",
+          "to": "s-onb-gym",
           "back": true
         },
         {
-          "from": "s-booked",
-          "to": "s-booked-detail",
-          "back": false
+          "from": "s-onb-gym-homevisit",
+          "to": "s-onb-gym",
+          "back": true
         },
         {
-          "from": "s-booked-detail",
-          "to": "s-booked",
+          "from": "s-onb-sessions",
+          "to": "s-onb-session-create",
+          "back": true
+        },
+        {
+          "from": "s-onb-session-create",
+          "to": "s-onb-sessions",
+          "back": true
+        },
+        {
+          "from": "s-onb-session-create",
+          "to": "s-onb-gym",
           "back": true
         }
       ]
-    },
-    {
-      "file": "flows/athlete/balance.html",
-      "label": "Athlete · Balance",
-      "role": "athlete",
-      "slug": "athlete-balance",
-      "screens": [
-        {
-          "id": "s-balance",
-          "hash": "9aa113b5fc60",
-          "title": "Error",
-          "inApp": "Balance",
-          "status": "canon",
-          "theme": "light",
-          "entry": true,
-          "note": "The athlete spending mirror of the coach Earnings screen — same swipeable two-card kit (.fit-swiper/.earn-card) + canonical ledger (.fit-txn* / .fit-filter-chip).",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-balance__s-balance.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/shared/profile.html",
-              "label": "Coach Profile",
-              "id": "s-booking"
-            }
-          ]
-        },
-        {
-          "id": "s-top-up",
-          "hash": "a2b0c5e6ed3d",
-          "title": "Loading",
-          "inApp": "Top up",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "One screen, two modes via a .fit-segmented switch at top — One-time and Automatic are mutually exclusive. No sheet-on-sheet, no inline toggle mess; a single footer CTA drives the action.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-balance__s-top-up.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-txn-spend",
-          "hash": "46b99bb4f756",
-          "title": "Session payment",
-          "inApp": "Session payment",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Tap a spend row → this detail. Canonical .fit-detail-hero + .fit-kv-group — same grammar as coach earning detail.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-balance__s-txn-spend.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 1
-        },
-        {
-          "id": "s-txn-topup",
-          "hash": "716c1b413926",
-          "title": "Top-up",
-          "inApp": "Top-up",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Money in. .fit-detail-hero (teal +amount) + .fit-kv-group: method · amount · balance after · reference. Get receipt (PDF — TBD).",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-balance__s-txn-topup.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 2
-        },
-        {
-          "id": "s-txn-refund",
-          "hash": "a03d26007f50",
-          "title": "Refund",
-          "inApp": "Refund",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Money back in (to balance). .fit-detail-hero (teal +amount, info badge) + .fit-kv-group: reason · coach · original session · refunded-to.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-balance__s-txn-refund.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 3
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-balance",
-          "to": "s-top-up",
-          "back": false
-        },
-        {
-          "from": "s-balance",
-          "to": "s-txn-spend",
-          "back": false
-        },
-        {
-          "from": "s-balance",
-          "to": "s-txn-topup",
-          "back": false
-        },
-        {
-          "from": "s-balance",
-          "to": "s-txn-refund",
-          "back": false
-        },
-        {
-          "from": "s-top-up",
-          "to": "s-balance",
-          "back": true
-        },
-        {
-          "from": "s-txn-spend",
-          "to": "s-balance",
-          "back": true
-        },
-        {
-          "from": "s-txn-topup",
-          "to": "s-balance",
-          "back": true
-        },
-        {
-          "from": "s-txn-refund",
-          "to": "s-balance",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/athlete/calendar-sync.html",
-      "label": "Calendar Sync",
-      "role": "athlete",
-      "slug": "athlete-calendar-sync",
-      "screens": [
-        {
-          "id": "s-calsync",
-          "hash": "189431d4104e",
-          "title": "Calendar Sync",
-          "inApp": "Calendar sync",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "Restructured 2026-06-01. Two distinct sections:",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-calendar-sync__s-calsync.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0
-        },
-        {
-          "id": "s-cal-detail",
-          "hash": "982c07e864bb",
-          "title": "Google Detail",
-          "inApp": "Google Calendar",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Dedicated screen per Google account. 4 states via toggle (Normal / Fetch Failed / Sync Error / Auth Expired).",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-calendar-sync__s-cal-detail.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-write-target-picker",
-          "hash": "b8ee6dff4a9a",
-          "title": "Write Target Picker",
-          "inApp": "Calendar to add events to",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "New 2026-06-01. Push screen reached from \"Calendar to add events to\" on s-calsync. Single-select radio: lists all calendars from all connected Google accounts grouped by account email subheader.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-calendar-sync__s-write-target-picker.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 1
-        },
-        {
-          "id": "s-apple-connect",
-          "hash": "d12b62988ee7",
-          "title": "Apple Connect (hidden v1)",
-          "inApp": "Apple Calendar",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "CalDAV connection. Apple ID + app-specific password.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-calendar-sync__s-apple-connect.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 2
-        },
-        {
-          "id": "s-apple-detail",
-          "hash": "a472df1225a1",
-          "title": "Apple Detail (hidden v1)",
-          "inApp": "Apple Calendar",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Apple-specific error states differ from Google.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-calendar-sync__s-apple-detail.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 2,
-          "order": 0
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-calsync",
-          "to": "s-apple-connect",
-          "back": false
-        },
-        {
-          "from": "s-calsync",
-          "to": "s-cal-detail",
-          "back": false
-        },
-        {
-          "from": "s-calsync",
-          "to": "s-write-target-picker",
-          "back": false
-        },
-        {
-          "from": "s-write-target-picker",
-          "to": "s-calsync",
-          "back": true
-        },
-        {
-          "from": "s-apple-detail",
-          "to": "s-apple-connect",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/athlete/calendar.html",
-      "label": "Athlete Schedule",
-      "role": "athlete",
-      "slug": "athlete-calendar",
-      "screens": [
-        {
-          "id": "s-schedule",
-          "hash": "15719cfe9117",
-          "title": "Cancel · refund",
-          "inApp": "",
-          "status": "canon",
-          "theme": "light",
-          "entry": true,
-          "note": "Same calendar as coach, light theme. The event drawer reuses the coach’s unified state-aware sheet (data-event-state + canonical .fit-sheet-footer-variant + status pills) — accept/decline happens right on the calendar (n",
-          "external": [
-            "../shared/messages.html",
-            "../shared/profile.html",
-            "../shared/profile.html#s-book-sessions"
-          ],
-          "shots": [
-            {
-              "file": "athlete-calendar__s-schedule.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/shared/profile.html",
-              "label": "Coach Profile",
-              "id": "s-booking"
-            }
-          ]
-        }
-      ],
-      "edges": []
-    },
-    {
-      "file": "flows/athlete/dashboard.html",
-      "label": "Athlete Dashboard",
-      "role": "athlete",
-      "slug": "athlete-dashboard",
-      "screens": [
-        {
-          "id": "s-dashboard",
-          "hash": "bc59cb2a0dba",
-          "title": "Dashboard",
-          "inApp": "Home",
-          "status": "canon",
-          "theme": "light",
-          "entry": true,
-          "note": "",
-          "external": [
-            "../shared/messages.html",
-            "../shared/self-paced.html#s-welcome",
-            "../shared/self-paced.html#s-list",
-            "../coach/sport-types.html",
-            "../coach/personal-data.html"
-          ],
-          "shots": [
-            {
-              "file": "athlete-dashboard__s-dashboard.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0
-        },
-        {
-          "id": "s-rate-queue",
-          "hash": "325f83250752",
-          "title": "Sessions to rate",
-          "inApp": "Sessions to rate",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-dashboard__s-rate-queue.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-notifications",
-          "hash": "a2d29a7107af",
-          "title": "Notifications inbox",
-          "inApp": "Inbox",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "",
-          "external": [
-            "../shared/profile.html#s-my-addresses"
-          ],
-          "shots": [
-            {
-              "file": "athlete-dashboard__s-notifications.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 1
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-dashboard",
-          "to": "s-notifications",
-          "back": false
-        },
-        {
-          "from": "s-dashboard",
-          "to": "s-rate-queue",
-          "back": false
-        },
-        {
-          "from": "s-rate-queue",
-          "to": "s-dashboard",
-          "back": true
-        },
-        {
-          "from": "s-notifications",
-          "to": "s-dashboard",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/athlete/integrations.html",
-      "label": "Athlete · Integrations",
-      "role": "athlete",
-      "slug": "athlete-integrations",
-      "screens": [
-        {
-          "id": "s-integrations",
-          "hash": "e6d4443ec532",
-          "title": "HealthKit permission",
-          "inApp": "Integrations",
-          "status": "canon",
-          "theme": "light",
-          "entry": true,
-          "note": "Two independent connections (Settings → Integrations). Each is its own card with its own state — neither depends on the other.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-integrations__s-integrations.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0
-        }
-      ],
-      "edges": []
-    },
-    {
-      "file": "flows/athlete/my-coaches.html",
-      "label": "Athlete · My Coaches",
-      "role": "athlete",
-      "slug": "athlete-my-coaches",
-      "screens": [
-        {
-          "id": "s-my-coaches",
-          "hash": "9e9ceb7be1ab",
-          "title": "Error",
-          "inApp": "My coaches",
-          "status": "canon",
-          "theme": "light",
-          "entry": true,
-          "note": "Tab 5 (people icon). The athlete's relationships with coaches — distinct from Search (discovery). Reuses the Search coach-card (photo + name + ❤️ + rating), swapping discovery info (distance / availability / bio) for a r",
-          "external": [
-            "../shared/profile.html#s-book-sessions",
-            "../shared/profile.html",
-            "../shared/connect.html"
-          ],
-          "shots": [
-            {
-              "file": "athlete-my-coaches__s-my-coaches.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0
-        },
-        {
-          "id": "s-coach-detail",
-          "hash": "6338dc2a8065",
-          "title": "Coach detail",
-          "inApp": "",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Reached by tapping a coach in My Coaches. The athlete's relationship with one coach — mirror of the coach's Client Detail, athlete-side.",
-          "external": [
-            "../shared/profile.html",
-            "../shared/self-paced.html?c=John#s-list",
-            "../shared/profile.html#s-book-sessions"
-          ],
-          "shots": [
-            {
-              "file": "athlete-my-coaches__s-coach-detail.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-pkg-detail",
-          "hash": "dd6f1c991ee8",
-          "title": "Package Detail",
-          "inApp": "Package",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "One pack of one session type. Symmetric with the coach's view of the same pack (coach/clients.html #s-pkg-detail) — same summary, same ledger, different action.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-my-coaches__s-pkg-detail.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 0
-        },
-        {
-          "id": "s-pkg-history",
-          "hash": "3eb1852dce3f",
-          "title": "Package History",
-          "inApp": "Activity",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "The full redemption log for one pack — every −1 session, combined across lots in FIFO order (oldest credits burn first). Reached from See all; back returns to the pack.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-my-coaches__s-pkg-history.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 1
-        },
-        {
-          "id": "s-coach-history",
-          "hash": "6582a681b7ba",
-          "title": "Coach history",
-          "inApp": "Training history",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Full chronological list of completed sessions with this coach. Pushed from the Coach detail history link.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-my-coaches__s-coach-history.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 0
-        },
-        {
-          "id": "s-coach-note-editor",
-          "hash": "1fa3421e50f6",
-          "title": "Note editor",
-          "inApp": "",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-my-coaches__s-coach-note-editor.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 1
-        },
-        {
-          "id": "s-coach-review",
-          "hash": "416dcee2a60c",
-          "title": "Review composer",
-          "inApp": "",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Written review = per-coach, one, editable. Full-screen modal overlay — dismiss with × (close), not a back chevron: it's commonly opened from a push (next-day deep-link), so there's no screen to go \"back\" to (per feedback",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-my-coaches__s-coach-review.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 2
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-my-coaches",
-          "to": "s-coach-detail",
-          "back": false
-        },
-        {
-          "from": "s-coach-detail",
-          "to": "s-my-coaches",
-          "back": true
-        },
-        {
-          "from": "s-coach-detail",
-          "to": "s-coach-note-editor",
-          "back": false
-        },
-        {
-          "from": "s-coach-detail",
-          "to": "s-coach-history",
-          "back": false
-        },
-        {
-          "from": "s-pkg-detail",
-          "to": "s-coach-detail",
-          "back": true
-        },
-        {
-          "from": "s-coach-history",
-          "to": "s-coach-detail",
-          "back": true
-        },
-        {
-          "from": "s-coach-note-editor",
-          "to": "s-coach-detail",
-          "back": true
-        },
-        {
-          "from": "s-coach-review",
-          "to": "s-coach-detail",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/athlete/personal-data.html",
-      "label": "Personal Data",
-      "role": "athlete",
-      "slug": "athlete-personal-data",
-      "screens": [
-        {
-          "id": "s-personal-data",
-          "hash": "af2de0c5bc5b",
-          "title": "Height / Weight Picker",
-          "inApp": "Personal data",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "Athlete personal data, edited from Settings. Cloned from the coach screen but without the intro video + cover image (those are coach public-profile media). Adds athlete-only Height + Weight (metric kg/cm, single-wheel pi",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-personal-data__s-personal-data.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0
-        },
-        {
-          "id": "s-notes-editor",
-          "hash": "7d263f4c6cd5",
-          "title": "About Me Editor",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Full-screen text editor. Cancel/Save header. Reusable for About Me and Notes fields.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-personal-data__s-notes-editor.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-tz-select",
-          "hash": "b4cfac16089b",
-          "title": "Time Zone",
-          "inApp": "Time zone",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Full-screen push from Personal Data. Single-select — tap row auto-dismisses back to Personal Data with the new value.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-personal-data__s-tz-select.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 1
-        },
-        {
-          "id": "s-country-select",
-          "hash": "c81bf969f4b8",
-          "title": "Home Country",
-          "inApp": "Home country",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Full-screen push from Personal Data. Same pattern as Time Zone — single-select, auto-dismiss.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-personal-data__s-country-select.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 2
-        },
-        {
-          "id": "s-city-select",
-          "hash": "33fede81b00d",
-          "title": "Home City",
-          "inApp": "Home city",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Full-screen push from Personal Data. Same pattern as Country — single-select, auto-dismiss, sticky search.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-personal-data__s-city-select.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 3
-        },
-        {
-          "id": "s-lang-select",
-          "hash": "75bc21a6ff50",
-          "title": "Languages",
-          "inApp": "Languages",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Full-screen push from Personal Data. Multi-select — tap toggles row, Save commits all changes.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-personal-data__s-lang-select.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 4
-        },
-        {
-          "id": "s-currency-select",
-          "hash": "cb86eabfbf8c",
-          "title": "Currency",
-          "inApp": "Currency",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-personal-data__s-currency-select.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 5
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-personal-data",
-          "to": "s-notes-editor",
-          "back": false
-        },
-        {
-          "from": "s-personal-data",
-          "to": "s-tz-select",
-          "back": false
-        },
-        {
-          "from": "s-personal-data",
-          "to": "s-country-select",
-          "back": false
-        },
-        {
-          "from": "s-personal-data",
-          "to": "s-currency-select",
-          "back": false
-        },
-        {
-          "from": "s-personal-data",
-          "to": "s-city-select",
-          "back": false
-        },
-        {
-          "from": "s-personal-data",
-          "to": "s-lang-select",
-          "back": false
-        },
-        {
-          "from": "s-tz-select",
-          "to": "s-personal-data",
-          "back": true
-        },
-        {
-          "from": "s-country-select",
-          "to": "s-personal-data",
-          "back": true
-        },
-        {
-          "from": "s-city-select",
-          "to": "s-personal-data",
-          "back": true
-        },
-        {
-          "from": "s-currency-select",
-          "to": "s-personal-data",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/athlete/profile.html",
-      "label": "Athlete · Profile",
-      "role": "athlete",
-      "slug": "athlete-profile",
-      "screens": [
-        {
-          "id": "s-profile",
-          "hash": "8241cf4aa913",
-          "title": "Error",
-          "inApp": "",
-          "status": "canon",
-          "theme": "light",
-          "entry": true,
-          "note": "Built as a trimmed mirror of the coach Profile — same .cp-* grammar (identity row, stat strip, warm section heads + edit pencils, .fit-stat-tile group), minus the video/cover hero and the coach-only maturity / reviews-re",
-          "external": [
-            "../coach/sport-types.html",
-            "../coach/calendar-sync.html"
-          ],
-          "shots": [
-            {
-              "file": "athlete-profile__s-profile.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0
-        },
-        {
-          "id": "s-training-history",
-          "hash": "dbc4259e472c",
-          "title": "· History loading",
-          "inApp": "Training history",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Pushed from the Profile Training history tile. The athlete's full chronological log across all coaches — same row grammar as the per-coach history in Coach detail (my-coaches.html#s-coach-history), plus the coach on ever",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-profile__s-training-history.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-profile",
-          "to": "s-training-history",
-          "back": false
-        },
-        {
-          "from": "s-training-history",
-          "to": "s-profile",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/athlete/search.html",
-      "label": "Athlete Search",
-      "role": "athlete",
-      "slug": "athlete-search",
-      "screens": [
-        {
-          "id": "s-search-landing",
-          "hash": "1818f4fb2cbe",
-          "title": "Landing",
-          "inApp": "Find a coach",
-          "status": "canon",
-          "theme": "light",
-          "entry": true,
-          "note": "",
-          "external": [
-            "../coach/sport-types.html",
-            "../shared/profile.html"
-          ],
-          "shots": [
-            {
-              "file": "athlete-search__s-search-landing.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0
-        },
-        {
-          "id": "s-search-results",
-          "hash": "a37dc3329676",
-          "title": "Sort (sheet)",
-          "inApp": "",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "",
-          "external": [
-            "../coach/sport-types.html",
-            "../shared/profile.html"
-          ],
-          "shots": [
-            {
-              "file": "athlete-search__s-search-results.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-search-results-empty",
-          "hash": "08bba4f80bdc",
-          "title": "Results · empty",
-          "inApp": "",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "",
-          "external": [
-            "../coach/sport-types.html"
-          ],
-          "shots": [
-            {
-              "file": "athlete-search__s-search-results-empty.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 0
-        },
-        {
-          "id": "s-search-loading",
-          "hash": "abb4d38c40e0",
-          "title": "Results · loading",
-          "inApp": "",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "",
-          "external": [
-            "../coach/sport-types.html"
-          ],
-          "shots": [
-            {
-              "file": "athlete-search__s-search-loading.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 1
-        },
-        {
-          "id": "s-search-error",
-          "hash": "4f7ca325ac14",
-          "title": "Results · error",
-          "inApp": "",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "",
-          "external": [
-            "../coach/sport-types.html"
-          ],
-          "shots": [
-            {
-              "file": "athlete-search__s-search-error.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 2
-        },
-        {
-          "id": "s-search-text",
-          "hash": "35ec1272db74",
-          "title": "Text search",
-          "inApp": "",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "",
-          "external": [
-            "../shared/profile.html"
-          ],
-          "shots": [
-            {
-              "file": "athlete-search__s-search-text.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 1
-        },
-        {
-          "id": "s-search-filters",
-          "hash": "4e19cdda44d4",
-          "title": "Filters · gender (sheet)",
-          "inApp": "Filters",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-search__s-search-filters.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 2
-        },
-        {
-          "id": "s-search-lang",
-          "hash": "7b0eabb6425f",
-          "title": "Filters · languages",
-          "inApp": "Languages",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-search__s-search-lang.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 0
-        },
-        {
-          "id": "s-search-country",
-          "hash": "dfd7abd668a1",
-          "title": "Filters · country",
-          "inApp": "Country",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-search__s-search-country.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 1
-        },
-        {
-          "id": "s-search-city",
-          "hash": "d748e2df1ac5",
-          "title": "Filters · city",
-          "inApp": "City",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-search__s-search-city.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 2
-        },
-        {
-          "id": "s-search-map",
-          "hash": "426df2c61eaa",
-          "title": "Map",
-          "inApp": "Map view",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-search__s-search-map.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 3
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-search-landing",
-          "to": "s-search-text",
-          "back": false
-        },
-        {
-          "from": "s-search-landing",
-          "to": "s-search-filters",
-          "back": false
-        },
-        {
-          "from": "s-search-landing",
-          "to": "s-search-results",
-          "back": false
-        },
-        {
-          "from": "s-search-results",
-          "to": "s-search-text",
-          "back": true
-        },
-        {
-          "from": "s-search-results",
-          "to": "s-search-filters",
-          "back": true
-        },
-        {
-          "from": "s-search-results-empty",
-          "to": "s-search-filters",
-          "back": true
-        },
-        {
-          "from": "s-search-text",
-          "to": "s-search-landing",
-          "back": true
-        },
-        {
-          "from": "s-search-filters",
-          "to": "s-search-results",
-          "back": true
-        },
-        {
-          "from": "s-search-filters",
-          "to": "s-search-country",
-          "back": false
-        },
-        {
-          "from": "s-search-filters",
-          "to": "s-search-city",
-          "back": false
-        },
-        {
-          "from": "s-search-filters",
-          "to": "s-search-lang",
-          "back": false
-        },
-        {
-          "from": "s-search-lang",
-          "to": "s-search-filters",
-          "back": true
-        },
-        {
-          "from": "s-search-country",
-          "to": "s-search-filters",
-          "back": true
-        },
-        {
-          "from": "s-search-city",
-          "to": "s-search-filters",
-          "back": true
-        },
-        {
-          "from": "s-search-map",
-          "to": "s-search-landing",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/athlete/settings.html",
-      "label": "Athlete · Settings",
-      "role": "athlete",
-      "slug": "athlete-settings",
-      "screens": [
-        {
-          "id": "s-settings",
-          "hash": "456f346e7edc",
-          "title": "Settings root",
-          "inApp": "Settings",
-          "status": "canon",
-          "theme": "light",
-          "entry": true,
-          "note": "Reached from the Profile gear (top-right). Copied from the coach Settings structure (.set-card rows) and trimmed to athlete scope.",
-          "external": [
-            "../shared/connect.html",
-            "../shared/profile.html#s-my-addresses",
-            "../shared/account-access.html?role=athlete"
-          ],
-          "shots": [
-            {
-              "file": "athlete-settings__s-settings.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0
-        }
-      ],
-      "edges": []
-    },
-    {
-      "file": "flows/athlete/sport-types.html",
-      "label": "Sport Types",
-      "role": "athlete",
-      "slug": "athlete-sport-types",
-      "screens": [
-        {
-          "id": "s-sport-types",
-          "hash": "7c8a6a3f73b3",
-          "title": "Sport Types",
-          "inApp": "Sport types",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "Push screen opened from Sport types set-card in Settings. Curated closed list of 33 sports across 8 sections.",
-          "external": [],
-          "shots": [
-            {
-              "file": "athlete-sport-types__s-sport-types.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0
-        }
-      ],
-      "edges": []
     },
     {
       "file": "flows/shared/account-access.html",
@@ -5368,361 +1137,6 @@ window.FIT_BOARD = {
       ]
     },
     {
-      "file": "flows/shared/auth.html",
-      "label": "Authentication",
-      "role": "shared",
-      "slug": "shared-auth",
-      "screens": [
-        {
-          "id": "s-role-pick",
-          "hash": "9f7be7d3e3ea",
-          "title": "Role pick",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "Entry screen for first-time install. Two ways forward: I'm a Coach (primary gradient) or I'm an Athlete (secondary outlined). Role is captured client-side and threaded through to sign-up / sign-in.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-auth__s-role-pick.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0
-        },
-        {
-          "id": "s-signup-entry",
-          "hash": "ac02e0815ef7",
-          "title": "Sign-up · methods",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "3 sign-up methods stacked: Email (primary), Apple (black pill), Google (secondary). Email first as the explicit / least-friction path; Apple iOS-only.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-auth__s-signup-entry.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-signup-email",
-          "hash": "7cb207eba712",
-          "title": "Sign-up · email",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Email + password with inline password-rules list. Posts to backend → advances to phone OTP step (next batch).",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-auth__s-signup-email.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 0
-        },
-        {
-          "id": "s-signin-entry",
-          "hash": "c624988be30d",
-          "title": "Sign-in · methods",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Mirror of sign-up entry — same 3 providers stacked. Difference: a \"Last used on this device\" indicator (teal dot caption) lives under whichever method the user last signed in with on this device. Bumps tap-target predict",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-auth__s-signin-entry.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 0
-        },
-        {
-          "id": "s-signin-email",
-          "hash": "7ce2e8202bc4",
-          "title": "Sign-in · email",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Email + password. Posts to backend → on success, lands on main app. On 401 → inline error banner above CTA. \"Forgot password?\" link below Sign in button leads into the 3-step recovery flow.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-auth__s-signin-email.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 1
-        },
-        {
-          "id": "s-forgot-email",
-          "hash": "4ce5578f2309",
-          "title": "Step 1 · enter email",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "First step of password recovery. Single email field + Send code CTA.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-auth__s-forgot-email.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 2
-        },
-        {
-          "id": "s-forgot-otp",
-          "hash": "122056fd5385",
-          "title": "Step 2 · OTP code",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "6-digit code entry. Page-local au-otp-boxes + au-otp-box (same pattern as account-access.html's otp-box — promoted to fit-ui.css if it recurs in 3rd prototype).",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-auth__s-forgot-otp.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 3
-        },
-        {
-          "id": "s-forgot-new",
-          "hash": "7d9669549bf1",
-          "title": "Step 3 · new password",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Final step: set a new password. Same password-rules list as sign-up. On Save → backend updates credentials, signs user in automatically, lands on main app.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-auth__s-forgot-new.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 4
-        },
-        {
-          "id": "s-phone-enter",
-          "hash": "c0812320f242",
-          "title": "Phone · enter number",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "After email/password sign-up succeeds, user must add and verify a phone number to continue. Phone is not a login credential per authentication.md § 2026-05-11 update — it's an outreach attribute used for booking reminder",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-auth__s-phone-enter.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 5
-        },
-        {
-          "id": "s-phone-otp",
-          "hash": "4321752c6343",
-          "title": "Phone · OTP code",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Verify phone ownership. Same OTP component pattern as forgot password (au-otp-boxes / au-otp-box) — promoted to fit-ui.css when a 3rd consumer appears.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-auth__s-phone-otp.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 6
-        },
-        {
-          "id": "s-country-picker",
-          "hash": "ce96db3ede3c",
-          "title": "Country picker",
-          "inApp": "Country or region",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Re-used screen for any flow that needs to pick a country / dial code. Currently the only consumer in this prototype is the phone signup chip. Same screen is also re-used in account-access (change phone) and in Personal D",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-auth__s-country-picker.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 7
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-role-pick",
-          "to": "s-signup-entry",
-          "back": false
-        },
-        {
-          "from": "s-signup-entry",
-          "to": "s-role-pick",
-          "back": true
-        },
-        {
-          "from": "s-signup-entry",
-          "to": "s-signup-email",
-          "back": false
-        },
-        {
-          "from": "s-signup-email",
-          "to": "s-signup-entry",
-          "back": true
-        },
-        {
-          "from": "s-signin-entry",
-          "to": "s-role-pick",
-          "back": true
-        },
-        {
-          "from": "s-signin-entry",
-          "to": "s-signin-email",
-          "back": true
-        },
-        {
-          "from": "s-signin-entry",
-          "to": "s-signup-entry",
-          "back": true
-        },
-        {
-          "from": "s-signin-email",
-          "to": "s-signin-entry",
-          "back": true
-        },
-        {
-          "from": "s-signin-email",
-          "to": "s-forgot-email",
-          "back": true
-        },
-        {
-          "from": "s-signin-email",
-          "to": "s-signup-entry",
-          "back": true
-        },
-        {
-          "from": "s-forgot-email",
-          "to": "s-signin-email",
-          "back": true
-        },
-        {
-          "from": "s-forgot-email",
-          "to": "s-forgot-otp",
-          "back": true
-        },
-        {
-          "from": "s-forgot-otp",
-          "to": "s-forgot-email",
-          "back": true
-        },
-        {
-          "from": "s-forgot-otp",
-          "to": "s-forgot-new",
-          "back": true
-        },
-        {
-          "from": "s-forgot-new",
-          "to": "s-forgot-otp",
-          "back": true
-        },
-        {
-          "from": "s-phone-enter",
-          "to": "s-signup-email",
-          "back": true
-        },
-        {
-          "from": "s-phone-enter",
-          "to": "s-country-picker",
-          "back": true
-        },
-        {
-          "from": "s-phone-enter",
-          "to": "s-phone-otp",
-          "back": true
-        },
-        {
-          "from": "s-phone-otp",
-          "to": "s-phone-enter",
-          "back": true
-        },
-        {
-          "from": "s-country-picker",
-          "to": "s-phone-enter",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/shared/calendar-legend.html",
-      "label": "Calendar legend",
-      "role": "shared",
-      "slug": "shared-calendar-legend",
-      "screens": [
-        {
-          "id": "s-legend",
-          "hash": "c5ed58ca765c",
-          "title": "Calendar legend",
-          "inApp": "Calendar legend",
-          "status": "canon",
-          "theme": "dark",
-          "entry": true,
-          "note": "Opt-in reference sheet, reached from the ? button in the calendar header (disclosure Layer 2 — the event drawer stays the primary teacher, this is never an auto-popup).",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-calendar-legend__s-legend.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0
-        }
-      ],
-      "edges": []
-    },
-    {
       "file": "flows/shared/connect.html",
       "label": "Connect (QR)",
       "role": "shared",
@@ -5798,9 +1212,9 @@ window.FIT_BOARD = {
               "id": "s-dashboard"
             },
             {
-              "file": "flows/athlete/balance-v2.html",
-              "label": "Athlete · Balance v2 (Revolut)",
-              "id": "s-owed-detail"
+              "file": "flows/athlete/dashboard.html",
+              "label": "Athlete Dashboard",
+              "id": "s-dashboard"
             },
             {
               "file": "flows/athlete/calendar.html",
@@ -5808,9 +1222,9 @@ window.FIT_BOARD = {
               "id": "s-schedule"
             },
             {
-              "file": "flows/athlete/dashboard.html",
-              "label": "Athlete Dashboard",
-              "id": "s-dashboard"
+              "file": "flows/athlete/balance-v2.html",
+              "label": "Athlete Balance",
+              "id": "s-owed-detail"
             }
           ]
         },
@@ -6039,656 +1453,32 @@ window.FIT_BOARD = {
       ]
     },
     {
-      "file": "flows/shared/onboarding.html",
-      "label": "Onboarding flow",
+      "file": "flows/shared/voice-assistant.html",
+      "label": "Voice Assistant",
       "role": "shared",
-      "slug": "shared-onboarding",
+      "slug": "shared-voice-assistant",
       "screens": [
         {
-          "id": "s-onb-personal",
-          "hash": "a0858718799e",
-          "title": "Personal data1/6",
+          "id": "s-assistant",
+          "hash": "6cc0c842ac9d",
+          "title": "Text input",
           "inApp": "",
           "status": "canon",
-          "theme": "dark",
+          "theme": "light",
           "entry": true,
-          "note": "Avatar + first name + last name + bio. Matches live iOS — gender / DOB / weight / height intentionally dropped (deferred to Settings).",
+          "note": "The assistant is a LiveKit session (GPT-4 Realtime ↔ voice_control ↔ poly-backend via child-JWT). The screen is a chat canvas: transcript bubbles + inline rich blocks rendered from the agent's data-channel messages, all ",
           "external": [],
           "shots": [
             {
-              "file": "shared-onboarding__s-onb-personal.webp",
+              "file": "shared-voice-assistant__s-assistant.webp",
               "label": ""
             }
           ],
           "level": 0,
           "order": 0
-        },
-        {
-          "id": "s-onb-sports",
-          "hash": "b0330df7472f",
-          "title": "Sports2/6",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Multi-select sectioned grid (delta vs live iOS — flat grid there, our spec calls for taxonomy).",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-onboarding__s-onb-sports.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-onb-location",
-          "hash": "3fa6a36059ee",
-          "title": "Location3/6",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "4 push-rows: TZ + country + city + languages. Home City retained vs live iOS — useful for search-radius defaults.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-onboarding__s-onb-location.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 1
-        },
-        {
-          "id": "s-onb-gym",
-          "hash": "0af167480c90",
-          "title": "Gym Location4/6",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Hub for managing locations. Empty state = subtitle + outlined Add CTA. Filled state = list of cards above the Add CTA. Tap a card → opens location form for editing.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-onboarding__s-onb-gym.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 2
-        },
-        {
-          "id": "s-onb-gym-map",
-          "hash": "8eff18c5ed6b",
-          "title": "↳ Add In-personsub",
-          "inApp": "Add location",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Search-first approach copied verbatim from coach/locations.html#s-loc-map, re-namespaced under onboarding.flow.gym.map.*.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-onboarding__s-onb-gym-map.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 3
-        },
-        {
-          "id": "s-onb-gym-pick",
-          "hash": "c650d3a06e38",
-          "title": "↳ Pick on Mapsub",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Fullscreen map with locked / unlocked pin modes. Pill at top toggles. Bottom card shows reverse-geocoded address + Confirm.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-onboarding__s-onb-gym-pick.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 4
-        },
-        {
-          "id": "s-onb-gym-form",
-          "hash": "16f3e6cd6cc9",
-          "title": "↳ Location Detailssub",
-          "inApp": "Location details",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Final step before save. Map preview + selected address + name + description + default toggle.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-onboarding__s-onb-gym-form.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 5
-        },
-        {
-          "id": "s-onb-gym-online",
-          "hash": "aef4fde3de3a",
-          "title": "↳ Add Onlinesub",
-          "inApp": "Add online location",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Platform picker (Zoom / Meet / Teams / Custom) + meeting link + optional display name + optional description + default toggle.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-onboarding__s-onb-gym-online.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 6
-        },
-        {
-          "id": "s-onb-gym-homevisit",
-          "hash": "9a495476e4b0",
-          "title": "↳ Home Visitsub",
-          "inApp": "Home visit",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Coach travels to athlete. Athlete's address provided at booking time. Travel buffer blocks time on either side of the session in coach's calendar.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-onboarding__s-onb-gym-homevisit.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 7
-        },
-        {
-          "id": "s-onb-sessions",
-          "hash": "8ed8c5a91616",
-          "title": "Training Session5/6",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Coach creates ≥1 bookable session. Empty state = Add only; filled state = list of session cards + pencil edit.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-onboarding__s-onb-sessions.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 8
-        },
-        {
-          "id": "s-onb-session-create",
-          "hash": "d9a4f5ebd3f3",
-          "title": "↳ Session setupsub",
-          "inApp": "Training session setup",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Full create form copied from coach/sessions.html#s-create. Re-namespaced under onboarding.flow.session.create.*.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-onboarding__s-onb-session-create.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 9
-        },
-        {
-          "id": "s-onb-calendar",
-          "hash": "4a19c2a210e0",
-          "title": "Calendar sync6/6",
-          "inApp": "",
-          "status": "canon",
-          "theme": "dark",
-          "entry": false,
-          "note": "Last step. No explicit Skip — Finish completes without connecting.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-onboarding__s-onb-calendar.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 10
         }
       ],
-      "edges": [
-        {
-          "from": "s-onb-gym",
-          "to": "s-onb-gym-form",
-          "back": true
-        },
-        {
-          "from": "s-onb-gym",
-          "to": "s-onb-gym-map",
-          "back": true
-        },
-        {
-          "from": "s-onb-gym-map",
-          "to": "s-onb-gym",
-          "back": true
-        },
-        {
-          "from": "s-onb-gym-map",
-          "to": "s-onb-gym-form",
-          "back": true
-        },
-        {
-          "from": "s-onb-gym-map",
-          "to": "s-onb-gym-pick",
-          "back": true
-        },
-        {
-          "from": "s-onb-gym-pick",
-          "to": "s-onb-gym-map",
-          "back": true
-        },
-        {
-          "from": "s-onb-gym-pick",
-          "to": "s-onb-gym-form",
-          "back": true
-        },
-        {
-          "from": "s-onb-gym-form",
-          "to": "s-onb-gym-pick",
-          "back": true
-        },
-        {
-          "from": "s-onb-gym-form",
-          "to": "s-onb-gym-map",
-          "back": true
-        },
-        {
-          "from": "s-onb-gym-form",
-          "to": "s-onb-gym-online",
-          "back": true
-        },
-        {
-          "from": "s-onb-gym-form",
-          "to": "s-onb-gym-homevisit",
-          "back": true
-        },
-        {
-          "from": "s-onb-gym-form",
-          "to": "s-onb-gym",
-          "back": true
-        },
-        {
-          "from": "s-onb-gym-online",
-          "to": "s-onb-gym",
-          "back": true
-        },
-        {
-          "from": "s-onb-gym-homevisit",
-          "to": "s-onb-gym",
-          "back": true
-        },
-        {
-          "from": "s-onb-sessions",
-          "to": "s-onb-session-create",
-          "back": true
-        },
-        {
-          "from": "s-onb-session-create",
-          "to": "s-onb-sessions",
-          "back": true
-        },
-        {
-          "from": "s-onb-session-create",
-          "to": "s-onb-gym",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/shared/profile.html",
-      "label": "Coach Profile",
-      "role": "shared",
-      "slug": "shared-profile",
-      "screens": [
-        {
-          "id": "s-booking",
-          "hash": "0383bcf8829c",
-          "title": "Booking Calendar",
-          "inApp": "",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Date strip in header + state-aware content. Sticky Confirm CTA at bottom opens Booking Confirm sheet for review & send.",
-          "external": [
-            "../athlete/balance.html",
-            "../athlete/calendar.html"
-          ],
-          "shots": [
-            {
-              "file": "shared-profile__s-booking.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 0
-        },
-        {
-          "id": "s-group",
-          "hash": "a608c8721af0",
-          "title": "Group Detail",
-          "inApp": "HIIT Group Session",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Before joining. Ticket card with coach info, tappable participant list.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-profile__s-group.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 1
-        },
-        {
-          "id": "s-joined",
-          "hash": "141d0727ca2d",
-          "title": "Group Joined",
-          "inApp": "HIIT Group Session",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "After joining. Current user first with \"You\" label and gradient avatar.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-profile__s-joined.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 0
-        },
-        {
-          "id": "s-full",
-          "hash": "eb8196eab7db",
-          "title": "Group Full",
-          "inApp": "Yoga Morning Flow",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "All spots taken. Cannot join — disabled button.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-profile__s-full.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 1
-        },
-        {
-          "id": "s-coach-v2",
-          "hash": "4d6617948ae8",
-          "title": "Coach Profile",
-          "inApp": "",
-          "status": "canon",
-          "theme": "light",
-          "entry": true,
-          "note": "Alternative layout with video header. Inspired by Prepply/Superprof.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-profile__s-coach-v2.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0,
-          "inFrom": [
-            {
-              "file": "flows/athlete/calendar.html",
-              "label": "Athlete Schedule",
-              "id": "s-schedule"
-            },
-            {
-              "file": "flows/athlete/my-coaches.html",
-              "label": "Athlete · My Coaches",
-              "id": "s-coach-detail"
-            },
-            {
-              "file": "flows/athlete/search.html",
-              "label": "Athlete Search",
-              "id": "s-search-text"
-            }
-          ]
-        },
-        {
-          "id": "s-reviews",
-          "hash": "6d9871b4f613",
-          "title": "All Reviews",
-          "inApp": "Reviews",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Full reviews screen pushed from Coach Profile v2 carousel or \"Show all reviews\".",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-profile__s-reviews.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-book-sessions",
-          "hash": "94662acd8270",
-          "title": "Book Trainings",
-          "inApp": "Book training",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Pushed from Coach Profile v2 \"Book Training\" CTA. Grouped by type (no tabs — 3–6 types, tabs were overkill). Empty types simply don't render (coach with no group → no Group section).",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-profile__s-book-sessions.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 1,
-          "inFrom": [
-            {
-              "file": "flows/athlete/calendar.html",
-              "label": "Athlete Schedule",
-              "id": "s-schedule"
-            },
-            {
-              "file": "flows/athlete/my-coaches.html",
-              "label": "Athlete · My Coaches",
-              "id": "s-coach-detail"
-            }
-          ]
-        },
-        {
-          "id": "s-hv-address",
-          "hash": "95ebeeaeb800",
-          "title": "Home-visit address",
-          "inApp": "Your address",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Reached from the booking confirm sheet when the session is a home visit (coach set location = home when creating the session). Cloned from locations.html → s-loc-map. Pick → back to confirm with the address filled and th",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-profile__s-hv-address.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 2
-        },
-        {
-          "id": "s-hv-addr-pick",
-          "hash": "8b538e3cc85f",
-          "title": "Pick on map",
-          "inApp": "",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "1:1 clone of coach s-loc-pick (lock/unlock pin, My-location, reverse-geocoded card). CTA differs: Use this address → details.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-profile__s-hv-addr-pick.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 3
-        },
-        {
-          "id": "s-hv-addr-form",
-          "hash": "5cdc8026088d",
-          "title": "Address details",
-          "inApp": "Address details",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Clone of coach s-loc-form. Like coach: a plain Name input (user types \"Home\" / \"Work\" / anything) — no preset chips. Optional note for the coach. Save address.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-profile__s-hv-addr-form.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 4
-        },
-        {
-          "id": "s-my-addresses",
-          "hash": "15e8d2560080",
-          "title": "My addresses",
-          "inApp": "My addresses",
-          "status": "canon",
-          "theme": "light",
-          "entry": false,
-          "note": "Settings → Training → My addresses. Mirrors coach Locations list: .set-card rows (40×40 icon-box) + dashed .loc-add-cta. Tap a card → edit; Add → map → details. Empty + loading states included.",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-profile__s-my-addresses.webp",
-              "label": ""
-            }
-          ],
-          "level": 3,
-          "order": 5,
-          "inFrom": [
-            {
-              "file": "flows/athlete/dashboard.html",
-              "label": "Athlete Dashboard",
-              "id": "s-notifications"
-            },
-            {
-              "file": "flows/athlete/settings.html",
-              "label": "Athlete · Settings",
-              "id": "s-settings"
-            }
-          ]
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-coach-v2",
-          "to": "s-reviews",
-          "back": false
-        },
-        {
-          "from": "s-coach-v2",
-          "to": "s-book-sessions",
-          "back": false
-        },
-        {
-          "from": "s-reviews",
-          "to": "s-book-sessions",
-          "back": true
-        },
-        {
-          "from": "s-book-sessions",
-          "to": "s-booking",
-          "back": false
-        },
-        {
-          "from": "s-book-sessions",
-          "to": "s-group",
-          "back": false
-        },
-        {
-          "from": "s-hv-address",
-          "to": "s-hv-addr-pick",
-          "back": true
-        },
-        {
-          "from": "s-hv-addr-pick",
-          "to": "s-hv-address",
-          "back": true
-        },
-        {
-          "from": "s-hv-addr-pick",
-          "to": "s-hv-addr-form",
-          "back": true
-        },
-        {
-          "from": "s-hv-addr-form",
-          "to": "s-hv-addr-pick",
-          "back": true
-        },
-        {
-          "from": "s-my-addresses",
-          "to": "s-hv-addr-form",
-          "back": true
-        }
-      ]
+      "edges": []
     },
     {
       "file": "flows/shared/self-paced.html",
@@ -7267,24 +2057,4848 @@ window.FIT_BOARD = {
       ]
     },
     {
-      "file": "flows/shared/voice-assistant.html",
-      "label": "Voice Assistant",
+      "file": "flows/shared/profile.html",
+      "label": "Coach Profile (public)",
       "role": "shared",
-      "slug": "shared-voice-assistant",
+      "slug": "shared-profile",
       "screens": [
         {
-          "id": "s-assistant",
-          "hash": "6cc0c842ac9d",
-          "title": "Text input",
+          "id": "s-booking",
+          "hash": "0383bcf8829c",
+          "title": "Booking Calendar",
+          "inApp": "",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Date strip in header + state-aware content. Sticky Confirm CTA at bottom opens Booking Confirm sheet for review & send.",
+          "external": [
+            "../athlete/balance.html",
+            "../athlete/calendar.html"
+          ],
+          "shots": [
+            {
+              "file": "shared-profile__s-booking.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 0
+        },
+        {
+          "id": "s-group",
+          "hash": "a608c8721af0",
+          "title": "Group Detail",
+          "inApp": "HIIT Group Session",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Before joining. Ticket card with coach info, tappable participant list.",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-profile__s-group.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 1
+        },
+        {
+          "id": "s-joined",
+          "hash": "141d0727ca2d",
+          "title": "Group Joined",
+          "inApp": "HIIT Group Session",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "After joining. Current user first with \"You\" label and gradient avatar.",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-profile__s-joined.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 0
+        },
+        {
+          "id": "s-full",
+          "hash": "eb8196eab7db",
+          "title": "Group Full",
+          "inApp": "Yoga Morning Flow",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "All spots taken. Cannot join — disabled button.",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-profile__s-full.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 1
+        },
+        {
+          "id": "s-coach-v2",
+          "hash": "4d6617948ae8",
+          "title": "Coach Profile",
           "inApp": "",
           "status": "canon",
           "theme": "light",
           "entry": true,
-          "note": "The assistant is a LiveKit session (GPT-4 Realtime ↔ voice_control ↔ poly-backend via child-JWT). The screen is a chat canvas: transcript bubbles + inline rich blocks rendered from the agent's data-channel messages, all ",
+          "note": "Alternative layout with video header. Inspired by Prepply/Superprof.",
           "external": [],
           "shots": [
             {
-              "file": "shared-voice-assistant__s-assistant.webp",
+              "file": "shared-profile__s-coach-v2.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/athlete/search.html",
+              "label": "Athlete Search",
+              "id": "s-search-text"
+            },
+            {
+              "file": "flows/athlete/my-coaches.html",
+              "label": "Athlete · My Coaches",
+              "id": "s-coach-detail"
+            },
+            {
+              "file": "flows/athlete/calendar.html",
+              "label": "Athlete Schedule",
+              "id": "s-schedule"
+            }
+          ]
+        },
+        {
+          "id": "s-reviews",
+          "hash": "6d9871b4f613",
+          "title": "All Reviews",
+          "inApp": "Reviews",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Full reviews screen pushed from Coach Profile v2 carousel or \"Show all reviews\".",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-profile__s-reviews.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-book-sessions",
+          "hash": "94662acd8270",
+          "title": "Book Trainings",
+          "inApp": "Book training",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Pushed from Coach Profile v2 \"Book Training\" CTA. Grouped by type (no tabs — 3–6 types, tabs were overkill). Empty types simply don't render (coach with no group → no Group section).",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-profile__s-book-sessions.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1,
+          "inFrom": [
+            {
+              "file": "flows/athlete/my-coaches.html",
+              "label": "Athlete · My Coaches",
+              "id": "s-coach-detail"
+            },
+            {
+              "file": "flows/athlete/calendar.html",
+              "label": "Athlete Schedule",
+              "id": "s-schedule"
+            }
+          ]
+        },
+        {
+          "id": "s-hv-address",
+          "hash": "95ebeeaeb800",
+          "title": "Home-visit address",
+          "inApp": "Your address",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Reached from the booking confirm sheet when the session is a home visit (coach set location = home when creating the session). Cloned from locations.html → s-loc-map. Pick → back to confirm with the address filled and th",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-profile__s-hv-address.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 2
+        },
+        {
+          "id": "s-hv-addr-pick",
+          "hash": "8b538e3cc85f",
+          "title": "Pick on map",
+          "inApp": "",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "1:1 clone of coach s-loc-pick (lock/unlock pin, My-location, reverse-geocoded card). CTA differs: Use this address → details.",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-profile__s-hv-addr-pick.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 3
+        },
+        {
+          "id": "s-hv-addr-form",
+          "hash": "5cdc8026088d",
+          "title": "Address details",
+          "inApp": "Address details",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Clone of coach s-loc-form. Like coach: a plain Name input (user types \"Home\" / \"Work\" / anything) — no preset chips. Optional note for the coach. Save address.",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-profile__s-hv-addr-form.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 4
+        },
+        {
+          "id": "s-my-addresses",
+          "hash": "15e8d2560080",
+          "title": "My addresses",
+          "inApp": "My addresses",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Settings → Training → My addresses. Mirrors coach Locations list: .set-card rows (40×40 icon-box) + dashed .loc-add-cta. Tap a card → edit; Add → map → details. Empty + loading states included.",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-profile__s-my-addresses.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 5,
+          "inFrom": [
+            {
+              "file": "flows/athlete/dashboard.html",
+              "label": "Athlete Dashboard",
+              "id": "s-notifications"
+            },
+            {
+              "file": "flows/athlete/settings.html",
+              "label": "Athlete · Settings",
+              "id": "s-settings"
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-coach-v2",
+          "to": "s-reviews",
+          "back": false
+        },
+        {
+          "from": "s-coach-v2",
+          "to": "s-book-sessions",
+          "back": false
+        },
+        {
+          "from": "s-reviews",
+          "to": "s-book-sessions",
+          "back": true
+        },
+        {
+          "from": "s-book-sessions",
+          "to": "s-booking",
+          "back": false
+        },
+        {
+          "from": "s-book-sessions",
+          "to": "s-group",
+          "back": false
+        },
+        {
+          "from": "s-hv-address",
+          "to": "s-hv-addr-pick",
+          "back": true
+        },
+        {
+          "from": "s-hv-addr-pick",
+          "to": "s-hv-address",
+          "back": true
+        },
+        {
+          "from": "s-hv-addr-pick",
+          "to": "s-hv-addr-form",
+          "back": true
+        },
+        {
+          "from": "s-hv-addr-form",
+          "to": "s-hv-addr-pick",
+          "back": true
+        },
+        {
+          "from": "s-my-addresses",
+          "to": "s-hv-addr-form",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/shared/calendar-legend.html",
+      "label": "Calendar legend",
+      "role": "shared",
+      "slug": "shared-calendar-legend",
+      "screens": [
+        {
+          "id": "s-legend",
+          "hash": "c5ed58ca765c",
+          "title": "Calendar legend",
+          "inApp": "Calendar legend",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "Opt-in reference sheet, reached from the ? button in the calendar header (disclosure Layer 2 — the event drawer stays the primary teacher, this is never an auto-popup).",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-calendar-legend__s-legend.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        }
+      ],
+      "edges": []
+    },
+    {
+      "file": "flows/coach/dashboard.html",
+      "label": "Coach Dashboard",
+      "role": "coach",
+      "slug": "coach-dashboard",
+      "screens": [
+        {
+          "id": "s-dashboard",
+          "hash": "354e1876bdf5",
+          "title": "Dashboard",
+          "inApp": "Home",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "Answers “what do I need to know right now?” — not an analytics panel. Deep financial view lives in Earnings, full agenda in Calendar.",
+          "external": [
+            "../shared/messages.html?role=coach",
+            "../shared/self-paced.html#s-queue"
+          ],
+          "shots": [
+            {
+              "file": "coach-dashboard__s-dashboard.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/coach/profile.html",
+              "label": "Coach Profile",
+              "id": "s-coach-profile"
+            }
+          ]
+        },
+        {
+          "id": "s-review-queue",
+          "hash": "18943a3c3ea0",
+          "title": "Sessions to review",
+          "inApp": "Sessions to review",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Triage queue for sessions in Review state — events that ended but coach hasn’t marked complete or missed yet.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-dashboard__s-review-queue.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-notifications",
+          "hash": "f74d91e195ec",
+          "title": "Notifications inbox",
+          "inApp": "Inbox",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unified Inbox. Replaces the legacy split where Clients had its own bell + s-requests inbox alongside Dashboard notifications. Coach now has ONE bell → ONE inbox with 3 tabs.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-dashboard__s-notifications.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-dashboard",
+          "to": "s-notifications",
+          "back": false
+        },
+        {
+          "from": "s-dashboard",
+          "to": "s-review-queue",
+          "back": false
+        },
+        {
+          "from": "s-review-queue",
+          "to": "s-dashboard",
+          "back": true
+        },
+        {
+          "from": "s-notifications",
+          "to": "s-dashboard",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/coach/clients.html",
+      "label": "Coach Clients",
+      "role": "coach",
+      "slug": "coach-clients",
+      "screens": [
+        {
+          "id": "s-clients",
+          "hash": "a28856a39ede",
+          "title": "Clients",
+          "inApp": "Clients",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "CRM-style client list. Root tab screen (no back arrow).",
+          "external": [
+            "../coach/invite.html?mode=invite&origin=s-clients#s-invite-select"
+          ],
+          "shots": [
+            {
+              "file": "coach-clients__s-clients.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/coach/sessions.html",
+              "label": "Training templates",
+              "id": "s-detail-selfpaced"
+            },
+            {
+              "file": "flows/coach/profile.html",
+              "label": "Coach Profile",
+              "id": "s-coach-profile"
+            }
+          ]
+        },
+        {
+          "id": "s-client-detail",
+          "hash": "f78fe4227308",
+          "title": "Client Detail",
+          "inApp": "",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Full athlete profile from coach's perspective.",
+          "external": [
+            "./client-groups.html#s-group-detail",
+            "./client-groups.html#s-add-to-group",
+            "../shared/self-paced.html#s-setup",
+            "../coach/invite.html?mode=schedule&origin=s-client-detail#s-invite-select",
+            "./sessions.html#packages",
+            "../coach/invite.html?mode=invite&origin=s-client-detail#s-invite-select"
+          ],
+          "shots": [
+            {
+              "file": "coach-clients__s-client-detail.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/coach/client-groups.html",
+              "label": "Client Groups",
+              "id": "s-add-to-group"
+            }
+          ]
+        },
+        {
+          "id": "s-client-selfpaced",
+          "hash": "01011e1c22c7",
+          "title": "Client Self-paced",
+          "inApp": "Self-paced",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "",
+          "external": [
+            "../shared/self-paced.html#s-review",
+            "../shared/self-paced.html#s-comments"
+          ],
+          "shots": [
+            {
+              "file": "coach-clients__s-client-selfpaced.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 0
+        },
+        {
+          "id": "s-pkg-detail",
+          "hash": "59cd4ec4e0ba",
+          "title": "Package Detail",
+          "inApp": "Package",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "One client's pack of one session type, coach-side. Symmetric with the athlete's own view (my-coaches.html #s-pkg-detail) — same summary, same ledger, different action.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients__s-pkg-detail.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 0
+        },
+        {
+          "id": "s-pkg-history",
+          "hash": "8407cd310be1",
+          "title": "Package History",
+          "inApp": "Activity",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "The full redemption log for one client's pack — every −1 credit, combined across lots in FIFO order. Reached from See all; back returns to the pack.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients__s-pkg-history.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 1
+        },
+        {
+          "id": "s-client-history",
+          "hash": "a59493b6c616",
+          "title": "Client History",
+          "inApp": "Training history",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Full training history with athlete.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients__s-client-history.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 1,
+          "inFrom": [
+            {
+              "file": "flows/coach/sessions.html",
+              "label": "Training templates",
+              "id": "s-detail-personal"
+            }
+          ]
+        },
+        {
+          "id": "s-archived",
+          "hash": "11201fefd21d",
+          "title": "Archived & Blocked",
+          "inApp": "Archived & Blocked",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "List of clients removed from active Clients tab — by archive (soft) or block (hard).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients__s-archived.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-client-notes-editor",
+          "hash": "273abc6705d9",
+          "title": "Client Notes Editor",
+          "inApp": "",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Full-screen editor for coach's private notes about an athlete. Same pattern as About Me editor — Cancel / title / Save header, contenteditable body, no character counter.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients__s-client-notes-editor.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 2
+        },
+        {
+          "id": "s-create-client",
+          "hash": "edd2533838d0",
+          "title": "Create Client",
+          "inApp": "New client",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "CRM card for athletes without app account.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients__s-create-client.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-crm-addr-pick",
+          "hash": "d2b49d5e3d84",
+          "title": "s-crm-addr-pick",
+          "inApp": "",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients__s-crm-addr-pick.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 2
+        },
+        {
+          "id": "s-crm-addr-form",
+          "hash": "4c5d3423c165",
+          "title": "Home address",
+          "inApp": "Home address",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients__s-crm-addr-form.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 3
+        },
+        {
+          "id": "s-import-contacts",
+          "hash": "f356a07726f0",
+          "title": "Import Contacts",
+          "inApp": "Import contacts",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Bulk-add clients from the phone address book. Opened from the Add-client drawer → OS asks for Contacts permission.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients__s-import-contacts.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 4
+        },
+        {
+          "id": "s-import-done",
+          "hash": "d3561274fb01",
+          "title": "Import Done",
+          "inApp": "",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Confirmation after a bulk import + the entry point to the mass invite.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients__s-import-done.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 5
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-clients",
+          "to": "s-client-detail",
+          "back": false
+        },
+        {
+          "from": "s-clients",
+          "to": "s-archived",
+          "back": false
+        },
+        {
+          "from": "s-clients",
+          "to": "s-create-client",
+          "back": false
+        },
+        {
+          "from": "s-client-detail",
+          "to": "s-client-selfpaced",
+          "back": false
+        },
+        {
+          "from": "s-client-detail",
+          "to": "s-client-notes-editor",
+          "back": false
+        },
+        {
+          "from": "s-client-detail",
+          "to": "s-client-history",
+          "back": false
+        },
+        {
+          "from": "s-client-detail",
+          "to": "s-create-client",
+          "back": true
+        },
+        {
+          "from": "s-client-selfpaced",
+          "to": "s-client-detail",
+          "back": true
+        },
+        {
+          "from": "s-pkg-detail",
+          "to": "s-client-detail",
+          "back": true
+        },
+        {
+          "from": "s-client-notes-editor",
+          "to": "s-client-detail",
+          "back": true
+        },
+        {
+          "from": "s-crm-addr-pick",
+          "to": "s-crm-addr-form",
+          "back": true
+        },
+        {
+          "from": "s-crm-addr-form",
+          "to": "s-crm-addr-pick",
+          "back": true
+        },
+        {
+          "from": "s-import-contacts",
+          "to": "s-clients",
+          "back": true
+        },
+        {
+          "from": "s-import-done",
+          "to": "s-clients",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/coach/client-groups.html",
+      "label": "Client Groups",
+      "role": "coach",
+      "slug": "coach-client-groups",
+      "screens": [
+        {
+          "id": "s-groups",
+          "hash": "784751e2ee52",
+          "title": "Clients | Groups",
+          "inApp": "Clients",
+          "status": "shipped",
+          "theme": "dark",
+          "entry": true,
+          "note": "A group is a named set of clients — app accounts and CRM contacts side by side, exactly like the participants of an event (the add-participant endpoint already keys off relationshipId, so both kinds go down one path).",
+          "external": [
+            "./clients.html#s-client-detail"
+          ],
+          "shots": [
+            {
+              "file": "coach-client-groups__s-groups.webp",
+              "label": ""
+            },
+            {
+              "file": "coach-client-groups__s-groups__empty.webp",
+              "label": "No groups yet"
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-group-detail",
+          "hash": "bf3fd3013f32",
+          "title": "Group detail",
+          "inApp": "Morning",
+          "status": "shipped",
+          "theme": "dark",
+          "entry": false,
+          "note": "Everything on this screen is a row. The previous pass wrapped each action in a card with a two-line description and each session in another card — ~200px spent on things a coach does daily and already understands. Rebuil",
+          "external": [
+            "./sessions.html#s-series",
+            "./calendar.html",
+            "./invite.html?mode=schedule&origin=s-group-detail&filter=group&group=morning"
+          ],
+          "shots": [
+            {
+              "file": "coach-client-groups__s-group-detail.webp",
+              "label": ""
+            },
+            {
+              "file": "coach-client-groups__s-group-detail__editing.webp",
+              "label": "Edit mode — tap a row to remove"
+            },
+            {
+              "file": "coach-client-groups__s-group-detail__no-schedule.webp",
+              "label": "Not on any session"
+            },
+            {
+              "file": "coach-client-groups__s-group-detail__drawer.webp",
+              "label": "Schedule drawer — one-off or weekly"
+            }
+          ],
+          "level": 1,
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/coach/clients.html",
+              "label": "Coach Clients",
+              "id": "s-client-detail"
+            }
+          ]
+        },
+        {
+          "id": "s-group-schedule",
+          "hash": "f48c4cfa5981",
+          "title": "Group schedule",
+          "inApp": "Morning",
+          "status": "shipped",
+          "theme": "dark",
+          "entry": false,
+          "note": "Every date this group is on, in one place. Same shape as the series detail in session-detail.html, because the question is the same — when does this run? — only the filter is the group instead of one placement.",
+          "external": [
+            "./sessions.html#s-series",
+            "./calendar.html"
+          ],
+          "shots": [
+            {
+              "file": "coach-client-groups__s-group-schedule.webp",
+              "label": ""
+            },
+            {
+              "file": "coach-client-groups__s-group-schedule__recurring-only.webp",
+              "label": "Filtered to recurring"
+            }
+          ],
+          "level": 2,
+          "order": 0
+        },
+        {
+          "id": "s-group-smart",
+          "hash": "18df7b4a3d2d",
+          "title": "Smart group detail",
+          "inApp": "Owes money",
+          "status": "shipped",
+          "theme": "dark",
+          "entry": false,
+          "note": "Same screen shape as a manual group, minus everything that implies hand-picked membership: no Add, no Edit, no attach-to-series. The note says out loud where the membership comes from and how people leave it.",
+          "external": [
+            "./clients.html#s-client-detail"
+          ],
+          "shots": [
+            {
+              "file": "coach-client-groups__s-group-smart.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-group-create",
+          "hash": "50ad3098eee4",
+          "title": "Create group",
+          "inApp": "New group",
+          "status": "shipped",
+          "theme": "dark",
+          "entry": false,
+          "note": "Name + multi-select over all clients. The row component is the one from contact import (imp-) — same checkbox, avatar, tag grammar, so “pick people” looks the same everywhere in the app.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-groups__s-group-create.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-group-rename",
+          "hash": "372be2c4c1fa",
+          "title": "Rename group",
+          "inApp": "Group name",
+          "status": "shipped",
+          "theme": "dark",
+          "entry": false,
+          "note": "A pushed screen, not an inline field in the header and not a sheet — and it’s a straight clone of shared/messages.html#s-group-rename, which already solves this exact problem for DM groups.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-groups__s-group-rename.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 1
+        },
+        {
+          "id": "s-add-to-group",
+          "hash": "3f5165fa8463",
+          "title": "Client → groups",
+          "inApp": "Anna’s groups",
+          "status": "shipped",
+          "theme": "dark",
+          "entry": false,
+          "note": "Opened from the Add to group pill on the client card. The gap it closes: groups were only visible from the group side, so from a client you couldn’t see — or change — where they belong.",
+          "external": [
+            "./clients.html#s-client-detail"
+          ],
+          "shots": [
+            {
+              "file": "coach-client-groups__s-add-to-group.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/coach/clients.html",
+              "label": "Coach Clients",
+              "id": "s-client-detail"
+            }
+          ]
+        },
+        {
+          "id": "s-group-add",
+          "hash": "baab418a5a0d",
+          "title": "Add clients",
+          "inApp": "Add to Morning",
+          "status": "shipped",
+          "theme": "dark",
+          "entry": false,
+          "note": "Same picker as Create, minus the name field — the group already has a name, and re-asking for it makes the coach wonder whether they’re about to make a second group.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-groups__s-group-add.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 2
+        },
+        {
+          "id": "s-group-chat",
+          "hash": "2c81d6492c3c",
+          "title": "Group chat",
+          "inApp": "Morning",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "The group thread from shared/messages.html, unchanged — only the two states that groups introduce are drawn here.",
+          "external": [
+            "../shared/messages.html#s-group-settings",
+            "./invite.html?mode=invite&origin=s-group-chat"
+          ],
+          "shots": [
+            {
+              "file": "coach-client-groups__s-group-chat.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 3
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-groups",
+          "to": "s-group-detail",
+          "back": false
+        },
+        {
+          "from": "s-groups",
+          "to": "s-group-smart",
+          "back": false
+        },
+        {
+          "from": "s-groups",
+          "to": "s-group-create",
+          "back": false
+        },
+        {
+          "from": "s-group-detail",
+          "to": "s-groups",
+          "back": true
+        },
+        {
+          "from": "s-group-detail",
+          "to": "s-group-chat",
+          "back": false
+        },
+        {
+          "from": "s-group-detail",
+          "to": "s-group-schedule",
+          "back": false
+        },
+        {
+          "from": "s-group-detail",
+          "to": "s-group-add",
+          "back": false
+        },
+        {
+          "from": "s-group-detail",
+          "to": "s-group-rename",
+          "back": false
+        },
+        {
+          "from": "s-group-schedule",
+          "to": "s-group-detail",
+          "back": true
+        },
+        {
+          "from": "s-group-smart",
+          "to": "s-groups",
+          "back": true
+        },
+        {
+          "from": "s-group-create",
+          "to": "s-groups",
+          "back": true
+        },
+        {
+          "from": "s-group-create",
+          "to": "s-group-detail",
+          "back": true
+        },
+        {
+          "from": "s-group-rename",
+          "to": "s-group-detail",
+          "back": true
+        },
+        {
+          "from": "s-add-to-group",
+          "to": "s-group-create",
+          "back": true
+        },
+        {
+          "from": "s-group-add",
+          "to": "s-group-detail",
+          "back": true
+        },
+        {
+          "from": "s-group-chat",
+          "to": "s-group-detail",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/coach/sessions.html",
+      "label": "Training templates",
+      "role": "coach",
+      "slug": "coach-sessions",
+      "screens": [
+        {
+          "id": "s-create",
+          "hash": "1c713572dea5",
+          "title": "Create Session",
+          "inApp": "Training session setup",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "Unified template form for personal and group — a reusable definition, no dates/times. Group-only fields (max/min participants) hide/show with animation on type toggle.",
+          "external": [
+            "./sport-types.html",
+            "./locations.html"
+          ],
+          "shots": [
+            {
+              "file": "coach-sessions__s-create.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/coach/profile.html",
+              "label": "Coach Profile",
+              "id": "s-coach-profile"
+            }
+          ]
+        },
+        {
+          "id": "s-list",
+          "hash": "20b058057159",
+          "title": "My Sessions",
+          "inApp": "My training sessions",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Two tabs via a segmented control: Sessions (templates) and Packages (prepaid packs). Packages were moved out of the template form into their own flow — a pack is a separate credit-ledger object, not a template field.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-sessions__s-list.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/coach/sessions.html",
+              "label": "Training templates",
+              "id": "s-detail-selfpaced"
+            }
+          ]
+        },
+        {
+          "id": "s-detail-group",
+          "hash": "4c884ba44105",
+          "title": "Detail — Group",
+          "inApp": "HIIT Group Session",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Tapping a template in My Sessions now lands here, not in the edit form. Editing settings and managing what the template spawned are two different jobs — the old screen did both and buried the second one under a form.",
+          "external": [
+            "./sessions.html#s-list",
+            "./sessions.html#pkg-editor",
+            "./calendar.html",
+            "./invite.html?mode=schedule&origin=s-detail"
+          ],
+          "shots": [
+            {
+              "file": "coach-sessions__s-detail-group.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-detail-personal",
+          "hash": "09c25491e047",
+          "title": "Detail — Personal",
+          "inApp": "Basketball Training",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Same shell, different spawn. A personal template has no standalone events — it produces bookings with a specific athlete, so the lower section is a people list, not a date list.",
+          "external": [
+            "./sessions.html#s-list",
+            "./clients.html",
+            "./calendar.html",
+            "./clients.html#s-client-history",
+            "./invite.html?mode=schedule&origin=s-detail&step=athlete"
+          ],
+          "shots": [
+            {
+              "file": "coach-sessions__s-detail-personal.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-detail-selfpaced",
+          "hash": "fce86fd10ce8",
+          "title": "Detail — Self-paced",
+          "inApp": "Tennis self-paced",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Self-paced has no dates at all, so the “what did this template spawn” section becomes athletes and their progress. Ordered by what the coach owes, not chronology.",
+          "external": [
+            "./sessions.html#s-list",
+            "../shared/self-paced.html#s-queue",
+            "../shared/self-paced.html#s-setup",
+            "../shared/self-paced.html#s-review",
+            "../shared/self-paced.html#s-history",
+            "./clients.html"
+          ],
+          "shots": [
+            {
+              "file": "coach-sessions__s-detail-selfpaced.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 3
+        },
+        {
+          "id": "s-series",
+          "hash": "2caf28952e83",
+          "title": "Series detail",
+          "inApp": "Tue & Thu · 18:00",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "The full date list for one recurring placement — opened from the series head’s “17 dates”. The rule card at the top is the object being managed; the rows below are what it generated.",
+          "external": [
+            "./calendar.html"
+          ],
+          "shots": [
+            {
+              "file": "coach-sessions__s-series.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 4,
+          "inFrom": [
+            {
+              "file": "flows/coach/client-groups.html",
+              "label": "Client Groups",
+              "id": "s-group-schedule"
+            }
+          ]
+        },
+        {
+          "id": "s-edit",
+          "hash": "d200ce9678bb",
+          "title": "Edit template",
+          "inApp": "Edit training session",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Reached from the summary card’s Edit. Now a pure settings form — three things left it:",
+          "external": [
+            "./sport-types.html",
+            "./locations.html"
+          ],
+          "shots": [
+            {
+              "file": "coach-sessions__s-edit.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 5
+        },
+        {
+          "id": "pkg-pick",
+          "hash": "774489500847",
+          "title": "Pick session (create)",
+          "inApp": "Choose a session",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Step 1 of package creation. A pack is always based on one session, so the coach picks the base template first. Reuses the My Sessions card style as a selectable picker.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-sessions__pkg-pick.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 6
+        },
+        {
+          "id": "pkg-editor",
+          "hash": "d101a2f8f10b",
+          "title": "Package detail",
+          "inApp": "New package",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "In edit/detail mode a segmented [ Overview | Buyers ] splits defining the pack from managing its customers. In create mode (from Pick) there are no buyers yet, so the tabs + stats are hidden — just Overview.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-sessions__pkg-editor.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 7,
+          "inFrom": [
+            {
+              "file": "flows/coach/sessions.html",
+              "label": "Training templates",
+              "id": "s-detail-group"
+            }
+          ]
+        },
+        {
+          "id": "pkg-tier-edit",
+          "hash": "9d164afd51d6",
+          "title": "Package tier edit",
+          "inApp": "New package tier",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Add or edit one tier of a package — a pack size and what it costs. Opened from the Overview card's pencil (edit) or \"+ Add package tier\" (add). Isolated to that single tier: the other tiers are untouched.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-sessions__pkg-tier-edit.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 8
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-list",
+          "to": "s-detail-personal",
+          "back": true
+        },
+        {
+          "from": "s-list",
+          "to": "s-detail-group",
+          "back": true
+        },
+        {
+          "from": "s-list",
+          "to": "s-detail-selfpaced",
+          "back": true
+        },
+        {
+          "from": "s-list",
+          "to": "s-create",
+          "back": true
+        },
+        {
+          "from": "s-list",
+          "to": "pkg-pick",
+          "back": true
+        },
+        {
+          "from": "s-detail-group",
+          "to": "s-edit",
+          "back": true
+        },
+        {
+          "from": "s-detail-group",
+          "to": "s-series",
+          "back": true
+        },
+        {
+          "from": "s-detail-personal",
+          "to": "s-edit",
+          "back": true
+        },
+        {
+          "from": "s-detail-selfpaced",
+          "to": "s-edit",
+          "back": true
+        },
+        {
+          "from": "s-series",
+          "to": "s-detail-group",
+          "back": true
+        },
+        {
+          "from": "s-edit",
+          "to": "s-detail-group",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/coach/calendar.html",
+      "label": "Coach Calendar",
+      "role": "coach",
+      "slug": "coach-calendar",
+      "screens": [
+        {
+          "id": "s-calendar",
+          "hash": "11631bbc7c9e",
+          "title": "Cross-role drawer",
+          "inApp": "",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "Behavior detailsDay NavigationTap day on strip = instant switch. Swipe day strip = scroll. Swipe content left/right = page transition (Apple Calendar). Day strip auto-scrolls to selected day.",
+          "external": [
+            "./invite.html?mode=schedule&origin=s-calendar"
+          ],
+          "shots": [
+            {
+              "file": "coach-calendar__s-calendar.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/coach/client-groups.html",
+              "label": "Client Groups",
+              "id": "s-group-schedule"
+            },
+            {
+              "file": "flows/coach/sessions.html",
+              "label": "Training templates",
+              "id": "s-series"
+            },
+            {
+              "file": "flows/coach/profile.html",
+              "label": "Coach Profile",
+              "id": "s-coach-profile"
+            }
+          ]
+        },
+        {
+          "id": "s-event",
+          "hash": "85d26212fb06",
+          "title": "Event Detail",
+          "inApp": "HIIT Group Session",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Invite & deep-link Share linkGenerated on-demand via Appsflyer OneLink when coach taps Invite — not pre-generated for all future events. Short URL (321.fit/e/xK3aB) carries event_id in attribution params.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-calendar__s-event.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-invite",
+          "hash": "e79cfdb9c445",
+          "title": "Invite athletes",
+          "inApp": "Invite athletes",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-calendar__s-invite.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-cash",
+          "hash": "54bdfc1b6258",
+          "title": "Event Completion",
+          "inApp": "Event completion",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Entry & flowEntry pointPush notification after event end time: \"Training ended. Tap to review and complete.\" Deep links to this screen.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-calendar__s-cash.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-block-time-off",
+          "hash": "88ae94c174eb",
+          "title": "Busy time form",
+          "inApp": "Busy time",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Secondary FAB action. Coach creates a custom calendar block — no athlete, no training session template. Renders on timeline as muted block, blocks athlete booking calendars for this slot. Renamed from \"Block time off\" to",
+          "external": [
+            "./available-hours.html#timeoff"
+          ],
+          "shots": [
+            {
+              "file": "coach-calendar__s-block-time-off.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 3
+        },
+        {
+          "id": "s-event-edit",
+          "hash": "a0f7a2a9cfa7",
+          "title": "Edit details",
+          "inApp": "Edit event",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "",
+          "external": [
+            "./locations.html"
+          ],
+          "shots": [
+            {
+              "file": "coach-calendar__s-event-edit.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 2,
+          "order": 0
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-calendar",
+          "to": "s-block-time-off",
+          "back": false
+        },
+        {
+          "from": "s-calendar",
+          "to": "s-invite",
+          "back": false
+        },
+        {
+          "from": "s-calendar",
+          "to": "s-event",
+          "back": false
+        },
+        {
+          "from": "s-calendar",
+          "to": "s-cash",
+          "back": false
+        },
+        {
+          "from": "s-event",
+          "to": "s-invite",
+          "back": true
+        },
+        {
+          "from": "s-invite",
+          "to": "s-event",
+          "back": true
+        },
+        {
+          "from": "s-block-time-off",
+          "to": "s-calendar",
+          "back": true
+        },
+        {
+          "from": "s-event-edit",
+          "to": "s-calendar",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/coach/invite.html",
+      "label": "Coach Invite",
+      "role": "coach",
+      "slug": "coach-invite",
+      "screens": [
+        {
+          "id": "s-schedule-pick-athlete",
+          "hash": "938e0c103c7a",
+          "title": "Pick athlete (schedule)",
+          "inApp": "Choose athlete",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-invite__s-schedule-pick-athlete.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-invite-select",
+          "hash": "f9ec033ac53b",
+          "title": "Select Training",
+          "inApp": "Select training",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "Step 1 of both Invite and Schedule flows. One list of all templates — the flow branches by template type on tap.",
+          "external": [
+            "../coach/settings.html#s-create"
+          ],
+          "shots": [
+            {
+              "file": "coach-invite__s-invite-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/coach/clients.html",
+              "label": "Coach Clients",
+              "id": "s-client-detail"
+            },
+            {
+              "file": "flows/coach/client-groups.html",
+              "label": "Client Groups",
+              "id": "s-group-chat"
+            },
+            {
+              "file": "flows/coach/sessions.html",
+              "label": "Training templates",
+              "id": "s-detail-personal"
+            },
+            {
+              "file": "flows/coach/calendar.html",
+              "label": "Coach Calendar",
+              "id": "s-calendar"
+            }
+          ]
+        },
+        {
+          "id": "s-invite-time",
+          "hash": "faf141bb9dc6",
+          "title": "Date & Time (Personal)",
+          "inApp": "",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Step 2 for personal training. Choose when.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-invite__s-invite-time.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-invite-review",
+          "hash": "45703a3b7c3e",
+          "title": "Invite Review",
+          "inApp": "Review & Send",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Step 3 of Invite flow — coach shares deep link with someone not yet in the app.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-invite__s-invite-review.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-schedule-review",
+          "hash": "046613cdfafc",
+          "title": "Schedule: Review Request",
+          "inApp": "Review request",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Step 3 of Schedule training flow — coach proposes a session to an existing in-app client. Reuses the invite screens; differs only here.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-invite__s-schedule-review.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 3
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-invite-time",
+          "to": "s-invite-select",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/coach/availability.html",
+      "label": "Availability",
+      "role": "coach",
+      "slug": "coach-availability",
+      "screens": [
+        {
+          "id": "s-availability-hub",
+          "hash": "9717f30bd78f",
+          "title": "Availability",
+          "inApp": "Availability",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "Reached from Settings → Availability (single card). Hub-of-cards (Calendly/Cal.com pattern) grouping everything that affects the coach’s schedule.",
+          "external": [
+            "./settings.html",
+            "./available-hours.html",
+            "./available-hours.html#timeoff"
+          ],
+          "shots": [
+            {
+              "file": "coach-availability__s-availability-hub.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/coach/settings.html",
+              "label": "Settings",
+              "id": "s-settings"
+            }
+          ]
+        },
+        {
+          "id": "s-tz-select",
+          "hash": "d3dadabed462",
+          "title": "Time zone",
+          "inApp": "Time zone",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Searchable single-select list (canonical cal-select-row + pd-list). Pick → returns to the hub and updates the value. Embedded here so Availability owns the field.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-availability__s-tz-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-availability-hub",
+          "to": "s-tz-select",
+          "back": false
+        },
+        {
+          "from": "s-tz-select",
+          "to": "s-availability-hub",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/coach/available-hours.html",
+      "label": "Available Hours",
+      "role": "coach",
+      "slug": "coach-available-hours",
+      "screens": [
+        {
+          "id": "s-availability",
+          "hash": "e7c817c44451",
+          "title": "Available Hours",
+          "inApp": "Available hours",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "Coach's weekly schedule — when athletes can book training sessions. Applies indefinitely until edited. New accounts are seeded with Mon–Sun 07:00–22:00 so the screen opens populated rather than empty. Each day is a card:",
+          "external": [
+            "./locations.html"
+          ],
+          "shots": [
+            {
+              "file": "coach-available-hours__s-availability.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/coach/availability.html",
+              "label": "Availability",
+              "id": "s-availability-hub"
+            },
+            {
+              "file": "flows/coach/profile.html",
+              "label": "Coach Profile",
+              "id": "s-coach-profile"
+            }
+          ]
+        },
+        {
+          "id": "s-vacation-start",
+          "hash": "2bec2bd9d730",
+          "title": "Time off · edit form",
+          "inApp": "Time off",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-available-hours__s-vacation-start.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-time-off",
+          "hash": "abdedfdb35dd",
+          "title": "Time off",
+          "inApp": "Time off",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Main screen stays lean: only current time-offs — Active first (amber), then Scheduled/upcoming — as compact cards (dates + status pill on one line, client message truncated below), then the dashed + Add time off. None: e",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-available-hours__s-time-off.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-time-off-history",
+          "hash": "3b8be437b445",
+          "title": "Time off · history",
+          "inApp": "Past time off",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Read-only archive of ended/cancelled time-offs, pushed from the See all &rsaquo; row on s-time-off. Keeps the main screen lean while preserving records (useful for the coach's own reference and for disputes with athletes",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-available-hours__s-time-off-history.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-booking-rules",
+          "hash": "349411a5767c",
+          "title": "Booking rules (WIP)",
+          "inApp": "Booking rules",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Reached from Settings → Availability → Booking rules (deep-link available-hours.html#rules). Standard scheduling controls (Calendly/Cal.com/Acuity): minimum notice, booking window, buffer, max/day.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-available-hours__s-booking-rules.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 3
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-vacation-start",
+          "to": "s-availability",
+          "back": true
+        },
+        {
+          "from": "s-time-off",
+          "to": "s-availability",
+          "back": true
+        },
+        {
+          "from": "s-time-off",
+          "to": "s-vacation-start",
+          "back": true
+        },
+        {
+          "from": "s-time-off",
+          "to": "s-time-off-history",
+          "back": true
+        },
+        {
+          "from": "s-time-off-history",
+          "to": "s-time-off",
+          "back": true
+        },
+        {
+          "from": "s-booking-rules",
+          "to": "s-availability",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/coach/locations.html",
+      "label": "Training Locations",
+      "role": "coach",
+      "slug": "coach-locations",
+      "screens": [
+        {
+          "id": "s-locations",
+          "hash": "92e03c2a1a56",
+          "title": "Training Locations",
+          "inApp": "Training locations",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "Three location types + two usage modes.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-locations__s-locations.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/coach/sessions.html",
+              "label": "Training templates",
+              "id": "s-edit"
+            },
+            {
+              "file": "flows/coach/calendar.html",
+              "label": "Coach Calendar",
+              "id": "s-event-edit"
+            },
+            {
+              "file": "flows/coach/available-hours.html",
+              "label": "Available Hours",
+              "id": "s-availability"
+            },
+            {
+              "file": "flows/coach/profile.html",
+              "label": "Coach Profile",
+              "id": "s-coach-profile"
+            }
+          ]
+        },
+        {
+          "id": "s-loc-map",
+          "hash": "ee8b01088bf0",
+          "title": "Add In-person",
+          "inApp": "Add location",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Search-first approach with smart suggestions.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-locations__s-loc-map.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-loc-pick",
+          "hash": "a87f933f9191",
+          "title": "Pick on Map",
+          "inApp": "",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Fullscreen map with two modes. Tap the pill to toggle.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-locations__s-loc-pick.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 0
+        },
+        {
+          "id": "s-loc-form",
+          "hash": "a79e96197ade",
+          "title": "Location Details",
+          "inApp": "Location details",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Used for both create and edit location.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-locations__s-loc-form.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 0
+        },
+        {
+          "id": "s-loc-homevisit",
+          "hash": "c9543a753a30",
+          "title": "Home Visit",
+          "inApp": "Home visit",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Settings for home visit training type.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-locations__s-loc-homevisit.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-loc-online",
+          "hash": "becc05fda0b8",
+          "title": "Add Online",
+          "inApp": "Add online location",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Form for virtual meeting location.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-locations__s-loc-online.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 2
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-locations",
+          "to": "s-loc-map",
+          "back": false
+        },
+        {
+          "from": "s-locations",
+          "to": "s-loc-online",
+          "back": false
+        },
+        {
+          "from": "s-locations",
+          "to": "s-loc-homevisit",
+          "back": false
+        },
+        {
+          "from": "s-loc-map",
+          "to": "s-loc-form",
+          "back": false
+        },
+        {
+          "from": "s-loc-pick",
+          "to": "s-loc-map",
+          "back": true
+        },
+        {
+          "from": "s-loc-pick",
+          "to": "s-loc-form",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/coach/balance-v2.html",
+      "label": "Coach Earnings",
+      "role": "coach",
+      "slug": "coach-balance-v2",
+      "screens": [
+        {
+          "id": "s-earnings",
+          "hash": "3dfeade4fea6",
+          "title": "Earnings",
+          "inApp": "Earnings",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "v2 of balance.html (kept for rollback). Keeps the original two swipe cards (Cash + Card) — the analytics-widget experiment was reverted. What v2 changes vs the original: unified Recent, sticky history search/chips, canon",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-balance-v2__s-earnings.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-pending",
+          "hash": "765e9a436079",
+          "title": "Pending breakdown",
+          "inApp": "Pending",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Tap-target replacement for the old pending-info-sheet (the 10×10 ⓘ icon was effectively unreachable on touch).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-balance-v2__s-pending.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-transactions",
+          "hash": "203116e5848d",
+          "title": "Transactions",
+          "inApp": "Transactions",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Full chronological ledger: earnings, payouts, refunds. Grouped by month. Filter chips at top.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-balance-v2__s-transactions.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 0
+        },
+        {
+          "id": "s-txn-earning",
+          "hash": "847de9d9aab6",
+          "title": "Earning Detail",
+          "inApp": "Earning",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Drill-down on a single earning. Amount up top with status pill (Pending / Available / Paid out).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-balance-v2__s-txn-earning.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-txn-cash",
+          "hash": "3240ba61bf3a",
+          "title": "Cash Detail",
+          "inApp": "Cash earning",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Per-session detail for a cash earning. Same scaffolding as the Card variant (hero + session + payment) but with cash-specific semantics: no 24h hold, no payout reference, no platform fee — just &laquo;has the athlete han",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-balance-v2__s-txn-cash.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-earnings-history",
+          "hash": "ae70eb74c65e",
+          "title": "Earnings History",
+          "inApp": "Earnings history",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unified earnings history — one screen for \"how much did I earn each month\" across Cash + Card (+ future providers). Built on existing patterns: .fit-detail-hero for lifetime, .earn-section per year, .fit-kv-group for mon",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-balance-v2__s-earnings-history.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 4,
+          "order": 0
+        },
+        {
+          "id": "s-txn-payout",
+          "hash": "916252fd2bb6",
+          "title": "Payout Detail",
+          "inApp": "Payout",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Batched payout — shows all included earnings. Amount neutral (not minus red; payout isn't \"bad\").",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-balance-v2__s-txn-payout.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 0
+        },
+        {
+          "id": "s-methods",
+          "hash": "bfa5e2dc04a7",
+          "title": "Payout Methods",
+          "inApp": "Payout methods",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Managing connected payout providers. Default receives weekly batch (and future Instant) payouts. Others are backup.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-balance-v2__s-methods.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 4,
+          "order": 1
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-earnings",
+          "to": "s-pending",
+          "back": false
+        },
+        {
+          "from": "s-earnings",
+          "to": "s-txn-earning",
+          "back": false
+        },
+        {
+          "from": "s-earnings",
+          "to": "s-txn-cash",
+          "back": false
+        },
+        {
+          "from": "s-pending",
+          "to": "s-earnings",
+          "back": true
+        },
+        {
+          "from": "s-pending",
+          "to": "s-txn-earning",
+          "back": true
+        },
+        {
+          "from": "s-transactions",
+          "to": "s-earnings",
+          "back": true
+        },
+        {
+          "from": "s-transactions",
+          "to": "s-txn-earning",
+          "back": true
+        },
+        {
+          "from": "s-transactions",
+          "to": "s-txn-payout",
+          "back": false
+        },
+        {
+          "from": "s-txn-earning",
+          "to": "s-transactions",
+          "back": false
+        },
+        {
+          "from": "s-txn-cash",
+          "to": "s-transactions",
+          "back": false
+        },
+        {
+          "from": "s-earnings-history",
+          "to": "s-earnings",
+          "back": true
+        },
+        {
+          "from": "s-txn-payout",
+          "to": "s-transactions",
+          "back": true
+        },
+        {
+          "from": "s-methods",
+          "to": "s-earnings",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/coach/stripe.html",
+      "label": "Stripe Connect",
+      "role": "coach",
+      "slug": "coach-stripe",
+      "screens": [
+        {
+          "id": "s-stripe",
+          "hash": "7f70d7ac5a33",
+          "title": "Stripe Connect",
+          "inApp": "Stripe",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "2 lifecycle states only: Not set up vs Connected. \"Verifying\" and \"Action needed\" are sub-modes inside Connected, not separate lifecycle states — Stripe lets the account exist (and accept card payments) even while payout",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-stripe__s-stripe.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-stripe-onb-confirm",
+          "hash": "82525bf971b2",
+          "title": "Onboarding — Confirm info",
+          "inApp": "Your info",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Step 1 of 3. Two-line rows (label on top, value below) for proper mobile tap targets (~68px each). Every row tappable → push to dedicated edit screen (or open DOB wheel). All fields editable.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-stripe__s-stripe-onb-confirm.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-stripe-onb-edit-name",
+          "hash": "0a7ec183a3e0",
+          "title": "Edit Name",
+          "inApp": "",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Push screen with Cancel + Save in header (iOS-style). First + last name inputs. Reused for both Stripe onboarding and Profile editing — same canonical pattern.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-stripe__s-stripe-onb-edit-name.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 0
+        },
+        {
+          "id": "s-stripe-onb-edit-email",
+          "hash": "b98eec51619a",
+          "title": "Edit Email",
+          "inApp": "",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Single email input. Replaces email field on Stripe Custom account + saves to coach_profile.contact_email (different from sign-in email — that's separate in Account Access).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-stripe__s-stripe-onb-edit-email.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 1
+        },
+        {
+          "id": "s-stripe-onb-edit-phone",
+          "hash": "625aa63a1983",
+          "title": "Edit Phone",
+          "inApp": "",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Country code dropdown + phone number input. Standard iOS phone picker. Stripe may text a verification code during onboarding.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-stripe__s-stripe-onb-edit-phone.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 2
+        },
+        {
+          "id": "s-stripe-onb-edit-country",
+          "hash": "5dd4106068c6",
+          "title": "Edit Country",
+          "inApp": "Country",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Search + scrollable country list. Currently-selected country has teal name + ✓ tick. Warn banner at top: \"Changing country resets verification — you'll re-upload ID after this.\" Tap row → toast + save + pop back.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-stripe__s-stripe-onb-edit-country.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 3
+        },
+        {
+          "id": "s-stripe-onb-edit-address",
+          "hash": "ec0c4bb5511c",
+          "title": "Edit address",
+          "inApp": "",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Push screen with 4 inputs (street + apt + city + postal) + read-only country pill. Info banner: \"Your business address — what Stripe sends on tax forms. Often your home address.\" Save → updates auto.address + pops back t",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-stripe__s-stripe-onb-edit-address.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 4
+        },
+        {
+          "id": "s-stripe-onb-id",
+          "hash": "0255061e4acb",
+          "title": "Onboarding — Verification",
+          "inApp": "Verification",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Step 2 of 3. Document type segmented control at top (Passport = 1 tile, ID / Driver's license = 2 tiles front+back) + always-visible info banner + single Continue (no Skip).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-stripe__s-stripe-onb-id.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-stripe-onb-bank",
+          "hash": "e008b21c168d",
+          "title": "Onboarding — Payout destination",
+          "inApp": "Payout destination",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Step 3 of 3. Same Bank ↔ Debit card segmented control as the post-onboarding Add method screen — consistency keeps coaches from learning two slightly different UIs.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-stripe__s-stripe-onb-bank.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 0
+        },
+        {
+          "id": "s-stripe-bank-add",
+          "hash": "977c7edb2b91",
+          "title": "Add payout method",
+          "inApp": "Add payout method",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unified form for bank and debit card. Segmented control at top switches between them. Fields swap, holder + country shared. Optional \"Set as default\" checkbox below.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-stripe__s-stripe-bank-add.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-stripe-bank-detail",
+          "hash": "a525fab14fcf",
+          "title": "Payout method detail",
+          "inApp": "Payout method",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Works for both bank and card. Icon + sub-text swap by type. 2 actions: Set as default (when non-default), Remove (destructive). Remove sheet has 3 variants: last (block + nudge to Add another), default (warn + name fallb",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-stripe__s-stripe-bank-detail.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 3
+        },
+        {
+          "id": "s-stripe-withdraw",
+          "hash": "ee81c22cc947",
+          "title": "Withdraw",
+          "inApp": "Withdraw",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Manual mode only. Large amount input + 3 quick chips. Destination = default bank. Below-minimum (< €20) shows warn banner + disables Confirm. ETA copy below.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-stripe__s-stripe-withdraw.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 4
+        },
+        {
+          "id": "s-stripe-payouts",
+          "hash": "e7542b91755c",
+          "title": "Payouts history",
+          "inApp": "Payouts",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Lifetime payouts grouped by month + lifetime summary card. Tap row → reuses #s-txn-payout in balance.html. 3 statuses with color coding: Completed (teal), In transit (blue), Failed · retried (red).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-stripe__s-stripe-payouts.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 5
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-stripe",
+          "to": "s-stripe-onb-id",
+          "back": false
+        },
+        {
+          "from": "s-stripe",
+          "to": "s-stripe-bank-detail",
+          "back": false
+        },
+        {
+          "from": "s-stripe",
+          "to": "s-stripe-bank-add",
+          "back": false
+        },
+        {
+          "from": "s-stripe",
+          "to": "s-stripe-withdraw",
+          "back": false
+        },
+        {
+          "from": "s-stripe",
+          "to": "s-stripe-payouts",
+          "back": false
+        },
+        {
+          "from": "s-stripe",
+          "to": "s-stripe-onb-confirm",
+          "back": false
+        },
+        {
+          "from": "s-stripe-onb-confirm",
+          "to": "s-stripe",
+          "back": true
+        },
+        {
+          "from": "s-stripe-onb-confirm",
+          "to": "s-stripe-onb-edit-name",
+          "back": false
+        },
+        {
+          "from": "s-stripe-onb-confirm",
+          "to": "s-stripe-onb-edit-email",
+          "back": false
+        },
+        {
+          "from": "s-stripe-onb-confirm",
+          "to": "s-stripe-onb-edit-phone",
+          "back": false
+        },
+        {
+          "from": "s-stripe-onb-confirm",
+          "to": "s-stripe-onb-edit-country",
+          "back": false
+        },
+        {
+          "from": "s-stripe-onb-confirm",
+          "to": "s-stripe-onb-edit-address",
+          "back": false
+        },
+        {
+          "from": "s-stripe-onb-confirm",
+          "to": "s-stripe-onb-id",
+          "back": true
+        },
+        {
+          "from": "s-stripe-onb-edit-name",
+          "to": "s-stripe-onb-confirm",
+          "back": true
+        },
+        {
+          "from": "s-stripe-onb-edit-email",
+          "to": "s-stripe-onb-confirm",
+          "back": true
+        },
+        {
+          "from": "s-stripe-onb-edit-phone",
+          "to": "s-stripe-onb-confirm",
+          "back": true
+        },
+        {
+          "from": "s-stripe-onb-edit-country",
+          "to": "s-stripe-onb-confirm",
+          "back": true
+        },
+        {
+          "from": "s-stripe-onb-edit-address",
+          "to": "s-stripe-onb-confirm",
+          "back": true
+        },
+        {
+          "from": "s-stripe-onb-id",
+          "to": "s-stripe-onb-confirm",
+          "back": true
+        },
+        {
+          "from": "s-stripe-onb-bank",
+          "to": "s-stripe-onb-id",
+          "back": true
+        },
+        {
+          "from": "s-stripe-bank-add",
+          "to": "s-stripe",
+          "back": true
+        },
+        {
+          "from": "s-stripe-bank-detail",
+          "to": "s-stripe",
+          "back": true
+        },
+        {
+          "from": "s-stripe-bank-detail",
+          "to": "s-stripe-bank-add",
+          "back": true
+        },
+        {
+          "from": "s-stripe-withdraw",
+          "to": "s-stripe",
+          "back": true
+        },
+        {
+          "from": "s-stripe-payouts",
+          "to": "s-stripe",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/coach/profile.html",
+      "label": "Coach Profile",
+      "role": "coach",
+      "slug": "coach-profile",
+      "screens": [
+        {
+          "id": "s-coach-profile",
+          "hash": "f5821d4bdc39",
+          "title": "Coach Profile",
+          "inApp": "",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "Tab 5 of 5. Preview of the public-facing profile as athletes see it, with tap-to-edit on every section. Top-right ⚙️ gear pushes to Settings (secondary entry; primary entry is in-place edits here).",
+          "external": [
+            "../shared/connect.html?role=coach",
+            "./settings.html",
+            "./personal-data.html#pd-video-group",
+            "./personal-data.html",
+            "./sport-types.html",
+            "./sessions.html",
+            "./locations.html",
+            "./available-hours.html",
+            "./dashboard.html",
+            "./clients.html",
+            "./calendar.html"
+          ],
+          "shots": [
+            {
+              "file": "coach-profile__s-coach-profile.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-coach-reviews",
+          "hash": "fed77ca4caec",
+          "title": "All Reviews",
+          "inApp": "Reviews",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Push from Profile — tapping any review card or \"Show all N reviews\" opens this vertical scroll. Same atom-set as athlete-side s-reviews in shared/profile.html (kit candidate: extract to FitReviewSummary + FitReviewList l",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile__s-coach-reviews.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-coach-profile",
+          "to": "s-coach-reviews",
+          "back": false
+        },
+        {
+          "from": "s-coach-reviews",
+          "to": "s-coach-profile",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/coach/referral.html",
+      "label": "Refer a Coach",
+      "role": "coach",
+      "slug": "coach-referral",
+      "screens": [
+        {
+          "id": "s-referral",
+          "hash": "b7f4919984ed",
+          "title": "Refer a coach",
+          "inApp": "Refer a coach",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "Coach-only referral program — grow the platform, earn a reward. Distinct from shared/connect.html (in-person QR connect) and from the Clients-tab contacts import (mass-invite as CRM clients). One scrolling screen, sectio",
+          "external": [
+            "./settings.html"
+          ],
+          "shots": [
+            {
+              "file": "coach-referral__s-referral.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/coach/settings.html",
+              "label": "Settings",
+              "id": "s-settings"
+            }
+          ]
+        },
+        {
+          "id": "s-referral-list",
+          "hash": "e53df9e873de",
+          "title": "All invites (push)",
+          "inApp": "Your invites",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Push from See all invites. Flat scrollable list — every joiner with role/when + status badge. No filter chips (kept simple; add a status filter only if the list volume demands it later).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-referral__s-referral-list.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-referral",
+          "to": "s-referral-list",
+          "back": false
+        },
+        {
+          "from": "s-referral-list",
+          "to": "s-referral",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/coach/settings.html",
+      "label": "Settings",
+      "role": "coach",
+      "slug": "coach-settings",
+      "screens": [
+        {
+          "id": "s-settings",
+          "hash": "f912a720432d",
+          "title": "Settings root",
+          "inApp": "Settings",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "Coach: Profile, Calendar, Payments, Account.",
+          "external": [
+            "./personal-data.html",
+            "./referral.html",
+            "./availability.html",
+            "./calendar-sync.html",
+            "../shared/account-access.html?role=coach"
+          ],
+          "shots": [
+            {
+              "file": "coach-settings__s-settings.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/shared/account-access.html",
+              "label": "Account Access",
+              "id": "s-hub"
+            },
+            {
+              "file": "flows/coach/availability.html",
+              "label": "Availability",
+              "id": "s-availability-hub"
+            },
+            {
+              "file": "flows/coach/profile.html",
+              "label": "Coach Profile",
+              "id": "s-coach-profile"
+            },
+            {
+              "file": "flows/coach/referral.html",
+              "label": "Refer a Coach",
+              "id": "s-referral"
+            }
+          ]
+        }
+      ],
+      "edges": []
+    },
+    {
+      "file": "flows/coach/personal-data.html",
+      "label": "Personal Data",
+      "role": "coach",
+      "slug": "coach-personal-data",
+      "screens": [
+        {
+          "id": "s-personal-data",
+          "hash": "44e4f0aa5936",
+          "title": "DOB Picker",
+          "inApp": "Personal data",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "Intro video states (Mux)",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-personal-data__s-personal-data.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/coach/profile.html",
+              "label": "Coach Profile",
+              "id": "s-coach-profile"
+            },
+            {
+              "file": "flows/coach/settings.html",
+              "label": "Settings",
+              "id": "s-settings"
+            },
+            {
+              "file": "flows/athlete/dashboard.html",
+              "label": "Athlete Dashboard",
+              "id": "s-dashboard"
+            }
+          ]
+        },
+        {
+          "id": "s-notes-editor",
+          "hash": "7eb4b2b9de1c",
+          "title": "About Me Editor",
+          "inApp": "",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Full-screen text editor. Cancel/Save header. Reusable for About Me and Notes fields.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-personal-data__s-notes-editor.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-tz-select",
+          "hash": "597d0a5123ea",
+          "title": "Time Zone",
+          "inApp": "Time zone",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Full-screen push from Personal Data. Single-select — tap row auto-dismisses back to Personal Data with the new value.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-personal-data__s-tz-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-country-select",
+          "hash": "bc372b0a2c89",
+          "title": "Home Country",
+          "inApp": "Home country",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Full-screen push from Personal Data. Same pattern as Time Zone — single-select, auto-dismiss.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-personal-data__s-country-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-city-select",
+          "hash": "b659a5431130",
+          "title": "Home City",
+          "inApp": "Home city",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Full-screen push from Personal Data. Same pattern as Country — single-select, auto-dismiss, sticky search.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-personal-data__s-city-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 3
+        },
+        {
+          "id": "s-lang-select",
+          "hash": "b7f5d1a0e833",
+          "title": "Languages",
+          "inApp": "Languages",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Full-screen push from Personal Data. Multi-select — tap toggles row, Save commits all changes.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-personal-data__s-lang-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 4
+        },
+        {
+          "id": "s-currency-select",
+          "hash": "e1bca28ac8b1",
+          "title": "Currency",
+          "inApp": "Currency",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-personal-data__s-currency-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 5
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-personal-data",
+          "to": "s-notes-editor",
+          "back": false
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-tz-select",
+          "back": false
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-country-select",
+          "back": false
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-currency-select",
+          "back": false
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-city-select",
+          "back": false
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-lang-select",
+          "back": false
+        },
+        {
+          "from": "s-tz-select",
+          "to": "s-personal-data",
+          "back": true
+        },
+        {
+          "from": "s-country-select",
+          "to": "s-personal-data",
+          "back": true
+        },
+        {
+          "from": "s-city-select",
+          "to": "s-personal-data",
+          "back": true
+        },
+        {
+          "from": "s-currency-select",
+          "to": "s-personal-data",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/coach/sport-types.html",
+      "label": "Sport Types",
+      "role": "coach",
+      "slug": "coach-sport-types",
+      "screens": [
+        {
+          "id": "s-sport-types",
+          "hash": "017cffb65b1e",
+          "title": "Sport Types",
+          "inApp": "Sport types",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "Push screen opened from Sport types set-card in Settings. Curated list of 33 sports across 8 sections, + coach-created custom sports (see below).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-sport-types__s-sport-types.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/coach/sessions.html",
+              "label": "Training templates",
+              "id": "s-edit"
+            },
+            {
+              "file": "flows/coach/profile.html",
+              "label": "Coach Profile",
+              "id": "s-coach-profile"
+            },
+            {
+              "file": "flows/athlete/dashboard.html",
+              "label": "Athlete Dashboard",
+              "id": "s-dashboard"
+            },
+            {
+              "file": "flows/athlete/search.html",
+              "label": "Athlete Search",
+              "id": "s-search-error"
+            },
+            {
+              "file": "flows/athlete/profile.html",
+              "label": "Athlete · Profile",
+              "id": "s-profile"
+            }
+          ]
+        }
+      ],
+      "edges": []
+    },
+    {
+      "file": "flows/coach/calendar-sync.html",
+      "label": "Calendar Sync",
+      "role": "coach",
+      "slug": "coach-calendar-sync",
+      "screens": [
+        {
+          "id": "s-calsync",
+          "hash": "be114ad597f2",
+          "title": "Calendar Sync",
+          "inApp": "Calendar sync",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "Restructured 2026-06-01. Two distinct sections:",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-calendar-sync__s-calsync.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/coach/settings.html",
+              "label": "Settings",
+              "id": "s-settings"
+            },
+            {
+              "file": "flows/athlete/profile.html",
+              "label": "Athlete · Profile",
+              "id": "s-profile"
+            }
+          ]
+        },
+        {
+          "id": "s-cal-detail",
+          "hash": "48cc2d0f4177",
+          "title": "Google Detail",
+          "inApp": "Google Calendar",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Dedicated screen per Google account. 4 states via toggle (Normal / Fetch Failed / Sync Error / Auth Expired).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-calendar-sync__s-cal-detail.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-write-target-picker",
+          "hash": "604490bc24e9",
+          "title": "Write Target Picker",
+          "inApp": "Calendar to add events to",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "New 2026-06-01. Push screen reached from \"Calendar to add events to\" on s-calsync. Single-select radio: lists all calendars from all connected Google accounts grouped by account email subheader.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-calendar-sync__s-write-target-picker.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-apple-connect",
+          "hash": "0e2ab4b7d4bd",
+          "title": "Apple Connect (hidden v1)",
+          "inApp": "Apple Calendar",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "CalDAV connection. Apple ID + app-specific password.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-calendar-sync__s-apple-connect.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-apple-detail",
+          "hash": "9a3d7ae8c790",
+          "title": "Apple Detail (hidden v1)",
+          "inApp": "Apple Calendar",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Apple-specific error states differ from Google.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-calendar-sync__s-apple-detail.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 2,
+          "order": 0
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-calsync",
+          "to": "s-apple-connect",
+          "back": false
+        },
+        {
+          "from": "s-calsync",
+          "to": "s-cal-detail",
+          "back": false
+        },
+        {
+          "from": "s-calsync",
+          "to": "s-write-target-picker",
+          "back": false
+        },
+        {
+          "from": "s-write-target-picker",
+          "to": "s-calsync",
+          "back": true
+        },
+        {
+          "from": "s-apple-detail",
+          "to": "s-apple-connect",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/athlete/dashboard.html",
+      "label": "Athlete Dashboard",
+      "role": "athlete",
+      "slug": "athlete-dashboard",
+      "screens": [
+        {
+          "id": "s-dashboard",
+          "hash": "bc59cb2a0dba",
+          "title": "Dashboard",
+          "inApp": "Home",
+          "status": "canon",
+          "theme": "light",
+          "entry": true,
+          "note": "",
+          "external": [
+            "../shared/messages.html",
+            "../shared/self-paced.html#s-welcome",
+            "../shared/self-paced.html#s-list",
+            "../coach/sport-types.html",
+            "../coach/personal-data.html"
+          ],
+          "shots": [
+            {
+              "file": "athlete-dashboard__s-dashboard.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-rate-queue",
+          "hash": "325f83250752",
+          "title": "Sessions to rate",
+          "inApp": "Sessions to rate",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-dashboard__s-rate-queue.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-notifications",
+          "hash": "a2d29a7107af",
+          "title": "Notifications inbox",
+          "inApp": "Inbox",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "",
+          "external": [
+            "../shared/profile.html#s-my-addresses"
+          ],
+          "shots": [
+            {
+              "file": "athlete-dashboard__s-notifications.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-dashboard",
+          "to": "s-notifications",
+          "back": false
+        },
+        {
+          "from": "s-dashboard",
+          "to": "s-rate-queue",
+          "back": false
+        },
+        {
+          "from": "s-rate-queue",
+          "to": "s-dashboard",
+          "back": true
+        },
+        {
+          "from": "s-notifications",
+          "to": "s-dashboard",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/athlete/search.html",
+      "label": "Athlete Search",
+      "role": "athlete",
+      "slug": "athlete-search",
+      "screens": [
+        {
+          "id": "s-search-landing",
+          "hash": "1818f4fb2cbe",
+          "title": "Landing",
+          "inApp": "Find a coach",
+          "status": "canon",
+          "theme": "light",
+          "entry": true,
+          "note": "",
+          "external": [
+            "../coach/sport-types.html",
+            "../shared/profile.html"
+          ],
+          "shots": [
+            {
+              "file": "athlete-search__s-search-landing.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-search-results",
+          "hash": "a37dc3329676",
+          "title": "Sort (sheet)",
+          "inApp": "",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "",
+          "external": [
+            "../coach/sport-types.html",
+            "../shared/profile.html"
+          ],
+          "shots": [
+            {
+              "file": "athlete-search__s-search-results.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-search-results-empty",
+          "hash": "08bba4f80bdc",
+          "title": "Results · empty",
+          "inApp": "",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "",
+          "external": [
+            "../coach/sport-types.html"
+          ],
+          "shots": [
+            {
+              "file": "athlete-search__s-search-results-empty.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 0
+        },
+        {
+          "id": "s-search-loading",
+          "hash": "abb4d38c40e0",
+          "title": "Results · loading",
+          "inApp": "",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "",
+          "external": [
+            "../coach/sport-types.html"
+          ],
+          "shots": [
+            {
+              "file": "athlete-search__s-search-loading.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 1
+        },
+        {
+          "id": "s-search-error",
+          "hash": "4f7ca325ac14",
+          "title": "Results · error",
+          "inApp": "",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "",
+          "external": [
+            "../coach/sport-types.html"
+          ],
+          "shots": [
+            {
+              "file": "athlete-search__s-search-error.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 2
+        },
+        {
+          "id": "s-search-text",
+          "hash": "35ec1272db74",
+          "title": "Text search",
+          "inApp": "",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "",
+          "external": [
+            "../shared/profile.html"
+          ],
+          "shots": [
+            {
+              "file": "athlete-search__s-search-text.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-search-filters",
+          "hash": "4e19cdda44d4",
+          "title": "Filters · gender (sheet)",
+          "inApp": "Filters",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-search__s-search-filters.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-search-lang",
+          "hash": "7b0eabb6425f",
+          "title": "Filters · languages",
+          "inApp": "Languages",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-search__s-search-lang.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 0
+        },
+        {
+          "id": "s-search-country",
+          "hash": "dfd7abd668a1",
+          "title": "Filters · country",
+          "inApp": "Country",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-search__s-search-country.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 1
+        },
+        {
+          "id": "s-search-city",
+          "hash": "d748e2df1ac5",
+          "title": "Filters · city",
+          "inApp": "City",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-search__s-search-city.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 2
+        },
+        {
+          "id": "s-search-map",
+          "hash": "426df2c61eaa",
+          "title": "Map",
+          "inApp": "Map view",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-search__s-search-map.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 3
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-search-landing",
+          "to": "s-search-text",
+          "back": false
+        },
+        {
+          "from": "s-search-landing",
+          "to": "s-search-filters",
+          "back": false
+        },
+        {
+          "from": "s-search-landing",
+          "to": "s-search-results",
+          "back": false
+        },
+        {
+          "from": "s-search-results",
+          "to": "s-search-text",
+          "back": true
+        },
+        {
+          "from": "s-search-results",
+          "to": "s-search-filters",
+          "back": true
+        },
+        {
+          "from": "s-search-results-empty",
+          "to": "s-search-filters",
+          "back": true
+        },
+        {
+          "from": "s-search-text",
+          "to": "s-search-landing",
+          "back": true
+        },
+        {
+          "from": "s-search-filters",
+          "to": "s-search-results",
+          "back": true
+        },
+        {
+          "from": "s-search-filters",
+          "to": "s-search-country",
+          "back": false
+        },
+        {
+          "from": "s-search-filters",
+          "to": "s-search-city",
+          "back": false
+        },
+        {
+          "from": "s-search-filters",
+          "to": "s-search-lang",
+          "back": false
+        },
+        {
+          "from": "s-search-lang",
+          "to": "s-search-filters",
+          "back": true
+        },
+        {
+          "from": "s-search-country",
+          "to": "s-search-filters",
+          "back": true
+        },
+        {
+          "from": "s-search-city",
+          "to": "s-search-filters",
+          "back": true
+        },
+        {
+          "from": "s-search-map",
+          "to": "s-search-landing",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/athlete/my-coaches.html",
+      "label": "Athlete · My Coaches",
+      "role": "athlete",
+      "slug": "athlete-my-coaches",
+      "screens": [
+        {
+          "id": "s-my-coaches",
+          "hash": "9e9ceb7be1ab",
+          "title": "Error",
+          "inApp": "My coaches",
+          "status": "canon",
+          "theme": "light",
+          "entry": true,
+          "note": "Tab 5 (people icon). The athlete's relationships with coaches — distinct from Search (discovery). Reuses the Search coach-card (photo + name + ❤️ + rating), swapping discovery info (distance / availability / bio) for a r",
+          "external": [
+            "../shared/profile.html#s-book-sessions",
+            "../shared/profile.html",
+            "../shared/connect.html"
+          ],
+          "shots": [
+            {
+              "file": "athlete-my-coaches__s-my-coaches.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-coach-detail",
+          "hash": "6338dc2a8065",
+          "title": "Coach detail",
+          "inApp": "",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Reached by tapping a coach in My Coaches. The athlete's relationship with one coach — mirror of the coach's Client Detail, athlete-side.",
+          "external": [
+            "../shared/profile.html",
+            "../shared/self-paced.html?c=John#s-list",
+            "../shared/profile.html#s-book-sessions"
+          ],
+          "shots": [
+            {
+              "file": "athlete-my-coaches__s-coach-detail.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-pkg-detail",
+          "hash": "dd6f1c991ee8",
+          "title": "Package Detail",
+          "inApp": "Package",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "One pack of one session type. Symmetric with the coach's view of the same pack (coach/clients.html #s-pkg-detail) — same summary, same ledger, different action.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-my-coaches__s-pkg-detail.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 0
+        },
+        {
+          "id": "s-pkg-history",
+          "hash": "3eb1852dce3f",
+          "title": "Package History",
+          "inApp": "Activity",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "The full redemption log for one pack — every −1 session, combined across lots in FIFO order (oldest credits burn first). Reached from See all; back returns to the pack.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-my-coaches__s-pkg-history.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 1
+        },
+        {
+          "id": "s-coach-history",
+          "hash": "6582a681b7ba",
+          "title": "Coach history",
+          "inApp": "Training history",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Full chronological list of completed sessions with this coach. Pushed from the Coach detail history link.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-my-coaches__s-coach-history.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 0
+        },
+        {
+          "id": "s-coach-note-editor",
+          "hash": "1fa3421e50f6",
+          "title": "Note editor",
+          "inApp": "",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-my-coaches__s-coach-note-editor.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 1
+        },
+        {
+          "id": "s-coach-review",
+          "hash": "416dcee2a60c",
+          "title": "Review composer",
+          "inApp": "",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Written review = per-coach, one, editable. Full-screen modal overlay — dismiss with × (close), not a back chevron: it's commonly opened from a push (next-day deep-link), so there's no screen to go \"back\" to (per feedback",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-my-coaches__s-coach-review.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 2
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-my-coaches",
+          "to": "s-coach-detail",
+          "back": false
+        },
+        {
+          "from": "s-coach-detail",
+          "to": "s-my-coaches",
+          "back": true
+        },
+        {
+          "from": "s-coach-detail",
+          "to": "s-coach-note-editor",
+          "back": false
+        },
+        {
+          "from": "s-coach-detail",
+          "to": "s-coach-history",
+          "back": false
+        },
+        {
+          "from": "s-pkg-detail",
+          "to": "s-coach-detail",
+          "back": true
+        },
+        {
+          "from": "s-coach-history",
+          "to": "s-coach-detail",
+          "back": true
+        },
+        {
+          "from": "s-coach-note-editor",
+          "to": "s-coach-detail",
+          "back": true
+        },
+        {
+          "from": "s-coach-review",
+          "to": "s-coach-detail",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/athlete/calendar.html",
+      "label": "Athlete Schedule",
+      "role": "athlete",
+      "slug": "athlete-calendar",
+      "screens": [
+        {
+          "id": "s-schedule",
+          "hash": "15719cfe9117",
+          "title": "Cancel · refund",
+          "inApp": "",
+          "status": "canon",
+          "theme": "light",
+          "entry": true,
+          "note": "Same calendar as coach, light theme. The event drawer reuses the coach’s unified state-aware sheet (data-event-state + canonical .fit-sheet-footer-variant + status pills) — accept/decline happens right on the calendar (n",
+          "external": [
+            "../shared/messages.html",
+            "../shared/profile.html",
+            "../shared/profile.html#s-book-sessions"
+          ],
+          "shots": [
+            {
+              "file": "athlete-calendar__s-schedule.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/shared/profile.html",
+              "label": "Coach Profile (public)",
+              "id": "s-booking"
+            }
+          ]
+        }
+      ],
+      "edges": []
+    },
+    {
+      "file": "flows/athlete/balance-v2.html",
+      "label": "Athlete Balance",
+      "role": "athlete",
+      "slug": "athlete-balance-v2",
+      "screens": [
+        {
+          "id": "s-balance",
+          "hash": "dc3d23ac2ee7",
+          "title": "Error",
+          "inApp": "Balance",
+          "status": "canon",
+          "theme": "light",
+          "entry": true,
+          "note": "v2 — Revolut-style dashboard. Variant of balance.html (kept intact for rollback). The list-first layout is replaced by: one Balance card → analytics widgets → Recent preview → full history on its own screen.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-balance-v2__s-balance.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-history",
+          "hash": "1329dbfc6484",
+          "title": "Transactions (History)",
+          "inApp": "Transactions",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Full ledger, pushed from Balance (See all / any widget). Canonical .fit-txn* rows, date-grouped.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-balance-v2__s-history.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-history-filter",
+          "hash": "7e1d0a267378",
+          "title": "Filter history",
+          "inApp": "Filter history",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Push screen from the History funnel. Built on the canonical Search-filter kit — .filter-body / .filter-section (20px rhythm + dividers) / .filter-section-title / .filter-chip / .filter-sticky-cta — so spacing matches the",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-balance-v2__s-history-filter.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 0
+        },
+        {
+          "id": "s-top-up",
+          "hash": "af8cd146ce49",
+          "title": "Loading",
+          "inApp": "Top up",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "One screen, two modes via a .fit-segmented switch at top — One-time and Automatic are mutually exclusive. No sheet-on-sheet, no inline toggle mess; a single footer CTA drives the action.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-balance-v2__s-top-up.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-txn-spend",
+          "hash": "4ecedae637e0",
+          "title": "Session payment (card)",
+          "inApp": "Session payment",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Tap a card spend row → this detail. Canonical .fit-detail-hero (Card pill) + .fit-kv-group. Money came from Balance → status Paid, shows Paid from / Balance after.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-balance-v2__s-txn-spend.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-txn-spend-cash",
+          "hash": "700c6fb4a397",
+          "title": "Session payment (cash)",
+          "inApp": "Session payment",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Tap a cash spend row → this detail (separate screen, not the card one). Cash pill; the money is not taken from balance (paid in person), so there's no \"Paid from / Balance after\". Status = Paid (teal) — a cash session la",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-balance-v2__s-txn-spend-cash.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 3
+        },
+        {
+          "id": "s-txn-topup",
+          "hash": "8453bcccaba0",
+          "title": "Top-up",
+          "inApp": "Top-up",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Money in. .fit-detail-hero (teal +amount) + .fit-kv-group: method · amount · balance after · reference. Get receipt (PDF — TBD).",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-balance-v2__s-txn-topup.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 4
+        },
+        {
+          "id": "s-txn-refund",
+          "hash": "dcfc82d55409",
+          "title": "Refund",
+          "inApp": "Refund",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Money back in (to balance). .fit-detail-hero (teal +amount, info badge, method pill top-right) + .fit-kv-group: reason · coach · original session · refunded-to + an outline .txn-note that explains the reason.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-balance-v2__s-txn-refund.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 0
+        },
+        {
+          "id": "s-owed",
+          "hash": "15de0010635c",
+          "title": "Owed sessions (list)",
+          "inApp": "Owed",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Reached from the red Owed analytics widget. Lists the completed cash sessions the athlete still owes for — canonical .fit-txn rows (coach + Cash pill · session · when · red amount), grouped under a warn .fit-detail-hero ",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-balance-v2__s-owed.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 5
+        },
+        {
+          "id": "s-owed-detail",
+          "hash": "4f01c6dad409",
+          "title": "Owed session (detail)",
+          "inApp": "Session payment",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Same shape as the cash-payment detail (s-txn-spend-cash) but pre-settlement: Cash pill, red amount, warn Owed badge, Status = Owed (red), and a pay-in-person .txn-note instead of a receipt confirmation. No \"Paid from / B",
+          "external": [
+            "../shared/messages.html"
+          ],
+          "shots": [
+            {
+              "file": "athlete-balance-v2__s-owed-detail.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 1
+        },
+        {
+          "id": "s-booked",
+          "hash": "779e5237420d",
+          "title": "Booked sessions (list)",
+          "inApp": "Booked",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Reached from the Booked analytics widget. Lists the athlete's upcoming, already-paid sessions whose money is held from balance — canonical .fit-txn rows (coach · session · when · amount) under an info (blue) .fit-detail-",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-balance-v2__s-booked.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 6
+        },
+        {
+          "id": "s-booked-detail",
+          "hash": "36c078d4f7d9",
+          "title": "Booked session (detail)",
+          "inApp": "Booked session",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Money-view of one upcoming session (mirrors s-owed-detail): Booked badge, Paid from Balance, Status = Held until session (blue), and a hold/refund .txn-note.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-balance-v2__s-booked-detail.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 2
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-balance",
+          "to": "s-top-up",
+          "back": false
+        },
+        {
+          "from": "s-balance",
+          "to": "s-history",
+          "back": false
+        },
+        {
+          "from": "s-balance",
+          "to": "s-booked",
+          "back": false
+        },
+        {
+          "from": "s-balance",
+          "to": "s-owed",
+          "back": false
+        },
+        {
+          "from": "s-balance",
+          "to": "s-txn-spend",
+          "back": false
+        },
+        {
+          "from": "s-balance",
+          "to": "s-txn-topup",
+          "back": false
+        },
+        {
+          "from": "s-balance",
+          "to": "s-txn-spend-cash",
+          "back": false
+        },
+        {
+          "from": "s-history",
+          "to": "s-balance",
+          "back": true
+        },
+        {
+          "from": "s-history",
+          "to": "s-txn-spend",
+          "back": true
+        },
+        {
+          "from": "s-history",
+          "to": "s-txn-topup",
+          "back": true
+        },
+        {
+          "from": "s-history",
+          "to": "s-txn-spend-cash",
+          "back": true
+        },
+        {
+          "from": "s-history",
+          "to": "s-txn-refund",
+          "back": false
+        },
+        {
+          "from": "s-history-filter",
+          "to": "s-history",
+          "back": true
+        },
+        {
+          "from": "s-top-up",
+          "to": "s-balance",
+          "back": true
+        },
+        {
+          "from": "s-txn-spend",
+          "to": "s-balance",
+          "back": true
+        },
+        {
+          "from": "s-txn-spend-cash",
+          "to": "s-balance",
+          "back": true
+        },
+        {
+          "from": "s-txn-topup",
+          "to": "s-balance",
+          "back": true
+        },
+        {
+          "from": "s-txn-refund",
+          "to": "s-balance",
+          "back": true
+        },
+        {
+          "from": "s-owed",
+          "to": "s-balance",
+          "back": true
+        },
+        {
+          "from": "s-owed",
+          "to": "s-owed-detail",
+          "back": false
+        },
+        {
+          "from": "s-owed-detail",
+          "to": "s-owed",
+          "back": true
+        },
+        {
+          "from": "s-booked",
+          "to": "s-balance",
+          "back": true
+        },
+        {
+          "from": "s-booked",
+          "to": "s-booked-detail",
+          "back": false
+        },
+        {
+          "from": "s-booked-detail",
+          "to": "s-booked",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/athlete/profile.html",
+      "label": "Athlete · Profile",
+      "role": "athlete",
+      "slug": "athlete-profile",
+      "screens": [
+        {
+          "id": "s-profile",
+          "hash": "8241cf4aa913",
+          "title": "Error",
+          "inApp": "",
+          "status": "canon",
+          "theme": "light",
+          "entry": true,
+          "note": "Built as a trimmed mirror of the coach Profile — same .cp-* grammar (identity row, stat strip, warm section heads + edit pencils, .fit-stat-tile group), minus the video/cover hero and the coach-only maturity / reviews-re",
+          "external": [
+            "../coach/sport-types.html",
+            "../coach/calendar-sync.html"
+          ],
+          "shots": [
+            {
+              "file": "athlete-profile__s-profile.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-training-history",
+          "hash": "dbc4259e472c",
+          "title": "· History loading",
+          "inApp": "Training history",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "Pushed from the Profile Training history tile. The athlete's full chronological log across all coaches — same row grammar as the per-coach history in Coach detail (my-coaches.html#s-coach-history), plus the coach on ever",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-profile__s-training-history.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-profile",
+          "to": "s-training-history",
+          "back": false
+        },
+        {
+          "from": "s-training-history",
+          "to": "s-profile",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/athlete/settings.html",
+      "label": "Athlete · Settings",
+      "role": "athlete",
+      "slug": "athlete-settings",
+      "screens": [
+        {
+          "id": "s-settings",
+          "hash": "456f346e7edc",
+          "title": "Settings root",
+          "inApp": "Settings",
+          "status": "canon",
+          "theme": "light",
+          "entry": true,
+          "note": "Reached from the Profile gear (top-right). Copied from the coach Settings structure (.set-card rows) and trimmed to athlete scope.",
+          "external": [
+            "../shared/connect.html",
+            "../shared/profile.html#s-my-addresses",
+            "../shared/account-access.html?role=athlete"
+          ],
+          "shots": [
+            {
+              "file": "athlete-settings__s-settings.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        }
+      ],
+      "edges": []
+    },
+    {
+      "file": "flows/athlete/personal-data.html",
+      "label": "Personal Data",
+      "role": "athlete",
+      "slug": "athlete-personal-data",
+      "screens": [
+        {
+          "id": "s-personal-data",
+          "hash": "af2de0c5bc5b",
+          "title": "Height / Weight Picker",
+          "inApp": "Personal data",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "Athlete personal data, edited from Settings. Cloned from the coach screen but without the intro video + cover image (those are coach public-profile media). Adds athlete-only Height + Weight (metric kg/cm, single-wheel pi",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-personal-data__s-personal-data.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-notes-editor",
+          "hash": "7d263f4c6cd5",
+          "title": "About Me Editor",
+          "inApp": "",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Full-screen text editor. Cancel/Save header. Reusable for About Me and Notes fields.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-personal-data__s-notes-editor.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-tz-select",
+          "hash": "b4cfac16089b",
+          "title": "Time Zone",
+          "inApp": "Time zone",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Full-screen push from Personal Data. Single-select — tap row auto-dismisses back to Personal Data with the new value.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-personal-data__s-tz-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-country-select",
+          "hash": "c81bf969f4b8",
+          "title": "Home Country",
+          "inApp": "Home country",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Full-screen push from Personal Data. Same pattern as Time Zone — single-select, auto-dismiss.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-personal-data__s-country-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-city-select",
+          "hash": "33fede81b00d",
+          "title": "Home City",
+          "inApp": "Home city",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Full-screen push from Personal Data. Same pattern as Country — single-select, auto-dismiss, sticky search.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-personal-data__s-city-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 3
+        },
+        {
+          "id": "s-lang-select",
+          "hash": "75bc21a6ff50",
+          "title": "Languages",
+          "inApp": "Languages",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Full-screen push from Personal Data. Multi-select — tap toggles row, Save commits all changes.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-personal-data__s-lang-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 4
+        },
+        {
+          "id": "s-currency-select",
+          "hash": "cb86eabfbf8c",
+          "title": "Currency",
+          "inApp": "Currency",
+          "status": "canon",
+          "theme": "light",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-personal-data__s-currency-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 5
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-personal-data",
+          "to": "s-notes-editor",
+          "back": false
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-tz-select",
+          "back": false
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-country-select",
+          "back": false
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-currency-select",
+          "back": false
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-city-select",
+          "back": false
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-lang-select",
+          "back": false
+        },
+        {
+          "from": "s-tz-select",
+          "to": "s-personal-data",
+          "back": true
+        },
+        {
+          "from": "s-country-select",
+          "to": "s-personal-data",
+          "back": true
+        },
+        {
+          "from": "s-city-select",
+          "to": "s-personal-data",
+          "back": true
+        },
+        {
+          "from": "s-currency-select",
+          "to": "s-personal-data",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/athlete/sport-types.html",
+      "label": "Sport Types",
+      "role": "athlete",
+      "slug": "athlete-sport-types",
+      "screens": [
+        {
+          "id": "s-sport-types",
+          "hash": "7c8a6a3f73b3",
+          "title": "Sport Types",
+          "inApp": "Sport types",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "Push screen opened from Sport types set-card in Settings. Curated closed list of 33 sports across 8 sections.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-sport-types__s-sport-types.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        }
+      ],
+      "edges": []
+    },
+    {
+      "file": "flows/athlete/calendar-sync.html",
+      "label": "Calendar Sync",
+      "role": "athlete",
+      "slug": "athlete-calendar-sync",
+      "screens": [
+        {
+          "id": "s-calsync",
+          "hash": "189431d4104e",
+          "title": "Calendar Sync",
+          "inApp": "Calendar sync",
+          "status": "canon",
+          "theme": "dark",
+          "entry": true,
+          "note": "Restructured 2026-06-01. Two distinct sections:",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-calendar-sync__s-calsync.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-cal-detail",
+          "hash": "982c07e864bb",
+          "title": "Google Detail",
+          "inApp": "Google Calendar",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Dedicated screen per Google account. 4 states via toggle (Normal / Fetch Failed / Sync Error / Auth Expired).",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-calendar-sync__s-cal-detail.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-write-target-picker",
+          "hash": "b8ee6dff4a9a",
+          "title": "Write Target Picker",
+          "inApp": "Calendar to add events to",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "New 2026-06-01. Push screen reached from \"Calendar to add events to\" on s-calsync. Single-select radio: lists all calendars from all connected Google accounts grouped by account email subheader.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-calendar-sync__s-write-target-picker.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-apple-connect",
+          "hash": "d12b62988ee7",
+          "title": "Apple Connect (hidden v1)",
+          "inApp": "Apple Calendar",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "CalDAV connection. Apple ID + app-specific password.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-calendar-sync__s-apple-connect.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-apple-detail",
+          "hash": "a472df1225a1",
+          "title": "Apple Detail (hidden v1)",
+          "inApp": "Apple Calendar",
+          "status": "canon",
+          "theme": "dark",
+          "entry": false,
+          "note": "Apple-specific error states differ from Google.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-calendar-sync__s-apple-detail.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 2,
+          "order": 0
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-calsync",
+          "to": "s-apple-connect",
+          "back": false
+        },
+        {
+          "from": "s-calsync",
+          "to": "s-cal-detail",
+          "back": false
+        },
+        {
+          "from": "s-calsync",
+          "to": "s-write-target-picker",
+          "back": false
+        },
+        {
+          "from": "s-write-target-picker",
+          "to": "s-calsync",
+          "back": true
+        },
+        {
+          "from": "s-apple-detail",
+          "to": "s-apple-connect",
+          "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/athlete/integrations.html",
+      "label": "Athlete · Integrations",
+      "role": "athlete",
+      "slug": "athlete-integrations",
+      "screens": [
+        {
+          "id": "s-integrations",
+          "hash": "e6d4443ec532",
+          "title": "HealthKit permission",
+          "inApp": "Integrations",
+          "status": "canon",
+          "theme": "light",
+          "entry": true,
+          "note": "Two independent connections (Settings → Integrations). Each is its own card with its own state — neither depends on the other.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-integrations__s-integrations.webp",
               "label": ""
             }
           ],

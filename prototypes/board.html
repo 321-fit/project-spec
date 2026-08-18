@@ -175,6 +175,11 @@
   .card.pulse { animation: pulse 1.1s ease 2; border-color: var(--teal) !important; }
 
   .lane { position: absolute; }
+  .role-head {
+    position: absolute; top: -112px; font-size: 46px; font-weight: 600;
+    letter-spacing: 2px; text-transform: uppercase; color: #2f2f37;
+    pointer-events: none;
+  }
   .lane-head {
     position: absolute; top: -46px; left: 0;
     display: flex; align-items: baseline; gap: 10px; white-space: nowrap;
@@ -338,14 +343,12 @@ document.getElementById('backToggle').onclick = function () {
 // than one without and nothing overlaps.
 const key = (mod, id) => mod.file + '#' + id;   // screen ids repeat across files
 const nodeIndex = new Map();   // "file#id" → where it sits on the canvas
-const laneIndex = [];          // module index → { top, height }
-let laneY = 0, CONTENT_W = 0;
+const laneIndex = [];          // module index → { top, left, height, width }
+const built = [];              // lanes, measured but not yet placed
+let CONTENT_W = 0;
 for (const mod of data.modules) {
-  const laneTop = laneY;
   const lane = document.createElement('div');
   lane.className = 'lane';
-  lane.style.top = laneY + 'px';
-  lane.style.left = '0px';
 
   const box = document.createElement('div');
   box.className = 'lane-box';
@@ -444,8 +447,8 @@ for (const mod of data.modules) {
       pos.set(s.id, { x: cx, y, w: cell.offsetWidth });
       colTop.set(l + ':' + sub, y + cell.offsetHeight + ROW_GAP);
       nodeIndex.set(key(mod, s.id), {
-        screen: s, mod, card: cell.firstElementChild,
-        x: cx, y: laneTop + y, w: cell.offsetWidth,
+        screen: s, mod, card: cell.firstElementChild, lane,
+        x: cx, y, w: cell.offsetWidth,
       });
     });
   }
@@ -495,10 +498,46 @@ for (const mod of data.modules) {
     svg.appendChild(tip);
   }
 
-  laneIndex.push({ top: laneTop, height: laneH, width: laneW });
-  laneY += laneH + LANE_GAP;
+  built.push({ mod, lane, laneW, laneH });
 }
-const CONTENT_H = laneY - LANE_GAP;
+
+// --- place the lanes: a column per role, stacked in flow order ---------------
+// One 73 000px ribbon was unreadable; side by side you can see coach and athlete
+// answer the same question differently.
+const ROLE_GAP = 200;
+const roles = [...new Set(data.modules.map(m => m.role))];
+const roleW = new Map(roles.map(r =>
+  [r, Math.max(...built.filter(b => b.mod.role === r).map(b => b.laneW))]));
+const roleX = new Map();
+roles.reduce((x, r) => (roleX.set(r, x), x + roleW.get(r) + ROLE_GAP), 0);
+
+const roleY = new Map(roles.map(r => [r, 0]));
+for (const b of built) {
+  const x = roleX.get(b.mod.role), y = roleY.get(b.mod.role);
+  b.lane.style.left = x + 'px';
+  b.lane.style.top = y + 'px';
+  b.top = y; b.left = x;
+  roleY.set(b.mod.role, y + b.laneH + LANE_GAP);
+  laneIndex.push({ top: y, left: x, height: b.laneH, width: b.laneW });
+}
+// lane-relative → canvas coordinates, now that every lane has a home
+for (const n of nodeIndex.values()) {
+  const b = built.find(x => x.lane === n.lane);
+  n.x += b.left; n.y += b.top;
+}
+for (const r of roles) {
+  const h = document.createElement('div');
+  h.className = 'role-head';
+  h.textContent = r;
+  h.style.left = roleX.get(r) + 'px';
+  h.style.width = roleW.get(r) + 'px';
+  canvas.appendChild(h);
+}
+
+const CONTENT_W_ALL = roleX.get(roles[roles.length - 1]) + roleW.get(roles[roles.length - 1]);
+const CONTENT_H = Math.max(...roleY.values()) - LANE_GAP;
+const LANE_MAX_W = CONTENT_W;   // the widest single module — what "Fit" targets
+CONTENT_W = CONTENT_W_ALL;
 canvas.style.width = CONTENT_W + 'px';
 canvas.style.height = CONTENT_H + 'px';
 
@@ -710,7 +749,7 @@ function fitAll() {
 // Opening view: fit the width and let the flow run down — a board is meant to be
 // panned, and fitting the height makes every screen unreadable.
 function fitWidth() {
-  z = Math.min(1, (viewSize().w - 120) / CONTENT_W);
+  z = Math.min(1, (viewSize().w - 120) / LANE_MAX_W);
   tx = 60; ty = 100; apply();
 }
 viewport.addEventListener('wheel', (e) => {

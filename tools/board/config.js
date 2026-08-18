@@ -27,12 +27,77 @@ export const SHOT = { width: 390, height: 844, scale: 2, quality: 82 };
 //   EXCLUDE : paths (under PROTO_ROOT) to keep off the board
 //   LABELS  : override the name derived from the file's <title>
 // -----------------------------------------------------------------------------
-export const ROLES = ["coach", "athlete", "shared"];  // journeys are step maps, not screens
-export const EXCLUDE = [];
+// Column order left→right. `shared` leads because the product does: you sign in
+// and get onboarded before you are a coach or an athlete. Coach and athlete then
+// sit side by side, which is the point of columns — the same question answered
+// twice. journeys/ is absent: step maps, not screens.
+export const ROLES = ["shared", "coach", "athlete"];
+
+// Superseded by the v2 (Revolut-style) money screens — the files stay in the
+// repo for rollback, but two near-identical ledgers on one board is noise.
+export const EXCLUDE = [
+  "flows/coach/balance.html",
+  "flows/athlete/balance.html",
+];
+
 export const LABELS = {
   "flows/coach/sessions.html": "Training templates",
+  "flows/coach/balance-v2.html": "Coach Earnings",
+  "flows/athlete/balance-v2.html": "Athlete Balance",
+  "flows/coach/availability.html": "Availability",
   "flows/shared/calendar-legend.html": "Calendar legend",
+  "flows/shared/profile.html": "Coach Profile (public)",
 };
+
+// -----------------------------------------------------------------------------
+// ORDER — lanes read in the order the product is used, not alphabetically:
+// you sign in, you are onboarded, you land on a dashboard, and only then do you
+// go deep. Anything not listed falls to the end of its column, alphabetically.
+// -----------------------------------------------------------------------------
+export const ORDER = [
+  // shared — everything that happens before you have a role, and what both use
+  "flows/shared/auth.html",
+  "flows/shared/onboarding.html",
+  "flows/shared/account-access.html",
+  "flows/shared/connect.html",
+  "flows/shared/messages.html",
+  "flows/shared/voice-assistant.html",
+  "flows/shared/self-paced.html",
+  "flows/shared/profile.html",
+  "flows/shared/calendar-legend.html",
+
+  // coach — root tabs in nav order, then what they open, then settings
+  "flows/coach/dashboard.html",
+  "flows/coach/clients.html",
+  "flows/coach/client-groups.html",
+  "flows/coach/sessions.html",
+  "flows/coach/calendar.html",
+  "flows/coach/invite.html",
+  "flows/coach/availability.html",
+  "flows/coach/available-hours.html",
+  "flows/coach/locations.html",
+  "flows/coach/balance-v2.html",
+  "flows/coach/stripe.html",
+  "flows/coach/profile.html",
+  "flows/coach/referral.html",
+  "flows/coach/settings.html",
+  "flows/coach/personal-data.html",
+  "flows/coach/sport-types.html",
+  "flows/coach/calendar-sync.html",
+
+  // athlete — same shape
+  "flows/athlete/dashboard.html",
+  "flows/athlete/search.html",
+  "flows/athlete/my-coaches.html",
+  "flows/athlete/calendar.html",
+  "flows/athlete/balance-v2.html",
+  "flows/athlete/profile.html",
+  "flows/athlete/settings.html",
+  "flows/athlete/personal-data.html",
+  "flows/athlete/sport-types.html",
+  "flows/athlete/calendar-sync.html",
+  "flows/athlete/integrations.html",
+];
 
 // -----------------------------------------------------------------------------
 // STATES — a screen is not one picture. Everything a `.fit-phone` can look like

@@ -3,7 +3,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { ROLES, EXCLUDE, LABELS, STATES, PROTO_ROOT } from "./config.js";
+import { ROLES, EXCLUDE, LABELS, ORDER, STATES, PROTO_ROOT } from "./config.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const protoDir = path.resolve(HERE, PROTO_ROOT);
@@ -24,6 +24,17 @@ export function discover() {
       const label = LABELS[rel] || title.replace(/^321Fit\s*[—–-]\s*/, "") || name.replace(/\.html$/, "");
       out.push({ file: rel, label, role, slug: `${role}-${name.replace(/\.html$/, "")}` });
     }
+  }
+  // Flow order first (sign in → onboard → dashboard → deep), unlisted last.
+  const rank = (m) => (ORDER.indexOf(m.file) + 1) || Number.MAX_SAFE_INTEGER;
+  out.sort((a, b) =>
+    ROLES.indexOf(a.role) - ROLES.indexOf(b.role) ||
+    rank(a) - rank(b) ||
+    a.file.localeCompare(b.file));
+
+  const unlisted = out.filter((m) => rank(m) === Number.MAX_SAFE_INTEGER);
+  if (unlisted.length) {
+    console.log(`· not in ORDER, appended to their column: ${unlisted.map((m) => m.file).join(", ")}`);
   }
   return out;
 }

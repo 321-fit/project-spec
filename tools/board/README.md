@@ -58,9 +58,17 @@ their states land around 15 MB.
 
 Only `config.js`:
 
-- **`ROLES` / `EXCLUDE` / `LABELS`** — coverage is automatic: every `flows/<role>/*.html` is on the
+- **`ROLES`** — one canvas column per role, left to right. `shared` leads because the product does
+  (sign in → onboard → *then* you are a coach or an athlete), and coach/athlete sit side by side so
+  the same question can be compared across roles.
+- **`ORDER`** — lanes read in the order the product is used, not alphabetically: dashboard, then the
+  root tabs, then what they open, then settings. A file missing from `ORDER` falls to the end of its
+  column and is named in the build output.
+- **`EXCLUDE` / `LABELS`** — coverage is otherwise automatic: every `flows/<role>/*.html` is on the
   board, named from its `<title>`. Listing files by hand only guarantees the next one gets
-  forgotten. `flows/journeys/` is off the list because those are step maps, not screens.
+  forgotten. `flows/journeys/` is absent (step maps, not screens) and the pre-Revolut
+  `balance.html` pair is excluded — the files stay for rollback, but two near-identical ledgers on
+  one board is noise.
 - **`STATES`** — a screen is not one picture. Edit mode, empty, an open sheet, a
   skeleton: declare each one with the JS that produces it and it becomes its own
   card next to the screen. This is the only part that needs hand work, and it is
