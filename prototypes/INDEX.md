@@ -90,7 +90,9 @@ Token experiments, not product screens — never clone these for a feature.
   pane side by side, so the two cannot drift. A **live contrast audit** measures the *rendered*
   colours (walking up for the first opaque background) and badges anything under WCAG AA, with a
   count in the bar and an "only failures" filter. Opens with the audit on: that number is the page.
-  First section is the reported "input looks disabled" problem with three candidate fixes.
+  First section is editable vs display vs disabled. Every number it reports is written down in
+  [`specs/theme-contrast.md`](../specs/theme-contrast.md) — that doc is what you read, the room is
+  what you look at.
 - `light-theme.html` — **light-theme fitting room.** Live screens (`athlete/my-coaches.html#s-coach-detail`
   and `athlete/calendar.html#s-schedule`) cloned into one column per candidate light palette, with synced
   scroll, per-column WCAG readouts and an accent-colour toggle. Two sets: *all palettes* (current + 5

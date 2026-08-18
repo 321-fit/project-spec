@@ -77,6 +77,7 @@
 
 <div class="bar">
   <a href="../index.html">← Start</a>
+  <a href="https://github.com/321-fit/project-spec/blob/main/specs/theme-contrast.md" target="_blank">Change log ↗</a>
   <h1>Component fitting room</h1>
   <span class="tally" id="tally"></span>
   <span class="sp"></span>
@@ -98,35 +99,29 @@
 const SPECS = [
 
 // ---------------------------------------------------------------- the problem
-{ grp: 'Editable vs disabled — the reported problem' },
+{ grp: 'Editable vs display vs disabled' },
 {
-  cap: 'cd-notes-card · coach/clients.html · TODAY',
-  note: 'Reported as “looks disabled, not tappable”. Transparent fill + 1px divider + tertiary text is exactly our disabled language — and it is not even an editor, it pushes to one.',
-  html: `<div style="padding:14px;border-radius:12px;background:transparent;border:1px solid var(--fit-divider);font-size:14px;line-height:1.5;color:var(--fit-text-tertiary);display:flex;align-items:center;gap:8px;">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>Add notes</div>`,
-},
-{
-  cap: '.fit-btn.fit-btn-disabled — for comparison',
-  note: 'Same recipe. If a tappable field and a dead button share a look, the field reads dead.',
-  html: `<button class="fit-btn fit-btn-disabled">Disabled button</button>`,
-},
-{
-  cap: 'FIX A — .fit-input-ta (exists, unused here)',
-  note: 'A filled surface says “type in me”. Cheapest fix: the notes field is an input, so use the input.',
-  html: `<textarea class="fit-input-ta" rows="3" placeholder="Injuries, preferences, payment habits…"></textarea>`,
-},
-{
-  cap: 'FIX B — display card + explicit affordance',
-  note: 'When a note already exists the card is a *display*. Then it needs a chevron like every other pushable row, not a dashed ghost.',
+  cap: 'note that exists → display row · coach/clients.html',
+  note: 'A note with content is a display, so it reads like every other pushable row: filled surface, primary text, chevron. Shipped 2026-08-18, replacing a transparent outline card with tertiary text — which was our disabled recipe and was reported as “looks like you can’t tap it”.',
   html: `<div style="display:flex;gap:10px;align-items:center;padding:14px;border-radius:12px;background:var(--fit-surface-high);cursor:pointer;">
     <div style="flex:1;font-size:14px;line-height:1.5;color:var(--fit-text-primary);">Knee injury (left) — avoid high-impact jumping. Prefers morning sessions.</div>
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg></div>`,
 },
 {
-  cap: 'FIX C — empty state as an action row',
-  note: 'Nothing to display yet, so it is an action: brand label, filled surface. Reads as a button because it is one.',
+  cap: 'nothing there yet → action row · coach/clients.html',
+  note: 'Empty means there is nothing to display, so it is an action: filled surface, brand label, plus sign. Same shipped pass.',
   html: `<button style="width:100%;display:flex;align-items:center;gap:9px;padding:14px;border-radius:12px;border:none;background:var(--fit-surface-high);color:var(--fit-brand-primary);font-family:var(--fit-font);font-size:15px;font-weight:500;cursor:pointer;text-align:left;">
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add notes</button>`,
+},
+{
+  cap: 'editing it → .fit-input-ta',
+  note: 'On the editor screen the field is a field: a filled surface says “type in me”.',
+  html: `<textarea class="fit-input-ta" rows="3" placeholder="Injuries, preferences, payment habits…"></textarea>`,
+},
+{
+  cap: '.fit-btn.fit-btn-disabled — what disabled must stay',
+  note: 'The rule this pass produced: outline + tertiary text is reserved for inactive. Anything tappable needs a fill, a brand label, or a chevron.',
+  html: `<button class="fit-btn fit-btn-disabled">Disabled button</button>`,
 },
 
 // ---------------------------------------------------------------- inputs

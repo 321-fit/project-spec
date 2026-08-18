@@ -2700,7 +2700,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-client-detail",
-          "hash": "abc8b82e2877",
+          "hash": "e8525dfa6af1",
           "title": "Client Detail",
           "inApp": "",
           "status": "canon",
