@@ -243,17 +243,16 @@
                background: none; border: none; cursor: pointer; font-family: var(--fit-font); padding: 4px 0; }
   .ai-circle i { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center;
                  justify-content: center; background: var(--fit-surface-high); color: var(--fit-text-primary); }
-  .ai-circle i svg { width: 26px; height: 26px; }
+  .ai-circle i svg { width: 30px; height: 30px; }
   .ai-circle span { font-size: 13px; font-weight: 600; color: var(--fit-text-primary); }
   .ai-circle.danger i { color: var(--fit-red-400); }
   .ai-circle.danger span { color: var(--fit-red-400); }
   /* exactly one gradient per row — it is what "the expected answer" looks like */
   .ai-circle.primary i { background: var(--fit-brand-gradient); color: #fff; }
   .ai-circle.primary span { color: var(--fit-brand-primary); }
-  /* deliberation, not a decision: brand tint, never the gradient */
-  .ai-circle.ask i { background: rgba(5,224,166,0.10); border: 1px solid rgba(5,224,166,0.45); color: var(--fit-teal-500); }
-  .fit-light .ai-circle.ask i { background: rgba(5,224,166,0.14); }
-  .ai-circle.ask span { color: var(--fit-teal-500); }
+  /* deliberation, not a decision: the neutral plate, marked only by its outline.
+     A third fill colour in the row turns four actions into four warnings. */
+  .ai-circle.ask i { border: 1.5px solid var(--fit-teal-500); color: var(--fit-teal-500); }
 
   /* The context the assistant was handed — visible, never invisible priming */
   .ai-ctx { margin: 12px 16px 4px; border: 1px solid var(--fit-divider); border-radius: var(--fit-radius-lg); overflow: hidden; }
@@ -402,46 +401,77 @@
     </div>
   </div>
 
+  <!-- The real athlete drawer (athlete/calendar.html#ath-event-sheet), with the
+       footer buttons replaced by the circle row. Everything above it — status
+       header, message icon, the ... menu that carries Edit details — already
+       exists and stays exactly where it is. -->
   <div class="fit-sheet-overlay visible">
-    <div class="fit-sheet">
+    <div class="fit-sheet" style="padding:8px 16px 40px;">
       <div class="fit-sheet-handle"></div>
-      <div style="display:flex;align-items:center;gap:12px;padding:2px 0 14px;">
-        <div class="dm-av" style="width:46px;height:46px;background:var(--fit-brand-primary);"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" style="width:24px;height:24px;"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20v-.6A6 6 0 0110.5 14h3a6 6 0 016 5.4v.6"/></svg></div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:19px;font-weight:600;color:var(--fit-text-primary);">Basketball Training</div>
-          <div style="font-size:14px;color:var(--fit-brand-primary);">Diana Kim</div>
+
+      <div class="fit-sheet-status-header">
+        <div class="fit-sheet-descriptor" id="ai-ev-descriptor">Session request</div>
+        <span class="fit-cal-event-pill" id="ai-ev-pill" style="background:rgba(222,145,29,0.16);color:var(--fit-yellow-600);">Request</span>
+        <button class="fit-sheet-menu-btn" aria-label="Open chat" style="color:var(--fit-brand-primary);" onclick="window.location.href='./messages.html'">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </button>
+        <button class="fit-sheet-menu-btn" aria-label="More options" onclick="event.stopPropagation();document.getElementById('ai-ev-menu').classList.toggle('visible')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>
+        </button>
+      </div>
+
+      <div class="fit-context-menu" id="ai-ev-menu" style="top:44px;right:8px;">
+        <div class="fit-context-menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit details</div>
+        <div class="fit-context-menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8h16v-8M12 3v13M8 7l4-4 4 4"/></svg>Share</div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px;cursor:pointer;">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">DK</div>
+        <div style="flex:1;"><div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Coach Diana Kim</div></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+
+      <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);margin-bottom:12px;">Basketball Training</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        <span>Thu, Apr 10 &middot; 13:00 &ndash; 14:00</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          <span>TNT GYM</span>
         </div>
-        <span class="fit-badge fit-badge-warning">Request</span>
+        <div style="font-size:14px;color:var(--fit-text-secondary);">&euro;50 &middot; cash</div>
       </div>
 
-      <div style="display:flex;flex-direction:column;gap:9px;padding-bottom:16px;">
-        <div style="display:flex;align-items:center;gap:11px;"><span class="ai-ctx-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span><span style="font-size:16px;color:var(--fit-text-primary);">April 10, 13:00&ndash;14:00</span></div>
-        <div style="display:flex;align-items:center;gap:11px;"><span class="ai-ctx-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span style="font-size:16px;color:var(--fit-text-primary);text-decoration:underline;">TNT GYM</span></div>
-        <div style="display:flex;align-items:center;gap:11px;"><span class="ai-ctx-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg></span><span style="font-size:16px;color:var(--fit-text-primary);">&euro;50, cash</span></div>
-      </div>
-
-      <!-- 4 peer actions → circles. One gradient (the expected answer), one red
-           (the destructive one, farthest from the thumb), the assistant tinted. -->
-      <div class="ai-circles">
-        <button class="ai-circle danger" data-a11y-id="request.decline">
+      <!-- REQUEST — four actions -->
+      <div class="ai-circles" id="ai-row-request">
+        <button class="ai-circle danger" data-a11y-id="athlete.calendar.event.decline">
           <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></i><span>Decline</span>
         </button>
-        <button class="ai-circle" data-a11y-id="request.reschedule">
-          <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></i><span>Reschedule</span>
+        <button class="ai-circle" data-a11y-id="athlete.calendar.event.reschedule">
+          <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></i><span>Reschedule</span>
         </button>
-        <button class="ai-circle ask" onclick="go('s-ai-context',null)" data-a11y-id="request.ask-assistant">
+        <button class="ai-circle ask" onclick="go('s-ai-context',null)" data-a11y-id="athlete.calendar.event.ask-assistant">
           <i><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z" /><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg></i><span>Ask AI</span>
         </button>
-        <button class="ai-circle primary" data-a11y-id="request.accept">
+        <button class="ai-circle primary" data-a11y-id="athlete.calendar.event.accept">
           <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></i><span>Accept</span>
         </button>
       </div>
 
-      <!-- Two actions → the wide buttons we already have. Circles would be a
-           costume: a row of two big dots reads as "pick a side", not "confirm". -->
-      <div id="ai-planned-actions" style="display:none;gap:10px;padding-top:2px;">
-        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;">Reschedule</button>
-        <button class="fit-btn fit-btn-destructive" style="flex:1;height:50px;font-size:16px;">Cancel</button>
+      <!-- PLANNED — the same row, three actions. Ask AI is always there, so a
+           drawer never drops below three: circles are simply what a drawer uses. -->
+      <div class="ai-circles" id="ai-row-planned" style="display:none;">
+        <button class="ai-circle danger">
+          <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></i><span>Cancel</span>
+        </button>
+        <button class="ai-circle">
+          <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></i><span>Reschedule</span>
+        </button>
+        <button class="ai-circle ask" onclick="go('s-ai-context',null)">
+          <i><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z" /><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg></i><span>Ask AI</span>
+        </button>
       </div>
     </div>
   </div>
@@ -565,10 +595,11 @@
     <p><strong>Open:</strong> one eternal assistant thread (drawn here), or one thread per context? Per-context threads make it easy to return to &ldquo;that Tuesday question&rdquo; but turn the list into a machine&rsquo;s scratchpad.</p>
   </div>
 
-  <div class="ann" id="ann-s-request-drawer"><span class="ann-role athlete">Athlete</span><h3>Request drawer &mdash; circle actions</h3>
-    <p>Four peer actions do not fit as four wide buttons, and stacking them buries the decision. Circles with labels fit, and the row still carries hierarchy: <strong>exactly one gradient</strong> (Accept, the expected answer, under the thumb), <strong>one red</strong> (Decline, farthest from it), the rest neutral.</p>
-    <p><strong>The rule this proposes:</strong> 1&ndash;2 actions stay wide buttons (a Planned event keeps <em>Reschedule / Cancel</em> &mdash; see the state); <strong>3&ndash;5 become circles</strong>; more than that and something belongs in &hellip;</p>
-    <p><strong>Ask AI is not a fifth decision.</strong> Accept / Decline / Reschedule are answers; the assistant is for when you do not have one. Hence the tint instead of the gradient &mdash; deliberation should not look like the recommended action.</p>
+  <div class="ann" id="ann-s-request-drawer"><span class="ann-role athlete">Athlete</span><h3>Event drawer &mdash; circle actions</h3>
+    <p>This is the <strong>existing</strong> drawer (<code>athlete/calendar.html#ath-event-sheet</code>) with one change: the footer buttons become a circle row. Everything above stays &mdash; status header, the Request pill, the <strong>message icon</strong> (available in every state, that is why it lives up there) and <strong>&hellip;</strong> with Edit details.</p>
+    <p><strong>Adding Ask AI settles the pattern.</strong> If the assistant is always offered, a drawer never has fewer than three actions &mdash; so &ldquo;wide buttons below three, circles above&rdquo; has no cases left. Simpler and truer: <strong>the event drawer always uses circles</strong>. Wide buttons keep the job they are actually good at &mdash; confirmation sheets, where there is one decision and a way out.</p>
+    <p><strong>Colour is the hierarchy, so it is rationed.</strong> Exactly one gradient (the expected answer, under the thumb), exactly one red (destructive, farthest from it), everything else the same neutral plate. Ask AI is that neutral plate with a brand <em>outline</em> &mdash; a third fill would turn four actions into four warnings, and asking is not a decision anyway.</p>
+    <p><strong>Not resolved:</strong> the reference had both <em>Replan</em> and <em>Schedule</em>. Our vocabulary has one &mdash; <em>Reschedule</em> &mdash; and two calendar-ish actions side by side read as the same thing twice, so only one is drawn.</p>
   </div>
 
   <div class="ann" id="ann-s-ai-context"><span class="ann-role athlete">Athlete</span><h3>Assistant with context</h3>
@@ -632,11 +663,13 @@ function setViewer(role, btn) {
 <script>
 // The drawer swaps its action row by event kind — the point of the state.
 function aiPlanned(on) {
-  var sheet = document.querySelector('#s-request-drawer .fit-sheet');
-  sheet.querySelector('.ai-circles').style.display = on ? 'none' : 'flex';
-  sheet.querySelector('#ai-planned-actions').style.display = on ? 'flex' : 'none';
-  sheet.querySelector('.fit-badge').textContent = on ? 'Planned' : 'Request';
-  sheet.querySelector('.fit-badge').className = on ? 'fit-badge fit-badge-success' : 'fit-badge fit-badge-warning';
+  document.getElementById('ai-row-request').style.display = on ? 'none' : 'flex';
+  document.getElementById('ai-row-planned').style.display = on ? 'flex' : 'none';
+  document.getElementById('ai-ev-descriptor').textContent = on ? 'Confirmed session' : 'Session request';
+  var pill = document.getElementById('ai-ev-pill');
+  pill.textContent = on ? 'Planned' : 'Request';
+  pill.style.background = on ? 'rgba(5,224,166,0.16)' : 'rgba(222,145,29,0.16)';
+  pill.style.color = on ? 'var(--fit-teal-500)' : 'var(--fit-yellow-600)';
 }
 function aiAct() {
   var el = document.getElementById('ai-result');

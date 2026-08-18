@@ -1207,6 +1207,11 @@ window.FIT_BOARD = {
           "order": 0,
           "inFrom": [
             {
+              "file": "flows/shared/assistant-entry.html",
+              "label": "Assistant entry points (WIP)",
+              "id": "s-request-drawer"
+            },
+            {
               "file": "flows/coach/dashboard.html",
               "label": "Coach Dashboard",
               "id": "s-dashboard"
@@ -1509,7 +1514,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-chats",
-          "hash": "2cf8a40bd3ae",
+          "hash": "d589c2d745cc",
           "title": "Chats (assistant pinned)",
           "inApp": "Chats",
           "status": "proposal",
@@ -1532,14 +1537,16 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-request-drawer",
-          "hash": "717c7add3c85",
+          "hash": "5ac2652e25ea",
           "title": "Drawer · request (4 actions)",
           "inApp": "April 10",
           "status": "proposal",
           "theme": "light",
           "entry": false,
-          "note": "Four peer actions do not fit as four wide buttons, and stacking them buries the decision. Circles with labels fit, and the row still carries hierarchy: exactly one gradient (Accept, the expected answer, under the thumb),",
-          "external": [],
+          "note": "This is the existing drawer (athlete/calendar.html#ath-event-sheet) with one change: the footer buttons become a circle row. Everything above stays — status header, the Request pill, the message icon (available in every ",
+          "external": [
+            "./messages.html"
+          ],
           "shots": [
             {
               "file": "shared-assistant-entry__s-request-drawer.webp",
@@ -1555,7 +1562,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-ai-context",
-          "hash": "cb08c4e0206c",
+          "hash": "15165e113417",
           "title": "Assistant acted",
           "inApp": "",
           "status": "proposal",
@@ -1580,7 +1587,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-ai-entry-client",
-          "hash": "b1365fc118a6",
+          "hash": "3d029c8bbf15",
           "title": "From a client card",
           "inApp": "Anna Kowalski",
           "status": "proposal",
