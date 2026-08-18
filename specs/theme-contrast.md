@@ -162,9 +162,26 @@ touches brand identity, so it is the owner's call, not a fix I can just land.
 for one surface and drift on the others). Fix badges and the ladder ourselves,
 because neither palette solves those.
 
-**Still not iOS, to be clear.** This is a colour fitting: the typeface is still
-Rubik rather than SF, and the radii, separators, grouped lists and Dynamic Type
-are ours. A real port is a redesign, not a palette.
+### The full fitting — colours, SF and shapes
+
+The switch now also takes the **typeface** (`-apple-system`, which is SF on a Mac —
+optically larger and tighter than Rubik at the same px, and half of what reads as
+"iOS" is the type, not the colour), **iOS radii** (10–12 continuous rounded rects
+instead of our capsule-everything) and **17px** control text instead of 16.
+
+The counts do not move: **ours 18 / 44, iOS 23 / 51.** Type and shape change how
+native it feels, not how legible it is. What the full fitting adds is the fair
+version of the comparison — iOS wins on *feel* and loses on *contrast*.
+
+**And it surfaced a second measurable finding.** Our brand colour used as text on a
+light surface measures **2.5**; systemBlue in the same place measures **4.0**.
+Apple does not use one accent — they carry a **pair**, a lighter one for dark and a
+darker one for light. We use the same teal on both, which is why brand-coloured
+labels fail in light and pass in dark. That is the pattern worth copying, not the
+hex.
+
+**Still not iOS:** grouped-list layout with inset separators, Dynamic Type, and the
+platform's own material effects. A real port is a redesign; this is a fitting.
 
 ## 4. Badge labels in light — the largest single win
 

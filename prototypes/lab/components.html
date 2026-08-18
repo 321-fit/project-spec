@@ -137,7 +137,29 @@
     background: var(--fit-brand-primary) !important;
     background-image: none !important;
   }
-  body.ios .pane-head::after { content: ' · iOS system colours'; color: #de911d; }
+  /* --- and the rest of the system, so the comparison is honest ---------------
+     Typeface: -apple-system resolves to SF on a Mac, which is the point — SF is
+     optically larger and tighter than Rubik at the same px, and half of what
+     "looks like iOS" is the type, not the colour.
+     Shape: iOS uses continuous rounded rects around 10-12, and reserves the
+     capsule for a few prominent buttons — our everything-is-a-capsule is one of
+     the loudest differences.
+     Size: iOS body is 17px, ours is 16.                                       */
+  body.ios .stage {
+    --fit-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+    --fit-radius-sm: 8px;  --fit-radius-md: 10px;
+    --fit-radius-lg: 12px; --fit-radius-xl: 14px;
+  }
+  body.ios .stage .fit-btn { border-radius: 12px; font-size: 17px; font-weight: 600; letter-spacing: -0.4px; }
+  body.ios .stage .fit-input,
+  body.ios .stage .fit-input-ta { border-radius: 10px; font-size: 17px; letter-spacing: -0.4px; }
+  body.ios .stage .fit-chip { border-radius: 8px; font-size: 15px; }
+  body.ios .stage .fit-badge { border-radius: 6px; font-weight: 600; }
+  body.ios .stage .fit-card,
+  body.ios .stage .fit-stat-strip { border-radius: 10px; }
+  body.ios .stage { letter-spacing: -0.2px; }
+
+  body.ios .pane-head::after { content: ' · iOS colours + SF + shapes'; color: #de911d; }
   body.audit .fail-mark { outline: 2px dashed #f05c5b; outline-offset: 2px; border-radius: 6px; }
 </style>
 </head>
