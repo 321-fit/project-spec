@@ -1514,7 +1514,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-chats",
-          "hash": "d589c2d745cc",
+          "hash": "31ee181c8215",
           "title": "Chats (assistant pinned)",
           "inApp": "Chats",
           "status": "proposal",
@@ -1537,7 +1537,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-request-drawer",
-          "hash": "5ac2652e25ea",
+          "hash": "80efba771b30",
           "title": "Drawer · request (4 actions)",
           "inApp": "April 10",
           "status": "proposal",
@@ -1562,7 +1562,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-ai-context",
-          "hash": "15165e113417",
+          "hash": "6920603b69b9",
           "title": "Assistant acted",
           "inApp": "",
           "status": "proposal",
@@ -1587,14 +1587,17 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-ai-entry-client",
-          "hash": "3d029c8bbf15",
+          "hash": "201d8b6b81f5",
           "title": "From a client card",
-          "inApp": "Anna Kowalski",
+          "inApp": "",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
-          "note": "The other kind of context: a person rather than an event. “How is Anna doing?”, “when does her package run out?”, “draft a message about the missed session”.",
-          "external": [],
+          "note": "The other kind of context: a person rather than an event — “how is Anna doing?”, “when does her package run out?”, “draft a note about the session she missed”.",
+          "external": [
+            "./client-groups.html#s-group-detail",
+            "./client-groups.html#s-add-to-group"
+          ],
           "shots": [
             {
               "file": "shared-assistant-entry__s-ai-entry-client.webp",
