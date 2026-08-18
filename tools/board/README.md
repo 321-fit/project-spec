@@ -58,7 +58,9 @@ their states land around 15 MB.
 
 Only `config.js`:
 
-- **`MODULES`** — which prototype files the board covers.
+- **`ROLES` / `EXCLUDE` / `LABELS`** — coverage is automatic: every `flows/<role>/*.html` is on the
+  board, named from its `<title>`. Listing files by hand only guarantees the next one gets
+  forgotten. `flows/journeys/` is off the list because those are step maps, not screens.
 - **`STATES`** — a screen is not one picture. Edit mode, empty, an open sheet, a
   skeleton: declare each one with the JS that produces it and it becomes its own
   card next to the screen. This is the only part that needs hand work, and it is
@@ -70,13 +72,14 @@ Everything else — titles, levels, arrows, statuses, orphans — is derived.
 
 | On the board | Comes from |
 |---|---|
-| card image | headless Chrome shot of `#<id>` with sidebar/annotations/bezel stripped |
+| card image | headless Chrome shot of `#<id>` with sidebar/annotations/bezel stripped; the file is named `<role>-<module>__<id>`, because screen ids repeat across files (`s-tz-select` lives in three) |
 | card title | the **sidebar** button label (`.fit-header-title` is the in-app title — three screens of one group are all called "Morning") |
 | status dot | `data-status="shipped\|canon\|proposal\|legacy"` on the `.fit-phone`; missing → red **unmarked** |
 | column | BFS depth from the entry screen — "how many taps in" |
 | arrows | `go('s-x')` inside that screen's markup; an arrow back to a shallower screen is drawn dashed and hidden by default |
 | `⇢ file.html` chips | `location.href` / `href` to another prototype |
-| **no entry** badge | nothing in this module links to it — either it is entered from another file (add that file to `MODULES` and the arrow appears) or nothing reaches it at all |
+| `⇠ Module` chip | another file links here — that is the door you come through |
+| **no way in** badge | no in-app route reaches it *anywhere*, cross-file links included. In the prototype it is only reachable from the sidebar: either the wiring is missing or the product has a gap. Filter to them with the counter chip in the top bar |
 | tooltip | the first `<p>` of the screen's annotation |
 
 ## Rules

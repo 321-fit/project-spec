@@ -9,10 +9,13 @@
 > Page-local CSS is only for genuinely novel visuals (and must use a `fit-*` / `pf-*` prefix that
 > isn't already a global — see `feedback_design_token_namespace`).
 
-> **Looking for a screen, not a class?** Open `prototypes/board.html` — a Figma-like canvas of
-> every covered screen as a real screenshot, wired by the `go(...)` transitions parsed out of the
-> files, with `data-status` (shipped / canon / proposal / legacy) as the dot colour. Pilot coverage:
-> `coach/client-groups.html`. Regenerate: `cd tools/board && npm run build` (see its README).
+> **Looking for a screen, not a class?** Open `prototypes/board.html` (also on
+> [Pages](https://321-fit.github.io/project-spec/prototypes/board.html)) — a Figma-like canvas of
+> **all 241 screens across 39 modules** as real screenshots, wired by the `go(...)` transitions
+> parsed out of the files, with `data-status` (shipped / canon / proposal / legacy) as the dot
+> colour. Search, filter by status, jump from the left panel. Journeys are not on it: they are step
+> maps, not screens. Rebuild after editing a prototype — the pre-commit hook does it for you, or
+> `cd tools/board && npm run build` (see its README).
 
 ---
 

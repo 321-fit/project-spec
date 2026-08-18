@@ -21,14 +21,18 @@ export const OUT_ROOT = "../../prototypes/board";
 export const SHOT = { width: 390, height: 844, scale: 2, quality: 82 };
 
 // -----------------------------------------------------------------------------
-// MODULES — which prototype files the board covers.
-//   file  : path under PROTO_ROOT
-//   label : lane title on the board
-//   role  : coach | athlete | shared
+// COVERAGE — every `flows/<role>/*.html` is on the board automatically. Listing
+// 44 files by hand only guarantees the 45th gets forgotten.
+//   ROLES   : lane order, and the sections in the left panel
+//   EXCLUDE : paths (under PROTO_ROOT) to keep off the board
+//   LABELS  : override the name derived from the file's <title>
 // -----------------------------------------------------------------------------
-export const MODULES = [
-  { file: "flows/coach/client-groups.html", label: "Client groups", role: "coach" },
-];
+export const ROLES = ["coach", "athlete", "shared"];  // journeys are step maps, not screens
+export const EXCLUDE = [];
+export const LABELS = {
+  "flows/coach/sessions.html": "Training templates",
+  "flows/shared/calendar-legend.html": "Calendar legend",
+};
 
 // -----------------------------------------------------------------------------
 // STATES — a screen is not one picture. Everything a `.fit-phone` can look like
@@ -36,6 +40,8 @@ export const MODULES = [
 // its own card, because those states are exactly what a developer comes for.
 //   run  : JS evaluated in the page after the screen is made active
 //   wait : extra ms before the shot (animations, transitions)
+// Keyed by screen id — ids are unique per file, and a clash across files just
+// means both screens get both states, so keep them distinctive.
 // -----------------------------------------------------------------------------
 export const STATES = {
   "s-groups": [
@@ -50,6 +56,3 @@ export const STATES = {
     { id: "recurring-only", label: "Filtered to recurring", run: "cgSchedFilter('rec', document.querySelector('#s-group-schedule .fit-filter-chip:nth-child(2)'))" },
   ],
 };
-
-// Screens whose only job is to host another screen's state (none yet).
-export const HIDE = [];

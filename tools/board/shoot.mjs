@@ -4,10 +4,10 @@ import puppeteer from "puppeteer-core";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { MODULES, STATES, PROTO_ROOT, OUT_ROOT, SHOT } from "./config.js";
+import { PROTO_ROOT, OUT_ROOT, SHOT } from "./config.js";
+import { discover, protoDir, shotName, statesFor } from "./modules.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const protoDir = path.resolve(HERE, PROTO_ROOT);
 const shotsDir = path.resolve(HERE, OUT_ROOT, "shots");
 const CHROME_PATH =
   process.env.CHROME_PATH || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
@@ -68,7 +68,7 @@ const activate = (screenId) => {
 };
 
 let n = 0, skipped = 0;
-for (const mod of MODULES) {
+for (const mod of discover()) {
   const file = path.join(protoDir, mod.file);
   if (!fs.existsSync(file)) { console.warn(`⚠︎  missing: ${mod.file}`); continue; }
 
@@ -79,8 +79,8 @@ for (const mod of MODULES) {
 
   for (const id of ids) {
     if (only.length && !only.includes(id)) continue;
-    const shots = [{ id: null, label: "", run: null }, ...(STATES[id] || [])];
-    const outName = (shot) => (shot.id ? `${id}__${shot.id}.webp` : `${id}.webp`);
+    const shots = [{ id: null, label: "", run: null }, ...statesFor(mod, id)];
+    const outName = (shot) => shotName(mod, id, shot.id);
 
     const known = screenOf(mod.file, id);
     const key = mod.file + '#' + id;
