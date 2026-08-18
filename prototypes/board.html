@@ -111,12 +111,11 @@
   .chev {
     flex-shrink: 0; color: #6d6d79; transition: transform .16s ease;
   }
-  .collapsed > .nav-mod-head .chev, .collapsed > .nav-lvl .chev { transform: rotate(-90deg); }
-  .nav-mod-body, .nav-grp-body { overflow: hidden; }
-  .collapsed > .nav-mod-body, .collapsed > .nav-grp-body { display: none; }
-  /* a match must never hide inside a folded branch */
-  body.searching .collapsed > .nav-mod-body,
-  body.searching .collapsed > .nav-grp-body { display: block; }
+  .collapsed > .nav-mod-head .chev { transform: rotate(-90deg); }
+  .nav-mod-body { overflow: hidden; }
+  .collapsed > .nav-mod-body { display: none; }
+  /* a match must never hide inside a folded module */
+  body.searching .collapsed > .nav-mod-body { display: block; }
   .aim {
     flex-shrink: 0; width: 22px; height: 22px; border-radius: 6px; border: none;
     background: transparent; color: #55555f; cursor: pointer;
@@ -138,15 +137,6 @@
     font-size: 9px; color: var(--dim); border: 1px solid var(--line);
     border-radius: 4px; padding: 1px 4px; flex-shrink: 0;
   }
-  .nav-lvl {
-    width: 100%; display: flex; align-items: center; gap: 6px;
-    font: inherit; font-size: 9.5px; letter-spacing: 0.5px; text-transform: uppercase;
-    color: #6d6d79; background: transparent; border: none; cursor: pointer;
-    padding: 8px 8px 4px 10px; text-align: left;
-  }
-  .nav-lvl:hover { color: var(--txt); }
-  .nav-lvl .cnt { margin-left: auto; color: #4c4c56; letter-spacing: 0; }
-  .nav-grp-body .nav-item { padding-left: 22px; }
   .nav-foot {
     border-top: 1px solid var(--line); padding: 10px 14px 12px;
     font-size: 10.5px; color: #55555f; line-height: 1.7;
@@ -519,40 +509,24 @@ data.modules.forEach((mod, mi) => {
   body.className = 'nav-mod-body';
   block.appendChild(body);
 
-  const levels = [...new Set(mod.screens.map(s => s.level))].sort((a, b) => a - b);
-  for (const lvl of levels) {
-    const grp = document.createElement('div');
-    grp.className = 'nav-grp';
-    const grpKey = 'g:' + mod.file + ':' + lvl;
-    if (folded.has(grpKey)) grp.classList.add('collapsed');
-
-    const rows = mod.screens.filter(s => s.level === lvl).sort((a, b) => a.order - b.order);
-    const lh = document.createElement('button');
-    lh.className = 'nav-lvl';
-    lh.innerHTML = CHEV + (lvl === 0 ? 'entry' : 'tap ' + lvl) + '<span class="cnt">' + rows.length + '</span>';
-    lh.onclick = () => fold(grp, grpKey);
-    grp.appendChild(lh);
-
-    const gbody = document.createElement('div');
-    gbody.className = 'nav-grp-body';
-    for (const s of rows) {
-      const st = STATUS[s.status] || STATUS.unmarked;
-      const item = document.createElement('button');
-      item.className = 'nav-item';
-      item.dataset.id = s.id;
-      item.dataset.search = (s.title + ' ' + s.id + ' ' + (s.note || '')).toLowerCase();
-      item.dataset.status = s.status;
-      item.innerHTML =
-        '<span class="dot" style="background:' + st.c + '"></span>' +
-        '<span class="nm">' + s.title + '</span>' +
-        (s.shots.length > 1 ? '<span class="tag">+' + (s.shots.length - 1) + '</span>' : '') +
-        (s.orphan ? '<span class="tag" style="color:var(--red);border-color:#4a2a2c">no entry</span>' : '');
-      item.title = s.id + (s.note ? ' — ' + s.note : '');
-      item.onclick = () => focusScreen(s.id);
-      gbody.appendChild(item);
-    }
-    grp.appendChild(gbody);
-    body.appendChild(grp);
+  // Flat list, but still in flow order: entry first, then each level of depth.
+  // The depth itself is already the canvas's own axis — repeating it here as
+  // headers cost four rows to organise nine screens.
+  for (const s of [...mod.screens].sort((a, b) => a.level - b.level || a.order - b.order)) {
+    const st = STATUS[s.status] || STATUS.unmarked;
+    const item = document.createElement('button');
+    item.className = 'nav-item';
+    item.dataset.id = s.id;
+    item.dataset.search = (s.title + ' ' + s.id + ' ' + (s.note || '')).toLowerCase();
+    item.dataset.status = s.status;
+    item.innerHTML =
+      '<span class="dot" style="background:' + st.c + '"></span>' +
+      '<span class="nm">' + s.title + '</span>' +
+      (s.shots.length > 1 ? '<span class="tag">+' + (s.shots.length - 1) + '</span>' : '') +
+      (s.orphan ? '<span class="tag" style="color:var(--red);border-color:#4a2a2c">no entry</span>' : '');
+    item.title = s.id + (s.entry ? ' · entry' : '') + (s.note ? ' — ' + s.note : '');
+    item.onclick = () => focusScreen(s.id);
+    body.appendChild(item);
   }
   navList.appendChild(block);
 
