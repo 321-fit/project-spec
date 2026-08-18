@@ -70,17 +70,18 @@ Interactive HTML prototypes organized as Hub + individual flows:
 
 ```
 prototypes/
-├── index.html          ← Hub page — click to browse all flows
-└── flows/
-    ├── group-training.html
-    ├── calendar-booking.html  (planned)
-    └── ...
+├── index.html          ← Start — chooser: Prototype · Board · Components · Lab
+├── modules.html        ← the module grid (coach / athlete), per-flow cards
+├── board.html          ← every screen as a screenshot on one canvas (generated)
+├── board/              ← generated: board-data.js + shots/*.webp (committed — Pages serves main)
+├── lab/                ← components.html (dark⇄light + contrast audit), light-theme.html
+└── flows/<role>/*.html ← the screens themselves
 ```
 
 - Each flow: self-contained HTML with sidebar nav + right-side annotations
 - All flows use shared `fit-ui.css` (component library) + `fit-ui.js` (interaction library) from `design-tokens` repo
-- Hub page (`index.html`) shows all flows with status badges
-- In specs, link to specific flow: `[prototype](../prototypes/flows/flow-name.html)`
+- `index.html` is a chooser; `modules.html` shows all flows with status badges
+- In specs, link to specific flow: `[prototype](../prototypes/flows/<role>/flow-name.html)`
 - Annotations in prototypes explain UX decisions and behavior — useful for founder review and developer handoff
 
 ### Architecture (`architecture/`)

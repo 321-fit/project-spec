@@ -9,6 +9,9 @@
 > Page-local CSS is only for genuinely novel visuals (and must use a `fit-*` / `pf-*` prefix that
 > isn't already a global — see `feedback_design_token_namespace`).
 
+> **Start at `prototypes/index.html`** — a chooser: Prototype (the module grid, now
+> `modules.html`) · Board · Components · Light-theme lab.
+>
 > **Looking for a screen, not a class?** Open `prototypes/board.html` (also on
 > [Pages](https://321-fit.github.io/project-spec/prototypes/board.html)) — a Figma-like canvas of
 > **all 241 screens across 39 modules** as real screenshots, wired by the `go(...)` transitions
