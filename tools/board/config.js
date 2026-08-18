@@ -47,6 +47,7 @@ export const LABELS = {
   "flows/coach/availability.html": "Availability",
   "flows/shared/calendar-legend.html": "Calendar legend",
   "flows/shared/profile.html": "Coach Profile (public)",
+  "flows/shared/assistant-entry.html": "Assistant entry points (WIP)",
 };
 
 // -----------------------------------------------------------------------------
@@ -62,6 +63,7 @@ export const ORDER = [
   "flows/shared/connect.html",
   "flows/shared/messages.html",
   "flows/shared/voice-assistant.html",
+  "flows/shared/assistant-entry.html",
   "flows/shared/self-paced.html",
   "flows/shared/profile.html",
   "flows/shared/calendar-legend.html",
@@ -109,6 +111,14 @@ export const ORDER = [
 // means both screens get both states, so keep them distinctive.
 // -----------------------------------------------------------------------------
 export const STATES = {
+  // Assistant entry points (WIP)
+  "flows/shared/assistant-entry.html#s-request-drawer": [
+    { id: "planned", label: "Planned event — 2 actions stay wide buttons", run: "aiPlanned(true)" },
+  ],
+  "flows/shared/assistant-entry.html#s-ai-context": [
+    { id: "acted", label: "The assistant finished the job", run: "aiAct()", wait: 400 },
+  ],
+
   "s-groups": [
     { id: "empty", label: "No groups yet", run: "cgState('empty')" },
   ],

@@ -71,6 +71,7 @@ Path root: `project-spec/prototypes/flows/`
 | `voice-assistant.html` | Voice assistant (canvas, athlete+coach views) | assistant surfaces |
 | `self-paced.html` | Self-paced training builder (WIP) | step-builder flows |
 | `profile.html` | Coach profile (shared variant) | — |
+| `assistant-entry.html` | **Assistant entry points (WIP, proposal)** — Chats tab (assistant pinned) &middot; request drawer with **circle actions** &middot; assistant opened **with visible context** + acting on it &middot; entry from a client card (in `…`) | sheets with 3–5 peer actions; any "hand this object to the assistant" surface |
 | `calendar-legend.html` | **Calendar legend** — every tile state, zone type + colour rules, both themes (`?` sheet from the calendar header) | any legend / key surface |
 
 ### Journeys (`journeys/`)

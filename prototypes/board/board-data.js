@@ -1245,7 +1245,14 @@ window.FIT_BOARD = {
             }
           ],
           "level": 1,
-          "order": 0
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/shared/assistant-entry.html",
+              "label": "Assistant entry points (WIP)",
+              "id": "s-chats"
+            }
+          ]
         },
         {
           "id": "s-thread",
@@ -1264,7 +1271,14 @@ window.FIT_BOARD = {
             }
           ],
           "level": 1,
-          "order": 1
+          "order": 1,
+          "inFrom": [
+            {
+              "file": "flows/shared/assistant-entry.html",
+              "label": "Assistant entry points (WIP)",
+              "id": "s-chats"
+            }
+          ]
         },
         {
           "id": "s-thread-settings",
@@ -1302,7 +1316,14 @@ window.FIT_BOARD = {
             }
           ],
           "level": 1,
-          "order": 2
+          "order": 2,
+          "inFrom": [
+            {
+              "file": "flows/shared/assistant-entry.html",
+              "label": "Assistant entry points (WIP)",
+              "id": "s-chats"
+            }
+          ]
         },
         {
           "id": "s-group-settings",
@@ -1479,6 +1500,127 @@ window.FIT_BOARD = {
         }
       ],
       "edges": []
+    },
+    {
+      "file": "flows/shared/assistant-entry.html",
+      "label": "Assistant entry points (WIP)",
+      "role": "shared",
+      "slug": "shared-assistant-entry",
+      "screens": [
+        {
+          "id": "s-chats",
+          "hash": "2cf8a40bd3ae",
+          "title": "Chats (assistant pinned)",
+          "inApp": "Chats",
+          "status": "proposal",
+          "theme": "light",
+          "entry": true,
+          "note": "The assistant is a correspondent, pinned at the top of the conversation list, and the tab is the history of every session you started elsewhere. That only works because most sessions do start elsewhere — from a drawer, f",
+          "external": [
+            "./messages.html#s-new-message",
+            "./messages.html#s-thread",
+            "./messages.html#s-group-thread"
+          ],
+          "shots": [
+            {
+              "file": "shared-assistant-entry__s-chats.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-request-drawer",
+          "hash": "717c7add3c85",
+          "title": "Drawer · request (4 actions)",
+          "inApp": "April 10",
+          "status": "proposal",
+          "theme": "light",
+          "entry": false,
+          "note": "Four peer actions do not fit as four wide buttons, and stacking them buries the decision. Circles with labels fit, and the row still carries hierarchy: exactly one gradient (Accept, the expected answer, under the thumb),",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-assistant-entry__s-request-drawer.webp",
+              "label": ""
+            },
+            {
+              "file": "shared-assistant-entry__s-request-drawer__planned.webp",
+              "label": "Planned event — 2 actions stay wide buttons"
+            }
+          ],
+          "level": 2,
+          "order": 0
+        },
+        {
+          "id": "s-ai-context",
+          "hash": "cb08c4e0206c",
+          "title": "Assistant acted",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "light",
+          "entry": false,
+          "note": "Three things make this more than a chat box:",
+          "external": [
+            "../athlete/calendar.html"
+          ],
+          "shots": [
+            {
+              "file": "shared-assistant-entry__s-ai-context.webp",
+              "label": ""
+            },
+            {
+              "file": "shared-assistant-entry__s-ai-context__acted.webp",
+              "label": "The assistant finished the job"
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-ai-entry-client",
+          "hash": "b1365fc118a6",
+          "title": "From a client card",
+          "inApp": "Anna Kowalski",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "The other kind of context: a person rather than an event. “How is Anna doing?”, “when does her package run out?”, “draft a message about the missed session”.",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-assistant-entry__s-ai-entry-client.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 0
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-chats",
+          "to": "s-ai-context",
+          "back": false
+        },
+        {
+          "from": "s-request-drawer",
+          "to": "s-ai-context",
+          "back": true
+        },
+        {
+          "from": "s-ai-context",
+          "to": "s-request-drawer",
+          "back": false
+        },
+        {
+          "from": "s-ai-entry-client",
+          "to": "s-ai-context",
+          "back": true
+        }
+      ]
     },
     {
       "file": "flows/shared/self-paced.html",
@@ -6064,6 +6206,11 @@ window.FIT_BOARD = {
           "level": 0,
           "order": 0,
           "inFrom": [
+            {
+              "file": "flows/shared/assistant-entry.html",
+              "label": "Assistant entry points (WIP)",
+              "id": "s-ai-context"
+            },
             {
               "file": "flows/shared/profile.html",
               "label": "Coach Profile (public)",
