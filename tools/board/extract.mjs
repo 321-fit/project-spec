@@ -4,6 +4,7 @@
 // on the board.
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { MODULES, STATES, PROTO_ROOT, OUT_ROOT } from "./config.js";
 
@@ -35,6 +36,11 @@ function screensOf(html) {
   const annAt = html.indexOf('class="ann-container"');
   const end = annAt === -1 ? html.length : html.lastIndexOf("<div", annAt);
 
+  // Everything that is not a screen — head, styles, sidebar, annotations, the
+  // scripts at the bottom. It goes into every screen's fingerprint, so editing
+  // shared CSS re-shoots the whole module while editing one screen does not.
+  const shell = marks.length ? html.slice(0, marks[0].start) + html.slice(end) : html;
+
   return marks.map((mark, i) => {
     const stop = i + 1 < marks.length ? marks[i + 1].start : end;
     const body = html.slice(mark.after, stop);
@@ -48,6 +54,7 @@ function screensOf(html) {
       theme: /\bfit-light\b/.test(cls) ? "light" : "dark",
       entry: /\bactive\b/.test(cls),
       body,
+      shell,
     };
   }).filter((s) => s.id);
 }
@@ -132,8 +139,14 @@ const modules = MODULES.map((mod) => {
     const { internal, external } = edgesOf(s);
     const states = STATES[s.id] || [];
     const ann = annotationOf(html, s.id);
+    // Fingerprint: shoot.mjs re-renders a screen only when this changes, so a
+    // rebuild after one edit costs seconds instead of re-rendering everything.
+    const hash = crypto.createHash("sha1")
+      .update(s.shell).update(s.body).update(JSON.stringify(states))
+      .digest("hex").slice(0, 12);
     return {
       id: s.id,
+      hash,
       title: labels[s.id] || ann.head || s.title || s.id,
       inApp: s.title,
       status: s.status,

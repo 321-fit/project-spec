@@ -12,9 +12,32 @@ const shotsDir = path.resolve(HERE, OUT_ROOT, "shots");
 const CHROME_PATH =
   process.env.CHROME_PATH || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 
-const only = process.argv.slice(2); // optional: node shoot.mjs s-group-detail
+const argv = process.argv.slice(2);
+const force = argv.includes("--force");
+const only = argv.filter((a) => !a.startsWith("--")); // optional: node shoot.mjs s-group-detail
 
 fs.mkdirSync(shotsDir, { recursive: true });
+
+// Incremental build. extract.mjs fingerprints every screen (its own markup +
+// the file's shared shell + its state config), so editing one screen re-renders
+// that screen, editing shared CSS re-renders the module, and everything else is
+// left alone. `--force` ignores the manifest.
+const manifestPath = path.join(shotsDir, ".manifest.json");
+let manifest = {};
+if (!force) {
+  try { manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8")); } catch (e) {}
+}
+const saveManifest = () => fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+
+let board = { modules: [] };
+try {
+  const src = fs.readFileSync(path.resolve(HERE, OUT_ROOT, "board-data.js"), "utf8");
+  board = JSON.parse(src.slice(src.indexOf("{"), src.lastIndexOf("}") + 1));
+} catch (e) {
+  console.warn("⚠︎  no board-data.js — run `node extract.mjs` first for incremental builds");
+}
+const screenOf = (file, id) =>
+  (board.modules.find((m) => m.file === file) || { screens: [] }).screens.find((s) => s.id === id);
 
 const browser = await puppeteer.launch({
   executablePath: CHROME_PATH,
@@ -44,10 +67,11 @@ const activate = (screenId) => {
   if (c) c.scrollTop = 0;
 };
 
-let n = 0;
+let n = 0, skipped = 0;
 for (const mod of MODULES) {
   const file = path.join(protoDir, mod.file);
   if (!fs.existsSync(file)) { console.warn(`⚠︎  missing: ${mod.file}`); continue; }
+
   const html = fs.readFileSync(file, "utf8");
   const ids = [...html.matchAll(/<div\s+[^>]*class="([^"]*)"[^>]*id="([a-z0-9-]+)"/gi)]
     .filter((m) => m[1].split(/\s+/).includes("fit-phone"))
@@ -56,6 +80,15 @@ for (const mod of MODULES) {
   for (const id of ids) {
     if (only.length && !only.includes(id)) continue;
     const shots = [{ id: null, label: "", run: null }, ...(STATES[id] || [])];
+    const outName = (shot) => (shot.id ? `${id}__${shot.id}.webp` : `${id}.webp`);
+
+    const known = screenOf(mod.file, id);
+    const key = mod.file + '#' + id;
+    if (!only.length && known && manifest[key] === known.hash &&
+        shots.every((shot) => fs.existsSync(path.join(shotsDir, outName(shot))))) {
+      skipped++;
+      continue;
+    }
 
     for (const shot of shots) {
       const page = await browser.newPage();
@@ -72,15 +105,23 @@ for (const mod of MODULES) {
       }
       await new Promise((r) => setTimeout(r, 250)); // fonts / layout settle
       const el = await page.$(".fit-phone.active");
-      const out = path.join(shotsDir, shot.id ? `${id}__${shot.id}.webp` : `${id}.webp`);
+      const out = path.join(shotsDir, outName(shot));
       await el.screenshot({ path: out, type: "webp", quality: SHOT.quality });
       await page.close();
       n++;
       console.log(`✓ ${path.basename(out)}`);
     }
+    // Claim "up to date" only after every shot of this screen landed.
+    if (!only.length && known) { manifest[key] = known.hash; saveManifest(); }
   }
 }
 
 await browser.close();
-const kb = fs.readdirSync(shotsDir).reduce((a, f) => a + fs.statSync(path.join(shotsDir, f)).size, 0) / 1024;
-console.log(`\n${n} shots · ${Math.round(kb)} KB total → prototypes/board/shots/`);
+const kb = fs.readdirSync(shotsDir)
+  .filter((f) => f.endsWith(".webp"))
+  .reduce((a, f) => a + fs.statSync(path.join(shotsDir, f)).size, 0) / 1024;
+console.log(
+  `\n${n} shot${n === 1 ? "" : "s"} rendered` +
+  (skipped ? `, ${skipped} screen${skipped === 1 ? "" : "s"} unchanged` : "") +
+  ` · ${Math.round(kb)} KB on disk → prototypes/board/shots/`
+);

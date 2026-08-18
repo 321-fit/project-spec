@@ -9,6 +9,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-groups",
+          "hash": "784751e2ee52",
           "title": "Clients | Groups",
           "inApp": "Clients",
           "status": "shipped",
@@ -33,6 +34,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-detail",
+          "hash": "bf3fd3013f32",
           "title": "Group detail",
           "inApp": "Morning",
           "status": "shipped",
@@ -67,6 +69,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-schedule",
+          "hash": "f48c4cfa5981",
           "title": "Group schedule",
           "inApp": "Morning",
           "status": "shipped",
@@ -92,6 +95,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-smart",
+          "hash": "18df7b4a3d2d",
           "title": "Smart group detail",
           "inApp": "Owes money",
           "status": "shipped",
@@ -112,6 +116,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-create",
+          "hash": "50ad3098eee4",
           "title": "Create group",
           "inApp": "New group",
           "status": "shipped",
@@ -130,6 +135,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-rename",
+          "hash": "372be2c4c1fa",
           "title": "Rename group",
           "inApp": "Group name",
           "status": "shipped",
@@ -148,6 +154,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-add-to-group",
+          "hash": "3f5165fa8463",
           "title": "Client → groups",
           "inApp": "Anna’s groups",
           "status": "shipped",
@@ -169,6 +176,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-add",
+          "hash": "baab418a5a0d",
           "title": "Add clients",
           "inApp": "Add to Morning",
           "status": "shipped",
@@ -187,6 +195,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-chat",
+          "hash": "2c81d6492c3c",
           "title": "Group chat",
           "inApp": "Morning",
           "status": "proposal",

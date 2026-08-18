@@ -26,7 +26,14 @@ npm run build        # extract.mjs (graph) + shoot.mjs (screenshots)
 ```
 
 Separately: `npm run graph` (fast, no browser) · `npm run shots` ·
-`node shoot.mjs s-group-detail` (re-shoot one screen).
+`node shoot.mjs s-group-detail` (re-shoot one screen) · `node shoot.mjs --force`
+(ignore the manifest and re-render everything).
+
+**The board is built, not live** — an edit to a prototype shows up only after a rebuild.
+That rebuild is incremental: every screen is fingerprinted by its own markup plus the file's
+shared shell, so editing one screen re-renders one screen (~2 s), editing shared CSS
+re-renders that module, and untouched screens are skipped. Run `npm run build` after
+touching a prototype; it is cheap enough to be a habit.
 
 Override Chrome with `CHROME_PATH=/path/to/Chrome`.
 
@@ -57,6 +64,8 @@ Everything else — titles, levels, arrows, statuses, orphans — is derived.
 
 ## Rules
 
+- **Rebuild after editing a prototype.** Nothing watches the files; a stale board is a board
+  that lies. `npm run build` skips everything that did not change.
 - **Screenshots are not committed.** `prototypes/board/shots/` is gitignored;
   regenerate locally (~40 KB per shot, seconds per module). Only the graph
   (`board-data.js`) is committed.
