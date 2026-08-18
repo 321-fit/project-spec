@@ -141,6 +141,11 @@
   /* a match must never hide inside a folded branch */
   body.searching .collapsed > .nav-mod-body,
   body.searching .collapsed > .nav-sec-body { display: block; }
+  /* while filtering, the panel shows only what matched — on the canvas misses
+     stay faded in place, because there position is the information */
+  body.searching .nav-item.faded,
+  body.searching .nav-mod.no-hit,
+  body.searching .nav-sec.no-hit { display: none; }
   .aim {
     flex-shrink: 0; width: 22px; height: 22px; border-radius: 6px; border: none;
     background: transparent; color: #55555f; cursor: pointer;
@@ -717,7 +722,10 @@ function focusLane(i) {
   glide(() => {
     const v = viewSize();
     z = Math.min(1, (v.w - 120) / l.width);
-    tx = 60; ty = 70 - l.top * z;
+    // NB: the lane's own column, not x=0 — lanes stopped being one vertical
+    // ribbon when they were split per role.
+    tx = 60 - l.left * z;
+    ty = 70 - l.top * z;
     apply();
   });
 }
@@ -763,6 +771,11 @@ function applyFilter() {
                 (!orphansOnly || c.dataset.orphan === '1');
     c.classList.toggle('faded', !hit);
   });
+  // a module or a role with nothing left in it drops out of the panel too
+  document.querySelectorAll('.nav-mod').forEach(m =>
+    m.classList.toggle('no-hit', !m.querySelector('.nav-item:not(.faded)')));
+  document.querySelectorAll('.nav-sec').forEach(sec =>
+    sec.classList.toggle('no-hit', !sec.querySelector('.nav-mod:not(.no-hit)')));
 }
 let orphansOnly = false;
 const orphanBtn = document.getElementById('orphanToggle');
