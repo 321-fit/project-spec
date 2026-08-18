@@ -21,8 +21,9 @@ on a card opens the live prototype at its anchor.
 
 ```bash
 cd tools/board
-npm install          # puppeteer-core only; Chrome itself is the one on your Mac
-npm run build        # extract.mjs (graph) + shoot.mjs (screenshots)
+npm install                          # puppeteer-core only; Chrome is the one on your Mac
+npm run build                        # extract.mjs (graph) + shoot.mjs (screenshots)
+git config core.hooksPath tools/hooks   # once per clone — see "Staying current"
 ```
 
 Separately: `npm run graph` (fast, no browser) · `npm run shots` ·
@@ -36,6 +37,19 @@ re-renders that module, and untouched screens are skipped. Run `npm run build` a
 touching a prototype; it is cheap enough to be a habit.
 
 Override Chrome with `CHROME_PATH=/path/to/Chrome`.
+
+## Staying current
+
+`tools/hooks/pre-commit` rebuilds the board whenever a commit touches
+`prototypes/flows/**.html` or `tools/board/config.js`, and stages the regenerated
+`board-data.js` into the same commit — so the committed graph can never describe a prototype
+that no longer exists. Enable it once per clone with `git config core.hooksPath tools/hooks`;
+bypass it for one commit with `git commit --no-verify`. If node or `node_modules` is missing
+the hook warns and lets the commit through rather than blocking you.
+
+**Screenshots still stay local** (`prototypes/board/shots/` is gitignored). That is fine while
+the board is a local tool; the moment it needs to be shareable — on Pages, or for anyone who
+just cloned — the shots have to be built in CI and published there, or committed.
 
 ## What you edit
 
@@ -65,7 +79,8 @@ Everything else — titles, levels, arrows, statuses, orphans — is derived.
 ## Rules
 
 - **Rebuild after editing a prototype.** Nothing watches the files; a stale board is a board
-  that lies. `npm run build` skips everything that did not change.
+  that lies. The pre-commit hook does it for you (see below); `npm run build` skips everything
+  that did not change.
 - **Screenshots are not committed.** `prototypes/board/shots/` is gitignored;
   regenerate locally (~40 KB per shot, seconds per module). Only the graph
   (`board-data.js`) is committed.

@@ -1,0 +1,34 @@
+#!/bin/sh
+# Keep the prototype board honest: if this commit touches a prototype (or the
+# board's config), rebuild the board and stage the regenerated graph.
+#
+# Enable once per clone:  git config core.hooksPath tools/hooks
+#
+# The rebuild is incremental — untouched screens are skipped — so a normal
+# commit costs a second or two. Skip it for one commit with:  git commit --no-verify
+
+set -e
+
+CHANGED=$(git diff --cached --name-only --diff-filter=ACMR \
+  -- 'prototypes/flows/*.html' 'prototypes/flows/**/*.html' 'tools/board/config.js')
+
+[ -z "$CHANGED" ] && exit 0
+
+ROOT=$(git rev-parse --show-toplevel)
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "board: node not found — skipping the rebuild, the board may be stale" >&2
+  exit 0
+fi
+if [ ! -d "$ROOT/tools/board/node_modules" ]; then
+  echo "board: run 'cd tools/board && npm install' — skipping the rebuild, the board may be stale" >&2
+  exit 0
+fi
+
+echo "board: prototypes changed, rebuilding…"
+cd "$ROOT/tools/board"
+node extract.mjs
+node shoot.mjs
+
+cd "$ROOT"
+git add prototypes/board/board-data.js
