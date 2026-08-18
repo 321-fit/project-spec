@@ -78,23 +78,51 @@
   #nav {
     position: fixed; z-index: 15; top: 52px; bottom: 0; left: 0; width: 268px;
     background: #101013; border-right: 1px solid var(--line);
-    display: flex; flex-direction: column;
-    transform: translateX(-100%); transition: transform .22s ease;
+    display: flex; flex-direction: column; overflow: hidden;
+    transition: width .2s ease;
   }
-  body.nav-open #nav { transform: none; }
+  body.nav-rail #nav { width: 46px; }
   #nav .scroll { flex: 1; overflow-y: auto; padding: 12px 10px 18px; }
   #nav .scroll::-webkit-scrollbar { width: 5px; }
   #nav .scroll::-webkit-scrollbar-thumb { background: #2e2e36; border-radius: 3px; }
+  body.nav-rail #nav .scroll, body.nav-rail .nav-foot { display: none; }
 
-  .nav-mod { margin-bottom: 18px; }
+  /* collapsed rail — one chip per module, click expands and flies there */
+  .rail { display: none; flex-direction: column; align-items: center; gap: 8px; padding: 12px 0; }
+  body.nav-rail .rail { display: flex; }
+  .rail-chip {
+    width: 30px; height: 30px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--line); background: #17171a; color: var(--dim);
+    font: inherit; font-size: 10.5px; font-weight: 600; letter-spacing: -0.2px;
+  }
+  .rail-chip:hover { color: var(--txt); border-color: #46464f; }
+  .rail-sep { width: 18px; height: 1px; background: var(--line); margin: 2px 0; }
+
+  .nav-mod { margin-bottom: 10px; }
   .nav-mod-head {
-    width: 100%; text-align: left; font: inherit; cursor: pointer;
-    background: transparent; border: none; color: var(--txt);
-    padding: 7px 10px; border-radius: 8px;
+    width: 100%; display: flex; align-items: center; gap: 7px; text-align: left;
+    font: inherit; cursor: pointer; background: transparent; border: none;
+    color: var(--txt); padding: 7px 8px; border-radius: 8px;
   }
   .nav-mod-head:hover { background: #1a1a1f; }
   .nav-mod-head b { font-size: 13px; font-weight: 600; display: block; }
   .nav-mod-head span { font-size: 10.5px; color: var(--dim); }
+  .nav-mod-head .txt { flex: 1; min-width: 0; }
+  .chev {
+    flex-shrink: 0; color: #6d6d79; transition: transform .16s ease;
+  }
+  .collapsed > .nav-mod-head .chev, .collapsed > .nav-lvl .chev { transform: rotate(-90deg); }
+  .nav-mod-body, .nav-grp-body { overflow: hidden; }
+  .collapsed > .nav-mod-body, .collapsed > .nav-grp-body { display: none; }
+  /* a match must never hide inside a folded branch */
+  body.searching .collapsed > .nav-mod-body,
+  body.searching .collapsed > .nav-grp-body { display: block; }
+  .aim {
+    flex-shrink: 0; width: 22px; height: 22px; border-radius: 6px; border: none;
+    background: transparent; color: #55555f; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .aim:hover { background: #26262d; color: var(--teal); }
   .nav-item {
     width: 100%; display: flex; align-items: center; gap: 8px;
     font: inherit; font-size: 12px; cursor: pointer; text-align: left;
@@ -111,9 +139,14 @@
     border-radius: 4px; padding: 1px 4px; flex-shrink: 0;
   }
   .nav-lvl {
-    font-size: 9.5px; letter-spacing: 0.5px; text-transform: uppercase;
-    color: #55555f; padding: 8px 10px 3px;
+    width: 100%; display: flex; align-items: center; gap: 6px;
+    font: inherit; font-size: 9.5px; letter-spacing: 0.5px; text-transform: uppercase;
+    color: #6d6d79; background: transparent; border: none; cursor: pointer;
+    padding: 8px 8px 4px 10px; text-align: left;
   }
+  .nav-lvl:hover { color: var(--txt); }
+  .nav-lvl .cnt { margin-left: auto; color: #4c4c56; letter-spacing: 0; }
+  .nav-grp-body .nav-item { padding-left: 22px; }
   .nav-foot {
     border-top: 1px solid var(--line); padding: 10px 14px 12px;
     font-size: 10.5px; color: #55555f; line-height: 1.7;
@@ -132,7 +165,8 @@
       radial-gradient(circle at 1px 1px, #1a1a1e 1px, transparent 0) 0 0/28px 28px;
   }
   #viewport.dragging { cursor: grabbing; }
-  body.nav-open #viewport { left: 268px; }
+  #viewport { left: 268px; }
+  body.nav-rail #viewport { left: 46px; }
   #canvas { position: absolute; transform-origin: 0 0; }
   #canvas.smooth { transition: transform .3s cubic-bezier(.4,0,.2,1); }
   @keyframes pulse {
@@ -206,7 +240,8 @@
     position: fixed; bottom: 14px; left: 16px; z-index: 20;
     font-size: 11px; color: #55555f; transition: left .22s ease;
   }
-  body.nav-open .hint { left: 284px; }
+  .hint { left: 284px; }
+  body.nav-rail .hint { left: 62px; }
 </style>
 </head>
 <body>
@@ -234,9 +269,10 @@
 </div>
 
 <nav id="nav">
+  <div class="rail" id="railList"></div>
   <div class="scroll" id="navList"></div>
   <div class="nav-foot">
-    <span class="k">\</span>toggle this panel<br>
+    <span class="k">\</span>rail / full panel<br>
     <span class="k">/</span>search · <span class="k">esc</span>clear
   </div>
 </nav>
@@ -440,48 +476,97 @@ canvas.style.width = CONTENT_W + 'px';
 canvas.style.height = CONTENT_H + 'px';
 
 // ---------- left navigation ----------
-const NAV_W = 268;
+// Two widths: a full tree (modules → tap depth → screens) and a 46px rail with
+// one chip per module, so the panel never has to be fully hidden.
+const NAV_W = 268, RAIL_W = 46;
 const navList = document.getElementById('navList');
+const railList = document.getElementById('railList');
+const CHEV = '<svg class="chev" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+
+// which branches are folded — remembered between sessions
+let folded = new Set();
+try { folded = new Set(JSON.parse(localStorage.getItem('fitBoardFolded') || '[]')); } catch (e) {}
+const saveFolded = () => { try { localStorage.setItem('fitBoardFolded', JSON.stringify([...folded])); } catch (e) {} };
+function fold(el, key) {
+  const on = el.classList.toggle('collapsed');
+  on ? folded.add(key) : folded.delete(key);
+  saveFolded();
+}
+
 data.modules.forEach((mod, mi) => {
   const block = document.createElement('div');
   block.className = 'nav-mod';
+  const modKey = 'm:' + mod.file;
+  if (folded.has(modKey)) block.classList.add('collapsed');
 
   const head = document.createElement('button');
   head.className = 'nav-mod-head';
-  head.innerHTML = '<b>' + mod.label + '</b><span>' + mod.role + ' · ' + mod.screens.length +
-    ' screens · ' + mod.screens.reduce((a, s) => a + s.shots.length, 0) + ' shots</span>';
-  head.onclick = () => focusLane(mi);
+  head.innerHTML = CHEV +
+    '<span class="txt"><b>' + mod.label + '</b><span>' + mod.role + ' · ' + mod.screens.length +
+    ' screens · ' + mod.screens.reduce((a, s) => a + s.shots.length, 0) + ' shots</span></span>';
+  head.onclick = () => fold(block, modKey);
+
+  // crosshair = fit this lane, so the header click stays a pure fold
+  const aim = document.createElement('button');
+  aim.className = 'aim';
+  aim.title = 'Fit this module';
+  aim.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>';
+  aim.onclick = (e) => { e.stopPropagation(); focusLane(mi); };
+  head.appendChild(aim);
   block.appendChild(head);
 
-  let lastLevel = -1;
-  for (const s of [...mod.screens].sort((a, b) => a.level - b.level || a.order - b.order)) {
-    if (s.level !== lastLevel) {
-      lastLevel = s.level;
-      const l = document.createElement('div');
-      l.className = 'nav-lvl';
-      l.textContent = s.level === 0 ? 'entry' : 'tap ' + s.level;
-      block.appendChild(l);
+  const body = document.createElement('div');
+  body.className = 'nav-mod-body';
+  block.appendChild(body);
+
+  const levels = [...new Set(mod.screens.map(s => s.level))].sort((a, b) => a - b);
+  for (const lvl of levels) {
+    const grp = document.createElement('div');
+    grp.className = 'nav-grp';
+    const grpKey = 'g:' + mod.file + ':' + lvl;
+    if (folded.has(grpKey)) grp.classList.add('collapsed');
+
+    const rows = mod.screens.filter(s => s.level === lvl).sort((a, b) => a.order - b.order);
+    const lh = document.createElement('button');
+    lh.className = 'nav-lvl';
+    lh.innerHTML = CHEV + (lvl === 0 ? 'entry' : 'tap ' + lvl) + '<span class="cnt">' + rows.length + '</span>';
+    lh.onclick = () => fold(grp, grpKey);
+    grp.appendChild(lh);
+
+    const gbody = document.createElement('div');
+    gbody.className = 'nav-grp-body';
+    for (const s of rows) {
+      const st = STATUS[s.status] || STATUS.unmarked;
+      const item = document.createElement('button');
+      item.className = 'nav-item';
+      item.dataset.id = s.id;
+      item.dataset.search = (s.title + ' ' + s.id + ' ' + (s.note || '')).toLowerCase();
+      item.dataset.status = s.status;
+      item.innerHTML =
+        '<span class="dot" style="background:' + st.c + '"></span>' +
+        '<span class="nm">' + s.title + '</span>' +
+        (s.shots.length > 1 ? '<span class="tag">+' + (s.shots.length - 1) + '</span>' : '') +
+        (s.orphan ? '<span class="tag" style="color:var(--red);border-color:#4a2a2c">no entry</span>' : '');
+      item.title = s.id + (s.note ? ' — ' + s.note : '');
+      item.onclick = () => focusScreen(s.id);
+      gbody.appendChild(item);
     }
-    const st = STATUS[s.status] || STATUS.unmarked;
-    const item = document.createElement('button');
-    item.className = 'nav-item';
-    item.dataset.id = s.id;
-    item.dataset.search = (s.title + ' ' + s.id + ' ' + (s.note || '')).toLowerCase();
-    item.dataset.status = s.status;
-    item.innerHTML =
-      '<span class="dot" style="background:' + st.c + '"></span>' +
-      '<span class="nm">' + s.title + '</span>' +
-      (s.shots.length > 1 ? '<span class="tag">+' + (s.shots.length - 1) + '</span>' : '') +
-      (s.orphan ? '<span class="tag" style="color:var(--red);border-color:#4a2a2c">no entry</span>' : '');
-    item.title = s.id + (s.note ? ' — ' + s.note : '');
-    item.onclick = () => focusScreen(s.id);
-    block.appendChild(item);
+    grp.appendChild(gbody);
+    body.appendChild(grp);
   }
   navList.appendChild(block);
+
+  // rail chip: initials of the module label
+  const chip = document.createElement('button');
+  chip.className = 'rail-chip';
+  chip.title = mod.label + ' — ' + mod.screens.length + ' screens';
+  chip.textContent = mod.label.split(/[\s-]+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  chip.onclick = () => { setNav('full'); setTimeout(() => focusLane(mi), 210); };
+  railList.appendChild(chip);
 });
 
 function viewSize() {
-  return { w: innerWidth - (document.body.classList.contains('nav-open') ? NAV_W : 0), h: innerHeight - 52 };
+  return { w: innerWidth - (document.body.classList.contains('nav-rail') ? RAIL_W : NAV_W), h: innerHeight - 52 };
 }
 function glide(fn) {
   canvas.classList.add('smooth');
@@ -515,14 +600,14 @@ function focusLane(i) {
   });
 }
 const navBtn = document.getElementById('navToggle');
-function toggleNav(on) {
-  const open = on === undefined ? !document.body.classList.contains('nav-open') : on;
-  document.body.classList.toggle('nav-open', open);
-  navBtn.classList.toggle('on', open);
-  try { localStorage.setItem('fitBoardNav', open ? '1' : '0'); } catch (e) {}
+function setNav(mode) {
+  const rail = mode === 'rail';
+  document.body.classList.toggle('nav-rail', rail);
+  navBtn.classList.toggle('on', !rail);
+  try { localStorage.setItem('fitBoardNav', rail ? 'rail' : 'full'); } catch (e) {}
 }
-navBtn.onclick = () => toggleNav();
-toggleNav((() => { try { return localStorage.getItem('fitBoardNav') !== '0'; } catch (e) { return true; } })());
+navBtn.onclick = () => setNav(document.body.classList.contains('nav-rail') ? 'full' : 'rail');
+setNav((() => { try { return localStorage.getItem('fitBoardNav') || 'full'; } catch (e) { return 'full'; } })());
 
 function resolve(modFile, href) {
   const dir = modFile.slice(0, modFile.lastIndexOf('/') + 1);
@@ -548,6 +633,7 @@ const qEl = document.getElementById('q');
 qEl.oninput = applyFilter;
 function applyFilter() {
   const q = qEl.value.trim().toLowerCase();
+  document.body.classList.toggle('searching', !!q);
   document.querySelectorAll('.card, .nav-item').forEach(c => {
     const hit = (!q || c.dataset.search.includes(q)) && !offStatus.has(c.dataset.status);
     c.classList.toggle('faded', !hit);
@@ -582,7 +668,7 @@ function fitWidth() {
 }
 viewport.addEventListener('wheel', (e) => {
   e.preventDefault();
-  const navOff = document.body.classList.contains('nav-open') ? NAV_W : 0;
+  const navOff = document.body.classList.contains('nav-rail') ? RAIL_W : NAV_W;
   if (e.ctrlKey || e.metaKey) zoomAt(e.deltaY < 0 ? 1.12 : 1 / 1.12, e.clientX - navOff, e.clientY - 52);
   else { tx -= e.deltaX; ty -= e.deltaY; apply(); }
 }, { passive: false });
@@ -603,7 +689,7 @@ viewport.addEventListener('pointerup', () => { drag = null; viewport.classList.r
 addEventListener('keydown', (e) => {
   const typing = document.activeElement === qEl;
   if (e.key === '/' && !typing) { e.preventDefault(); qEl.focus(); }
-  if (e.key === '\\' && !typing) { e.preventDefault(); toggleNav(); }
+  if (e.key === '\\' && !typing) { e.preventDefault(); navBtn.onclick(); }
   if (e.key === 'Enter' && typing) {
     const first = document.querySelector('.nav-item:not(.faded)');
     if (first) { focusScreen(first.dataset.id); qEl.blur(); }

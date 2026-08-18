@@ -7,11 +7,14 @@ if a transition is not in the HTML, it is not on the board.
 
 Open: `prototypes/board.html` (linked from the hub).
 
-Getting around: `\` toggles the left screen list (modules → screens grouped by tap depth,
-with the status dot, a `+N` states count and an orphan flag); clicking an item flies the
-camera to that screen and rings it. `/` focuses search — it dims both the list and the
-canvas, and `Enter` jumps to the first match. Scroll pans, ⌘/Ctrl+scroll zooms, a click on
-a card opens the live prototype at its anchor.
+Getting around: the left panel is a tree — **module → tap depth → screen**, each screen with
+its status dot, a `+N` states count and an orphan flag. Every branch folds (state is kept
+between sessions), and `\` shrinks the whole panel to a **46px rail** of module chips rather
+than hiding it; a chip expands the panel and flies to that module. Clicking a screen flies
+the camera to it and rings it; the crosshair on a module header fits that lane. `/` focuses
+search — it dims list and canvas together, temporarily unfolds so a match can't hide inside a
+folded branch, and `Enter` jumps to the first hit. Scroll pans, ⌘/Ctrl+scroll zooms, a click
+on a card opens the live prototype at its anchor.
 
 ## Run
 
