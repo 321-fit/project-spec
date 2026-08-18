@@ -124,6 +124,34 @@ const SPECS = [
   html: `<button class="fit-btn fit-btn-disabled">Disabled button</button>`,
 },
 
+// ------------------------------------------------- the input edge, candidates
+{ grp: 'Input edge — pick one' },
+{
+  cap: 'the collision that started this',
+  note: '.fit-input and .fit-btn-disabled both took --fit-surface-low, so an active field and a dead button were literally the same colour: #E4E6E7 light, #111213 dark. Disabled has been unfilled (outline grammar), which fixes half of it. The other half: in light the fill sits 1.09:1 from the page, so the field still barely exists.',
+  html: `<input class="fit-input" value="the fill, as it is today"><div style="height:8px;"></div><button class="fit-btn fit-btn-disabled">Disabled — no longer a filled plate</button>`,
+},
+{
+  cap: 'A · fill + 1px hairline (gray-500)',
+  note: 'Reaches 3.2:1 against the fill, so it passes non-text AA. Cost: in light our fields become outlined, which iOS does not do and Material does — the two themes stop being one component with different colours.',
+  html: `<input class="fit-input" style="border:1px solid var(--fit-color-gray-500);" value="hairline">`,
+},
+{
+  cap: 'B · fill + soft shadow (the light-theme grammar)',
+  note: 'Light already draws cards with a soft shadow instead of a border, so this keeps one language. It does not measurably reach 3:1 — a shadow is a gradient, not an edge — so it is a judgement call rather than a compliance win.',
+  html: `<input class="fit-input" style="box-shadow:0 1px 3px rgba(0,0,0,.10), 0 0 0 1px rgba(0,0,0,.04);" value="soft shadow">`,
+},
+{
+  cap: 'C · darker fill, no edge',
+  note: 'Keeps fields borderless and unmistakably filled. Measures 1.4:1 against the page in light, so it fails the letter of the rule while reading better than today.',
+  html: `<input class="fit-input" style="background:var(--fit-color-gray-200);" value="one step darker">`,
+},
+{
+  cap: 'D · label above, field flush (no edge needed)',
+  note: 'The field does not have to carry the whole job: a label above it says what it is, and then a quiet fill is enough. This is what .fit-input-group was built for and it is already in the system.',
+  html: `<div class="fit-input-label">Notes</div><input class="fit-input" value="labelled">`,
+},
+
 // ---------------------------------------------------------------- inputs
 { grp: 'Inputs' },
 { cap: '.fit-input-group + .fit-input-label + .fit-input', html:

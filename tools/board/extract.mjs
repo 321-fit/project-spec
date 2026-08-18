@@ -128,6 +128,17 @@ function levelize(nodes, edges) {
   for (const e of edges) e.back = byId.get(e.to).level <= byId.get(e.from).level;
 }
 
+// Shared library files are part of every screen's appearance, so they belong in
+// every screen's fingerprint. Without this a change to fit-ui.css leaves all 232
+// shots stale and the board quietly shows yesterday's design system.
+const LIB = ["lib/fit-ui-tokens.css", "lib/fit-ui.css", "lib/fit-ui.js"];
+const libHash = crypto.createHash("sha1");
+for (const f of LIB) {
+  const p = path.join(protoDir, f);
+  if (fs.existsSync(p)) libHash.update(fs.readFileSync(p));
+}
+const LIB_HASH = libHash.digest("hex").slice(0, 12);
+
 // --- run ---------------------------------------------------------------------
 const modules = discover().map((mod) => {
   const file = path.join(protoDir, mod.file);
@@ -142,7 +153,7 @@ const modules = discover().map((mod) => {
     // Fingerprint: shoot.mjs re-renders a screen only when this changes, so a
     // rebuild after one edit costs seconds instead of re-rendering everything.
     const hash = crypto.createHash("sha1")
-      .update(s.shell).update(s.body).update(JSON.stringify(states))
+      .update(LIB_HASH).update(s.shell).update(s.body).update(JSON.stringify(states))
       .digest("hex").slice(0, 12);
     return {
       id: s.id,

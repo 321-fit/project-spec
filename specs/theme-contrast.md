@@ -69,26 +69,60 @@ needs 550, so this is the only reason to add it.
 
 ---
 
-## 3. Not tokens — component shapes. Two places each.
+## 3. The input fill — the collision, and a decision  🟡 half done
+
+**The report:** "the input colour always looks disabled, especially next to a
+disabled button."
+
+It is not a resemblance. Both took the **same token**:
+
+| | `.fit-input` fill | `.fit-btn-disabled` fill |
+|---|---|---|
+| light | `#E4E6E7` | `#E4E6E7` — identical |
+| dark | `#111213` | `#111213` — identical |
+
+An active field and a dead button were the same plate; only the text colour
+differed. Nothing about the field said it was alive.
+
+### ✅ Done — disabled is no longer a filled plate
+
+`.fit-btn-disabled` gave up `--fit-surface-low` and took the outline grammar from
+§1: no fill, 1px divider, muted label. `opacity: 0.7` went too — it multiplied
+whatever was underneath and made the measured colour unpredictable.
+
+> **Filled means interactive. Outline plus muted text means inactive.** One rule,
+> both themes, no exceptions.
+
+### 🟡 Open — the field's own edge in light
+
+Fixing disabled fixes the confusion, not the invisibility: in light the fill still
+sits **1.09 : 1** from the page, so the field barely exists. Four candidates are in
+the fitting room under *Input edge — pick one*, measured:
+
+| | light | dark | what it costs |
+|---|---|---|---|
+| **A** fill + 1px `gray-500` hairline | **3.2 ✓** | **✓** | fields become outlined. The **only** candidate that behaves identically in both themes |
+| **B** fill + soft shadow | passes the audit's shadow exemption | **invisible** — shadows do not read on dark | keeps light's card grammar, but becomes a light-only treatment, so the themes diverge anyway |
+| **C** darker fill (`gray-200`), no edge | 1.4 ✗ | ✓ | borderless and unmistakably filled; fails the rule while looking better than today |
+| **D** label above, quiet fill | field 1.1 ✗ | 1.2 ✗ | the label carries the meaning instead of the edge. Already in the system as `.fit-input-group`; works *with* any of the above rather than instead of them |
+
+**Recommendation: A.** B looks right in light and does nothing in dark, which is
+how one component quietly becomes two. D is worth adopting anyway — a labelled
+field is clearer regardless — but it does not make the field visible on its own.
+
+---
+
+## 3b. The other component shapes — two places each
 
 These do **not** live in `fit-ui-tokens.css`. They are component rules, so each one
-has to change in `fit-ui.css` **and** in the native `FitUI` component. That is exactly
-why this document exists.
+changes in `fit-ui.css` **and** in the native `FitUI` component. That is exactly why
+this document exists.
 
 | component | what fails | measured | why it matters |
 |---|---|---|---|
-| `.fit-input`, `.fit-input-ta` | boundary against the page | **1.1** light / 1.2 dark (need 3.0) | in light the field is white on `#F2F2F7`; there is nothing to see. This is the deep cause of "the field looks disabled" — not just the notes card |
 | `.fit-toggle` | off vs on | **1.6** light (need 3.0) | the switch does not say whether it is on |
 | `.fit-toggle` | boundary | 1.0 light / 1.5 dark | and you cannot see the track either |
 | `.fit-icon-btn` | boundary | 1.1 light / 1.5 dark | reads as an icon floating on the page rather than a button |
-
-**Decision needed on inputs.** To reach 3:1 against white you need a `gray-500`
-border — which turns our filled fields into outlined ones in light theme only. That is
-a real design choice (Material draws inputs that way; iOS does not), and it means the
-two themes stop being the same component with different colours. The alternatives are
-a soft shadow (the way light draws cards today) or a tinted fill.
-
----
 
 ## 4. Badge labels in light — the largest single win
 
@@ -125,6 +159,7 @@ same build, and a web stand consuming the generated CSS gets them for free.
 `fit-ui.css` and hand-written again in `FitUI`, and the only thing keeping them in
 step is this document plus `design-tokens/docs/components.md`.
 
-**Next actions, in order:** §4 badge labels (biggest win per edit) → §2 text ladder →
-§3 after the input decision. Each one: change the token, regenerate, reopen the fitting
+**Next actions, in order:** §3 needs the input-edge pick (A recommended) → §4 badge
+labels (biggest win per edit) → §2 text ladder → §3b once the edge language is
+settled. Each one: change the token, regenerate, reopen the fitting
 room, paste the new number into the table here.
