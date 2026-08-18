@@ -350,6 +350,8 @@
   <button onclick="go('s-request-drawer',this);aiPlanned(true)">Drawer &middot; planned (2 actions)</button>
   <button onclick="go('s-request-drawer',this);aiPlanned(false)">Drawer &middot; request (4 actions)</button>
   <button onclick="go('s-ai-context',this);aiAct()">Assistant acted</button>
+  <button onclick="go('s-ai-entry-client',this);aiMenu(true)">Client card &middot; &hellip; menu open</button>
+  <button onclick="go('s-ai-entry-client',this);aiHeaderEntry(true)">Client card &middot; sparkle in the header</button>
   <div class="label">Other modules</div>
   <button onclick="window.location.href='./messages.html'">&larr; Messages (DM)</button>
   <button onclick="window.location.href='./voice-assistant.html'">&larr; Assistant canvas</button>
@@ -580,28 +582,30 @@
 </div>
 
 <!-- ==================== SCREEN: ENTRY FROM A CLIENT CARD (coach) ==================== -->
-<!-- The real client card (coach/clients.html#s-client-detail) — header, identity,
-     group pills and stats cloned verbatim. The only proposal here is one row in
-     the ... menu that already exists on that screen. -->
+<!-- The real client card (coach/clients.html#s-client-detail): header, identity,
+     group pills, stats. Header carries ... only — as shipped. The footer is the
+     pattern from shared/profile.html (athlete viewing a coach): a round message
+     button beside the screen's one CTA. Two candidate homes for the assistant are
+     drawn: in that footer row (default) or in the header (a state), plus the row
+     in the ... menu either way. -->
 <div class="fit-phone fit-dark vr-coach" id="s-ai-entry-client" data-status="proposal">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;">
       <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
       <div style="display:flex;gap:8px;">
-        <button style="width:32px;height:32px;border-radius:50%;background:var(--fit-surface-high);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--fit-text-primary);">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        <button id="ai-head-spark" style="display:none;width:32px;height:32px;border-radius:50%;background:var(--fit-surface-high);border:none;align-items:center;justify-content:center;cursor:pointer;color:var(--fit-teal-500);" aria-label="Ask the assistant" onclick="go('s-ai-context',null)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg>
         </button>
-        <button style="width:32px;height:32px;border-radius:50%;background:var(--fit-surface-high);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--fit-text-primary);" aria-label="Client options">
+        <button style="width:32px;height:32px;border-radius:50%;background:var(--fit-surface-high);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--fit-text-primary);" aria-label="Client options" onclick="aiMenu()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
         </button>
       </div>
     </div>
   </div>
-  <div class="fit-phone-content">
 
-<!-- Avatar + name + info (row layout like Coach Profile v2) -->
-    <div style="display:flex;align-items:center;gap:16px;padding:0 16px 12px;">
+  <div class="fit-phone-content">
+<div style="display:flex;align-items:center;gap:16px;padding:0 16px 12px;">
       <div style="width:72px;height:72px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:600;color:var(--fit-white);flex-shrink:0;">AK</div>
       <div style="flex:1;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
@@ -614,14 +618,8 @@
         </div>
       </div>
     </div>
-    <!-- Sport chips -->
-    <div style="display:flex;gap:6px;padding:0 16px 24px;">
-      <span class="fit-sport-chip" style="margin:0;"><svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>basketball</span>
-      <span class="fit-sport-chip" style="margin:0;"><svg class="i-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>fitness</span>
-    </div>
 
-    <!-- Groups this client is in — read from the group module, editable from here -->
-    <div class="cd-grp-row has-groups" id="cd-groups">
+<div class="cd-grp-row has-groups" id="cd-groups">
       <span class="cd-grp-label">Groups</span>
       <span class="cd-grp" data-a11y-id="coach.client.group" onclick="window.location.href='./client-groups.html#s-group-detail'">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg>
@@ -637,10 +635,7 @@
         <span>Add to group</span>
       </span>
     </div>
-
-    
-<!-- Stats card -->
-    <div style="display:flex;justify-content:space-around;padding:14px 16px;margin:0 16px 24px;border-radius:12px;background:var(--fit-surface-high);">
+<div style="display:flex;justify-content:space-around;padding:14px 16px;margin:0 16px 24px;border-radius:12px;background:var(--fit-surface-high);">
       <div style="text-align:center;">
         <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">12</div>
         <div style="font-size:12px;color:var(--fit-text-tertiary);">Sessions</div>
@@ -654,8 +649,15 @@
       <div style="text-align:center;">
         <div style="font-size:18px;font-weight:600;color:var(--fit-teal-500);" id="cd-stat-revenue">&euro;580</div>
         <div style="font-size:12px;color:var(--fit-text-tertiary);">Revenue</div>
+      </div>
+      <div style="width:1px;background:var(--fit-divider);"></div>
+      <div style="text-align:center;">
+        <div style="font-size:18px;font-weight:600;color:var(--fit-red-400);" id="cd-stat-owed">&euro;75</div>
+        <div style="font-size:12px;color:var(--fit-text-tertiary);">Owed</div>
+      </div>
+    </div>
 
-    <div class="fit-context-menu visible" style="top:56px;right:12px;">
+    <div class="fit-context-menu" id="ai-client-menu" style="top:56px;right:12px;">
       <div class="fit-context-menu-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v4M10 16h4"/></svg>
         Schedule training
@@ -664,7 +666,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg>
         Add to group
       </div>
-      <!-- THE PROPOSAL: one row, in the menu that is already there -->
+      <!-- the proposal: one row in a menu that already exists -->
       <div class="fit-context-menu-item" style="color:var(--fit-teal-500);" onclick="go('s-ai-context',null)">
         <svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--fit-teal-500);"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg>
         Ask the assistant
@@ -674,6 +676,18 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M3 12h18"/></svg>
         Archive client
       </div>
+    </div>
+  </div>
+
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
+    <div style="display:flex;gap:8px;">
+      <button style="width:50px;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" aria-label="Message">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </button>
+      <button id="ai-foot-spark" style="width:50px;height:50px;border:1.5px solid var(--fit-teal-500);border-radius:99px;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" aria-label="Ask the assistant" onclick="go('s-ai-context',null)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--fit-teal-500)"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg>
+      </button>
+      <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Schedule training</button>
     </div>
   </div>
 </div>
@@ -706,8 +720,13 @@
 
   <div class="ann" id="ann-s-ai-entry-client"><span class="ann-role coach">Coach</span><h3>Entering from a client card</h3>
     <p>The other kind of context: a <em>person</em> rather than an event &mdash; &ldquo;how is Anna doing?&rdquo;, &ldquo;when does her package run out?&rdquo;, &ldquo;draft a note about the session she missed&rdquo;.</p>
-    <p>The card here is <strong>the real one</strong> (<code>coach/clients.html#s-client-detail</code>), cloned with its header, identity, group pills and stats. The proposal is a single row in the <strong>&hellip;</strong> menu that is already on that screen &mdash; nothing else changes.</p>
-    <p>It goes in the menu rather than the header because the header already carries Message and &hellip;, and our rule caps it at two. That also keeps the assistant out of the way for coaches who never touch it.</p>
+    <p>The card is the shipped one: header carries <strong>&hellip;</strong> only, and the screen&rsquo;s one job sits in a footer &mdash; <em>Schedule training</em> &mdash; with a round message button beside it, the pattern from an athlete viewing a coach (<code>shared/profile.html</code>). Both are cloned, not redrawn.</p>
+    <p><strong>Proposed rule &mdash; the assistant sits with the object&rsquo;s actions:</strong></p>
+    <p>&bull; a sheet or drawer &rarr; a circle in the action row<br>
+       &bull; a screen with an action footer &rarr; an icon in that footer, beside message<br>
+       &bull; a screen without one (lists, settings) &rarr; the <strong>&hellip;</strong> menu</p>
+    <p>That is why the default here is the <strong>footer</strong>: one predictable place per surface, always next to what you can do with the thing you are looking at. The <em>sparkle in the header</em> state shows the alternative &mdash; it works, and it costs the CTA nothing (300px vs 242px), but the header is navigation plus overflow, so it starts competing with &hellip; the moment anything else needs to live there. The menu row stays in both, as the discoverable-once fallback.</p>
+    <p><strong>Not drawn on purpose:</strong> per-block sparkles (&ldquo;draft this note for me&rdquo; next to Notes). That is a different class &mdash; <em>do</em> rather than <em>ask</em> &mdash; and scattering sparkles turns them into wallpaper. Worth its own pass once the entry pattern is settled.</p>
   </div>
 </div>
 
@@ -765,6 +784,16 @@ function aiPlanned(on) {
   pill.textContent = on ? 'Planned' : 'Request';
   pill.style.background = on ? 'rgba(5,224,166,0.16)' : 'rgba(222,145,29,0.16)';
   pill.style.color = on ? 'var(--fit-teal-500)' : 'var(--fit-yellow-600)';
+}
+function aiMenu(on) {
+  var m = document.getElementById('ai-client-menu');
+  m.classList.toggle('visible', on === undefined ? !m.classList.contains('visible') : on);
+}
+// The alternative placement, side by side for comparison: sparkle in the header,
+// footer back to message + CTA.
+function aiHeaderEntry(on) {
+  document.getElementById('ai-head-spark').style.display = on ? 'flex' : 'none';
+  document.getElementById('ai-foot-spark').style.display = on ? 'none' : 'flex';
 }
 function aiAct() {
   var el = document.getElementById('ai-result');

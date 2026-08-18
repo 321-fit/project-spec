@@ -115,6 +115,10 @@ export const STATES = {
   "flows/shared/assistant-entry.html#s-request-drawer": [
     { id: "planned", label: "Planned event — 2 actions stay wide buttons", run: "aiPlanned(true)" },
   ],
+  "flows/shared/assistant-entry.html#s-ai-entry-client": [
+    { id: "header", label: "Alternative: sparkle in the header", run: "aiHeaderEntry(true)" },
+    { id: "menu", label: "The … row, present either way", run: "aiMenu(true)" },
+  ],
   "flows/shared/assistant-entry.html#s-ai-context": [
     { id: "acted", label: "The assistant finished the job", run: "aiAct()", wait: 400 },
   ],

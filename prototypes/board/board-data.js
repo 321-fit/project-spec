@@ -1514,7 +1514,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-chats",
-          "hash": "31ee181c8215",
+          "hash": "1e6d98d3e715",
           "title": "Chats (assistant pinned)",
           "inApp": "Chats",
           "status": "proposal",
@@ -1537,7 +1537,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-request-drawer",
-          "hash": "80efba771b30",
+          "hash": "cdb505d979da",
           "title": "Drawer · request (4 actions)",
           "inApp": "April 10",
           "status": "proposal",
@@ -1562,7 +1562,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-ai-context",
-          "hash": "6920603b69b9",
+          "hash": "9da386e264d6",
           "title": "Assistant acted",
           "inApp": "",
           "status": "proposal",
@@ -1587,8 +1587,8 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-ai-entry-client",
-          "hash": "201d8b6b81f5",
-          "title": "From a client card",
+          "hash": "31dade01e139",
+          "title": "Client card · sparkle in the header",
           "inApp": "",
           "status": "proposal",
           "theme": "dark",
@@ -1602,6 +1602,14 @@ window.FIT_BOARD = {
             {
               "file": "shared-assistant-entry__s-ai-entry-client.webp",
               "label": ""
+            },
+            {
+              "file": "shared-assistant-entry__s-ai-entry-client__header.webp",
+              "label": "Alternative: sparkle in the header"
+            },
+            {
+              "file": "shared-assistant-entry__s-ai-entry-client__menu.webp",
+              "label": "The … row, present either way"
             }
           ],
           "orphan": true,
