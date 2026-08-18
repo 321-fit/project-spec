@@ -124,40 +124,47 @@ this document exists.
 | `.fit-toggle` | boundary | 1.0 light / 1.5 dark | and you cannot see the track either |
 | `.fit-icon-btn` | boundary | 1.1 light / 1.5 dark | reads as an icon floating on the page rather than a button |
 
-## 3c. We tried Apple's palette. It measures worse than ours.
+## 3c. We fitted Apple's palette. One idea from it is worth taking.
 
-Rather than invent neutrals, the fitting room can now swap ours for the **iOS
-system colours** — `Palette: ours ⇄ iOS` in the bar. Only neutrals, surfaces,
-labels and separators are replaced; brand and semantic colours stay ours.
+The fitting room switches between ours and the **iOS system colours** —
+`Palette: ours ⇄ iOS` in the bar. It swaps surfaces, labels and separators **and**
+the accents (systemBlue / Red / Green / Orange / Teal), and flattens the gradient
+CTA, because iOS has no gradient buttons. Nothing goes near the tokens.
 
 | | dark | light |
 |---|---|---|
 | our palette | 18 below AA | 44 |
 | iOS system colours | **23** | **51** |
 
-**Why it comes out worse, and it is not a mistake in the mapping.** Apple's quiet
-labels are *alpha* values — `tertiaryLabel` and `placeholderText` are 30% ink,
-which lands around 2.5:1. Their surfaces are deliberately close to the page too:
-white card on `#F2F2F7` is the same 1.09:1 we were calling a defect, and
-`#1C1C1E` on black is 1.27:1.
+**Overall it measures worse, and that is not a mapping error.** Apple's quiet
+labels are *alpha* — `tertiaryLabel` and `placeholderText` are 30% ink, about
+2.5:1. Their surfaces are deliberately close to the page: a white card on
+`#F2F2F7` is the same 1.09:1 we were calling a defect, `#1C1C1E` on black is 1.27.
+Structure over there is carried by separators, grouped-list layout, SF's optical
+size and Dynamic Type — not by contrast. Importing the colours alone imports the
+weakness without the compensation. Their badge labels are no better than ours
+either: saturated accent text on a pale tint, 1.7 – 3.4 in light.
 
-So iOS does not solve the readability complaint — **it has the same numbers we
-do**. What carries structure over there is not contrast: it is separators,
-grouped-list layout, SF's larger optical size and Dynamic Type. Adopting the
-colours without the rest imports the weakness and none of the compensation.
+### The one thing the fitting proved 🟢
 
-**Two ideas worth stealing anyway:**
+| `.fit-btn-primary`, white label | measured |
+|---|---|
+| our brand **gradient** | **1.7** (at the green stop; 2.6 at the blue) |
+| the same button **flat** | **4.0** light · 3.6 dark |
 
-- **Alpha-based neutrals.** Apple defines quiet text as ink over whatever is
-  behind it, so the same token stays correct on a page, on a card and inside a
-  sheet. Our fixed greys are tuned for one surface and drift on the others —
-  which is why "the same tertiary" measures 3.7 on the page and 4.1 on a card.
-- **Grouped backgrounds** — page `#F2F2F7`, cards pure white. We already do this
-  in light; worth making it explicit rather than incidental.
+That has nothing to do with Apple — it is **flat versus gradient**. The gradient
+is what makes our loudest component our least readable one, and flattening it is
+worth more than every neutral in this document. It is also the one change that
+touches brand identity, so it is the owner's call, not a fix I can just land.
 
-**Conclusion:** keep our palette, fix the specific failures (§2, §4), and consider
-moving quiet text to alpha. A wholesale swap trades a known set of problems for
-Apple's, plus a redesign.
+**Verdict:** keep our palette. Take the flat CTA. Consider alpha-based quiet text
+(one token stays correct on a page, on a card and inside a sheet — ours are tuned
+for one surface and drift on the others). Fix badges and the ladder ourselves,
+because neither palette solves those.
+
+**Still not iOS, to be clear.** This is a colour fitting: the typeface is still
+Rubik rather than SF, and the radii, separators, grouped lists and Dynamic Type
+are ours. A real port is a redesign, not a palette.
 
 ## 4. Badge labels in light — the largest single win
 
