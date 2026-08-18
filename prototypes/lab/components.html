@@ -70,6 +70,38 @@
   .cx.ok   { color: #de911d; background: rgba(222,145,29,.14); }
   .cx.bad  { color: #f05c5b; background: rgba(240,92,91,.14); }
   body:not(.audit) .cx { display: none; }
+
+  /* ---------------------------------------------------------------------------
+     iOS system colours, mapped onto our own semantic variables. Only neutrals,
+     surfaces, labels and separators are replaced — brand and semantic colours
+     stay ours, otherwise it stops being our app. Nothing here goes near the
+     tokens: this is a fitting, not a decision.
+     --------------------------------------------------------------------------- */
+  body.ios .stage.fit-light {
+    --fit-screen-bg:        #F2F2F7;                  /* systemGroupedBackground */
+    --fit-surface:          #FFFFFF;                  /* secondarySystemGrouped */
+    --fit-surface-high:     #FFFFFF;
+    --fit-surface-higher:   #F2F2F7;                  /* tertiarySystemGrouped */
+    --fit-surface-low:      rgba(118,118,128,0.12);   /* tertiarySystemFill */
+    --fit-text-primary:     #000000;                  /* label */
+    --fit-text-secondary:   rgba(60,60,67,0.60);      /* secondaryLabel */
+    --fit-text-tertiary:    rgba(60,60,67,0.30);      /* tertiaryLabel */
+    --fit-text-placeholder: rgba(60,60,67,0.30);      /* placeholderText */
+    --fit-divider:          rgba(60,60,67,0.29);      /* separator */
+  }
+  body.ios .stage.fit-dark {
+    --fit-screen-bg:        #000000;
+    --fit-surface:          #1C1C1E;
+    --fit-surface-high:     #1C1C1E;
+    --fit-surface-higher:   #2C2C2E;
+    --fit-surface-low:      rgba(118,118,128,0.24);
+    --fit-text-primary:     #FFFFFF;
+    --fit-text-secondary:   rgba(235,235,245,0.60);
+    --fit-text-tertiary:    rgba(235,235,245,0.30);
+    --fit-text-placeholder: rgba(235,235,245,0.30);
+    --fit-divider:          rgba(84,84,88,0.65);
+  }
+  body.ios .pane-head::after { content: ' · iOS system colours'; color: #de911d; }
   body.audit .fail-mark { outline: 2px dashed #f05c5b; outline-offset: 2px; border-radius: 6px; }
 </style>
 </head>
@@ -81,6 +113,7 @@
   <h1>Component fitting room</h1>
   <span class="tally" id="tally"></span>
   <span class="sp"></span>
+  <button id="paletteBtn">Palette: ours</button>
   <button id="auditBtn">Contrast audit</button>
   <button id="onlyFail">Only failures</button>
 </div>
@@ -133,7 +166,7 @@ const SPECS = [
 },
 {
   cap: 'A · fill + 1px hairline (gray-500)',
-  note: 'Reaches 3.2:1 against the fill, so it passes non-text AA. Cost: in light our fields become outlined, which iOS does not do and Material does — the two themes stop being one component with different colours.',
+  note: 'The RESTING state, not focus. Reaches 3.2:1, so it passes non-text AA. But note the collision: focus already draws a 1px border today (#ACB1B6 light / #5B6269 dark), so if resting has a hairline too, focus has to differ by colour or weight — otherwise the field looks the same whether you are in it or not.',
   html: `<input class="fit-input" style="border:1px solid var(--fit-color-gray-500);" value="hairline">`,
 },
 {
@@ -143,8 +176,8 @@ const SPECS = [
 },
 {
   cap: 'C · darker fill, no edge',
-  note: 'Keeps fields borderless and unmistakably filled. Measures 1.4:1 against the page in light, so it fails the letter of the rule while reading better than today.',
-  html: `<input class="fit-input" style="background:var(--fit-color-gray-200);" value="one step darker">`,
+  note: 'Keeps fields borderless and unmistakably filled, using the theme-aware --fit-surface-higher. (It first used a raw ramp step, which stayed pale in dark — a token is theme-aware, a ramp step is not.)',
+  html: `<input class="fit-input" style="background:var(--fit-surface-higher);" value="one step darker">`,
 },
 {
   cap: 'D · label above, field flush (no edge needed)',
@@ -418,6 +451,15 @@ function audit() {
                 '</b> · light <b class="' + (fails.light ? '' : 'zero') + '">' + fails.light + '</b>';
   return fails;
 }
+// Palette fitting: swap the neutrals for Apple's and let the audit re-count.
+const paletteBtn = document.getElementById('paletteBtn');
+paletteBtn.onclick = () => {
+  const ios = document.body.classList.toggle('ios');
+  paletteBtn.classList.toggle('on', ios);
+  paletteBtn.textContent = 'Palette: ' + (ios ? 'iOS' : 'ours');
+  if (document.body.classList.contains('audit')) audit();
+};
+
 const auditBtn = document.getElementById('auditBtn');
 auditBtn.onclick = () => {
   const on = document.body.classList.toggle('audit');
