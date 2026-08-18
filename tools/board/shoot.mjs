@@ -117,6 +117,24 @@ for (const mod of discover()) {
 }
 
 await browser.close();
+
+// Sweep shots nothing points at any more — a screen deleted, renamed, or a
+// module dropped from the board. Without this the folder only ever grows, and
+// dead blobs are committed forever.
+let pruned = 0;
+if (!only.length) {
+  const wanted = new Set(board.modules.flatMap((m) => m.screens.flatMap((s) => s.shots.map((sh) => sh.file))));
+  for (const f of fs.readdirSync(shotsDir)) {
+    if (!f.endsWith(".webp") || wanted.has(f)) continue;
+    fs.unlinkSync(path.join(shotsDir, f));
+    pruned++;
+  }
+  const live = new Set(board.modules.flatMap((m) => m.screens.map((s) => m.file + "#" + s.id)));
+  for (const k of Object.keys(manifest)) if (!live.has(k)) delete manifest[k];
+  saveManifest();
+  if (pruned) console.log(`\n${pruned} orphaned shot${pruned === 1 ? "" : "s"} removed`);
+}
+
 const kb = fs.readdirSync(shotsDir)
   .filter((f) => f.endsWith(".webp"))
   .reduce((a, f) => a + fs.statSync(path.join(shotsDir, f)).size, 0) / 1024;
