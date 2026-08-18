@@ -118,9 +118,9 @@ const SPECS = [
 {
   cap: 'FIX B — display card + explicit affordance',
   note: 'When a note already exists the card is a *display*. Then it needs a chevron like every other pushable row, not a dashed ghost.',
-  html: `<div style="display:flex;gap:10px;align-items:flex-start;padding:14px;border-radius:12px;background:var(--fit-surface-high);cursor:pointer;">
+  html: `<div style="display:flex;gap:10px;align-items:center;padding:14px;border-radius:12px;background:var(--fit-surface-high);cursor:pointer;">
     <div style="flex:1;font-size:14px;line-height:1.5;color:var(--fit-text-primary);">Knee injury (left) — avoid high-impact jumping. Prefers morning sessions.</div>
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:2px;"><path d="M9 18l6-6-6-6"/></svg></div>`,
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg></div>`,
 },
 {
   cap: 'FIX C — empty state as an action row',
@@ -225,10 +225,11 @@ const SPECS = [
    <div class="fit-banner fit-banner--warn"><div class="fit-banner-body"><div class="fit-banner-title">Expires in 22h</div></div></div>
    <div style="height:8px;"></div>
    <div class="fit-banner fit-banner--error"><div class="fit-banner-body"><div class="fit-banner-title">Payment failed</div></div></div>` },
-{ cap: '.fit-toggle', html:
+{ cap: '.fit-toggle · off / on / disabled', note: 'The off and disabled states are boundary-only — no text to read, so text contrast says nothing about them. That is what the UI pass below measures.', html:
   `<div style="display:flex;align-items:center;gap:14px;">
     <span class="fit-toggle"></span><span class="fit-toggle on"></span>
-    <span style="font-size:14px;color:var(--fit-text-secondary);">off · on</span></div>` },
+    <span class="fit-toggle" style="opacity:.45;"></span>
+    <span style="font-size:14px;color:var(--fit-text-secondary);">off · on · disabled</span></div>` },
 ];
 
 // =============================================================================
@@ -282,11 +283,26 @@ function ratio(a, b) {
   const [l1, l2] = [lum(a), lum(b)].sort((x, y) => y - x);
   return (l1 + 0.05) / (l2 + 0.05);
 }
+// Gradient stops, so a gradient CTA is measured against its own fill instead of
+// the page behind it. Without this the primary button falsely passes on dark and
+// falsely fails on light — the loudest component in the app, reported wrong.
+function gradientStops(bgImage) {
+  if (!bgImage || bgImage === 'none') return null;
+  const stops = bgImage.match(/rgba?\([^)]+\)/g);
+  return stops && stops.length ? stops.map(parseRGB).filter(Boolean) : null;
+}
 // the first opaque background above this node, flattening anything translucent
-function bgOf(el) {
+function bgOf(el, fg) {
   const stack = [];
   for (let n = el; n && n !== document.documentElement; n = n.parentElement) {
-    const c = parseRGB(getComputedStyle(n).backgroundColor);
+    const cs = getComputedStyle(n);
+    const g = gradientStops(cs.backgroundImage);
+    if (g) {                                   // worst stop for this text colour
+      const worst = fg ? g.reduce((a, c) => ratio(fg, c) < ratio(fg, a) ? c : a) : g[0];
+      stack.push(worst);
+      break;
+    }
+    const c = parseRGB(cs.backgroundColor);
     if (!c || c.a === 0) continue;
     stack.push(c);
     if (c.a === 1) break;
@@ -300,6 +316,56 @@ function threshold(cs) {
   const px = parseFloat(cs.fontSize), w = parseInt(cs.fontWeight) || 400;
   return (px >= 24 || (px >= 18.66 && w >= 700)) ? 3 : 4.5;
 }
+// --- non-text contrast (WCAG 1.4.11) -----------------------------------------
+// Only two questions are worth asking, and only of controls:
+//   boundary — can you tell the control apart from the page behind it?
+//   state    — can you tell its two states apart from each other?
+// Badges and icon plates are labels, not controls: their legibility is the text
+// contrast already measured, so putting them here only produced noise.
+const UI_SEL = '.fit-toggle, .fit-input, .fit-input-ta, .fit-icon-btn';
+function fillOf(el, cs) {
+  if (cs.backgroundImage && cs.backgroundImage !== 'none') return null;   // a gradient is unmistakably a fill
+  const own = parseRGB(cs.backgroundColor);
+  const behind = bgOf(el.parentElement);
+  if (!own || own.a === 0) return behind;
+  return own.a < 1 ? over(own, behind) : own;
+}
+function flag(el, text) {
+  el.classList.add('fail-mark');
+  const b = document.createElement('span');
+  b.className = 'cx bad';
+  b.textContent = text;
+  el.appendChild(b);
+}
+function auditUI(stage) {
+  let fails = 0;
+  stage.querySelectorAll(UI_SEL).forEach(el => {
+    const cs = getComputedStyle(el);
+    if (cs.boxShadow && cs.boxShadow !== 'none') return;      // a shadow is the edge — how light draws cards
+    const fill = fillOf(el, cs);
+    if (!fill) return;
+    const behind = bgOf(el.parentElement);
+    const bw = parseFloat(cs.borderTopWidth) || 0;
+    const bc = parseRGB(cs.borderTopColor);
+    const edge = Math.max(
+      ratio(fill, behind),
+      bw > 0 && bc && bc.a > 0 ? ratio(bc.a < 1 ? over(bc, fill) : bc, fill) : 0
+    );
+    if (edge < 3) { fails++; flag(el, 'edge ' + edge.toFixed(1) + '/3'); }
+  });
+  // state pairs: off vs on has to be distinguishable, or the switch says nothing
+  for (const [a, b, name] of [['.fit-toggle:not(.on)', '.fit-toggle.on', 'toggle off/on'],
+                              ['.fit-chip:not(.selected)', '.fit-chip.selected', 'chip un/selected']]) {
+    const ea = stage.querySelector(a), eb = stage.querySelector(b);
+    if (!ea || !eb) continue;
+    const fa = fillOf(ea, getComputedStyle(ea)), fb = fillOf(eb, getComputedStyle(eb));
+    if (!fa || !fb) continue;
+    const r = ratio(fa, fb);
+    if (r < 3) { fails++; flag(eb, name + ' ' + r.toFixed(1) + '/3'); }
+  }
+  return fails;
+}
+
 function audit() {
   let fails = { dark: 0, light: 0 };
   for (const pane of ['dark', 'light']) {
@@ -312,7 +378,8 @@ function audit() {
       const cs = getComputedStyle(el);
       const fg = parseRGB(cs.color);
       if (!fg) return;
-      const r = ratio(fg.a < 1 ? over(fg, bgOf(el)) : fg, bgOf(el));
+      const bg = bgOf(el, fg);
+      const r = ratio(fg.a < 1 ? over(fg, bg) : fg, bg);
       const need = threshold(cs);
       const cls = r >= need ? 'good' : r >= need - 1.5 ? 'ok' : 'bad';
       if (cls !== 'good') { fails[pane]++; el.classList.add('fail-mark'); }
@@ -321,9 +388,10 @@ function audit() {
       b.textContent = r.toFixed(1) + (cls === 'good' ? '' : '/' + need);
       el.appendChild(b);
     });
+    fails[pane] += auditUI(stage);
   }
   const t = document.getElementById('tally');
-  t.innerHTML = 'below AA — dark <b class="' + (fails.dark ? '' : 'zero') + '">' + fails.dark +
+  t.innerHTML = 'below AA (text 4.5 · edges 3.0) — dark <b class="' + (fails.dark ? '' : 'zero') + '">' + fails.dark +
                 '</b> · light <b class="' + (fails.light ? '' : 'zero') + '">' + fails.light + '</b>';
   return fails;
 }
@@ -340,10 +408,7 @@ document.getElementById('onlyFail').onclick = function () {
     s.style.display = on && !s.querySelector('.cx.bad, .cx.ok') ? 'none' : '';
   });
 };
-// audit on load — the number is the point of the page
-document.body.classList.add('audit');
-auditBtn.classList.add('on');
-requestAnimationFrame(audit);
+// Off by default — turn it on when you are looking for it.
 </script>
 </body>
 </html>
