@@ -47,9 +47,12 @@ that no longer exists. Enable it once per clone with `git config core.hooksPath 
 bypass it for one commit with `git commit --no-verify`. If node or `node_modules` is missing
 the hook warns and lets the commit through rather than blocking you.
 
-**Screenshots still stay local** (`prototypes/board/shots/` is gitignored). That is fine while
-the board is a local tool; the moment it needs to be shareable — on Pages, or for anyone who
-just cloned — the shots have to be built in CI and published there, or committed.
+**The screenshots are committed**, unlike most build output. GitHub Pages for this repo is the
+legacy kind — it serves `main` at the root — so a shot that is not in the commit is a blank
+card on <https://321-fit.github.io/project-spec/prototypes/board.html>. The incremental build
+keeps that honest: only the screens that actually changed produce new blobs, so the history
+grows with the work rather than with every rebuild. ~40 KB per shot, so all 241 screens plus
+their states land around 15 MB.
 
 ## What you edit
 
@@ -81,9 +84,8 @@ Everything else — titles, levels, arrows, statuses, orphans — is derived.
 - **Rebuild after editing a prototype.** Nothing watches the files; a stale board is a board
   that lies. The pre-commit hook does it for you (see below); `npm run build` skips everything
   that did not change.
-- **Screenshots are not committed.** `prototypes/board/shots/` is gitignored;
-  regenerate locally (~40 KB per shot, seconds per module). Only the graph
-  (`board-data.js`) is committed.
+- **Commit the screenshots.** Pages serves `main` directly, so an unrendered or unstaged shot
+  is a blank card on the published board. The hook stages them for you.
 - **Never touch the phone's `position` when injecting capture CSS** — sheets,
   drawers and context menus are absolutely positioned inside it, and making it
   static throws them onto the page: the shot comes out double-exposed.
