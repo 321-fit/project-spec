@@ -101,65 +101,30 @@
     --fit-text-placeholder: rgba(235,235,245,0.30);
     --fit-divider:          rgba(84,84,88,0.65);
   }
-  /* Accents too, otherwise it is only a background swap and the buttons still
-     look like ours. iOS has no gradient CTAs, so primary goes flat systemBlue. */
-  body.ios .stage.fit-light {
-    --fit-brand-primary:  #007AFF;   /* systemBlue */
-    --fit-brand-gradient: #007AFF;
-    --fit-blue-500:       #007AFF;
-    --fit-teal-500:       #30B0C7;   /* systemTeal */
-    --fit-teal-600:       #30B0C7;
-    --fit-teal-400:       #30B0C7;
-    --fit-teal-300:       #30B0C7;
-    --fit-green-500:      #34C759;   /* systemGreen */
-    --fit-red-400:        #FF3B30;   /* systemRed */
-    --fit-yellow-600:     #FF9500;   /* systemOrange */
-    --fit-yellow-400:     #FF9500;
-    --fit-text-error:     #FF3B30;
-  }
-  body.ios .stage.fit-dark {
-    --fit-brand-primary:  #0A84FF;
-    --fit-brand-gradient: #0A84FF;
-    --fit-blue-500:       #0A84FF;
-    --fit-teal-500:       #40C8E0;
-    --fit-teal-600:       #40C8E0;
-    --fit-teal-400:       #40C8E0;
-    --fit-teal-300:       #40C8E0;
-    --fit-green-500:      #30D158;
-    --fit-red-400:        #FF453A;
-    --fit-yellow-600:     #FF9F0A;
-    --fit-yellow-400:     #FF9F0A;
-    --fit-text-error:     #FF453A;
-  }
-  /* the gradient is a literal in several component rules, so override the paint */
-  body.ios .stage .fit-btn-primary,
-  body.ios .stage [style*="fit-brand-gradient"] {
-    background: var(--fit-brand-primary) !important;
-    background-image: none !important;
-  }
+  /* Brand stays OURS — teal and green. The point of the fitting is Apple's
+     neutrals, type and shapes, not their identity. */
   /* --- and the rest of the system, so the comparison is honest ---------------
      Typeface: -apple-system resolves to SF on a Mac, which is the point — SF is
      optically larger and tighter than Rubik at the same px, and half of what
-     "looks like iOS" is the type, not the colour.
-     Shape: iOS uses continuous rounded rects around 10-12, and reserves the
-     capsule for a few prominent buttons — our everything-is-a-capsule is one of
-     the loudest differences.
-     Size: iOS body is 17px, ours is 16.                                       */
+     "looks like iOS" is the type, not the colour.                            */
   body.ios .stage {
     --fit-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
-    --fit-radius-sm: 8px;  --fit-radius-md: 10px;
-    --fit-radius-lg: 12px; --fit-radius-xl: 14px;
+    letter-spacing: -0.2px;
   }
-  body.ios .stage .fit-btn { border-radius: 12px; font-size: 17px; font-weight: 600; letter-spacing: -0.4px; }
+  /* iOS 26, not 17/18: the language went back TO capsules and big containers —
+     inline controls are pills, grouped lists sit in one large rounded card, nav
+     buttons are circles in a floating glass group. Our capsules were already
+     closer to this than the 10-12px rounded rects of the previous era. */
+  body.ios .stage .fit-btn { font-size: 17px; font-weight: 600; letter-spacing: -0.4px; }
   body.ios .stage .fit-input,
-  body.ios .stage .fit-input-ta { border-radius: 10px; font-size: 17px; letter-spacing: -0.4px; }
-  body.ios .stage .fit-chip { border-radius: 8px; font-size: 15px; }
-  body.ios .stage .fit-badge { border-radius: 6px; font-weight: 600; }
+  body.ios .stage .fit-input-ta { border-radius: 12px; font-size: 17px; letter-spacing: -0.4px; }
+  body.ios .stage .fit-chip,
+  body.ios .stage .fit-badge { border-radius: 999px; }
   body.ios .stage .fit-card,
-  body.ios .stage .fit-stat-strip { border-radius: 10px; }
-  body.ios .stage { letter-spacing: -0.2px; }
+  body.ios .stage .fit-stat-strip { border-radius: 20px; }
 
-  body.ios .pane-head::after { content: ' · iOS colours + SF + shapes'; color: #de911d; }
+
+  body.ios .pane-head::after { content: ' · iOS 26 neutrals + SF + shapes · our brand'; color: #de911d; }
   body.audit .fail-mark { outline: 2px dashed #f05c5b; outline-offset: 2px; border-radius: 6px; }
 </style>
 </head>
@@ -314,6 +279,19 @@ const SPECS = [
 { cap: '.fit-selection-chip / .fit-chip--sm / --lg', html:
   `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
     <span class="fit-chip fit-chip--sm">small</span><span class="fit-chip">default</span><span class="fit-chip fit-chip--lg">large</span></div>` },
+
+// ------------------------------------------------------- list grammar
+{ grp: 'List grammar — the real structural difference' },
+{
+  cap: 'ours · a row is its own surface',
+  note: 'Each row is a separate filled card with a gap. Reads well on dark; on light every card then needs its own edge or shadow, which is where our contrast trouble starts.',
+  html: `<div style="border-radius:12px;overflow:hidden;background:var(--fit-surface-high);margin-bottom:8px;"><div style="display:flex;align-items:center;gap:12px;padding:13px 14px;position:relative;"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div style="flex:1;"><div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Availability</div><div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:2px;">Mon&ndash;Fri &middot; 07:00&ndash;22:00</div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div></div><div style="border-radius:12px;overflow:hidden;background:var(--fit-surface-high);margin-bottom:8px;"><div style="display:flex;align-items:center;gap:12px;padding:13px 14px;position:relative;"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div style="flex:1;"><div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Locations</div><div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:2px;">TNT GYM &middot; +2</div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div></div><div style="border-radius:12px;overflow:hidden;background:var(--fit-surface-high);margin-bottom:8px;"><div style="display:flex;align-items:center;gap:12px;padding:13px 14px;position:relative;"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div style="flex:1;"><div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Calendar sync</div><div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:2px;">Google &middot; connected</div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div></div>`,
+},
+{
+  cap: 'iOS 26 · one card, hairline separators inset past the icon',
+  note: 'Rows share one large container and the separator starts after the leading element — that is what makes a long list read as a single object. Structure comes from the separators, not from an edge per row, which is why Apple can afford a card sitting 1.09:1 from the page.',
+  html: `<div style="border-radius:20px;overflow:hidden;background:var(--fit-surface-high);"><div style="display:flex;align-items:center;gap:12px;padding:13px 14px;position:relative;"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div style="flex:1;"><div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Availability</div><div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:2px;">Mon&ndash;Fri &middot; 07:00&ndash;22:00</div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div><div style="display:flex;align-items:center;gap:12px;padding:13px 14px;position:relative;"><span style="position:absolute;left:58px;right:0;top:0;height:1px;background:var(--fit-divider);"></span><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div style="flex:1;"><div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Locations</div><div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:2px;">TNT GYM &middot; +2</div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div><div style="display:flex;align-items:center;gap:12px;padding:13px 14px;position:relative;"><span style="position:absolute;left:58px;right:0;top:0;height:1px;background:var(--fit-divider);"></span><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div style="flex:1;"><div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Calendar sync</div><div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:2px;">Google &middot; connected</div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div></div>`,
+},
 
 // ---------------------------------------------------------------- rows
 { grp: 'Rows & surfaces' },

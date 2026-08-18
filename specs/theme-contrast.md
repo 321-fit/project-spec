@@ -162,23 +162,38 @@ touches brand identity, so it is the owner's call, not a fix I can just land.
 for one surface and drift on the others). Fix badges and the ladder ourselves,
 because neither palette solves those.
 
-### The full fitting — colours, SF and shapes
+### The full fitting — corrected to iOS 26, brand kept ours
 
-The switch now also takes the **typeface** (`-apple-system`, which is SF on a Mac —
-optically larger and tighter than Rubik at the same px, and half of what reads as
-"iOS" is the type, not the colour), **iOS radii** (10–12 continuous rounded rects
-instead of our capsule-everything) and **17px** control text instead of 16.
+Two corrections after review:
 
-The counts do not move: **ours 18 / 44, iOS 23 / 51.** Type and shape change how
-native it feels, not how legible it is. What the full fitting adds is the fair
-version of the comparison — iOS wins on *feel* and loses on *contrast*.
+**Brand stays ours.** Teal and green where they belong. The fitting is about
+Apple's neutrals, type and shapes — not their identity. What is worth copying is
+the *pattern*: Apple carries an accent **pair**, lighter for dark and darker for
+light. We use one teal in both, which is why brand-coloured labels pass in dark
+(`€580` reads fine) and fail in light at **1.7 – 2.5**. A second brand tone for
+light fixes a whole class of failures without touching the brand.
 
-**And it surfaced a second measurable finding.** Our brand colour used as text on a
-light surface measures **2.5**; systemBlue in the same place measures **4.0**.
-Apple does not use one accent — they carry a **pair**, a lighter one for dark and a
-darker one for light. We use the same teal on both, which is why brand-coloured
-labels fail in light and pass in dark. That is the pattern worth copying, not the
-hex.
+**The shapes were the wrong era.** The first pass fitted iOS 17/18 — 10–12px
+rounded rects. **iOS 26 went back to capsules**: inline controls are pills, nav
+buttons are circles inside a floating glass group, and grouped lists sit in one
+large rounded container. Measured after the correction: our buttons are 99px in
+both modes, i.e. **our capsules already match iOS 26** and needed no change at
+all. What actually differs is the container radius (20 vs our 12) and the list.
+
+### The structural difference is the list, not the radius
+
+| | ours | iOS 26 |
+|---|---|---|
+| a row | its own filled card, gap between rows | rows share **one** large container |
+| separation | the gap and each card's own edge | a **hairline inset past the leading icon** |
+| consequence | every card needs an edge or a shadow in light — where our contrast trouble starts | the container can sit 1.09:1 from the page, because structure comes from separators |
+
+Both are drawn in the fitting room under *List grammar*. This is the one place
+where copying Apple would change our numbers rather than our looks: it removes the
+per-row edge problem entirely instead of solving it colour by colour.
+
+**Counts with brand kept ours:** ours 18 / 50, iOS 29 / 57 (both up from earlier
+because the list specimens added more quiet subtitles to measure).
 
 **Still not iOS:** grouped-list layout with inset separators, Dynamic Type, and the
 platform's own material effects. A real port is a redesign; this is a fitting.
