@@ -7,6 +7,12 @@ if a transition is not in the HTML, it is not on the board.
 
 Open: `prototypes/board.html` (linked from the hub).
 
+Getting around: `\` toggles the left screen list (modules → screens grouped by tap depth,
+with the status dot, a `+N` states count and an orphan flag); clicking an item flies the
+camera to that screen and rings it. `/` focuses search — it dims both the list and the
+canvas, and `Enter` jumps to the first match. Scroll pans, ⌘/Ctrl+scroll zooms, a click on
+a card opens the live prototype at its anchor.
+
 ## Run
 
 ```bash
