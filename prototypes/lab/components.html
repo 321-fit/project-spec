@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>321Fit — Component fitting room (dark ⇄ light)</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../lib/fit-ui.css">
+<style>
+  /* =========================================================================
+     Component fitting room. One SPECS list, rendered into both themes, so the
+     two panes physically cannot drift apart.
+
+     Contrast is measured on the RENDERED elements (getComputedStyle, walking up
+     for the first opaque background) — not from a palette table. That is the
+     point: it audits what the components actually look like in each theme, and
+     the counter in the bar says how many fail AA right now.
+     ========================================================================= */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Rubik, -apple-system, sans-serif; background: #08080a; color: #ececf0; }
+
+  .bar {
+    position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 14px;
+    padding: 12px 20px; background: rgba(8,8,10,.9); backdrop-filter: blur(12px);
+    border-bottom: 1px solid #26262b;
+  }
+  .bar h1 { font-size: 15px; font-weight: 600; }
+  .bar .sp { flex: 1; }
+  .bar a, .bar button {
+    font: inherit; font-size: 12px; padding: 6px 11px; border-radius: 8px;
+    border: 1px solid #2b2b32; background: transparent; color: #8a8a94;
+    cursor: pointer; text-decoration: none;
+  }
+  .bar button.on, .bar a:hover, .bar button:hover { color: #ececf0; border-color: #46464f; }
+  .tally { font-size: 12px; color: #8a8a94; }
+  .tally b { color: #f05c5b; }
+  .tally b.zero { color: #05e0a6; }
+
+  .jump { display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 20px 0; }
+  .jump a { font-size: 11.5px; color: #8a8a94; text-decoration: none; border: 1px solid #26262b; border-radius: 99px; padding: 4px 10px; }
+  .jump a:hover { color: #ececf0; }
+
+  .panes { display: flex; gap: 22px; padding: 16px 20px 80px; align-items: flex-start; }
+  .pane { flex: 1; min-width: 0; max-width: 430px; border-radius: 18px; overflow: hidden; border: 1px solid #26262b; }
+  .pane-head {
+    padding: 10px 16px; font-size: 12px; font-weight: 600; letter-spacing: .5px;
+    text-transform: uppercase; color: #8a8a94; background: #101013; border-bottom: 1px solid #26262b;
+  }
+  /* each pane is a real themed surface — same screen background the app uses */
+  .stage { padding: 4px 0 22px; background: var(--fit-screen-bg); }
+
+  .grp-title {
+    padding: 22px 16px 4px; font-size: 15px; font-weight: 600; color: var(--fit-text-primary);
+  }
+  .spec { padding: 10px 0 4px; }
+  .spec-cap {
+    padding: 0 16px 6px; font-size: 10.5px; line-height: 1.45; color: var(--fit-text-tertiary);
+    font-family: ui-monospace, monospace;
+  }
+  .spec-note { padding: 4px 16px 0; font-size: 11.5px; line-height: 1.5; color: var(--fit-text-tertiary); }
+  .spec-body { padding: 0 16px; }
+  .spec-body.flush { padding: 0; }
+
+  /* contrast badges, injected by the audit */
+  .cx {
+    display: inline-flex; align-items: center; gap: 4px; margin-left: 6px;
+    font-family: ui-monospace, monospace; font-size: 9.5px; font-weight: 600;
+    padding: 1px 5px; border-radius: 4px; vertical-align: middle;
+  }
+  .cx.good { color: #05e0a6; background: rgba(5,224,166,.12); }
+  .cx.ok   { color: #de911d; background: rgba(222,145,29,.14); }
+  .cx.bad  { color: #f05c5b; background: rgba(240,92,91,.14); }
+  body:not(.audit) .cx { display: none; }
+  body.audit .fail-mark { outline: 2px dashed #f05c5b; outline-offset: 2px; border-radius: 6px; }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <a href="../index.html">← Hub</a>
+  <h1>Component fitting room</h1>
+  <span class="tally" id="tally"></span>
+  <span class="sp"></span>
+  <button id="auditBtn">Contrast audit</button>
+  <button id="onlyFail">Only failures</button>
+</div>
+<div class="jump" id="jump"></div>
+
+<div class="panes">
+  <div class="pane"><div class="pane-head">dark — coach default</div><div class="stage fit-dark" id="dark"></div></div>
+  <div class="pane"><div class="pane-head">light — athlete default</div><div class="stage fit-light" id="light"></div></div>
+</div>
+
+<script src="../lib/fit-ui.js"></script>
+<script>
+// =============================================================================
+// SPECS — the single source. `cap` names the real class so a fix has an address.
+// =============================================================================
+const SPECS = [
+
+// ---------------------------------------------------------------- the problem
+{ grp: 'Editable vs disabled — the reported problem' },
+{
+  cap: 'cd-notes-card · coach/clients.html · TODAY',
+  note: 'Reported as “looks disabled, not tappable”. Transparent fill + 1px divider + tertiary text is exactly our disabled language — and it is not even an editor, it pushes to one.',
+  html: `<div style="padding:14px;border-radius:12px;background:transparent;border:1px solid var(--fit-divider);font-size:14px;line-height:1.5;color:var(--fit-text-tertiary);display:flex;align-items:center;gap:8px;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>Add notes</div>`,
+},
+{
+  cap: '.fit-btn.fit-btn-disabled — for comparison',
+  note: 'Same recipe. If a tappable field and a dead button share a look, the field reads dead.',
+  html: `<button class="fit-btn fit-btn-disabled">Disabled button</button>`,
+},
+{
+  cap: 'FIX A — .fit-input-ta (exists, unused here)',
+  note: 'A filled surface says “type in me”. Cheapest fix: the notes field is an input, so use the input.',
+  html: `<textarea class="fit-input-ta" rows="3" placeholder="Injuries, preferences, payment habits…"></textarea>`,
+},
+{
+  cap: 'FIX B — display card + explicit affordance',
+  note: 'When a note already exists the card is a *display*. Then it needs a chevron like every other pushable row, not a dashed ghost.',
+  html: `<div style="display:flex;gap:10px;align-items:flex-start;padding:14px;border-radius:12px;background:var(--fit-surface-high);cursor:pointer;">
+    <div style="flex:1;font-size:14px;line-height:1.5;color:var(--fit-text-primary);">Knee injury (left) — avoid high-impact jumping. Prefers morning sessions.</div>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:2px;"><path d="M9 18l6-6-6-6"/></svg></div>`,
+},
+{
+  cap: 'FIX C — empty state as an action row',
+  note: 'Nothing to display yet, so it is an action: brand label, filled surface. Reads as a button because it is one.',
+  html: `<button style="width:100%;display:flex;align-items:center;gap:9px;padding:14px;border-radius:12px;border:none;background:var(--fit-surface-high);color:var(--fit-brand-primary);font-family:var(--fit-font);font-size:15px;font-weight:500;cursor:pointer;text-align:left;">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add notes</button>`,
+},
+
+// ---------------------------------------------------------------- inputs
+{ grp: 'Inputs' },
+{ cap: '.fit-input-group + .fit-input-label + .fit-input', html:
+  `<div class="fit-input-group" style="padding:0;"><div class="fit-input-label">Full name</div><input class="fit-input" value="Anna Kowalski"></div>` },
+{ cap: '.fit-input · placeholder (empty)', html:
+  `<input class="fit-input" placeholder="you@example.com">` },
+{ cap: '.fit-input.fit-input-error + .fit-input-error-text', html:
+  `<input class="fit-input fit-input-error" value="anna@"><div class="fit-input-error-text">Enter a valid email</div>` },
+{ cap: '.fit-input-ta + .fit-input-counter', html:
+  `<textarea class="fit-input-ta" rows="3">Ex-national team. Coaching 8 years.</textarea><div class="fit-input-counter">120 / 400</div>` },
+{ cap: '.fit-input-counter.at-limit', html: `<div class="fit-input-counter at-limit">400 / 400</div>` },
+
+// ---------------------------------------------------------------- text ladder
+{ grp: 'Text ladder — on the screen background' },
+{ cap: '--fit-text-primary / secondary / tertiary / placeholder', html:
+  `<div style="font-size:16px;color:var(--fit-text-primary);">Primary — titles, values, answers</div>
+   <div style="font-size:14px;color:var(--fit-text-secondary);margin-top:6px;">Secondary — supporting lines</div>
+   <div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:6px;">Tertiary — captions, metadata</div>
+   <div style="font-size:14px;color:var(--fit-text-placeholder);margin-top:6px;">Placeholder — not yet filled in</div>` },
+{ cap: 'the same ladder on --fit-surface-high', html:
+  `<div style="padding:14px;border-radius:12px;background:var(--fit-surface-high);">
+    <div style="font-size:16px;color:var(--fit-text-primary);">Primary on a raised surface</div>
+    <div style="font-size:14px;color:var(--fit-text-secondary);margin-top:5px;">Secondary on a raised surface</div>
+    <div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:5px;">Tertiary on a raised surface</div></div>` },
+
+// ---------------------------------------------------------------- buttons
+{ grp: 'Buttons' },
+{ cap: '.fit-btn-primary / secondary', html:
+  `<button class="fit-btn fit-btn-primary">Schedule training</button>
+   <div style="height:8px;"></div><button class="fit-btn fit-btn-secondary">Secondary</button>` },
+{ cap: '.fit-btn-destructive + --high / --low / --minimal (4-tier severity)', html:
+  `<button class="fit-btn fit-btn-destructive">Destructive</button>
+   <div style="height:8px;"></div><button class="fit-btn fit-btn-destructive--low">Destructive · low</button>
+   <div style="height:8px;"></div><button class="fit-btn fit-btn-destructive--minimal">Destructive · minimal</button>` },
+{ cap: '.fit-icon-btn · .fit-icon-plate--brand/success/warning/error', html:
+  `<div style="display:flex;align-items:center;gap:10px;">
+    <button class="fit-icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+    <span class="fit-icon-plate fit-icon-plate--brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span>
+    <span class="fit-icon-plate fit-icon-plate--success"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></span>
+    <span class="fit-icon-plate fit-icon-plate--warning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v5M12 17h.01"/></svg></span>
+    <span class="fit-icon-plate fit-icon-plate--error"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></span>
+   </div>` },
+
+// ---------------------------------------------------------------- badges
+{ grp: 'Badges & pills' },
+{ cap: '.fit-badge-success / warning / danger / info / accent / neutral', html:
+  `<div style="display:flex;flex-wrap:wrap;gap:6px;">
+    <span class="fit-badge fit-badge-success">Planned</span>
+    <span class="fit-badge fit-badge-warning">Request</span>
+    <span class="fit-badge fit-badge-danger">€50 owed</span>
+    <span class="fit-badge fit-badge-info">Coach-confirmed</span>
+    <span class="fit-badge fit-badge-accent">New</span>
+    <span class="fit-badge fit-badge-neutral">Archived</span></div>` },
+{ cap: '.fit-badge-personal / group / cash / pending / joined / full / special', html:
+  `<div style="display:flex;flex-wrap:wrap;gap:6px;">
+    <span class="fit-badge fit-badge-personal">Personal</span>
+    <span class="fit-badge fit-badge-group">Group</span>
+    <span class="fit-badge fit-badge-cash">Cash</span>
+    <span class="fit-badge fit-badge-pending">Pending</span>
+    <span class="fit-badge fit-badge-joined">Joined</span>
+    <span class="fit-badge fit-badge-full">Full</span>
+    <span class="fit-badge fit-badge-special">Special</span></div>` },
+
+// ---------------------------------------------------------------- chips
+{ grp: 'Chips' },
+{ cap: '.fit-chip · .selected only (never a third state)', html:
+  `<div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <span class="fit-chip">Tennis</span><span class="fit-chip selected">Padel</span><span class="fit-chip">Boxing</span></div>` },
+{ cap: '.fit-selection-chip / .fit-chip--sm / --lg', html:
+  `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+    <span class="fit-chip fit-chip--sm">small</span><span class="fit-chip">default</span><span class="fit-chip fit-chip--lg">large</span></div>` },
+
+// ---------------------------------------------------------------- rows
+{ grp: 'Rows & surfaces' },
+{ cap: 'pushable row on --fit-surface-high + chevron', html:
+  `<div style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;background:var(--fit-surface-high);">
+    <span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span>
+    <div style="flex:1;"><div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Availability</div>
+    <div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:2px;">Mon–Fri · 07:00–22:00</div></div>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>` },
+{ cap: '.fit-card (light = soft shadow, dark = clean)', html:
+  `<div class="fit-card"><div class="fit-card-title">Session price</div>
+   <div style="font-size:14px;color:var(--fit-text-secondary);margin-top:4px;">€25.00 per person</div></div>` },
+{ cap: '.fit-stat-strip', html:
+  `<div class="fit-stat-strip">
+    <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">12</div><div class="fit-stat-strip-label">Sessions</div></div>
+    <div class="fit-stat-strip-divider"></div>
+    <div class="fit-stat-strip-col"><div class="fit-stat-strip-value fit-stat-strip-value--accent">€580</div><div class="fit-stat-strip-label">Revenue</div></div>
+    <div class="fit-stat-strip-divider"></div>
+    <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">€75</div><div class="fit-stat-strip-label">Owed</div></div></div>` },
+{ cap: '.fit-banner--info / --warn / --error', html:
+  `<div class="fit-banner fit-banner--info"><div class="fit-banner-body"><div class="fit-banner-title">Coach confirmed for you</div></div></div>
+   <div style="height:8px;"></div>
+   <div class="fit-banner fit-banner--warn"><div class="fit-banner-body"><div class="fit-banner-title">Expires in 22h</div></div></div>
+   <div style="height:8px;"></div>
+   <div class="fit-banner fit-banner--error"><div class="fit-banner-body"><div class="fit-banner-title">Payment failed</div></div></div>` },
+{ cap: '.fit-toggle', html:
+  `<div style="display:flex;align-items:center;gap:14px;">
+    <span class="fit-toggle"></span><span class="fit-toggle on"></span>
+    <span style="font-size:14px;color:var(--fit-text-secondary);">off · on</span></div>` },
+];
+
+// =============================================================================
+// render — identical markup into both themed stages
+// =============================================================================
+const jump = document.getElementById('jump');
+for (const pane of ['dark', 'light']) {
+  const stage = document.getElementById(pane);
+  for (const s of SPECS) {
+    if (s.grp) {
+      const t = document.createElement('div');
+      t.className = 'grp-title';
+      t.id = pane + '-' + s.grp.replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+      t.textContent = s.grp;
+      stage.appendChild(t);
+      if (pane === 'dark') {
+        const a = document.createElement('a');
+        a.href = '#' + t.id;
+        a.textContent = s.grp.split(' — ')[0];
+        jump.appendChild(a);
+      }
+      continue;
+    }
+    const wrap = document.createElement('div');
+    wrap.className = 'spec';
+    wrap.innerHTML =
+      '<div class="spec-cap">' + s.cap + '</div>' +
+      '<div class="spec-body">' + s.html + '</div>' +
+      (s.note ? '<div class="spec-note">' + s.note + '</div>' : '');
+    stage.appendChild(wrap);
+  }
+}
+
+// =============================================================================
+// contrast audit — measured on the rendered result, per theme
+// =============================================================================
+function parseRGB(str) {
+  const m = str.match(/[\d.]+/g);
+  if (!m) return null;
+  const a = m.length > 3 ? parseFloat(m[3]) : 1;
+  return { r: +m[0], g: +m[1], b: +m[2], a };
+}
+function over(fg, bg) {                       // flatten a translucent colour
+  return { r: fg.r * fg.a + bg.r * (1 - fg.a), g: fg.g * fg.a + bg.g * (1 - fg.a), b: fg.b * fg.a + bg.b * (1 - fg.a), a: 1 };
+}
+function lum(c) {
+  const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b);
+}
+function ratio(a, b) {
+  const [l1, l2] = [lum(a), lum(b)].sort((x, y) => y - x);
+  return (l1 + 0.05) / (l2 + 0.05);
+}
+// the first opaque background above this node, flattening anything translucent
+function bgOf(el) {
+  const stack = [];
+  for (let n = el; n && n !== document.documentElement; n = n.parentElement) {
+    const c = parseRGB(getComputedStyle(n).backgroundColor);
+    if (!c || c.a === 0) continue;
+    stack.push(c);
+    if (c.a === 1) break;
+  }
+  let out = stack.pop() || { r: 8, g: 8, b: 10, a: 1 };
+  while (stack.length) out = over(stack.pop(), out);
+  return out;
+}
+// AA: 4.5 for body text, 3.0 once it is large or bold
+function threshold(cs) {
+  const px = parseFloat(cs.fontSize), w = parseInt(cs.fontWeight) || 400;
+  return (px >= 24 || (px >= 18.66 && w >= 700)) ? 3 : 4.5;
+}
+function audit() {
+  let fails = { dark: 0, light: 0 };
+  for (const pane of ['dark', 'light']) {
+    const stage = document.getElementById(pane);
+    stage.querySelectorAll('.cx').forEach(x => x.remove());
+    stage.querySelectorAll('.fail-mark').forEach(x => x.classList.remove('fail-mark'));
+    stage.querySelectorAll('.spec-body *').forEach(el => {
+      const own = [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim());
+      if (!own) return;
+      const cs = getComputedStyle(el);
+      const fg = parseRGB(cs.color);
+      if (!fg) return;
+      const r = ratio(fg.a < 1 ? over(fg, bgOf(el)) : fg, bgOf(el));
+      const need = threshold(cs);
+      const cls = r >= need ? 'good' : r >= need - 1.5 ? 'ok' : 'bad';
+      if (cls !== 'good') { fails[pane]++; el.classList.add('fail-mark'); }
+      const b = document.createElement('span');
+      b.className = 'cx ' + cls;
+      b.textContent = r.toFixed(1) + (cls === 'good' ? '' : '/' + need);
+      el.appendChild(b);
+    });
+  }
+  const t = document.getElementById('tally');
+  t.innerHTML = 'below AA — dark <b class="' + (fails.dark ? '' : 'zero') + '">' + fails.dark +
+                '</b> · light <b class="' + (fails.light ? '' : 'zero') + '">' + fails.light + '</b>';
+  return fails;
+}
+const auditBtn = document.getElementById('auditBtn');
+auditBtn.onclick = () => {
+  const on = document.body.classList.toggle('audit');
+  auditBtn.classList.toggle('on', on);
+  if (on) audit(); else document.getElementById('tally').textContent = '';
+};
+document.getElementById('onlyFail').onclick = function () {
+  const on = document.body.classList.toggle('only-fail');
+  this.classList.toggle('on', on);
+  document.querySelectorAll('.spec').forEach(s => {
+    s.style.display = on && !s.querySelector('.cx.bad, .cx.ok') ? 'none' : '';
+  });
+};
+// audit on load — the number is the point of the page
+document.body.classList.add('audit');
+auditBtn.classList.add('on');
+requestAnimationFrame(audit);
+</script>
+</body>
+</html>

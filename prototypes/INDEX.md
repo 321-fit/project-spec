@@ -83,6 +83,11 @@ End-to-end annotated walkthroughs, not screens to clone. Each step links a **liv
 
 ### Lab (`lab/`)
 Token experiments, not product screens — never clone these for a feature.
+- `components.html` — **component fitting room.** One specimen list rendered into a dark and a light
+  pane side by side, so the two cannot drift. A **live contrast audit** measures the *rendered*
+  colours (walking up for the first opaque background) and badges anything under WCAG AA, with a
+  count in the bar and an "only failures" filter. Opens with the audit on: that number is the page.
+  First section is the reported "input looks disabled" problem with three candidate fixes.
 - `light-theme.html` — **light-theme fitting room.** Live screens (`athlete/my-coaches.html#s-coach-detail`
   and `athlete/calendar.html#s-schedule`) cloned into one column per candidate light palette, with synced
   scroll, per-column WCAG readouts and an accent-colour toggle. Two sets: *all palettes* (current + 5
