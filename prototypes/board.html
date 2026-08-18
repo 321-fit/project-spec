@@ -102,11 +102,23 @@
   .rail-sep { width: 18px; height: 1px; background: var(--line); margin: 2px 0; }
 
   .nav-role {
-    font-size: 9.5px; letter-spacing: .6px; text-transform: uppercase;
-    color: #55555f; padding: 14px 10px 6px; display: flex; gap: 6px;
+    width: 100%; font: inherit; font-size: 9.5px; letter-spacing: .6px;
+    text-transform: uppercase; color: #6d6d79; background: transparent;
+    border: none; cursor: pointer; text-align: left;
+    padding: 15px 8px 6px; display: flex; align-items: center; gap: 6px;
   }
-  .nav-role:first-child { padding-top: 4px; }
-  .nav-role .n { color: #3d3d46; }
+  .nav-role:hover { color: var(--txt); }
+  .nav-role .n { margin-left: auto; color: #3d3d46; }
+  .nav-tools {
+    display: flex; gap: 6px; padding: 2px 2px 8px;
+    border-bottom: 1px solid var(--line); margin-bottom: 4px;
+  }
+  .nav-tools button {
+    flex: 1; font: inherit; font-size: 10.5px; cursor: pointer;
+    padding: 5px 8px; border-radius: 7px; border: 1px solid var(--line);
+    background: transparent; color: var(--dim);
+  }
+  .nav-tools button:hover { color: var(--txt); border-color: #46464f; }
   .nav-mod { margin-bottom: 2px; }
   .nav-mod-head {
     width: 100%; display: flex; align-items: center; gap: 7px; text-align: left;
@@ -114,17 +126,21 @@
     color: var(--txt); padding: 7px 8px; border-radius: 8px;
   }
   .nav-mod-head:hover { background: #1a1a1f; }
-  .nav-mod-head b { font-size: 13px; font-weight: 600; display: block; }
-  .nav-mod-head span { font-size: 10.5px; color: var(--dim); }
-  .nav-mod-head .txt { flex: 1; min-width: 0; }
+  .nav-mod-head b {
+    font-size: 12.5px; font-weight: 500; flex: 1; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .nav-mod-head .n { font-size: 10px; color: #55555f; flex-shrink: 0; }
+  .nav-mod-head { padding: 5px 8px; }
   .chev {
     flex-shrink: 0; color: #6d6d79; transition: transform .16s ease;
   }
-  .collapsed > .nav-mod-head .chev { transform: rotate(-90deg); }
-  .nav-mod-body { overflow: hidden; }
-  .collapsed > .nav-mod-body { display: none; }
-  /* a match must never hide inside a folded module */
-  body.searching .collapsed > .nav-mod-body { display: block; }
+  .collapsed > .nav-mod-head .chev, .collapsed > .nav-role .chev { transform: rotate(-90deg); }
+  .nav-mod-body, .nav-sec-body { overflow: hidden; }
+  .collapsed > .nav-mod-body, .collapsed > .nav-sec-body { display: none; }
+  /* a match must never hide inside a folded branch */
+  body.searching .collapsed > .nav-mod-body,
+  body.searching .collapsed > .nav-sec-body { display: block; }
   .aim {
     flex-shrink: 0; width: 22px; height: 22px; border-radius: 6px; border: none;
     background: transparent; color: #55555f; cursor: pointer;
@@ -504,7 +520,7 @@ for (const mod of data.modules) {
 // --- place the lanes: a column per role, stacked in flow order ---------------
 // One 73 000px ribbon was unreadable; side by side you can see coach and athlete
 // answer the same question differently.
-const ROLE_GAP = 200;
+const ROLE_GAP = 560;
 const roles = [...new Set(data.modules.map(m => m.role))];
 const roleW = new Map(roles.map(r =>
   [r, Math.max(...built.filter(b => b.mod.role === r).map(b => b.laneW))]));
@@ -550,9 +566,11 @@ const railList = document.getElementById('railList');
 const CHEV = '<svg class="chev" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
 
 // which branches are folded — remembered between sessions
+// v2: the pilot covered one module, so its saved folds would leave all 37 open.
+const FOLD_KEY = 'fitBoardFolded.v2';
 let folded = new Set();
-try { folded = new Set(JSON.parse(localStorage.getItem('fitBoardFolded') || '[]')); } catch (e) {}
-const saveFolded = () => { try { localStorage.setItem('fitBoardFolded', JSON.stringify([...folded])); } catch (e) {} };
+try { folded = new Set(JSON.parse(localStorage.getItem(FOLD_KEY) || '[]')); } catch (e) {}
+const saveFolded = () => { try { localStorage.setItem(FOLD_KEY, JSON.stringify([...folded])); } catch (e) {} };
 function fold(el, key) {
   const on = el.classList.toggle('collapsed');
   on ? folded.add(key) : folded.delete(key);
@@ -561,18 +579,34 @@ function fold(el, key) {
 
 // With 39 modules the panel needs its own structure: sections by role, and
 // every module folded on first visit — you open the one you came for.
-const storedFolds = (() => { try { return !!localStorage.getItem('fitBoardFolded'); } catch (e) { return false; } })();
+const storedFolds = (() => { try { return !!localStorage.getItem(FOLD_KEY); } catch (e) { return false; } })();
 const foldByDefault = !storedFolds && data.modules.length > 8;
-let lastRole = null;
+let lastRole = null, roleBody = navList;
+
+const tools = document.createElement('div');
+tools.className = 'nav-tools';
+tools.innerHTML = '<button id="foldAll">Collapse all</button><button id="openAll">Expand all</button>';
+navList.appendChild(tools);
 
 data.modules.forEach((mod, mi) => {
   if (mod.role !== lastRole) {
     lastRole = mod.role;
-    const rh = document.createElement('div');
-    rh.className = 'nav-role';
     const n = data.modules.filter(m => m.role === mod.role).length;
-    rh.innerHTML = mod.role + '<span class="n">' + n + ' modules</span>';
-    navList.appendChild(rh);
+    const sec = document.createElement('div');
+    sec.className = 'nav-sec';
+    const roleKey = 'r:' + mod.role;
+    if (folded.has(roleKey)) sec.classList.add('collapsed');
+    const rh = document.createElement('button');
+    rh.className = 'nav-role';
+    rh.innerHTML = CHEV + mod.role + '<span class="n">' + n + '</span>';
+    rh.onclick = () => fold(sec, roleKey);
+    sec.appendChild(rh);
+    const rb = document.createElement('div');
+    rb.className = 'nav-sec-body';
+    sec.appendChild(rb);
+    navList.appendChild(sec);
+    roleBody = rb;
+
     const rr = document.createElement('div');
     rr.className = 'rail-role';
     rr.textContent = mod.role.slice(0, 2);
@@ -580,14 +614,15 @@ data.modules.forEach((mod, mi) => {
   }
   const block = document.createElement('div');
   block.className = 'nav-mod';
+  block.dataset.file = mod.file;
   const modKey = 'm:' + mod.file;
   if (folded.has(modKey) || foldByDefault) block.classList.add('collapsed');
 
   const head = document.createElement('button');
   head.className = 'nav-mod-head';
-  head.innerHTML = CHEV +
-    '<span class="txt"><b>' + mod.label + '</b><span>' + mod.role + ' · ' + mod.screens.length +
-    ' screens · ' + mod.screens.reduce((a, s) => a + s.shots.length, 0) + ' shots</span></span>';
+  const shots = mod.screens.reduce((a, s) => a + s.shots.length, 0);
+  head.innerHTML = CHEV + '<b>' + mod.label + '</b><span class="n">' + mod.screens.length + '</span>';
+  head.title = mod.file + ' — ' + mod.screens.length + ' screens, ' + shots + ' shots';
   head.onclick = () => fold(block, modKey);
 
   // crosshair = fit this lane, so the header click stays a pure fold
@@ -623,7 +658,7 @@ data.modules.forEach((mod, mi) => {
     item.onclick = () => focusScreen(key(mod, s.id));
     body.appendChild(item);
   }
-  navList.appendChild(block);
+  roleBody.appendChild(block);
 
   // rail chip: initials of the module label
   const chip = document.createElement('button');
@@ -638,6 +673,19 @@ data.modules.forEach((mod, mi) => {
   chip.onclick = () => { setNav('full'); setTimeout(() => focusLane(mi), 210); };
   railList.appendChild(chip);
 });
+
+document.getElementById('foldAll').onclick = () => setAllFolds(true);
+document.getElementById('openAll').onclick = () => setAllFolds(false);
+function setAllFolds(on) {
+  document.querySelectorAll('.nav-mod, .nav-sec').forEach(el => {
+    el.classList.toggle('collapsed', on);
+    const k = el.classList.contains('nav-sec')
+      ? 'r:' + el.querySelector('.nav-role').textContent.replace(/\d+$/, '').trim()
+      : 'm:' + el.dataset.file;
+    on ? folded.add(k) : folded.delete(k);
+  });
+  saveFolded();
+}
 
 function viewSize() {
   return { w: innerWidth - (document.body.classList.contains('nav-rail') ? RAIL_W : NAV_W), h: innerHeight - 52 };
