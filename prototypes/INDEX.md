@@ -9,6 +9,11 @@
 > Page-local CSS is only for genuinely novel visuals (and must use a `fit-*` / `pf-*` prefix that
 > isn't already a global — see `feedback_design_token_namespace`).
 
+> **Looking for a screen, not a class?** Open `prototypes/board.html` — a Figma-like canvas of
+> every covered screen as a real screenshot, wired by the `go(...)` transitions parsed out of the
+> files, with `data-status` (shipped / canon / proposal / legacy) as the dot colour. Pilot coverage:
+> `coach/client-groups.html`. Regenerate: `cd tools/board && npm run build` (see its README).
+
 ---
 
 ## 1. Screen catalog

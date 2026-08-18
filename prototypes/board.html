@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>321Fit — Prototype board</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --lane: #131316;
+    --line: #2b2b32;
+    --txt: #ececf0;
+    --dim: #8a8a94;
+    --teal: #05e0a6;
+    --blue: #03b2e2;
+    --amber: #de911d;
+    --red: #f05c5b;
+    --card-w: 200px;
+    --img-h: 433px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Rubik, -apple-system, sans-serif;
+    background: var(--bg); color: var(--txt);
+    height: 100vh; overflow: hidden;
+  }
+
+  /* ---------- top bar ---------- */
+  .bar {
+    position: fixed; inset: 0 0 auto 0; z-index: 20; height: 52px;
+    display: flex; align-items: center; gap: 14px; padding: 0 16px;
+    background: rgba(10,10,10,0.86); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar h1 { font-size: 14px; font-weight: 600; white-space: nowrap; }
+  .bar .meta { font-size: 11px; color: var(--dim); white-space: nowrap; }
+  .bar .spacer { flex: 1; }
+  .home {
+    display: flex; align-items: center; gap: 6px; font: inherit; font-size: 12px;
+    padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line);
+    background: transparent; color: var(--dim); cursor: pointer; text-decoration: none;
+  }
+  .home:hover { color: var(--txt); border-color: #3a3a42; }
+  #q {
+    width: 220px; font: inherit; font-size: 12px; color: var(--txt);
+    padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line);
+    background: #17171a; outline: none;
+  }
+  #q:focus { border-color: #3a3a42; }
+  .chips { display: flex; gap: 6px; }
+  .chip {
+    font: inherit; font-size: 11px; font-weight: 500; cursor: pointer;
+    padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line);
+    background: transparent; color: var(--dim);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .chip.on { color: var(--txt); border-color: #46464f; background: #1d1d21; }
+  .chip .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .zoom { display: flex; align-items: center; gap: 2px; }
+  .zoom button {
+    width: 28px; height: 28px; font: inherit; font-size: 14px; cursor: pointer;
+    border: 1px solid var(--line); background: transparent; color: var(--dim);
+  }
+  .zoom button:first-child { border-radius: 8px 0 0 8px; }
+  .zoom button:last-child { border-radius: 0 8px 8px 0; }
+  .zoom button:hover { color: var(--txt); }
+  .zoom .pct { font-size: 11px; color: var(--dim); width: 40px; text-align: center; }
+
+  /* ---------- canvas ---------- */
+  #viewport {
+    position: absolute; inset: 52px 0 0 0; overflow: hidden;
+    cursor: grab; background:
+      radial-gradient(circle at 1px 1px, #1a1a1e 1px, transparent 0) 0 0/28px 28px;
+  }
+  #viewport.dragging { cursor: grabbing; }
+  #canvas { position: absolute; transform-origin: 0 0; }
+
+  .lane { position: absolute; }
+  .lane-head {
+    position: absolute; top: -46px; left: 0;
+    display: flex; align-items: baseline; gap: 10px; white-space: nowrap;
+  }
+  .lane-head b { font-size: 17px; font-weight: 600; }
+  .lane-head span { font-size: 12px; color: var(--dim); }
+  .lane-box {
+    position: absolute; inset: -24px -28px -28px -28px;
+    border: 1px solid var(--line); border-radius: 20px; background: var(--lane);
+  }
+  .level-tag {
+    position: absolute; top: -22px; font-size: 11px; letter-spacing: 0.6px;
+    text-transform: uppercase; color: #6d6d79;
+  }
+
+  svg.wires { position: absolute; inset: 0; overflow: visible; pointer-events: none; }
+  .wire { fill: none; stroke: #3d3d46; stroke-width: 1.5px; }
+  .wire.back { stroke: #2b2b33; stroke-dasharray: 4 5; }
+  .wire.hot { stroke: var(--teal); stroke-width: 2px; }
+  .arrow { fill: #3d3d46; }
+  .arrow.hot { fill: var(--teal); }
+
+  /* ---------- cards ---------- */
+  .cell { position: absolute; display: flex; gap: 14px; align-items: flex-start; }
+  .card {
+    position: relative; width: var(--card-w); flex: 0 0 var(--card-w);
+    border-radius: 12px; overflow: hidden; background: #17171a;
+    border: 1px solid var(--line); cursor: pointer;
+    transition: border-color .12s, transform .12s;
+  }
+  .card:hover { border-color: #55555f; transform: translateY(-2px); }
+  .card.faded { opacity: 0.12; pointer-events: none; }
+  .card img { display: block; width: 100%; height: var(--img-h); object-fit: cover; object-position: top; }
+  .cap { padding: 8px 10px 9px; border-top: 1px solid var(--line); }
+  .cap .t { font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+  .cap .t .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .cap .s { font-size: 10px; color: var(--dim); margin-top: 2px; font-family: ui-monospace, monospace; }
+  .card.state .cap .t { color: var(--dim); font-weight: 400; }
+  .card.state img { opacity: 0.92; }
+  .badge {
+    position: absolute; top: 8px; left: 8px; font-size: 9px; font-weight: 600;
+    letter-spacing: 0.4px; text-transform: uppercase; padding: 3px 7px;
+    border-radius: 5px; background: rgba(0,0,0,0.72); backdrop-filter: blur(4px);
+  }
+  .ext { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+  .ext a {
+    font-size: 9.5px; color: var(--dim); text-decoration: none;
+    border: 1px solid var(--line); border-radius: 5px; padding: 2px 5px;
+    white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis;
+  }
+  .ext a:hover { color: var(--blue); border-color: #2f4a55; }
+
+  .note {
+    position: fixed; z-index: 30; max-width: 300px; display: none;
+    padding: 10px 12px; border-radius: 10px; background: #1d1d21;
+    border: 1px solid #33333b; box-shadow: 0 14px 40px rgba(0,0,0,0.6);
+    font-size: 12px; line-height: 1.45; color: #c9c9d2;
+  }
+  .note b { display: block; color: var(--txt); font-size: 12px; margin-bottom: 4px; }
+
+  .hint {
+    position: fixed; bottom: 14px; left: 16px; z-index: 20;
+    font-size: 11px; color: #55555f;
+  }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <a class="home" href="./index.html">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Hub
+  </a>
+  <h1>Prototype board</h1>
+  <span class="meta" id="meta"></span>
+  <input id="q" placeholder="Search screens…" autocomplete="off">
+  <div class="chips" id="statusChips"></div>
+  <button class="chip" id="backToggle">Back arrows</button>
+  <div class="spacer"></div>
+  <div class="zoom">
+    <button onclick="zoomBy(-1)">−</button>
+    <span class="pct" id="pct">100%</span>
+    <button onclick="zoomBy(1)">+</button>
+    <button onclick="fitAll()" style="width:auto;padding:0 9px;font-size:11px;">Fit</button>
+  </div>
+</div>
+
+<div id="viewport"><div id="canvas"></div></div>
+<div class="note" id="note"></div>
+<div class="hint">Scroll to pan · ⌘/Ctrl + scroll to zoom · drag the canvas · click a screen to open the live prototype</div>
+
+<script src="./board/board-data.js"></script>
+<script>
+// ---------------------------------------------------------------------------
+// Layout constants. Positions are computed from the graph — nothing is authored.
+// ---------------------------------------------------------------------------
+const CARD_W = 200, IMG_H = 433, CAP_H = 46, CARD_GAP = 14;
+const COL_GAP = 150, ROW_GAP = 48, LANE_GAP = 140;
+
+const STATUS = {
+  shipped:  { c: '#05e0a6', label: 'shipped'  },
+  canon:    { c: '#03b2e2', label: 'canon'    },
+  proposal: { c: '#de911d', label: 'proposal' },
+  legacy:   { c: '#6b6b76', label: 'legacy'   },
+  unmarked: { c: '#f05c5b', label: 'unmarked' },
+};
+
+const data = window.FIT_BOARD;
+const canvas = document.getElementById('canvas');
+const viewport = document.getElementById('viewport');
+const noteEl = document.getElementById('note');
+let showBack = false;
+const offStatus = new Set();
+
+document.getElementById('meta').textContent =
+  data.modules.length + ' module' + (data.modules.length > 1 ? 's' : '') + ' · ' +
+  data.modules.reduce((a, m) => a + m.screens.length, 0) + ' screens · generated ' + data.generated;
+
+// ---------- status filter chips ----------
+const chipWrap = document.getElementById('statusChips');
+const present = [...new Set(data.modules.flatMap(m => m.screens.map(s => s.status)))];
+for (const st of present) {
+  const b = document.createElement('button');
+  b.className = 'chip on';
+  b.innerHTML = '<span class="dot" style="background:' + (STATUS[st] || STATUS.unmarked).c + '"></span>' + st;
+  b.onclick = () => {
+    offStatus.has(st) ? offStatus.delete(st) : offStatus.add(st);
+    b.classList.toggle('on', !offStatus.has(st));
+    applyFilter();
+  };
+  chipWrap.appendChild(b);
+}
+document.getElementById('backToggle').onclick = function () {
+  showBack = !showBack;
+  this.classList.toggle('on', showBack);
+  document.querySelectorAll('.wire.back, .arrow.back').forEach(w => w.style.display = showBack ? '' : 'none');
+};
+
+// ---------- build the lanes ----------
+// A cell = one screen: the screen itself plus its states, laid out left→right.
+// Columns are BFS levels ("how many taps in"), rows are siblings at that level.
+// Two passes: build → measure → place, so a card with link chips can be taller
+// than one without and nothing overlaps.
+let laneY = 0, CONTENT_W = 0;
+for (const mod of data.modules) {
+  const lane = document.createElement('div');
+  lane.className = 'lane';
+  lane.style.top = laneY + 'px';
+  lane.style.left = '0px';
+
+  const box = document.createElement('div');
+  box.className = 'lane-box';
+  lane.appendChild(box);
+
+  const head = document.createElement('div');
+  head.className = 'lane-head';
+  head.innerHTML = '<b>' + mod.label + '</b><span>' + mod.role + ' · ' + mod.file + ' · ' +
+    mod.screens.length + ' screens · ' + mod.screens.reduce((a, s) => a + s.shots.length, 0) + ' shots</span>';
+  lane.appendChild(head);
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'wires');
+  lane.appendChild(svg);
+
+  // --- pass 1: build the cells ---
+  const cells = new Map();
+  for (const s of mod.screens) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.style.width = (s.shots.length * CARD_W + (s.shots.length - 1) * CARD_GAP) + 'px';
+
+    s.shots.forEach((shot, i) => {
+      const st = STATUS[s.status] || STATUS.unmarked;
+      const card = document.createElement('div');
+      card.className = 'card' + (i ? ' state' : '');
+      card.dataset.id = s.id;
+      card.dataset.search = (s.title + ' ' + s.id + ' ' + (shot.label || '') + ' ' + (s.note || '')).toLowerCase();
+      card.dataset.status = s.status;
+      card.innerHTML =
+        '<img loading="lazy" src="./board/shots/' + shot.file + '" alt="">' +
+        (i === 0
+          ? (s.entry ? '<span class="badge" style="color:' + st.c + '">entry</span>' : '') +
+            (s.orphan ? '<span class="badge" style="color:var(--red);left:auto;right:8px" title="Nothing inside this module links here — it is entered from another file, or nothing reaches it at all.">no entry</span>' : '')
+          : '<span class="badge" style="color:var(--dim)">state</span>') +
+        '<div class="cap">' +
+          '<div class="t"><span class="dot" style="background:' + st.c + '"></span>' +
+            (i === 0 ? s.title : shot.label) + '</div>' +
+          '<div class="s">' + (i === 0 ? '#' + s.id : s.status) + '</div>' +
+          (i === 0 && s.external.length
+            ? '<div class="ext">' + s.external.map(h =>
+                '<a href="' + resolve(mod.file, h) + '" target="_blank" onclick="event.stopPropagation()">⇢ ' +
+                h.replace(/^\.\.?\//, '').replace(/\?[^#]*/, '') + '</a>').join('') + '</div>'
+            : '') +
+        '</div>';
+      card.onclick = () => window.open('./' + mod.file + '#' + s.id, '_blank');
+      card.onmouseenter = (ev) => { hot(s.id, true); if (s.note) showNote(ev, s); };
+      card.onmouseleave = () => { hot(s.id, false); noteEl.style.display = 'none'; };
+      cell.appendChild(card);
+    });
+
+    lane.appendChild(cell);
+    cells.set(s.id, cell);
+  }
+  canvas.appendChild(lane);
+
+  // --- pass 2: measure, then place ---
+  const maxLevel = Math.max(...mod.screens.map(s => s.level));
+  const colW = [];
+  for (let l = 0; l <= maxLevel; l++) {
+    colW[l] = Math.max(...mod.screens.filter(s => s.level === l)
+      .map(s => cells.get(s.id).offsetWidth), CARD_W);
+  }
+  const colX = [];
+  colW.reduce((x, w, l) => (colX[l] = x, x + w + COL_GAP), 0);
+
+  const colTop = new Map();
+  const pos = new Map();
+  for (const s of [...mod.screens].sort((a, b) => a.level - b.level || a.order - b.order)) {
+    const cell = cells.get(s.id);
+    const y = colTop.get(s.level) || 0;
+    cell.style.left = colX[s.level] + 'px';
+    cell.style.top = y + 'px';
+    pos.set(s.id, { x: colX[s.level], y, w: cell.offsetWidth });
+    colTop.set(s.level, y + cell.offsetHeight + ROW_GAP);
+  }
+
+  const laneW = colX[maxLevel] + colW[maxLevel];
+  const laneH = Math.max(...colTop.values()) - ROW_GAP;
+  lane.style.width = laneW + 'px';
+  lane.style.height = laneH + 'px';
+  svg.setAttribute('width', laneW); svg.setAttribute('height', laneH);
+  CONTENT_W = Math.max(CONTENT_W, laneW);
+
+  for (let l = 0; l <= maxLevel; l++) {
+    const t = document.createElement('div');
+    t.className = 'level-tag';
+    t.style.left = colX[l] + 'px';
+    t.textContent = l === 0 ? 'entry' : 'tap ' + l;
+    lane.appendChild(t);
+  }
+
+  // --- wires, now that every cell has a position ---
+  for (const e of mod.edges) {
+    const a = pos.get(e.from), b = pos.get(e.to);
+    if (!a || !b) continue;
+    const x1 = a.x + a.w, y1 = a.y + IMG_H / 2;
+    const x2 = b.x, y2 = b.y + IMG_H / 2;
+    const dx = Math.max(60, (x2 - x1) * 0.5);
+    const back = e.back;
+    // a back edge leaves the left side and loops around to the target's right
+    const d = back
+      ? `M ${a.x} ${y1} C ${a.x - 80} ${y1}, ${b.x + b.w + 80} ${y2}, ${b.x + b.w} ${y2}`
+      : `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', d);
+    p.setAttribute('class', 'wire' + (back ? ' back' : ''));
+    p.dataset.from = e.from; p.dataset.to = e.to;
+    if (back) p.style.display = 'none';
+    svg.appendChild(p);
+
+    const tip = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    const hx = back ? b.x + b.w : x2;
+    tip.setAttribute('points', back
+      ? `${hx},${y2} ${hx + 8},${y2 - 5} ${hx + 8},${y2 + 5}`
+      : `${hx},${y2} ${hx - 8},${y2 - 5} ${hx - 8},${y2 + 5}`);
+    tip.setAttribute('class', 'arrow' + (back ? ' back' : ''));
+    tip.dataset.from = e.from; tip.dataset.to = e.to;
+    if (back) tip.style.display = 'none';
+    svg.appendChild(tip);
+  }
+
+  laneY += laneH + LANE_GAP;
+}
+const CONTENT_H = laneY - LANE_GAP;
+canvas.style.width = CONTENT_W + 'px';
+canvas.style.height = CONTENT_H + 'px';
+
+function resolve(modFile, href) {
+  const dir = modFile.slice(0, modFile.lastIndexOf('/') + 1);
+  return new URL(dir + href, location.href).pathname.split('/').slice(-3).join('/').replace(/^/, './');
+}
+
+function hot(id, on) {
+  document.querySelectorAll('.wire, .arrow').forEach(w => {
+    if (w.dataset.from === id || w.dataset.to === id) w.classList.toggle('hot', on);
+  });
+}
+
+function showNote(ev, s) {
+  noteEl.innerHTML = '<b>' + s.title + '</b>' + s.note;
+  noteEl.style.display = 'block';
+  const x = Math.min(ev.clientX + 16, innerWidth - 320);
+  noteEl.style.left = x + 'px';
+  noteEl.style.top = Math.min(ev.clientY + 16, innerHeight - 160) + 'px';
+}
+
+// ---------- filter ----------
+const qEl = document.getElementById('q');
+qEl.oninput = applyFilter;
+function applyFilter() {
+  const q = qEl.value.trim().toLowerCase();
+  document.querySelectorAll('.card').forEach(c => {
+    const hit = (!q || c.dataset.search.includes(q)) && !offStatus.has(c.dataset.status);
+    c.classList.toggle('faded', !hit);
+  });
+}
+
+// ---------- pan & zoom ----------
+let z = 1, tx = 40, ty = 90;
+function apply() {
+  canvas.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + z + ')';
+  document.getElementById('pct').textContent = Math.round(z * 100) + '%';
+}
+function zoomAt(factor, cx, cy) {
+  const nz = Math.min(2, Math.max(0.06, z * factor));
+  tx = cx - (cx - tx) * (nz / z);
+  ty = cy - (cy - ty) * (nz / z);
+  z = nz; apply();
+}
+function zoomBy(dir) { zoomAt(dir > 0 ? 1.2 : 1 / 1.2, innerWidth / 2, innerHeight / 2); }
+function fitAll() {
+  z = Math.min(1, (innerWidth - 140) / CONTENT_W, (innerHeight - 200) / CONTENT_H);
+  tx = (innerWidth - CONTENT_W * z) / 2;
+  ty = 100;
+  apply();
+}
+// Opening view: fit the width and let the flow run down — a board is meant to be
+// panned, and fitting the height makes every screen unreadable.
+function fitWidth() {
+  z = Math.min(1, (innerWidth - 120) / CONTENT_W);
+  tx = 60; ty = 100; apply();
+}
+viewport.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  if (e.ctrlKey || e.metaKey) zoomAt(e.deltaY < 0 ? 1.12 : 1 / 1.12, e.clientX, e.clientY - 52);
+  else { tx -= e.deltaX; ty -= e.deltaY; apply(); }
+}, { passive: false });
+
+let drag = null;
+viewport.addEventListener('pointerdown', (e) => {
+  if (e.target.closest('.card')) return;
+  drag = { x: e.clientX - tx, y: e.clientY - ty };
+  viewport.classList.add('dragging');
+  viewport.setPointerCapture(e.pointerId);
+});
+viewport.addEventListener('pointermove', (e) => {
+  if (!drag) return;
+  tx = e.clientX - drag.x; ty = e.clientY - drag.y; apply();
+});
+viewport.addEventListener('pointerup', () => { drag = null; viewport.classList.remove('dragging'); });
+
+addEventListener('keydown', (e) => {
+  if (e.key === '/' && document.activeElement !== qEl) { e.preventDefault(); qEl.focus(); }
+  if (e.key === 'Escape') { qEl.value = ''; applyFilter(); qEl.blur(); }
+});
+
+apply();
+setTimeout(fitWidth, 60);
+</script>
+</body>
+</html>
