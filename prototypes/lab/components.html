@@ -83,6 +83,41 @@
   body.ios .lg-t { font: 400 var(--ios-body) var(--fit-font); letter-spacing: var(--ios-body-tr); }
   body.ios .lg-s { font: 400 var(--ios-subhead) var(--fit-font); letter-spacing: var(--ios-subhead-tr); color: var(--fit-text-secondary); }
 
+  /* The same two grammars again, but pinned — the specimen above follows the
+     palette switch, and you cannot compare two things by flipping between them. */
+  .lg-stack--container { gap: 0; border-radius: 20px; overflow: hidden; background: var(--fit-surface-high); }
+  .lg-stack--container .lg-row { border-radius: 0; background: transparent; }
+  .lg-stack--container .lg-row + .lg-row::before {
+    content: ''; position: absolute; left: 58px; right: 0; top: 0;
+    height: 1px; background: var(--fit-divider);
+  }
+
+  /* Third grammar: the list IS the screen. No container, so nothing has to
+     separate itself from the page — the hairline is the only edge here. The
+     negative margin is how it escapes the specimen's padding; on a real screen
+     it simply runs to the phone's edge. */
+  .lg-bleed { margin: 0 -16px; }
+  .lg-bleed .lg-row { border-radius: 0; background: transparent; padding: 11px 16px; }
+  .lg-bleed .lg-row + .lg-row::before,
+  .lg-bleed .lg-sec + .lg-row::before { content: none; }
+  .lg-bleed .lg-row::after {
+    content: ''; position: absolute; left: 62px; right: 0; bottom: 0;
+    height: 1px; background: var(--fit-divider);
+  }
+  .lg-bleed .lg-row:last-child::after { content: none; }
+  .lg-sec {
+    position: sticky; top: 0; z-index: 1;
+    padding: 6px 16px; font-size: 13px; font-weight: 600;
+    color: var(--fit-text-secondary); background: var(--fit-screen-bg);
+    border-bottom: 1px solid var(--fit-divider);   /* opaque, or rows scroll through it */
+  }
+  .lg-search {
+    display: flex; align-items: center; gap: 8px; margin: 0 16px 8px;
+    padding: 9px 12px; border-radius: 10px; background: var(--fit-surface-high);
+    font-size: 15px; color: var(--fit-text-placeholder);
+  }
+  .lg-search svg { width: 16px; height: 16px; flex-shrink: 0; }
+
   /* --- proposed corrections, toggled ---------------------------------------
      The light tints were moved to the darker accent step long ago (the light-tint
      rule), but the INK on them was left at the bright 400/500. Yellow on pale
@@ -179,7 +214,7 @@
   body.fixes .stage:not(.fit-light) .fit-badge-pending { color: #FFD98A; }
   body.fixes .stage:not(.fit-light) .fit-badge-joined,
   body.fixes .stage:not(.fit-light) .fit-badge-success { color: #8CE8A6; }
-  body.fixes .stage:not(.fit-light) { --fit-text-placeholder: #8A939C; }
+  body.fixes .stage:not(.fit-light) { --fit-text-placeholder: #939CA5; }
   body.fixes .stage.fit-light { --fit-text-placeholder: #666E76; }
 
   /* contrast badges, injected by the audit */
@@ -449,6 +484,22 @@ const SPECS = [
   cap: 'switch the palette to reshape this',
   note: 'Ours: every row is its own filled card with a gap — so on light each card needs an edge or a shadow of its own, which is where the contrast trouble starts. iOS 26: the rows share one container and a hairline inset past the leading icon does the separating, which is why a container sitting 1.09:1 from the page is fine over there. Same markup, same content — only the grammar changes.',
   html: `<div class="lg-stack"><div class="lg-row"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div class="lg-body"><div class="lg-t">Availability</div><div class="lg-s">Mon&ndash;Fri &middot; 07:00&ndash;22:00</div></div><svg class="lg-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div><div class="lg-row"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div class="lg-body"><div class="lg-t">Locations</div><div class="lg-s">TNT GYM &middot; +2</div></div><svg class="lg-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div><div class="lg-row"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div class="lg-body"><div class="lg-t">Calendar sync</div><div class="lg-s">Google &middot; connected</div></div><svg class="lg-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div></div>`,
+},
+
+{
+  cap: 'A — cards (ours today)',
+  note: 'Every row separates itself from the page. In light that is white on #F2F2F7 = 1.09, once per row, which is why each one ends up needing a shadow or an edge of its own. Right for rows that are objects: different heights, statuses, swipe, an overflow menu.',
+  html: `<div class="lg-stack"><div class="lg-row"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div class="lg-body"><div class="lg-t">Availability</div><div class="lg-s">Mon&ndash;Fri &middot; 07:00&ndash;22:00</div></div><svg class="lg-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div><div class="lg-row"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div class="lg-body"><div class="lg-t">Locations</div><div class="lg-s">TNT GYM &middot; +2</div></div><svg class="lg-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div><div class="lg-row"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div class="lg-body"><div class="lg-t">Calendar sync</div><div class="lg-s">Google &middot; connected</div></div><svg class="lg-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div></div>`,
+},
+{
+  cap: 'B — inset container (iOS 26 grammar)',
+  note: 'The rows share one fill and a hairline inset past the icon separates them. The block separates from the page ONCE, so the same 1.09 is no longer a problem — structure comes from the 44pt row, the title and the chevron. Right for a fixed handful of identical menu rows: Settings, Availability, Locations, Account Access.',
+  html: `<div class="lg-stack lg-stack--container"><div class="lg-row"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div class="lg-body"><div class="lg-t">Availability</div><div class="lg-s">Mon&ndash;Fri &middot; 07:00&ndash;22:00</div></div><svg class="lg-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div><div class="lg-row"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div class="lg-body"><div class="lg-t">Locations</div><div class="lg-s">TNT GYM &middot; +2</div></div><svg class="lg-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div><div class="lg-row"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div class="lg-body"><div class="lg-t">Calendar sync</div><div class="lg-s">Google &middot; connected</div></div><svg class="lg-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div></div>`,
+},
+{
+  cap: 'C — full bleed (chats, contacts, pickers)',
+  note: 'The list IS the screen, so nothing separates from anything: zero contrast cost, the hairline is the only edge. Search and sticky section headers belong to this grammar and to no other. Right when there are hundreds of identical records from the backend — Inbox, CRM import, athlete and group-invite pickers, country / timezone / language, the 33 sports. The rule across all three: as many as there are is which grammar you get.',
+  html: `<div class="lg-bleed"><div class="lg-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5" stroke-linecap="round"/></svg>Search</div><div class="lg-sec">A</div><div class="lg-row"><span class="fit-avatar fit-avatar-sm">AK</span><div class="lg-body"><div class="lg-t">Anna Kowalski</div><div class="lg-s">Tennis &middot; 12 sessions</div></div></div><div class="lg-row"><span class="fit-avatar fit-avatar-sm">AP</span><div class="lg-body"><div class="lg-t">Andrei Petrov</div><div class="lg-s">Padel &middot; 3 sessions</div></div></div><div class="lg-sec">B</div><div class="lg-row"><span class="fit-avatar fit-avatar-sm">BN</span><div class="lg-body"><div class="lg-t">Bartek Nowak</div><div class="lg-s">Boxing &middot; 1 session</div></div></div><div class="lg-row"><span class="fit-avatar fit-avatar-sm">BW</span><div class="lg-body"><div class="lg-t">Beata Wójcik</div><div class="lg-s">Tennis &middot; 8 sessions</div></div></div></div>`,
 },
 
 // ---------------------------------------------------------------- rows

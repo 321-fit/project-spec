@@ -1,14 +1,29 @@
 # Theme contrast — what changed, and what it changed to
 
-> Status: In Progress
+> Status: **Work in progress — nothing below is decided**
 > Fitting room (look at it): [prototypes/lab/components.html](https://321-fit.github.io/project-spec/prototypes/lab/components.html)
 > Tokens: `design-tokens/tokens/` → generated into `prototypes/lib/fit-ui-tokens.css`
-> Last updated: 2026-08-18
+> Last updated: 2026-08-19
 
 Two artefacts, on purpose: this document is what you **read**, the fitting room is
 what you **look at**. Every number here was measured in the fitting room's audit on
 the rendered components, so the two cannot disagree — if you change a token, reopen
 the room and the number moves.
+
+**Read this as a shortlist, not a decision.** The corrections in §3–§4 exist in the
+room behind the `Fixes: off ⇄ on` switch so the gain can be *measured* instead of
+argued, and §6's grammars are drawn side by side for the same reason. Nothing has
+been landed in `fit-ui.css` or in `design-tokens`, and no task exists for any of it.
+The point of the switch is that the owner can flip it and disagree.
+
+**With every proposal below turned on, measured:**
+
+| | dark | light |
+|---|---|---|
+| today | 17 below AA | 47 |
+| with the proposals | **1** | **2** |
+
+Both remainders are deliberate (§5).
 
 ## How to read a row
 
@@ -110,6 +125,16 @@ the fitting room under *Input edge — pick one*, measured:
 how one component quietly becomes two. D is worth adopting anyway — a labelled
 field is clearer regardless — but it does not make the field visible on its own.
 
+### 🟡 …and the fill was the bigger half of it (2026-08-19)
+
+The edge was never the whole story. In light the field was filled **darker than the
+card it sits on** — the one editable thing on the screen was the one recessed below
+everything else. That is the same signal `.fit-btn-disabled` uses, which is why the
+original report said "looks disabled" and why an outline alone did not fix it.
+
+**Fill white, then draw the edge.** A white field on the `#F2F2F7` canvas restores
+the affordance; A's hairline then makes it visible. Neither works alone.
+
 ---
 
 ## 3b. The other component shapes — two places each
@@ -123,6 +148,26 @@ this document exists.
 | `.fit-toggle` | off vs on | **1.6** light (need 3.0) | the switch does not say whether it is on |
 | `.fit-toggle` | boundary | 1.0 light / 1.5 dark | and you cannot see the track either |
 | `.fit-icon-btn` | boundary | 1.1 light / 1.5 dark | reads as an icon floating on the page rather than a button |
+
+### It is one decision, not three (2026-08-19)
+
+`.fit-input`, `.fit-icon-btn` and `.fit-toggle` are the same defect wearing three
+costumes: a near-white face on a near-white page, so there is no edge at all. Dark
+has it too — 1.2 – 1.5 — where nobody noticed because a dark face on a dark page
+merely *looks* intentional.
+
+One hairline token closes all three in both themes:
+
+```css
+.fit-light { --fit-control-edge: #71757B; }   /* darker than the control */
+.fit-dark  { --fit-control-edge: #868D96; }   /* lighter than it */
+```
+
+Measured with it on: every input, icon button and toggle clears 3.0 in both themes.
+The switch keeps its mint **on** fill — the hairline does the seeing, the knob
+position does the telling. So this is not "an input border": it is the missing
+**control boundary** step, and it belongs in the token layer, not in three
+component rules.
 
 ## 3c. We fitted Apple's palette. One idea from it is worth taking.
 
@@ -236,13 +281,58 @@ land everywhere.
 
 ---
 
-## 4. Badge labels in light — the largest single win
+## 4. Badge labels — the tint moved, the ink stayed behind
 
-Badge **fills** are fine; the **labels** on them are not. Twelve of them measure
-**1.2 – 2.5** in light. This is one edit per semantic colour (the `-on-light` text
-value), not per badge, so it clears roughly a third of the light-theme failures.
+Badge **fills** are fine; the **labels** on them are not. Twelve measure **1.2 – 2.5**
+in light. The cause is historical: the tints were moved to darker accent steps and
+the text on them was left at the bright 400/500 — `Request` is `#F7C948` on
+`rgba(247,201,72,.15)`. The brand icon plate had a teal fill carrying a blue icon.
+
+**Dark is the mirror of the same defect** and nobody looked: tint went dark, ink
+stayed mid, and `Destructive`, `€50 owed`, `Joined`, `Full`, `Payment failed` all sit
+at **4.1 – 4.5** — below AA by a hair, which is exactly the range that survives a
+review because it "looks fine".
+
+Measured on the composited tint, the inks that pass:
+
+| | light ink | dark ink |
+|---|---|---|
+| yellow (`warning` / `pending` / `cash`) | `#7A4A06` — 6.4 | `#FFD98A` |
+| red (`danger` / `full` / destructive / error banner) | `#A32322` — 6.3 | `#FF9A94` |
+| blue (`info` / `group` / `special`) | `#075A75` — 6.4 | — |
+| green (`success` / `joined`) | `#245C27` — 6.7 | `#8CE8A6` |
+| teal (`accent`, brand plate) | `#0B5D4A` — 6.6 | — |
+
+### ⚠️ These are literals because the ramps have no step to point at
+
+That is the finding, not the hex values. **Every accent ramp is missing its "ink on
+tint" step:** the darkest step we own lands at 4.2 – 4.5, and **teal has none at all**
+— its ramp stops at 600 = 2.2. `--fit-text-placeholder` has the same hole (gray-500 =
+4.13, nothing below it passes).
+
+So the real work is in Figma/`design-tokens`: each accent needs a pair — a light-ink
+step and a dark-ink step — the way Apple carries an accent pair (§3c). Until those
+exist, any fix in CSS is a literal pretending to be a token, which is the §3d defect
+all over again.
 
 Numbers per badge are in the fitting room under *Badges & pills* — turn the audit on.
+
+---
+
+## 4b. The measurer was wrong about one thing, and that matters more
+
+A translucent **gradient stop** was read at face value: our selection tint is
+`rgba(5,224,166,.2)` over the page, and it was scored as **solid mint**. The selected
+chip was therefore reported failing at 1.7 when it passes comfortably.
+
+Stops are now flattened over whatever is behind them before the worst one is picked.
+Recorded here because the room's only value is that its numbers are trustworthy — a
+false failure costs more than a missed one, since it sends someone to "fix" a
+component that was never broken.
+
+Related, and not a bug: the tally counts **everything below AA**, while the red badge
+only marks a hard failure — near-misses (within 1.5 of the threshold) are amber. A
+tally of 7 with one red badge is not a contradiction.
 
 ---
 
@@ -253,6 +343,110 @@ Recorded so nobody "fixes" them twice.
 | what | measured | why it stays |
 |---|---|---|
 | white label on the brand gradient (`.fit-btn-primary`) | **1.7** at the green stop, 2.6 at the blue | it is the product's primary CTA and its identity. Changing it means changing the gradient. Flagged, not scheduled |
+| `.fit-toggle` off-fill vs on-fill | **1.6** | this is a *state* comparison, not a boundary. Once both tracks carry the control hairline the switch is visible; which side it is on is told by the knob's position, as it is on every platform. Darkening the off track until the fills differ by 3.0 makes "off" read as another kind of "on" |
+
+---
+
+## 6. List grammar — we have three, and only one is written down
+
+Not a style question. A **grammar** is how a row is separated from its neighbour, and
+the choice decides how much contrast work the screen needs afterwards.
+
+**A — cards.** Each row is its own fill with its own radius, air between them.
+
+```
+╭──────────────────────────────╮
+│ ◯  Availability            › │      own fill, own radius
+╰──────────────────────────────╯
+              ← 8px
+╭──────────────────────────────╮
+│ ◯  Locations               › │
+╰──────────────────────────────╯
+```
+
+**B — inset container** (what iOS 26 does). Rows share one fill; a hairline inset
+past the leading icon separates them.
+
+```
+╭──────────────────────────────╮
+│ ◯  Availability            › │
+│      ───────────────────────  │     hairline starts after the icon
+│ ◯  Locations               › │
+│      ───────────────────────  │
+│ ◯  Calendar sync           › │
+╰──────────────────────────────╯
+```
+
+**C — full bleed** (Telegram contacts, Mail, Messages). The list *is* the screen:
+no container, separators run to the edge, search and sticky section headers live
+here and nowhere else.
+
+```
+ 🔍 Search
+──────────────────────────────────
+ A
+ ◯  Anna Kowalski
+      ────────────────────────────
+ ◯  Andrei Petrov
+──────────────────────────────────
+ B
+ ◯  Bartek Nowak
+```
+
+### Why this belongs in a contrast document
+
+**Because it decides how many times a screen has to pay.** A card must separate
+itself from the page — in light that is white on `#F2F2F7`, **1.09**, once per row.
+The container pays once for the whole block. Full bleed pays **nothing**: the only
+edge on the screen is the hairline between rows.
+
+| | separations per screen | contrast cost |
+|---|---|---|
+| A cards | one per row | highest — every row needs an edge or a shadow |
+| B container | one per block | low |
+| C full bleed | none | **zero** |
+
+That is why B and C are not decoration. They remove the per-row edge problem instead
+of solving it colour by colour, which is the whole of §3b.
+
+### Which grammar, and why
+
+The axis is not "menu versus object" — it is **how many rows there are and where they
+come from**.
+
+| | A cards | B container | C full bleed |
+|---|---|---|---|
+| how many rows | 3–12, known when the screen is designed | 3–8, fixed | hundreds, from the backend |
+| rows alike? | no — different heights, statuses, swipe, menus | yes | yes, all identical |
+| search / sections / index | no | no | **yes, and only here** |
+| is the screen the list? | no, it is one block among others | no | **yes, entirely** |
+
+**In one line: as many as there are is which grammar you get.** A handful of
+different objects → cards. A handful of identical entries → container. Many
+identical records with a search field → full bleed.
+
+**Where ours land** (to verify against `prototypes/INDEX.md` before any port):
+
+- **Full bleed** — chats / Inbox, CRM contact import, the athlete and group-invite
+  pickers, the Country / Timezone / Languages selectors, the sport picker (33 in 8
+  sections). All push screens with a search field; they are already asking for it.
+- **Container** — Settings, Availability hub, Locations, Account Access, Personal Data.
+- **Cards** — clients, sessions, events, coaches, packages. Status, swipe, overflow
+  menu — they need their own borders.
+
+**One genuinely mixed case:** coach search results. Many records, but each carries
+video, rating, price and a button. That is a full-bleed *scroll* with card content —
+not a fourth grammar, and worth naming so nobody invents one.
+
+**Honest caveat on B and C:** the hairline between rows measures **1.6** in light, so
+by the letter of WCAG it fails too. It is not required to pass: structure is carried
+by the 44pt row, the 17px title and the chevron, and the hairline only hints. This is
+exactly the case the owner already called — the audit is a floor under money, states
+and errors, not a ceiling over everything.
+
+**Cost of taking B and C seriously:** a class in `fit-ui.css` and a `FitUI`
+equivalent, then re-drawing the rows on roughly a dozen screens. It is markup, not
+colour, so none of it comes through the token pipe.
 
 ---
 
@@ -271,7 +465,18 @@ same build, and a web stand consuming the generated CSS gets them for free.
 `fit-ui.css` and hand-written again in `FitUI`, and the only thing keeping them in
 step is this document plus `design-tokens/docs/components.md`.
 
-**Next actions, in order:** §3 needs the input-edge pick (A recommended) → §4 badge
-labels (biggest win per edit) → §2 text ladder → §3b once the edge language is
-settled. Each one: change the token, regenerate, reopen the fitting
-room, paste the new number into the table here.
+**Next actions, in order** — all still waiting on the owner, none of them started:
+
+1. **Flip `Fixes` in the room and decide** whether the §3–§4 corrections are the ones
+   we want. Everything below assumes yes.
+2. **Add the missing ramp steps in Figma** — an ink-on-tint pair per accent, plus a
+   passing placeholder. Without them §4 lands as literals (§3d).
+3. **Add `--fit-control-edge`** as a real token; it retires three component fixes.
+4. **Pick the canvas depth** — `#F2F2F7` (1.09) or `#EFEFF4` (1.15); both are in the
+   room's `Canvas` switch.
+5. **Decide on §6 grammars** — this one is markup and a dozen screens, so it wants
+   its own pass and probably its own tasks.
+6. §2 text ladder, then §3d's 87 rules, which gate everything being trustworthy.
+
+Each one: change the token, regenerate, reopen the fitting room, paste the new
+number into the table here.
