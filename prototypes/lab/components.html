@@ -103,6 +103,8 @@
     --fit-text-tertiary:    rgba(60,60,67,0.30);
     --fit-text-placeholder: rgba(60,60,67,0.30);
     --fit-divider:          rgba(60,60,67,0.29);     /* Separators/Non-opaque */
+    --ios-elevated:         #FFFFFF;                 /* light has no separate elevated set */
+    --ios-fill-control:     rgba(120,120,128,0.12);  /* Fills/Tertiary — controls, not canvas */
   }
   body.ios .stage.fit-dark {
     --fit-screen-bg:        #000000;                 /* exact, from the kit */
@@ -115,7 +117,17 @@
     --fit-text-tertiary:    rgba(235,235,245,0.30);  /* #ebebf54d */
     --fit-text-placeholder: rgba(235,235,245,0.30);
     --fit-divider:          rgba(255,255,255,0.17);  /* #ffffff2b */
+    /* Dark carries a whole ELEVATED set for sheets and popovers — a level we do
+       not have at all. Base #000/#1c1c1e/#2c2c2e, elevated #1c1c1e/#2c2c2e/#3a3a3c. */
+    --ios-elevated:         #2C2C2E;
+    --ios-fill-control:     rgba(120,120,128,0.24);
   }
+
+  /* Sheets sit on the elevated set, not on the same surface as the page behind. */
+  body.ios .stage .fit-sheet { background: var(--ios-elevated); }
+  /* Fills are for controls that hold content — fields, chips, segmented — never
+     for the page or a card. That is what the "A" on Apple's fill swatches means. */
+  body.ios .stage .fit-chip:not(.selected) { background: var(--ios-fill-control); border-color: transparent; }
 
   /* fit-ui.css hard-codes `.fit-dark .fit-input { background: var(--fit-black) }`
      (line 447) and the same for .fit-input-ta (1560) — those rules bypass

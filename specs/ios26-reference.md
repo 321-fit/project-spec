@@ -76,6 +76,47 @@ anyway, which is the whole argument of §4.
 
 ---
 
+## 2b. Which colour goes on which element
+
+Apple does not publish this as prose you can fetch — the HIG site renders in the browser and
+returns an empty shell to any fetch. But the kit states it structurally, on the Colors page,
+and that is stronger evidence than prose: it is what they actually shipped.
+
+**There are two background sets, and picking the wrong one is why a port "looks off".**
+
+| | Primary | Secondary | Tertiary |
+|---|---|---|---|
+| **Backgrounds** — plain content screens, light | white | grey | white |
+| **Grouped Backgrounds** — list/settings screens, light | **grey** | **white** | grey |
+| Dark — Base (either set) | `#000000` | `#1c1c1e` | `#2c2c2e` |
+| Dark — **Elevated** (sheets, popovers) | `#1c1c1e` | `#2c2c2e` | `#3a3a3c` |
+
+**We are a grouped app.** Almost every screen is a list of cards, so the page takes
+Grouped/Primary and a card or row takes Grouped/Secondary. In light that means a **grey page
+and white cards** — invert it and everything reads slightly wrong even when each colour is
+"correct".
+
+**Dark has an elevated set and we have none.** A sheet over a screen is not the same surface as
+the screen; iOS lifts every level by one step. Our sheets sit on the same colour as the page
+behind them.
+
+**Fills are for controls, not for canvas.** Apple's fill swatches are drawn with a letter "A"
+on them — they are what goes *behind content inside a control*: a search field, a segmented
+control, a slider track. A card or a page never takes a fill. This is the distinction we had
+blurred: our `--fit-surface-low` is used both as an input fill and as a surface.
+
+**Separators:** non-opaque inside a container (it lets the material show through), opaque where
+nothing may show through.
+
+**Vibrant** label and fill sets exist for content sitting on a material — resolved values, not
+alpha. Only relevant once we have glass.
+
+Applied to the fitting room: sheets take the elevated set in dark, unselected chips take
+Fills/Tertiary in both themes, inputs take Fills/Tertiary, cards and rows take
+Grouped/Secondary, the page takes Grouped/Primary.
+
+---
+
 ## 3. Metrics, measured from the components
 
 Menu (iPhone), from `Menus` page:
