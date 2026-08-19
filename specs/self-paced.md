@@ -69,6 +69,39 @@ Per-session COMMENTS thread = the session's HOME (submission + review = anchor m
 
 Lifecycle: **Requested** (booked, coach to set up) → **Ready** (set up, athlete to do) → **Submitted** (done, coach to review) → **Finished** (reviewed).
 
+### The words on screen (one model, one label per role)
+
+The lifecycle above is the model. What a person *reads* depends on which side they
+are on, because the same state means different things to each — but **one state
+has exactly one label per role**, everywhere it appears: queue tabs, template
+detail sections, per-client sections, list sections, pills.
+
+| state | the coach reads | the athlete reads |
+|---|---|---|
+| Requested | **Needs a plan** | **Coach is building** |
+| Ready | **With athlete** | **To do** |
+| Submitted | **Needs review** | **Awaiting feedback** |
+| Finished | **Done** | **Done** |
+
+Verbs stay on buttons (*Build it*, *Review*), never in the state label — that is
+what let four screens drift into four vocabularies (*Set up / Active* vs *Needs
+your plan / In progress* vs *Ready / Submitted*) for one lifecycle.
+
+**Orthogonal flags** are not states and keep their own words: *Overdue*,
+*Refunded*, *Cancelled*.
+
+**Inside a section named after a state, rows carry no state pill** — it would only
+repeat the header.
+
+### Multi-workout self-paced — Phase 2, via packages
+
+An offering that buys *several* workouts ("3 of 8 done") is a **package with
+self-paced content**, not a second kind of self-paced. It reuses the existing
+package machinery — credits, lots, expiry — rather than inventing a plan object.
+Deliberately out of scope until the single-assignment flow is finished; the
+prototype shows one assignment per purchase so it does not promise what the flow
+cannot do yet.
+
 ---
 
 ## 5. Screens (prototype `shared/self-paced.html`)
