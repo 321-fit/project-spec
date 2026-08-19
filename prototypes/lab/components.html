@@ -60,6 +60,29 @@
   .spec-body { padding: 0 16px; }
   .spec-body.flush { padding: 0; }
 
+  /* --- list grammar: ours by default, Apple's under the iOS palette --------- */
+  .lg-stack { display: flex; flex-direction: column; gap: 8px; }
+  .lg-row {
+    display: flex; align-items: center; gap: 12px; position: relative;
+    padding: 13px 14px; border-radius: 12px; background: var(--fit-surface-high);
+  }
+  .lg-body { flex: 1; min-width: 0; }
+  .lg-t { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .lg-s { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .lg-chev { color: var(--fit-text-tertiary); flex-shrink: 0; }
+
+  /* One container, hairlines inset past the icon — structure without an edge per row. */
+  body.ios .lg-stack {
+    gap: 0; border-radius: 20px; overflow: hidden; background: var(--fit-surface-high);
+  }
+  body.ios .lg-row { border-radius: 0; background: transparent; }
+  body.ios .lg-row + .lg-row::before {
+    content: ''; position: absolute; left: 58px; right: 0; top: 0;
+    height: 1px; background: var(--fit-divider);
+  }
+  body.ios .lg-t { font: 400 var(--ios-body) var(--fit-font); letter-spacing: var(--ios-body-tr); }
+  body.ios .lg-s { font: 400 var(--ios-subhead) var(--fit-font); letter-spacing: var(--ios-subhead-tr); color: var(--fit-text-secondary); }
+
   /* contrast badges, injected by the audit */
   .cx {
     display: inline-flex; align-items: center; gap: 4px; margin-left: 6px;
@@ -320,16 +343,11 @@ const SPECS = [
     <span class="fit-chip fit-chip--sm">small</span><span class="fit-chip">default</span><span class="fit-chip fit-chip--lg">large</span></div>` },
 
 // ------------------------------------------------------- list grammar
-{ grp: 'List grammar — the real structural difference' },
+{ grp: 'List grammar — the same rows, two grammars' },
 {
-  cap: 'ours · a row is its own surface',
-  note: 'Each row is a separate filled card with a gap. Reads well on dark; on light every card then needs its own edge or shadow, which is where our contrast trouble starts.',
-  html: `<div style="border-radius:12px;overflow:hidden;background:var(--fit-surface-high);margin-bottom:8px;"><div style="display:flex;align-items:center;gap:12px;padding:13px 14px;position:relative;"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div style="flex:1;"><div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Availability</div><div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:2px;">Mon&ndash;Fri &middot; 07:00&ndash;22:00</div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div></div><div style="border-radius:12px;overflow:hidden;background:var(--fit-surface-high);margin-bottom:8px;"><div style="display:flex;align-items:center;gap:12px;padding:13px 14px;position:relative;"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div style="flex:1;"><div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Locations</div><div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:2px;">TNT GYM &middot; +2</div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div></div><div style="border-radius:12px;overflow:hidden;background:var(--fit-surface-high);margin-bottom:8px;"><div style="display:flex;align-items:center;gap:12px;padding:13px 14px;position:relative;"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div style="flex:1;"><div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Calendar sync</div><div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:2px;">Google &middot; connected</div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div></div>`,
-},
-{
-  cap: 'iOS 26 · one card, hairline separators inset past the icon',
-  note: 'Rows share one large container and the separator starts after the leading element — that is what makes a long list read as a single object. Structure comes from the separators, not from an edge per row, which is why Apple can afford a card sitting 1.09:1 from the page.',
-  html: `<div style="border-radius:20px;overflow:hidden;background:var(--fit-surface-high);"><div style="display:flex;align-items:center;gap:12px;padding:13px 14px;position:relative;"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div style="flex:1;"><div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Availability</div><div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:2px;">Mon&ndash;Fri &middot; 07:00&ndash;22:00</div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div><div style="display:flex;align-items:center;gap:12px;padding:13px 14px;position:relative;"><span style="position:absolute;left:58px;right:0;top:0;height:1px;background:var(--fit-divider);"></span><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div style="flex:1;"><div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Locations</div><div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:2px;">TNT GYM &middot; +2</div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div><div style="display:flex;align-items:center;gap:12px;padding:13px 14px;position:relative;"><span style="position:absolute;left:58px;right:0;top:0;height:1px;background:var(--fit-divider);"></span><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div style="flex:1;"><div style="font-size:15px;font-weight:500;color:var(--fit-text-primary);">Calendar sync</div><div style="font-size:13px;color:var(--fit-text-tertiary);margin-top:2px;">Google &middot; connected</div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div></div>`,
+  cap: 'switch the palette to reshape this',
+  note: 'Ours: every row is its own filled card with a gap — so on light each card needs an edge or a shadow of its own, which is where the contrast trouble starts. iOS 26: the rows share one container and a hairline inset past the leading icon does the separating, which is why a container sitting 1.09:1 from the page is fine over there. Same markup, same content — only the grammar changes.',
+  html: `<div class="lg-stack"><div class="lg-row"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div class="lg-body"><div class="lg-t">Availability</div><div class="lg-s">Mon&ndash;Fri &middot; 07:00&ndash;22:00</div></div><svg class="lg-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div><div class="lg-row"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div class="lg-body"><div class="lg-t">Locations</div><div class="lg-s">TNT GYM &middot; +2</div></div><svg class="lg-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div><div class="lg-row"><span class="fit-icon-plate fit-icon-plate--neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></span><div class="lg-body"><div class="lg-t">Calendar sync</div><div class="lg-s">Google &middot; connected</div></div><svg class="lg-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div></div>`,
 },
 
 // ---------------------------------------------------------------- rows
