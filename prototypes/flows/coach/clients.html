@@ -676,6 +676,31 @@
       </div>
     </div>
 
+    <!-- Self-paced with this client — summary counters, tap → full per-client screen.
+       Sits above Packages and below money + what is next: self-paced is a live obligation,
+       a package is stock. HIDDEN ENTIRELY when the coach has no self-paced template —
+       an empty section would advertise a feature this coach never opted into.
+       Toggle: cdSelfPaced(false) -->
+    <div id="cd-selfpaced">
+    <div class="fit-section-title--md">Self-paced</div>
+    <div style="margin:0 16px 24px;border-radius:14px;overflow:hidden;background:var(--fit-surface-high);">
+      <div data-a11y-id="coach.client.self-paced.view-all" onclick="go('s-client-selfpaced',document.querySelector('[onclick*=s-client-selfpaced]'))" style="display:flex;align-items:center;padding:16px 14px;cursor:pointer;">
+        <div style="flex:1;display:flex;">
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-yellow-600);">2</div><div style="font-size:12px;color:var(--fit-text-tertiary);">To review</div></div>
+          <div style="width:1px;background:var(--fit-divider);"></div>
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-teal-500);">1</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Active</div></div>
+          <div style="width:1px;background:var(--fit-divider);"></div>
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">8</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Done</div></div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-left:8px;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div data-a11y-id="coach.client.self-paced.assign" onclick="window.location.href='../shared/self-paced.html#s-setup'" style="display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer;color:var(--fit-brand-primary);font-size:14px;font-weight:500;border-top:1px solid var(--fit-divider);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Assign self-paced
+      </div>
+    </div>
+    </div><!-- /#cd-selfpaced -->
+
     <!-- Packages (prepaid passes) — coach view: track credits, re-sell nudge, cash activation gate -->
     <div style="display:flex;justify-content:space-between;align-items:center;padding:0 16px;">
       <span class="fit-section-title--md" style="padding:0;margin:0;">Packages</span>
@@ -694,25 +719,6 @@
         <div style="font-size:13px;color:var(--fit-text-tertiary);line-height:1.5;margin-top:2px;">Sell Anna a pack so she prepays a block of sessions at a discount.</div>
       </div>
 
-    </div>
-
-    <!-- Self-paced (online async) with this client — summary counters, tap → full per-client screen -->
-    <div class="fit-section-title--md">Self-paced</div>
-    <div style="margin:0 16px 24px;border-radius:14px;overflow:hidden;background:var(--fit-surface-high);">
-      <div data-a11y-id="coach.client.self-paced.view-all" onclick="go('s-client-selfpaced',document.querySelector('[onclick*=s-client-selfpaced]'))" style="display:flex;align-items:center;padding:16px 14px;cursor:pointer;">
-        <div style="flex:1;display:flex;">
-          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-yellow-600);">2</div><div style="font-size:12px;color:var(--fit-text-tertiary);">To review</div></div>
-          <div style="width:1px;background:var(--fit-divider);"></div>
-          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-teal-500);">1</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Active</div></div>
-          <div style="width:1px;background:var(--fit-divider);"></div>
-          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">8</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Done</div></div>
-        </div>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-left:8px;"><path d="M9 18l6-6-6-6"/></svg>
-      </div>
-      <div data-a11y-id="coach.client.self-paced.assign" onclick="window.location.href='../shared/self-paced.html#s-setup'" style="display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer;color:var(--fit-brand-primary);font-size:14px;font-weight:500;border-top:1px solid var(--fit-divider);">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-        Assign self-paced
-      </div>
     </div>
 
     <!-- Home visit addresses (coach-set; multiple supported; same picker as athlete) -->
@@ -1652,6 +1658,10 @@
       <button onclick="setClientDetailState('loading',this)">Loading</button>
     </div>
     <div class="state-toggle" style="margin-left:8px;">
+      <button class="active" onclick="cdSelfPaced(true,this)">Coach offers self-paced</button>
+      <button onclick="cdSelfPaced(false,this)">No self-paced template</button>
+    </div>
+    <div class="state-toggle" style="margin-left:8px;">
       <button class="active" onclick="cdGroups('few',this)">2 groups</button>
       <button onclick="cdGroups('many',this)">6 groups</button>
       <button onclick="cdGroups('none',this)">No groups</button>
@@ -1663,6 +1673,11 @@
       <button onclick="setClientBanner('deleted',this)">Deleted</button>
       <button onclick="setClientBanner('crm',this)">CRM</button>
     </div>
+    <p><strong>Section order is a priority claim.</strong> Money owed and what is next come first,
+    then <strong>Self-paced</strong>, then Packages: self-paced is a live obligation with someone
+    waiting on the coach, a package is stock that sits until it is used.</p>
+    <p><strong>No self-paced template &rarr; no section.</strong> Not an empty state &mdash; nothing at
+    all. An empty "Self-paced" header would advertise a feature this coach never opted into.</p>
     <div class="state-toggle" style="margin-top:8px;">
       <button onclick="resetMarkPaidDemo()">Reset Mark Paid demo</button>
     </div>
@@ -2338,6 +2353,13 @@ function setClientBanner(state, btn) {
 
 // Groups pills: 2 shown, the rest collapse into +N. Never a second row —
 // the section is context, not the point of the screen.
+// A coach with no self-paced template never sees the section — not an empty state,
+// no section at all. Same rule on the athlete side (my-coaches.html).
+function cdSelfPaced(on, btn) {
+  var el = document.getElementById('cd-selfpaced');
+  if (el) el.style.display = on ? '' : 'none';
+  if (btn) { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+}
 function cdGroups(state, btn) {
   if (btn) { btn.parentElement.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); }
   var row = document.getElementById('cd-groups');
