@@ -120,13 +120,23 @@
 
   /* A field that is a row: no fill and no border of its own, because the
      container already provides both. This is the whole of Apple's answer. */
-  .ie-form .lg-row { padding: 9px 14px; }
+  .ie-form .lg-row { padding: 9px 16px; }
+  /* NB: `font: … inherit` is not a valid shorthand — it dropped whole and the
+     value fell back to the browser's 13.3px, which made the label look like the
+     bigger of the two. The value must be the loud one. */
   .ie-field {
     display: block; width: 100%; margin-top: 1px; border: 0; background: transparent;
-    font: 400 15px/1.4 inherit; color: var(--fit-text-primary); outline: none; padding: 0;
+    font-family: inherit; font-size: 15px; line-height: 1.4; font-weight: 400;
+    color: var(--fit-text-primary); outline: none; padding: 0;
   }
   .ie-field::placeholder { color: var(--fit-text-placeholder); }
-  .ie-form .lg-t { font-size: 12px; font-weight: 400; color: var(--fit-text-tertiary); }
+  /* The label is a caption, not a heading: quieter and smaller than its value.
+     Sentence case stays — "Full name", one capital, per our copy standard. */
+  .ie-form .lg-t { font-size: 11.5px; font-weight: 400; color: var(--fit-text-tertiary); letter-spacing: .1px; }
+  /* No leading icon in a form, so the text starts at the container edge and the
+     separator has to start there too — inset the same on both sides, not flush
+     to the right. */
+  .ie-form .lg-row + .lg-row::before { left: 16px !important; right: 16px !important; }
 
   /* --- proposed corrections, toggled ---------------------------------------
      The light tints were moved to the darker accent step long ago (the light-tint
@@ -407,8 +417,8 @@ const SPECS = [
   </div>`,
 },
 {
-  cap: 'A · fill + 1px hairline (gray-500)',
-  note: 'The RESTING state, not focus. Reaches 3.2:1, so it passes non-text AA. But note the collision: focus already draws a 1px border today (#ACB1B6 light / #5B6269 dark), so if resting has a hairline too, focus has to differ by colour or weight — otherwise the field looks the same whether you are in it or not.',
+  cap: 'A · fill + 1px hairline (gray-500) — REJECTED 2026-08-19',
+  note: 'Turned down by the owner on sight: an outline round every field turns a form into a grid, and the platform has no such shape (see E). Kept here as the exhibit, not as the answer. The RESTING state, not focus. Reaches 3.2:1, so it passes non-text AA. But note the collision: focus already draws a 1px border today (#ACB1B6 light / #5B6269 dark), so if resting has a hairline too, focus has to differ by colour or weight — otherwise the field looks the same whether you are in it or not.',
   html: `<input class="fit-input" style="border:1px solid var(--fit-color-gray-500);" value="hairline">`,
 },
 {
