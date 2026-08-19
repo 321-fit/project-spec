@@ -151,10 +151,12 @@
   body.fixes .stage.fit-light .fit-badge-joined { color: #245C27; }
   body.fixes .stage.fit-light .fit-badge-accent { color: #0B5D4A; }
 
-  /* Icon plates take the same ink. The brand plate also had a teal fill with a
-     BLUE icon — the two were simply out of sync. */
-  body.fixes .stage.fit-light .fit-icon-plate--brand,
-  body.fixes .stage.fit-light .fit-icon-plate--success { color: #0B5D4A; }
+  /* Icon plates take the same ink. The brand plate keeps its BLUE — darker, not
+     a different colour. And it needs no literal: the ramp already carries the
+     step (blue-700 = #06789d, 4.6 on white) under a token that says exactly what
+     it is for, --fit-color-text-on-brand-light. It simply was never used. */
+  body.fixes .stage.fit-light .fit-icon-plate--brand { color: var(--fit-color-text-on-brand-light); }
+  body.fixes .stage.fit-light .fit-icon-plate--success { color: #245C27; }
   body.fixes .stage.fit-light .fit-icon-plate--warning { color: #7A4A06; }
   body.fixes .stage.fit-light .fit-icon-plate--error { color: #A32322; }
 
@@ -165,7 +167,7 @@
     --fit-text-tertiary: #5b6269;
     --fit-text-placeholder: #757e87;
     --fit-text-error: #A32322;
-    --fit-brand-primary: #0B5D4A;   /* brand as INK, not as fill */
+    --fit-brand-primary: var(--fit-color-text-on-brand-light);  /* blue-700 — brand as INK */
   }
 
   /* These six ignore the token layer and carry their own literal, so the fitting
@@ -194,12 +196,12 @@
   body.fixes .stage.fit-light .fit-input,
   body.fixes .stage.fit-light .fit-input-ta,
   body.fixes .stage.fit-light .fit-textarea { background: #FFFFFF; }
-  body.fixes .stage .fit-input,
-  body.fixes .stage .fit-input-ta,
-  body.fixes .stage .fit-icon-btn,
-  body.fixes .stage .fit-textarea { border: 1px solid var(--fit-control-edge); }
-  body.fixes .stage .fit-input:focus,
-  body.fixes .stage .fit-input-ta:focus { border-color: var(--fit-brand-primary); }
+  /* NO edge on text fields — rejected on sight, and rightly: it is not a shape
+     iOS has (see candidate E), and an outline round every field turns a form into
+     a grid. The fill alone carries them; where that is not enough the answer is
+     the container, not a border. The icon button and the toggle keep the
+     hairline: they have no fill of their own to be seen by. */
+  body.fixes .stage .fit-icon-btn { border: 1px solid var(--fit-control-edge); }
   /* The off track keeps its pale fill — darkening it to pass would read as ON.
      The hairline does the seeing, the knob keeps saying which side it is on. */
   body.fixes .stage .fit-toggle {

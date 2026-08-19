@@ -21,9 +21,10 @@ The point of the switch is that the owner can flip it and disagree.
 | | dark | light |
 |---|---|---|
 | today | 17 below AA | 47 |
-| with the proposals | **1** | **2** |
+| with the proposals | **8** | **9** |
 
-Both remainders are deliberate (§5).
+Seven of each are the text-field boundary, left failing on purpose after the owner
+rejected outlined fields (§3). The rest are deliberate (§5).
 
 ## How to read a row
 
@@ -166,6 +167,22 @@ in general — it is wrong *there*.
 **Revised recommendation:** keep the white fill (it is what the grouped model says),
 treat A's hairline as a **fallback for standalone fields**, and settle it properly in
 the §6 pass on real screens rather than deciding it on a specimen.
+
+### ❌ Rejected on sight — 2026-08-19
+
+Shown to the owner and turned down: *"I would not put edges on the inputs, it looks
+bad."* Removed. An outline round every field turns a form into a grid, and it is not
+a shape the platform has — which candidate E had already said.
+
+**The honest consequence, unhidden:** the seven field boundaries come back as
+failures. Below AA went from dark 1 / light 2 to **dark 8 / light 9**, and every one
+added is `.fit-input` at 1.0 – 1.5.
+
+That is not a regression, it is the argument moving to where it belongs. A standalone
+field on a near-white page cannot be fixed by colour: the only two answers are an
+outline (rejected) or a container (§6). Kept the hairline on `.fit-icon-btn` and
+`.fit-toggle` — those have no fill of their own to be seen by, so for them it is the
+whole boundary rather than a decoration on one.
 
 ---
 
@@ -335,7 +352,29 @@ Measured on the composited tint, the inks that pass:
 | green (`success` / `joined`) | `#245C27` — 6.7 | `#8CE8A6` |
 | teal (`accent`, brand plate) | `#0B5D4A` — 6.6 | — |
 
-### ⚠️ These are literals because the ramps have no step to point at
+### ❌ Correction — a darker step of the same colour, never a different colour
+
+The first pass set the brand ink in light to `#0B5D4A`, a dark teal-green. The owner
+caught it: *"why did the blue on Add notes become dark green — keep it blue, just
+darker, the way you did the pills."* Correct, and it exposes the sloppiness: for the
+badges I took the same hue one step down, and for brand I quietly swapped the hue.
+
+**And it needed no literal at all.** The ramp already carries the step, under a token
+that names this exact job:
+
+```css
+--fit-color-text-on-brand-light: var(--fit-color-blue-700);   /* #06789d — 4.6 on white */
+```
+
+It was simply never used. `--fit-brand-primary` and `.fit-icon-plate--brand` now take
+it in light. Which sharpens §4's finding rather than softening it: **blue is the one
+accent that already has its ink-on-light step** — teal, and the rest, still do not.
+
+> **The rule this produced:** an accent's light-theme ink is the same hue, a step or
+> two down its own ramp. If the ramp has no step dark enough, that is a gap to fill in
+> the ramp — not a licence to reach for a neighbouring colour.
+
+### ⚠️ The rest are literals because the ramps have no step to point at
 
 That is the finding, not the hex values. **Every accent ramp is missing its "ink on
 tint" step:** the darkest step we own lands at 4.2 – 4.5, and **teal has none at all**
