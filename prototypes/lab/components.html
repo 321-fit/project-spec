@@ -83,6 +83,105 @@
   body.ios .lg-t { font: 400 var(--ios-body) var(--fit-font); letter-spacing: var(--ios-body-tr); }
   body.ios .lg-s { font: 400 var(--ios-subhead) var(--fit-font); letter-spacing: var(--ios-subhead-tr); color: var(--fit-text-secondary); }
 
+  /* --- proposed corrections, toggled ---------------------------------------
+     The light tints were moved to the darker accent step long ago (the light-tint
+     rule), but the INK on them was left at the bright 400/500. Yellow on pale
+     yellow is the result. Measured on the actual composited tint, the ink has to
+     be: yellow 800, red 700, blue 700, green 800 — and teal has no passing step
+     at all, the ramp stops at 600 (2.2:1). And the same turned out to be true of
+     every accent: the darkest existing step lands at 4.2-4.5, i.e. exactly on the
+     line. These are literals on purpose — they are the ramp steps we do not have,
+     and each one is measured on the tint it actually sits on:
+       yellow #7A4A06 6.4 · red #A32322 6.3 · blue #075A75 6.4
+       green  #245C27 6.7 · teal #0B5D4A 6.6                                  */
+  body.fixes .stage.fit-light .fit-badge-warning,
+  body.fixes .stage.fit-light .fit-badge-pending,
+  body.fixes .stage.fit-light .fit-badge-cash { color: #7A4A06; }
+  body.fixes .stage.fit-light .fit-badge-danger,
+  body.fixes .stage.fit-light .fit-badge-full { color: #A32322; }
+  body.fixes .stage.fit-light .fit-badge-info,
+  body.fixes .stage.fit-light .fit-badge-group,
+  body.fixes .stage.fit-light .fit-badge-special { color: #075A75; }
+  body.fixes .stage.fit-light .fit-badge-success,
+  body.fixes .stage.fit-light .fit-badge-joined { color: #245C27; }
+  body.fixes .stage.fit-light .fit-badge-accent { color: #0B5D4A; }
+
+  /* Icon plates take the same ink. The brand plate also had a teal fill with a
+     BLUE icon — the two were simply out of sync. */
+  body.fixes .stage.fit-light .fit-icon-plate--brand,
+  body.fixes .stage.fit-light .fit-icon-plate--success { color: #0B5D4A; }
+  body.fixes .stage.fit-light .fit-icon-plate--warning { color: #7A4A06; }
+  body.fixes .stage.fit-light .fit-icon-plate--error { color: #A32322; }
+
+  /* The quiet ladder, one ramp step down each (gray-500 → 600, 400 → 500).
+     Plus the two inks that only exist as brand/error fills today: used as TEXT on
+     light they measure 2.5 and 2.9, so light needs its own tone for each. */
+  body.fixes .stage.fit-light {
+    --fit-text-tertiary: #5b6269;
+    --fit-text-placeholder: #757e87;
+    --fit-text-error: #A32322;
+    --fit-brand-primary: #0B5D4A;   /* brand as INK, not as fill */
+  }
+
+  /* These six ignore the token layer and carry their own literal, so the fitting
+     has to name them one by one. That is the "87 rules" finding made concrete:
+     every one of these is a component that cannot be re-themed from tokens. */
+  body.fixes .stage.fit-light .fit-input-error-text,
+  body.fixes .stage.fit-light .fit-input-counter.at-limit,
+  body.fixes .stage.fit-light .fit-banner--error .fit-banner-title,
+  body.fixes .stage.fit-light .fit-btn-destructive,
+  body.fixes .stage.fit-light .fit-btn-destructive--low,
+  body.fixes .stage.fit-light .fit-btn-destructive--minimal { color: #A32322; }
+  body.fixes .stage.fit-light .fit-stat-strip-value--accent { color: #0B5D4A; }
+
+  /* ---- the boundary half of the fixes -------------------------------------
+     Every remaining light failure is one problem wearing three costumes: a
+     near-white control on a near-white page has nothing to be seen by. Input,
+     icon button and toggle are therefore ONE decision, not three. A 1px
+     #8E8E93 hairline is the cheapest thing that clears 3.0 on all of them at
+     once — iOS's own separator (#C6C6C8, 1.6) does not, which is why their
+     fields lean on a grouped container instead of standing alone on the page. */
+  body.fixes .stage { --fit-control-edge: #868D96; }   /* dark: lighter than the fill */
+  body.fixes .stage.fit-light { --fit-control-edge: #71757B; } /* light: darker than it */
+  /* The fill says "you may type here", the hairline says "here is where".
+     Ours had the field DARKER than the card it sits on — an editable thing
+     recessed below a read-only one, which is why it read as disabled. */
+  body.fixes .stage.fit-light .fit-input,
+  body.fixes .stage.fit-light .fit-input-ta,
+  body.fixes .stage.fit-light .fit-textarea { background: #FFFFFF; }
+  body.fixes .stage .fit-input,
+  body.fixes .stage .fit-input-ta,
+  body.fixes .stage .fit-icon-btn,
+  body.fixes .stage .fit-textarea { border: 1px solid var(--fit-control-edge); }
+  body.fixes .stage .fit-input:focus,
+  body.fixes .stage .fit-input-ta:focus { border-color: var(--fit-brand-primary); }
+  /* The off track keeps its pale fill — darkening it to pass would read as ON.
+     The hairline does the seeing, the knob keeps saying which side it is on. */
+  body.fixes .stage .fit-toggle {
+    box-shadow: inset 0 0 0 1px var(--fit-control-edge);
+  }
+  body.fixes .stage .fit-toggle:not(.on)::after,
+  body.fixes .stage .fit-toggle:not(.on) .fit-toggle-knob {
+    box-shadow: 0 1px 2px rgba(0,0,0,.28);
+  }
+
+  /* Dark had the mirror of the same defect: the tint went dark, the ink stayed
+     at the mid ramp step, and everything landed at 4.1–4.5 — a hair short. One
+     step lighter clears it without touching the hue. */
+  body.fixes .stage:not(.fit-light) .fit-badge-danger,
+  body.fixes .stage:not(.fit-light) .fit-badge-full,
+  body.fixes .stage:not(.fit-light) .fit-btn-destructive,
+  body.fixes .stage:not(.fit-light) .fit-btn-destructive--low,
+  body.fixes .stage:not(.fit-light) .fit-btn-destructive--minimal,
+  body.fixes .stage:not(.fit-light) .fit-banner--error .fit-banner-title { color: #FF9A94; }
+  body.fixes .stage:not(.fit-light) .fit-badge-cash,
+  body.fixes .stage:not(.fit-light) .fit-badge-warning,
+  body.fixes .stage:not(.fit-light) .fit-badge-pending { color: #FFD98A; }
+  body.fixes .stage:not(.fit-light) .fit-badge-joined,
+  body.fixes .stage:not(.fit-light) .fit-badge-success { color: #8CE8A6; }
+  body.fixes .stage:not(.fit-light) { --fit-text-placeholder: #8A939C; }
+  body.fixes .stage.fit-light { --fit-text-placeholder: #666E76; }
+
   /* contrast badges, injected by the audit */
   .cx {
     display: inline-flex; align-items: center; gap: 4px; margin-left: 6px;
@@ -116,7 +215,7 @@
     --ios-caption2: 11px/13px;      --ios-caption2-tr: 0.06px;
   }
   body.ios .stage.fit-light {
-    --fit-screen-bg:        #F2F2F7;                 /* Backgrounds/Secondary */
+    /* --fit-screen-bg is left to the Canvas control so the two can be judged together */
     --fit-surface:          #FFFFFF;                 /* Backgrounds/Primary */
     --fit-surface-high:     #FFFFFF;
     --fit-surface-higher:   #F2F2F7;
@@ -199,6 +298,8 @@
   <span class="tally" id="tally"></span>
   <span class="sp"></span>
   <button id="paletteBtn">Palette: ours</button>
+  <button id="fixBtn" title="Proposed corrections to our light theme">Fixes: off</button>
+  <button id="canvasBtn" title="How deep the light canvas sits under white cards">Canvas: F2F2F7</button>
   <button id="auditBtn">Contrast audit</button>
   <button id="onlyFail">Only failures</button>
 </div>
@@ -440,24 +541,36 @@ function gradientStops(bgImage) {
   const stops = bgImage.match(/rgba?\([^)]+\)/g);
   return stops && stops.length ? stops.map(parseRGB).filter(Boolean) : null;
 }
-// the first opaque background above this node, flattening anything translucent
+// the first opaque background above this node, flattening anything translucent.
+// A gradient stop can be translucent too (our selection tint is rgba(...,.2)) —
+// taking such a stop at face value reads a pale mint wash as solid mint and
+// invents a failure. So the stops are flattened over whatever is behind them,
+// which means the walk cannot stop at a gradient unless the gradient is opaque.
 function bgOf(el, fg) {
-  const stack = [];
+  const layers = [];
   for (let n = el; n && n !== document.documentElement; n = n.parentElement) {
     const cs = getComputedStyle(n);
     const g = gradientStops(cs.backgroundImage);
-    if (g) {                                   // worst stop for this text colour
-      const worst = fg ? g.reduce((a, c) => ratio(fg, c) < ratio(fg, a) ? c : a) : g[0];
-      stack.push(worst);
-      break;
+    if (g) {
+      layers.push({ stops: g });
+      if (g.every((c) => c.a === 1)) break;
+      continue;
     }
     const c = parseRGB(cs.backgroundColor);
     if (!c || c.a === 0) continue;
-    stack.push(c);
+    layers.push(c);
     if (c.a === 1) break;
   }
-  let out = stack.pop() || { r: 8, g: 8, b: 10, a: 1 };
-  while (stack.length) out = over(stack.pop(), out);
+  let out = { r: 8, g: 8, b: 10, a: 1 };
+  for (let i = layers.length - 1; i >= 0; i--) {          // back to front
+    const l = layers[i];
+    if (l.stops) {
+      const flat = l.stops.map((c) => (c.a < 1 ? over(c, out) : c));
+      out = fg ? flat.reduce((a, c) => (ratio(fg, c) < ratio(fg, a) ? c : a)) : flat[0];
+    } else {
+      out = l.a < 1 ? over(l, out) : l;
+    }
+  }
   return out;
 }
 // AA: 4.5 for body text, 3.0 once it is large or bold
@@ -544,6 +657,40 @@ function audit() {
                 '</b> · light <b class="' + (fails.light ? '' : 'zero') + '">' + fails.light + '</b>';
   return fails;
 }
+// Light canvas depth. White cards on #F2F2F7 separate at 1.09:1 — Apple lives with
+// that because 44pt rows, 17px type and visible separators carry the structure.
+// Our rows are tighter, so the canvas may need to go deeper. Pick by eye; the
+// button reports what the card-to-page separation actually measures.
+const CANVASES = [
+  { v: '#F2F2F7', n: 'F2F2F7 · 1.09', note: 'today — iOS systemGray6' },
+  { v: '#EFEFF4', n: 'EFEFF4 · 1.15', note: 'half a step deeper' },
+]
+let canvasIx = 0;
+const fixBtn = document.getElementById('fixBtn');
+fixBtn.onclick = () => {
+  const on = document.body.classList.toggle('fixes');
+  fixBtn.classList.toggle('on', on);
+  fixBtn.textContent = 'Fixes: ' + (on ? 'on' : 'off');
+  if (document.body.classList.contains('audit')) audit();
+};
+
+const canvasBtn = document.getElementById('canvasBtn');
+function setCanvas(ix) {
+  canvasIx = (ix + CANVASES.length) % CANVASES.length;
+  const c = CANVASES[canvasIx];
+  document.getElementById('light').style.setProperty('--fit-screen-bg', c.v);
+  const card = { r: 255, g: 255, b: 255, a: 1 };
+  canvasBtn.textContent = 'Canvas: ' + c.n;
+  canvasBtn.title = c.note + ' — white card against the page';
+  canvasBtn.classList.toggle('on', canvasIx !== 0);
+  if (document.body.classList.contains('audit')) audit();
+}
+function hexToRgb(h) {
+  h = h.replace('#','');
+  return { r: parseInt(h.slice(0,2),16), g: parseInt(h.slice(2,4),16), b: parseInt(h.slice(4,6),16), a: 1 };
+}
+canvasBtn.onclick = () => setCanvas(canvasIx + 1);
+
 // Palette fitting: swap the neutrals for Apple's and let the audit re-count.
 const paletteBtn = document.getElementById('paletteBtn');
 paletteBtn.onclick = () => {
