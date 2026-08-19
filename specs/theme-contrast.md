@@ -198,6 +198,44 @@ because the list specimens added more quiet subtitles to measure).
 **Still not iOS:** grouped-list layout with inset separators, Dynamic Type, and the
 platform's own material effects. A real port is a redesign; this is a fitting.
 
+## 3d. Components that ignore their own token
+
+Found while fitting Apple's palette: swapping `--fit-surface-low` changed the input in
+light and did **nothing** in dark. The cause is two hard-coded rules in `fit-ui.css`:
+
+```css
+.fit-dark .fit-input    { background: var(--fit-black); }   /* line 447  */
+.fit-dark .fit-input-ta { background: var(--fit-black); }   /* line 1560 */
+```
+
+They bypass the surface token entirely, so in dark the field's colour has nothing to do
+with `--fit-surface-low`. Today the two values happen to be the same hex, which is why
+nobody noticed — and exactly why it is dangerous: **the day a token moves, one theme
+follows and the other does not.**
+
+This is the class of defect that makes a theme un-retargetable, and it is invisible to
+any audit that only measures colours. It shows up only when you try to swap the palette
+and something refuses to move.
+
+**Rule:** a component reads its colour from a token, or the token is a lie. Theme-specific
+literals belong in the theme block (`.fit-dark { --token: … }`), never in the component
+rule.
+
+**It is not two rules — it is 87.** Counting every `.fit-dark` / `.fit-light` rule in
+`fit-ui.css` that sets `background`, `color` or a border to a literal or a raw ramp step
+rather than a semantic token: **87**. Icon plates, badges, chips, cards, sheets, sport
+tiles, tickets, spots bars — all carry their theme colour inside the component rule.
+
+That is the real reason the light theme is hard to fix and why swapping a palette only
+half-works: the token layer describes a minority of what is actually painted.
+
+**To fix:** delete the two input rules first (they have a live consequence), then work the
+87 down by moving each literal into the theme block as a semantic token. That is a
+mechanical, reviewable pass — and until it is done, no palette change can be trusted to
+land everywhere.
+
+---
+
 ## 4. Badge labels in light — the largest single win
 
 Badge **fills** are fine; the **labels** on them are not. Twelve of them measure

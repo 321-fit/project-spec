@@ -117,6 +117,14 @@
     --fit-divider:          rgba(255,255,255,0.17);  /* #ffffff2b */
   }
 
+  /* fit-ui.css hard-codes `.fit-dark .fit-input { background: var(--fit-black) }`
+     (line 447) and the same for .fit-input-ta (1560) — those rules bypass
+     --fit-surface-low entirely, so swapping the token does nothing in dark.
+     Overridden here, and logged in specs/theme-contrast.md as a real defect:
+     a component that ignores its own token in one theme cannot be re-themed. */
+  body.ios .stage.fit-dark .fit-input,
+  body.ios .stage.fit-dark .fit-input-ta { background: rgba(120,120,128,0.24); }
+
   /* Type roles. Tracking is the half of this that nobody notices and everybody
      feels: ours is 0 everywhere, Apple's flips sign with size. */
   body.ios .stage { font: var(--ios-body) var(--fit-font); letter-spacing: var(--ios-body-tr); }
