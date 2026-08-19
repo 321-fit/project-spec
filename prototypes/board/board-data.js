@@ -3321,7 +3321,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-create",
-          "hash": "e2f6c5482cb9",
+          "hash": "be87a5c5a5fb",
           "title": "Create Session",
           "inApp": "Training session setup",
           "status": "canon",
@@ -3355,7 +3355,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-list",
-          "hash": "3862694bf8f9",
+          "hash": "44f3b4f434f0",
           "title": "My Sessions",
           "inApp": "My training sessions",
           "status": "canon",
@@ -3381,7 +3381,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-detail-group",
-          "hash": "906bd5094118",
+          "hash": "1f7d6dc354ff",
           "title": "Detail — Group",
           "inApp": "HIIT Group Session",
           "status": "canon",
@@ -3406,7 +3406,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-detail-personal",
-          "hash": "61868a15e643",
+          "hash": "02952fc1e36d",
           "title": "Detail — Personal",
           "inApp": "Basketball Training",
           "status": "canon",
@@ -3432,7 +3432,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-detail-selfpaced",
-          "hash": "e0ab7869c317",
+          "hash": "89c425a8f101",
           "title": "Detail — Self-paced",
           "inApp": "Tennis self-paced",
           "status": "canon",
@@ -3460,7 +3460,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-series",
-          "hash": "3fadfa732cad",
+          "hash": "4b9796263022",
           "title": "Series detail",
           "inApp": "Tue & Thu · 18:00",
           "status": "canon",
@@ -3488,7 +3488,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-edit",
-          "hash": "52ec9cc1b384",
+          "hash": "4a4dfbc86c6e",
           "title": "Edit template",
           "inApp": "Edit training session",
           "status": "canon",
@@ -3511,7 +3511,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "pkg-pick",
-          "hash": "ab04f470f535",
+          "hash": "b1abc3b85c15",
           "title": "Pick session (create)",
           "inApp": "Choose a session",
           "status": "canon",
@@ -3531,7 +3531,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "pkg-editor",
-          "hash": "54eacc3616ac",
+          "hash": "aaf2f42d366a",
           "title": "Package detail",
           "inApp": "New package",
           "status": "canon",
@@ -3557,7 +3557,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "pkg-tier-edit",
-          "hash": "137811d0e968",
+          "hash": "3290fd9cb5c4",
           "title": "Package tier edit",
           "inApp": "New package tier",
           "status": "canon",

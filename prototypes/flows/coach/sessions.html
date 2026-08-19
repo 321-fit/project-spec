@@ -977,19 +977,14 @@
       <span style="font-size:13px;line-height:1.45;color:var(--fit-text-secondary);">This is a reusable template. You&rsquo;ll pick dates &amp; times later when you schedule it on your calendar.</span>
     </div>
 
-    <!-- PAYMENT METHOD (hidden for self-paced — online only) -->
+    <!-- PAYMENT METHOD — all three types, self-paced included: the booking is still a request
+         the coach accepts or declines, so cash is as workable here as anywhere else. -->
     <div id="payment-field">
       <div class="fit-input-group"><span class="fit-input-label">Payment method</span></div>
       <div class="fit-selection-group" data-fit-selection="multi">
         <div class="fit-selection-chip selected" data-value="cash"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h2M20 10h2M2 14h2M20 14h2"/><circle cx="12" cy="12" r="3"/></svg> Cash</div>
         <div class="fit-selection-chip selected" data-value="card"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card</div>
       </div>
-    </div>
-
-    <!-- SELF-PACED payment note (online from balance — no cash) -->
-    <div id="selfpaced-pay-note" style="display:none;align-items:center;gap:10px;margin:0 16px 12px;padding:12px 14px;border:1px solid var(--fit-divider);border-radius:14px;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-text-tertiary);flex-shrink:0;"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-      <span style="font-size:13px;line-height:1.45;color:var(--fit-text-secondary);">Paid online from the athlete&rsquo;s 321Fit balance. Cash isn&rsquo;t available for online sessions.</span>
     </div>
 
   </div>
@@ -2235,7 +2230,7 @@
       <li><strong>Completed</strong> collapses to a single tile &mdash; archive, not work.</li>
       <li>Rows deep-link into the existing builder (<code>shared/self-paced.html</code> &rarr; queue / setup / review) instead of duplicating it here.</li>
     </ul>
-    <p class="note">Location and cash payment are absent by design &mdash; self-paced is online-only, paid from the athlete&rsquo;s balance.</p>
+    <p class="note">Location is absent by design &mdash; self-paced has nowhere to be. <strong>Cash is allowed</strong> like on any other type: the request still goes to the coach to accept or decline, and a coach who just trained someone in person may well take the money by hand. Card pays from the athlete&rsquo;s balance at booking; cash is collected later, exactly as for a personal session.</p>
   </div>
 
   <div class="ann" id="ann-s-series"><span class="ann-role coach">Coach</span><h3>Series detail</h3>
@@ -2545,10 +2540,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const locationField = document.getElementById('location-field');
-  const paymentField = document.getElementById('payment-field');
   const scheduleNote = document.getElementById('schedule-note');
   const selfpacedNote = document.getElementById('selfpaced-note');
-  const selfpacedPayNote = document.getElementById('selfpaced-pay-note');
   const durationLabel = document.getElementById('duration-label');
 
   function setDisplay(el, show, dsp) { if (el) el.style.display = show ? (dsp || '') : 'none'; }
@@ -2561,12 +2554,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Group-only participant fields
     slideToggle(groupFields, isGroup);
 
-    // Self-paced = online, day-bound, no location / no cash / est. time only
+    // Self-paced = online, day-bound: no location, no calendar, estimated time instead of
+    // duration. Payment stays — cash is allowed here too (the coach still accepts the request).
     setDisplay(locationField, !isSelf);
-    setDisplay(paymentField, !isSelf);
     setDisplay(scheduleNote, !isSelf, 'flex');
     setDisplay(selfpacedNote, isSelf, 'flex');
-    setDisplay(selfpacedPayNote, isSelf, 'flex');
 
     priceLabel.textContent = isGroup ? 'Price per participant' : 'Price';
     durationLabel.innerHTML = isSelf
