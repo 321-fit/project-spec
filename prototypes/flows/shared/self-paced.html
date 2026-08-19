@@ -202,6 +202,41 @@
   .sp-cmt-name { font-size: 12px; font-weight: 500; color: var(--fit-text-secondary); margin-bottom: 3px; }
   .sp-cmt-text { font-size: 14px; line-height: 1.45; color: var(--fit-text-primary); }
   .sp-cmt-time { font-size: 11px; color: var(--fit-text-tertiary); margin-top: 4px; }
+  /* Thread = the assignment's home. The coach lands here first and acts from
+     here, instead of being dropped straight into the builder or the review —
+     same "look before you edit" rule the training templates got. */
+  /* One thread, two readers: the coach sees the athlete's name and no practice
+     affordance; the athlete sees the first person. */
+  .sp-when-coach { display: none; }
+  #s-comments.sp-coach .sp-when-coach { display: inline; }
+  #s-comments.sp-coach .sp-when-athlete { display: none; }
+  #s-comments.sp-coach .sp-practice { display: none !important; }
+  /* "Needs a plan" means nothing has happened yet — no submission, no review,
+     no conversation. What is left is the action row and an empty thread. */
+  #s-comments.sp-requested .sp-anchor,
+  #s-comments.sp-requested .sp-cmt,
+  #s-comments.sp-requested .sp-sep { display: none !important; }
+  .sp-thread-empty { display: none; padding: 40px 24px; text-align: center; font-size: 13.5px; line-height: 1.5; color: var(--fit-text-tertiary); }
+  #s-comments.sp-requested .sp-thread-empty { display: block; }
+
+  .sp-thread-action {
+    display: none; align-items: center; gap: 12px; margin: 12px 16px 4px;
+    padding: 12px 14px; border-radius: 14px; background: var(--fit-surface-high);
+  }
+  .sp-thread-action .t { flex: 1; }
+  .sp-thread-action .t b { display: block; font-size: 14px; font-weight: 500; color: var(--fit-text-primary); }
+  .sp-thread-action .t span { font-size: 12.5px; color: var(--fit-text-tertiary); }
+  .sp-thread-action button {
+    height: 40px; padding: 0 16px; border: none; border-radius: 99px; flex-shrink: 0;
+    background: var(--fit-brand-gradient); color: #fff;
+    font-family: var(--fit-font); font-size: 14px; font-weight: 500; cursor: pointer;
+  }
+  /* one row per state; the coach role decides whether any of them shows at all */
+  #s-comments.sp-coach.sp-requested .sp-thread-action[data-st="requested"],
+  #s-comments.sp-coach.sp-submitted .sp-thread-action[data-st="submitted"],
+  #s-comments.sp-coach.sp-ready     .sp-thread-action[data-st="ready"] { display: flex; }
+  #s-comments.sp-coach .sp-cmt-bar input { }
+
   .sp-cmt-bar { display: flex; align-items: center; gap: 8px; padding: 10px 16px 16px; }
   .sp-cmt-input { flex: 1; border: 1px solid var(--fit-divider); border-radius: 99px; padding: 10px 14px; background: transparent; font-family: var(--fit-font); font-size: 14px; color: var(--fit-text-primary); outline: none; }
   .sp-cmt-send { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--fit-brand-gradient); color: #fff; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
@@ -313,11 +348,18 @@
     <button onclick="go('s-player',this)">Player</button>
     <button onclick="go('s-complete',this)">Complete + upload</button>
     <button onclick="go('s-comments',this)">Comments</button>
-    <div class="label">Video sub-flow</div>
+    <div class="label">Thread (assignment home)</div>
+  <button onclick="go('s-comments',this);spThread('coach','requested')">Coach &middot; needs a plan</button>
+  <button onclick="go('s-comments',this);spThread('coach','submitted')">Coach &middot; needs review</button>
+  <button onclick="go('s-comments',this);spThread('athlete')">Athlete view</button>
+  <div class="label">Video sub-flow</div>
     <button onclick="go('s-trim',this)">Trim clip</button>
     <button onclick="go('s-upload',this)">Uploading (Mux)</button>
     <div class="label">Other modules</div>
-    <button onclick="window.location.href='profile.html'">← shared/profile</button>
+    <button onclick="window.location.href='profile.html'">&larr; shared/profile</button>
+  <button onclick="window.location.href='../coach/sessions.html#s-detail-selfpaced'">&larr; The template</button>
+  <button onclick="window.location.href='../coach/clients.html#s-client-detail'">&larr; Client card</button>
+  <button onclick="window.location.href='../athlete/my-coaches.html#s-coach-detail'">&larr; Coach card (athlete)</button>
   </div>
   <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
     <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
@@ -1081,27 +1123,42 @@
   <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
       <button class="fit-header-back" aria-label="Back" onclick="go('s-list',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <div style="flex:1;min-width:0;"><div class="fit-header-title" style="font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Lower-body mobility</div><div style="font-size:12px;color:var(--fit-text-tertiary);">with Maria · self-paced</div></div>
+      <div style="flex:1;min-width:0;"><div class="fit-header-title" style="position:static;transform:none;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><span class="sp-when-athlete">Lower-body mobility</span><span class="sp-when-coach">Anna &middot; Lower-body mobility</span></div><div style="font-size:12px;color:var(--fit-text-tertiary);">with Maria · self-paced</div></div>
     </div>
   </div>
   <div class="fit-phone-content" style="padding-top:12px;">
+    <!-- Coach lands here from the template detail. What is possible depends on
+         the state, and the state is named the same way everywhere. -->
+    <div class="sp-thread-action" data-st="requested">
+      <div class="t"><b>Needs a plan</b><span>Bought 2h ago &middot; day: Thu, Apr 18</span></div>
+      <button onclick="go('s-setup',null)">Build it</button>
+    </div>
+    <div class="sp-thread-action" data-st="submitted">
+      <div class="t"><b>Needs review</b><span>Submitted 20 min ago &middot; clip attached</span></div>
+      <button onclick="go('s-review',null)">Review</button>
+    </div>
+    <div class="sp-thread-empty">Nothing here yet &mdash; Anna bought this and is waiting for the workout.<br>Anything you write lands in her thread.</div>
+    <div class="sp-thread-action" data-st="ready">
+      <div class="t"><b>With the athlete</b><span>Sent Apr 16 &middot; due Thu, Apr 18</span></div>
+    </div>
+
     <div data-st="default">
       <div style="text-align:center;font-size:12px;color:var(--fit-text-tertiary);margin-bottom:14px;">Comments on this session only</div>
       <!-- This finished session is the athlete's to repeat anytime (feedback already sent) -->
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--fit-divider);border-radius:12px;margin-bottom:14px;">
+      <div class="sp-practice" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--fit-divider);border-radius:12px;margin-bottom:14px;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-secondary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.4 2.6L3 8"/><path d="M3 3v5h5"/></svg>
         <div style="flex:1;min-width:0;font-size:13px;color:var(--fit-text-secondary);">Yours to repeat anytime — practice without re-booking.</div>
         <button onclick="spCp(true,null);go('s-welcome',null)" style="flex-shrink:0;height:32px;padding:0 14px;border:1px solid var(--fit-divider);border-radius:99px;background:transparent;color:var(--fit-text-primary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;">Do it again</button>
       </div>
       <!-- ANCHOR: athlete submission -->
-      <div style="border:1px solid var(--fit-divider);border-radius:14px;overflow:hidden;margin-bottom:14px;background:var(--fit-card-bg);">
+      <div class="sp-anchor" style="border:1px solid var(--fit-divider);border-radius:14px;overflow:hidden;margin-bottom:14px;background:var(--fit-card-bg);">
         <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--fit-divider);"><span class="sp-cmt-av" style="width:24px;height:24px;font-size:11px;background:var(--fit-brand-gradient);">YO</span><span style="font-size:13px;font-weight:600;color:var(--fit-text-primary);">You submitted this session</span><span style="margin-left:auto;font-size:11px;color:var(--fit-text-tertiary);">Apr 12 · 18:04</span></div>
         <div style="position:relative;aspect-ratio:16/9;background:#000;display:flex;align-items:center;justify-content:center;"><svg width="40" height="40" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg><span style="position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:2px 6px;border-radius:6px;">0:38</span></div>
         <div style="display:flex;gap:6px;padding:10px 12px;flex-wrap:wrap;"><span style="font-size:12px;font-weight:500;padding:4px 10px;border-radius:99px;background:var(--fit-bg-tinted);color:var(--fit-text-secondary);">Intensity · Just right</span><span style="font-size:12px;font-weight:500;padding:4px 10px;border-radius:99px;background:var(--fit-bg-tinted);color:var(--fit-text-secondary);">Technique · Solid</span></div>
       </div>
       <div class="sp-cmt me"><span class="sp-cmt-av" style="background:var(--fit-brand-gradient);">YO</span><div class="sp-cmt-bub"><div class="sp-cmt-text">Done! Left hip felt tight on set 3.</div><div class="sp-cmt-time">Apr 12 · 18:04</div></div></div>
       <!-- ANCHOR: coach review -->
-      <div style="border:1px solid var(--fit-divider);border-radius:14px;padding:12px;margin-bottom:14px;background:var(--fit-card-bg);">
+      <div class="sp-anchor" style="border:1px solid var(--fit-divider);border-radius:14px;padding:12px;margin-bottom:14px;background:var(--fit-card-bg);">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span class="sp-cmt-av" style="width:24px;height:24px;font-size:11px;">MR</span><span style="font-size:13px;font-weight:600;color:var(--fit-text-primary);">Maria reviewed your clip</span><span style="margin-left:auto;display:inline-flex;gap:1px;color:#F5A623;">★★★★<span style="color:var(--fit-gray-400);">★</span></span></div>
         <div style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;">Good depth overall 👏 For the left hip, slow the eccentric and add the band drill before set 3.</div>
         <div style="font-size:11px;color:var(--fit-text-tertiary);margin-top:6px;">Apr 12 · 20:11</div>
@@ -1328,10 +1385,21 @@ function go(id, btn) {
   var ann = document.getElementById('ann-' + id); if (ann) ann.classList.add('active');
   if (window.FitUI) FitUI.initAll(document.getElementById(id));
 }
+// Thread as the assignment's home: ?as=coach&st=requested|ready|submitted
+function spThread(role, st) {
+  var el = document.getElementById('s-comments'); if (!el) return;
+  el.classList.toggle('sp-coach', role === 'coach');
+  el.classList.remove('sp-requested','sp-ready','sp-submitted');
+  if (st) el.classList.add('sp-' + st);
+  if (role === 'coach') { el.classList.remove('fit-light'); el.classList.add('fit-dark'); }
+}
+
 // Deep-link: open a specific screen when reached via #hash (e.g. coach dashboard → #s-queue)
 window.addEventListener('DOMContentLoaded', function(){
   var h = (location.hash || '').replace('#','');
   if (h && document.getElementById(h)) go(h, null);
+  var q = new URLSearchParams(location.search);
+  if (q.get('as') === 'coach') spThread('coach', q.get('st') || 'requested');
   // Coach-scoped entry: My self-paced opened from a Coach Detail carries ?c=<coach> → show filter chip
   var c = new URLSearchParams(location.search).get('c');
   if (c) { var f=document.getElementById('spl-coach-filter'), n=document.getElementById('spl-coach-name'); if(f&&n){ n.textContent=c; f.style.display='block'; } }

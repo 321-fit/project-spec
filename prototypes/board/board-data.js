@@ -1648,7 +1648,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-overview",
-          "hash": "172a00861668",
+          "hash": "b976c6660dfc",
           "title": "Overview",
           "inApp": "Self-paced — flow",
           "status": "canon",
@@ -1667,7 +1667,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-queue",
-          "hash": "a672f55c4d55",
+          "hash": "6c786946ca2a",
           "title": "Requests + review",
           "inApp": "Self-paced",
           "status": "canon",
@@ -1700,7 +1700,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-inbox",
-          "hash": "1b41184b1f31",
+          "hash": "ce7109add27e",
           "title": "↳ in unified Inbox",
           "inApp": "Inbox",
           "status": "canon",
@@ -1720,7 +1720,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-setup",
-          "hash": "4b98d8cb1f41",
+          "hash": "81e722086511",
           "title": "Setup builder",
           "inApp": "Set up for Anna",
           "status": "canon",
@@ -1741,17 +1741,12 @@ window.FIT_BOARD = {
               "file": "flows/coach/clients.html",
               "label": "Coach Clients",
               "id": "s-client-detail"
-            },
-            {
-              "file": "flows/coach/sessions.html",
-              "label": "Training templates",
-              "id": "s-detail-selfpaced"
             }
           ]
         },
         {
           "id": "s-step",
-          "hash": "960fb04e1f67",
+          "hash": "f5c2155ec5d0",
           "title": "Step editor",
           "inApp": "Edit step",
           "status": "canon",
@@ -1771,7 +1766,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-review",
-          "hash": "e8a55dbec0c8",
+          "hash": "4ac54c878528",
           "title": "Review submission",
           "inApp": "Review · Julia",
           "status": "canon",
@@ -1792,17 +1787,12 @@ window.FIT_BOARD = {
               "file": "flows/coach/clients.html",
               "label": "Coach Clients",
               "id": "s-client-selfpaced"
-            },
-            {
-              "file": "flows/coach/sessions.html",
-              "label": "Training templates",
-              "id": "s-detail-selfpaced"
             }
           ]
         },
         {
           "id": "s-history",
-          "hash": "0c4905da8153",
+          "hash": "2c865676d04c",
           "title": "Client history",
           "inApp": "Julia · self-paced",
           "status": "canon",
@@ -1828,7 +1818,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-library",
-          "hash": "e17d634f52bb",
+          "hash": "ddc572ac60c7",
           "title": "Coach library",
           "inApp": "Video library",
           "status": "canon",
@@ -1848,7 +1838,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-book",
-          "hash": "e67291de7504",
+          "hash": "bc1a8f1acac3",
           "title": "Book offering",
           "inApp": "Book training",
           "status": "canon",
@@ -1868,7 +1858,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-list",
-          "hash": "216cdd92d262",
+          "hash": "6ec6b27e5ef4",
           "title": "My self-paced",
           "inApp": "Self-paced training",
           "status": "canon",
@@ -1899,7 +1889,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-welcome",
-          "hash": "685455384caf",
+          "hash": "860707c69398",
           "title": "Welcome / intro",
           "inApp": "",
           "status": "canon",
@@ -1925,7 +1915,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-player",
-          "hash": "79d34fad1e84",
+          "hash": "fe7cdcc27bfb",
           "title": "Player",
           "inApp": "",
           "status": "canon",
@@ -1945,7 +1935,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-complete",
-          "hash": "8f839c6eda38",
+          "hash": "87407a4afafc",
           "title": "Complete + upload",
           "inApp": "Nice work 🎉",
           "status": "canon",
@@ -1965,8 +1955,8 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-comments",
-          "hash": "0ef50bd0dbe9",
-          "title": "Comments",
+          "hash": "7f7a137b9119",
+          "title": "Athlete view",
           "inApp": "Lower-body mobility",
           "status": "canon",
           "theme": "light",
@@ -1986,12 +1976,17 @@ window.FIT_BOARD = {
               "file": "flows/coach/clients.html",
               "label": "Coach Clients",
               "id": "s-client-selfpaced"
+            },
+            {
+              "file": "flows/coach/sessions.html",
+              "label": "Training templates",
+              "id": "s-detail-selfpaced"
             }
           ]
         },
         {
           "id": "s-trim",
-          "hash": "ea29fa8c4896",
+          "hash": "f83ced993166",
           "title": "Trim clip",
           "inApp": "Trim clip",
           "status": "canon",
@@ -2011,7 +2006,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-upload",
-          "hash": "31c41831a16f",
+          "hash": "ac014751a553",
           "title": "Uploading (Mux)",
           "inApp": "Uploading",
           "status": "canon",
@@ -2169,6 +2164,16 @@ window.FIT_BOARD = {
         {
           "from": "s-comments",
           "to": "s-list",
+          "back": true
+        },
+        {
+          "from": "s-comments",
+          "to": "s-setup",
+          "back": true
+        },
+        {
+          "from": "s-comments",
+          "to": "s-review",
           "back": true
         },
         {
@@ -3427,7 +3432,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-detail-selfpaced",
-          "hash": "779ffe44867c",
+          "hash": "3d53596f6df9",
           "title": "Detail — Self-paced",
           "inApp": "Tennis self-paced",
           "status": "canon",
@@ -3437,8 +3442,8 @@ window.FIT_BOARD = {
           "external": [
             "./sessions.html#s-list",
             "../shared/self-paced.html#s-queue",
-            "../shared/self-paced.html#s-setup",
-            "../shared/self-paced.html#s-review",
+            "../shared/self-paced.html?as=coach&st=requested#s-comments",
+            "../shared/self-paced.html?as=coach&st=submitted#s-comments",
             "../shared/self-paced.html#s-history",
             "./clients.html"
           ],
