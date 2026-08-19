@@ -118,6 +118,16 @@
   }
   .lg-search svg { width: 16px; height: 16px; flex-shrink: 0; }
 
+  /* A field that is a row: no fill and no border of its own, because the
+     container already provides both. This is the whole of Apple's answer. */
+  .ie-form .lg-row { padding: 9px 14px; }
+  .ie-field {
+    display: block; width: 100%; margin-top: 1px; border: 0; background: transparent;
+    font: 400 15px/1.4 inherit; color: var(--fit-text-primary); outline: none; padding: 0;
+  }
+  .ie-field::placeholder { color: var(--fit-text-placeholder); }
+  .ie-form .lg-t { font-size: 12px; font-weight: 400; color: var(--fit-text-tertiary); }
+
   /* --- proposed corrections, toggled ---------------------------------------
      The light tints were moved to the darker accent step long ago (the light-tint
      rule), but the INK on them was left at the bright 400/500. Yellow on pale
@@ -384,6 +394,15 @@ const SPECS = [
   cap: 'the collision that started this',
   note: '.fit-input and .fit-btn-disabled both took --fit-surface-low, so an active field and a dead button were literally the same colour: #E4E6E7 light, #111213 dark. Disabled has been unfilled (outline grammar), which fixes half of it. The other half: in light the fill sits 1.09:1 from the page, so the field still barely exists.',
   html: `<input class="fit-input" value="the fill, as it is today"><div style="height:8px;"></div><button class="fit-btn fit-btn-disabled">Disabled — no longer a filled plate</button>`,
+},
+{
+  cap: 'E · no edge at all — the fields live in a container  ← what iOS actually does',
+  note: 'Apple does not outline text fields. Their answer to "a field on a page has no edge" is that a field is never ON the page: it is a ROW inside a grouped container, and the container is the only thing that separates. Which means the input-edge question and the list-grammar question (below) are the same question — take grammar B for forms and the hairline stops being needed. The fill is white for the same reason a card is: on a grouped light screen the page is grey and everything raised on it is white. Grey-on-grey was the real defect — we were using Apple\'s CONTROL fill, which only ever sits on white.',
+  html: `<div class="lg-stack lg-stack--container ie-form">
+    <label class="lg-row"><span class="lg-body"><span class="lg-t">Full name</span><input class="ie-field" value="Anna Kowalski"></span></label>
+    <label class="lg-row"><span class="lg-body"><span class="lg-t">Email</span><input class="ie-field" placeholder="you@example.com"></span></label>
+    <label class="lg-row"><span class="lg-body"><span class="lg-t">Phone</span><input class="ie-field" placeholder="+48 …"></span></label>
+  </div>`,
 },
 {
   cap: 'A · fill + 1px hairline (gray-500)',

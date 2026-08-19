@@ -120,6 +120,7 @@ the fitting room under *Input edge — pick one*, measured:
 | **B** fill + soft shadow | passes the audit's shadow exemption | **invisible** — shadows do not read on dark | keeps light's card grammar, but becomes a light-only treatment, so the themes diverge anyway |
 | **C** darker fill (`gray-200`), no edge | 1.4 ✗ | ✓ | borderless and unmistakably filled; fails the rule while looking better than today |
 | **D** label above, quiet fill | field 1.1 ✗ | 1.2 ✗ | the label carries the meaning instead of the edge. Already in the system as `.fit-input-group`; works *with* any of the above rather than instead of them |
+| **E** no edge — fields are rows in a container | n/a — nothing to measure | n/a | **what iOS actually does.** Added 2026-08-19 after the owner asked whether outlines were an Apple pattern. They are not. See the correction below |
 
 **Recommendation: A.** B looks right in light and does nothing in dark, which is
 how one component quietly becomes two. D is worth adopting anyway — a labelled
@@ -132,8 +133,39 @@ card it sits on** — the one editable thing on the screen was the one recessed 
 everything else. That is the same signal `.fit-btn-disabled` uses, which is why the
 original report said "looks disabled" and why an outline alone did not fix it.
 
-**Fill white, then draw the edge.** A white field on the `#F2F2F7` canvas restores
-the affordance; A's hairline then makes it visible. Neither works alone.
+### 🔴 Correction — Apple does not outline fields, and the white fill is right for a different reason
+
+Asked directly: *is the outline how iOS does it, and were the grey fills wrong?*
+Checked against the kit (`ios26-reference.md` §2b), not from memory:
+
+**No, iOS has no outlined text fields.** Their answer to "a field on a page has no
+edge" is that **a field is never on the page** — it is a **row inside a grouped
+container**, and the container is the only thing that separates. So candidate **E**
+was added to the room: a form drawn as one container, fields with no fill and no
+border of their own. It needs no hairline and no white fill, because the container
+already carries both.
+
+**Which makes the input-edge question and §6 the same question.** A hairline round
+every field is a workaround for *standalone fields floating on a page* — a shape
+Apple does not have. Take grammar B for forms and the workaround disappears.
+
+**And the white fill is correct, but not for the reason first written.** It is not
+"white because it needs contrast". On a **grouped** light screen the page is grey and
+everything raised on it — card, row, field — is white. Our grey fill was Apple's
+**control fill** (`tertiarySystemFill`), and a control fill only ever sits **on
+white**: a search bar in a white nav, a segmented control on a card. We had put a
+fill-for-white onto a grey page, which is why it vanished. Grey field is not wrong
+in general — it is wrong *there*.
+
+| where the field is | fill | edge |
+|---|---|---|
+| a row in a form/container (most of our forms) | none — the container is white | none |
+| standalone on a grey page | white | hairline, as a **fallback** only |
+| on a white card / in a nav bar (search) | grey control fill | none |
+
+**Revised recommendation:** keep the white fill (it is what the grouped model says),
+treat A's hairline as a **fallback for standalone fields**, and settle it properly in
+the §6 pass on real screens rather than deciding it on a specimen.
 
 ---
 
@@ -472,8 +504,8 @@ step is this document plus `design-tokens/docs/components.md`.
 2. **Add the missing ramp steps in Figma** — an ink-on-tint pair per accent, plus a
    passing placeholder. Without them §4 lands as literals (§3d).
 3. **Add `--fit-control-edge`** as a real token; it retires three component fixes.
-4. **Pick the canvas depth** — `#F2F2F7` (1.09) or `#EFEFF4` (1.15); both are in the
-   room's `Canvas` switch.
+4. ~~Pick the canvas depth~~ — **decided 2026-08-19: `#F2F2F7` stays** (1.09, matches
+   iOS). No token change. If §6 goes to grammars B/C the depth stops mattering anyway.
 5. **Decide on §6 grammars** — this one is markup and a dozen screens, so it wants
    its own pass and probably its own tasks.
 6. §2 text ladder, then §3d's 87 rules, which gate everything being trustworthy.
