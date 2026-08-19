@@ -86,6 +86,13 @@ End-to-end annotated walkthroughs, not screens to clone. Each step links a **liv
 
 ### Lab (`lab/`)
 Token experiments, not product screens — never clone these for a feature.
+- `list-grammars.html` — **the three list grammars on live screens.** A row can be separated from
+  its neighbour three ways: its own card, a shared inset container, or full bleed where the list *is*
+  the screen. Each is shown on a real screen (Settings / Messages / Personal data) — left is exactly
+  what ships, right is the same markup wearing the other grammar. **Generated:** edit
+  `tools/lab/build-grammars.mjs` and re-run it, never this file; it lifts each screen out of its
+  prototype by tag depth so the comparison cannot drift. Reasoning and the decision table live in
+  [`specs/theme-contrast.md`](../specs/theme-contrast.md) §6.
 - `components.html` — **component fitting room.** One specimen list rendered into a dark and a light
   pane side by side, so the two cannot drift. A **live contrast audit** measures the *rendered*
   colours (walking up for the first opaque background) and badges anything under WCAG AA, with a
