@@ -72,59 +72,78 @@
   body:not(.audit) .cx { display: none; }
 
   /* ---------------------------------------------------------------------------
-     iOS system colours, mapped onto our own semantic variables. Only neutrals,
-     surfaces, labels and separators are replaced — brand and semantic colours
-     stay ours, otherwise it stops being our app. Nothing here goes near the
-     tokens: this is a fitting, not a decision.
+     iOS 26, read out of Apple's own kit on 2026-08-19 — not from memory.
+     Numbers and provenance: specs/ios26-reference.md
+     Brand colours stay OURS; this borrows neutrals, type and metrics.
      --------------------------------------------------------------------------- */
+  body.ios .stage {
+    --fit-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro', system-ui, sans-serif;
+
+    /* the real scale: size / line-height / tracking. Emphasized is 590, not 600. */
+    --ios-large-title: 34px/41px;   --ios-large-title-tr: 0.40px;
+    --ios-title1: 28px/34px;        --ios-title1-tr: 0.38px;
+    --ios-title2: 22px/28px;        --ios-title2-tr: -0.26px;
+    --ios-title3: 20px/25px;        --ios-title3-tr: -0.45px;
+    --ios-headline: 17px/22px;      --ios-headline-tr: -0.43px;
+    --ios-body: 17px/22px;          --ios-body-tr: -0.43px;
+    --ios-callout: 16px/21px;       --ios-callout-tr: -0.31px;
+    --ios-subhead: 15px/20px;       --ios-subhead-tr: -0.23px;
+    --ios-footnote: 13px/18px;      --ios-footnote-tr: -0.08px;
+    --ios-caption1: 12px/16px;      --ios-caption1-tr: 0px;
+    --ios-caption2: 11px/13px;      --ios-caption2-tr: 0.06px;
+  }
   body.ios .stage.fit-light {
-    --fit-screen-bg:        #F2F2F7;                  /* systemGroupedBackground */
-    --fit-surface:          #FFFFFF;                  /* secondarySystemGrouped */
+    --fit-screen-bg:        #F2F2F7;                 /* Backgrounds/Secondary */
+    --fit-surface:          #FFFFFF;                 /* Backgrounds/Primary */
     --fit-surface-high:     #FFFFFF;
-    --fit-surface-higher:   #F2F2F7;                  /* tertiarySystemGrouped */
-    --fit-surface-low:      rgba(118,118,128,0.12);   /* tertiarySystemFill */
-    --fit-text-primary:     #000000;                  /* label */
-    --fit-text-secondary:   rgba(60,60,67,0.60);      /* secondaryLabel */
-    --fit-text-tertiary:    rgba(60,60,67,0.30);      /* tertiaryLabel */
-    --fit-text-placeholder: rgba(60,60,67,0.30);      /* placeholderText */
-    --fit-divider:          rgba(60,60,67,0.29);      /* separator */
+    --fit-surface-higher:   #F2F2F7;
+    --fit-surface-low:      rgba(120,120,128,0.12);  /* tertiary fill */
+    --fit-text-primary:     #000000;                 /* Labels/Primary */
+    --fit-text-secondary:   rgba(60,60,67,0.60);
+    --fit-text-tertiary:    rgba(60,60,67,0.30);
+    --fit-text-placeholder: rgba(60,60,67,0.30);
+    --fit-divider:          rgba(60,60,67,0.29);     /* Separators/Non-opaque */
   }
   body.ios .stage.fit-dark {
-    --fit-screen-bg:        #000000;
+    --fit-screen-bg:        #000000;                 /* exact, from the kit */
     --fit-surface:          #1C1C1E;
     --fit-surface-high:     #1C1C1E;
     --fit-surface-higher:   #2C2C2E;
-    --fit-surface-low:      rgba(118,118,128,0.24);
+    --fit-surface-low:      rgba(120,120,128,0.24);
     --fit-text-primary:     #FFFFFF;
-    --fit-text-secondary:   rgba(235,235,245,0.60);
-    --fit-text-tertiary:    rgba(235,235,245,0.30);
+    --fit-text-secondary:   rgba(235,235,245,0.70);  /* #ebebf5b2 */
+    --fit-text-tertiary:    rgba(235,235,245,0.30);  /* #ebebf54d */
     --fit-text-placeholder: rgba(235,235,245,0.30);
-    --fit-divider:          rgba(84,84,88,0.65);
+    --fit-divider:          rgba(255,255,255,0.17);  /* #ffffff2b */
   }
-  /* Brand stays OURS — teal and green. The point of the fitting is Apple's
-     neutrals, type and shapes, not their identity. */
-  /* --- and the rest of the system, so the comparison is honest ---------------
-     Typeface: -apple-system resolves to SF on a Mac, which is the point — SF is
-     optically larger and tighter than Rubik at the same px, and half of what
-     "looks like iOS" is the type, not the colour.                            */
-  body.ios .stage {
-    --fit-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
-    letter-spacing: -0.2px;
-  }
-  /* iOS 26, not 17/18: the language went back TO capsules and big containers —
-     inline controls are pills, grouped lists sit in one large rounded card, nav
-     buttons are circles in a floating glass group. Our capsules were already
-     closer to this than the 10-12px rounded rects of the previous era. */
-  body.ios .stage .fit-btn { font-size: 17px; font-weight: 600; letter-spacing: -0.4px; }
+
+  /* Type roles. Tracking is the half of this that nobody notices and everybody
+     feels: ours is 0 everywhere, Apple's flips sign with size. */
+  body.ios .stage { font: var(--ios-body) var(--fit-font); letter-spacing: var(--ios-body-tr); }
+  body.ios .stage .fit-header-title,
+  body.ios .stage .fit-card-title { font: 590 var(--ios-headline) var(--fit-font); letter-spacing: var(--ios-headline-tr); }
+  body.ios .stage .fit-btn { font: 590 var(--ios-body) var(--fit-font); letter-spacing: var(--ios-body-tr); }
   body.ios .stage .fit-input,
-  body.ios .stage .fit-input-ta { border-radius: 12px; font-size: 17px; letter-spacing: -0.4px; }
+  body.ios .stage .fit-input-ta { font: 400 var(--ios-body) var(--fit-font); letter-spacing: var(--ios-body-tr); }
+  body.ios .stage .fit-input-label,
+  body.ios .stage .fit-input-counter,
+  body.ios .stage .fit-input-error-text,
+  body.ios .stage .spec-cap { font: 400 var(--ios-footnote) var(--fit-font); letter-spacing: var(--ios-footnote-tr); }
+  body.ios .stage .fit-chip { font: 400 var(--ios-subhead) var(--fit-font); letter-spacing: var(--ios-subhead-tr); }
+  body.ios .stage .fit-badge { font: 590 var(--ios-caption1) var(--fit-font); letter-spacing: var(--ios-caption1-tr); }
+  body.ios .stage .fit-stat-strip-value { font: 700 var(--ios-title2) var(--fit-font); letter-spacing: var(--ios-title2-tr); }
+  body.ios .stage .fit-stat-strip-label { font: 400 var(--ios-caption1) var(--fit-font); letter-spacing: var(--ios-caption1-tr); }
+  body.ios .stage .grp-title { font: 700 var(--ios-title2) var(--fit-font); letter-spacing: var(--ios-title2-tr); }
+
+  /* iOS 26 shapes: back to capsules and large containers — our capsules already match. */
+  body.ios .stage .fit-input,
+  body.ios .stage .fit-input-ta { border-radius: 12px; }
   body.ios .stage .fit-chip,
   body.ios .stage .fit-badge { border-radius: 999px; }
   body.ios .stage .fit-card,
   body.ios .stage .fit-stat-strip { border-radius: 20px; }
 
-
-  body.ios .pane-head::after { content: ' · iOS 26 neutrals + SF + shapes · our brand'; color: #de911d; }
+  body.ios .pane-head::after { content: ' · iOS 26 — real type scale + neutrals + metrics · our brand'; color: #de911d; }
   body.audit .fail-mark { outline: 2px dashed #f05c5b; outline-offset: 2px; border-radius: 6px; }
 </style>
 </head>
