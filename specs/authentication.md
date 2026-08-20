@@ -151,10 +151,20 @@ with only the provider block changed, so the two can be compared by looking.
 
 **Circles buy** the providers no longer competing with the CTA: two wide buttons under a
 gradient button read as three offers of similar weight, two circles read as "and these
-also exist". **They cost** the words — "Continue with Apple" becomes a logo, fine for
-two providers everyone knows by mark, useless for a third; *"Last used on this device"*
-degrades to a dot with nothing to explain it; and accessibility rests entirely on
-`aria-label`. **Undecided — the owner's call.**
+also exist". The screen gets shorter and the email path is unmistakably the main one.
+
+**Two objections against them were withdrawn** after review, and they were the weaker
+half of the case: *"the words go"* — the *or continue with* rule already sits above the
+row and names what these are, so the per-button label was saying it twice; and *"a third
+provider will not fit"* — it is another circle, and the row grows sideways where the wide
+stack grows downward, so it scales better rather than worse. What remains is narrow: a
+future provider whose mark is not recognisable on sight.
+
+**Last used is a ring around the circle**, not a dot beside it — the dot was a second
+object to decode next to the thing it described. `aria-label` carries the state in words,
+so colour is not the only signal.
+
+**Undecided — the owner's call.**
 
 **⚠️ Implementation drift, not filed:** the live **Android** build still shows a
 `Repeat password` field on sign-up, and still routes through the method picker. iOS

@@ -10,7 +10,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-role-pick",
-          "hash": "01fb5a477308",
+          "hash": "05f12acf169c",
           "title": "Role pick",
           "inApp": "",
           "status": "canon",
@@ -29,7 +29,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signup-email",
-          "hash": "49697d5d9673",
+          "hash": "0935554a7070",
           "title": "Sign up",
           "inApp": "",
           "status": "canon",
@@ -48,7 +48,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signin-email",
-          "hash": "68049a7b11ab",
+          "hash": "7e371426c850",
           "title": "Sign in",
           "inApp": "",
           "status": "canon",
@@ -67,7 +67,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signin-circles",
-          "hash": "7aaa43266713",
+          "hash": "5a40af50aa0e",
           "title": "Sign in · circles (variant)",
           "inApp": "",
           "status": "proposal",
@@ -87,7 +87,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-email",
-          "hash": "8a6e796ebed3",
+          "hash": "9c398bc201d5",
           "title": "Step 1 · enter email",
           "inApp": "",
           "status": "canon",
@@ -106,7 +106,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-otp",
-          "hash": "c9b74c2b3a71",
+          "hash": "ab29fd8a04f5",
           "title": "Step 2 · OTP code",
           "inApp": "",
           "status": "canon",
@@ -125,7 +125,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-new",
-          "hash": "9dfddae1b05e",
+          "hash": "7931aa98cd9e",
           "title": "Step 3 · new password",
           "inApp": "",
           "status": "canon",
@@ -144,7 +144,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-phone-enter",
-          "hash": "eceaa4f2a5de",
+          "hash": "a7c69d5c99f2",
           "title": "Phone · enter number",
           "inApp": "",
           "status": "canon",
@@ -164,7 +164,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-phone-otp",
-          "hash": "1cea5a661721",
+          "hash": "05234d8264fb",
           "title": "Phone · OTP code",
           "inApp": "",
           "status": "canon",
@@ -184,7 +184,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-country-picker",
-          "hash": "fd110ab69411",
+          "hash": "f4e8c28fe225",
           "title": "Country picker",
           "inApp": "Country or region",
           "status": "canon",
