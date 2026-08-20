@@ -329,11 +329,20 @@
   }
   .au-provider-circle svg { width: 26px; height: 26px; }
   .fit-light .au-provider-circle { background: var(--fit-white); box-shadow: var(--fit-shadow-card); }
-  /* Last used: a ring around the circle rather than a dot beside it. The dot was
-     a second object to decode; the ring marks the thing itself, which is what
-     "you used this one" means. Screen readers still get it — the aria-label
-     carries the state, the ring is not the only signal. */
-  .au-provider-circle--last {
+  /* Last used. Two signals for ONE fact, both driven by data-au-last on the
+     screen: the subtitle says it in words, the ring marks the circle. Neither is
+     load-bearing alone. And when the app does not know the method — first run,
+     storage cleared, new device — BOTH disappear instead of guessing, which is
+     what data-au-last="none" is for. A screen that invents a memory it does not
+     have is worse than one that says nothing. */
+  .au-sub { display: none; }
+  [data-au-last="apple"]  .au-sub[data-for="apple"],
+  [data-au-last="google"] .au-sub[data-for="google"],
+  [data-au-last="email"]  .au-sub[data-for="email"],
+  [data-au-last="none"]   .au-sub[data-for="none"] { display: inline; }
+
+  [data-au-last="apple"]  .au-provider-circle[data-provider="apple"],
+  [data-au-last="google"] .au-provider-circle[data-provider="google"] {
     box-shadow: inset 0 0 0 2px var(--fit-teal-500);
   }
 
@@ -645,7 +654,7 @@
      SCREEN: SIGN-IN EMAIL FORM
      iOS ref: Authentication/SignInWithCredentials/SignInWithCredentialsView.swift
      ============================================================ -->
-<div class="fit-phone fit-dark" id="s-signin-email" data-au-state="default" data-status="canon">
+<div class="fit-phone fit-dark" id="s-signin-email" data-au-state="default" data-au-last="apple" data-status="canon">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -662,7 +671,12 @@
 
     <div class="au-page-head">
       <div class="au-page-title">Welcome back</div>
-      <div class="au-page-sub">Use the email and password you signed up with, or a connected provider.</div>
+      <div class="au-page-sub">
+        <span class="au-sub" data-for="apple">Last time you signed in with <strong>Apple</strong>.</span>
+        <span class="au-sub" data-for="google">Last time you signed in with <strong>Google</strong>.</span>
+        <span class="au-sub" data-for="email">Last time you signed in with your <strong>email</strong>.</span>
+        <span class="au-sub" data-for="none">Sign in to get back to your training.</span>
+      </div>
     </div>
 
     <div class="au-form-error">
@@ -713,11 +727,11 @@
     <div class="au-or"><span>or continue with</span></div>
 
     <div class="au-circle-row">
-      <button class="fit-icon-btn au-provider-circle au-provider-circle--last"
-              data-a11y-id="auth.signin.email.method.apple" aria-label="Continue with Apple — last used on this device">
+      <button class="fit-icon-btn au-provider-circle" data-provider="apple"
+              data-a11y-id="auth.signin.email.method.apple" aria-label="Continue with Apple">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.493-.12-1.06.396-2.2 1.075-2.99.762-.88 2.012-1.5 3.089-1.583zm3.86 17.52c-.764 1.13-1.595 2.235-2.948 2.253-1.327.026-1.753-.79-3.27-.79-1.517 0-1.99.764-3.247.815-1.305.05-2.295-1.21-3.07-2.33C5.97 16.73 4.762 12.45 6.367 9.6c.776-1.42 2.18-2.32 3.71-2.34 1.275-.025 2.482.86 3.27.86.79 0 2.27-1.06 3.83-.9.66.026 2.5.26 3.69 1.97-.094.06-2.20 1.30-2.18 3.87.02 3.05 2.67 4.07 2.70 4.08-.024.073-.43 1.46-1.42 2.84z"/></svg>
       </button>
-      <button class="fit-icon-btn au-provider-circle"
+      <button class="fit-icon-btn au-provider-circle" data-provider="google"
               data-a11y-id="auth.signin.email.method.google" aria-label="Continue with Google">
         <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23 12.27c0-.85-.08-1.66-.22-2.45H12v4.63h6.16c-.27 1.43-1.08 2.65-2.31 3.46v2.88h3.74C21.78 18.81 23 15.83 23 12.27z"/><path fill="#34A853" d="M12 23c3.13 0 5.77-1.04 7.69-2.81l-3.74-2.88c-1.04.7-2.36 1.11-3.95 1.11-3.04 0-5.61-2.05-6.53-4.81H1.62v3.02C3.53 20.39 7.45 23 12 23z"/><path fill="#FBBC05" d="M5.47 13.62a6.6 6.6 0 010-3.23V7.37H1.62a11 11 0 000 9.27l3.85-3.02z"/><path fill="#EA4335" d="M12 5.38c1.71 0 3.25.59 4.47 1.74l3.32-3.32C17.76 1.86 15.12 1 12 1 7.45 1 3.53 3.61 1.62 7.37l3.85 3.02C6.39 7.43 8.96 5.38 12 5.38z"/></svg>
       </button>
@@ -1235,10 +1249,31 @@
       <button onclick="setAuState('s-signin-email','network-error',this)">Network error</button>
       <button onclick="setAuState('s-signin-email','keyboard',this)">Keyboard open</button>
     </div>
+    <div class="state-toggle">
+      <button class="active" onclick="setAuLast('s-signin-email','apple',this)">Last: Apple</button>
+      <button onclick="setAuLast('s-signin-email','google',this)">Last: Google</button>
+      <button onclick="setAuLast('s-signin-email','email',this)">Last: email</button>
+      <button onclick="setAuLast('s-signin-email','none',this)">Not known</button>
+    </div>
+    <p><strong>The subtitle carries a fact, not filler (2026-08-20).</strong> It used to
+    read "Use the email and password you signed up with, or a connected provider" &mdash;
+    a sentence that tells a returning user nothing they did not already know. It now says
+    <em>"Last time you signed in with Apple."</em> Toggle <em>Last: …</em> in the second row
+    above: the words and the teal ring are <strong>two signals for one fact</strong>, driven
+    by a single <code>data-au-last</code> attribute, so they cannot contradict each other.</p>
+    <p><strong>And when we do not know</strong> &mdash; first run, storage cleared, new
+    device &mdash; both the sentence and the ring disappear and the subtitle falls back to a
+    plain line. A screen that invents a memory it does not have is worse than one that says
+    nothing. That fallback is the <em>Not known</em> state, and it is the one to check
+    before this ships: it is the state a fresh install always lands in.</p>
+    <p class="note"><strong>Open, raised by this change:</strong> if the screen knows the
+    answer is Google, the email form is still the loudest thing on it while the actual path
+    is a 60px circle near the floor. Either the remembered provider deserves promoting when
+    it is known, or the sentence is doing a job the layout then contradicts. Not built &mdash;
+    it would change the screen's whole hierarchy, and it needs a decision first.</p>
     <p><strong>Same adopted layout as sign-up</strong> — <code>au-air</code> + circles,
-    chosen from four variants on the board. <em>Last used on this device</em> is the teal
-    ring around the provider circle: the ring marks the thing itself, where a dot beside it
-    was a second object to decode. The <code>aria-label</code> carries it in words too.</p>
+    chosen from four variants on the board. The teal ring around a provider circle marks the
+    remembered method &mdash; see the subtitle note above; the two are one fact.</p>
     <p><strong>Merged the same way as sign-up (2026-08-20)</strong> — the sign-in method
     picker is gone. <em>Last used on this device</em> survived the merge and moved onto the
     provider it describes: on the merged screen email is always in front, so the marker
@@ -1476,6 +1511,17 @@ const AU_STATE_CONFIG = {
     'search-no-match':   {},
   },
 };
+
+// Which method the device remembers. Kept apart from setAuState on purpose:
+// this is a fact about the user, not a state of the screen, and the two vary
+// independently — a wrong-password error can happen on any of them.
+function setAuLast(screenId, value, btn) {
+  document.getElementById(screenId).setAttribute('data-au-last', value);
+  if (btn) {
+    [...btn.parentElement.children].forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
 
 function setAuState(screenId, state, btn) {
   const phone = document.getElementById(screenId);

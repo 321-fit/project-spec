@@ -10,7 +10,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-role-pick",
-          "hash": "5da1b9b07e92",
+          "hash": "98759911f7ac",
           "title": "Role pick",
           "inApp": "",
           "status": "canon",
@@ -29,7 +29,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signup-email",
-          "hash": "ed3b43189375",
+          "hash": "d3864c29fbfa",
           "title": "Sign up",
           "inApp": "",
           "status": "canon",
@@ -48,13 +48,13 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signin-email",
-          "hash": "c75fff678aed",
+          "hash": "cc29d816c5ff",
           "title": "Sign in",
           "inApp": "",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "Same adopted layout as sign-up — au-air + circles, chosen from four variants on the board. Last used on this device is the teal ring around the provider circle: the ring marks the thing itself, where a dot beside it was ",
+          "note": "The subtitle carries a fact, not filler (2026-08-20). It used to read \"Use the email and password you signed up with, or a connected provider\" — a sentence that tells a returning user nothing they did not already know. I",
           "external": [],
           "shots": [
             {
@@ -67,7 +67,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-email",
-          "hash": "aa65c64b6be8",
+          "hash": "0c931cc8d0c2",
           "title": "Step 1 · enter email",
           "inApp": "",
           "status": "canon",
@@ -86,7 +86,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-otp",
-          "hash": "34ca1e458f2e",
+          "hash": "21ad88da9382",
           "title": "Step 2 · OTP code",
           "inApp": "",
           "status": "canon",
@@ -105,7 +105,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-new",
-          "hash": "54ec61589552",
+          "hash": "d0bc16c80137",
           "title": "Step 3 · new password",
           "inApp": "",
           "status": "canon",
@@ -124,7 +124,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-phone-enter",
-          "hash": "91016dac8196",
+          "hash": "75094430cf72",
           "title": "Phone · enter number",
           "inApp": "",
           "status": "canon",
@@ -144,7 +144,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-phone-otp",
-          "hash": "8d9b38e98ba7",
+          "hash": "adff41207192",
           "title": "Phone · OTP code",
           "inApp": "",
           "status": "canon",
@@ -164,7 +164,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-country-picker",
-          "hash": "f6d1b1c71ebd",
+          "hash": "8c928247e605",
           "title": "Country picker",
           "inApp": "Country or region",
           "status": "canon",

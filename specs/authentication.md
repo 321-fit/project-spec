@@ -175,6 +175,33 @@ overshoot (698 / 539) came from the inflated field gap and button, not from the 
 Fits with room on 390×844; on an SE-class 667pt screen the CTA clears comfortably and the
 circles sit right at the fold.
 
+### The sign-in subtitle states the remembered method
+
+It used to read *"Use the email and password you signed up with, or a connected
+provider"* — a sentence that tells a returning user nothing. It now says **"Last time you
+signed in with Apple."**
+
+The sentence and the teal ring on the provider circle are **two signals for one fact**,
+driven by one attribute, so they cannot disagree. Four cases, all in the prototype under
+*Last: …*:
+
+| remembered method | subtitle | ring |
+|---|---|---|
+| Apple / Google | names the provider | on that circle |
+| email + password | "…with your **email**." | none |
+| **not known** | "Sign in to get back to your training." | none |
+
+**The unknown case is the one to build carefully** — first run, cleared storage, new
+device. Both signals disappear rather than guessing; a screen that invents a memory it
+does not have is worse than one that says nothing. Backend/client note: this needs the
+last-used method persisted **on the device**, not on the account, since it is a fact about
+this install.
+
+**⚠️ Open, raised by the change:** when the remembered method is a provider, the email form
+is still the loudest thing on the screen while the real path is a small circle near the
+floor. Either the remembered provider gets promoted when known, or the sentence is doing a
+job the layout contradicts. Not designed — it changes the screen's hierarchy.
+
 **Providers are circles.**
 
 They buy the providers no longer competing with the CTA: two wide buttons under a
