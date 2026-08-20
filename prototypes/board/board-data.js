@@ -1451,7 +1451,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-chats",
-          "hash": "e4ec0651fac2",
+          "hash": "3755fc2ab6d7",
           "title": "Chats (assistant pinned)",
           "inApp": "Chats",
           "status": "proposal",
@@ -1474,7 +1474,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-request-drawer",
-          "hash": "138ef331faa4",
+          "hash": "bc1f31a28d73",
           "title": "Drawer · request (4 actions)",
           "inApp": "April 10",
           "status": "proposal",
@@ -1499,7 +1499,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-ai-context",
-          "hash": "338eb8412a44",
+          "hash": "e1ba6aca844f",
           "title": "Assistant acted",
           "inApp": "",
           "status": "proposal",
@@ -1524,7 +1524,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-ai-entry-client",
-          "hash": "7099bcda43fa",
+          "hash": "6a08a90c8583",
           "title": "Client card · sparkle in the header",
           "inApp": "",
           "status": "proposal",
@@ -1585,7 +1585,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-legend",
-          "hash": "d3d3c5c1df2f",
+          "hash": "611abab451ec",
           "title": "The six families",
           "inApp": "Action rows — the six families",
           "status": "proposal",
@@ -1604,7 +1604,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-decide",
-          "hash": "b19cab451add",
+          "hash": "b0a48a54441e",
           "title": "1 · Decide on an incoming thing",
           "inApp": "Decide on an incoming thing",
           "status": "proposal",
@@ -1624,7 +1624,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-drawer",
-          "hash": "3e9f3e1d54d1",
+          "hash": "4512eb33b4c8",
           "title": "2 · Actions on an object",
           "inApp": "Actions on an object",
           "status": "proposal",
@@ -1644,7 +1644,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-pairs",
-          "hash": "ecfc67a8c07a",
+          "hash": "f2962236647e",
           "title": "3 · Outcome pairs",
           "inApp": "Outcome pairs",
           "status": "proposal",
@@ -1664,7 +1664,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-confirm",
-          "hash": "46d1f7b9c2f6",
+          "hash": "e1d95ca74a81",
           "title": "4 · Are you sure?",
           "inApp": "Are you sure? — not circles",
           "status": "proposal",
@@ -1684,7 +1684,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-menu",
-          "hash": "49b35f1fd89c",
+          "hash": "2bc6e367c4ec",
           "title": "5 · Pick one of many",
           "inApp": "Pick one of many — not circles",
           "status": "proposal",
@@ -1704,9 +1704,9 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-single",
-          "hash": "9fa50c24ef3d",
+          "hash": "74925d65712a",
           "title": "6 · One action alone",
-          "inApp": "One action alone — not circles",
+          "inApp": "Awaiting — and one alone",
           "status": "proposal",
           "theme": "dark",
           "entry": false,

@@ -245,7 +245,12 @@
                  justify-content: center; background: var(--fit-surface-high); color: var(--fit-text-primary); }
   .ai-circle i svg { width: 30px; height: 30px; }
   .ai-circle span { font-size: 13px; font-weight: 600; color: var(--fit-text-primary); }
-  .ai-circle.danger i { color: var(--fit-red-400); }
+  /* Destructive is FILLED red with a white glyph, not a neutral plate with red ink
+     (owner, 2026-08-20). It reads as destructive before you have identified the
+     icon, which is the whole job of that colour — and it matches the filled tier
+     our destructive button already has. White on #f05c5b measures 3.29: below the
+     4.5 a label would need, above the 3.0 a glyph does, which is what sits there. */
+  .ai-circle.danger i { background: var(--fit-color-destructive-primary); color: #fff; }
   .ai-circle.danger span { color: var(--fit-red-400); }
   /* exactly one gradient per row — it is what "the expected answer" looks like */
   .ai-circle.primary i { background: var(--fit-brand-gradient); color: #fff; }
@@ -400,13 +405,15 @@
     row is actually <b>for</b>. 446 such rows exist; the ones that matter fall into six shapes,
     and only three of them are candidates for circles.</div>
     <div class="ar-rule"><b>The question a row answers decides its shape.</b><br>
-    Peer actions <i>on an object</i> &rarr; circles. A question with an escape &rarr; words.</div>
-    <div class="ar-fam ok"><b>1 &middot; Decide on an incoming thing</b><span>Accept / Decline on a request. ~9 places.</span></div>
+    Peer actions <i>on an object</i> &rarr; circles. A question with an escape &rarr; words.
+    <br><b>Count does not enter into it</b> &mdash; two peers are still peers. What makes
+    Disconnect/Cancel different is that one of the two is the way out of a question.</div>
+    <div class="ar-fam ok"><b>1 &middot; Decide on an incoming thing</b><span>&#10003; decided &mdash; three circles: Decline &middot; Reschedule &middot; Accept. ~9 places.</span></div>
     <div class="ar-fam ok"><b>2 &middot; Actions on an object</b><span>The event drawer: Decline / Reschedule / Ask AI / Accept. ~6 places.</span></div>
     <div class="ar-fam ok"><b>3 &middot; Outcome pairs</b><span>Missed / Mark complete, Skip / Rate now. ~5 places.</span></div>
     <div class="ar-fam no"><b>4 &middot; Are you sure?</b><span>Disconnect / Cancel, Cancel / Save. <b>~40 places &mdash; the biggest family, and none of it changes.</b></span></div>
     <div class="ar-fam no"><b>5 &middot; Pick one of many</b><span>Take photo / Choose from library / Remove / Cancel.</span></div>
-    <div class="ar-fam no"><b>6 &middot; One action alone</b><span>Cancel request, Top up, Send code.</span></div>
+    <div class="ar-fam ok"><b>6 &middot; Awaiting</b><span>&#10003; decided &mdash; gains Reschedule, so it is two circles, not a dead end. Top up / Send code stay single buttons.</span></div>
 
   </div>
 </div>
@@ -445,17 +452,25 @@
       <div class="ar-sub">shared/self-paced.html #s-inbox</div>
       <div class="ar-row"><button class="fit-btn fit-btn-destructive" style="flex:1;height:44px;font-size:16px;">Decline</button><button class="fit-btn fit-btn-primary" style="flex:1;height:44px;font-size:16px;">Accept</button></div>
     </div>
-    <div class="ar-rule ar-ask"><b>The question for you:</b> two actions is exactly the case
-    where wide buttons still work &mdash; there is room for the words and the pair reads as a
-    fork. Circles earn their place from <b>three</b>. So: do these gain a third action
-    (Reschedule, Ask AI) and become circles, or stay a two-way fork?</div>
-    <div class="ar-cap">If they gain a third &mdash; this is what they become:</div>
+    <div class="ar-rule"><b>Decided 2026-08-20: all of these become circles.</b> Three of them,
+    because <i>Ask AI</i> does not exist yet &mdash; when it does it is a fourth and the row
+    already has room. Positions are fixed so the row becomes muscle memory rather than a read:
+    <b>left = the refusal, centre = Reschedule, right = the expected answer.</b></div>
+    <div class="ar-cap">The shape &middot; athlete side</div>
     <div class="ar-case ar-next">
-      <div class="ar-where">With a third and a fourth action</div>
-      <div class="ar-sub">the shape from the assistant proposal</div>
-      <div class="ai-circles"><button class="ai-circle danger"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></i><span>Decline</span></button><button class="ai-circle"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></i><span>Reschedule</span></button><button class="ai-circle ask"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z"/></svg></i><span>Ask AI</span></button><button class="ai-circle primary"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></i><span>Accept</span></button></div>
+      <div class="ar-where">Request &rarr; decide</div>
+      <div class="ar-sub">Decline &middot; Reschedule &middot; Accept</div>
+      <div class="ai-circles"><button class="ai-circle danger"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></i><span>Decline</span></button><button class="ai-circle"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></i><span>Reschedule</span></button><button class="ai-circle primary"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></i><span>Accept</span></button></div>
     </div>
-
+    <div class="ar-cap">The shape &middot; coach side</div>
+    <div class="ar-case ar-next">
+      <div class="ar-where">Coach-confirmed invite &rarr; decide</div>
+      <div class="ar-sub">Cancel &middot; Reschedule &middot; Confirm</div>
+      <div class="ai-circles"><button class="ai-circle danger"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></i><span>Cancel</span></button><button class="ai-circle"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></i><span>Reschedule</span></button><button class="ai-circle primary"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></i><span>Confirm</span></button></div>
+    </div>
+    <div class="ar-rule"><b>Destructive is a filled red circle with a white glyph</b>, not a pale
+    plate with red ink &mdash; it reads as destructive before you have identified the icon, which
+    is the whole job of that colour.</div>
   </div>
 </div>
 
@@ -590,27 +605,39 @@
 <div class="fit-phone fit-dark" id="s-single" data-status="proposal">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header"><span class="fit-header-title">One action alone &mdash; not circles</span></div>
+    <div class="fit-header"><span class="fit-header-title">Awaiting &mdash; and one alone</span></div>
   </div>
   <div class="fit-phone-content" style="padding:0 16px 24px;">
-
-    <div class="ar-lede">Where the row has one button, a circle would be a decoration with
-    nothing to sit beside.</div>
+    <div class="ar-lede">Waiting on the other side. Today the only thing on offer is to give
+    up &mdash; a dead end with a red button in it.</div>
     <div class="ar-case ar-no">
-      <div class="ar-where">Athlete &middot; Inbox &rarr; Awaiting</div>
-      <div class="ar-sub">athlete/dashboard.html &mdash; waiting on the coach</div>
+      <div class="ar-where">Today &middot; Awaiting</div>
+      <div class="ar-sub">athlete/dashboard.html &middot; coach/dashboard.html</div>
       <div class="ar-row"><button class="fit-btn fit-btn-destructive" style="flex:1;height:44px;font-size:16px;">Cancel request</button></div>
     </div>
+    <div class="ar-rule"><b>Decided 2026-08-20: Awaiting gets two, both roles.</b> Cancel and
+    Reschedule &mdash; because "I still want this, just not then" is the answer people actually
+    have while waiting, and today the only way to say it is to cancel and start again.</div>
+    <div class="ar-case ar-next">
+      <div class="ar-where">Awaiting &middot; athlete waiting on the coach</div>
+      <div class="ar-sub">two peers, same grammar as the decide row</div>
+      <div class="ai-circles"><button class="ai-circle danger"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></i><span>Cancel</span></button><button class="ai-circle"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></i><span>Reschedule</span></button></div>
+    </div>
+    <div class="ar-case ar-next">
+      <div class="ar-where">Awaiting &middot; coach waiting on the athlete</div>
+      <div class="ar-sub">identical &mdash; the wait is symmetric</div>
+      <div class="ai-circles"><button class="ai-circle danger"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></i><span>Cancel</span></button><button class="ai-circle"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></i><span>Reschedule</span></button></div>
+    </div>
+    <div class="ar-rule"><b>This retires my own "circles start at three" rule.</b> Two peers on
+    an object are still peers; what makes Disconnect/Cancel different is not that there are two
+    of them, it is that one of them is the way out of a question. So the criterion is only:
+    <b>peer actions on an object &rarr; circles. A question with an escape &rarr; words.</b></div>
+    <div class="ar-cap">Still one alone, and still fine</div>
     <div class="ar-case ar-no">
       <div class="ar-where">Low balance</div>
       <div class="ar-sub">athlete/dashboard.html</div>
       <div class="ar-row"><button class="fit-btn fit-btn-primary" style="flex:1;height:44px;font-size:16px;">Top up now</button></div>
     </div>
-    <div class="ar-rule ar-ask"><b>But Awaiting is worth a second look.</b> It is the one state
-    where the user can do nothing but wait, and the only button is destructive. Should it gain
-    <i>Message coach</i> and <i>Ask AI</i> &mdash; which would make it three peers, and family
-    2? That is a product question, not a styling one.</div>
-
   </div>
 </div>
 
@@ -637,10 +664,18 @@
     <p>Nine places, all the same shape: a request arrived, it wants an answer, and the card ends
     in red + gradient. Coach dashboard requests, athlete inbox "To reply", both calendars'
     event sheets, self-paced inbox, the voice-assistant cards.</p>
-    <p><strong>Open question (amber):</strong> two actions is exactly where wide buttons still
-    work. These become circles only if they gain a third &mdash; <em>Reschedule</em>, or
-    <em>Ask AI</em> from the assistant proposal. That is a product decision about what the user
-    may do with a request, not a styling one.</p>
+    <p><strong>Decided 2026-08-20 &mdash; all of them become circles</strong>, and the third
+    action is <em>Reschedule</em> rather than Ask AI, which does not exist yet. When the
+    assistant does exist it is a fourth and the row already has room for it.</p>
+    <p><strong>Fixed positions, so the row is muscle memory and not a read:</strong> left = the
+    refusal (Decline / Cancel), centre = Reschedule, right = the expected answer (Accept /
+    Confirm). The coach side reads Cancel &middot; Reschedule &middot; Confirm; the athlete
+    side Decline &middot; Reschedule &middot; Accept. Same positions, role wording.</p>
+    <p><strong>Destructive is a filled red circle with a white glyph</strong>, not a neutral
+    plate with red ink &mdash; it reads as destructive before the icon is identified. White on
+    <code>#f05c5b</code> measures 3.29: under the 4.5 a label would need, over the 3.0 a glyph
+    does, and a glyph is what sits there. Changed in the assistant module too, so the two
+    cannot drift.</p>
   </div>
   <div class="ann" id="ann-s-drawer">
     <span class="ann-role">Shared</span>
@@ -684,11 +719,13 @@
     <span class="ann-role">Shared</span>
     <h3>6 &middot; One action alone &mdash; not circles</h3>
     <p>A circle needs peers; alone it is decoration.</p>
-    <p><strong>Open question (amber):</strong> the athlete's <em>Awaiting</em> state is the one
-    place where the user can do nothing but wait and the only button is destructive
-    ("Cancel request"). Giving it <em>Message coach</em> and <em>Ask AI</em> would make it three
-    peers &mdash; family 2 &mdash; and would turn a dead end into a screen with something to do.
-    Product question.</p>
+    <p><strong>Decided 2026-08-20: Awaiting gets two actions, on both sides</strong> &mdash;
+    Cancel and Reschedule. "I still want this, just not then" is the answer people actually have
+    while waiting, and today the only way to say it is to cancel and start over.</p>
+    <p><strong>It also retires a rule I had written a screen earlier.</strong> I had claimed
+    circles start earning their place at three actions; two peers are still peers. What makes
+    Disconnect/Cancel different is not the count, it is that one of the two is the way out of a
+    question. The criterion is only <em>peer actions on an object</em>.</p>
   </div>
 </div>
 
