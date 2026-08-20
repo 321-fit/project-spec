@@ -10,7 +10,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-role-pick",
-          "hash": "4870291d16a2",
+          "hash": "31166ac59115",
           "title": "Role pick",
           "inApp": "",
           "status": "canon",
@@ -29,7 +29,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signup-email",
-          "hash": "3debd664aca1",
+          "hash": "3e46a25026e0",
           "title": "Sign up",
           "inApp": "",
           "status": "canon",
@@ -48,7 +48,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signin-email",
-          "hash": "fdbfc270685d",
+          "hash": "cc06dfc87cfe",
           "title": "Sign in",
           "inApp": "",
           "status": "canon",
@@ -67,7 +67,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signin-circles",
-          "hash": "226015997c1d",
+          "hash": "9d84327e7d47",
           "title": "Sign in · circles (variant)",
           "inApp": "",
           "status": "proposal",
@@ -87,7 +87,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signin-centered",
-          "hash": "f7ea493d6b4d",
+          "hash": "a909d5601527",
           "title": "Sign in · centred (variant)",
           "inApp": "",
           "status": "proposal",
@@ -106,8 +106,28 @@ window.FIT_BOARD = {
           "order": 1
         },
         {
+          "id": "s-signin-air",
+          "hash": "1dbfb313abcb",
+          "title": "Sign in · air (variant)",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "The reference screen does not look full because it is centred — its heading sits in the top fifth, same as ours. It looks full because its rhythm is generous: big type, tall fields, real air between groups. Ours was top-",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-auth__s-signin-air.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 6,
+          "order": 2
+        },
+        {
           "id": "s-signin-spread",
-          "hash": "19b2822eedc3",
+          "hash": "cb795a63e801",
           "title": "Sign in · spread (variant)",
           "inApp": "",
           "status": "proposal",
@@ -123,11 +143,11 @@ window.FIT_BOARD = {
           ],
           "orphan": true,
           "level": 6,
-          "order": 2
+          "order": 3
         },
         {
           "id": "s-forgot-email",
-          "hash": "e1cf208cf19b",
+          "hash": "0317efc8c759",
           "title": "Step 1 · enter email",
           "inApp": "",
           "status": "canon",
@@ -146,7 +166,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-otp",
-          "hash": "1e75eb50436a",
+          "hash": "f5c6a6bd592b",
           "title": "Step 2 · OTP code",
           "inApp": "",
           "status": "canon",
@@ -165,7 +185,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-new",
-          "hash": "09db413a0712",
+          "hash": "be895f0a80d1",
           "title": "Step 3 · new password",
           "inApp": "",
           "status": "canon",
@@ -184,7 +204,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-phone-enter",
-          "hash": "ff8d9e9de05a",
+          "hash": "e75d9d115942",
           "title": "Phone · enter number",
           "inApp": "",
           "status": "canon",
@@ -200,11 +220,11 @@ window.FIT_BOARD = {
           ],
           "orphan": true,
           "level": 6,
-          "order": 3
+          "order": 4
         },
         {
           "id": "s-phone-otp",
-          "hash": "f7c8377b0a96",
+          "hash": "4f99453632e3",
           "title": "Phone · OTP code",
           "inApp": "",
           "status": "canon",
@@ -220,11 +240,11 @@ window.FIT_BOARD = {
           ],
           "orphan": true,
           "level": 6,
-          "order": 4
+          "order": 5
         },
         {
           "id": "s-country-picker",
-          "hash": "69d477675a4c",
+          "hash": "7a11116c79d0",
           "title": "Country picker",
           "inApp": "Country or region",
           "status": "canon",
@@ -240,7 +260,7 @@ window.FIT_BOARD = {
           ],
           "orphan": true,
           "level": 6,
-          "order": 5
+          "order": 6
         }
       ],
       "edges": [
@@ -301,6 +321,21 @@ window.FIT_BOARD = {
         },
         {
           "from": "s-signin-centered",
+          "to": "s-signup-email",
+          "back": true
+        },
+        {
+          "from": "s-signin-air",
+          "to": "s-role-pick",
+          "back": true
+        },
+        {
+          "from": "s-signin-air",
+          "to": "s-forgot-email",
+          "back": true
+        },
+        {
+          "from": "s-signin-air",
           "to": "s-signup-email",
           "back": true
         },
