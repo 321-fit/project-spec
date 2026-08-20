@@ -10,7 +10,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-role-pick",
-          "hash": "365def0854be",
+          "hash": "5da1b9b07e92",
           "title": "Role pick",
           "inApp": "",
           "status": "canon",
@@ -29,7 +29,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signup-email",
-          "hash": "03ba92510a92",
+          "hash": "ed3b43189375",
           "title": "Sign up",
           "inApp": "",
           "status": "canon",
@@ -48,7 +48,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signin-email",
-          "hash": "f50992fcb1dc",
+          "hash": "c75fff678aed",
           "title": "Sign in",
           "inApp": "",
           "status": "canon",
@@ -67,7 +67,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-email",
-          "hash": "bc855336850b",
+          "hash": "aa65c64b6be8",
           "title": "Step 1 · enter email",
           "inApp": "",
           "status": "canon",
@@ -86,7 +86,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-otp",
-          "hash": "78e96d875765",
+          "hash": "34ca1e458f2e",
           "title": "Step 2 · OTP code",
           "inApp": "",
           "status": "canon",
@@ -105,7 +105,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-new",
-          "hash": "c21326659aeb",
+          "hash": "54ec61589552",
           "title": "Step 3 · new password",
           "inApp": "",
           "status": "canon",
@@ -124,7 +124,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-phone-enter",
-          "hash": "73179feba28d",
+          "hash": "91016dac8196",
           "title": "Phone · enter number",
           "inApp": "",
           "status": "canon",
@@ -144,7 +144,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-phone-otp",
-          "hash": "4062f76893e5",
+          "hash": "8d9b38e98ba7",
           "title": "Phone · OTP code",
           "inApp": "",
           "status": "canon",
@@ -164,7 +164,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-country-picker",
-          "hash": "96a7b4ad1a87",
+          "hash": "f6d1b1c71ebd",
           "title": "Country picker",
           "inApp": "Country or region",
           "status": "canon",
