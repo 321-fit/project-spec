@@ -164,7 +164,7 @@
 
   /* CTA wrapper for screens that don't use fit-phone-footer */
   .au-cta-wrap {
-    padding: 16px;
+    padding: 20px 16px 0;
   }
 
   /* Inline button spinner (page-local; mirrors pd-save-spinner pattern in personal-data) */
@@ -253,6 +253,17 @@
   .state-toggle button:hover { background: var(--fit-gray-700); color: var(--fit-white); }
   .state-toggle button.active {
     background: var(--fit-selection-gradient); color: var(--fit-white);
+  }
+
+  /* "or continue with" — a rule with the words sitting in the gap. Page-local:
+     fit-ui.css has no divider-with-text family (grepped before writing this). */
+  .au-or {
+    display: flex; align-items: center; gap: 12px;
+    padding: 20px 16px 14px;
+    font-size: 13px; color: var(--fit-text-tertiary);
+  }
+  .au-or::before, .au-or::after {
+    content: ""; flex: 1; height: 1px; background: var(--fit-divider);
   }
 
   /* "Last used" indicator under provider button (sign-in) */
@@ -402,12 +413,10 @@
     <button class="active" onclick="go('s-role-pick',this)">Role pick</button>
 
     <div class="label">Sign up</div>
-    <button onclick="go('s-signup-entry',this)">Sign-up · methods</button>
-    <button onclick="go('s-signup-email',this)">Sign-up · email</button>
+    <button onclick="go('s-signup-email',this)">Sign up</button>
 
     <div class="label">Sign in</div>
-    <button onclick="go('s-signin-entry',this)">Sign-in · methods</button>
-    <button onclick="go('s-signin-email',this)">Sign-in · email</button>
+    <button onclick="go('s-signin-email',this)">Sign in</button>
 
     <div class="label">Forgot password</div>
     <button onclick="go('s-forgot-email',this)">Step 1 · enter email</button>
@@ -444,68 +453,16 @@
     <div class="au-btn-stack" style="padding-bottom:16px;">
       <button class="fit-btn fit-btn-primary"
               data-a11y-id="auth.role-pick.continue.coach"
-              onclick="go('s-signup-entry', document.querySelector('.sidebar button[onclick*=s-signup-entry]'))">
+              onclick="go('s-signup-email', document.querySelector('.sidebar button[onclick*=s-signup-email]'))">
         I'm a Coach
       </button>
       <button class="fit-btn fit-btn-secondary"
               data-a11y-id="auth.role-pick.continue.athlete"
-              onclick="go('s-signup-entry', document.querySelector('.sidebar button[onclick*=s-signup-entry]'))">
+              onclick="go('s-signup-email', document.querySelector('.sidebar button[onclick*=s-signup-email]'))">
         I'm an Athlete
       </button>
     </div>
 
-  </div>
-</div>
-
-<!-- ============================================================
-     SCREEN: SIGN-UP ENTRY (method picker — Email / Apple / Google)
-     iOS ref: Authentication/SignUp/SignUpView.swift
-     ============================================================ -->
-<div class="fit-phone fit-dark" id="s-signup-entry" data-status="canon">
-  <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header">
-      <button class="fit-header-back"
-              data-a11y-id="auth.signup.back"
-              onclick="go('s-role-pick', document.querySelector('.sidebar button[onclick*=s-role-pick]'))"
-              aria-label="Back">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
-      <span class="fit-header-title"></span>
-    </div>
-  </div>
-  <div class="fit-phone-content" style="display:flex;flex-direction:column;padding:0;">
-
-    <div class="au-page-head">
-      <div class="au-page-title">Create your account</div>
-      <div class="au-page-sub">Sign up with one of the methods below. You can add more later.</div>
-    </div>
-
-    <div class="au-btn-stack">
-      <button class="fit-btn fit-btn-primary fit-btn--auth-provider"
-              data-a11y-id="auth.signup.method.email"
-              onclick="go('s-signup-email', document.querySelector('.sidebar button[onclick*=s-signup-email]'))">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
-        Continue with email
-      </button>
-      <button class="fit-btn fit-btn--auth-provider fit-btn--dark-pill"
-              data-a11y-id="auth.signup.method.apple">
-        <svg viewBox="0 0 24 24" fill="currentColor" style="width:20px;height:20px;"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.493-.12-1.06.396-2.2 1.075-2.99.762-.88 2.012-1.5 3.089-1.583zm3.86 17.52c-.764 1.13-1.595 2.235-2.948 2.253-1.327.026-1.753-.79-3.27-.79-1.517 0-1.99.764-3.247.815-1.305.05-2.295-1.21-3.07-2.33C5.97 16.73 4.762 12.45 6.367 9.6c.776-1.42 2.18-2.32 3.71-2.34 1.275-.025 2.482.86 3.27.86.79 0 2.27-1.06 3.83-.9.66.026 2.5.26 3.69 1.97-.094.06-2.20 1.30-2.18 3.87.02 3.05 2.67 4.07 2.70 4.08-.024.073-.43 1.46-1.42 2.84z"/></svg>
-        Continue with Apple
-      </button>
-      <button class="fit-btn fit-btn-secondary fit-btn--auth-provider"
-              data-a11y-id="auth.signup.method.google">
-        <svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path fill="#4285F4" d="M23 12.27c0-.85-.08-1.66-.22-2.45H12v4.63h6.16c-.27 1.43-1.08 2.65-2.31 3.46v2.88h3.74C21.78 18.81 23 15.83 23 12.27z"/><path fill="#34A853" d="M12 23c3.13 0 5.77-1.04 7.69-2.81l-3.74-2.88c-1.04.7-2.36 1.11-3.95 1.11-3.04 0-5.61-2.05-6.53-4.81H1.62v3.02C3.53 20.39 7.45 23 12 23z"/><path fill="#FBBC05" d="M5.47 13.62a6.6 6.6 0 010-3.23V7.37H1.62a11 11 0 000 9.27l3.85-3.02z"/><path fill="#EA4335" d="M12 5.38c1.71 0 3.25.59 4.47 1.74l3.32-3.32C17.76 1.86 15.12 1 12 1 7.45 1 3.53 3.61 1.62 7.37l3.85 3.02C6.39 7.43 8.96 5.38 12 5.38z"/></svg>
-        Continue with Google
-      </button>
-    </div>
-
-  </div>
-  <div class="fit-phone-footer">
-    <div class="au-toggle-row">
-      <span>Have an account?</span>
-      <button data-a11y-id="auth.signup.toggle-signin">Sign in</button>
-    </div>
   </div>
 </div>
 
@@ -519,7 +476,7 @@
     <div class="fit-header">
       <button class="fit-header-back"
               data-a11y-id="auth.signup.email.back"
-              onclick="go('s-signup-entry', document.querySelector('.sidebar button[onclick*=s-signup-entry]'))"
+              onclick="go('s-role-pick', document.querySelector('.sidebar button[onclick*=s-role-pick]'))"
               aria-label="Back">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
       </button>
@@ -529,8 +486,8 @@
   <div class="fit-phone-content" style="padding:0;">
 
     <div class="au-page-head">
-      <div class="au-page-title">Sign up with email</div>
-      <div class="au-page-sub">We'll send a verification code to confirm your identity.</div>
+      <div class="au-page-title">Create your account</div>
+      <div class="au-page-sub">We&rsquo;ll send a verification code to confirm your identity.</div>
     </div>
 
     <div class="au-form-error" data-au-error="server">
@@ -539,11 +496,10 @@
     </div>
 
     <div class="fit-input-group" data-field="email">
-      <span class="fit-input-label">Email</span>
       <div class="fit-input">
         <input type="email" inputmode="email" autocomplete="email"
                autocapitalize="off" spellcheck="false"
-               placeholder="you@example.com"
+               placeholder="Email"
                data-a11y-id="auth.signup.email.field"
                style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
       </div>
@@ -551,10 +507,9 @@
     </div>
 
     <div class="fit-input-group" data-field="password">
-      <span class="fit-input-label">Password</span>
       <div class="fit-input fit-input-password">
         <input type="password" autocomplete="new-password"
-               placeholder="At least 8 characters"
+               placeholder="Password"
                data-a11y-id="auth.signup.email.password.field"
                style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
         <button class="fit-eye-toggle"
@@ -588,55 +543,14 @@
       </button>
     </div>
 
-  </div>
-  <div class="fit-phone-footer">
-    <div class="au-toggle-row">
-      <span>Have an account?</span>
-      <button data-a11y-id="auth.signup.email.toggle-signin">Sign in</button>
-    </div>
-  </div>
-</div>
-
-<!-- ============================================================
-     SCREEN: SIGN-IN ENTRY (method picker with "Last used" indicator)
-     iOS ref: Authentication/SignIn/SignInView.swift
-     ============================================================ -->
-<div class="fit-phone fit-dark" id="s-signin-entry" data-status="canon">
-  <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header">
-      <button class="fit-header-back"
-              data-a11y-id="auth.signin.back"
-              onclick="go('s-role-pick', document.querySelector('.sidebar button[onclick*=s-role-pick]'))"
-              aria-label="Back">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
-      <span class="fit-header-title"></span>
-    </div>
-  </div>
-  <div class="fit-phone-content" style="display:flex;flex-direction:column;padding:0;">
-
-    <div class="au-page-head">
-      <div class="au-page-title">Welcome back</div>
-      <div class="au-page-sub">Sign in with one of the methods you connected to your account.</div>
-    </div>
+    <div class="au-or"><span>or continue with</span></div>
 
     <div class="au-btn-stack">
-      <button class="fit-btn fit-btn-primary fit-btn--auth-provider"
-              data-a11y-id="auth.signin.method.email"
-              onclick="go('s-signin-email', document.querySelector('.sidebar button[onclick*=s-signin-email]'))">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
-        Continue with email
-      </button>
-      <div class="au-last-used">Last used on this device</div>
-
-      <button class="fit-btn fit-btn--auth-provider fit-btn--dark-pill"
-              data-a11y-id="auth.signin.method.apple">
+      <button class="fit-btn fit-btn--auth-provider fit-btn--dark-pill" data-a11y-id="auth.signup.method.apple">
         <svg viewBox="0 0 24 24" fill="currentColor" style="width:20px;height:20px;"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.493-.12-1.06.396-2.2 1.075-2.99.762-.88 2.012-1.5 3.089-1.583zm3.86 17.52c-.764 1.13-1.595 2.235-2.948 2.253-1.327.026-1.753-.79-3.27-.79-1.517 0-1.99.764-3.247.815-1.305.05-2.295-1.21-3.07-2.33C5.97 16.73 4.762 12.45 6.367 9.6c.776-1.42 2.18-2.32 3.71-2.34 1.275-.025 2.482.86 3.27.86.79 0 2.27-1.06 3.83-.9.66.026 2.5.26 3.69 1.97-.094.06-2.20 1.30-2.18 3.87.02 3.05 2.67 4.07 2.70 4.08-.024.073-.43 1.46-1.42 2.84z"/></svg>
         Continue with Apple
       </button>
-      <button class="fit-btn fit-btn-secondary fit-btn--auth-provider"
-              data-a11y-id="auth.signin.method.google">
+      <button class="fit-btn fit-btn-secondary fit-btn--auth-provider" data-a11y-id="auth.signup.method.google">
         <svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path fill="#4285F4" d="M23 12.27c0-.85-.08-1.66-.22-2.45H12v4.63h6.16c-.27 1.43-1.08 2.65-2.31 3.46v2.88h3.74C21.78 18.81 23 15.83 23 12.27z"/><path fill="#34A853" d="M12 23c3.13 0 5.77-1.04 7.69-2.81l-3.74-2.88c-1.04.7-2.36 1.11-3.95 1.11-3.04 0-5.61-2.05-6.53-4.81H1.62v3.02C3.53 20.39 7.45 23 12 23z"/><path fill="#FBBC05" d="M5.47 13.62a6.6 6.6 0 010-3.23V7.37H1.62a11 11 0 000 9.27l3.85-3.02z"/><path fill="#EA4335" d="M12 5.38c1.71 0 3.25.59 4.47 1.74l3.32-3.32C17.76 1.86 15.12 1 12 1 7.45 1 3.53 3.61 1.62 7.37l3.85 3.02C6.39 7.43 8.96 5.38 12 5.38z"/></svg>
         Continue with Google
       </button>
@@ -645,9 +559,9 @@
   </div>
   <div class="fit-phone-footer">
     <div class="au-toggle-row">
-      <span>Don't have an account?</span>
-      <button data-a11y-id="auth.signin.toggle-signup"
-              onclick="go('s-signup-entry', document.querySelector('.sidebar button[onclick*=s-signup-entry]'))">Sign up</button>
+      <span>Have an account?</span>
+      <button data-a11y-id="auth.signup.email.toggle-signin"
+              onclick="go('s-signin-email', document.querySelector('.sidebar button[onclick*=s-signin-email]'))">Sign in</button>
     </div>
   </div>
 </div>
@@ -662,7 +576,7 @@
     <div class="fit-header">
       <button class="fit-header-back"
               data-a11y-id="auth.signin.email.back"
-              onclick="go('s-signin-entry', document.querySelector('.sidebar button[onclick*=s-signin-entry]'))"
+              onclick="go('s-role-pick', document.querySelector('.sidebar button[onclick*=s-role-pick]'))"
               aria-label="Back">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
       </button>
@@ -672,8 +586,8 @@
   <div class="fit-phone-content" style="padding:0;">
 
     <div class="au-page-head">
-      <div class="au-page-title">Sign in with email</div>
-      <div class="au-page-sub">Use the email and password you signed up with.</div>
+      <div class="au-page-title">Welcome back</div>
+      <div class="au-page-sub">Use the email and password you signed up with, or a connected provider.</div>
     </div>
 
     <div class="au-form-error">
@@ -682,21 +596,19 @@
     </div>
 
     <div class="fit-input-group" data-field="email">
-      <span class="fit-input-label">Email</span>
       <div class="fit-input">
         <input type="email" inputmode="email" autocomplete="email"
                autocapitalize="off" spellcheck="false"
-               placeholder="you@example.com"
+               placeholder="Email"
                data-a11y-id="auth.signin.email.field"
                style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
       </div>
     </div>
 
     <div class="fit-input-group" data-field="password">
-      <span class="fit-input-label">Password</span>
       <div class="fit-input fit-input-password">
         <input type="password" autocomplete="current-password"
-               placeholder="Your password"
+               placeholder="Password"
                data-a11y-id="auth.signin.email.password.field"
                style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
         <button class="fit-eye-toggle"
@@ -723,12 +635,27 @@
       </button>
     </div>
 
+    <div class="au-or"><span>or continue with</span></div>
+
+    <div class="au-btn-stack">
+      <button class="fit-btn fit-btn--auth-provider fit-btn--dark-pill" data-a11y-id="auth.signin.method.apple">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:20px;height:20px;"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.493-.12-1.06.396-2.2 1.075-2.99.762-.88 2.012-1.5 3.089-1.583zm3.86 17.52c-.764 1.13-1.595 2.235-2.948 2.253-1.327.026-1.753-.79-3.27-.79-1.517 0-1.99.764-3.247.815-1.305.05-2.295-1.21-3.07-2.33C5.97 16.73 4.762 12.45 6.367 9.6c.776-1.42 2.18-2.32 3.71-2.34 1.275-.025 2.482.86 3.27.86.79 0 2.27-1.06 3.83-.9.66.026 2.5.26 3.69 1.97-.094.06-2.20 1.30-2.18 3.87.02 3.05 2.67 4.07 2.70 4.08-.024.073-.43 1.46-1.42 2.84z"/></svg>
+        Continue with Apple
+      </button>
+      <div class="au-last-used">Last used on this device</div>
+      <button class="fit-btn fit-btn-secondary fit-btn--auth-provider" data-a11y-id="auth.signin.method.google">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path fill="#4285F4" d="M23 12.27c0-.85-.08-1.66-.22-2.45H12v4.63h6.16c-.27 1.43-1.08 2.65-2.31 3.46v2.88h3.74C21.78 18.81 23 15.83 23 12.27z"/><path fill="#34A853" d="M12 23c3.13 0 5.77-1.04 7.69-2.81l-3.74-2.88c-1.04.7-2.36 1.11-3.95 1.11-3.04 0-5.61-2.05-6.53-4.81H1.62v3.02C3.53 20.39 7.45 23 12 23z"/><path fill="#FBBC05" d="M5.47 13.62a6.6 6.6 0 010-3.23V7.37H1.62a11 11 0 000 9.27l3.85-3.02z"/><path fill="#EA4335" d="M12 5.38c1.71 0 3.25.59 4.47 1.74l3.32-3.32C17.76 1.86 15.12 1 12 1 7.45 1 3.53 3.61 1.62 7.37l3.85 3.02C6.39 7.43 8.96 5.38 12 5.38z"/></svg>
+        Continue with Google
+      </button>
+    </div>
+
+
   </div>
   <div class="fit-phone-footer">
     <div class="au-toggle-row">
       <span>Don't have an account?</span>
       <button data-a11y-id="auth.signin.email.toggle-signup"
-              onclick="go('s-signup-entry', document.querySelector('.sidebar button[onclick*=s-signup-entry]'))">Sign up</button>
+              onclick="go('s-signup-email', document.querySelector('.sidebar button[onclick*=s-signup-email]'))">Sign up</button>
     </div>
   </div>
 </div>
@@ -1166,25 +1093,9 @@
     </ul>
   </div>
 
-  <div class="ann" id="ann-s-signup-entry">
+    <div class="ann" id="ann-s-signup-email">
     <span class="ann-role">Shared</span>
-    <h3>Sign-up · method picker</h3>
-    <p>3 sign-up methods stacked: <strong>Email</strong> (primary), <strong>Apple</strong> (black pill), <strong>Google</strong> (secondary). Email first as the explicit / least-friction path; Apple iOS-only.</p>
-    <hr>
-    <p><strong>iOS ref:</strong> <code>Authentication/SignUp/SignUpView.swift</code> + <code>AuthenticationAvailableTypes</code> enum.</p>
-    <ul>
-      <li>Buttons: canonical <code>fit-btn-primary</code> / <code>fit-btn-secondary</code> + page-local <code>fit-btn--dark-pill</code> (Apple) + <code>fit-btn--auth-provider</code> (icon spacing modifier).</li>
-      <li><strong>Apple / Google</strong> open native OS sign-in sheets — no in-app screen.</li>
-      <li>Title block: page-local <code>au-page-head</code> (24px title + 14px sub) — same pattern reused on sign-up email screen.</li>
-      <li>Footer toggle "Sign in" lives in <code>fit-phone-footer</code> via page-local <code>au-toggle-row</code>.</li>
-    </ul>
-    <hr>
-    <p><strong>Phone is NOT a sign-up method</strong> as of 2026-05-11 per <code>authentication.md</code>. Phone is captured separately for ownership verification (next batch).</p>
-  </div>
-
-  <div class="ann" id="ann-s-signup-email">
-    <span class="ann-role">Shared</span>
-    <h3>Sign-up · email form</h3>
+    <h3>Sign up</h3>
     <div class="state-toggle">
       <button class="active" onclick="setAuState('s-signup-email','default',this)">Default</button>
       <button onclick="setAuState('s-signup-email','email-invalid',this)">Invalid email</button>
@@ -1194,13 +1105,22 @@
       <button onclick="setAuState('s-signup-email','loading',this)">Loading</button>
       <button onclick="setAuState('s-signup-email','server-error',this)">Server error</button>
     </div>
+    <p><strong>One screen, not two (2026-08-20).</strong> The method picker that stood
+    between the role choice and this form is gone: it asked you to choose a door before
+    showing you any, and its email button led straight here. Role pick now lands on this
+    screen. Email and password are the screen; the providers sit under an
+    <em>or continue with</em> rule; the switch to the other mode is the footer.</p>
     <p>Email + password with inline password-rules list. Posts to backend → advances to phone OTP step (next batch).</p>
+    <p><strong>No "repeat password"</strong> — a second field to catch a typo the eye
+    toggle already catches, on a password you can reset by email. The live Android build
+    still has one; that is drift, not the design.</p>
     <hr>
     <p><strong>iOS ref:</strong> <code>Authentication/SignUpWithCredentials/SignUpWithCredentialsView.swift</code> (states: emailEntry → phoneEntry → codeEntry).</p>
     <hr>
     <p><strong>Components</strong></p>
     <ul>
-      <li>Inputs: canonical <code>fit-input-group</code> + <code>fit-input</code> + <code>fit-input-label</code>. Password uses <code>fit-input-password</code> modifier + <code>fit-eye-toggle</code> child (all kit).</li>
+      <li>Inputs: canonical <code>fit-input-group</code> + <code>fit-input</code>, <strong>no <code>fit-input-label</code></strong>. Two fields whose names are one word each — a label above a placeholder that says the same thing is the label twice. The rule: <em>the label or the placeholder names the field, never both</em>. Keep the label where the placeholder is a format hint instead of a name (phone, the recovery screens).</li>
+      <li>Providers: same <code>fit-btn--auth-provider</code> buttons as before, under a page-local <code>au-or</code> rule. They open native OS sheets — no in-app screen.</li>
       <li>Rule list: page-local <code>au-pw-rules</code> + <code>au-pw-rule</code> (with <code>.ok</code> / <code>.fail</code> states). Flips <code>circle</code> → <code>check</code> SVG as conditions met.</li>
       <li>CTA: canonical <code>fit-btn fit-btn-primary</code> in <code>au-cta-wrap</code> (16px screen padding).</li>
     </ul>
@@ -1215,24 +1135,9 @@
     <p><strong>Keyboard flow</strong> per <code>feedback_keyboard_behavior</code>: Email <code>Next</code> → Password <code>Go</code> → Sign up.</p>
   </div>
 
-  <div class="ann" id="ann-s-signin-entry">
+    <div class="ann" id="ann-s-signin-email">
     <span class="ann-role">Shared</span>
-    <h3>Sign-in · method picker</h3>
-    <p>Mirror of sign-up entry — same 3 providers stacked. Difference: a <strong>"Last used on this device"</strong> indicator (teal dot caption) lives under whichever method the user last signed in with on this device. Bumps tap-target predictability for returning users.</p>
-    <hr>
-    <p><strong>iOS ref:</strong> <code>Authentication/SignIn/SignInView.swift</code>. Last-used surfacing uses <code>viewModel.userLastAuthenticationType</code>; in prototype the caption is shown under Email as a representative case.</p>
-    <ul>
-      <li>Order of methods: Email → Apple → Google (same as sign-up).</li>
-      <li>Apple / Google buttons fire native OS sheets — no in-app screen.</li>
-      <li>Footer toggle "Don't have an account? <strong>Sign up</strong>" — switches into sign-up entry.</li>
-      <li>Last-used dot is page-local <code>au-last-used</code> (teal 6×6 + 12px tertiary text). Only one method shows it at a time.</li>
-    </ul>
-    <p class="note">Returning users who tapped a provider in the last 30 days skip directly to that provider's native sheet — no method-picker shown. This shortcut is iOS-level and not represented in the prototype.</p>
-  </div>
-
-  <div class="ann" id="ann-s-signin-email">
-    <span class="ann-role">Shared</span>
-    <h3>Sign-in · email form</h3>
+    <h3>Sign in</h3>
     <div class="state-toggle">
       <button class="active" onclick="setAuState('s-signin-email','default',this)">Default</button>
       <button onclick="setAuState('s-signin-email','wrong-credentials',this)">Wrong credentials</button>
@@ -1241,7 +1146,11 @@
       <button onclick="setAuState('s-signin-email','loading',this)">Loading</button>
       <button onclick="setAuState('s-signin-email','network-error',this)">Network error</button>
     </div>
-    <p>Email + password. Posts to backend → on success, lands on main app. On 401 → inline error banner above CTA. <strong>"Forgot password?"</strong> link below Sign in button leads into the 3-step recovery flow.</p>
+    <p><strong>Merged the same way as sign-up (2026-08-20)</strong> — the sign-in method
+    picker is gone. <em>Last used on this device</em> survived the merge and moved onto the
+    provider it describes: on the merged screen email is always in front, so the marker
+    only earns its place beside a provider.</p>
+    <p>Email + password. Posts to backend → on success, lands on main app. On 401 → inline error banner above CTA. <strong>"Forgot password?"</strong> sits directly under the Sign in button, above the provider rule — it is about the password, so it stays with it.</p>
     <hr>
     <p><strong>iOS ref:</strong> <code>Authentication/SignInWithCredentials/SignInWithCredentialsView.swift</code>.</p>
     <ul>

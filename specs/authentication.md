@@ -3,7 +3,7 @@
 > Status: Implemented (iOS + backend)
 > Prototype: [flows/shared/auth.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/auth.html)
 > Related: [account-access.md](./account-access.md) (post-login account changes), [onboarding.md](./onboarding.md) (post-signup wizard)
-> Last updated: 2026-07-17
+> Last updated: 2026-08-20
 
 ## Overview
 The authentication system allows users to create and access accounts using multiple login methods. Methods can be used independently or combined within a single account.
@@ -114,6 +114,36 @@ A user can authenticate using ANY of the methods linked to their account.
 - User signs in with Apple → adds phone → can log in via Apple or phone OTP
 - User signs in with Google → adds email+password → can login with Google or email+password
 - User signs up with phone OTP → later adds email+password → can log in via either
+
+## 2026-08-20 — one screen per mode, not two
+
+**The method picker is removed.** Sign-up and sign-in each had two screens: a chooser
+(*Continue with email / Apple / Google*) and then, behind the email button, the actual
+form. The chooser asked the user to pick a door before showing any, and its primary
+button led straight to the form anyway.
+
+**Now:** role pick → **one screen**. Email and password are the screen; the providers sit
+below them under an *or continue with* rule; the footer switches to the other mode. Same
+shape for both, and `Forgot password?` stays directly under the Sign in button.
+
+This does not change the spec's intent — it **delivers** the user story that was already
+approved above: *"As a returning user, I want one screen with all login methods … the
+screen just shows everything available."* The prototype had two.
+
+**Two details fixed with it:**
+- **No field labels** on the auth form. Both fields are named by one word, so a label
+  above a placeholder saying the same thing is the label twice. The rule: *the label or
+  the placeholder names the field, never both.* Labels stay where the placeholder is a
+  format hint rather than a name (phone number, the recovery screens).
+- **No "repeat password".** A second field to catch a typo the eye toggle already
+  catches, on a password recoverable by email.
+
+**⚠️ Implementation drift, not filed:** the live **Android** build still shows a
+`Repeat password` field on sign-up, and still routes through the method picker. iOS
+matches the old two-screen shape as well. Screens: `s-signup-email`, `s-signin-email`;
+`s-signup-entry` and `s-signin-entry` no longer exist.
+
+---
 
 ## Auth Flows
 
