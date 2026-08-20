@@ -153,14 +153,19 @@
   .au-pw-rule svg { width: 14px; height: 14px; flex-shrink: 0; }
   .au-pw-rule.ok { color: var(--fit-teal-500); }
   .au-pw-rule.fail { color: var(--fit-red-400); }
-  /* Sign-up does not show the list until the password has been judged: three grey
-     circles above the CTA, at the moment you have typed nothing, crowd the one
-     thing the screen is for. It appears the moment a rule passes or fails. On the
-     reset screen it stays visible — there the whole screen IS the password. */
-  #s-signup-email .au-pw-rules { display: none; }
-  #s-signup-email[data-au-state="weak-password"] .au-pw-rules,
-  #s-signup-email[data-au-state="all-valid"] .au-pw-rules,
-  #s-signup-email[data-au-state="loading"] .au-pw-rules { display: flex; }
+  /* The list does not show until the password has been judged. Three grey circles
+     above the CTA, at the moment you have typed nothing, crowd the one thing the
+     screen is for; it appears when a rule actually passes or fails.
+     I had argued for keeping it permanently on the reset screen — "there the whole
+     screen IS the password" — and that was wrong for a reason worth remembering:
+     an exception has to be worth what it costs, and the cost here is that the same
+     field behaves differently in two places. Rules you only learn by failing are a
+     real problem, but they are the same problem on both screens, and it is solved
+     by showing the list the moment there is something to judge. */
+  .au-pw-rules { display: none; }
+  [data-au-state="weak-password"] .au-pw-rules,
+  [data-au-state="all-valid"] .au-pw-rules,
+  [data-au-state="loading"] .au-pw-rules { display: flex; }
 
   /* Bottom toggle (Sign in / Sign up link) inside fit-phone-footer */
   .au-toggle-row {
@@ -1353,7 +1358,7 @@
     <p><strong>iOS ref:</strong> <code>Authentication/ForgotPassword/ForgotPasswordView.swift</code> (newPassword state).</p>
     <ul>
       <li><strong>Single new-password field</strong> (no "Confirm new password") — eye-toggle covers the typo-prevention use case + reduces friction. Server hashes whatever's submitted; if user typo'd, they'll Forgot Password again. Same approach as account-access.md change-password.</li>
-      <li><strong>Rules list</strong> reuses page-local <code>au-pw-rules</code> / <code>au-pw-rule</code> from sign-up email form.</li>
+      <li><strong>Rules list</strong> reuses page-local <code>au-pw-rules</code> / <code>au-pw-rule</code> from the sign-up form &mdash; and now behaves the same way: <strong>hidden until the password has been judged</strong> (2026-08-20). I had argued for keeping it permanently visible here, since the whole screen is the password. Wrong, and worth remembering why: an exception has to be worth what it costs, and this one cost the same field behaving differently in two places.</li>
       <li><strong>CTA copy:</strong> "Save and sign in" — single action that does both. No separate sign-in step after.</li>
       <li><strong>OTP token</strong> from step 2 is short-lived JWT in client memory, sent in the Save request body. Backend verifies before applying password change.</li>
     </ul>

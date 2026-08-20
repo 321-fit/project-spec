@@ -137,10 +137,12 @@ screen just shows everything available."* The prototype had two.
   format hint rather than a name (phone number, the recovery screens).
 - **No "repeat password".** A second field to catch a typo the eye toggle already
   catches, on a password recoverable by email.
-- **No password-rules list on arrival.** Three grey circles above the CTA, before
-  anything has been typed, crowd the one thing the screen is for. The list appears when
-  a rule actually passes or fails. It stays permanently visible on the reset screen,
-  where the whole screen is the password.
+- **No password-rules list on arrival**, on **both** screens that take a password —
+  sign-up and *Set a new password*. Three grey circles above the CTA, before anything has
+  been typed, crowd the one thing the screen is for; the list appears when a rule actually
+  passes or fails. The reset screen was briefly given an exception ("there the whole screen
+  is the password") and it was withdrawn: an exception has to be worth what it costs, and
+  this one cost the same field behaving differently in two places.
 - **`Forgot password?` sits under the password field**, right-aligned. It is about that
   field; below the CTA it read as an afterthought to signing in.
 
