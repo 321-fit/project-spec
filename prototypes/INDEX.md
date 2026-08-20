@@ -86,6 +86,14 @@ End-to-end annotated walkthroughs, not screens to clone. Each step links a **liv
 
 ### Lab (`lab/`)
 Token experiments, not product screens — never clone these for a feature.
+**Linking to a screen:** the board takes a deep link — `board.html#<module-slug>/<screen-id>`,
+e.g. [`board.html#shared-auth/s-signin-email`](https://321-fit.github.io/project-spec/prototypes/board.html#shared-auth/s-signin-email).
+It opens the module, centres the screen and highlights it. The hash rewrites itself as you
+focus screens, so the address bar is always a link to what you are looking at. **Prefer
+this over linking to a prototype file** in issues and specs: from a screen on the board you
+can still reach the live prototype, the annotation and the neighbouring screens — a link
+straight to the file gives you only the file.
+
 - `list-grammars.html` — **the three list grammars on live screens.** A row can be separated from
   its neighbour three ways: its own card, a shared inset container, or full bleed where the list *is*
   the screen. Each is shown on a real screen (Settings / Messages / Personal data) — left is exactly

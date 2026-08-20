@@ -716,7 +716,44 @@ function focusScreen(id) {
   if (item) item.classList.add('sel');
   n.card.classList.add('pulse');
   setTimeout(() => n.card.classList.remove('pulse'), 2400);
+  if (n.mod && n.screen) {
+    const want = linkFor(n.mod, n.screen.id);
+    if (location.hash !== want) history.replaceState(null, '', want);
+  }
 }
+// ---------------------------------------------------------------------------
+// Deep links. A board URL that means "this screen" is worth more than a link to
+// the prototype file, because from a screen on the board you can reach the
+// prototype, the annotation and the neighbours — the other direction gives you
+// only the file. Format:  board.html#<module-slug>/<screen-id>
+// The hash is rewritten as you focus screens, so the address bar is always a
+// link to what you are looking at.
+// ---------------------------------------------------------------------------
+const slugIndex = new Map(data.modules.map(m => [m.slug, m]));
+
+function linkFor(mod, id) { return '#' + mod.slug + '/' + id; }
+
+function focusFromHash(push) {
+  const raw = decodeURIComponent(location.hash.replace(/^#/, ''));
+  if (!raw) return false;
+  const cut = raw.lastIndexOf('/');
+  if (cut < 1) return false;
+  const mod = slugIndex.get(raw.slice(0, cut));
+  const id = raw.slice(cut + 1);
+  if (!mod || !mod.screens.some(s => s.id === id)) return false;
+  // Every module is folded on a first visit, so a link into one has to open it
+  // — otherwise the link lands you on a lane you cannot see in the panel.
+  const block = document.querySelector('.nav-mod[data-file="' + mod.file + '"]');
+  if (block && block.classList.contains('collapsed')) {
+    block.classList.remove('collapsed');
+    folded.delete('m:' + mod.file);
+    saveFolded();
+  }
+  focusScreen(key(mod, id));
+  return true;
+}
+window.addEventListener('hashchange', () => focusFromHash());
+
 function focusLane(i) {
   const l = laneIndex[i];
   glide(() => {
@@ -845,7 +882,8 @@ addEventListener('keydown', (e) => {
 });
 
 apply();
-setTimeout(fitWidth, 60);
+// A deep link wins over the default fit — you asked for a screen, not the map.
+setTimeout(() => { if (!focusFromHash()) fitWidth(); }, 60);
 </script>
 </body>
 </html>
