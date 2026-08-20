@@ -162,12 +162,18 @@ Both auth screens carry a **Keyboard open** state; on the adopted layout nothing
 at has its heading in the top fifth, same as ours — it looks full because its type is big,
 its fields are tall and its groups are far apart. Ours was top-anchored *and* tight, and
 only the first half was getting the blame. Adopted values: heading 30px starting 44px
-down, fields 60px with a 26px gap, seams between groups roughly doubled, circles 60px.
+down, fields 60px with a **tight 13px gap between them**, seams between groups roughly
+doubled, circles 60px, CTA left at the kit's standard 50px.
 
-**Cost, measured:** the provider row ends 698px from the top against 601 before, the CTA
-539 against 458. Fits with room on 390×844; on an SE-class 667pt screen the CTA still
-clears but the circles fall below the fold — acceptable for a secondary path, recorded so
-it is a decision rather than a surprise.
+The correction that made it work: the air belongs **between groups, not inside one**. Two
+fields are one group, so widening the gap between them pulled the form apart rather than
+giving it rhythm — and the CTA did not need to grow to keep up with a bigger heading.
+
+**Cost, measured after the correction:** the provider row ends **664px** from the top
+against 601 in the tight version, the CTA **505** against 458 — most of the earlier
+overshoot (698 / 539) came from the inflated field gap and button, not from the rhythm.
+Fits with room on 390×844; on an SE-class 667pt screen the CTA clears comfortably and the
+circles sit right at the fold.
 
 **Providers are circles.**
 
