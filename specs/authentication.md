@@ -130,13 +130,31 @@ This does not change the spec's intent — it **delivers** the user story that w
 approved above: *"As a returning user, I want one screen with all login methods … the
 screen just shows everything available."* The prototype had two.
 
-**Two details fixed with it:**
+**Three details fixed with it:**
 - **No field labels** on the auth form. Both fields are named by one word, so a label
   above a placeholder saying the same thing is the label twice. The rule: *the label or
   the placeholder names the field, never both.* Labels stay where the placeholder is a
   format hint rather than a name (phone number, the recovery screens).
 - **No "repeat password".** A second field to catch a typo the eye toggle already
   catches, on a password recoverable by email.
+- **No password-rules list on arrival.** Three grey circles above the CTA, before
+  anything has been typed, crowd the one thing the screen is for. The list appears when
+  a rule actually passes or fails. It stays permanently visible on the reset screen,
+  where the whole screen is the password.
+- **`Forgot password?` sits under the password field**, right-aligned. It is about that
+  field; below the CTA it read as an afterthought to signing in.
+
+### Open: wide provider buttons or circles
+
+A second sign-in screen, `s-signin-circles` (`proposal`), is drawn as a literal clone
+with only the provider block changed, so the two can be compared by looking.
+
+**Circles buy** the providers no longer competing with the CTA: two wide buttons under a
+gradient button read as three offers of similar weight, two circles read as "and these
+also exist". **They cost** the words — "Continue with Apple" becomes a logo, fine for
+two providers everyone knows by mark, useless for a third; *"Last used on this device"*
+degrades to a dot with nothing to explain it; and accessibility rests entirely on
+`aria-label`. **Undecided — the owner's call.**
 
 **⚠️ Implementation drift, not filed:** the live **Android** build still shows a
 `Repeat password` field on sign-up, and still routes through the method picker. iOS

@@ -10,7 +10,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-role-pick",
-          "hash": "6d5804b8ee2d",
+          "hash": "01fb5a477308",
           "title": "Role pick",
           "inApp": "",
           "status": "canon",
@@ -29,7 +29,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signup-email",
-          "hash": "35d85334904b",
+          "hash": "49697d5d9673",
           "title": "Sign up",
           "inApp": "",
           "status": "canon",
@@ -48,7 +48,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signin-email",
-          "hash": "436a3bcb1a7f",
+          "hash": "68049a7b11ab",
           "title": "Sign in",
           "inApp": "",
           "status": "canon",
@@ -66,8 +66,28 @@ window.FIT_BOARD = {
           "order": 0
         },
         {
+          "id": "s-signin-circles",
+          "hash": "7aaa43266713",
+          "title": "Sign in · circles (variant)",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "The same screen as above with one block changed, drawn to be compared rather than read about. Everything else is identical because it is a literal clone — if the two ever differ anywhere but the provider block, that is a",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-auth__s-signin-circles.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 6,
+          "order": 0
+        },
+        {
           "id": "s-forgot-email",
-          "hash": "d5b245081454",
+          "hash": "8a6e796ebed3",
           "title": "Step 1 · enter email",
           "inApp": "",
           "status": "canon",
@@ -86,7 +106,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-otp",
-          "hash": "f8cc4f50b8b2",
+          "hash": "c9b74c2b3a71",
           "title": "Step 2 · OTP code",
           "inApp": "",
           "status": "canon",
@@ -105,7 +125,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-new",
-          "hash": "60fa4b36afda",
+          "hash": "9dfddae1b05e",
           "title": "Step 3 · new password",
           "inApp": "",
           "status": "canon",
@@ -124,7 +144,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-phone-enter",
-          "hash": "005b31156c18",
+          "hash": "eceaa4f2a5de",
           "title": "Phone · enter number",
           "inApp": "",
           "status": "canon",
@@ -140,11 +160,11 @@ window.FIT_BOARD = {
           ],
           "orphan": true,
           "level": 6,
-          "order": 0
+          "order": 1
         },
         {
           "id": "s-phone-otp",
-          "hash": "55351992ffad",
+          "hash": "1cea5a661721",
           "title": "Phone · OTP code",
           "inApp": "",
           "status": "canon",
@@ -160,11 +180,11 @@ window.FIT_BOARD = {
           ],
           "orphan": true,
           "level": 6,
-          "order": 1
+          "order": 2
         },
         {
           "id": "s-country-picker",
-          "hash": "8ee396cede32",
+          "hash": "fd110ab69411",
           "title": "Country picker",
           "inApp": "Country or region",
           "status": "canon",
@@ -180,7 +200,7 @@ window.FIT_BOARD = {
           ],
           "orphan": true,
           "level": 6,
-          "order": 2
+          "order": 3
         }
       ],
       "edges": [
@@ -211,6 +231,21 @@ window.FIT_BOARD = {
         },
         {
           "from": "s-signin-email",
+          "to": "s-signup-email",
+          "back": true
+        },
+        {
+          "from": "s-signin-circles",
+          "to": "s-role-pick",
+          "back": true
+        },
+        {
+          "from": "s-signin-circles",
+          "to": "s-forgot-email",
+          "back": true
+        },
+        {
+          "from": "s-signin-circles",
           "to": "s-signup-email",
           "back": true
         },

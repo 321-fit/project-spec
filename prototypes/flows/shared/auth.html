@@ -149,6 +149,14 @@
   .au-pw-rule svg { width: 14px; height: 14px; flex-shrink: 0; }
   .au-pw-rule.ok { color: var(--fit-teal-500); }
   .au-pw-rule.fail { color: var(--fit-red-400); }
+  /* Sign-up does not show the list until the password has been judged: three grey
+     circles above the CTA, at the moment you have typed nothing, crowd the one
+     thing the screen is for. It appears the moment a rule passes or fails. On the
+     reset screen it stays visible — there the whole screen IS the password. */
+  #s-signup-email .au-pw-rules { display: none; }
+  #s-signup-email[data-au-state="weak-password"] .au-pw-rules,
+  #s-signup-email[data-au-state="all-valid"] .au-pw-rules,
+  #s-signup-email[data-au-state="loading"] .au-pw-rules { display: flex; }
 
   /* Bottom toggle (Sign in / Sign up link) inside fit-phone-footer */
   .au-toggle-row {
@@ -266,6 +274,27 @@
     content: ""; flex: 1; height: 1px; background: var(--fit-divider);
   }
 
+  /* Provider circles (variant). Built ON the kit's .fit-icon-btn — it already is
+     the circular button; this only resizes it, because 32px is a header
+     affordance and a provider choice is a primary target (44 HIG minimum). */
+  .au-circle-row {
+    display: flex; align-items: center; justify-content: center; gap: 20px;
+    padding: 4px 16px 0;
+  }
+  .au-provider-circle {
+    width: 56px; height: 56px; position: relative;
+    background: var(--fit-surface-high); backdrop-filter: none;
+  }
+  .au-provider-circle svg { width: 26px; height: 26px; }
+  .fit-light .au-provider-circle { background: var(--fit-white); box-shadow: var(--fit-shadow-card); }
+  /* No caption room beside a circle, so "last used" degrades to a dot. That is a
+     real cost of this variant, not a detail — the words are gone. */
+  .au-provider-circle--last::after {
+    content: ""; position: absolute; top: 2px; right: 2px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--fit-teal-500); border: 2px solid var(--fit-screen-bg);
+  }
+
   /* "Last used" indicator under provider button (sign-in) */
   .au-last-used {
     display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -279,8 +308,8 @@
 
   /* Forgot password inline link (under Sign in CTA) */
   .au-forgot-link-wrap {
-    display: flex; align-items: center; justify-content: center;
-    padding: 12px 16px 0;
+    display: flex; align-items: center; justify-content: flex-end;
+    padding: 6px 16px 0;
   }
   .au-forgot-link {
     background: transparent; border: none; cursor: pointer;
@@ -419,6 +448,7 @@
     <button onclick="go('s-signin-email',this)">Sign in</button>
 
     <div class="label">Forgot password</div>
+    <button onclick="go('s-signin-circles',this)">Sign in &middot; circles (variant)</button>
     <button onclick="go('s-forgot-email',this)">Step 1 · enter email</button>
     <button onclick="go('s-forgot-otp',this)">Step 2 · OTP code</button>
     <button onclick="go('s-forgot-new',this)">Step 3 · new password</button>
@@ -619,19 +649,19 @@
       </div>
     </div>
 
-    <div class="au-cta-wrap">
-      <button class="fit-btn fit-btn-primary au-btn-primary-target"
-              data-a11y-id="auth.signin.email.submit">
-        <span class="au-btn-spinner"></span>
-        Sign in
-      </button>
-    </div>
-
     <div class="au-forgot-link-wrap">
       <button class="au-forgot-link"
               data-a11y-id="auth.signin.email.forgot-password"
               onclick="go('s-forgot-email', document.querySelector('.sidebar button[onclick*=s-forgot-email]'))">
         Forgot password?
+      </button>
+    </div>
+
+    <div class="au-cta-wrap">
+      <button class="fit-btn fit-btn-primary au-btn-primary-target"
+              data-a11y-id="auth.signin.email.submit">
+        <span class="au-btn-spinner"></span>
+        Sign in
       </button>
     </div>
 
@@ -655,6 +685,97 @@
     <div class="au-toggle-row">
       <span>Don't have an account?</span>
       <button data-a11y-id="auth.signin.email.toggle-signup"
+              onclick="go('s-signup-email', document.querySelector('.sidebar button[onclick*=s-signup-email]'))">Sign up</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN: SIGN-IN — PROVIDER CIRCLES (variant, for comparison)
+     A clone of the screen above; only the provider block differs.
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-signin-circles" data-au-state="default" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"
+              data-a11y-id="auth.signin.circles.back"
+              onclick="go('s-role-pick', document.querySelector('.sidebar button[onclick*=s-role-pick]'))"
+              aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding:0;">
+
+    <div class="au-page-head">
+      <div class="au-page-title">Welcome back</div>
+      <div class="au-page-sub">Use the email and password you signed up with, or a connected provider.</div>
+    </div>
+
+    <div class="au-form-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span class="au-form-error-text">Email or password isn't right.</span>
+    </div>
+
+    <div class="fit-input-group" data-field="email">
+      <div class="fit-input">
+        <input type="email" inputmode="email" autocomplete="email"
+               autocapitalize="off" spellcheck="false"
+               placeholder="Email"
+               data-a11y-id="auth.signin.circles.field"
+               style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
+      </div>
+    </div>
+
+    <div class="fit-input-group" data-field="password">
+      <div class="fit-input fit-input-password">
+        <input type="password" autocomplete="current-password"
+               placeholder="Password"
+               data-a11y-id="auth.signin.circles.password.field"
+               style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
+        <button class="fit-eye-toggle"
+                data-a11y-id="auth.signin.circles.password.show"
+                aria-label="Show password" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="au-forgot-link-wrap">
+      <button class="au-forgot-link"
+              data-a11y-id="auth.signin.circles.forgot-password"
+              onclick="go('s-forgot-email', document.querySelector('.sidebar button[onclick*=s-forgot-email]'))">
+        Forgot password?
+      </button>
+    </div>
+
+    <div class="au-cta-wrap">
+      <button class="fit-btn fit-btn-primary au-btn-primary-target"
+              data-a11y-id="auth.signin.circles.submit">
+        <span class="au-btn-spinner"></span>
+        Sign in
+      </button>
+    </div>
+
+    <div class="au-or"><span>or continue with</span></div>
+
+    <div class="au-circle-row">
+      <button class="fit-icon-btn au-provider-circle au-provider-circle--last"
+              data-a11y-id="auth.signin.circles.method.apple" aria-label="Continue with Apple">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.493-.12-1.06.396-2.2 1.075-2.99.762-.88 2.012-1.5 3.089-1.583zm3.86 17.52c-.764 1.13-1.595 2.235-2.948 2.253-1.327.026-1.753-.79-3.27-.79-1.517 0-1.99.764-3.247.815-1.305.05-2.295-1.21-3.07-2.33C5.97 16.73 4.762 12.45 6.367 9.6c.776-1.42 2.18-2.32 3.71-2.34 1.275-.025 2.482.86 3.27.86.79 0 2.27-1.06 3.83-.9.66.026 2.5.26 3.69 1.97-.094.06-2.20 1.30-2.18 3.87.02 3.05 2.67 4.07 2.70 4.08-.024.073-.43 1.46-1.42 2.84z"/></svg>
+      </button>
+      <button class="fit-icon-btn au-provider-circle"
+              data-a11y-id="auth.signin.circles.method.google" aria-label="Continue with Google">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23 12.27c0-.85-.08-1.66-.22-2.45H12v4.63h6.16c-.27 1.43-1.08 2.65-2.31 3.46v2.88h3.74C21.78 18.81 23 15.83 23 12.27z"/><path fill="#34A853" d="M12 23c3.13 0 5.77-1.04 7.69-2.81l-3.74-2.88c-1.04.7-2.36 1.11-3.95 1.11-3.04 0-5.61-2.05-6.53-4.81H1.62v3.02C3.53 20.39 7.45 23 12 23z"/><path fill="#FBBC05" d="M5.47 13.62a6.6 6.6 0 010-3.23V7.37H1.62a11 11 0 000 9.27l3.85-3.02z"/><path fill="#EA4335" d="M12 5.38c1.71 0 3.25.59 4.47 1.74l3.32-3.32C17.76 1.86 15.12 1 12 1 7.45 1 3.53 3.61 1.62 7.37l3.85 3.02C6.39 7.43 8.96 5.38 12 5.38z"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="fit-phone-footer">
+    <div class="au-toggle-row">
+      <span>Don't have an account?</span>
+      <button data-a11y-id="auth.signin.circles.toggle-signup"
               onclick="go('s-signup-email', document.querySelector('.sidebar button[onclick*=s-signup-email]'))">Sign up</button>
     </div>
   </div>
@@ -1111,6 +1232,12 @@
     screen. Email and password are the screen; the providers sit under an
     <em>or continue with</em> rule; the switch to the other mode is the footer.</p>
     <p>Email + password with inline password-rules list. Posts to backend → advances to phone OTP step (next batch).</p>
+    <p><strong>No password-rules list on arrival (2026-08-20).</strong> Three grey
+    circles above the CTA, at the moment nothing has been typed, crowd the one thing the
+    screen is for. The list now appears when a rule actually passes or fails — flip the
+    <em>Weak password</em> / <em>All rules ok</em> states to see it. It stays permanently
+    visible on the reset screen, where the whole screen is the password and nothing
+    competes with it.</p>
     <p><strong>No "repeat password"</strong> — a second field to catch a typo the eye
     toggle already catches, on a password you can reset by email. The live Android build
     still has one; that is drift, not the design.</p>
@@ -1150,7 +1277,7 @@
     picker is gone. <em>Last used on this device</em> survived the merge and moved onto the
     provider it describes: on the merged screen email is always in front, so the marker
     only earns its place beside a provider.</p>
-    <p>Email + password. Posts to backend → on success, lands on main app. On 401 → inline error banner above CTA. <strong>"Forgot password?"</strong> sits directly under the Sign in button, above the provider rule — it is about the password, so it stays with it.</p>
+    <p>Email + password. Posts to backend → on success, lands on main app. On 401 → inline error banner above CTA. <strong>"Forgot password?"</strong> sits directly under the password field, right-aligned — it is about that field, and putting it below the CTA had made it look like an afterthought to signing in.</p>
     <hr>
     <p><strong>iOS ref:</strong> <code>Authentication/SignInWithCredentials/SignInWithCredentialsView.swift</code>.</p>
     <ul>
@@ -1166,6 +1293,35 @@
       </li>
     </ul>
     <p><strong>Keyboard flow</strong>: Email <code>Next</code> → Password <code>Go</code> → fires Sign in. Same as sign-up.</p>
+  </div>
+
+    <div class="ann" id="ann-s-signin-circles">
+    <span class="ann-role">Shared</span>
+    <h3>Sign in &middot; provider circles <em>(variant, not a decision)</em></h3>
+    <p>The same screen as above with one block changed, drawn to be compared rather than
+    read about. Everything else is identical because it is a literal clone — if the two
+    ever differ anywhere but the provider block, that is a bug.</p>
+    <hr>
+    <p><strong>What circles buy:</strong> the providers stop competing with the CTA. Two
+    wide buttons under a gradient button read as three offers of similar weight; two
+    circles read as "and these also exist". The screen gets shorter and the email path is
+    unmistakably the main one.</p>
+    <p><strong>What they cost:</strong></p>
+    <ul>
+      <li><strong>The words go.</strong> "Continue with Apple" becomes a logo — fine for
+      these two, useless the day a third arrives that nobody recognises by mark alone.</li>
+      <li><strong>"Last used on this device" has nowhere to live</strong> and degrades to
+      a dot on the circle. A returning user who signed in with Google now has to remember
+      what the dot means.</li>
+      <li>Accessibility rests entirely on <code>aria-label</code>; there is no visible
+      text to read out or to translate.</li>
+    </ul>
+    <p><strong>Components:</strong> kit <code>fit-icon-btn</code> (already the circular
+    button) + page-local <code>au-provider-circle</code>, which only resizes it 32 → 56px:
+    32 is a header affordance, a provider choice is a primary target and HIG asks 44
+    minimum.</p>
+    <p class="note">Both live on the board so the choice can be made by looking. Nothing
+    is decided and no task exists.</p>
   </div>
 
   <div class="ann" id="ann-s-forgot-email">
