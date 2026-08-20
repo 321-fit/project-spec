@@ -10,7 +10,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-role-pick",
-          "hash": "31166ac59115",
+          "hash": "df44dd8b8f41",
           "title": "Role pick",
           "inApp": "",
           "status": "canon",
@@ -29,13 +29,13 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signup-email",
-          "hash": "3e46a25026e0",
+          "hash": "0842fc98776c",
           "title": "Sign up",
           "inApp": "",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "One screen, not two (2026-08-20). The method picker that stood between the role choice and this form is gone: it asked you to choose a door before showing you any, and its email button led straight here. Role pick now la",
+          "note": "Layout adopted 2026-08-20, after four candidates stood side by side on the board (wide buttons / circles / centred / generous rhythm). The winner is the last: top-anchored with the air doubled, providers as circles. Cent",
           "external": [],
           "shots": [
             {
@@ -48,13 +48,13 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signin-email",
-          "hash": "cc06dfc87cfe",
+          "hash": "e44e628f9138",
           "title": "Sign in",
           "inApp": "",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "Merged the same way as sign-up (2026-08-20) — the sign-in method picker is gone. Last used on this device survived the merge and moved onto the provider it describes: on the merged screen email is always in front, so the",
+          "note": "Same adopted layout as sign-up — au-air + circles, chosen from four variants on the board. Last used on this device is the teal ring around the provider circle: the ring marks the thing itself, where a dot beside it was ",
           "external": [],
           "shots": [
             {
@@ -66,88 +66,8 @@ window.FIT_BOARD = {
           "order": 0
         },
         {
-          "id": "s-signin-circles",
-          "hash": "9d84327e7d47",
-          "title": "Sign in · circles (variant)",
-          "inApp": "",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "The same screen as above with one block changed, drawn to be compared rather than read about. Everything else is identical because it is a literal clone — if the two ever differ anywhere but the provider block, that is a",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-auth__s-signin-circles.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 6,
-          "order": 0
-        },
-        {
-          "id": "s-signin-centered",
-          "hash": "a909d5601527",
-          "title": "Sign in · centred (variant)",
-          "inApp": "",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "Same screen again, only the vertical rhythm differs: the heading is centred and the whole stack sits in the middle instead of hanging from the top. It answers a real complaint — the top-anchored version leaves the bottom",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-auth__s-signin-centered.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 6,
-          "order": 1
-        },
-        {
-          "id": "s-signin-air",
-          "hash": "1dbfb313abcb",
-          "title": "Sign in · air (variant)",
-          "inApp": "",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "The reference screen does not look full because it is centred — its heading sits in the top fifth, same as ours. It looks full because its rhythm is generous: big type, tall fields, real air between groups. Ours was top-",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-auth__s-signin-air.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 6,
-          "order": 2
-        },
-        {
-          "id": "s-signin-spread",
-          "hash": "cb795a63e801",
-          "title": "Sign in · spread (variant)",
-          "inApp": "",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "The answer to \"the bottom is empty\" that does not cost anything. Heading centred, fields and CTA exactly where the top-anchored version puts them, and the provider row pushed to the floor so the screen fills. Flip Keyboa",
-          "external": [],
-          "shots": [
-            {
-              "file": "shared-auth__s-signin-spread.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 6,
-          "order": 3
-        },
-        {
           "id": "s-forgot-email",
-          "hash": "0317efc8c759",
+          "hash": "e97e354aba89",
           "title": "Step 1 · enter email",
           "inApp": "",
           "status": "canon",
@@ -166,7 +86,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-otp",
-          "hash": "f5c6a6bd592b",
+          "hash": "01a81b8880eb",
           "title": "Step 2 · OTP code",
           "inApp": "",
           "status": "canon",
@@ -185,7 +105,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-new",
-          "hash": "be895f0a80d1",
+          "hash": "881d15c038a7",
           "title": "Step 3 · new password",
           "inApp": "",
           "status": "canon",
@@ -204,7 +124,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-phone-enter",
-          "hash": "e75d9d115942",
+          "hash": "9328aa8acb68",
           "title": "Phone · enter number",
           "inApp": "",
           "status": "canon",
@@ -220,11 +140,11 @@ window.FIT_BOARD = {
           ],
           "orphan": true,
           "level": 6,
-          "order": 4
+          "order": 0
         },
         {
           "id": "s-phone-otp",
-          "hash": "4f99453632e3",
+          "hash": "383454b96987",
           "title": "Phone · OTP code",
           "inApp": "",
           "status": "canon",
@@ -240,11 +160,11 @@ window.FIT_BOARD = {
           ],
           "orphan": true,
           "level": 6,
-          "order": 5
+          "order": 1
         },
         {
           "id": "s-country-picker",
-          "hash": "7a11116c79d0",
+          "hash": "0ff5b7467d07",
           "title": "Country picker",
           "inApp": "Country or region",
           "status": "canon",
@@ -260,7 +180,7 @@ window.FIT_BOARD = {
           ],
           "orphan": true,
           "level": 6,
-          "order": 6
+          "order": 2
         }
       ],
       "edges": [
@@ -291,66 +211,6 @@ window.FIT_BOARD = {
         },
         {
           "from": "s-signin-email",
-          "to": "s-signup-email",
-          "back": true
-        },
-        {
-          "from": "s-signin-circles",
-          "to": "s-role-pick",
-          "back": true
-        },
-        {
-          "from": "s-signin-circles",
-          "to": "s-forgot-email",
-          "back": true
-        },
-        {
-          "from": "s-signin-circles",
-          "to": "s-signup-email",
-          "back": true
-        },
-        {
-          "from": "s-signin-centered",
-          "to": "s-role-pick",
-          "back": true
-        },
-        {
-          "from": "s-signin-centered",
-          "to": "s-forgot-email",
-          "back": true
-        },
-        {
-          "from": "s-signin-centered",
-          "to": "s-signup-email",
-          "back": true
-        },
-        {
-          "from": "s-signin-air",
-          "to": "s-role-pick",
-          "back": true
-        },
-        {
-          "from": "s-signin-air",
-          "to": "s-forgot-email",
-          "back": true
-        },
-        {
-          "from": "s-signin-air",
-          "to": "s-signup-email",
-          "back": true
-        },
-        {
-          "from": "s-signin-spread",
-          "to": "s-role-pick",
-          "back": true
-        },
-        {
-          "from": "s-signin-spread",
-          "to": "s-forgot-email",
-          "back": true
-        },
-        {
-          "from": "s-signin-spread",
           "to": "s-signup-email",
           "back": true
         },

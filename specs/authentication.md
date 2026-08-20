@@ -144,12 +144,34 @@ screen just shows everything available."* The prototype had two.
 - **`Forgot password?` sits under the password field**, right-aligned. It is about that
   field; below the CTA it read as an afterthought to signing in.
 
-### Open: wide provider buttons or circles
+### Resolved: the auth layout (2026-08-20)
 
-A second sign-in screen, `s-signin-circles` (`proposal`), is drawn as a literal clone
-with only the provider block changed, so the two can be compared by looking.
+Four candidates were drawn side by side on the board — wide provider buttons, provider
+circles, everything vertically centred, and top-anchored with the vertical rhythm
+doubled. **Adopted: the last, with circles.** The other three are deleted rather than
+parked, so the prototype has one answer per screen.
 
-**Circles buy** the providers no longer competing with the CTA: two wide buttons under a
+**Why not centred**, which was the initial instinct and looks best standing still: on a
+sign-in screen the keyboard is up within a second, and a centred block has to move to make
+room — the first thing the screen does is jump ~240px and push the providers under the
+keyboard. It also puts the CTA at a different height on every screen, since the height
+depends on the content, so sign-in and sign-up stop agreeing on where "the button" is.
+Both auth screens carry a **Keyboard open** state; on the adopted layout nothing moves.
+
+**Why the screen looked empty was rhythm, not anchoring.** The reference everyone points
+at has its heading in the top fifth, same as ours — it looks full because its type is big,
+its fields are tall and its groups are far apart. Ours was top-anchored *and* tight, and
+only the first half was getting the blame. Adopted values: heading 30px starting 44px
+down, fields 60px with a 26px gap, seams between groups roughly doubled, circles 60px.
+
+**Cost, measured:** the provider row ends 698px from the top against 601 before, the CTA
+539 against 458. Fits with room on 390×844; on an SE-class 667pt screen the CTA still
+clears but the circles fall below the fold — acceptable for a secondary path, recorded so
+it is a decision rather than a surprise.
+
+**Providers are circles.**
+
+They buy the providers no longer competing with the CTA: two wide buttons under a
 gradient button read as three offers of similar weight, two circles read as "and these
 also exist". The screen gets shorter and the email path is unmistakably the main one.
 
@@ -164,7 +186,7 @@ future provider whose mark is not recognisable on sight.
 object to decode next to the thing it described. `aria-label` carries the state in words,
 so colour is not the only signal.
 
-**Undecided — the owner's call.**
+
 
 **⚠️ Implementation drift, not filed:** the live **Android** build still shows a
 `Repeat password` field on sign-up, and still routes through the method picker. iOS
