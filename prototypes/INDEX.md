@@ -82,10 +82,11 @@ End-to-end annotated walkthroughs, not screens to clone. Each step links a **liv
 - `home-visit.html` — booking-with-address journey.
 - `packages.html` — session packages end-to-end · `packages-birdseye.html` — state × surface matrix.
 - `self-paced.html` — self-paced training end-to-end (Requested → Ready → Submitted → Finished).
-- `action-rows.html` — **inventory of every action row (WIP).** All 446 rows in the prototype
-  that hold two or more buttons, grouped by the question the row answers: six families, of which
-  only three are candidates for the circle treatment. Built to decide where circles go before
-  anything is changed — walk it on the board, the two amber notes need product answers.
+- `action-rows.html` — **the twelve places that adopt `FitActionCircle` (WIP).** Two screens:
+  what changes today, and what it becomes. Found by scanning all 446 rows in the prototype that
+  hold two or more buttons; the annotation lists the four families that deliberately do NOT
+  change ("are you sure?" alone is ~40 rows). Component lives in the kit as
+  `.fit-action-circle` and in design-tokens as `FitActionCircle`.
 - `group-training.html` — group training end-to-end (create → discover/join → manage roster + **invite existing/CRM/by-link** → settle/complete → feedback).
 
 ### Lab (`lab/`)

@@ -237,27 +237,9 @@
   #s-ai-context [data-vb="text"] { display: flex; }
 
   /* ===== ai-* — only what does not exist yet ===== */
-  /* Circle action row: for 3-5 peer actions in a sheet. 1-2 stay wide buttons. */
-  .ai-circles { display: flex; gap: 6px; padding: 4px 0 2px; }
-  .ai-circle { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 9px;
-               background: none; border: none; cursor: pointer; font-family: var(--fit-font); padding: 4px 0; }
-  .ai-circle i { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center;
-                 justify-content: center; background: var(--fit-surface-high); color: var(--fit-text-primary); }
-  .ai-circle i svg { width: 30px; height: 30px; }
-  .ai-circle span { font-size: 13px; font-weight: 600; color: var(--fit-text-primary); }
-  /* Destructive is FILLED red with a white glyph, not a neutral plate with red ink
-     (owner, 2026-08-20). It reads as destructive before you have identified the
-     icon, which is the whole job of that colour — and it matches the filled tier
-     our destructive button already has. White on #f05c5b measures 3.29: below the
-     4.5 a label would need, above the 3.0 a glyph does, which is what sits there. */
-  .ai-circle.danger i { background: var(--fit-color-destructive-primary); color: #fff; }
-  .ai-circle.danger span { color: var(--fit-red-400); }
-  /* exactly one gradient per row — it is what "the expected answer" looks like */
-  .ai-circle.primary i { background: var(--fit-brand-gradient); color: #fff; }
-  .ai-circle.primary span { color: var(--fit-brand-primary); }
-  /* deliberation, not a decision: the neutral plate, marked only by its outline.
-     A third fill colour in the row turns four actions into four warnings. */
-  .ai-circle.ask i { border: 1.5px solid var(--fit-teal-500); color: var(--fit-teal-500); }
+  /* Circle action row lives in the kit now: .fit-action-circle / .fit-action-circles
+     in fit-ui.css, FitActionCircle in design-tokens. The page-local copy that used
+     to sit here was a second source of truth for a component two files draw. */
 
   /* The context the assistant was handed — visible, never invisible priming */
   .ai-ctx { margin: 12px 16px 4px; border: 1px solid var(--fit-divider); border-radius: var(--fit-radius-lg); overflow: hidden; }
@@ -480,31 +462,31 @@
       </div>
 
       <!-- REQUEST — four actions -->
-      <div class="ai-circles" id="ai-row-request">
-        <button class="ai-circle danger" data-a11y-id="athlete.calendar.event.decline">
+      <div class="fit-action-circles" id="ai-row-request">
+        <button class="fit-action-circle fit-action-circle--danger" data-a11y-id="athlete.calendar.event.decline">
           <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></i><span>Decline</span>
         </button>
-        <button class="ai-circle" data-a11y-id="athlete.calendar.event.reschedule">
+        <button class="fit-action-circle" data-a11y-id="athlete.calendar.event.reschedule">
           <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></i><span>Reschedule</span>
         </button>
-        <button class="ai-circle ask" onclick="go('s-ai-context',null)" data-a11y-id="athlete.calendar.event.ask-assistant">
+        <button class="fit-action-circle fit-action-circle--ask" onclick="go('s-ai-context',null)" data-a11y-id="athlete.calendar.event.ask-assistant">
           <i><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z" /><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg></i><span>Ask AI</span>
         </button>
-        <button class="ai-circle primary" data-a11y-id="athlete.calendar.event.accept">
+        <button class="fit-action-circle fit-action-circle--primary" data-a11y-id="athlete.calendar.event.accept">
           <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></i><span>Accept</span>
         </button>
       </div>
 
       <!-- PLANNED — the same row, three actions. Ask AI is always there, so a
            drawer never drops below three: circles are simply what a drawer uses. -->
-      <div class="ai-circles" id="ai-row-planned" style="display:none;">
-        <button class="ai-circle danger">
+      <div class="fit-action-circles" id="ai-row-planned" style="display:none;">
+        <button class="fit-action-circle fit-action-circle--danger">
           <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></i><span>Cancel</span>
         </button>
-        <button class="ai-circle">
+        <button class="fit-action-circle">
           <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></i><span>Reschedule</span>
         </button>
-        <button class="ai-circle ask" onclick="go('s-ai-context',null)">
+        <button class="fit-action-circle fit-action-circle--ask" onclick="go('s-ai-context',null)">
           <i><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z" /><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg></i><span>Ask AI</span>
         </button>
       </div>

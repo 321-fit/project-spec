@@ -391,6 +391,53 @@
 .fit-icon-btn svg { width: 16px; height: 16px; }
 .fit-light .fit-icon-btn { background: var(--fit-surface-high); backdrop-filter: none; }
 
+/* Action circle — a row of peer actions on an object (a sheet, a drawer, a
+   request card). Mirrors `FitActionCircle` (SwiftUI / Compose).
+   See design-tokens/docs/components.md § FitActionCircle.
+
+   When to use it, and when not: peer actions ON AN OBJECT take circles; a
+   question with an escape ("Disconnect / Cancel") takes words, because there the
+   labels are the meaning and one of the two is the way out. Count does not
+   decide it — two peers are still peers.
+
+   Colour is rationed, and that is the rule: exactly one `--primary` (the
+   expected answer, under the thumb), at most one `--danger` (destructive,
+   farthest from it). A third fill turns a row of actions into a row of warnings.
+   Positions are fixed so the row is muscle memory: refusal left, neutral middle,
+   expected answer right. */
+.fit-action-circles { display: flex; gap: 6px; padding: 4px 0 2px; }
+.fit-action-circle {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 9px;
+  background: none; border: none; padding: 4px 0; cursor: pointer;
+  font-family: var(--fit-font);
+}
+/* The plate sits one surface step above whatever it is on, so it stays a plate
+   on a card as well as on the page — its own fill is the only thing that says
+   "this is a button". */
+.fit-action-circle i {
+  width: 64px; height: 64px; border-radius: var(--fit-radius-full);
+  display: flex; align-items: center; justify-content: center;
+  background: var(--fit-surface-higher); color: var(--fit-text-primary);
+}
+.fit-action-circle i svg { width: 30px; height: 30px; }
+.fit-action-circle span { font-size: 13px; font-weight: 600; color: var(--fit-text-primary); }
+.fit-action-circle:disabled { opacity: .4; cursor: default; }
+
+/* The expected answer. One per row. */
+.fit-action-circle--primary i { background: var(--fit-brand-gradient); color: var(--fit-white); }
+.fit-action-circle--primary span { color: var(--fit-brand-primary); }
+
+/* Destructive: FILLED, with a white glyph — it has to read as destructive before
+   the icon is identified. White on destructive-primary measures 3.29, which is
+   under the 4.5 a label needs and over the 3.0 a glyph needs; a glyph is what
+   sits there, and the word lives underneath on the page background. */
+.fit-action-circle--danger i { background: var(--fit-color-destructive-primary); color: var(--fit-white); }
+.fit-action-circle--danger span { color: var(--fit-red-400); }
+
+/* Deliberation rather than a decision — outline only. Reserved for the
+   assistant; a third fill colour would flatten the hierarchy of the row. */
+.fit-action-circle--ask i { background: transparent; border: 1.5px solid var(--fit-teal-500); color: var(--fit-teal-500); }
+
 /* Icon plate — decorative leading icon container.
    Mirrors `FitIconPlate` (SwiftUI / Compose). Non-interactive.
    See design-tokens/docs/components.md § FitIconPlate. */
