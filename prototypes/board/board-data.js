@@ -10,7 +10,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-role-pick",
-          "hash": "159ce4f3dfda",
+          "hash": "4870291d16a2",
           "title": "Role pick",
           "inApp": "",
           "status": "canon",
@@ -29,7 +29,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signup-email",
-          "hash": "4ec031edfe56",
+          "hash": "3debd664aca1",
           "title": "Sign up",
           "inApp": "",
           "status": "canon",
@@ -48,7 +48,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signin-email",
-          "hash": "3a3cfb9056ae",
+          "hash": "fdbfc270685d",
           "title": "Sign in",
           "inApp": "",
           "status": "canon",
@@ -67,7 +67,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signin-circles",
-          "hash": "a42e341ffbb0",
+          "hash": "226015997c1d",
           "title": "Sign in · circles (variant)",
           "inApp": "",
           "status": "proposal",
@@ -86,8 +86,48 @@ window.FIT_BOARD = {
           "order": 0
         },
         {
+          "id": "s-signin-centered",
+          "hash": "f7ea493d6b4d",
+          "title": "Sign in · centred (variant)",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Same screen again, only the vertical rhythm differs: the heading is centred and the whole stack sits in the middle instead of hanging from the top. It answers a real complaint — the top-anchored version leaves the bottom",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-auth__s-signin-centered.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 6,
+          "order": 1
+        },
+        {
+          "id": "s-signin-spread",
+          "hash": "19b2822eedc3",
+          "title": "Sign in · spread (variant)",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "The answer to \"the bottom is empty\" that does not cost anything. Heading centred, fields and CTA exactly where the top-anchored version puts them, and the provider row pushed to the floor so the screen fills. Flip Keyboa",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-auth__s-signin-spread.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 6,
+          "order": 2
+        },
+        {
           "id": "s-forgot-email",
-          "hash": "bdea1a705b1b",
+          "hash": "e1cf208cf19b",
           "title": "Step 1 · enter email",
           "inApp": "",
           "status": "canon",
@@ -106,7 +146,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-otp",
-          "hash": "7711e30cb530",
+          "hash": "1e75eb50436a",
           "title": "Step 2 · OTP code",
           "inApp": "",
           "status": "canon",
@@ -125,7 +165,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-new",
-          "hash": "579b1b89eed1",
+          "hash": "09db413a0712",
           "title": "Step 3 · new password",
           "inApp": "",
           "status": "canon",
@@ -144,7 +184,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-phone-enter",
-          "hash": "fedfbffd72cb",
+          "hash": "ff8d9e9de05a",
           "title": "Phone · enter number",
           "inApp": "",
           "status": "canon",
@@ -160,11 +200,11 @@ window.FIT_BOARD = {
           ],
           "orphan": true,
           "level": 6,
-          "order": 1
+          "order": 3
         },
         {
           "id": "s-phone-otp",
-          "hash": "00a5d5c9b344",
+          "hash": "f7c8377b0a96",
           "title": "Phone · OTP code",
           "inApp": "",
           "status": "canon",
@@ -180,11 +220,11 @@ window.FIT_BOARD = {
           ],
           "orphan": true,
           "level": 6,
-          "order": 2
+          "order": 4
         },
         {
           "id": "s-country-picker",
-          "hash": "cb19a5a117f9",
+          "hash": "69d477675a4c",
           "title": "Country picker",
           "inApp": "Country or region",
           "status": "canon",
@@ -200,7 +240,7 @@ window.FIT_BOARD = {
           ],
           "orphan": true,
           "level": 6,
-          "order": 3
+          "order": 5
         }
       ],
       "edges": [
@@ -246,6 +286,36 @@ window.FIT_BOARD = {
         },
         {
           "from": "s-signin-circles",
+          "to": "s-signup-email",
+          "back": true
+        },
+        {
+          "from": "s-signin-centered",
+          "to": "s-role-pick",
+          "back": true
+        },
+        {
+          "from": "s-signin-centered",
+          "to": "s-forgot-email",
+          "back": true
+        },
+        {
+          "from": "s-signin-centered",
+          "to": "s-signup-email",
+          "back": true
+        },
+        {
+          "from": "s-signin-spread",
+          "to": "s-role-pick",
+          "back": true
+        },
+        {
+          "from": "s-signin-spread",
+          "to": "s-forgot-email",
+          "back": true
+        },
+        {
+          "from": "s-signin-spread",
           "to": "s-signup-email",
           "back": true
         },

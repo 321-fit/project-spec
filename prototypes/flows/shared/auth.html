@@ -274,6 +274,37 @@
     content: ""; flex: 1; height: 1px; background: var(--fit-divider);
   }
 
+  /* Centred variant: heading centred, the whole stack sitting in the middle of
+     the screen instead of hanging from the top. `justify-content: center` on the
+     content, and the head loses its left alignment. */
+  .au-centered { display: flex; flex-direction: column; justify-content: center; }
+  .au-centered .au-page-head { text-align: center; padding-bottom: 28px; }
+  .au-centered .au-or { padding: 32px 16px 24px; }
+
+  /* The middle option: nothing is centred, so nothing moves when the keyboard
+     arrives — but the providers are pushed to the floor, so the empty bottom
+     third that started this is gone. The fields and the CTA stay exactly where
+     the top-anchored version puts them. */
+  .au-spread { display: flex; flex-direction: column; }
+  .au-spread .au-page-head { text-align: center; }
+  .au-spread .au-or { margin-top: auto; padding-top: 32px; }
+  .au-spread .au-circle-row { padding-bottom: 20px; }
+
+  /* Stand-in for the software keyboard. Toggle it from the annotation: with a
+     centred layout the whole block has to move when it appears, and that is the
+     thing to look at before choosing centring. */
+  .au-kb {
+    display: none; height: 290px; flex-shrink: 0;
+    align-items: flex-start; justify-content: center; padding-top: 8px;
+    background: var(--fit-surface-high); border-top: 1px solid var(--fit-divider);
+    font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--fit-text-tertiary);
+  }
+  #s-signin-centered[data-au-state="keyboard"] .au-kb,
+  #s-signin-spread[data-au-state="keyboard"] .au-kb { display: flex; }
+  #s-signin-centered[data-au-state="keyboard"] .fit-phone-footer,
+  #s-signin-spread[data-au-state="keyboard"] .fit-phone-footer { display: none; }
+
   /* Provider circles (variant). Built ON the kit's .fit-icon-btn — it already is
      the circular button; this only resizes it, because 32px is a header
      affordance and a provider choice is a primary target (44 HIG minimum). */
@@ -313,7 +344,7 @@
   .au-forgot-link-wrap {
     display: flex; align-items: center; justify-content: flex-end;
     padding: 0 16px;
-    margin-top: -14px;
+    margin-top: -6px;
   }
   .au-forgot-link {
     background: transparent; border: none; cursor: pointer;
@@ -453,6 +484,8 @@
 
     <div class="label">Forgot password</div>
     <button onclick="go('s-signin-circles',this)">Sign in &middot; circles (variant)</button>
+    <button onclick="go('s-signin-centered',this)">Sign in &middot; centred (variant)</button>
+    <button onclick="go('s-signin-spread',this)">Sign in &middot; spread (variant)</button>
     <button onclick="go('s-forgot-email',this)">Step 1 · enter email</button>
     <button onclick="go('s-forgot-otp',this)">Step 2 · OTP code</button>
     <button onclick="go('s-forgot-new',this)">Step 3 · new password</button>
@@ -780,6 +813,189 @@
     <div class="au-toggle-row">
       <span>Don't have an account?</span>
       <button data-a11y-id="auth.signin.circles.toggle-signup"
+              onclick="go('s-signup-email', document.querySelector('.sidebar button[onclick*=s-signup-email]'))">Sign up</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN: SIGN-IN — VERTICALLY CENTRED (variant, for comparison)
+     Clone of the circles screen; only the vertical rhythm differs.
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-signin-centered" data-au-state="default" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"
+              data-a11y-id="auth.signin.centered.back"
+              onclick="go('s-role-pick', document.querySelector('.sidebar button[onclick*=s-role-pick]'))"
+              aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content au-centered" style="padding:0;">
+
+    <div class="au-page-head">
+      <div class="au-page-title">Welcome back</div>
+      <div class="au-page-sub">Use the email and password you signed up with, or a connected provider.</div>
+    </div>
+
+    <div class="au-form-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span class="au-form-error-text">Email or password isn't right.</span>
+    </div>
+
+    <div class="fit-input-group" data-field="email">
+      <div class="fit-input">
+        <input type="email" inputmode="email" autocomplete="email"
+               autocapitalize="off" spellcheck="false"
+               placeholder="Email"
+               data-a11y-id="auth.signin.centered.field"
+               style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
+      </div>
+    </div>
+
+    <div class="fit-input-group" data-field="password">
+      <div class="fit-input fit-input-password">
+        <input type="password" autocomplete="current-password"
+               placeholder="Password"
+               data-a11y-id="auth.signin.centered.password.field"
+               style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
+        <button class="fit-eye-toggle"
+                data-a11y-id="auth.signin.centered.password.show"
+                aria-label="Show password" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="au-forgot-link-wrap">
+      <button class="au-forgot-link"
+              data-a11y-id="auth.signin.centered.forgot-password"
+              onclick="go('s-forgot-email', document.querySelector('.sidebar button[onclick*=s-forgot-email]'))">
+        Forgot password?
+      </button>
+    </div>
+
+    <div class="au-cta-wrap">
+      <button class="fit-btn fit-btn-primary au-btn-primary-target"
+              data-a11y-id="auth.signin.centered.submit">
+        <span class="au-btn-spinner"></span>
+        Sign in
+      </button>
+    </div>
+
+    <div class="au-or"><span>or continue with</span></div>
+
+    <div class="au-circle-row">
+      <button class="fit-icon-btn au-provider-circle au-provider-circle--last"
+              data-a11y-id="auth.signin.centered.method.apple" aria-label="Continue with Apple — last used on this device">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.493-.12-1.06.396-2.2 1.075-2.99.762-.88 2.012-1.5 3.089-1.583zm3.86 17.52c-.764 1.13-1.595 2.235-2.948 2.253-1.327.026-1.753-.79-3.27-.79-1.517 0-1.99.764-3.247.815-1.305.05-2.295-1.21-3.07-2.33C5.97 16.73 4.762 12.45 6.367 9.6c.776-1.42 2.18-2.32 3.71-2.34 1.275-.025 2.482.86 3.27.86.79 0 2.27-1.06 3.83-.9.66.026 2.5.26 3.69 1.97-.094.06-2.20 1.30-2.18 3.87.02 3.05 2.67 4.07 2.70 4.08-.024.073-.43 1.46-1.42 2.84z"/></svg>
+      </button>
+      <button class="fit-icon-btn au-provider-circle"
+              data-a11y-id="auth.signin.centered.method.google" aria-label="Continue with Google">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23 12.27c0-.85-.08-1.66-.22-2.45H12v4.63h6.16c-.27 1.43-1.08 2.65-2.31 3.46v2.88h3.74C21.78 18.81 23 15.83 23 12.27z"/><path fill="#34A853" d="M12 23c3.13 0 5.77-1.04 7.69-2.81l-3.74-2.88c-1.04.7-2.36 1.11-3.95 1.11-3.04 0-5.61-2.05-6.53-4.81H1.62v3.02C3.53 20.39 7.45 23 12 23z"/><path fill="#FBBC05" d="M5.47 13.62a6.6 6.6 0 010-3.23V7.37H1.62a11 11 0 000 9.27l3.85-3.02z"/><path fill="#EA4335" d="M12 5.38c1.71 0 3.25.59 4.47 1.74l3.32-3.32C17.76 1.86 15.12 1 12 1 7.45 1 3.53 3.61 1.62 7.37l3.85 3.02C6.39 7.43 8.96 5.38 12 5.38z"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="au-kb"><span>keyboard</span></div>
+  <div class="fit-phone-footer">
+    <div class="au-toggle-row">
+      <span>Don't have an account?</span>
+      <button data-a11y-id="auth.signin.centered.toggle-signup"
+              onclick="go('s-signup-email', document.querySelector('.sidebar button[onclick*=s-signup-email]'))">Sign up</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN: SIGN-IN — TOP-ANCHORED, PROVIDERS AT THE BOTTOM (variant)
+     ============================================================ -->
+<div class="fit-phone fit-dark" id="s-signin-spread" data-au-state="default" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"
+              data-a11y-id="auth.signin.spread.back"
+              onclick="go('s-role-pick', document.querySelector('.sidebar button[onclick*=s-role-pick]'))"
+              aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content au-spread" style="padding:0;">
+
+    <div class="au-page-head">
+      <div class="au-page-title">Welcome back</div>
+      <div class="au-page-sub">Use the email and password you signed up with, or a connected provider.</div>
+    </div>
+
+    <div class="au-form-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span class="au-form-error-text">Email or password isn't right.</span>
+    </div>
+
+    <div class="fit-input-group" data-field="email">
+      <div class="fit-input">
+        <input type="email" inputmode="email" autocomplete="email"
+               autocapitalize="off" spellcheck="false"
+               placeholder="Email"
+               data-a11y-id="auth.signin.spread.field"
+               style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
+      </div>
+    </div>
+
+    <div class="fit-input-group" data-field="password">
+      <div class="fit-input fit-input-password">
+        <input type="password" autocomplete="current-password"
+               placeholder="Password"
+               data-a11y-id="auth.signin.spread.password.field"
+               style="flex:1;border:none;outline:none;background:transparent;font-family:var(--fit-font);font-size:16px;color:var(--fit-text-primary);"/>
+        <button class="fit-eye-toggle"
+                data-a11y-id="auth.signin.spread.password.show"
+                aria-label="Show password" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="au-forgot-link-wrap">
+      <button class="au-forgot-link"
+              data-a11y-id="auth.signin.spread.forgot-password"
+              onclick="go('s-forgot-email', document.querySelector('.sidebar button[onclick*=s-forgot-email]'))">
+        Forgot password?
+      </button>
+    </div>
+
+    <div class="au-cta-wrap">
+      <button class="fit-btn fit-btn-primary au-btn-primary-target"
+              data-a11y-id="auth.signin.spread.submit">
+        <span class="au-btn-spinner"></span>
+        Sign in
+      </button>
+    </div>
+
+    <div class="au-or"><span>or continue with</span></div>
+
+    <div class="au-circle-row">
+      <button class="fit-icon-btn au-provider-circle au-provider-circle--last"
+              data-a11y-id="auth.signin.spread.method.apple" aria-label="Continue with Apple — last used on this device">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.493-.12-1.06.396-2.2 1.075-2.99.762-.88 2.012-1.5 3.089-1.583zm3.86 17.52c-.764 1.13-1.595 2.235-2.948 2.253-1.327.026-1.753-.79-3.27-.79-1.517 0-1.99.764-3.247.815-1.305.05-2.295-1.21-3.07-2.33C5.97 16.73 4.762 12.45 6.367 9.6c.776-1.42 2.18-2.32 3.71-2.34 1.275-.025 2.482.86 3.27.86.79 0 2.27-1.06 3.83-.9.66.026 2.5.26 3.69 1.97-.094.06-2.20 1.30-2.18 3.87.02 3.05 2.67 4.07 2.70 4.08-.024.073-.43 1.46-1.42 2.84z"/></svg>
+      </button>
+      <button class="fit-icon-btn au-provider-circle"
+              data-a11y-id="auth.signin.spread.method.google" aria-label="Continue with Google">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23 12.27c0-.85-.08-1.66-.22-2.45H12v4.63h6.16c-.27 1.43-1.08 2.65-2.31 3.46v2.88h3.74C21.78 18.81 23 15.83 23 12.27z"/><path fill="#34A853" d="M12 23c3.13 0 5.77-1.04 7.69-2.81l-3.74-2.88c-1.04.7-2.36 1.11-3.95 1.11-3.04 0-5.61-2.05-6.53-4.81H1.62v3.02C3.53 20.39 7.45 23 12 23z"/><path fill="#FBBC05" d="M5.47 13.62a6.6 6.6 0 010-3.23V7.37H1.62a11 11 0 000 9.27l3.85-3.02z"/><path fill="#EA4335" d="M12 5.38c1.71 0 3.25.59 4.47 1.74l3.32-3.32C17.76 1.86 15.12 1 12 1 7.45 1 3.53 3.61 1.62 7.37l3.85 3.02C6.39 7.43 8.96 5.38 12 5.38z"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="au-kb"><span>keyboard</span></div>
+  <div class="fit-phone-footer">
+    <div class="au-toggle-row">
+      <span>Don't have an account?</span>
+      <button data-a11y-id="auth.signin.spread.toggle-signup"
               onclick="go('s-signup-email', document.querySelector('.sidebar button[onclick*=s-signup-email]'))">Sign up</button>
     </div>
   </div>
@@ -1332,6 +1548,50 @@
     is decided and no task exists.</p>
   </div>
 
+    <div class="ann" id="ann-s-signin-centered">
+    <span class="ann-role">Shared</span>
+    <h3>Sign in &middot; centred <em>(variant, not a decision)</em></h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setAuState('s-signin-centered','default',this)">Default</button>
+      <button onclick="setAuState('s-signin-centered','keyboard',this)">Keyboard open</button>
+    </div>
+    <p>Same screen again, only the vertical rhythm differs: the heading is centred and the
+    whole stack sits in the middle instead of hanging from the top. It answers a real
+    complaint &mdash; the top-anchored version leaves the bottom third empty, which reads as
+    unfinished rather than as calm.</p>
+    <hr>
+    <p><strong>Flip "Keyboard open" before deciding.</strong> That is the cost, and it is
+    not a detail: on a sign-in screen the keyboard is up within a second of arriving, and a
+    centred block has to move to make room &mdash; so the first thing the screen does is
+    jump. A top-anchored block does not move at all. The reference this came from is a
+    static shot; nobody screenshots the keyboard.</p>
+    <p><strong>Second cost:</strong> centring puts the CTA at a different height on every
+    screen, because it depends on how tall the content happens to be. Sign-in and sign-up
+    would no longer put "the button" in the same place.</p>
+    <p><strong>Middle option, if the empty bottom is the real complaint:</strong> keep the
+    stack top-anchored and push the providers to the bottom of the screen instead
+    (<code>space-between</code>). The screen fills, the fields never move, and the CTA
+    stays where muscle memory left it.</p>
+    <p class="note">Three sign-in screens now live side by side on the board: wide buttons,
+    circles, centred. Nothing is decided and no task exists.</p>
+  </div>
+
+    <div class="ann" id="ann-s-signin-spread">
+    <span class="ann-role">Shared</span>
+    <h3>Sign in &middot; providers at the floor <em>(variant, not a decision)</em></h3>
+    <div class="state-toggle">
+      <button class="active" onclick="setAuState('s-signin-spread','default',this)">Default</button>
+      <button onclick="setAuState('s-signin-spread','keyboard',this)">Keyboard open</button>
+    </div>
+    <p>The answer to "the bottom is empty" that does not cost anything. Heading centred,
+    fields and CTA exactly where the top-anchored version puts them, and the provider row
+    pushed to the floor so the screen fills. Flip <em>Keyboard open</em> and compare with
+    the centred variant: <strong>nothing moves</strong> — the providers simply go under the
+    keyboard, which is where they belong at the moment you are typing an email.</p>
+    <p>Trade: the providers are far from the thumb. That is arguably right, since email is
+    the main path here, but it is the honest cost.</p>
+  </div>
+
   <div class="ann" id="ann-s-forgot-email">
     <span class="ann-role">Shared</span>
     <h3>Forgot password · step 1 — enter email</h3>
@@ -1504,6 +1764,14 @@ const AU_STATE_CONFIG = {
     'method-not-set':     { banner: 'This account uses Apple/Google sign-in. Continue with that method instead.' },
     'loading':            {},
     'network-error':      { banner: "Can't reach the server. Check your connection and try again." },
+  },
+  's-signin-centered': {
+    'default':  {},
+    'keyboard': {},
+  },
+  's-signin-spread': {
+    'default':  {},
+    'keyboard': {},
   },
   's-forgot-email': {
     'default':         {},
