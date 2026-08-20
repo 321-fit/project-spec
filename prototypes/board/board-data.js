@@ -1578,6 +1578,154 @@ window.FIT_BOARD = {
       ]
     },
     {
+      "file": "flows/shared/action-rows.html",
+      "label": "Action rows — inventory (WIP)",
+      "role": "shared",
+      "slug": "shared-action-rows",
+      "screens": [
+        {
+          "id": "s-legend",
+          "hash": "d3d3c5c1df2f",
+          "title": "The six families",
+          "inApp": "Action rows — the six families",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": true,
+          "note": "Built by scanning every prototype file for elements that directly contain two or more <button>: 446 rows. Grouped by the question the row answers, not by how it looks, they fall into six families — and the grouping is th",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-action-rows__s-legend.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-decide",
+          "hash": "b19cab451add",
+          "title": "1 · Decide on an incoming thing",
+          "inApp": "Decide on an incoming thing",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Nine places, all the same shape: a request arrived, it wants an answer, and the card ends in red + gradient. Coach dashboard requests, athlete inbox \"To reply\", both calendars' event sheets, self-paced inbox, the voice-a",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-action-rows__s-decide.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-drawer",
+          "hash": "3e9f3e1d54d1",
+          "title": "2 · Actions on an object",
+          "inApp": "Actions on an object",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "The case the assistant proposal already answered, and the one that generalises: not a question but a menu of what you may do to the thing in front of you. Three to five peers, each with a real icon, none of them \"the esc",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-action-rows__s-drawer.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-pairs",
+          "hash": "ecfc67a8c07a",
+          "title": "3 · Outcome pairs",
+          "inApp": "Outcome pairs",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "My read: leave them. The two options are not peers — one is the expected outcome, the other the exception — and the labels carry meaning no icon does. \"Missed\" as a circle is a guess. Listed because they look like family",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-action-rows__s-pairs.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-confirm",
+          "hash": "46d1f7b9c2f6",
+          "title": "4 · Are you sure?",
+          "inApp": "Are you sure? — not circles",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "~40 rows: every Disconnect/Cancel, every Cancel/Save editor sheet, every destructive confirmation. One question, one answer, one escape.",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-action-rows__s-confirm.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 3
+        },
+        {
+          "id": "s-menu",
+          "hash": "49b35f1fd89c",
+          "title": "5 · Pick one of many",
+          "inApp": "Pick one of many — not circles",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Action sheets: unrelated choices, each needing a sentence. \"Confirm for athlete\" is not a glyph. A list is already the right shape — it scrolls, it takes subtitles, and it does not run out of horizontal room at five item",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-action-rows__s-menu.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 4
+        },
+        {
+          "id": "s-single",
+          "hash": "9fa50c24ef3d",
+          "title": "6 · One action alone",
+          "inApp": "One action alone — not circles",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "A circle needs peers; alone it is decoration.",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-action-rows__s-single.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 5
+        }
+      ],
+      "edges": []
+    },
+    {
       "file": "flows/shared/self-paced.html",
       "label": "Self-paced Training (WIP)",
       "role": "shared",

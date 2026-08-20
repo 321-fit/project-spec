@@ -48,6 +48,7 @@ export const LABELS = {
   "flows/shared/calendar-legend.html": "Calendar legend",
   "flows/shared/profile.html": "Coach Profile (public)",
   "flows/shared/assistant-entry.html": "Assistant entry points (WIP)",
+  "flows/shared/action-rows.html": "Action rows \u2014 inventory (WIP)",
 };
 
 // -----------------------------------------------------------------------------
@@ -64,6 +65,7 @@ export const ORDER = [
   "flows/shared/messages.html",
   "flows/shared/voice-assistant.html",
   "flows/shared/assistant-entry.html",
+  "flows/shared/action-rows.html",
   "flows/shared/self-paced.html",
   "flows/shared/profile.html",
   "flows/shared/calendar-legend.html",
