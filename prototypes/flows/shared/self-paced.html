@@ -441,7 +441,7 @@
       <!-- TO REVIEW -->
       <div id="qp-review" class="qp-tab" style="padding:0 16px 24px;display:none;">
         <div class="qp-items">
-        <div class="spq">
+        <div class="spq" id="qp-review-julia">
           <div class="spq-head" onclick="go('s-review',null)">
             <span class="spq-av">JD</span>
             <div style="flex:1;min-width:0;"><div class="spq-name">Julia Dent</div><div class="spq-sub"><span class="spq-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 9l5-2v10l-5-2z"/></svg>Self-paced</span> uploaded a clip · 2h ago</div></div>
@@ -792,7 +792,7 @@
     </div>
   </div>
   <div class="fit-phone-footer fit-footer-btn">
-    <button class="fit-btn fit-btn-primary" onclick="go('s-comments',null)">Send feedback &amp; finish</button>
+    <button class="fit-btn fit-btn-primary" onclick="spReviewFinish()">Send feedback &amp; finish</button>
   </div>
 </div>
 
@@ -1255,7 +1255,7 @@
 </div>
 
 <!-- Snackbar -->
-<div class="fit-snackbar" id="sp-snack"><span class="snack-dot"></span><span id="sp-snack-text">Saved</span></div>
+<div class="fit-snackbar" id="sp-snack"><span class="snack-dot"></span><span id="sp-snack-text">Saved</span><span class="snack-action" id="sp-snack-action" style="display:none;white-space:nowrap;"></span></div>
 
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
@@ -1494,7 +1494,35 @@ function finishVidUpload(){
   } else { go('s-step',null); spSnack('Video attached to step'); }
 }
 function resetAthleteUpload(){ var zone=document.getElementById('at-upload-zone'); if(zone) zone.innerHTML='<div class="sp-upload" onclick="openVidSource(\'athlete\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg><div class="sp-upload-title">Upload your video</div><div class="sp-upload-sub">record now or pick from camera roll</div></div>'; }
-function spSnack(msg){ var sn=document.getElementById('sp-snack'),t=document.getElementById('sp-snack-text'); if(t)t.textContent=msg; if(!sn)return; sn.classList.add('show'); setTimeout(function(){sn.classList.remove('show');},1800); }
+function spSnack(msg, actionLabel, actionFn){
+  var sn=document.getElementById('sp-snack'), t=document.getElementById('sp-snack-text'), a=document.getElementById('sp-snack-action');
+  // The snackbar is `position:absolute` and lives at page level, so on the prototype page it
+  // anchors to the document instead of the phone and hangs off the side. Six screens raise it,
+  // so instead of six copies it moves into whichever phone is showing. Same containment rule
+  // as .fit-sheet-overlay: it must sit inside its .fit-phone.
+  var phone=document.querySelector('.fit-phone.active');
+  if(sn && phone && sn.parentElement!==phone) phone.appendChild(sn);
+  if(t)t.textContent=msg;
+  if(a){
+    if(actionLabel){ a.textContent=actionLabel; a.style.display=''; a.onclick=function(){ sn.classList.remove('show'); if(actionFn)actionFn(); }; }
+    else { a.style.display='none'; a.onclick=null; }
+  }
+  if(!sn)return;
+  sn.classList.add('show');
+  setTimeout(function(){sn.classList.remove('show');}, actionLabel ? 3600 : 1800);
+}
+
+// Reviewing is batch work, so finishing one hands the coach the next one instead of dropping
+// them into a chat window. This is the whole reason the hub is not a second inbox: an inbox
+// notifies and lets go, a workbench keeps you in the pile. The thread is where the feedback
+// actually landed, so it stays one tap away in the snackbar rather than being the destination.
+function spReviewFinish(){
+  var card=document.getElementById('qp-review-julia'); if(card) card.style.display='none';
+  var ct=document.querySelectorAll('#s-queue .fit-segmented-tab')[1];
+  if(ct){ var n=ct.querySelector('.ct'); if(n) n.textContent='1'; spqTab('review', ct); }
+  go('s-queue', null);
+  spSnack('Sent to Julia \u00b7 1 left', 'Open thread', function(){ go('s-comments', null); });
+}
 </script>
 </body>
 </html>

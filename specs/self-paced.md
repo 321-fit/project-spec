@@ -129,6 +129,36 @@ cannot do yet.
 
 ## 6. Placement / integration (decided: "C-lite") — BUILT 2026-07-01
 
+**Four surfaces, four questions — check a new one against this before adding it.** The
+recurring worry is that the hub duplicates the Inbox. It does show the same items, and that
+is fine, because they answer different questions:
+
+| surface | answers | lifetime |
+|---|---|---|
+| Inbox / Activity | *what happened* — chronological, all training types, a `Self-paced` tag | the item leaves once actioned |
+| Dashboard `.dash-action` row | *how much do I owe right now* | hidden when every count is 0 |
+| Hub `#s-queue` | *I am sitting down to do self-paced work* | a batch of one kind of work |
+| Offering detail | *who is on this programme* | always — it is the catalogue |
+
+Self-paced is the **only type where the coach owes production work** rather than a yes/no
+reply: build a multi-step workout, later watch a clip and write a review. That is minutes of
+work per athlete, and an inbox is a poor place for it because every item drops you back into
+an unrelated stream. So the hub earns its place **only while it batches** — finishing one
+item must hand over the next. Both exits obey this: the builder's *Send* returns to the queue,
+and *Send feedback & finish* returns to the queue on the **To review** tab with the finished
+item retired and a snackbar (`Sent to Julia · 1 left` + **Open thread**). The thread is where
+the feedback landed, so it stays one tap away rather than being the destination — the earlier
+build dropped the coach straight into the chat and out of the pile.
+
+Two rules that follow:
+- **A notification opens the thing, never the list.** Activity → that session, not the hub.
+  The notification knows who it is about; a list makes the coach search again.
+- **No second dashboard block.** Earnings is a standing fact, a self-paced queue is episodic
+  and usually empty; a block that idles is dead weight, and "Needs your attention" is already
+  the home for owing something. When the queue *is* empty the durable home is the **offering
+  detail** under Sessions — the hub is the urgency shortcut, not the front door.
+
+
 - **Coach events → unified Inbox** (no new bell, no 4th tab): `To reply` = Set up + Review; `Waiting` = Active; `Activity` = history. Cards reuse the inbox `.req-card` shell + a `Self-paced` tag. A tabbed **batch hub** (same items, filtered) reached from a Dashboard card.
 - **Coach Dashboard** — a `.dash-action` row under "Needs your attention": "Self-paced · N to set up, N to review / N active · overdue" → the batch hub (`self-paced.html#s-queue`). Hidden when all counts 0.
 - **Athlete Dashboard** — `.pending-row`(s) under "Needs your attention": day-bound **overdue** + **due-today** self-paced → `#s-welcome`. Shown only when present.
