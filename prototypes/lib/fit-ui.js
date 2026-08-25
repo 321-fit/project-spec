@@ -621,9 +621,214 @@
   }
 
   // ============================================================
+  // CONTEXTUAL AI ENTRY — three screen-specific conversation starters
+  // Usage: <div class="fit-phone" data-fit-guide="coach-client"
+  //             data-fit-guide-bottom="82">...</div>
+  // The selected starter opens a dedicated full-screen assistant conversation
+  // and becomes its first user message. Different context keys always produce
+  // different prompt sets.
+  // ============================================================
+  const GUIDE_CONTEXTS = {
+    'coach-calendar': {
+      title: 'Ask about Calendar', items: [
+        ['How do I schedule a training?', 'Tap +, choose Schedule training, pick a client and template, then place it on an available time.'],
+        ['How do I block personal time?', 'Tap + and choose Block time off. Add the time range and an optional title, then save it.'],
+        ['What do the event colours mean?', 'Open the ? legend in the calendar header. It explains requests, planned sessions, reviews and blocked time.']
+      ]
+    },
+    'coach-client': {
+      title: 'Ask about this client screen', items: [
+        ['How do I schedule this client?', 'Open the … menu and choose Schedule training. The client is already selected for the next step.'],
+        ['How do I add them to a group?', 'Open the … menu, choose Add to group, then select one or more groups and save.'],
+        ['Where is their session history?', 'Scroll to Training history or tap the history summary on this client card.']
+      ]
+    },
+    'coach-sessions': {
+      title: 'Ask about session setup', items: [
+        ['How do I create a session type?', 'Choose Personal, Group or Self-paced, complete the required fields, then save the template.'],
+        ['What is the difference between the types?', 'Personal is one-to-one, Group has capacity and participants, and Self-paced is completed without a live time slot.'],
+        ['How do I create a package?', 'Save the session template first. Open it from My Sessions, then add package tiers from its Packages section.']
+      ]
+    },
+    'coach-group-schedule': {
+      title: 'Ask about group scheduling', items: [
+        ['How do I add more dates?', 'Choose Schedule new dates, place the group template on the grid, then publish one date or a weekly series.'],
+        ['How do I make it repeat?', 'In the publish drawer choose Weekly, select weekdays and set an optional end date.'],
+        ['Why was a date skipped?', 'A date is skipped when it conflicts with your own calendar. External-calendar conflicts can be reviewed and kept manually.']
+      ]
+    },
+    'coach-availability': {
+      title: 'Ask about Availability', items: [
+        ['How do I set working hours?', 'Enable a day, set its start and end time, then save. Repeat for every day you accept bookings.'],
+        ['How do I add time off?', 'Return to Availability and open Time off. Add the unavailable date or range there.'],
+        ['Why can’t an athlete book this time?', 'Check working hours, time off, calendar conflicts, location rules and the session duration.']
+      ]
+    },
+    'coach-earnings': {
+      title: 'Ask about Earnings', items: [
+        ['How do I withdraw money?', 'Open the available balance and tap Withdraw. Choose a connected payout method and confirm the amount.'],
+        ['What does Pending mean?', 'Pending money belongs to sessions that are not ready for payout yet. Open Pending to see the reason per item.'],
+        ['Where do I change payout details?', 'Open Payout methods from this screen to add or change the bank account or debit card.']
+      ]
+    },
+    'coach-stripe': {
+      title: 'Ask about payout setup', items: [
+        ['What do I need to complete?', 'Finish every item marked Required: identity, business details and a payout account.'],
+        ['Why does Stripe need documents?', 'Stripe verifies the identity of people receiving payments. The requested document depends on your country and account type.'],
+        ['Why are payouts unavailable?', 'Open the requirements list. Payouts stay unavailable while required information is missing or under review.']
+      ]
+    },
+    'self-paced-builder': {
+      title: 'Ask about this builder', items: [
+        ['How do I build this workout?', 'Add steps in the order the athlete should complete them, then review the workout and send it.'],
+        ['How do I add video or a timer?', 'Open a step. Attach or record a video, then enable Reps, Timer or both under Targets.'],
+        ['What will the athlete receive?', 'The athlete sees your welcome note followed by the ordered steps, targets, rest periods and attached videos.']
+      ]
+    },
+    'athlete-search': {
+      title: 'Ask about coach search', items: [
+        ['How do I find a coach nearby?', 'Choose a sport, open Filters and set your country or city. You can switch to Map to compare locations.'],
+        ['How do the filters work?', 'Filters narrow the same results by location, language, gender and other preferences. Clear a filter chip to broaden the list.'],
+        ['How do I book a training?', 'Open a coach, tap Book training, choose a session type and then select an available time.']
+      ]
+    },
+    'athlete-calendar': {
+      title: 'Ask about Schedule', items: [
+        ['How do I reschedule a training?', 'Open the event and tap Reschedule. Pick another available slot and send the change request.'],
+        ['How do I cancel a booking?', 'Open the event, tap Cancel and review the refund policy before confirming.'],
+        ['What do Request and Planned mean?', 'Request needs a response. Planned means the training is confirmed and already occupies your schedule.']
+      ]
+    },
+    'athlete-balance': {
+      title: 'Ask about this payment', items: [
+        ['What is this transaction?', 'The detail shows which session, coach and payment source created this balance entry.'],
+        ['Why is a payment pending?', 'Pending means the payment or session has not reached its final state yet. Its detail shows the current reason.'],
+        ['When will a refund arrive?', 'Open the refund transaction for its status. Card refunds depend on the bank; balance refunds appear in the app first.']
+      ]
+    }
+  };
+
+  const GUIDE_SPARK = '<svg class="fit-guide-spark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg>';
+  const GUIDE_CLOSE = '<svg class="fit-guide-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+  const GUIDE_CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>';
+
+  function initGuide(host) {
+    if (host._fitGuide) return;
+    const ctx = GUIDE_CONTEXTS[host.getAttribute('data-fit-guide')];
+    if (!ctx) return;
+    host._fitGuide = true;
+
+    const guide = document.createElement('div');
+    guide.className = 'fit-guide';
+    guide.setAttribute('data-fit-guide-widget', '');
+    const bottom = host.getAttribute('data-fit-guide-bottom');
+    if (bottom) guide.style.bottom = bottom + 'px';
+    guide.innerHTML =
+      '<div class="fit-guide-menu" role="dialog" aria-label="' + ctx.title + '">' +
+        '<div class="fit-guide-widget-head">' +
+          '<span class="fit-guide-widget-avatar">' + GUIDE_SPARK + '</span>' +
+          '<div class="fit-guide-widget-person"><div class="fit-guide-widget-name">321Fit Assistant</div><div class="fit-guide-widget-context"></div></div>' +
+        '</div>' +
+        '<div class="fit-guide-widget-body">' +
+          '<div class="fit-guide-welcome"><span class="fit-guide-welcome-av">' + GUIDE_SPARK + '</span><div class="fit-guide-welcome-bubble">What can I help you with on this screen?</div></div>' +
+          '<div class="fit-guide-suggested">Suggested questions</div>' +
+          '<div class="fit-guide-prompts"></div>' +
+        '</div>' +
+      '</div>' +
+      '<button class="fit-guide-fab" type="button" aria-label="Ask AI about this screen" aria-expanded="false">' + GUIDE_SPARK + GUIDE_CLOSE + '</button>';
+
+    const chat = document.createElement('section');
+    chat.className = 'fit-guide-chat-screen';
+    chat.setAttribute('aria-label', '321Fit Assistant chat');
+    chat.innerHTML =
+      '<div class="fit-guide-chat-status"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>' +
+      '<header class="fit-guide-chat-head">' +
+        '<button class="fit-guide-chat-back" type="button" aria-label="Back to ' + ctx.title + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>' +
+        '<span class="fit-guide-chat-avatar">' + GUIDE_SPARK + '</span>' +
+        '<div class="fit-guide-chat-person"><strong>321Fit Assistant</strong><span><i></i> Online · knows this screen</span></div>' +
+        '<button class="fit-guide-chat-more" type="button" aria-label="Chat options"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></button>' +
+      '</header>' +
+      '<div class="fit-guide-chat-context">' + GUIDE_SPARK + '<span></span></div>' +
+      '<div class="fit-guide-chat-messages">' +
+        '<div class="fit-guide-chat-day">Today</div>' +
+        '<div class="fit-guide-chat-message agent"><span class="fit-guide-chat-message-av">' + GUIDE_SPARK + '</span><div class="fit-guide-chat-bubble">Hi! I can help you use this part of 321Fit.</div></div>' +
+        '<div class="fit-guide-chat-message user"><div class="fit-guide-chat-bubble" data-fit-guide-user-msg></div></div>' +
+        '<div class="fit-guide-chat-message agent"><span class="fit-guide-chat-message-av">' + GUIDE_SPARK + '</span><div><div class="fit-guide-chat-bubble" data-fit-guide-agent-msg></div><div class="fit-guide-chat-time">Just now</div></div></div>' +
+      '</div>' +
+      '<div class="fit-guide-chat-compose">' +
+        '<button class="fit-guide-chat-add" type="button" aria-label="Add attachment">+</button>' +
+        '<input class="fit-guide-chat-input" type="text" placeholder="Message 321Fit Assistant…" aria-label="Message 321Fit Assistant">' +
+        '<button class="fit-guide-chat-send" type="button" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg></button>' +
+      '</div>';
+    chat.querySelector('.fit-guide-chat-context span:last-child').textContent = ctx.title;
+    host.appendChild(chat);
+
+    const prompts = guide.querySelector('.fit-guide-prompts');
+    guide.querySelector('.fit-guide-widget-context').textContent = ctx.title;
+    ctx.items.forEach(function(item) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'fit-guide-prompt';
+      btn.innerHTML = '<span></span>' + GUIDE_CHEV;
+      btn.querySelector('span').textContent = item[0];
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        chat.querySelector('[data-fit-guide-user-msg]').textContent = item[0];
+        chat.querySelector('[data-fit-guide-agent-msg]').textContent = item[1];
+        guide.classList.remove('open');
+        fab.setAttribute('aria-expanded', 'false');
+        chat.classList.add('active');
+        host.classList.add('fit-guide-chat-active');
+      });
+      prompts.appendChild(btn);
+    });
+
+    const fab = guide.querySelector('.fit-guide-fab');
+    fab.addEventListener('click', function(e) {
+      e.stopPropagation();
+      document.querySelectorAll('.fit-guide.open').forEach(function(other) {
+        if (other !== guide) other.classList.remove('open');
+      });
+      const open = guide.classList.toggle('open');
+      fab.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    chat.querySelector('.fit-guide-chat-back').addEventListener('click', function(e) {
+      e.stopPropagation();
+      chat.classList.remove('active');
+      host.classList.remove('fit-guide-chat-active');
+    });
+    const send = chat.querySelector('.fit-guide-chat-send');
+    const input = chat.querySelector('.fit-guide-chat-input');
+    function sendFollowUp() {
+      const value = input.value.trim();
+      if (!value) return;
+      const message = document.createElement('div');
+      message.className = 'fit-guide-chat-message user';
+      message.innerHTML = '<div class="fit-guide-chat-bubble"></div>';
+      message.querySelector('.fit-guide-chat-bubble').textContent = value;
+      chat.querySelector('.fit-guide-chat-messages').appendChild(message);
+      input.value = '';
+      message.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+    send.addEventListener('click', sendFollowUp);
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') sendFollowUp();
+    });
+    host.addEventListener('click', function(e) {
+      if (!guide.contains(e.target) && !chat.contains(e.target)) {
+        guide.classList.remove('open');
+        fab.setAttribute('aria-expanded', 'false');
+      }
+    });
+    host.appendChild(guide);
+  }
+
+  // ============================================================
   // INIT ALL
   // ============================================================
   function initAll(root) {
+    if (root.matches && root.matches('[data-fit-guide]')) initGuide(root);
+    root.querySelectorAll('[data-fit-guide]').forEach(initGuide);
     root.querySelectorAll('[data-fit-timeline-scroll]').forEach(initTimelineScroll);
     root.querySelectorAll('[data-fit-swipe]').forEach(initSwipe);
     root.querySelectorAll('.fit-sheet-overlay').forEach(initSheet);

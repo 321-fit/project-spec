@@ -316,6 +316,28 @@
   .ai-slot b { font-size: 14px; font-weight: 600; color: var(--fit-text-primary); }
   .ai-slot span { font-size: 12px; color: var(--fit-text-tertiary); }
   .ai-slot.req { background: rgba(222,145,29,0.10); border: 1px solid rgba(222,145,29,0.45); }
+
+  /* UI-guide inventory — the one place on the board that links every mounted
+     help FAB back to its real screen. */
+  .gh-hero { padding: 8px 18px 16px; }
+  .gh-kicker { font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--fit-teal-500); }
+  .gh-title { margin-top: 6px; font-size: 25px; font-weight: 650; line-height: 1.15; color: var(--fit-text-primary); }
+  .gh-sub { margin-top: 8px; font-size: 13.5px; line-height: 1.45; color: var(--fit-text-secondary); }
+  .gh-section { padding: 6px 16px 18px; }
+  .gh-section-title { padding: 0 2px 8px; font-size: 12px; font-weight: 650; color: var(--fit-text-tertiary); text-transform: uppercase; letter-spacing: .4px; }
+  .gh-list { overflow: hidden; border-radius: 16px; background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,.07); }
+  .fit-dark .gh-list { background: var(--fit-surface-high); box-shadow: none; }
+  .gh-row { min-height: 64px; display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-bottom: 1px solid var(--fit-divider); cursor: pointer; }
+  .gh-row:last-child { border-bottom: none; }
+  .gh-ic { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--fit-teal-500); background: rgba(5,224,166,.11); }
+  .gh-ic svg { width: 18px; height: 18px; }
+  .gh-body { flex: 1; min-width: 0; }
+  .gh-name { font-size: 14px; font-weight: 600; color: var(--fit-text-primary); }
+  .gh-meta { margin-top: 3px; font-size: 11.5px; color: var(--fit-text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gh-tag { padding: 3px 7px; border-radius: 99px; font-size: 10px; font-weight: 650; color: var(--fit-brand-primary); background: rgba(3,178,226,.10); }
+  .gh-switch { display: flex; gap: 8px; padding: 8px 16px 16px; }
+  .gh-switch button { flex: 1; height: 42px; border: 1px solid var(--fit-divider); border-radius: 99px; background: transparent; color: var(--fit-text-secondary); font: 600 13px var(--fit-font); cursor: pointer; }
+  .gh-switch button.active { border-color: var(--fit-teal-500); color: var(--fit-teal-500); background: rgba(5,224,166,.08); }
 </style>
 </head>
 <body>
@@ -327,8 +349,11 @@
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       All modules
     </button>
+  <div class="label">AI quick-start map</div>
+  <button class="active" onclick="go('s-guide-coach',this)">Coach AI entry points</button>
+  <button onclick="go('s-guide-athlete',this)">Athlete AI entry points</button>
   <div class="label">The tab</div>
-  <button class="active" onclick="go('s-chats',this)">Chats (assistant pinned)</button>
+  <button onclick="go('s-chats',this)">Chats (assistant pinned)</button>
   <div class="label">Entering with context</div>
   <button onclick="go('s-request-drawer',this)">Request drawer &middot; circle actions</button>
   <button onclick="go('s-ai-context',this)">Assistant with context</button>
@@ -350,8 +375,45 @@
   </div>
 </nav>
 
+<!-- ==================== SCREEN: UI GUIDE MAP · COACH ==================== -->
+<div class="fit-phone fit-light active" id="s-guide-coach" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header" style="justify-content:space-between;"><span style="width:32px;"></span><span class="fit-header-title">AI quick starts</span><span class="gh-tag">7 points</span></div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="gh-hero"><div class="gh-kicker">Start a contextual AI dialogue</div><div class="gh-title">Coach entry points</div><div class="gh-sub">Each selected complex screen has three conversation starters. Choosing one opens the full assistant chat with that message already sent.</div></div>
+    <div class="gh-section"><div class="gh-section-title">Mounted in prototypes</div><div class="gh-list">
+      <div class="gh-row" onclick="window.location.href='../coach/clients.html#s-client-detail'"><span class="gh-ic">?</span><div class="gh-body"><div class="gh-name">Client detail</div><div class="gh-meta">Schedule · groups · history</div></div><span class="gh-tag">3</span></div>
+      <div class="gh-row" onclick="window.location.href='../coach/sessions.html#s-create'"><span class="gh-ic">?</span><div class="gh-body"><div class="gh-name">Training templates</div><div class="gh-meta">Types · required fields · packages</div></div><span class="gh-tag">3</span></div>
+      <div class="gh-row" onclick="window.location.href='../coach/client-groups.html#s-group-schedule'"><span class="gh-ic">?</span><div class="gh-body"><div class="gh-name">Group schedule</div><div class="gh-meta">Dates · recurrence · conflicts</div></div><span class="gh-tag">3</span></div>
+      <div class="gh-row" onclick="window.location.href='../coach/available-hours.html#s-availability'"><span class="gh-ic">?</span><div class="gh-body"><div class="gh-name">Available hours</div><div class="gh-meta">Working hours · time off · blocked slots</div></div><span class="gh-tag">3</span></div>
+      <div class="gh-row" onclick="window.location.href='../coach/balance-v2.html#s-earnings'"><span class="gh-ic">?</span><div class="gh-body"><div class="gh-name">Earnings</div><div class="gh-meta">Withdraw · pending · payout methods</div></div><span class="gh-tag">3</span></div>
+      <div class="gh-row" onclick="window.location.href='../coach/stripe.html#s-stripe'"><span class="gh-ic">?</span><div class="gh-body"><div class="gh-name">Stripe setup</div><div class="gh-meta">Requirements · documents · availability</div></div><span class="gh-tag">3</span></div>
+      <div class="gh-row" onclick="window.location.href='./self-paced.html#s-setup'"><span class="gh-ic">?</span><div class="gh-body"><div class="gh-name">Self-paced builder</div><div class="gh-meta">Steps · video and timer · athlete view</div></div><span class="gh-tag">3</span></div>
+    </div></div>
+  </div>
+  <div class="fit-phone-footer gh-switch"><button class="active">Coach · 7</button><button onclick="go('s-guide-athlete',null)">Athlete · 2</button></div>
+</div>
+
+<!-- ==================== SCREEN: UI GUIDE MAP · ATHLETE ==================== -->
+<div class="fit-phone fit-light" id="s-guide-athlete" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header" style="justify-content:space-between;"><span style="width:32px;"></span><span class="fit-header-title">AI quick starts</span><span class="gh-tag">2 points</span></div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="gh-hero"><div class="gh-kicker">Start a contextual AI dialogue</div><div class="gh-title">Athlete entry points</div><div class="gh-sub">Search and Payment each open a different set of three suggested first messages, then continue in the full assistant chat.</div></div>
+    <div class="gh-section"><div class="gh-section-title">Mounted in prototypes</div><div class="gh-list">
+      <div class="gh-row" onclick="window.location.href='../athlete/search.html#s-search-landing'"><span class="gh-ic">?</span><div class="gh-body"><div class="gh-name">Coach search</div><div class="gh-meta">Nearby · filters · booking</div></div><span class="gh-tag">3</span></div>
+      <div class="gh-row" onclick="window.location.href='../athlete/balance-v2.html#s-txn-spend'"><span class="gh-ic">?</span><div class="gh-body"><div class="gh-name">Payment detail</div><div class="gh-meta">Transaction · pending · refund</div></div><span class="gh-tag">3</span></div>
+    </div></div>
+  </div>
+  <div class="fit-phone-footer gh-switch"><button onclick="go('s-guide-coach',null)">Coach · 7</button><button class="active">Athlete · 2</button></div>
+</div>
+
 <!-- ==================== SCREEN: CHATS (the centre tab) ==================== -->
-<div class="fit-phone fit-light active vr-athlete" id="s-chats" data-status="proposal">
+<div class="fit-phone fit-light vr-athlete" id="s-chats" data-status="proposal">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header" style="justify-content:space-between;">
@@ -681,10 +743,18 @@
 
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
-  <div class="ann-title">Assistant entry points &mdash; WIP</div>
-  <p class="ann-intro">A scratch module, not a home. Everything here is a <strong>proposal</strong>: once it settles, each screen moves to the module it really belongs to (chats &rarr; a role tab, the drawer &rarr; <code>athlete/calendar.html</code>, the menu item &rarr; <code>coach/clients.html</code>).</p>
+  <div class="ann-title">Contextual AI quick starts &amp; entry points &mdash; WIP</div>
+  <p class="ann-intro">The first two screens inventory every lower-right AI FAB. Tap a FAB for three screen-specific conversation starters; choosing one opens the assistant thread with that prompt already sent.</p>
 
-  <div class="ann active" id="ann-s-chats"><span class="ann-role athlete">Athlete</span><h3>Chats &mdash; the centre tab</h3>
+  <div class="ann active" id="ann-s-guide-coach"><span class="ann-role coach">Coach</span><h3>Contextual AI quick starts &mdash; coach</h3>
+    <p><strong>Lower-right AI FAB · three conversation starters · full chat.</strong> This inventory links every coach-side placement to the real screen, and each screen authors a different prompt set.</p>
+    <p>A prompt is the first user message, not a local FAQ answer. Selecting it pushes the 321Fit Assistant thread with the current screen named as visible context.</p>
+  </div>
+  <div class="ann" id="ann-s-guide-athlete"><span class="ann-role athlete">Athlete</span><h3>Contextual AI quick starts &mdash; athlete</h3>
+    <p><strong>Lower-right AI FAB · three conversation starters · full chat.</strong> Search, Schedule and Payment use separate first-message sets because the user’s likely question changes with the screen.</p>
+  </div>
+
+  <div class="ann" id="ann-s-chats"><span class="ann-role athlete">Athlete</span><h3>Chats &mdash; the centre tab</h3>
     <p>The assistant is a <strong>correspondent</strong>, pinned at the top of the conversation list, and the tab is the history of every session you started elsewhere. That only works because most sessions <em>do</em> start elsewhere &mdash; from a drawer, from a client card &mdash; so the tab is where you come back, not where you begin.</p>
     <p><strong>Consequence:</strong> the Messages icon in the Dashboard header goes away. Two doors into one room is the mistake we already made with the bell and the Inbox. This contradicts <code>specs/messages.md</code> (Approved), which puts messaging in the header and explicitly rejected a nav tab &mdash; the spec has to change with the decision.</p>
     <p><strong>Open:</strong> one eternal assistant thread (drawn here), or one thread per context? Per-context threads make it easy to return to &ldquo;that Tuesday question&rdquo; but turn the list into a machine&rsquo;s scratchpad.</p>
