@@ -159,7 +159,7 @@
   .sp-scale button { flex: 1; padding: 12px 4px; border-radius: 12px; border: 1px solid var(--fit-divider); background: transparent; font-family: var(--fit-font); font-size: 14px; font-weight: 500; color: var(--fit-text-secondary); cursor: pointer; }
   .sp-scale button.sel { border-color: var(--fit-teal-500); background: rgba(5,224,166,0.08); color: var(--fit-text-primary); }
   .sp-scale-help { padding: 8px 16px 0; font-size: 13px; color: var(--fit-text-tertiary); }
-  /* Review (coach) — two clean zones: her submission, your review */
+  /* Review (coach) — two clean zones: the athlete's submission, your review */
   .rv-card { margin: 0 16px; border: 1px solid var(--fit-divider); border-radius: 16px; overflow: hidden; }
   .rv-clip-hero { position: relative; height: 230px; background: #0b0f14; display: flex; align-items: center; justify-content: center; }
   .rv-clip-hero .play { width: 52px; height: 52px; color: #fff; opacity: 0.95; }
@@ -272,6 +272,11 @@
   .spq-tag svg { width: 9px; height: 9px; }
   /* segmented tabs — EXACT match of coach unified-Inbox tabs (dashboard.html s-notifications) */
   .fit-segmented-tab .ct { opacity: 0.6; }
+  /* Three state labels in one control and the longest is "With athlete": a notch smaller, and
+     never wrapping — a tab that breaks onto two lines reads as two options. Parens dropped
+     here only, they cost ~10px each and the count is unambiguous without them. */
+  #s-queue .fit-segmented-tab { font-size: 13px; white-space: nowrap; padding-left: 2px; padding-right: 2px; }
+  #s-queue .fit-segmented-tab .ct { margin-left: 3px; }
   .fit-segmented-tab.selected .ct { opacity: 0.8; }
 
   /* List/welcome/player state toggles */
@@ -385,10 +390,12 @@
     </div>
     <div class="fit-section-title--md">Lifecycle</div>
     <div style="padding:0 16px 24px;font-size:14px;line-height:2;color:var(--fit-text-secondary);">
-      <span class="sp-pill assigned">Requested</span> booked, coach to set up<br>
-      <span class="sp-pill scheduled">With athlete</span> set up, athlete to do<br>
-      <span class="sp-pill submitted">Needs review</span> done, coach to review<br>
-      <span class="sp-pill finished">Done</span> reviewed
+      <span style="font-size:12px;color:var(--fit-text-tertiary);">model state &rarr; what the <strong>coach</strong> reads / what the <strong>athlete</strong> reads</span><br>
+      <strong>Requested</strong> &rarr; <span class="sp-pill requested">To set up</span> / <span class="sp-pill requested">Coach is building</span><br>
+      <strong>Ready</strong> &rarr; <span class="sp-pill scheduled">With athlete</span> / <span class="sp-pill scheduled">To do</span><br>
+      <strong>Submitted</strong> &rarr; <span class="sp-pill submitted">To review</span> / <span class="sp-pill submitted">Awaiting feedback</span><br>
+      <strong>Finished</strong> &rarr; <span class="sp-pill finished">Done</span> / <span class="sp-pill finished">Done</span><br>
+      <span style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.5;display:inline-block;padding-top:6px;">Orthogonal flags keep their own words and are the only pills allowed inside a section already named after a state: <span class="sp-pill overdue">Overdue</span> <span class="sp-pill refunded">Refunded</span>.</span>
     </div>
   </div>
 </div>
@@ -403,9 +410,9 @@
   <div class="fit-phone-content" style="padding-top:8px;">
     <div data-st="default">
       <div class="fit-segmented">
-        <button class="fit-segmented-tab selected" onclick="spqTab('setup',this)">Set up <span class="ct">(1)</span></button>
-        <button class="fit-segmented-tab" onclick="spqTab('review',this)">Review <span class="ct">(2)</span></button>
-        <button class="fit-segmented-tab" onclick="spqTab('active',this)">Active <span class="ct">(2)</span></button>
+        <button class="fit-segmented-tab selected" onclick="spqTab('setup',this)">To set up <span class="ct">1</span></button>
+        <button class="fit-segmented-tab" onclick="spqTab('review',this)">To review <span class="ct">2</span></button>
+        <button class="fit-segmented-tab" onclick="spqTab('active',this)">With athlete <span class="ct">2</span></button>
       </div>
 
       <!-- TO SET UP -->
@@ -442,7 +449,7 @@
           </div>
           <div class="spq-title">Lower-body mobility</div>
           <div class="spq-meta"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>1 clip · note attached · 3 steps</div>
-          <button class="spq-btn" onclick="go('s-review',null)">Needs review</button>
+          <button class="spq-btn" onclick="go('s-review',null)">Review</button>
         </div>
         <div class="spq">
           <div class="spq-head" onclick="go('s-review',null)">
@@ -451,7 +458,7 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
           </div>
           <div class="spq-title">Core circuit</div>
-          <div class="spq-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>No clip — done from her note</div>
+          <div class="spq-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>No clip — done from the note</div>
           <button class="spq-btn" onclick="go('s-review',null)">Review</button>
         </div>
         </div><!-- /qp-items -->
@@ -471,7 +478,6 @@
           <div class="spq-head" style="cursor:default;">
             <span class="spq-av">PW</span>
             <div style="flex:1;min-width:0;"><div class="spq-name">Paul Weber</div><div class="spq-sub"><span class="spq-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 9l5-2v10l-5-2z"/></svg>Self-paced</span> sent 2 days ago</div></div>
-            <span class="sp-pill scheduled">Ready</span>
           </div>
           <div class="spq-title">Mobility reset</div>
           <div class="spq-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Waiting for Paul to do it · 3 steps</div>
@@ -479,11 +485,11 @@
         <div class="spq">
           <div class="spq-head" style="cursor:default;">
             <span class="spq-av">TN</span>
-            <div style="flex:1;min-width:0;"><div class="spq-name">Tom Novak</div><div class="spq-sub"><span class="spq-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 9l5-2v10l-5-2z"/></svg>Self-paced</span> missed his day · Apr 15</div></div>
+            <div style="flex:1;min-width:0;"><div class="spq-name">Tom Novak</div><div class="spq-sub"><span class="spq-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 9l5-2v10l-5-2z"/></svg>Self-paced</span> missed the day · Apr 15</div></div>
             <span class="sp-pill overdue">Overdue</span>
           </div>
           <div class="spq-title">Core stability</div>
-          <div class="spq-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>He hasn't done it — a nudge was sent. Message him or leave it.</div>
+          <div class="spq-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>Ivan hasn't done it — a nudge was sent. Message Ivan or leave it.</div>
         </div>
         </div><!-- /qp-items -->
         <div class="qp-empty">
@@ -574,7 +580,7 @@
         <div class="spq-head" style="cursor:default;">
           <span class="spq-av">PW</span>
           <div style="flex:1;min-width:0;"><div class="spq-name">Paul Weber</div><div class="spq-sub"><span class="spq-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 9l5-2v10l-5-2z"/></svg>Self-paced</span> sent 2 days ago</div></div>
-          <span class="sp-pill scheduled">Ready</span>
+          <span class="sp-pill scheduled">With athlete</span>
         </div>
         <div class="spq-title">Mobility reset</div>
         <div class="spq-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Waiting for Paul to do it · 3 steps</div>
@@ -593,11 +599,20 @@
 <div class="fit-phone fit-dark" id="s-setup" data-status="canon">
   <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
-      <button class="fit-header-back" aria-label="Back" onclick="go('s-queue',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="fit-header-back" aria-label="Back" onclick="spSetupBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
       <span class="fit-header-title">Set up for Anna</span>
     </div>
   </div>
   <div class="fit-phone-content" style="padding-top:8px;">
+    <!-- Which offering this instance belongs to. Always known - the athlete bought it, or the
+         coach picked it in the assign sheet - and it is what sets the price, so it is stated
+         rather than assumed. Read from ?offering= when coach-initiated. -->
+    <div style="padding:0 16px 14px;">
+      <span style="display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:500;padding:6px 12px;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg>
+        <span id="sp-setup-offering">Tennis self-paced</span>
+      </span>
+    </div>
     <div class="fit-input-group" style="padding:0 16px;">
       <span class="fit-input-label">Workout title</span>
       <div class="fit-input" contenteditable="true" style="outline:none;cursor:text;">Lower-body mobility</div>
@@ -606,7 +621,7 @@
     <div class="fit-input-group" style="padding:0 16px;">
       <span class="fit-input-label">Day to do it</span>
       <div class="fit-input" style="cursor:pointer;"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span> Thu, Apr 17<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div>
-      <span class="fit-input-hint" style="font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;display:block;">Anna does it anytime that day — she can reschedule freely.</span>
+      <span class="fit-input-hint" style="font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;display:block;">Anna does it anytime that day and can reschedule freely.</span>
     </div>
     <!-- Welcome note → outline card → editor (reuse My-note pattern) -->
     <div style="padding:0 16px;"><span class="fit-input-label">Welcome note for Anna</span></div>
@@ -744,7 +759,7 @@
         <!-- clip still transcoding on Mux -->
         <div class="rv-clip-processing" style="align-items:center;gap:12px;padding:18px 14px;">
           <span class="sp-spin" style="width:22px;height:22px;flex-shrink:0;"></span>
-          <div style="min-width:0;"><div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Clip is still processing</div><div style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.4;">Julia's video is uploaded — Mux is transcoding it. You'll get a nudge when it's ready to watch. You can still rate from her note below.</div></div>
+          <div style="min-width:0;"><div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Clip is still processing</div><div style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.4;">Julia's video is uploaded — Mux is transcoding it. You'll get a nudge when it's ready to watch. You can still rate from the note below.</div></div>
         </div>
       </div>
       <!-- no clip -->
@@ -782,7 +797,7 @@
 </div>
 
 <!-- ==================== COACH: CLIENT HISTORY ==================== -->
-<div class="fit-phone fit-dark ls-default" id="s-history" data-status="canon">
+<div class="fit-phone fit-dark ls-default" id="s-history" data-status="legacy">
   <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
       <button class="fit-header-back" aria-label="Back" onclick="go('s-queue',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
@@ -791,11 +806,11 @@
   </div>
   <div class="fit-phone-content" style="padding-top:8px;">
     <div data-st="default">
-      <div class="sp-note" style="cursor:default;border:none;padding:0 0 6px;"><div class="sp-note-body" style="padding:0 16px;font-size:13px;color:var(--fit-text-tertiary);">Lives inside the coach's Client Detail in production — not the calendar.</div></div>
+      <div class="sp-note" style="cursor:default;border:none;padding:0 0 6px;"><div class="sp-note-body" style="padding:0 16px;font-size:13px;color:var(--fit-text-tertiary);"><strong>Superseded</strong> — build <code>coach/clients.html#s-client-selfpaced</code> instead. That one is the production screen: grouped sections, offering chip, tappable person header. This sketch is kept only as the shape it grew from.</div></div>
       <div style="padding:0 16px;">
-        <div class="sp-card" onclick="go('s-review',null)"><span class="sp-vthumb"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Lower-body mobility</span><span class="sp-pill finished">Finished</span></div><div class="sp-meta">Apr 12 · €12 · you rated 4★ · 1 clip</div></div></div>
-        <div class="sp-card" onclick="go('s-review',null)"><span class="sp-vthumb g2" style="background:linear-gradient(135deg,#ef4444,#f59e0b);"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Core circuit</span><span class="sp-pill submitted">Submitted</span></div><div class="sp-meta">Apr 10 · €12 · awaiting your review</div></div></div>
-        <div class="sp-card" style="opacity:0.85;cursor:default;"><span class="sp-vthumb" style="background:linear-gradient(135deg,#8b5cf6,#ec4899);"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Upper-body push</span><span class="sp-pill scheduled">Ready</span></div><div class="sp-meta">Sent · athlete hasn't done it</div></div></div>
+        <div class="sp-card" onclick="go('s-review',null)"><span class="sp-vthumb"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Lower-body mobility</span><span class="sp-pill finished">Done</span></div><div class="sp-meta">Apr 12 · €12 · you rated 4★ · 1 clip</div></div></div>
+        <div class="sp-card" onclick="go('s-review',null)"><span class="sp-vthumb g2" style="background:linear-gradient(135deg,#ef4444,#f59e0b);"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Core circuit</span><span class="sp-pill submitted">To review</span></div><div class="sp-meta">Apr 10 · €12 · awaiting your review</div></div></div>
+        <div class="sp-card" style="opacity:0.85;cursor:default;"><span class="sp-vthumb" style="background:linear-gradient(135deg,#8b5cf6,#ec4899);"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Upper-body push</span><span class="sp-pill scheduled">With athlete</span></div><div class="sp-meta">Sent · athlete hasn't done it</div></div></div>
       </div>
     </div>
     <div data-st="empty">
@@ -892,7 +907,7 @@
       <div style="font-size:18px;font-weight:600;margin-bottom:16px;">Confirm booking</div>
       <div class="sp-card" style="cursor:default;margin-bottom:12px;"><span class="sp-thumb"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M21 8l-4 4 4 4z"/></svg></span><div class="sp-body"><div class="sp-title">Tennis self-paced · Maria</div><div class="sp-meta">Custom workout, built for you</div></div></div>
       <!-- Full description lives here, not crowding the card -->
-      <div style="font-size:13px;color:var(--fit-text-secondary);line-height:1.5;margin-bottom:16px;">Maria builds a workout just for you. Do it on your own time, film yourself, and get her feedback — no fixed time, cheaper than a live session.</div>
+      <div style="font-size:13px;color:var(--fit-text-secondary);line-height:1.5;margin-bottom:16px;">Maria builds a workout just for you. Do it on your own time, film yourself, and get feedback back — no fixed time, cheaper than a live session.</div>
       <!-- Pick a day (no time — do it anytime that day) -->
       <div class="fit-input-group" style="padding:0;margin-bottom:14px;">
         <span class="fit-input-label">Which day?</span>
@@ -926,12 +941,17 @@
       <div class="sp-sec"><span class="fit-section-title--md" style="padding:0;">To do</span></div>
       <div style="padding:0 16px;">
         <div class="sp-card" onclick="go('s-welcome',null)" style="border:1px solid rgba(240,92,91,0.3);"><span class="sp-thumb" style="background:linear-gradient(135deg,#f05c5b,#f59e0b);"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Core stability</span><span class="sp-pill overdue">Overdue</span></div><div class="sp-meta">Was due Apr 15 · do it now or reschedule</div></div></div>
-        <div class="sp-card" onclick="go('s-welcome',null)"><span class="sp-thumb"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Lower-body mobility</span><span class="sp-pill scheduled">Ready</span></div><div class="sp-meta">From Maria · 3 steps · ~15 min</div></div></div>
-        <div class="sp-card" style="cursor:default;opacity:0.9;"><span class="sp-thumb g2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Core circuit</span><span class="sp-pill assigned">Coach is building</span></div><div class="sp-meta">From Maria · she's preparing it</div></div></div>
+        <div class="sp-card" onclick="go('s-welcome',null)"><span class="sp-thumb"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Lower-body mobility</span></div><div class="sp-meta">From Maria · 3 steps · ~15 min</div></div></div>
+      </div>
+      <!-- Not "To do" - the athlete cannot act on it yet. Its own section, mirroring the coach's
+           "To set up", so the row needs no pill to explain why it is inert. -->
+      <div class="sp-sec"><span class="fit-section-title--md" style="padding:0;">Coach is building</span></div>
+      <div style="padding:0 16px;">
+        <div class="sp-card" style="cursor:default;opacity:0.9;"><span class="sp-thumb g2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Core circuit</span></div><div class="sp-meta">From Maria · ready by Thu, Apr 18</div></div></div>
       </div>
       <div class="sp-sec"><span class="fit-section-title--md" style="padding:0;">Awaiting feedback</span></div>
       <div style="padding:0 16px;">
-        <div class="sp-card" onclick="go('s-comments',null)" style="opacity:0.9;"><span class="sp-thumb g3"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Upper-body push</span><span class="sp-pill submitted">Submitted</span></div><div class="sp-meta">Done Apr 8 · waiting for Maria</div></div></div>
+        <div class="sp-card" onclick="go('s-comments',null)" style="opacity:0.9;"><span class="sp-thumb g3"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Upper-body push</span></div><div class="sp-meta">Done Apr 8 · waiting for Maria</div></div></div>
       </div>
       <div class="sp-sec"><span class="fit-section-title--md" style="padding:0;">Done</span></div>
       <div style="padding:0 16px;">
@@ -1137,7 +1157,7 @@
       <div class="t"><b>Needs review</b><span>Submitted 20 min ago &middot; clip attached</span></div>
       <button onclick="go('s-review',null)">Review</button>
     </div>
-    <div class="sp-thread-empty">Nothing here yet &mdash; Anna bought this and is waiting for the workout.<br>Anything you write lands in her thread.</div>
+    <div class="sp-thread-empty">Nothing here yet &mdash; Anna bought this and is waiting for the workout.<br>Anything you write lands in this thread.</div>
     <div class="sp-thread-action" data-st="ready">
       <div class="t"><b>With the athlete</b><span>Sent Apr 16 &middot; due Thu, Apr 18</span></div>
     </div>
@@ -1290,13 +1310,14 @@
       <li><strong>Clips carousel</strong> — supports <strong>multiple</strong> athlete videos; compact thumbs (play + duration), tap → full-screen player. No giant inline video.</li>
       <li><strong>No clip</strong> → a compact inline "Marked done — no clips" line (teal check), visually distinct from the note. <em>(bug fixed: it no longer shows in the With-clip state.)</em></li>
       <li><strong>Athlete's note</strong> → a <strong>quote</strong> (left accent + italic), not another card — so it's not confused with status lines.</li>
-      <li><strong>How the athlete felt it</strong> → the <strong>structured self-report</strong> she submitted on Complete (Intensity + Technique) surfaces here, so the coach reviews against her own read before rating. <em>(This is the screen connected to athlete Complete — same data, both sides.)</em></li>
+      <li><strong>How the athlete felt it</strong> → the <strong>structured self-report</strong> the athlete submitted on Complete (Intensity + Technique) surfaces here, so the coach reviews against their own read before rating. <em>(This is the screen connected to athlete Complete — same data, both sides.)</em></li>
       <li><strong>Your feedback</strong> → rating + <strong>inline textarea with char counter</strong> (300). Not the note→editor pattern — it's a single bounded comment.</li>
     </ul>
   </div>
 
   <div class="ann" id="ann-s-history"><span class="ann-role coach">Coach</span>
     <div class="state-toggle"><button class="active" onclick="setSt('s-history','default',this)">Default</button><button onclick="setSt('s-history','empty',this)">Empty</button></div>
+    <p class="note"><strong>Superseded by <code>coach/clients.html#s-client-selfpaced</code>.</strong> The per-client list ships from Client Detail <em>and</em> from an offering detail (<code>?sp=&lt;offering&gt;</code> chip). Do not implement this screen &mdash; it would be a second source of truth for the same list.</p>
     <h3>Client history</h3>
     <p>All self-paced with this client, by status. In prod = a section inside Client Detail (NOT the calendar).</p>
   </div>
@@ -1322,7 +1343,7 @@
   <div class="ann" id="ann-s-list"><span class="ann-role athlete">Athlete</span>
     <div class="state-toggle"><button class="active" onclick="setSt('s-list','default',this)">Default</button><button onclick="setSt('s-list','empty',this)">Empty</button><button onclick="setSt('s-list','loading',this)">Loading</button></div>
     <h3>My self-paced</h3>
-    <p>Athlete's aggregated list: To do (Ready / Setting up) · Awaiting feedback · Done. Not a tab — surfaced from Dashboard + per-coach in Coach Detail.</p>
+    <p>Athlete's aggregated list: Coach is building · To do · Awaiting feedback · Done · Cancelled. Not a tab — surfaced from Dashboard + per-coach in Coach Detail.</p>
   </div>
 
   <div class="ann" id="ann-s-welcome"><span class="ann-role athlete">Athlete</span>
@@ -1401,9 +1422,17 @@ window.addEventListener('DOMContentLoaded', function(){
   var q = new URLSearchParams(location.search);
   if (q.get('as') === 'coach') spThread('coach', q.get('st') || 'requested');
   // Coach-scoped entry: My self-paced opened from a Coach Detail carries ?c=<coach> → show filter chip
+  var off = new URLSearchParams(location.search).get('offering');
+  if (off) { var oe=document.getElementById('sp-setup-offering'); if(oe) oe.textContent = off; }
   var c = new URLSearchParams(location.search).get('c');
   if (c) { var f=document.getElementById('spl-coach-filter'), n=document.getElementById('spl-coach-name'); if(f&&n){ n.textContent=c; f.style.display='block'; } }
 });
+// The builder has two doors: the hub (athlete bought it) and the coach-initiated assign from a
+// client's self-paced list, which arrives with ?offering=. Back must return to the door used.
+function spSetupBack(){
+  if (new URLSearchParams(location.search).get('offering')) { history.back(); return; }
+  go('s-queue', null);
+}
 function splClearCoach(){ var el=document.getElementById('spl-coach-filter'); if(el) el.style.display='none'; }
 function setSt(id, state, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} var el=document.getElementById(id); el.classList.remove('ls-default','ls-empty','ls-loading'); el.classList.add('ls-'+state); }
 function spqTab(name, btn){ if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');} ['setup','review','active'].forEach(function(n){ var p=document.getElementById('qp-'+n); if(p)p.style.display=n===name?'block':'none'; }); }

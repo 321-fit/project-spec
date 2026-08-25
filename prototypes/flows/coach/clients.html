@@ -686,7 +686,12 @@
     <div style="margin:0 16px 24px;border-radius:14px;overflow:hidden;background:var(--fit-surface-high);">
       <div data-a11y-id="coach.client.self-paced.view-all" onclick="go('s-client-selfpaced',document.querySelector('[onclick*=s-client-selfpaced]'))" style="display:flex;align-items:center;padding:16px 14px;cursor:pointer;">
         <div style="flex:1;display:flex;">
-          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-yellow-600);">2</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Needs review</div></div>
+          <!-- Debt first, same order as the groups it opens. "To set up" was missing here for
+               the same reason it was missing from the list: the counters summed to less than
+               the person actually had. -->
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-yellow-600);">1</div><div style="font-size:12px;color:var(--fit-text-tertiary);">To set up</div></div>
+          <div style="width:1px;background:var(--fit-divider);"></div>
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-yellow-600);">2</div><div style="font-size:12px;color:var(--fit-text-tertiary);">To review</div></div>
           <div style="width:1px;background:var(--fit-divider);"></div>
           <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:600;color:var(--fit-teal-500);">1</div><div style="font-size:12px;color:var(--fit-text-tertiary);">With athlete</div></div>
           <div style="width:1px;background:var(--fit-divider);"></div>
@@ -1016,14 +1021,39 @@
     </div>
   </div>
   <div class="fit-phone-content" style="padding-top:8px;">
-    <div style="display:flex;align-items:center;gap:10px;padding:0 16px 12px;">
+    <!-- The person is a door, not a caption: this list is also reachable from the offering detail
+         (sessions.html#s-detail-selfpaced), where the coach arrives knowing the programme and not
+         the client. Tap -> Client Detail. -->
+    <div data-a11y-id="coach.client.self-paced.person" onclick="go('s-client-detail',document.querySelector('.sidebar [onclick*=s-client-detail]'))" style="display:flex;align-items:center;gap:10px;padding:0 16px 12px;cursor:pointer;">
       <div style="width:36px;height:36px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">AK</div>
       <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Anna Kowalski</span>
-      <span style="font-size:14px;color:var(--fit-text-tertiary);">· 11 self-paced</span>
+      <span style="font-size:14px;color:var(--fit-text-tertiary);" id="cs-total">· 15 self-paced</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-left:auto;"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+
+    <!-- Scoped on entry from an offering; the ✕ widens to every self-paced with this client.
+         Same "two doors, one list" pattern as the athlete's coach chip on self-paced.html#s-list. -->
+    <div id="cs-offer-filter" style="display:none;padding:0 16px 12px;">
+      <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:500;padding:6px 8px 6px 12px;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);">
+        <span id="cs-offer-name">Tennis self-paced</span>
+        <button onclick="csClearOffer()" aria-label="Show all self-paced" style="display:flex;align-items:center;justify-content:center;width:18px;height:18px;border:none;border-radius:50%;background:var(--fit-divider);color:var(--fit-text-secondary);cursor:pointer;padding:0;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </span>
+    </div>
+
+    <!-- Paid, waiting for the coach to build it. First because it is the only group here the
+         coach owes, and the offering detail sends them straight to it. Unlike every other group
+         the row opens the builder: there is no thread yet, nothing has been sent. -->
+    <div class="cs-sec">To set up (<span id="cs-c-setup">1</span>)</div>
+    <div class="cs-card">
+      <div class="cs-row" data-prog="tennis" data-a11y-id="coach.client.self-paced.item" onclick="window.location.href='../shared/self-paced.html?offering=Tennis%20self-paced#s-setup'">
+        <span class="cs-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg></span>
+        <div class="cs-body"><div class="cs-title">Tennis self-paced</div><div class="cs-meta">Bought 2h ago · build by Thu, Apr 17</div></div>
+        <svg class="cs-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
     </div>
 
     <!-- To review -->
-    <div class="cs-sec">Needs review (2)</div>
+    <div class="cs-sec">To review (<span id="cs-c-review">2</span>)</div>
     <div class="cs-card">
       <div class="cs-row" data-a11y-id="coach.client.self-paced.item" onclick="window.location.href='../shared/self-paced.html#s-review'">
         <span class="cs-thumb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
@@ -1038,38 +1068,87 @@
     </div>
 
     <!-- Active -->
-    <div class="cs-sec">With athlete (1)</div>
+    <div class="cs-sec">With athlete (<span id="cs-c-active">2</span>)</div>
     <div class="cs-card">
       <div class="cs-row" data-a11y-id="coach.client.self-paced.item" onclick="window.location.href='../shared/self-paced.html#s-comments'">
         <span class="cs-thumb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
-        <div class="cs-body"><div class="cs-title">Mobility reset</div><div class="cs-meta">Sent 2 days ago · waiting for her to do it</div></div>
+        <div class="cs-body"><div class="cs-title">Mobility reset</div><div class="cs-meta">Sent 2 days ago · waiting for Anna to do it</div></div>
+        <svg class="cs-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="cs-row" data-prog="other" data-a11y-id="coach.client.self-paced.item" onclick="window.location.href='../shared/self-paced.html#s-comments'">
+        <span class="cs-thumb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        <div class="cs-body"><div class="cs-title">Breathing reset</div><div class="cs-meta">Recovery flow · sent yesterday</div></div>
         <svg class="cs-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     </div>
 
     <!-- Done -->
-    <div class="cs-sec">Done (8)</div>
+    <div class="cs-sec">Done (<span id="cs-c-done">9</span>)</div>
     <div class="cs-card">
       <div class="cs-row" data-a11y-id="coach.client.self-paced.item" onclick="window.location.href='../shared/self-paced.html#s-comments'">
         <span class="cs-thumb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
-        <div class="cs-body"><div class="cs-title">Hip stability</div><div class="cs-meta">Apr 2 · you rated 4★</div></div>
+        <div class="cs-body"><div class="cs-title">Hip stability</div><div class="cs-meta">Apr 2 · you rated 4★ · 1 clip</div></div>
         <svg class="cs-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </div>
       <div class="cs-row" data-a11y-id="coach.client.self-paced.item" onclick="window.location.href='../shared/self-paced.html#s-comments'">
         <span class="cs-thumb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
-        <div class="cs-body"><div class="cs-title">Ankle mobility</div><div class="cs-meta">Mar 28 · you rated 5★</div></div>
+        <div class="cs-body"><div class="cs-title">Ankle mobility</div><div class="cs-meta">Mar 28 · you rated 5★ · no clip</div></div>
         <svg class="cs-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="cs-row" data-prog="other" data-a11y-id="coach.client.self-paced.item" onclick="window.location.href='../shared/self-paced.html#s-comments'">
+        <span class="cs-thumb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        <div class="cs-body"><div class="cs-title">Shoulder prehab</div><div class="cs-meta">Recovery flow · Mar 20 · you rated 5★ · 1 clip</div></div>
+        <svg class="cs-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <!-- Done is the only section that outgrows the screen; the rest are bounded by definition. -->
+      <div class="cs-row" style="justify-content:center;" data-a11y-id="coach.client.self-paced.done.all" onclick="void 0">
+        <span style="font-size:14px;font-weight:500;color:var(--fit-brand-primary);">Show all <span id="cs-c-done2">9</span></span>
       </div>
     </div>
 
     <!-- Cancelled -->
-    <div class="cs-sec">Cancelled (1)</div>
+    <div class="cs-sec">Cancelled (<span id="cs-c-cancelled">1</span>)</div>
     <div class="cs-card" style="margin-bottom:24px;">
       <div class="cs-row" style="cursor:default;">
         <span class="cs-thumb gray"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></span>
         <div class="cs-body"><div class="cs-title">Speed ladder</div><div class="cs-meta">Refunded €12 · you didn't set it up in time</div></div>
         <span class="sp-pill refunded">Refunded</span>
       </div>
+    </div>
+  </div>
+
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" data-a11y-id="coach.client.self-paced.assign-cta" onclick="csAssign()">Assign self-paced</button></div>
+
+  <!-- Offering picker - only appears when there is a genuine choice. One decision, then the
+       builder; the day lives in the builder, so this sheet does not ask for it twice.
+       MUST stay inside its .fit-phone or the overlay spills across the whole page. -->
+  <div class="fit-sheet-overlay" id="cs-assign-sheet" onclick="if(event.target===this)this.classList.remove('visible')">
+    <div class="fit-sheet compact">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:600;margin-bottom:4px;">Assign self-paced</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:18px;">Which one are you building for Anna? You&rsquo;ll set the steps and the day next.</div>
+
+      <button class="fit-sheet-action-row" data-a11y-id="coach.client.self-paced.assign.offering" onclick="csAssignPick('Tennis self-paced')">
+        <div class="fit-sheet-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg></div>
+        <div class="fit-sheet-action-body">
+          <div class="fit-sheet-action-title">Tennis self-paced</div>
+          <div class="fit-sheet-action-sub">&euro;12 &middot; ~15 min</div>
+        </div>
+      </button>
+      <button class="fit-sheet-action-row" data-a11y-id="coach.client.self-paced.assign.offering" onclick="csAssignPick('Recovery flow')">
+        <div class="fit-sheet-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg></div>
+        <div class="fit-sheet-action-body">
+          <div class="fit-sheet-action-title">Recovery flow</div>
+          <div class="fit-sheet-action-sub">&euro;10 &middot; ~20 min</div>
+        </div>
+      </button>
+
+      <div style="display:flex;gap:8px;padding:12px 2px 0;font-size:12px;color:var(--fit-text-tertiary);line-height:1.45;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span>You are offering it, so it goes out unpaid &mdash; Anna is charged when she opens it (her CTA reads <strong>Pay &euro;12 &amp; start</strong>).</span>
+      </div>
+
+      <button style="width:100%;height:50px;margin-top:12px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cs-assign-sheet').classList.remove('visible')">Cancel</button>
     </div>
   </div>
 </div>
@@ -1684,6 +1763,22 @@
       <button onclick="setClientHistoryState('loading',this)">Loading</button>
     </div>
     <p>Full training history with athlete.</p><ul><li>All past events: name, date/time, location, price, status</li><li><strong>Completed + Paid:</strong> green label</li><li><strong>Cancelled:</strong> red label, price struck through</li><li>Sorted newest first</li></ul><hr><p class="note"><strong>Empty:</strong> brand-new client with 0 past sessions — no CTA (coaches initiate training from Client Detail, not here).</p></div>
+  <div class="ann" id="ann-s-client-selfpaced"><span class="ann-role coach">Coach</span><h3>Client Self-paced</h3>
+    <div class="state-toggle">
+      <button class="active" onclick="csClearOffer();this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));this.classList.add('active');">All self-paced</button>
+      <button onclick="csSetOffer('Tennis self-paced');this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));this.classList.add('active');">Scoped to an offering</button>
+    </div>
+    <p>Every self-paced session this client ever bought, grouped by who owes the next move. An offering is bought many times over, so this &mdash; not the newest instance &mdash; is what a coach lands on when tapping a person anywhere.</p>
+    <ul>
+      <li><strong>Two doors, one list.</strong> From <em>Client Detail</em> it opens unscoped (all offerings). From <em>Sessions &rarr; Self-paced offering &rarr; an athlete</em> it opens with <code>?sp=&lt;offering&gt;</code>: a chip scopes the list to that programme and one tap on the &times; widens it. Same pattern as the athlete&rsquo;s coach chip on <code>self-paced.html#s-list</code>.</li>
+      <li><strong>The person header is a door</strong> &mdash; tap the name to land in Client Detail. Coaches arriving from an offering know the programme, not the client.</li>
+      <li><strong>Rows route by state:</strong> <em>To review</em> &rarr; the review screen; everything else &rarr; the comments thread, which is where the clip, the athlete&rsquo;s intensity/technique report and the coach&rsquo;s written feedback already live as anchor messages. No separate read-only review screen.</li>
+      <li><strong>Done rows say whether there is a clip</strong> &mdash; re-watching the video is the reason a coach reopens a finished session.</li>
+      <li><strong>Footer CTA &ldquo;Assign self-paced&rdquo;</strong> &mdash; straight into the builder when the offering is already known (chip on, or a single offering); otherwise the offering picker sheet first. Client Detail&rsquo;s <em>Assign self-paced</em> row lands here with that sheet open, so cancelling leaves the coach on a useful screen.</li>
+      <li><strong>Cancelled</strong> rows are inert and carry the refund reason. <em>Refunded</em> is the only state pill allowed here &mdash; an orthogonal flag, not a restatement of the header (a cancelled session is not always refunded).</li>
+    </ul>
+    <hr><p class="note">Grouped sections, not tabs: this is a bounded per-person overview. The all-clients batch view is the hub (<code>self-paced.html#s-queue</code>), and that one uses tabs.</p>
+  </div>
   <div class="ann" id="ann-s-archived"><span class="ann-role coach">Coach</span><h3>Archived &amp; Blocked</h3><div class="state-toggle"><button onclick="toggleArchEmpty('archived',this)">Archived empty</button><button onclick="toggleArchEmpty('blocked',this)">Blocked empty</button></div><p>List of clients removed from active Clients tab — by archive (soft) or block (hard).</p><ul><li><strong>Per-tab zero states</strong> — each tab empties independently (e.g. you have blocked clients but none archived → Archived tab shows its own empty state, Blocked still lists). Toggles above flip each tab + its count; no CTA (you archive/block from Client Detail, not here).</li><li><strong>Segmented tabs</strong>: Archived / Blocked with counts</li><li><strong>Muted cards</strong> (opacity avatar) — signals inactive status</li><li><strong>Restore</strong> / <strong>Unblock</strong> buttons: single-tap (no confirm) → snackbar feedback</li><li>Tap card → Client Detail with status banner (see banner preview in Client Detail annotation)</li><li><strong>Archive</strong> = soft, reversible, athlete unaffected — a new request brings them back</li><li><strong>Block</strong> = silent shadow-ban, coach invisible in athlete's search, upcoming sessions untouched</li><li><strong>Deleted badge</strong> (Karl L.) — athlete deleted their account. Surfaces in the <strong>Blocked</strong> tab (deleted ≈ blocked: relationship is dead). Terminal — <strong>no unblock/restore action</strong> (nothing to restore; account is gone). History stays intact. Removed from the active Clients list.</li></ul><hr><p class="note">Entry: "Archived &amp; Blocked" row at bottom of Clients list (iOS Mail "Trash" pattern).</p></div>
   <div class="ann" id="ann-s-client-notes-editor"><span class="ann-role coach">Coach</span><h3>Client Notes Editor</h3><p>Full-screen editor for coach's private notes about an athlete. Same pattern as About Me editor — Cancel / title / Save header, contenteditable body, no character counter.</p><ul><li>Opens from Notes card on Client Detail (tap whole card — filled or empty variant)</li><li>Accumulating journal: injuries, preferences, payment habits, personal reminders</li><li>No length limit — notes grow over months of coaching</li><li>Keyboard auto-opens; Save pops back to Client Detail</li></ul><hr><p class="note">Distinct from <strong>event note</strong> (group training, per-session, 200 char limit) — client notes are long-lived and persistent.</p></div>
   <div class="ann" id="ann-s-create-client"><span class="ann-role coach">Coach</span><h3>Create Client</h3>
@@ -2491,6 +2586,57 @@ renderClientPacks(); // seed the client's Packages section from CLIENT_PACKS
 var _crmReturn='new';
 function openCrmAddr(ctx){ _crmReturn=ctx||'new'; go('s-crm-addr-pick', null); }
 function crmAddrSave(addr){ var nv=document.getElementById('cc-home-addr'); if(nv){ nv.textContent=addr; nv.style.color='var(--fit-text-primary)'; } var dv=document.getElementById('cd-home-addr'); if(dv){ dv.textContent=addr; } go(_crmReturn==='detail'?'s-client-detail':'s-create-client', null); }
+
+// === SELF-PACED: offering scope chip on the per-client list ===
+// Totals are the sum of the groups below them — the header used to disagree with the page,
+// which is exactly the bug the "To set up" group fixes.
+var CS_COUNTS = {
+  scoped: { 'cs-c-setup': 1, 'cs-c-review': 2, 'cs-c-active': 1, 'cs-c-done': 8, 'cs-c-done2': 8, 'cs-c-cancelled': 1, total: 13 },
+  all:    { 'cs-c-setup': 1, 'cs-c-review': 2, 'cs-c-active': 2, 'cs-c-done': 9, 'cs-c-done2': 9, 'cs-c-cancelled': 1, total: 15 }
+};
+function csApplyOffer(on) {
+  document.querySelectorAll('#s-client-selfpaced .cs-row[data-prog="other"]').forEach(function (r) {
+    r.style.display = on ? 'none' : '';
+  });
+  var c = CS_COUNTS[on ? 'scoped' : 'all'];
+  Object.keys(c).forEach(function (k) {
+    if (k === 'total') return;
+    var el = document.getElementById(k); if (el) el.textContent = c[k];
+  });
+  var t = document.getElementById('cs-total'); if (t) t.textContent = '\u00b7 ' + c.total + ' self-paced';
+}
+function csSetOffer(name) {
+  var f = document.getElementById('cs-offer-filter'), n = document.getElementById('cs-offer-name');
+  if (!f || !n) return;
+  n.textContent = name; f.style.display = 'block';
+  csApplyOffer(true);
+}
+function csClearOffer() {
+  var f = document.getElementById('cs-offer-filter'); if (f) f.style.display = 'none';
+  csApplyOffer(false);
+}
+(function () {
+  var sp = new URLSearchParams(location.search).get('sp');
+  if (sp) csSetOffer(sp);
+})();
+
+// Assign from the per-client list. Offering already known (scoped by chip) -> straight into the
+// builder; otherwise pick it first. A coach with a single offering never sees the sheet.
+var CS_OFFERINGS = ['Tennis self-paced', 'Recovery flow'];
+function csAssign() {
+  var f = document.getElementById('cs-offer-filter');
+  var scoped = f && f.style.display !== 'none';
+  if (scoped || CS_OFFERINGS.length === 1) return csAssignPick(scoped ? document.getElementById('cs-offer-name').textContent : CS_OFFERINGS[0]);
+  var sheet = document.getElementById('cs-assign-sheet');
+  if (sheet) sheet.classList.add('visible');
+}
+function csAssignPick(offering) {
+  var sheet = document.getElementById('cs-assign-sheet');
+  if (sheet) sheet.classList.remove('visible');
+  window.location.href = '../shared/self-paced.html?offering=' + encodeURIComponent(offering) + '#s-setup';
+}
 </script>
+
+
 </body>
 </html>

@@ -3,7 +3,7 @@
 > Status: **Approved** — flow prototyped & reviewed, ready for task breakdown. (Deferred from v1: video library, progress-over-time — see §9. Packages are **no longer deferred** — they cover self-paced too, spec'd in [session-packages.md](./session-packages.md); see §8.)
 > Prototype: [flows/shared/self-paced.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/self-paced.html) (isolated module; screens split into real surfaces per §5)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-07-17
+> Last updated: 2026-08-25
 > Implementation:
 > - iOS:     [321fit_ios/docs/self-paced-ios.md] (to be created during dev)
 > - Android: [321fit_android_new/docs/self-paced-android.md] (to be created during dev)
@@ -78,20 +78,34 @@ detail sections, per-client sections, list sections, pills.
 
 | state | the coach reads | the athlete reads |
 |---|---|---|
-| Requested | **Needs a plan** | **Coach is building** |
+| Requested | **To set up** | **Coach is building** |
 | Ready | **With athlete** | **To do** |
-| Submitted | **Needs review** | **Awaiting feedback** |
+| Submitted | **To review** | **Awaiting feedback** |
 | Finished | **Done** | **Done** |
+
+*(Coach column settled 2026-08-24 on `To set up` / `To review` — was `Needs a plan` / `Needs review`. Both read fine; `To set up` / `To review` won because Android had already shipped them and they sit one word from the hub tabs, so the whole vocabulary converges instead of one surface being the exception.)*
 
 Verbs stay on buttons (*Build it*, *Review*), never in the state label — that is
 what let four screens drift into four vocabularies (*Set up / Active* vs *Needs
-your plan / In progress* vs *Ready / Submitted*) for one lifecycle.
+your plan / In progress* vs *Ready / Submitted*) for one lifecycle. `Requested /
+Ready / Submitted / Finished` are **model names** — they belong in the API and the
+lifecycle legend, never on a row.
 
 **Orthogonal flags** are not states and keep their own words: *Overdue*,
 *Refunded*, *Cancelled*.
 
-**Inside a section named after a state, rows carry no state pill** — it would only
-repeat the header.
+**Inside a section named after a state (or under a tab named after one), rows carry
+no state pill** — it would only repeat the header. The exceptions are the
+orthogonal flags above: *Overdue* and *Refunded* say something the header does not
+(a cancelled session is not always refunded — see the case-C rule in §9).
+
+Two consequences worth stating, because both were got wrong in a build:
+- **A pill that rewords its header is worse than one that repeats it.** `TO SET UP`
+  → `SETTING UP` is not the same claim: the section says nobody has started, the pill
+  says the coach has. Same for `TO REVIEW` → `SUBMITTED` (model name on a row).
+- **A state the reader cannot act on gets its own section, not a pill inside someone
+  else's.** *Coach is building* is not athlete To-do; it is its own group, mirroring
+  the coach's *To set up*. Then the row needs no pill to explain why it is inert.
 
 ### Multi-workout self-paced — Phase 2, via packages
 
@@ -106,7 +120,8 @@ cannot do yet.
 
 ## 5. Screens (prototype `shared/self-paced.html`)
 
-**Coach:** Offering (catalog entry) · Requests+Review hub (tabbed: Set up / Review / Active) · Setup builder (step list home) · Step editor (focused, with "Step N of M" counter) · Review submission · Client history · Video library.
+**Coach:** Offering detail (`coach/sessions.html#s-detail-selfpaced` — catalogue entry + the people on it) · Requests+Review hub (tabbed: To set up / To review / With athlete) · Setup builder (step list home) · Step editor (focused, with "Step N of M" counter) · Review submission · Per-client self-paced list (`coach/clients.html#s-client-selfpaced`) · Video library *(deferred)*.
+> The isolated `self-paced.html#s-history` sketch is **superseded** by `#s-client-selfpaced` and marked as such in the prototype — do not implement it, it would be a second source of truth for the same list.
 **Athlete:** Book (NOT a new screen — a card in the **existing Book training → Personal tab**, same `.v6d-card` as `profile.html#s-book-sessions`: the **sport icon** of the offering, the card's location-strip slot repurposed as "**Self-paced · do it anytime**" (clock icon — deliberately not "Online", to avoid confusion with live online sessions), a short slogan body, lower price; full description + day picker live in the Book drawer) · My self-paced (list) · Welcome/intro (day + reschedule sheet) · Player (sequenced phases — see §7.1) · Complete (structured feedback, first-time only) + upload · Comments thread.
 **Shared sub-flow:** video source sheet → Trim (optional, skippable) → Uploading (Mux); reused by coach (instruction clips) + athlete (proof clips).
 
@@ -117,7 +132,10 @@ cannot do yet.
 - **Coach events → unified Inbox** (no new bell, no 4th tab): `To reply` = Set up + Review; `Waiting` = Active; `Activity` = history. Cards reuse the inbox `.req-card` shell + a `Self-paced` tag. A tabbed **batch hub** (same items, filtered) reached from a Dashboard card.
 - **Coach Dashboard** — a `.dash-action` row under "Needs your attention": "Self-paced · N to set up, N to review / N active · overdue" → the batch hub (`self-paced.html#s-queue`). Hidden when all counts 0.
 - **Athlete Dashboard** — `.pending-row`(s) under "Needs your attention": day-bound **overdue** + **due-today** self-paced → `#s-welcome`. Shown only when present.
-- **Coach Client Detail** — a compact **summary card** (stat counters: To review / Active / Done) + **Assign self-paced** entry (coach-initiated). Tap the counters → a full **per-client screen** (`s-client-selfpaced`) with the sessions **grouped by status** (To review / Active / Done / Cancelled, count in each header) — chosen over an inline list (doesn't scale) and over tabs (tabs are for the all-clients batch hub; per-person is a bounded overview, so grouped sections match the athlete `s-list` and show the whole picture at once).
+- **Coach Client Detail** — a compact **summary card** (stat counters: To review / Active / Done) + **Assign self-paced** entry (coach-initiated). Tap the counters → a full **per-client screen** (`s-client-selfpaced`) with the sessions **grouped by status** (To set up / To review / With athlete / Done / Cancelled, count in each header) — chosen over an inline list (doesn't scale) and over tabs (tabs are for the all-clients batch hub; per-person is a bounded overview, so grouped sections match the athlete `s-list` and show the whole picture at once).
+- **Coach Offering detail** (`coach/sessions.html#s-detail-selfpaced`) — the catalogue entry itself: summary + Edit, then **one `Athletes` list** of everyone who ever bought it, ordered by what the coach owes (To set up → To review → Overdue → With athlete → Done) with an `.sp-pill` per row carrying that state. **Deliberately not a work queue** — see §9. Footer CTA **"Assign to a client"**. Empty state when the offering is live but unsold.
+- **Offering detail → an athlete → their list.** A row opens **that athlete's self-paced list**, never the newest instance — one athlete buys the same offering many times, and jumping into one of them hides the rest. Target is the same `#s-client-selfpaced`, entered as `clients.html?sp=<offering>#s-client-selfpaced`: a **clearable chip** scopes the list to that offering, ✕ widens it to every self-paced with the client. Same "two doors, one list" pattern as the athlete's coach chip on `#s-list`. On that screen the **person header is a door** to Client Detail (coaches arriving from an offering know the programme, not the client), and **Done rows state clip / no clip** — re-watching the video is why a finished session gets reopened.
+- **Assign is a footer CTA** on `#s-client-selfpaced` ("Assign self-paced"). Offering already known (chip on, or the coach sells one) → **straight into the builder**; otherwise an **offering picker sheet** first (tap-to-act rows with the price, no radio, no confirm — one decision, then the builder; the day is asked for **in** the builder, not twice). Client Detail's *Assign self-paced* row lands here with that sheet open, so cancelling leaves the coach on a useful screen. The builder shows an **offering context chip** (`?offering=`) — it is always known and it sets the price — and its back button returns to the door used (hub vs client list).
 - **Athlete Coach Detail** — a **counters summary card** (To do / Awaiting / Done + overdue hint) on the **relationship detail** (`athlete/my-coaches.html#s-coach-detail`), placed next to **Your packages** — the athlete-side mirror of the coach's Client Detail self-paced summary. Tap → My self-paced **filtered to that coach** (`self-paced.html?c=<coach>#s-list` → filter chip, ✕ clears to all). *(Updated 2026-07-20: was a thin link row mis-placed on the **public** profile `shared/profile.html#s-coach-v2` — relationship data belongs on the relationship detail, not the marketing surface. Reverses the earlier "link, not a mirror section" call now that packages set the precedent for showing relationship stats here.)*
 - **Athlete list** (`#s-list`) — the **global aggregated** "My self-paced" across all coaches (grouped To do / Awaiting feedback / Done / Cancelled), **not a tab**. Two doors: **global** = athlete Dashboard "Needs your attention" → **See all self-paced** (urgency-driven aggregate); **per-coach** = the Coach Detail summary card (carries `?c=<coach>` → filter chip).
 - **Status pills** — the `.sp-pill` family was extracted from `self-paced.html` into `lib/fit-ui.css` (shared across all entry points). Deep-link: `self-paced.html#<screen>` opens that screen on load.
@@ -172,6 +190,10 @@ Get ready (3-2-1, voiced)  →  WORK set  →  Rest (voiced countdown, auto-flow
 - **Type colour + sections (2026-07-01):** training-type catalogs (coach `sessions.html#s-list`, athlete `profile.html#s-book-sessions`) are **grouped into vertical sections by type** (no tabs — 3–6 types make tabs overkill; empty types don't render) with a **per-type header colour**: Personal=teal, Group=blue, **Self-paced=violet** (new `--fit-color-violet-*` token, TODO promote to Figma). Header gradient only; Book CTA stays brand. See memory `feedback_training_type_colors`, `feedback_tabs_vs_sections`.
 - **Creation & discovery integrated (2026-07-01):** Self-paced is now the **3rd Training type** in `coach/sessions.html` (hides Location / calendar-scheduling; keeps the **payment picker incl. Cash** — see below; Duration → optional "Estimated time"; explainer that content is built per athlete after booking) and a **catalog card + day-bound confirm sheet** in the athlete's real Book training (`shared/profile.html#s-book-sessions`, Personal tab). The isolated `s-offering` in `self-paced.html` is superseded by the `sessions.html` type.
 - **Voice cues** = native TTS for get-ready **and** rest countdowns; speaker toggle; respects silent mode. English only for v1.
+- **The offering detail is a catalogue entry, not a work queue (2026-08-24).** It used to carry its own *To set up / To review / With athlete* sections plus a *Done* archive tile — a **third copy** of work that already lives on the Dashboard row → hub and in the Inbox, which made a catalogue screen read as a to-do list. Replaced by one `Athletes` list where the pill carries the same urgency. **One list beats three sections here** because the sectioning grammar belongs to the hub; a per-offering screen answers *who is on this programme*, and the hub answers *what do I owe today*.
+- **A person row opens a list, not an instance (2026-08-24).** Anywhere a coach taps an athlete in a self-paced context, they land on that athlete's **list** of self-paced sessions. Instances are named freely by the coach and repeat under the same offering, so "the latest one" is never a safe guess.
+- **Finished sessions open the thread, not a read-only review (2026-08-24).** The thread already holds the clip, the athlete's intensity/technique report and the coach's written feedback as anchor messages — a second read-only screen would duplicate all three. Follows from "comments thread = the session's home" above.
+- **Coach-initiated assign goes out unpaid** — the athlete is charged when they open it (Welcome CTA **"Pay €X & start"**, built as `wlc-unpaid`). Restated here because it is easy to re-open by mistake; the rule itself is §8.
 - **Trim is optional** — Skip uploads the full clip; clipping via **Mux SDK clip API**, not native-only.
 
 **Open / deferred:**
@@ -191,5 +213,5 @@ Get ready (3-2-1, voiced)  →  WORK set  →  Rest (voiced countdown, auto-flow
 - Mux video: [architecture/mux-integration.md](../architecture/mux-integration.md)
 - Notifications: [notifications-catalog.md](notifications-catalog.md)
 - Memory: `project_self_paced` (model + deferred thread decision)
-- Prototype: `flows/shared/self-paced.html` (isolated WIP; split into modules later)
+- Prototype: `flows/shared/self-paced.html` (isolated WIP; split into modules later). Already living on real surfaces: offering creation + detail `flows/coach/sessions.html` (`#s-create`, `#s-detail-selfpaced`), per-client list + assign `flows/coach/clients.html#s-client-selfpaced`, athlete booking `flows/shared/profile.html#s-book-sessions`.
 - Journey map: [`flows/journeys/self-paced.html`](../prototypes/flows/journeys/self-paced.html) — end-to-end walkthrough linking every live surface in flow order (Requested → Ready → Submitted → Finished)
