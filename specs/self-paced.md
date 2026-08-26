@@ -79,10 +79,11 @@ detail sections, per-client sections, list sections, pills.
 | state | the coach reads | the athlete reads |
 |---|---|---|
 | Requested | **To set up** | **Coach is building** |
-| Ready | **With athlete** | **To do** |
+| Ready | **Sent** | **To do** |
 | Submitted | **To review** | **Awaiting feedback** |
 | Finished | **Done** | **Done** |
 
+*(`Ready` renamed **With athlete → Sent** on 2026-08-26: "with athlete" named neither what happened nor whose move it is, and it has to work both as a section header and as a pill beside a person's name. "Sent" is the plain true statement; the row's meta line carries the nuance — "Sent 2 days ago · started · 1 of 3".)*
 *(Coach column settled 2026-08-24 on `To set up` / `To review` — was `Needs a plan` / `Needs review`. Both read fine; `To set up` / `To review` won because Android had already shipped them and they sit one word from the hub tabs, so the whole vocabulary converges instead of one surface being the exception.)*
 
 Verbs stay on buttons (*Build it*, *Review*), never in the state label — that is
@@ -217,6 +218,8 @@ both collected by the step editor since day one — were displayed to **nobody**
   of sets of the exercise you walked away from is the better outcome anyway.
 - **Submitting is unchanged** — it happens at Complete, after the last step. A half-done workout
   stays *With athlete* and ages into *Overdue* by the normal rule.
+- **The coach can open what they built.** A *Sent* row used to open the **thread**, so a coach could talk about the workout but never look at it. It opens the builder in **read mode** (`?read=<steps-done>#s-setup`) — the same screen it was built on, not a second view: the coach must see *exactly* what the athlete got, and a separate read screen is a second source of truth that drifts. Read mode adds a **status strip** (sent date, the slot the athlete chose, progress), **ticks the finished steps** — where someone stopped usually names the exercise that was the problem — and suppresses drag handles, remove buttons, *Add step* and *Send*; the footer becomes **Message**.
+- **Editing is allowed until the athlete starts, then the structure locks.** Before the first step there is nothing to disturb. After it, changing steps could pull one out from under someone who already did it, so the lock states its reason and points at the thread. *(Closes the "edit-after-Send lock" edge state.)*
 - **Coach visibility: a stall, not a percentage.** The With-athlete card shows
   `Started · 1 of 3 · stalled 2 days` once progress has been sitting. It is a coaching signal
   (too hard? cue unclear?) worth acting on. A live progress bar was rejected and its dead

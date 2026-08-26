@@ -373,6 +373,25 @@
   .sp-step.st-done .sp-num::after { content: "\2713"; font-size: 13px; font-weight: 700; }
   .sp-step.st-next { border-color: var(--fit-brand-primary); box-shadow: 0 0 0 1px var(--fit-brand-primary); }
   .sp-step.st-next .sp-num { background: var(--fit-brand-primary); color: #fff; }
+  /* Read mode on the builder rather than a second screen: the coach must see EXACTLY what the
+     athlete got, and a separate view is a second source of truth that drifts. Editing is allowed
+     until the athlete starts — after that a step they already did could vanish under them, so
+     the structure locks and the thread is where anything else gets said. */
+  #s-setup.sp-read .sp-drag,
+  #s-setup.sp-read .sp-remove,
+  #s-setup.sp-read .sp-add,
+  #s-setup.sp-read .sp-reorder-hint,
+  #s-setup.sp-read [data-setup="edit"] { display: none !important; }
+  #s-setup:not(.sp-read) [data-setup="read"] { display: none !important; }
+  #s-setup.sp-read .fit-input,
+  #s-setup.sp-read .sp-note { pointer-events: none; opacity: 0.85; }
+  #s-setup.sp-read .sp-step { cursor: default; }
+  /* Steps the athlete has already finished */
+  #s-setup .sp-step.st-done .sp-num { background: var(--fit-teal-500); color: #fff; font-size: 0; position: relative; }
+  #s-setup .sp-step.st-done .sp-num::after { content: "\2713"; font-size: 13px; font-weight: 700; }
+  .sp-status { margin: 0 16px 14px; padding: 12px 14px; border-radius: 12px; background: var(--fit-surface-high); font-size: 13px; line-height: 1.5; color: var(--fit-text-secondary); }
+  .sp-status b { color: var(--fit-text-primary); font-weight: 600; }
+  .sp-status-warn { color: var(--fit-yellow-600); }
   #s-step-brief [data-sb] { display: none; }
   #s-step-brief.sb-mid [data-sb="mid"] { display: flex; }
   #s-player [data-pl] { display: none; }
@@ -678,7 +697,7 @@
   <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
       <button class="fit-header-back" aria-label="Back" onclick="spSetupBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Set up for Anna</span>
+      <span class="fit-header-title" id="sp-setup-title">Set up for Anna</span>
     </div>
   </div>
   <div class="fit-phone-content" style="padding-top:8px;">
@@ -691,6 +710,14 @@
         <span id="sp-setup-offering">Tennis self-paced</span>
       </span>
     </div>
+    <!-- Read mode only: where this assignment actually stands. -->
+    <div class="sp-status" data-setup="read">
+      <div>Sent <b>Apr 15</b> &middot; Anna scheduled it for <b>Thu, Apr 17 at 19:00</b></div>
+      <div id="sp-progress" class="sp-status-warn" style="margin-top:4px;">Started &middot; <b>1 of 3</b> done &middot; stalled 2 days</div>
+      <div id="sp-lock-note" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--fit-divider);font-size:12px;color:var(--fit-text-tertiary);">Anna has started, so the steps are locked &mdash; changing them now could pull a step out from under Anna mid-workout. Message instead.</div>
+      <button id="sp-edit-btn" style="display:none;margin-top:8px;border:none;background:transparent;padding:0;color:var(--fit-brand-primary);font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;" onclick="spSetupEditMode()">Edit this workout</button>
+    </div>
+
     <div class="fit-input-group" style="padding:0 16px;">
       <span class="fit-input-label">Workout title</span>
       <div class="fit-input" contenteditable="true" style="outline:none;cursor:text;">Lower-body mobility</div>
@@ -709,7 +736,7 @@
 
     <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin:18px 0 10px;">
       <span class="fit-section-title--md" style="padding:0;margin:0;">Steps (3)</span>
-      <span style="font-size:12px;color:var(--fit-text-tertiary);">drag to reorder</span>
+      <span class="sp-reorder-hint" style="font-size:12px;color:var(--fit-text-tertiary);">drag to reorder</span>
     </div>
     <div style="padding:0 16px;" id="setup-steps">
       <div class="sp-step" onclick="go('s-step',null)">
@@ -737,7 +764,8 @@
     <button class="sp-add" onclick="go('s-step',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Add step</button>
   </div>
   <div class="fit-phone-footer fit-footer-btn">
-    <button class="fit-btn fit-btn-primary" onclick="go('s-queue',null)">Send to Anna</button>
+    <button class="fit-btn fit-btn-primary" data-setup="edit" onclick="go('s-queue',null)">Send to Anna</button>
+    <button class="fit-btn fit-btn-secondary" data-setup="read" onclick="go('s-comments',null)">Message Anna</button>
   </div>
 </div>
 
@@ -1512,6 +1540,23 @@
     <p class="note">Submitting is unchanged: it happens at <strong>Complete</strong>, after the last step. A workout left half-done stays <em>With athlete</em> and ages into <em>Overdue</em> by the normal rule.</p>
   </div>
 
+  <div class="ann" id="ann-s-setup-read"><span class="ann-role coach">Coach</span>
+    <div class="state-toggle">
+      <button class="active" onclick="spSetupEditMode();go('s-setup',null)">Building it</button>
+      <button onclick="spSetupRead(0)">Sent &middot; not started</button>
+      <button onclick="spSetupRead(1)">Sent &middot; started</button>
+    </div>
+    <h3>Setup builder &mdash; read mode</h3>
+    <p>Tapping a <em>Sent</em> assignment on a client used to open the <strong>thread</strong>, so the coach could talk about the workout but never look at it. Read mode is the same screen they built it on, not a second view: the coach has to see <strong>exactly</strong> what the athlete got, and a separate read screen is a second source of truth that drifts.</p>
+    <ul>
+      <li><strong>Status strip</strong> at the top &mdash; when it was sent, the slot the athlete chose, and progress. This is where <em>Started · 1 of 3 · stalled 2 days</em> pays off: it is the thing worth acting on.</li>
+      <li><strong>Finished steps carry a tick.</strong> The coach can see where the athlete stopped, which usually says which exercise was the problem.</li>
+      <li><strong>Editing is allowed until the athlete starts.</strong> After that the structure locks &mdash; changing steps mid-workout could pull one out from under someone who already did it. The lock states its reason and points at the thread.</li>
+      <li>Drag handles, remove buttons, <em>Add step</em> and <em>Send</em> are all suppressed; the footer becomes <strong>Message Anna</strong>.</li>
+    </ul>
+    <p class="note">Entry: <code>self-paced.html?read=&lt;steps-done&gt;#s-setup</code> from <code>clients.html#s-client-selfpaced</code>.</p>
+  </div>
+
   <div class="ann" id="ann-s-step-brief"><span class="ann-role athlete">Athlete</span>
     <div class="state-toggle">
       <button class="active" onclick="spGoStep(0)">First step</button>
@@ -1599,6 +1644,8 @@ window.addEventListener('DOMContentLoaded', function(){
   var q = new URLSearchParams(location.search);
   if (q.get('as') === 'coach') spThread('coach', q.get('st') || 'requested');
   // Coach-scoped entry: My self-paced opened from a Coach Detail carries ?c=<coach> → show filter chip
+  var rd = new URLSearchParams(location.search).get('read');
+  if (rd !== null) spSetupRead(parseInt(rd, 10) || 0);
   var sched = new URLSearchParams(location.search).get('scheduled');
   if (sched) { var sw=document.getElementById('sp-sched-when'); if(sw) sw.textContent='Thu, Apr 17 at '+sched; spSchedState('set'); spSnack('Added to your calendar \u00b7 '+sched); }
   var off = new URLSearchParams(location.search).get('offering');
@@ -1608,6 +1655,35 @@ window.addEventListener('DOMContentLoaded', function(){
 });
 // The builder has two doors: the hub (athlete bought it) and the coach-initiated assign from a
 // client's self-paced list, which arrives with ?offering=. Back must return to the door used.
+// Read mode: the coach opening an assignment they already sent. `done` = how many steps the
+// athlete has finished, which also decides whether editing is still allowed.
+function spSetupRead(done){
+  var el = document.getElementById('s-setup');
+  el.classList.add('sp-read');
+  document.getElementById('sp-setup-title').textContent = 'Anna\u2019s workout';
+  el.querySelectorAll('.sp-step').forEach(function(st, k){ st.classList.toggle('st-done', k < done); });
+  // Editing is safe only before the athlete starts — afterwards a step they already did could
+  // disappear under them. Once started, the structure is locked and the thread carries the rest.
+  // the progress line was static markup and claimed "1 of 3" even for an untouched assignment
+  var prog = document.getElementById('sp-progress');
+  if (prog) {
+    prog.innerHTML = done === 0
+      ? 'Not started yet'
+      : 'Started &middot; <b>' + done + ' of 3</b> done &middot; stalled 2 days';
+    prog.classList.toggle('sp-status-warn', done > 0);
+  }
+  var canEdit = done === 0;
+  var edit = document.getElementById('sp-edit-btn');
+  if (edit) edit.style.display = canEdit ? '' : 'none';
+  var warn = document.getElementById('sp-lock-note');
+  if (warn) warn.style.display = canEdit ? 'none' : '';
+  go('s-setup', null);
+}
+function spSetupEditMode(){
+  var el = document.getElementById('s-setup');
+  el.classList.remove('sp-read');
+  document.getElementById('sp-setup-title').textContent = 'Set up for Anna';
+}
 function spSetupBack(){
   if (new URLSearchParams(location.search).get('offering')) { history.back(); return; }
   go('s-queue', null);
