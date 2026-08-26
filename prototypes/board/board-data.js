@@ -2558,7 +2558,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-clients",
-          "hash": "424afbcd91f8",
+          "hash": "9bd1999e5819",
           "title": "Clients",
           "inApp": "Clients",
           "status": "canon",
@@ -2591,7 +2591,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-client-detail",
-          "hash": "638bbe18a4af",
+          "hash": "f7fb8bccc973",
           "title": "Client Detail",
           "inApp": "",
           "status": "canon",
@@ -2637,7 +2637,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-client-selfpaced",
-          "hash": "3998274908c1",
+          "hash": "1e9d937390f9",
           "title": "Client Self-paced",
           "inApp": "Self-paced",
           "status": "canon",
@@ -2667,7 +2667,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-pkg-detail",
-          "hash": "24750035d2e7",
+          "hash": "36061bdf7767",
           "title": "Package Detail",
           "inApp": "Package",
           "status": "canon",
@@ -2687,7 +2687,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-pkg-history",
-          "hash": "ee4806981dfe",
+          "hash": "8269461c7d2d",
           "title": "Package History",
           "inApp": "Activity",
           "status": "canon",
@@ -2707,7 +2707,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-client-history",
-          "hash": "5990fae6fb25",
+          "hash": "59611c6ef1be",
           "title": "Client History",
           "inApp": "Training history",
           "status": "canon",
@@ -2733,7 +2733,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-archived",
-          "hash": "53f503cabd38",
+          "hash": "16c923d0ca4c",
           "title": "Archived & Blocked",
           "inApp": "Archived & Blocked",
           "status": "canon",
@@ -2752,7 +2752,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-client-notes-editor",
-          "hash": "ed7311282706",
+          "hash": "079d0f82a7a4",
           "title": "Client Notes Editor",
           "inApp": "",
           "status": "canon",
@@ -2771,7 +2771,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-create-client",
-          "hash": "e5d2fcae7487",
+          "hash": "e3a15dfb287d",
           "title": "Create Client",
           "inApp": "New client",
           "status": "canon",
@@ -2790,7 +2790,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-crm-addr-pick",
-          "hash": "96e7ef4f612e",
+          "hash": "32757fb843c8",
           "title": "s-crm-addr-pick",
           "inApp": "",
           "status": "canon",
@@ -2810,7 +2810,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-crm-addr-form",
-          "hash": "0f93541452b8",
+          "hash": "900cd5c527d3",
           "title": "Home address",
           "inApp": "Home address",
           "status": "canon",
@@ -2830,7 +2830,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-import-contacts",
-          "hash": "fbc89db6f387",
+          "hash": "12f8663991a7",
           "title": "Import Contacts",
           "inApp": "Import contacts",
           "status": "canon",
@@ -2850,7 +2850,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-import-done",
-          "hash": "3d6c5045c19f",
+          "hash": "2e23d12d466d",
           "title": "Import Done",
           "inApp": "",
           "status": "canon",
@@ -3276,7 +3276,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-create",
-          "hash": "731fecf1a6d8",
+          "hash": "dfa06bdfb680",
           "title": "Create Session",
           "inApp": "Training session setup",
           "status": "canon",
@@ -3323,7 +3323,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-list",
-          "hash": "fce0c0225a30",
+          "hash": "381ff3281bd3",
           "title": "My Sessions",
           "inApp": "My training sessions",
           "status": "canon",
@@ -3349,7 +3349,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-detail-group",
-          "hash": "b291efb8ca4b",
+          "hash": "470795a42aec",
           "title": "Detail — Group",
           "inApp": "HIIT Group Session",
           "status": "canon",
@@ -3374,7 +3374,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-detail-personal",
-          "hash": "44bf89348aaa",
+          "hash": "23bb90384949",
           "title": "Detail — Personal",
           "inApp": "Basketball Training",
           "status": "canon",
@@ -3400,7 +3400,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-detail-selfpaced",
-          "hash": "823c9594f47a",
+          "hash": "2655a0655016",
           "title": "Detail — Self-paced",
           "inApp": "Tennis self-paced",
           "status": "canon",
@@ -3424,7 +3424,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-series",
-          "hash": "465e9a28de05",
+          "hash": "26109a36ad57",
           "title": "Series detail",
           "inApp": "Tue & Thu · 18:00",
           "status": "canon",
@@ -3452,7 +3452,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-edit",
-          "hash": "75d0faa0e7ef",
+          "hash": "ce347a4ac7ea",
           "title": "Edit template",
           "inApp": "Edit training session",
           "status": "canon",
@@ -3475,7 +3475,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "pkg-pick",
-          "hash": "ff563072971b",
+          "hash": "ada5ce89aea1",
           "title": "Pick session (create)",
           "inApp": "Choose a session",
           "status": "canon",
@@ -3495,7 +3495,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "pkg-editor",
-          "hash": "755ba111cbc9",
+          "hash": "653821e85bf0",
           "title": "Package detail",
           "inApp": "New package",
           "status": "canon",
@@ -3534,7 +3534,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "pkg-tier-edit",
-          "hash": "2371e5d4b680",
+          "hash": "027233feb0ef",
           "title": "Package tier edit",
           "inApp": "New package tier",
           "status": "canon",

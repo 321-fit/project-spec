@@ -1119,27 +1119,29 @@
 
   <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" data-a11y-id="coach.client.self-paced.assign-cta" onclick="csAssign()">Assign self-paced</button></div>
 
-  <!-- Offering picker - only appears when there is a genuine choice. One decision, then the
-       builder; the day lives in the builder, so this sheet does not ask for it twice.
-       MUST stay inside its .fit-phone or the overlay spills across the whole page. -->
+  <!-- Offering picker. Stays a sheet rather than pushing the templates catalogue: the coach is
+       mid-task on a client's screen, and #s-list is a MANAGEMENT screen (tap -> detail -> edit),
+       not a picker — turning it into one changes what it means and navigates away from the
+       client. The realistic range is 1-3 offerings (spec §8: one generic offering for v1), and
+       at exactly one this sheet never appears at all. Rows are generated, so N works; past six
+       it hands off to the filtered catalogue instead of growing forever. -->
   <div class="fit-sheet-overlay" id="cs-assign-sheet" onclick="if(event.target===this)this.classList.remove('visible')">
     <div class="fit-sheet compact">
       <div class="fit-sheet-handle"></div>
       <div style="font-size:18px;font-weight:600;margin-bottom:4px;">Assign self-paced</div>
       <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:18px;">Which one are you building for Anna? You&rsquo;ll set the steps and the day next.</div>
 
-      <button class="fit-sheet-action-row" data-a11y-id="coach.client.self-paced.assign.offering" onclick="csAssignPick('Tennis self-paced')">
-        <div class="fit-sheet-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg></div>
+      <div id="cs-assign-list" style="max-height:264px;overflow-y:auto;-webkit-overflow-scrolling:touch;"></div>
+
+      <!-- Outside the scroller on purpose: the overflow door is useless if it is the thing you
+           have to scroll past the overflow to find. -->
+      <div id="cs-assign-seeall"></div>
+
+      <button class="fit-sheet-action-row" data-a11y-id="coach.client.self-paced.assign.new" onclick="csAssignNew()" style="margin-top:8px;">
+        <div class="fit-sheet-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div>
         <div class="fit-sheet-action-body">
-          <div class="fit-sheet-action-title">Tennis self-paced</div>
-          <div class="fit-sheet-action-sub">&euro;12 &middot; ~15 min</div>
-        </div>
-      </button>
-      <button class="fit-sheet-action-row" data-a11y-id="coach.client.self-paced.assign.offering" onclick="csAssignPick('Recovery flow')">
-        <div class="fit-sheet-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg></div>
-        <div class="fit-sheet-action-body">
-          <div class="fit-sheet-action-title">Recovery flow</div>
-          <div class="fit-sheet-action-sub">&euro;10 &middot; ~20 min</div>
+          <div class="fit-sheet-action-title">New self-paced offering</div>
+          <div class="fit-sheet-action-sub">Build a new one for the catalogue</div>
         </div>
       </button>
 
@@ -1150,6 +1152,7 @@
 
       <button style="width:100%;height:50px;margin-top:12px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cs-assign-sheet').classList.remove('visible')">Cancel</button>
     </div>
+  </div>
   </div>
 </div>
 
@@ -1768,12 +1771,18 @@
       <button class="active" onclick="csClearOffer();this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));this.classList.add('active');">All self-paced</button>
       <button onclick="csSetOffer('Tennis self-paced');this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));this.classList.add('active');">Scoped to an offering</button>
     </div>
+    <div class="state-toggle">
+      <button onclick="csDemoOfferings(1,this)">Assign &middot; 1 offering</button>
+      <button class="active" onclick="csDemoOfferings(3,this)">3</button>
+      <button onclick="csDemoOfferings(8,this)">8 &rarr; see all</button>
+    </div>
     <p>Every self-paced session this client ever bought, grouped by who owes the next move. An offering is bought many times over, so this &mdash; not the newest instance &mdash; is what a coach lands on when tapping a person anywhere.</p>
     <ul>
       <li><strong>Two doors, one list.</strong> From <em>Client Detail</em> it opens unscoped (all offerings). From <em>Sessions &rarr; Self-paced offering &rarr; an athlete</em> it opens with <code>?sp=&lt;offering&gt;</code>: a chip scopes the list to that programme and one tap on the &times; widens it. Same pattern as the athlete&rsquo;s coach chip on <code>self-paced.html#s-list</code>.</li>
       <li><strong>The person header is a door</strong> &mdash; tap the name to land in Client Detail. Coaches arriving from an offering know the programme, not the client.</li>
       <li><strong>Rows route by state:</strong> <em>To review</em> &rarr; the review screen; everything else &rarr; the comments thread, which is where the clip, the athlete&rsquo;s intensity/technique report and the coach&rsquo;s written feedback already live as anchor messages. No separate read-only review screen.</li>
       <li><strong>Done rows say whether there is a clip</strong> &mdash; re-watching the video is the reason a coach reopens a finished session.</li>
+      <li><strong>The picker stays a sheet, deliberately.</strong> The coach is mid-task on a client&rsquo;s screen, and <code>sessions.html#s-list</code> is a <em>management</em> screen &mdash; tap, detail, edit &mdash; not a picker; turning it into one changes what it means and navigates away from the client. The realistic range is 1&ndash;3 offerings (spec &sect;8: one generic offering for v1), and at exactly one the sheet never appears. Rows are <strong>generated</strong>, so any N renders and the list scrolls; past <strong>six</strong> the last row becomes <em>See all N self-paced</em> &rarr; the catalogue filtered to this type. A <strong>New self-paced offering</strong> row goes to the create form with the type pre-selected &mdash; without it a coach who realises they need a new one is in a dead end.</li>
       <li><strong>Footer CTA &ldquo;Assign self-paced&rdquo;</strong> &mdash; straight into the builder when the offering is already known (chip on, or a single offering); otherwise the offering picker sheet first. Client Detail&rsquo;s <em>Assign self-paced</em> row lands here with that sheet open, so cancelling leaves the coach on a useful screen.</li>
       <li><strong>Cancelled</strong> rows are inert and carry the refund reason. <em>Refunded</em> is the only state pill allowed here &mdash; an orthogonal flag, not a restatement of the header (a cancelled session is not always refunded).</li>
     </ul>
@@ -2622,13 +2631,72 @@ function csClearOffer() {
 
 // Assign from the per-client list. Offering already known (scoped by chip) -> straight into the
 // builder; otherwise pick it first. A coach with a single offering never sees the sheet.
-var CS_OFFERINGS = ['Tennis self-paced', 'Recovery flow'];
+var CS_OFFERINGS = [
+  { name: 'Tennis self-paced', price: '\u20ac12', time: '~15 min' },
+  { name: 'Recovery flow',     price: '\u20ac10', time: '~20 min' },
+  { name: 'Mobility basics',   price: '\u20ac12', time: '~20 min' }
+];
+// Past this many the sheet stops being the right shape and hands off to the catalogue, filtered
+// to self-paced. Below it, a scrolling sheet beats navigating away from the client.
+var CS_SHEET_MAX = 6;
+
 function csAssign() {
   var f = document.getElementById('cs-offer-filter');
   var scoped = f && f.style.display !== 'none';
-  if (scoped || CS_OFFERINGS.length === 1) return csAssignPick(scoped ? document.getElementById('cs-offer-name').textContent : CS_OFFERINGS[0]);
-  var sheet = document.getElementById('cs-assign-sheet');
-  if (sheet) sheet.classList.add('visible');
+  // Scoped by chip, or only one offering exists -> there is nothing to pick.
+  if (scoped) return csAssignPick(document.getElementById('cs-offer-name').textContent);
+  if (CS_OFFERINGS.length === 1) return csAssignPick(CS_OFFERINGS[0].name);
+  csRenderOfferings();
+  document.getElementById('cs-assign-sheet').classList.add('visible');
+}
+
+var CS_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg>';
+
+function csRenderOfferings() {
+  var box = document.getElementById('cs-assign-list');
+  if (!box) return;
+  var shown = CS_OFFERINGS.slice(0, CS_SHEET_MAX);
+  box.innerHTML = shown.map(function (o) {
+    return '<button class="fit-sheet-action-row" data-a11y-id="coach.client.self-paced.assign.offering" onclick="csAssignPick(' + JSON.stringify(o.name).replace(/"/g, '&quot;') + ')">' +
+      '<div class="fit-sheet-action-icon">' + CS_ICON + '</div>' +
+      '<div class="fit-sheet-action-body"><div class="fit-sheet-action-title">' + o.name + '</div>' +
+      '<div class="fit-sheet-action-sub">' + o.price + ' \u00b7 ' + o.time + '</div></div></button>';
+  }).join('');
+  var more = document.getElementById('cs-assign-seeall');
+  more.innerHTML = '';
+  if (CS_OFFERINGS.length > CS_SHEET_MAX) {
+    more.innerHTML = '<button class="fit-sheet-action-row" data-a11y-id="coach.client.self-paced.assign.see-all" onclick="csAssignSeeAll()" style="margin-top:8px;">' +
+      '<div class="fit-sheet-action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>' +
+      '<div class="fit-sheet-action-body"><div class="fit-sheet-action-title">See all ' + CS_OFFERINGS.length + ' self-paced</div>' +
+      '<div class="fit-sheet-action-sub">Open the catalogue, filtered to this type</div></div></button>';
+  }
+}
+
+// Dead end otherwise: a coach who realises they need a new offering had to back all the way out.
+function csAssignNew() {
+  document.getElementById('cs-assign-sheet').classList.remove('visible');
+  window.location.href = './sessions.html?new=selfpaced#s-create';
+}
+function csAssignSeeAll() {
+  document.getElementById('cs-assign-sheet').classList.remove('visible');
+  window.location.href = './sessions.html?only=selfpaced#s-list';
+}
+// Demo: how many offerings this coach sells. 1 skips the sheet, 3 is the realistic case,
+// 8 crosses CS_SHEET_MAX and hands off.
+function csDemoOfferings(n, btn) {
+  if (btn) { btn.parentElement.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); }); btn.classList.add('active'); }
+  var pool = [
+    { name: 'Tennis self-paced', price: '\u20ac12', time: '~15 min' },
+    { name: 'Recovery flow',     price: '\u20ac10', time: '~20 min' },
+    { name: 'Mobility basics',   price: '\u20ac12', time: '~20 min' },
+    { name: 'Core circuit',      price: '\u20ac10', time: '~12 min' },
+    { name: 'Ankle prehab',      price: '\u20ac9',  time: '~10 min' },
+    { name: 'Shoulder reset',    price: '\u20ac10', time: '~15 min' },
+    { name: 'Serve drills',      price: '\u20ac14', time: '~25 min' },
+    { name: 'Footwork ladder',   price: '\u20ac12', time: '~18 min' }
+  ];
+  CS_OFFERINGS = pool.slice(0, n);
+  csAssign();
 }
 function csAssignPick(offering) {
   var sheet = document.getElementById('cs-assign-sheet');

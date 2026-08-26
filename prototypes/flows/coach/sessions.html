@@ -1038,7 +1038,7 @@
     <div id="sl-pane-sessions">
     <!-- === DEFAULT STATE: list of templates === -->
     <div data-list-state="default">
-    <div class="fit-section-title--md" style="margin-top:4px;">Personal</div>
+    <div class="fit-section-title--md sl-sec" data-type="personal" style="margin-top:4px;">Personal</div>
     <!-- Personal: Basketball -->
     <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;" onclick="go('s-detail-personal',null)">
       <div style="background:var(--fit-grad-type-personal);padding:14px 16px;display:flex;align-items:center;gap:12px;">
@@ -1060,7 +1060,7 @@
       </div>
     </div>
 
-    <div class="fit-section-title--md">Group</div>
+    <div class="fit-section-title--md sl-sec" data-type="group">Group</div>
     <!-- Group: HIIT -->
     <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;" onclick="go('s-detail-group',null)">
       <div style="background:var(--fit-grad-type-group);padding:14px 16px;display:flex;align-items:center;gap:12px;">
@@ -1111,7 +1111,7 @@
       </div>
     </div>
 
-    <div class="fit-section-title--md">Self-paced</div>
+    <div class="fit-section-title--md sl-sec" data-type="selfpaced">Self-paced</div>
     <!-- Self-paced: Tennis (online, day-bound, no location) -->
     <div class="v6d-card" style="margin:0 16px 12px;border-radius:16px;overflow:hidden;cursor:pointer;" onclick="go('s-detail-selfpaced',null)">
       <div style="background:var(--fit-grad-type-selfpaced);padding:14px 16px;display:flex;align-items:center;gap:12px;">
@@ -1120,7 +1120,7 @@
         </div>
         <div style="flex:1;">
           <div style="font-size:16px;font-weight:600;">Tennis self-paced</div>
-          <div style="font-size:12px;opacity:0.7;">~15 min &middot; online</div>
+          <div style="font-size:12px;opacity:0.7;">~15 min &middot; self-paced</div>
         </div>
         <div style="text-align:right;display:flex;align-items:center;gap:8px;">
           <div class="v6d-price" style="font-size:16px;font-weight:600;color:var(--fit-white);">&euro;12</div>
@@ -1960,7 +1960,7 @@
         <div class="v6d-icon-box" style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg>
         </div>
-        <div style="flex:1;"><div style="font-size:16px;font-weight:600;">Tennis self-paced</div><div style="font-size:12px;opacity:0.7;">~15 min &middot; online</div></div>
+        <div style="flex:1;"><div style="font-size:16px;font-weight:600;">Tennis self-paced</div><div style="font-size:12px;opacity:0.7;">~15 min &middot; self-paced</div></div>
         <div style="text-align:right;display:flex;align-items:center;gap:8px;"><div style="font-size:16px;font-weight:600;color:var(--fit-white);">&euro;12</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
       </div>
     </div>
@@ -2553,6 +2553,50 @@ function changeDuration(item) {
 
 // === CREATE SESSION: show/hide logic ===
 document.addEventListener('DOMContentLoaded', () => {
+// Overflow door from the assign sheet: the catalogue filtered to one type. Everything between
+// a section header and the next one belongs to it, so the filter walks siblings instead of
+// needing every card tagged.
+(function(){
+  var only = new URLSearchParams(location.search).get('only');
+  if (!only) return;
+  window.addEventListener('DOMContentLoaded', function(){
+    setTimeout(function(){
+      document.querySelectorAll('#s-list .sl-sec').forEach(function(sec){
+        var keep = sec.dataset.type === only, el = sec;
+        while (el) {
+          var next = el.nextElementSibling;
+          el.style.display = keep ? '' : 'none';
+          if (!next || next.classList.contains('sl-sec')) break;
+          el = next;
+        }
+      });
+      var t = document.querySelector('#s-list .fit-header-title');
+      if (t) t.textContent = 'Choose a self-paced';
+      // Picking is not browsing: Packages has nothing to offer, and neither does "add".
+      var seg = document.querySelector('#s-list .fit-segmented');
+      if (seg) seg.style.display = 'none';
+      var add = document.querySelector('#s-list [data-a11y-id="coach.sessions.add"]');
+      if (add) add.style.visibility = 'hidden';
+      go('s-list', document.querySelector('.sidebar [onclick*="s-list"]'));
+    }, 60);
+  });
+})();
+
+// Entered as "New self-paced offering" from the assign sheet on a client: pre-select the type
+// so the coach lands on the right form instead of on Personal with a chip to find.
+(function(){
+  var want = new URLSearchParams(location.search).get('new');
+  if (!want) return;
+  window.addEventListener('DOMContentLoaded', function(){
+    setTimeout(function(){
+      var chip = document.querySelector('#type-toggle [data-value="' + want + '"]');
+      if (chip) chip.click();
+      var btn = document.querySelector('.sidebar [onclick*="s-create"]');
+      go('s-create', btn);
+    }, 60);
+  });
+})();
+
   const typeToggle = document.getElementById('type-toggle');
   const groupFields = document.getElementById('group-fields');
   const priceLabel = document.getElementById('price-label');
