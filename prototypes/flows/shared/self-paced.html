@@ -121,18 +121,31 @@
   .sp-timer-cap { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
   /* Player (Freeletics-style): full-bleed media, bottom-left metric, one segment bar */
   #s-player .fit-phone-content { padding: 0 !important; display: flex; flex-direction: column; }
-  /* Capped, not flex:1. The video used to eat ~55% of the screen and show a static frame while
-     the athlete was mid-set — they are on the floor doing the move, not watching. Now that the
-     step brief carries the demo, in-set media is a reference glance, so the metric gets the room
-     and the session rail stops being squeezed off the bottom edge. */
-  .plf-media { flex: 0 0 auto; height: 38%; min-height: 0; position: relative; display: flex; align-items: center; justify-content: center; background: var(--fit-gray-100); overflow: hidden; }
-  #s-player.pl-rest .plf-media { height: 46%; }
+  /* Full-bleed and TALL on purpose: coaches film vertically on a phone and athletes watch on
+     one, so a capped strip letterboxes the clip and pays for it in dead space. The metric goes
+     ON the media instead of under it — same room for both, no cropping. */
+  .plf-media { flex: 1; min-height: 0; position: relative; display: flex; align-items: center; justify-content: center; background: var(--fit-gray-100); overflow: hidden; }
   .plf-exvis { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
   .plf-exvis .ph { position: absolute; inset: 0; }
   .plf-exvis .play { position: relative; width: 46px; height: 46px; opacity: 0.92; }
   #s-player.pl-rest .plf-exvis { display: none; }
   #s-player.pl-rest .plf-media { background: var(--fit-screen-bg); }
-  .plf-bottom { flex: 1; min-height: 0; padding: 22px 22px 6px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
+  /* Overlaid on the clip, with a scrim so it stays readable over any frame. */
+  .plf-bottom { position: absolute; left: 0; right: 0; bottom: 0; padding: 40px 22px 20px; box-sizing: border-box; z-index: 2;
+    background: linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0.45) 55%, rgba(0,0,0,0)); }
+  .plf-bottom .plf-metric, .plf-bottom .plf-name { color: #fff; }
+  .plf-bottom .plf-unit, .plf-bottom .plf-detail { color: rgba(255,255,255,0.78); }
+  .plf-bottom .plf-next { color: rgba(255,255,255,0.62); }
+  .plf-bottom .plf-sets i { background: rgba(255,255,255,0.35); }
+  .plf-bottom .plf-sets i.done, .plf-bottom .plf-sets i.cur { background: #fff; }
+  .plf-bottom .plf-sets i.cur { box-shadow: 0 0 0 4px rgba(255,255,255,0.25); }
+  .plf-bottom .plf-sets span { color: rgba(255,255,255,0.78); }
+  /* Rest has no clip — light background, centred ring — so the scrim comes off and the text
+     goes back to normal colours. */
+  #s-player.pl-rest .plf-bottom { position: static; background: none; padding: 18px 22px 6px; }
+  #s-player.pl-rest .plf-bottom .plf-name { color: var(--fit-text-primary); }
+  #s-player.pl-rest .plf-bottom .plf-detail { color: var(--fit-text-secondary); }
+  #s-player.pl-rest .plf-bottom .plf-next { color: var(--fit-text-tertiary); }
   .plf-metric { font-size: 60px; font-weight: 700; line-height: 1; color: var(--fit-text-primary); font-variant-numeric: tabular-nums; }
   /* Rest = centered ring inside the (blank) media area */
   .plf-rest-ring { display: none; flex-direction: column; align-items: center; justify-content: center; width: 200px; height: 200px; border-radius: 50%; border: 5px solid var(--fit-divider); }
@@ -159,7 +172,9 @@
   .sb-done { display: flex; align-items: center; gap: 7px; padding: 0 22px 12px; font-size: 14px; font-weight: 500; color: var(--fit-teal-600); }
   .fit-dark .sb-done { color: var(--fit-teal-400); }
   .sb-done svg { width: 17px; height: 17px; flex-shrink: 0; }
-  .sb-media { margin: 0 22px; border-radius: 16px; overflow: hidden; aspect-ratio: 16/10; position: relative; display: flex; align-items: center; justify-content: center; background: var(--fit-gray-200); }
+  /* Portrait, like everything else that gets filmed on a phone. Capped so the cues below it
+     stay on screen without scrolling. */
+  .sb-media { margin: 0 auto; max-width: calc(100% - 44px); border-radius: 16px; overflow: hidden; aspect-ratio: 4/5; max-height: 36vh; position: relative; display: flex; align-items: center; justify-content: center; background: var(--fit-gray-200); }
   .sb-media .ph { position: absolute; inset: 0; }
   .sb-media .play { position: relative; width: 44px; height: 44px; opacity: 0.95; }
   .sb-media .loop { position: absolute; left: 10px; bottom: 10px; font-size: 11px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: #fff; background: rgba(0,0,0,0.4); padding: 3px 8px; border-radius: 6px; }
@@ -1142,7 +1157,7 @@
       <button class="fit-icon-btn" aria-label="Message coach" onclick="go('s-comments',null)" style="margin-left:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></button>
     </div>
   </div>
-  <div class="fit-phone-content">
+  <div class="fit-phone-content" style="position:relative;">
     <!-- Where you are in the whole workout. At the bottom it was being clipped by the footer,
          and it carried no step context at all — the player never said which exercise of how many. -->
     <div class="plf-top">

@@ -208,13 +208,19 @@ both collected by the step editor since day one — were displayed to **nobody**
   (too hard? cue unclear?) worth acting on. A live progress bar was rejected and its dead
   `.td-prog` CSS deleted: a bar turns an unfinished attempt into a watch-metric, where a stated
   fact reads as information.
-- **Player layout (reshaped 2026-08-26).** Media was `flex:1` and ate ~55% of the screen showing
-  a static frame while the athlete was mid-set — they are on the floor doing the move, not
-  watching. Now the brief carries the demo, so in-set media is capped at 38% and the metric
-  block takes the room. The session rail moved to the **top** (at the bottom it was clipped by
-  the footer) and now carries step context. `12×` became `12` over a `REPS` label — the unit was
-  a grey subscript on the baseline and read as an unfinished sum. Set dots replaced "Set 3 of 4"
-  as prose, which needs reading mid-exercise.
+- **Video is portrait everywhere, and that is deliberate.** Coaches film on a phone and athletes
+  watch on one, so both the in-set media and the brief's demo are vertical. Capping the player's
+  media to a short strip letterboxes the clip *and* pays for it in dead space — the first attempt
+  at this reshape did exactly that and was reverted. The player keeps **full-bleed** media and
+  the metric block is **overlaid on it** behind a scrim, so both get the full height instead of
+  splitting it. Rest has no clip, so the scrim comes off there and the text returns to normal
+  colours. On the brief the demo is portrait (4:5), height-capped so the cues stay on screen
+  without scrolling, and centred rather than left-aligned.
+- **Player layout (reshaped 2026-08-26).** The session rail moved to the **top** — at the bottom
+  the footer clipped it — and now carries step context, which the player never had. `12×` became
+  `12` over a `REPS` label: the unit was a grey subscript sitting on the numeral's baseline and
+  read as an unfinished sum. Set dots replaced "Set 3 of 4" as prose, which needs reading
+  mid-exercise.
 
 ---
 
