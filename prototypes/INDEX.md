@@ -74,7 +74,7 @@ Path root: `project-spec/prototypes/flows/`
 | `voice-assistant.html` | Voice assistant (canvas, athlete+coach views) | assistant surfaces |
 | `self-paced.html` | Self-paced training builder (WIP) | step-builder flows |
 | `profile.html` | Coach profile (shared variant) | — |
-| `assistant-entry.html` | **Assistant entry points (WIP, proposal)** — Chats tab (assistant pinned) &middot; request drawer with **circle actions** &middot; assistant opened **with visible context** + acting on it &middot; entry from a client card (in `…`) | sheets with 3–5 peer actions; any "hand this object to the assistant" surface |
+| `assistant-entry.html` | **Contextual AI quick starts (WIP, proposal)** — audited map of **8 coach + 4 athlete** high-friction screens, each linking to the real prototype. Every point has two board states: **“AI · 3 contextual quick actions”** and **“AI · full-screen chat from first action”**. Generic feature questions were removed; each action now performs a task or diagnoses hidden state on the current screen. The header **×** hides only this screen's bubble until the app session restarts; **“Hide quick starts”** disables all bubbles and is reversible from **Settings → Assistance → AI quick starts**. Schedule Calendar and Available Hours intentionally have no AI FAB; Calendar Sync keeps one because account direction and sync failures are high-friction. | complex screens where users need a contextual way to start a dialogue about using the app |
 | `calendar-legend.html` | **Calendar legend** — every tile state, zone type + colour rules, both themes (`?` sheet from the calendar header) | any legend / key surface |
 
 ### Journeys (`journeys/`)

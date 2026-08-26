@@ -621,9 +621,311 @@
   }
 
   // ============================================================
+  // CONTEXTUAL AI ENTRY — three screen-specific conversation starters
+  // Usage: <div class="fit-phone" data-fit-guide="coach-client"
+  //             data-fit-guide-bottom="82">...</div>
+  // The selected starter opens a dedicated full-screen assistant conversation
+  // and becomes its first user message. Different context keys always produce
+  // different prompt sets.
+  // ============================================================
+  const GUIDE_CONTEXTS = {
+    'coach-client': {
+      title: 'Manage this client', suggested: 'Quick actions', items: [
+        ['Schedule a training with this client', 'I’ll set it up. Which training template should I use, and when should it happen?'],
+        ['Add this client to a group', 'Which group should I add them to? I can show the available groups and update the membership.'],
+        ['Show this client’s training history', 'I’ll open the full history for this client, including completed, cancelled and missed sessions.']
+      ]
+    },
+    'coach-sessions': {
+      title: 'Create a training template', suggested: 'Quick actions', items: [
+        ['Help me create a training template', 'Absolutely. I’ll build it with you. First, should this template be Personal, Group or Self-paced?'],
+        ['Create a group template from my description', 'Describe the training in one message. I’ll fill in its name, duration, price and participant limits for you.'],
+        ['Create a package for this training', 'Save the template first, then I’ll help you choose the number of sessions and package price.']
+      ]
+    },
+    'coach-group-schedule': {
+      title: 'Manage this group schedule', suggested: 'Quick actions', items: [
+        ['Create a training for this group', 'I can set that up. Which training template should I use, and when should the first session happen?'],
+        ['Make this group repeat every week', 'Tell me the weekday, start time and optional end date. I’ll create the recurring schedule.'],
+        ['Add a one-off training date', 'Send me the date, start time and training template. I’ll add it without changing the recurring schedule.']
+      ]
+    },
+    'coach-earnings': {
+      title: 'Manage earnings and payouts', suggested: 'Quick actions', items: [
+        ['Withdraw my available balance', 'How much would you like to withdraw, and which connected payout method should receive it?'],
+        ['Show why payouts are pending', 'I’ll inspect the pending items and explain what each one is waiting for.'],
+        ['Change my payout details', 'I can help update them. Which payout method do you want to change: your bank account or debit card?']
+      ]
+    },
+    'coach-stripe': {
+      title: 'Complete payout setup', suggested: 'Quick actions', items: [
+        ['Help me finish Stripe setup', 'I’ll check what is already complete and guide you through the remaining requirements in order.'],
+        ['Show which documents I still need', 'I’ll open the outstanding verification requirements and explain which document is accepted for each one.'],
+        ['Check why payouts are unavailable', 'I’ll check for missing information, verification reviews and payout-method issues.']
+      ]
+    },
+    'coach-package': {
+      title: 'Build this session package', suggested: 'Quick actions', items: [
+        ['Help me create this package', 'I’ll build it with you. How many sessions should the first tier include, and what discount do you want to offer?'],
+        ['Add a discounted 10-session tier', 'I’ll add a 10-session tier. Tell me the total price or the discount percentage you want.'],
+        ['Calculate package prices from my session rate', 'I’ll calculate clear 5- and 10-session options from the base rate, including the saving per session.']
+      ]
+    },
+    'self-paced-builder': {
+      title: 'Build a self-paced workout', suggested: 'Quick actions', items: [
+        ['Help me create a self-paced workout', 'Let’s build it together. What is the workout goal, athlete level and target duration?'],
+        ['Turn my plan into ordered steps', 'Send me your plan in any format. I’ll convert it into exercises with reps, timers and instructions.'],
+        ['Add timers and rest automatically', 'Tell me the work-to-rest pattern you want, or let me suggest one from the workout goal and level.']
+      ]
+    },
+    'coach-calendar-sync': {
+      title: 'Set up calendar sync', suggested: 'Quick actions', items: [
+        ['Connect my work calendar', 'I’ll start the Google Calendar connection and help you choose which calendars should block booking times.'],
+        ['Choose where 321Fit adds sessions', 'I’ll show the calendars from your connected accounts so you can choose the write destination.'],
+        ['Check why a session is missing from my calendar', 'I’ll check the write destination, account permissions and the latest sync error for your coaching calendar.']
+      ]
+    },
+    'athlete-search': {
+      title: 'Find and book a coach', suggested: 'Quick actions', items: [
+        ['Find a coach near me', 'Tell me the sport and how far you are willing to travel. I’ll apply the location filters for you.'],
+        ['Apply filters for what I need', 'Tell me your preferred language, location, coach gender or price range, and I’ll narrow these results.'],
+        ['Book a coach from these results', 'Tell me which coach you want. I’ll open their available training types and guide you to a time.']
+      ]
+    },
+    'athlete-booking': {
+      title: 'Book with this coach', suggested: 'Quick actions', items: [
+        ['Book a personal session with this coach', 'I’ll help you choose a personal training, find an available time and review the payment before sending the request.'],
+        ['Join the next group session', 'I’ll find the next group session with space and show its time, location and price before you join.'],
+        ['Book using my package credits', 'I’ll show which trainings your active package covers and use one credit for the booking.']
+      ]
+    },
+    'athlete-balance': {
+      title: 'Understand this payment', suggested: 'Quick actions', items: [
+        ['Explain this payment', 'This €25 payment covered the 1:1 Tennis session with Maria Rodriguez and was deducted from your 321Fit balance.'],
+        ['Show how it changed my balance', 'Your balance was €265 before this payment. €25 was deducted, leaving the €240 shown here.'],
+        ['Find this session in my schedule', 'I’ll open the Apr 21 session with Maria Rodriguez in your schedule.']
+      ]
+    },
+    'athlete-calendar-sync': {
+      title: 'Set up calendar sync', suggested: 'Quick actions', items: [
+        ['Connect my personal calendar', 'I’ll start the Google Calendar connection so your 321Fit bookings can avoid conflicts.'],
+        ['Choose where 321Fit adds bookings', 'I’ll show the calendars from your connected accounts so you can choose where bookings appear.'],
+        ['Check why a booking is missing from my calendar', 'I’ll check the write destination, account permissions and the latest sync error for your bookings.']
+      ]
+    }
+  };
+
+  const GUIDE_SPARK = '<svg class="fit-guide-spark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg>';
+  const GUIDE_CLOSE = '<svg class="fit-guide-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+  const GUIDE_CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>';
+  const GUIDE_STORAGE_KEY = 'fit.quickStarts.hidden';
+  const GUIDE_SESSION_KEY_PREFIX = 'fit.quickStarts.sessionHidden.';
+
+  function isGuideHidden() {
+    try { return localStorage.getItem(GUIDE_STORAGE_KEY) === '1'; }
+    catch (e) { return false; }
+  }
+
+  function isGuideSessionHidden(contextKey) {
+    try { return sessionStorage.getItem(GUIDE_SESSION_KEY_PREFIX + contextKey) === '1'; }
+    catch (e) { return false; }
+  }
+
+  function hideGuideForSession(host, guide, contextKey) {
+    try { sessionStorage.setItem(GUIDE_SESSION_KEY_PREFIX + contextKey, '1'); }
+    catch (e) {}
+    guide.classList.remove('open');
+    const fab = guide.querySelector('.fit-guide-fab');
+    if (fab) {
+      fab.setAttribute('aria-expanded', 'false');
+      fab.setAttribute('aria-label', 'Ask AI about this screen');
+    }
+    host.classList.add('fit-guide-page-hidden');
+  }
+
+  function updateGuideSetting(el) {
+    const enabled = !isGuideHidden();
+    el.classList.toggle('active', enabled);
+    el.setAttribute('aria-checked', enabled ? 'true' : 'false');
+    const sub = el.querySelector('[data-fit-guide-setting-sub]');
+    if (sub) sub.textContent = enabled
+      ? 'Show contextual help bubbles'
+      : 'Hidden · tap to show again';
+  }
+
+  function setGuideHidden(hidden) {
+    try { localStorage.setItem(GUIDE_STORAGE_KEY, hidden ? '1' : '0'); }
+    catch (e) {}
+    document.querySelectorAll('[data-fit-guide]').forEach(function(host) {
+      host.classList.toggle('fit-guide-hidden', hidden);
+      if (hidden) {
+        const guide = host.querySelector('.fit-guide');
+        if (guide) {
+          guide.classList.remove('open');
+          const fab = guide.querySelector('.fit-guide-fab');
+          if (fab) {
+            fab.setAttribute('aria-expanded', 'false');
+            fab.setAttribute('aria-label', 'Ask AI about this screen');
+          }
+        }
+      }
+    });
+    document.querySelectorAll('[data-fit-guide-setting]').forEach(updateGuideSetting);
+  }
+
+  function initGuideSetting(el) {
+    if (el._fitGuideSetting) return;
+    el._fitGuideSetting = true;
+    el.setAttribute('role', 'switch');
+    el.setAttribute('tabindex', '0');
+    updateGuideSetting(el);
+    function toggle() { setGuideHidden(!isGuideHidden()); }
+    el.addEventListener('click', toggle);
+    el.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggle();
+      }
+    });
+  }
+
+  function initGuide(host) {
+    if (host._fitGuide) return;
+    const contextKey = host.getAttribute('data-fit-guide');
+    const ctx = GUIDE_CONTEXTS[contextKey];
+    if (!ctx) return;
+    host._fitGuide = true;
+
+    const guide = document.createElement('div');
+    guide.className = 'fit-guide';
+    guide.setAttribute('data-fit-guide-widget', '');
+    const bottom = host.getAttribute('data-fit-guide-bottom');
+    if (bottom) guide.style.bottom = bottom + 'px';
+    guide.innerHTML =
+      '<div class="fit-guide-menu" role="dialog" aria-label="' + ctx.title + '">' +
+        '<div class="fit-guide-widget-head">' +
+          '<span class="fit-guide-widget-avatar">' + GUIDE_SPARK + '</span>' +
+          '<div class="fit-guide-widget-person"><div class="fit-guide-widget-name">321Fit Assistant</div><div class="fit-guide-widget-context"></div></div>' +
+          '<button class="fit-guide-widget-close" type="button" aria-label="Hide AI quick starts on this screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+        '</div>' +
+        '<div class="fit-guide-widget-body">' +
+          '<div class="fit-guide-welcome"><span class="fit-guide-welcome-av">' + GUIDE_SPARK + '</span><div class="fit-guide-welcome-bubble">What can I help you with on this screen?</div></div>' +
+          '<div class="fit-guide-suggested"></div>' +
+          '<div class="fit-guide-prompts"></div>' +
+          '<button class="fit-guide-dismiss" type="button">' +
+            '<span class="fit-guide-dismiss-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 10.7a2 2 0 0 0 2.7 2.7"/><path d="M9.9 4.2A10.8 10.8 0 0 1 12 4c5.5 0 9 5 9 5a15.3 15.3 0 0 1-2.1 2.6"/><path d="M6.6 6.6C4.3 8.1 3 10 3 10s3.5 5 9 5c1 0 2-.2 2.8-.5"/></svg></span>' +
+            '<span>Hide quick starts</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+      '<button class="fit-guide-fab" type="button" aria-label="Ask AI about this screen" aria-expanded="false">' + GUIDE_SPARK + GUIDE_CLOSE + '</button>';
+
+    const chat = document.createElement('section');
+    chat.className = 'fit-guide-chat-screen';
+    chat.setAttribute('aria-label', '321Fit Assistant chat');
+    chat.innerHTML =
+      '<div class="fit-guide-chat-status"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>' +
+      '<header class="fit-guide-chat-head">' +
+        '<button class="fit-guide-chat-back" type="button" aria-label="Back to ' + ctx.title + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>' +
+        '<span class="fit-guide-chat-avatar">' + GUIDE_SPARK + '</span>' +
+        '<div class="fit-guide-chat-person"><strong>321Fit Assistant</strong><span><i></i> Online · knows this screen</span></div>' +
+        '<button class="fit-guide-chat-more" type="button" aria-label="Chat options"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></button>' +
+      '</header>' +
+      '<div class="fit-guide-chat-context">' + GUIDE_SPARK + '<span></span></div>' +
+      '<div class="fit-guide-chat-messages">' +
+        '<div class="fit-guide-chat-day">Today</div>' +
+        '<div class="fit-guide-chat-message agent"><span class="fit-guide-chat-message-av">' + GUIDE_SPARK + '</span><div class="fit-guide-chat-bubble">Hi! I can help you use this part of 321Fit.</div></div>' +
+        '<div class="fit-guide-chat-message user"><div class="fit-guide-chat-bubble" data-fit-guide-user-msg></div></div>' +
+        '<div class="fit-guide-chat-message agent"><span class="fit-guide-chat-message-av">' + GUIDE_SPARK + '</span><div><div class="fit-guide-chat-bubble" data-fit-guide-agent-msg></div><div class="fit-guide-chat-time">Just now</div></div></div>' +
+      '</div>' +
+      '<div class="fit-guide-chat-compose">' +
+        '<button class="fit-guide-chat-add" type="button" aria-label="Add attachment">+</button>' +
+        '<input class="fit-guide-chat-input" type="text" placeholder="Message 321Fit Assistant…" aria-label="Message 321Fit Assistant">' +
+        '<button class="fit-guide-chat-send" type="button" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg></button>' +
+      '</div>';
+    chat.querySelector('.fit-guide-chat-context span:last-child').textContent = ctx.title;
+    host.appendChild(chat);
+
+    const prompts = guide.querySelector('.fit-guide-prompts');
+    guide.querySelector('.fit-guide-widget-context').textContent = ctx.title;
+    guide.querySelector('.fit-guide-suggested').textContent = ctx.suggested || 'Suggested questions';
+    guide.querySelector('.fit-guide-widget-close').addEventListener('click', function(e) {
+      e.stopPropagation();
+      hideGuideForSession(host, guide, contextKey);
+    });
+    guide.querySelector('.fit-guide-dismiss').addEventListener('click', function(e) {
+      e.stopPropagation();
+      setGuideHidden(true);
+    });
+    ctx.items.forEach(function(item) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'fit-guide-prompt';
+      btn.innerHTML = '<span></span>' + GUIDE_CHEV;
+      btn.querySelector('span').textContent = item[0];
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        chat.querySelector('[data-fit-guide-user-msg]').textContent = item[0];
+        chat.querySelector('[data-fit-guide-agent-msg]').textContent = item[1];
+        guide.classList.remove('open');
+        fab.setAttribute('aria-expanded', 'false');
+        chat.classList.add('active');
+        host.classList.add('fit-guide-chat-active');
+      });
+      prompts.appendChild(btn);
+    });
+
+    const fab = guide.querySelector('.fit-guide-fab');
+    fab.addEventListener('click', function(e) {
+      e.stopPropagation();
+      document.querySelectorAll('.fit-guide.open').forEach(function(other) {
+        if (other !== guide) other.classList.remove('open');
+      });
+      const open = guide.classList.toggle('open');
+      fab.setAttribute('aria-expanded', open ? 'true' : 'false');
+      fab.setAttribute('aria-label', open ? 'Close AI quick starts' : 'Ask AI about this screen');
+    });
+    chat.querySelector('.fit-guide-chat-back').addEventListener('click', function(e) {
+      e.stopPropagation();
+      chat.classList.remove('active');
+      host.classList.remove('fit-guide-chat-active');
+    });
+    const send = chat.querySelector('.fit-guide-chat-send');
+    const input = chat.querySelector('.fit-guide-chat-input');
+    function sendFollowUp() {
+      const value = input.value.trim();
+      if (!value) return;
+      const message = document.createElement('div');
+      message.className = 'fit-guide-chat-message user';
+      message.innerHTML = '<div class="fit-guide-chat-bubble"></div>';
+      message.querySelector('.fit-guide-chat-bubble').textContent = value;
+      chat.querySelector('.fit-guide-chat-messages').appendChild(message);
+      input.value = '';
+      message.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+    send.addEventListener('click', sendFollowUp);
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') sendFollowUp();
+    });
+    host.addEventListener('click', function(e) {
+      if (!guide.contains(e.target) && !chat.contains(e.target)) {
+        guide.classList.remove('open');
+        fab.setAttribute('aria-expanded', 'false');
+      }
+    });
+    host.appendChild(guide);
+    host.classList.toggle('fit-guide-page-hidden', isGuideSessionHidden(contextKey));
+    host.classList.toggle('fit-guide-hidden', isGuideHidden());
+  }
+
+  // ============================================================
   // INIT ALL
   // ============================================================
   function initAll(root) {
+    if (root.matches && root.matches('[data-fit-guide]')) initGuide(root);
+    root.querySelectorAll('[data-fit-guide]').forEach(initGuide);
+    if (root.matches && root.matches('[data-fit-guide-setting]')) initGuideSetting(root);
+    root.querySelectorAll('[data-fit-guide-setting]').forEach(initGuideSetting);
     root.querySelectorAll('[data-fit-timeline-scroll]').forEach(initTimelineScroll);
     root.querySelectorAll('[data-fit-swipe]').forEach(initSwipe);
     root.querySelectorAll('.fit-sheet-overlay').forEach(initSheet);

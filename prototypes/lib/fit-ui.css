@@ -450,6 +450,206 @@
    assistant; a third fill colour would flatten the hierarchy of the row. */
 .fit-action-circle--ask i { border-color: var(--fit-teal-500); color: var(--fit-teal-500); }
 
+/* Contextual AI entry — one lower-right FAB and three screen-specific
+   conversation starters. Selecting one opens a dedicated full-screen assistant
+   chat. Add `data-fit-guide="<context>"` to a `.fit-phone`; the context key
+   selects the three prompts for that screen. */
+.fit-guide {
+  position: absolute; right: 16px; bottom: 92px; z-index: 38;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+  pointer-events: none;
+}
+.fit-guide-menu {
+  width: 326px; padding: 0; overflow: hidden; border: 1px solid var(--fit-divider);
+  border-radius: 22px; background: rgba(30,33,38,.98);
+  box-shadow: 0 18px 44px rgba(0,0,0,.38); backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px); opacity: 0; visibility: hidden;
+  transform: translateY(10px) scale(.97); transform-origin: bottom right;
+  transition: opacity .16s ease, transform .16s ease, visibility .16s;
+  pointer-events: none;
+}
+.fit-light .fit-guide-menu {
+  background: rgba(255,255,255,.96); box-shadow: 0 18px 44px rgba(20,30,40,.18);
+}
+.fit-guide.open .fit-guide-menu {
+  opacity: 1; visibility: visible; transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.fit-guide-widget-head { min-height: 66px; display: flex; align-items: center; gap: 10px; padding: 11px 14px; background: var(--fit-brand-gradient); color: var(--fit-white); }
+.fit-guide-widget-avatar { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 50%; background: rgba(255,255,255,.2); }
+.fit-guide-widget-avatar svg { width: 20px; height: 20px; }
+.fit-guide-widget-person { flex: 1; min-width: 0; }
+.fit-guide-widget-name { font-size: 15px; font-weight: 700; }
+.fit-guide-widget-context { margin-top: 2px; font-size: 11.5px; color: rgba(255,255,255,.78); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fit-guide-widget-close {
+  width: 30px; height: 30px; padding: 0; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0; border: 1px solid rgba(255,255,255,.22);
+  border-radius: 50%; background: rgba(255,255,255,.12); color: var(--fit-white);
+  cursor: pointer; transition: background .16s ease, border-color .16s ease;
+}
+.fit-guide-widget-close svg { width: 15px; height: 15px; }
+.fit-guide-widget-close:hover { border-color: rgba(255,255,255,.4); background: rgba(255,255,255,.2); }
+.fit-guide-widget-close:focus-visible { outline: 2px solid var(--fit-white); outline-offset: 2px; }
+.fit-guide-widget-body { padding: 14px 14px 0; }
+.fit-guide-welcome { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 13px; }
+.fit-guide-welcome-av { width: 27px; height: 27px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 50%; background: var(--fit-brand-gradient); color: var(--fit-white); }
+.fit-guide-welcome-av svg { width: 14px; height: 14px; }
+.fit-guide-welcome-bubble { max-width: 238px; padding: 9px 12px; border-radius: 14px 14px 14px 5px; background: var(--fit-surface-high); color: var(--fit-text-primary); font-size: 13.5px; line-height: 1.4; }
+.fit-guide-suggested { margin: 0 0 8px 35px; font-size: 10.5px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: var(--fit-text-tertiary); }
+.fit-guide-prompts { display: flex; flex-direction: column; gap: 7px; }
+.fit-guide-prompt {
+  width: 100%; min-height: 44px; display: flex; align-items: center;
+  justify-content: space-between; gap: 10px; padding: 9px 12px;
+  border: 1px solid var(--fit-divider); border-radius: 13px;
+  background: transparent; color: var(--fit-text-primary);
+  font-family: var(--fit-font); font-size: 13.5px; line-height: 1.3;
+  text-align: left; cursor: pointer;
+}
+.fit-guide-prompt:hover { border-color: var(--fit-teal-500); }
+.fit-guide-prompt svg { width: 15px; height: 15px; flex-shrink: 0; color: var(--fit-text-tertiary); }
+.fit-guide-dismiss {
+  width: calc(100% + 28px); min-height: 42px; margin: 12px -14px 0;
+  padding: 10px 14px;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  border: 0; border-top: 1px solid var(--fit-divider); border-radius: 0;
+  background: rgba(255,255,255,.018); color: var(--fit-text-tertiary);
+  font-family: var(--fit-font); font-size: 11.5px; font-weight: 650;
+  line-height: 1; text-align: center; cursor: pointer;
+  transition: color .16s ease, background .16s ease;
+}
+.fit-light .fit-guide-dismiss { background: rgba(20,30,40,.018); }
+.fit-guide-dismiss-icon {
+  width: 18px; height: 18px; display: inline-flex; align-items: center;
+  justify-content: center; flex-shrink: 0; color: var(--fit-text-tertiary);
+}
+.fit-guide-dismiss-icon svg { width: 16px; height: 16px; }
+.fit-guide-dismiss:hover {
+  background: rgba(255,255,255,.045); color: var(--fit-text-secondary);
+}
+.fit-light .fit-guide-dismiss:hover { background: rgba(20,30,40,.045); }
+.fit-guide-dismiss:hover .fit-guide-dismiss-icon { color: var(--fit-text-secondary); }
+.fit-guide-dismiss:focus-visible {
+  outline: 2px solid var(--fit-teal-500); outline-offset: 2px;
+}
+.fit-guide-fab {
+  width: 54px; height: 54px; display: flex; align-items: center;
+  justify-content: center; border-radius: var(--fit-radius-full);
+  border: 1.5px solid rgba(5,224,166,.72); background: var(--fit-surface-high);
+  color: var(--fit-teal-500); box-shadow: 0 8px 24px rgba(0,0,0,.34);
+  cursor: pointer; pointer-events: auto; transition: transform .16s ease;
+}
+.fit-light .fit-guide-fab { background: var(--fit-white); box-shadow: 0 8px 24px rgba(20,30,40,.18); }
+.fit-guide.open .fit-guide-fab { transform: rotate(8deg); }
+.fit-guide-fab svg { width: 25px; height: 25px; }
+.fit-guide-fab .fit-guide-close { display: none; }
+.fit-guide.open .fit-guide-fab .fit-guide-spark { display: none; }
+.fit-guide.open .fit-guide-fab .fit-guide-close { display: block; }
+.fit-guide-hidden .fit-guide,
+.fit-guide-hidden .fit-guide-chat-screen,
+.fit-guide-page-hidden .fit-guide { display: none !important; }
+
+/* Settings switch that restores contextual quick-start bubbles after the user
+   chooses “Don't show quick starts” in the expanded widget. */
+.fit-guide-setting-switch {
+  width: 44px; height: 26px; padding: 3px; display: flex; align-items: center;
+  flex-shrink: 0; border-radius: 99px; background: var(--fit-surface-higher);
+  transition: background .16s ease; pointer-events: none;
+}
+.fit-guide-setting-switch::after {
+  content: ''; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--fit-white); box-shadow: 0 1px 4px rgba(0,0,0,.28);
+  transition: transform .16s ease;
+}
+[data-fit-guide-setting].active .fit-guide-setting-switch { background: var(--fit-teal-500); }
+[data-fit-guide-setting].active .fit-guide-setting-switch::after { transform: translateX(18px); }
+
+/* Dedicated assistant destination. This intentionally covers the originating
+   product screen: the support-style widget is only the launcher, never the chat. */
+.fit-guide-chat-screen {
+  position: absolute; inset: 0; z-index: 80; display: none; flex-direction: column;
+  overflow: hidden; border-radius: 38px; background: var(--fit-surface);
+  color: var(--fit-text-primary); pointer-events: auto;
+}
+.fit-guide-chat-screen.active { display: flex; }
+.fit-guide-chat-status {
+  height: 46px; padding: 14px 24px 7px; display: flex; align-items: center;
+  justify-content: space-between; flex-shrink: 0; font-size: 14px; font-weight: 600;
+}
+.fit-guide-chat-head {
+  min-height: 64px; padding: 8px 14px 12px; display: flex; align-items: center;
+  gap: 10px; flex-shrink: 0; border-bottom: 1px solid var(--fit-divider);
+}
+.fit-guide-chat-back,
+.fit-guide-chat-more {
+  width: 36px; height: 36px; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0; border: 0; border-radius: 50%;
+  background: var(--fit-surface-high); color: var(--fit-text-primary); cursor: pointer;
+}
+.fit-guide-chat-back svg { width: 19px; height: 19px; }
+.fit-guide-chat-more svg { width: 18px; height: 18px; }
+.fit-guide-chat-avatar {
+  width: 42px; height: 42px; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0; border-radius: 50%;
+  background: var(--fit-brand-gradient); color: var(--fit-white);
+}
+.fit-guide-chat-avatar svg { width: 21px; height: 21px; }
+.fit-guide-chat-person { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.fit-guide-chat-person strong { font-size: 15px; line-height: 1.2; }
+.fit-guide-chat-person span { display: flex; align-items: center; gap: 5px; color: var(--fit-text-tertiary); font-size: 10.5px; }
+.fit-guide-chat-person i { width: 6px; height: 6px; border-radius: 50%; background: var(--fit-teal-500); }
+.fit-guide-chat-context {
+  margin: 12px 16px 0; padding: 8px 11px; display: flex; align-items: center;
+  gap: 7px; flex-shrink: 0; border: 1px solid var(--fit-divider); border-radius: 99px;
+  color: var(--fit-text-tertiary); font-size: 11px;
+}
+.fit-guide-chat-context svg { width: 14px; height: 14px; color: var(--fit-teal-500); }
+.fit-guide-chat-messages {
+  flex: 1; min-height: 0; padding: 16px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 13px;
+}
+.fit-guide-chat-messages::-webkit-scrollbar { display: none; }
+.fit-guide-chat-day { align-self: center; color: var(--fit-text-tertiary); font-size: 10.5px; }
+.fit-guide-chat-message { display: flex; align-items: flex-end; gap: 8px; }
+.fit-guide-chat-message.user { justify-content: flex-end; }
+.fit-guide-chat-message-av {
+  width: 28px; height: 28px; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0; border-radius: 50%;
+  background: var(--fit-brand-gradient); color: var(--fit-white);
+}
+.fit-guide-chat-message-av svg { width: 14px; height: 14px; }
+.fit-guide-chat-bubble {
+  max-width: 268px; padding: 11px 13px; border-radius: 16px 16px 16px 5px;
+  background: var(--fit-surface-high); color: var(--fit-text-primary);
+  font-size: 13.5px; line-height: 1.42;
+}
+.fit-guide-chat-message.user .fit-guide-chat-bubble {
+  border-radius: 16px 16px 5px 16px; background: var(--fit-brand-gradient);
+  color: var(--fit-white);
+}
+.fit-guide-chat-time { margin: 5px 0 0 4px; color: var(--fit-text-tertiary); font-size: 9.5px; }
+.fit-guide-chat-compose {
+  padding: 10px 12px 18px; display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0; border-top: 1px solid var(--fit-divider); background: var(--fit-surface);
+}
+.fit-guide-chat-add {
+  width: 38px; height: 38px; flex-shrink: 0; border: 1px solid var(--fit-divider);
+  border-radius: 50%; background: transparent; color: var(--fit-text-secondary);
+  font: 300 24px/1 var(--fit-font); cursor: pointer;
+}
+.fit-guide-chat-input {
+  flex: 1; min-width: 0; height: 42px; padding: 0 14px;
+  border: 1px solid var(--fit-divider); border-radius: 99px;
+  background: var(--fit-surface-high); color: var(--fit-text-primary);
+  font: 12.5px var(--fit-font); outline: none;
+}
+.fit-guide-chat-send {
+  width: 42px; height: 42px; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0; border: 0; border-radius: 50%;
+  background: var(--fit-brand-gradient); color: var(--fit-white); cursor: pointer;
+}
+.fit-guide-chat-send svg { width: 18px; height: 18px; }
+
+
 /* Icon plate — decorative leading icon container.
    Mirrors `FitIconPlate` (SwiftUI / Compose). Non-interactive.
    See design-tokens/docs/components.md § FitIconPlate. */
