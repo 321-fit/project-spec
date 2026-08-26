@@ -3,7 +3,7 @@
 > Status: **Approved** — flow prototyped & reviewed, ready for task breakdown. (Deferred from v1: video library, progress-over-time — see §9. Packages are **no longer deferred** — they cover self-paced too, spec'd in [session-packages.md](./session-packages.md); see §8.)
 > Prototype: [flows/shared/self-paced.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/self-paced.html) (isolated module; screens split into real surfaces per §5)
 > Component library: [design-tokens/docs/components.md](../../design-tokens/docs/components.md)
-> Last updated: 2026-08-25
+> Last updated: 2026-08-26
 > Implementation:
 > - iOS:     [321fit_ios/docs/self-paced-ios.md] (to be created during dev)
 > - Android: [321fit_android_new/docs/self-paced-android.md] (to be created during dev)
