@@ -221,6 +221,11 @@
     font-size: 16px; font-weight: 600;
     flex-shrink: 0;
   }
+  /* Type-tinted variant of the avatar slot. --fit-grad-type-* is a translucent tint meant to
+     sit behind white text on a dark card header; on this white card it is very pale, so the
+     glyph takes the type colour instead of white (same shape as .pkg-punch-ic). */
+  .dash-next-avatar--selfpaced { border-radius: 14px; background: var(--fit-grad-type-selfpaced); color: var(--fit-color-violet-600); }
+  .fit-dark .dash-next-avatar--selfpaced { color: var(--fit-color-violet-400); }
   .dash-next-body { flex: 1; min-width: 0; }
   .dash-next-name {
     font-size: 16px; font-weight: 500; color: var(--fit-text-primary);
@@ -825,13 +830,28 @@
     <div data-dash-state="default" class="dash-stack">
       <div class="dash-greeting">
         <div class="dash-greeting-hello">Good morning, Anna</div>
-        <div class="dash-greeting-sub"><strong>Next session</strong> &middot; tomorrow at 10:00</div>
+        <div class="dash-greeting-sub" id="dash-greet-next"><strong>Next up</strong> &middot; self-paced, today</div>
       </div>
 
       <!-- Next training -->
       <div>
-        <div class="dash-section-label">Next session</div>
-        <div class="dash-next">
+        <div class="dash-section-label">Next up</div>
+        <!-- Self-paced first: it is due TODAY, the live session is tomorrow. Toggle: dashNext('live') -->
+        <div class="dash-next" data-next="selfpaced" data-a11y-id="athlete.dashboard.next.self-paced" onclick="window.location.href='../shared/self-paced.html#s-welcome'">
+          <div class="dash-next-avatar dash-next-avatar--selfpaced">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg>
+          </div>
+          <div class="dash-next-body">
+            <div class="dash-next-name">Lower-body mobility</div>
+            <div class="dash-next-meta">
+              <span>Maria Rodriguez</span><span class="dot"></span><span>Self-paced</span><span class="dot"></span><span>~15 min</span>
+            </div>
+            <!-- no clock: the whole point of the type is that the day is the appointment -->
+            <div class="dash-next-when">Today &middot; anytime</div>
+          </div>
+          <svg class="dash-next-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="dash-next" data-next="live" style="display:none;" data-a11y-id="athlete.dashboard.next.live">
           <div class="dash-next-avatar">MR</div>
           <div class="dash-next-body">
             <div class="dash-next-name">Maria Rodriguez</div>
@@ -856,20 +876,6 @@
               <div class="pending-sub">Was due Apr 15 &middot; do it or reschedule</div>
             </div>
             <svg class="pending-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-          </div>
-          <!-- Self-paced due today -->
-          <div class="pending-row" data-a11y-id="athlete.dashboard.attention.self-paced-today" onclick="window.location.href='../shared/self-paced.html#s-welcome'">
-            <div class="pending-icon" style="background:rgba(16,185,129,0.15);color:var(--fit-teal-500);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 9l5-2v10l-5-2z"/></svg></div>
-            <div class="pending-body">
-              <div class="pending-title">Do your self-paced today &middot; Lower-body mobility</div>
-              <div class="pending-sub">~15 min &middot; anytime today</div>
-            </div>
-            <svg class="pending-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-          </div>
-          <!-- Global entry to the aggregated My self-paced list (all coaches, unfiltered) -->
-          <div data-a11y-id="athlete.dashboard.attention.self-paced-all" onclick="window.location.href='../shared/self-paced.html#s-list'" style="display:flex;align-items:center;justify-content:center;gap:4px;padding:4px 0 2px;font-size:13px;font-weight:500;color:var(--fit-brand-primary);cursor:pointer;">
-            See all self-paced
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
           </div>
           <div class="pending-row" data-a11y-id="athlete.dashboard.attention.awaiting" onclick="openInboxOnTab('waiting')">
             <div class="pending-icon" style="background:rgba(250,204,21,0.15);color:var(--fit-yellow-400);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
@@ -1078,7 +1084,7 @@
       </div>
 
       <div>
-        <div class="dash-section-label">Next training</div>
+        <div class="dash-section-label">Next up</div>
         <div class="dash-next-empty">
           <div class="dash-next-empty-title">Ready for your next session?</div>
           <div class="dash-next-empty-sub">You have no upcoming trainings. Browse coaches in your area to book.</div>
@@ -1137,7 +1143,7 @@
       </div>
 
       <div>
-        <div class="dash-section-label">Next training</div>
+        <div class="dash-section-label">Next up</div>
         <div class="dash-next-empty">
           <div class="dash-next-empty-title">Time for your next session</div>
           <div class="dash-next-empty-sub">No bookings yet. Browse the marketplace to find your coach.</div>
@@ -1201,7 +1207,7 @@
       </div>
 
       <div>
-        <div class="dash-section-label">Next training &middot; cached</div>
+        <div class="dash-section-label">Next up &middot; cached</div>
         <div class="dash-next">
           <div class="dash-next-avatar">MR</div>
           <div class="dash-next-body">
@@ -1712,11 +1718,17 @@
       <button onclick="setDashState('loading',this)">Loading</button>
       <button onclick="setDashState('error',this)">Error</button>
     </div>
+    <div class="state-toggle">
+      <button class="active" onclick="dashNext('selfpaced',this)">Next = self-paced</button>
+      <button onclick="dashNext('live',this)">Next = live session</button>
+    </div>
     <h3>Athlete Home</h3>
 
     <p><strong>Top → bottom (mirrors coach Home)</strong>: Next session · Needs attention · Balance · Recently viewed · Your activity. <em>Reordered 2026-06-05; Recommended section removed for now.</em></p>
     <hr>
-    <p><strong>Next session</strong> — most actionable, on top. Tap → event detail. Compact: avatar + sport + duration + location + when (teal).</p>
+    <p><strong>Next up</strong> — most actionable, on top. Tap → the training itself. Compact: avatar + sport + duration + location + when (teal).</p>
+    <p>It holds <strong>whatever comes first, timed or not</strong>. It used to be able to hold only something with a clock time, so a self-paced due <em>today</em> was pushed down into <em>Needs your attention</em> while a live session <em>tomorrow</em> kept the hero slot — the dashboard showed tomorrow above today. For an athlete who trains mostly self-paced the card went hollow altogether. The self-paced shape leads with the <strong>workout title</strong> (the coach is secondary, there is no venue), carries the violet type gradient, and its when-line reads <strong>&ldquo;Today · anytime&rdquo;</strong> — no clock, because the day <em>is</em> the appointment.</p>
+    <p class="note">Only the <strong>overdue</strong> self-paced stays in <em>Needs your attention</em> — that one is genuinely something you missed. &ldquo;Do it today&rdquo; is not an alert, it is the plan. The centred <em>See all self-paced</em> link was removed from the middle of the attention list: it read as a section footer while four unrelated rows continued below it, and it was there only because it was the single global door to the aggregate list. The durable homes are the <strong>Calendar</strong> tab (upcoming — a self-paced is day-bound training and lands as an athlete-only event, spec §9) and <strong>Profile / Your activity</strong> (done). <strong>Blocked:</strong> that calendar placement is not implemented — the backend never creates the event, so the athlete&rsquo;s day is empty (self-paced impl-audit gap 4).</p>
     <hr>
     <p><strong>Needs your attention</strong> — athlete action items (same <code>.pending-row</code> grammar as coach's). Conditional; shown only when present. Possible types:
       <em>requests awaiting confirmation</em> (sent to coaches), <em>request declined/expired</em> (→ rebook), <em>rate your last session</em> (→ rate-queue), <em>cash to settle</em> (owed, pay in person), <em>low balance</em> (→ top up), <em>leave a review</em> (next-day, → composer), <em>reschedule proposed by coach</em> (accept/decline). Icon colour per type (yellow/red/teal).</p>
@@ -1807,6 +1819,19 @@ function go(id, btn) {
   document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
   var ann = document.querySelector('.ann[data-screen="' + id + '"]');
   if (ann) ann.classList.add('active');
+}
+
+// The hero slot takes whichever training comes first, so it has two shapes: a live session
+// with a clock time, and a self-paced whose appointment is the day itself.
+function dashNext(kind, btn) {
+  if (btn) { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+  document.querySelectorAll('#s-dashboard [data-next]').forEach(function (el) {
+    el.style.display = (el.dataset.next === kind) ? '' : 'none';
+  });
+  var g = document.getElementById('dash-greet-next');
+  if (g) g.innerHTML = (kind === 'selfpaced')
+    ? '<strong>Next up</strong> &middot; self-paced, today'
+    : '<strong>Next up</strong> &middot; tomorrow at 10:00';
 }
 
 function setDashState(state, btn) {
