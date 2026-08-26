@@ -254,6 +254,17 @@
   /* Pinned grid hint lives in the sticky header — show only in personal state */
   #s-booking .bk-grid-hint { display: none; padding: 8px 16px 12px; }
   #s-booking.bk-personal .bk-grid-hint { display: block; }
+  /* Self-paced variant of the same grid. A self-paced does not consume the coach's time, so
+     the coach's availability is not a constraint on it: their off-hours and busy tiles come
+     off, and only the athlete's own conflicts remain. No venue either. Layered on top of
+     .bk-personal rather than being a fourth state — it IS the personal grid, minus a layer. */
+  #s-booking.bk-sp .fit-bk-off,
+  #s-booking.bk-sp .fit-cal-event-external,
+  #s-booking.bk-sp .bk-legend-coach,
+  #s-booking.bk-sp .bk-day-loc { display: none !important; }
+  #s-booking .bk-copy-sp { display: none; }
+  #s-booking.bk-sp .bk-copy-sp { display: block; }
+  #s-booking.bk-sp .bk-copy-book { display: none; }
   /* Session location reminder — constant (the picked session's gym), not per-day */
   .bk-day-loc { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; color: var(--fit-text-primary); margin-bottom: 8px; }
   .bk-day-loc svg { width: 15px; height: 15px; color: var(--fit-teal-500); flex-shrink: 0; }
@@ -488,10 +499,11 @@
           Home visit &middot; coach travels to you
         </span>
       </div>
-      <div style="font-size:14px;color:var(--fit-text-secondary);">Tap a free slot or drag the block to set your time</div>
+      <div class="bk-copy-book" style="font-size:14px;color:var(--fit-text-secondary);">Tap a free slot or drag the block to set your time</div>
+      <div class="bk-copy-sp" style="font-size:14px;color:var(--fit-text-secondary);">Tap a free slot or drag the block to set your time &mdash; <span id="bk-sp-coach">Maria</span> never sees it</div>
       <div style="font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
         <span style="display:flex;align-items:center;gap:6px;"><span style="width:14px;height:10px;border-radius:2px;background:var(--fit-surface-high);border-left:2px solid var(--fit-teal-500);"></span>Your events</span>
-        <span style="display:flex;align-items:center;gap:6px;"><span class="fit-bk-legend-busy" style="width:14px;height:10px;border-radius:2px;"></span>Coach busy</span>
+        <span class="bk-legend-coach" style="display:flex;align-items:center;gap:6px;"><span class="fit-bk-legend-busy" style="width:14px;height:10px;border-radius:2px;"></span>Coach busy</span>
       </div>
     </div>
   </div>
@@ -1937,7 +1949,8 @@ function bkRender() {
   if (cta) {
     cta.style.opacity = invalid ? '0.5' : '1';
     cta.style.pointerEvents = invalid ? 'none' : 'auto';
-    cta.textContent = invalid ? 'Pick a free slot' : 'Book · ' + bkFmt(bkStart) + ' – ' + bkFmt(bkStart + BK.durMin);
+    var verb = document.getElementById('s-booking').classList.contains('bk-sp') ? 'Add to calendar · ' : 'Book · ';
+    cta.textContent = invalid ? 'Pick a free slot' : verb + bkFmt(bkStart) + ' – ' + bkFmt(bkStart + BK.durMin);
   }
 }
 /* setBookingState('personal') calls this — keep the name as the CTA refresher */
@@ -2239,8 +2252,30 @@ function rebuildBookingStrip(events, selected, today) {
   return strip;
 }
 
+// Entered from a self-paced session ("Add to calendar"): same grid, coach layer off.
+(function(){
+  var q = new URLSearchParams(location.search);
+  var sp = q.get('sp'); if (!sp) return;
+  var el = document.getElementById('s-booking'); if (!el) return;
+  el.classList.add('bk-sp');
+  var coach = q.get('coach') || 'your coach';
+  var cn = document.getElementById('bk-sp-coach'); if (cn) cn.textContent = coach;
+  var title = document.querySelector('#bk-sel .fit-bk-sel-title'); if (title) title.textContent = sp;
+  var cta = document.getElementById('booking-confirm-cta');
+  var lbl = document.getElementById('bk-sel-label');
+  if (cta) cta.textContent = 'Add to calendar \u00b7 ' + ((lbl && lbl.textContent) || '');
+  var day = parseInt(q.get('day') || '', 10);
+  if (day) rebuildBookingStrip('', day, 10);
+  go('s-booking', null);
+})();
+
 function bkConfirmCta() {
   var el = document.getElementById('s-booking');
+  if (el && el.classList.contains('bk-sp')) {
+    var t = (document.getElementById('bk-sel-label') || {}).textContent || '';
+    window.location.href = './self-paced.html?scheduled=' + encodeURIComponent(t.split('\u2013')[0].trim()) + '#s-welcome';
+    return;
+  }
   if (el && el.classList.contains('bk-group')) {
     var s = GROUP_SESSIONS[_grpDay];
     if (!s || s.state === 'full') return;

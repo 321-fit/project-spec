@@ -1542,7 +1542,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-overview",
-          "hash": "85971873aa8a",
+          "hash": "faff2814b2d6",
           "title": "Overview",
           "inApp": "Self-paced — flow",
           "status": "canon",
@@ -1561,7 +1561,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-queue",
-          "hash": "83f1fa306dd7",
+          "hash": "8b2b30f8c65b",
           "title": "Requests + review",
           "inApp": "Self-paced",
           "status": "canon",
@@ -1589,7 +1589,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-inbox",
-          "hash": "403bf188fcab",
+          "hash": "3a6a14361ca0",
           "title": "↳ in unified Inbox",
           "inApp": "Inbox",
           "status": "canon",
@@ -1609,7 +1609,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-setup",
-          "hash": "68948e138d1a",
+          "hash": "fda5ac328234",
           "title": "Setup builder",
           "inApp": "Set up for Anna",
           "status": "canon",
@@ -1648,7 +1648,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-step",
-          "hash": "a69e8d786b04",
+          "hash": "975a97782c7d",
           "title": "Step editor",
           "inApp": "Edit step",
           "status": "canon",
@@ -1668,7 +1668,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-review",
-          "hash": "dcb6e4891fa0",
+          "hash": "baf58fbd7684",
           "title": "Review submission",
           "inApp": "Review · Julia",
           "status": "canon",
@@ -1694,7 +1694,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-history",
-          "hash": "05de0a3d3a24",
+          "hash": "ed8fc70f6a7b",
           "title": "Client history",
           "inApp": "Julia · self-paced",
           "status": "legacy",
@@ -1714,7 +1714,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-library",
-          "hash": "f7a22e20fc1d",
+          "hash": "5a23b65e7004",
           "title": "Coach library",
           "inApp": "Video library",
           "status": "canon",
@@ -1734,7 +1734,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-book",
-          "hash": "cf69d2152495",
+          "hash": "ae39da98a114",
           "title": "Book offering",
           "inApp": "Book training",
           "status": "canon",
@@ -1754,7 +1754,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-list",
-          "hash": "07d93f6d05af",
+          "hash": "e64a4cf73101",
           "title": "My self-paced",
           "inApp": "Self-paced training",
           "status": "canon",
@@ -1780,7 +1780,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-welcome",
-          "hash": "e9f73ec3dde1",
+          "hash": "438b8094a758",
           "title": "Welcome / intro",
           "inApp": "",
           "status": "canon",
@@ -1806,7 +1806,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-player",
-          "hash": "a2e5680f8454",
+          "hash": "a2c80ed6f0ea",
           "title": "Player",
           "inApp": "",
           "status": "canon",
@@ -1826,7 +1826,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-complete",
-          "hash": "d73dc6809161",
+          "hash": "f1a84aec5834",
           "title": "Complete + upload",
           "inApp": "Nice work 🎉",
           "status": "canon",
@@ -1846,7 +1846,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-comments",
-          "hash": "230017c5da47",
+          "hash": "6852e822fd95",
           "title": "Athlete view",
           "inApp": "Lower-body mobility",
           "status": "canon",
@@ -1872,7 +1872,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-trim",
-          "hash": "ad17f279fee7",
+          "hash": "a7a29250296f",
           "title": "Trim clip",
           "inApp": "Trim clip",
           "status": "canon",
@@ -1892,7 +1892,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-upload",
-          "hash": "8d49f756134b",
+          "hash": "ac65df5e23a3",
           "title": "Uploading (Mux)",
           "inApp": "Uploading",
           "status": "canon",
@@ -2077,7 +2077,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-booking",
-          "hash": "9be6aec70717",
+          "hash": "dc8625dc310a",
           "title": "Booking Calendar",
           "inApp": "",
           "status": "canon",
@@ -2099,7 +2099,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group",
-          "hash": "278f552b0552",
+          "hash": "13a61f1ef99c",
           "title": "Group Detail",
           "inApp": "HIIT Group Session",
           "status": "canon",
@@ -2118,7 +2118,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-joined",
-          "hash": "1e1c6b2abadf",
+          "hash": "72b6733d515b",
           "title": "Group Joined",
           "inApp": "HIIT Group Session",
           "status": "canon",
@@ -2138,7 +2138,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-full",
-          "hash": "18bfd3f465ac",
+          "hash": "450425345813",
           "title": "Group Full",
           "inApp": "Yoga Morning Flow",
           "status": "canon",
@@ -2158,7 +2158,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-coach-v2",
-          "hash": "bdbef78e1163",
+          "hash": "0db657d11c81",
           "title": "Coach Profile",
           "inApp": "",
           "status": "canon",
@@ -2194,7 +2194,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-reviews",
-          "hash": "988d94216f40",
+          "hash": "d4e56c0e9f7f",
           "title": "All Reviews",
           "inApp": "Reviews",
           "status": "canon",
@@ -2213,7 +2213,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-book-sessions",
-          "hash": "73ed90541913",
+          "hash": "ac9dca8cfad7",
           "title": "Book Trainings",
           "inApp": "Book training",
           "status": "canon",
@@ -2257,7 +2257,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-hv-address",
-          "hash": "00147d118264",
+          "hash": "7756d9e42f58",
           "title": "Home-visit address",
           "inApp": "Your address",
           "status": "canon",
@@ -2277,7 +2277,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-hv-addr-pick",
-          "hash": "a40775e28d4b",
+          "hash": "09f10a370b3b",
           "title": "Pick on map",
           "inApp": "",
           "status": "canon",
@@ -2297,7 +2297,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-hv-addr-form",
-          "hash": "739d32cb5c1c",
+          "hash": "5e419bb4f087",
           "title": "Address details",
           "inApp": "Address details",
           "status": "canon",
@@ -2317,7 +2317,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-my-addresses",
-          "hash": "3883d3b648ef",
+          "hash": "97ca21192ed5",
           "title": "My addresses",
           "inApp": "My addresses",
           "status": "canon",
