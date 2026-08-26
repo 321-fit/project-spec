@@ -10,7 +10,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-role-pick",
-          "hash": "b76b0fe116f6",
+          "hash": "60e534439301",
           "title": "Role pick",
           "inApp": "",
           "status": "canon",
@@ -29,7 +29,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signup-email",
-          "hash": "063eb055f8f7",
+          "hash": "2ed18d4d6399",
           "title": "Sign up",
           "inApp": "",
           "status": "canon",
@@ -48,7 +48,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-signin-email",
-          "hash": "7183585ce036",
+          "hash": "d7fe29088c00",
           "title": "Sign in",
           "inApp": "",
           "status": "canon",
@@ -67,7 +67,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-email",
-          "hash": "f394253edbb5",
+          "hash": "24fbd752e68b",
           "title": "Step 1 · enter email",
           "inApp": "",
           "status": "canon",
@@ -86,7 +86,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-otp",
-          "hash": "4dfadb81cbf7",
+          "hash": "4cbce85399ca",
           "title": "Step 2 · OTP code",
           "inApp": "",
           "status": "canon",
@@ -105,7 +105,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-forgot-new",
-          "hash": "badeaff0ad5b",
+          "hash": "84fe237634b0",
           "title": "Step 3 · new password",
           "inApp": "",
           "status": "canon",
@@ -124,7 +124,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-phone-enter",
-          "hash": "6eaf1ab431e4",
+          "hash": "883d1b6e2aa6",
           "title": "Phone · enter number",
           "inApp": "",
           "status": "canon",
@@ -144,7 +144,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-phone-otp",
-          "hash": "56728763dd2d",
+          "hash": "b02666c92085",
           "title": "Phone · OTP code",
           "inApp": "",
           "status": "canon",
@@ -164,7 +164,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-country-picker",
-          "hash": "cafbdd03b38a",
+          "hash": "2489cb2fa084",
           "title": "Country picker",
           "inApp": "Country or region",
           "status": "canon",
@@ -274,7 +274,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-onb-personal",
-          "hash": "8fd9cae606e1",
+          "hash": "8ab0e71048b4",
           "title": "Personal data1/6",
           "inApp": "",
           "status": "canon",
@@ -293,7 +293,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-onb-sports",
-          "hash": "04572aac45fe",
+          "hash": "caf2bd8d1f57",
           "title": "Sports2/6",
           "inApp": "",
           "status": "canon",
@@ -313,7 +313,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-onb-location",
-          "hash": "fb45efb30d4a",
+          "hash": "862fa277afeb",
           "title": "Location3/6",
           "inApp": "",
           "status": "canon",
@@ -333,7 +333,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-onb-gym",
-          "hash": "cd69ca82b260",
+          "hash": "bc9da87141c5",
           "title": "Gym Location4/6",
           "inApp": "",
           "status": "canon",
@@ -353,7 +353,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-onb-gym-map",
-          "hash": "7ee3377b0d4a",
+          "hash": "ed19247f2ca1",
           "title": "↳ Add In-personsub",
           "inApp": "Add location",
           "status": "canon",
@@ -373,7 +373,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-onb-gym-pick",
-          "hash": "d89ae5e82845",
+          "hash": "01c294b50293",
           "title": "↳ Pick on Mapsub",
           "inApp": "",
           "status": "canon",
@@ -393,7 +393,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-onb-gym-form",
-          "hash": "0e8f12743974",
+          "hash": "e889cd656b69",
           "title": "↳ Location Detailssub",
           "inApp": "Location details",
           "status": "canon",
@@ -413,7 +413,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-onb-gym-online",
-          "hash": "6db7d7467931",
+          "hash": "456d003ed00d",
           "title": "↳ Add Onlinesub",
           "inApp": "Add online location",
           "status": "canon",
@@ -433,7 +433,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-onb-gym-homevisit",
-          "hash": "f798c021fed9",
+          "hash": "da358fa7a1d4",
           "title": "↳ Home Visitsub",
           "inApp": "Home visit",
           "status": "canon",
@@ -453,7 +453,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-onb-sessions",
-          "hash": "240fcbae2060",
+          "hash": "b887d32aed94",
           "title": "Training Session5/6",
           "inApp": "",
           "status": "canon",
@@ -473,7 +473,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-onb-session-create",
-          "hash": "82f3b8f8a48a",
+          "hash": "69bba34c571c",
           "title": "↳ Session setupsub",
           "inApp": "Training session setup",
           "status": "canon",
@@ -493,7 +493,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-onb-calendar",
-          "hash": "0f45690ecda1",
+          "hash": "7ea476eb610a",
           "title": "Calendar sync6/6",
           "inApp": "",
           "status": "canon",
@@ -608,7 +608,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-hub",
-          "hash": "e1129e5bed0b",
+          "hash": "d0ab975350d7",
           "title": "Last-method warning",
           "inApp": "Account access",
           "status": "canon",
@@ -641,7 +641,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-reauth",
-          "hash": "1eb0fb567a3a",
+          "hash": "805d6cc76865",
           "title": "2 · Re-auth (shared)",
           "inApp": "",
           "status": "canon",
@@ -661,7 +661,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-phone-new",
-          "hash": "cf4a504a8d98",
+          "hash": "aa42fd575297",
           "title": "Enter phone number",
           "inApp": "",
           "status": "canon",
@@ -681,7 +681,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-phone-otp",
-          "hash": "7e620d1e5d7c",
+          "hash": "1e522a3b768c",
           "title": "Enter OTP code",
           "inApp": "",
           "status": "canon",
@@ -701,7 +701,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-country-picker",
-          "hash": "29af110a4614",
+          "hash": "a6352273411c",
           "title": "Country picker",
           "inApp": "Country or region",
           "status": "canon",
@@ -721,7 +721,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-email-subhub",
-          "hash": "23b635dce59b",
+          "hash": "c13b9d8c0d4c",
           "title": "1 · Sub-hub · Email & password",
           "inApp": "Email & password",
           "status": "canon",
@@ -740,7 +740,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-email-new",
-          "hash": "513e8672a425",
+          "hash": "2599e5c508ce",
           "title": "Enter new email",
           "inApp": "",
           "status": "canon",
@@ -760,7 +760,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-email-check",
-          "hash": "04286fd6a8ac",
+          "hash": "3d31d0152d8e",
           "title": "4 · Check your email",
           "inApp": "",
           "status": "canon",
@@ -780,7 +780,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-email-loading",
-          "hash": "767032156b24",
+          "hash": "1e3690f14701",
           "title": "5 · Loading link",
           "inApp": "",
           "status": "canon",
@@ -800,7 +800,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-email-expired",
-          "hash": "0942a2d0c80f",
+          "hash": "cc22cdc9a58d",
           "title": "5-err · Link expired",
           "inApp": "",
           "status": "canon",
@@ -820,7 +820,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-password-new",
-          "hash": "195411efb289",
+          "hash": "3bf048ddf939",
           "title": "Set new password",
           "inApp": "",
           "status": "canon",
@@ -840,7 +840,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-delete-info",
-          "hash": "ca43c245af10",
+          "hash": "cac7e6162ff7",
           "title": "1 · Delete info",
           "inApp": "Delete account",
           "status": "canon",
@@ -859,7 +859,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-delete-blockers",
-          "hash": "6feed430337e",
+          "hash": "0e78d04a4ef8",
           "title": "Delete blockers",
           "inApp": "Delete account",
           "status": "canon",
@@ -879,7 +879,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-delete-loading",
-          "hash": "7de8667b9b16",
+          "hash": "79fc175cba9e",
           "title": "5 · Loading (transient)",
           "inApp": "",
           "status": "canon",
@@ -898,7 +898,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-delete-done",
-          "hash": "14cffadba962",
+          "hash": "14c3ceaabd9c",
           "title": "6 · Account deleted (done)",
           "inApp": "",
           "status": "canon",
@@ -917,7 +917,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-role-remove",
-          "hash": "ee4d03b1d5f2",
+          "hash": "0b147046fab3",
           "title": "Stop athlete · blockers",
           "inApp": "Coach role",
           "status": "canon",
@@ -936,7 +936,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-contact-support",
-          "hash": "f7f66171d6bd",
+          "hash": "ae42522b1092",
           "title": "Contact support",
           "inApp": "Contact support",
           "status": "canon",
@@ -1081,7 +1081,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-connect",
-          "hash": "1f10adac796e",
+          "hash": "82b47bdba2c3",
           "title": "Connect (QR)",
           "inApp": "Connect",
           "status": "canon",
@@ -1126,7 +1126,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-messages",
-          "hash": "a2fc1240026f",
+          "hash": "c34a21c8d423",
           "title": "Messages · empty",
           "inApp": "Messages",
           "status": "canon",
@@ -1167,7 +1167,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-new-message",
-          "hash": "e084df6509e3",
+          "hash": "a51e1ac88592",
           "title": "New message",
           "inApp": "New message",
           "status": "canon",
@@ -1186,7 +1186,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-thread",
-          "hash": "f89ed80b6a41",
+          "hash": "1251fab977a6",
           "title": "Conversation · new",
           "inApp": "John Miller",
           "status": "canon",
@@ -1205,7 +1205,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-thread-settings",
-          "hash": "feaca4603dd1",
+          "hash": "64f0468144f3",
           "title": "Conversation settings",
           "inApp": "Conversation",
           "status": "canon",
@@ -1224,7 +1224,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-thread",
-          "hash": "16edb20b3df0",
+          "hash": "01b7590db787",
           "title": "Group chat",
           "inApp": "Sat tennis squad",
           "status": "canon",
@@ -1243,7 +1243,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-settings",
-          "hash": "6bd216c27763",
+          "hash": "3eabd4650a17",
           "title": "Group settings",
           "inApp": "Group",
           "status": "canon",
@@ -1269,7 +1269,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-participants",
-          "hash": "4b0b79f8eb62",
+          "hash": "3c541d539412",
           "title": "Group participants",
           "inApp": "Participants",
           "status": "canon",
@@ -1288,7 +1288,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-rename",
-          "hash": "0eeadac6bbf7",
+          "hash": "45fe1d6271de",
           "title": "Group · change name",
           "inApp": "Group name",
           "status": "canon",
@@ -1397,7 +1397,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-assistant",
-          "hash": "6207fcc03150",
+          "hash": "9d161e87d0ee",
           "title": "Text input",
           "inApp": "",
           "status": "canon",
@@ -1425,20 +1425,23 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-guide-coach",
-          "hash": "dd8a206cf3ad",
+          "hash": "09c2862b0093",
           "title": "Coach entry points",
           "inApp": "AI quick starts",
           "status": "proposal",
           "theme": "light",
           "entry": true,
-          "note": "Six complex screens. Select a suggestion to open the full assistant chat with the screen context and first message already attached.",
+          "note": "Eight high-friction screens. Prompts either perform a task or diagnose hidden state; generic feature explanations were removed. Settings manages all contextual bubbles.",
           "external": [
             "../coach/clients.html#s-client-detail",
             "../coach/sessions.html#s-create",
+            "../coach/sessions.html#pkg-editor",
             "../coach/client-groups.html#s-group-schedule",
             "../coach/balance-v2.html#s-earnings",
             "../coach/stripe.html#s-stripe",
-            "./self-paced.html#s-setup"
+            "./self-paced.html#s-setup",
+            "../coach/calendar-sync.html#s-calsync",
+            "../coach/settings.html#s-settings"
           ],
           "shots": [
             {
@@ -1451,16 +1454,19 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-guide-athlete",
-          "hash": "14b0ce365ae6",
+          "hash": "b4771de98d52",
           "title": "Athlete entry points",
           "inApp": "AI quick starts",
           "status": "proposal",
           "theme": "light",
           "entry": false,
-          "note": "Two complex screens. Search and Payment each provide a separate prompt set. Calendar intentionally has no bubble.",
+          "note": "Four high-friction screens. Search, booking, paid transaction detail and calendar sync each receive a distinct task set. Schedule Calendar intentionally has no bubble.",
           "external": [
             "../athlete/search.html#s-search-landing",
-            "../athlete/balance-v2.html#s-txn-spend"
+            "./profile.html#s-book-sessions",
+            "../athlete/balance-v2.html#s-txn-spend",
+            "../athlete/calendar-sync.html#s-calsync",
+            "../athlete/settings.html#s-settings"
           ],
           "shots": [
             {
@@ -1488,7 +1494,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-now",
-          "hash": "e2bb102cb15d",
+          "hash": "5c47abda880b",
           "title": "What changes — today",
           "inApp": "What changes — today",
           "status": "proposal",
@@ -1507,7 +1513,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-next",
-          "hash": "fe124fa1a23d",
+          "hash": "4f71aad18c01",
           "title": "… and what it becomes",
           "inApp": "… and what it becomes",
           "status": "proposal",
@@ -1536,7 +1542,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-overview",
-          "hash": "c3f073401e72",
+          "hash": "d0321ee1a31e",
           "title": "Overview",
           "inApp": "Self-paced — flow",
           "status": "canon",
@@ -1555,7 +1561,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-queue",
-          "hash": "02b7e7ebb37b",
+          "hash": "0272f66e3bdc",
           "title": "Requests + review",
           "inApp": "Self-paced",
           "status": "canon",
@@ -1588,7 +1594,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-inbox",
-          "hash": "a6f021fa67b6",
+          "hash": "e4095590c15d",
           "title": "↳ in unified Inbox",
           "inApp": "Inbox",
           "status": "canon",
@@ -1608,7 +1614,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-setup",
-          "hash": "d62a44aa0093",
+          "hash": "bf4ce14f28a1",
           "title": "Setup builder",
           "inApp": "Set up for Anna",
           "status": "canon",
@@ -1623,11 +1629,11 @@ window.FIT_BOARD = {
             },
             {
               "file": "shared-self-paced__s-setup__ai-quick-starts.webp",
-              "label": "AI · 3 contextual conversation starters"
+              "label": "AI · 3 contextual quick actions"
             },
             {
               "file": "shared-self-paced__s-setup__ai-chat.webp",
-              "label": "AI · full-screen chat from first prompt"
+              "label": "AI · full-screen chat from first action"
             }
           ],
           "level": 1,
@@ -1647,7 +1653,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-step",
-          "hash": "b43889cfdbc0",
+          "hash": "496beaef6c96",
           "title": "Step editor",
           "inApp": "Edit step",
           "status": "canon",
@@ -1667,7 +1673,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-review",
-          "hash": "071b6061c009",
+          "hash": "4788cb24c87f",
           "title": "Review submission",
           "inApp": "Review · Julia",
           "status": "canon",
@@ -1693,7 +1699,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-history",
-          "hash": "c8c82734081d",
+          "hash": "8cbc8f3e6349",
           "title": "Client history",
           "inApp": "Julia · self-paced",
           "status": "canon",
@@ -1719,7 +1725,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-library",
-          "hash": "04065784fb85",
+          "hash": "fdca48d37fd7",
           "title": "Coach library",
           "inApp": "Video library",
           "status": "canon",
@@ -1739,7 +1745,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-book",
-          "hash": "b7e197184aed",
+          "hash": "f094ed35c862",
           "title": "Book offering",
           "inApp": "Book training",
           "status": "canon",
@@ -1759,7 +1765,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-list",
-          "hash": "d3067d181a02",
+          "hash": "1992c42e59e6",
           "title": "My self-paced",
           "inApp": "Self-paced training",
           "status": "canon",
@@ -1790,7 +1796,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-welcome",
-          "hash": "1222e32d8c40",
+          "hash": "4dd830516ccc",
           "title": "Welcome / intro",
           "inApp": "",
           "status": "canon",
@@ -1816,7 +1822,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-player",
-          "hash": "c3580cf2f272",
+          "hash": "5fb5af832999",
           "title": "Player",
           "inApp": "",
           "status": "canon",
@@ -1836,7 +1842,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-complete",
-          "hash": "0c16b81b7a39",
+          "hash": "2ff694e97fc4",
           "title": "Complete + upload",
           "inApp": "Nice work 🎉",
           "status": "canon",
@@ -1856,7 +1862,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-comments",
-          "hash": "b20bdbc61042",
+          "hash": "285a51bcb40d",
           "title": "Athlete view",
           "inApp": "Lower-body mobility",
           "status": "canon",
@@ -1887,7 +1893,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-trim",
-          "hash": "2fe30a062ce9",
+          "hash": "7fa76ad0fd08",
           "title": "Trim clip",
           "inApp": "Trim clip",
           "status": "canon",
@@ -1907,7 +1913,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-upload",
-          "hash": "c0eaadff46c3",
+          "hash": "64d85ecd31c2",
           "title": "Uploading (Mux)",
           "inApp": "Uploading",
           "status": "canon",
@@ -2097,7 +2103,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-booking",
-          "hash": "cba4742fbdc9",
+          "hash": "766b69463a6f",
           "title": "Booking Calendar",
           "inApp": "",
           "status": "canon",
@@ -2119,7 +2125,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group",
-          "hash": "11fded3690d2",
+          "hash": "8f0b68ca12c4",
           "title": "Group Detail",
           "inApp": "HIIT Group Session",
           "status": "canon",
@@ -2138,7 +2144,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-joined",
-          "hash": "e62748aa29c6",
+          "hash": "9a1466b4b314",
           "title": "Group Joined",
           "inApp": "HIIT Group Session",
           "status": "canon",
@@ -2158,7 +2164,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-full",
-          "hash": "2493bd2de567",
+          "hash": "85360ca3874c",
           "title": "Group Full",
           "inApp": "Yoga Morning Flow",
           "status": "canon",
@@ -2178,7 +2184,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-coach-v2",
-          "hash": "1cf0fda9b789",
+          "hash": "cf76035f143c",
           "title": "Coach Profile",
           "inApp": "",
           "status": "canon",
@@ -2214,7 +2220,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-reviews",
-          "hash": "d3af2ab2a2d4",
+          "hash": "deea14684a4f",
           "title": "All Reviews",
           "inApp": "Reviews",
           "status": "canon",
@@ -2233,7 +2239,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-book-sessions",
-          "hash": "e1dff3ac5aec",
+          "hash": "a1532490f2b1",
           "title": "Book Trainings",
           "inApp": "Book training",
           "status": "canon",
@@ -2245,11 +2251,24 @@ window.FIT_BOARD = {
             {
               "file": "shared-profile__s-book-sessions.webp",
               "label": ""
+            },
+            {
+              "file": "shared-profile__s-book-sessions__ai-quick-starts.webp",
+              "label": "AI · 3 contextual quick actions"
+            },
+            {
+              "file": "shared-profile__s-book-sessions__ai-chat.webp",
+              "label": "AI · full-screen chat from first action"
             }
           ],
           "level": 1,
           "order": 1,
           "inFrom": [
+            {
+              "file": "flows/shared/assistant-entry.html",
+              "label": "Contextual AI quick starts (WIP)",
+              "id": "s-guide-athlete"
+            },
             {
               "file": "flows/athlete/my-coaches.html",
               "label": "Athlete · My Coaches",
@@ -2264,7 +2283,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-hv-address",
-          "hash": "b8c9f1ada715",
+          "hash": "bdc41a09f281",
           "title": "Home-visit address",
           "inApp": "Your address",
           "status": "canon",
@@ -2284,7 +2303,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-hv-addr-pick",
-          "hash": "ba008b8a2429",
+          "hash": "659e5c2cd967",
           "title": "Pick on map",
           "inApp": "",
           "status": "canon",
@@ -2304,7 +2323,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-hv-addr-form",
-          "hash": "888c950d2a8e",
+          "hash": "70d35c773619",
           "title": "Address details",
           "inApp": "Address details",
           "status": "canon",
@@ -2324,7 +2343,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-my-addresses",
-          "hash": "d515e2f25ae4",
+          "hash": "b6a99efe1aea",
           "title": "My addresses",
           "inApp": "My addresses",
           "status": "canon",
@@ -2415,7 +2434,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-legend",
-          "hash": "42b5e181a784",
+          "hash": "adb3e42138a8",
           "title": "Calendar legend",
           "inApp": "Calendar legend",
           "status": "canon",
@@ -2443,7 +2462,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-dashboard",
-          "hash": "1d8055ae3cbc",
+          "hash": "5d85fadbf9d6",
           "title": "Dashboard",
           "inApp": "Home",
           "status": "canon",
@@ -2472,7 +2491,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-review-queue",
-          "hash": "b9b869675e8d",
+          "hash": "1f3afaee5f66",
           "title": "Sessions to review",
           "inApp": "Sessions to review",
           "status": "canon",
@@ -2491,7 +2510,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-notifications",
-          "hash": "6b7c99861202",
+          "hash": "d8e359d3c72e",
           "title": "Notifications inbox",
           "inApp": "Inbox",
           "status": "canon",
@@ -2540,7 +2559,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-clients",
-          "hash": "0a699d692eb7",
+          "hash": "fdd5d3c47857",
           "title": "Clients",
           "inApp": "Clients",
           "status": "canon",
@@ -2573,7 +2592,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-client-detail",
-          "hash": "81e4374e7953",
+          "hash": "58de19bbc071",
           "title": "Client Detail",
           "inApp": "",
           "status": "canon",
@@ -2595,11 +2614,11 @@ window.FIT_BOARD = {
             },
             {
               "file": "coach-clients__s-client-detail__ai-quick-starts.webp",
-              "label": "AI · 3 contextual conversation starters"
+              "label": "AI · 3 contextual quick actions"
             },
             {
               "file": "coach-clients__s-client-detail__ai-chat.webp",
-              "label": "AI · full-screen chat from first prompt"
+              "label": "AI · full-screen chat from first action"
             }
           ],
           "level": 1,
@@ -2619,7 +2638,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-client-selfpaced",
-          "hash": "7f8c466c20e8",
+          "hash": "05d23f56b053",
           "title": "Client Self-paced",
           "inApp": "Self-paced",
           "status": "canon",
@@ -2641,7 +2660,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-pkg-detail",
-          "hash": "4f1bd54c62ed",
+          "hash": "2d3989cef35a",
           "title": "Package Detail",
           "inApp": "Package",
           "status": "canon",
@@ -2661,7 +2680,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-pkg-history",
-          "hash": "c51baa7da79a",
+          "hash": "a0a6221bc4f8",
           "title": "Package History",
           "inApp": "Activity",
           "status": "canon",
@@ -2681,7 +2700,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-client-history",
-          "hash": "cefb2ead959c",
+          "hash": "5816e18460f4",
           "title": "Client History",
           "inApp": "Training history",
           "status": "canon",
@@ -2707,7 +2726,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-archived",
-          "hash": "97f6da6b8c03",
+          "hash": "44cef0eca119",
           "title": "Archived & Blocked",
           "inApp": "Archived & Blocked",
           "status": "canon",
@@ -2726,7 +2745,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-client-notes-editor",
-          "hash": "faa97488ea1b",
+          "hash": "ff6d3875455a",
           "title": "Client Notes Editor",
           "inApp": "",
           "status": "canon",
@@ -2745,7 +2764,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-create-client",
-          "hash": "f89a945b2a75",
+          "hash": "71393179d8b6",
           "title": "Create Client",
           "inApp": "New client",
           "status": "canon",
@@ -2764,7 +2783,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-crm-addr-pick",
-          "hash": "9a547f55b46c",
+          "hash": "54ad268b2381",
           "title": "s-crm-addr-pick",
           "inApp": "",
           "status": "canon",
@@ -2784,7 +2803,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-crm-addr-form",
-          "hash": "8c8859f784c5",
+          "hash": "81287986d021",
           "title": "Home address",
           "inApp": "Home address",
           "status": "canon",
@@ -2804,7 +2823,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-import-contacts",
-          "hash": "16938caa3e74",
+          "hash": "2e1deb2f9c29",
           "title": "Import Contacts",
           "inApp": "Import contacts",
           "status": "canon",
@@ -2824,7 +2843,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-import-done",
-          "hash": "6e6d58db0168",
+          "hash": "1a970173c3ea",
           "title": "Import Done",
           "inApp": "",
           "status": "canon",
@@ -2924,7 +2943,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-groups",
-          "hash": "4066c697f51b",
+          "hash": "886cf3b1520b",
           "title": "Clients | Groups",
           "inApp": "Clients",
           "status": "shipped",
@@ -2949,7 +2968,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-detail",
-          "hash": "c9cc9a571772",
+          "hash": "4bbe8e20cf1e",
           "title": "Group detail",
           "inApp": "Morning",
           "status": "shipped",
@@ -2991,7 +3010,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-schedule",
-          "hash": "d1b63a832580",
+          "hash": "cb3a54e015df",
           "title": "Group schedule",
           "inApp": "Morning",
           "status": "shipped",
@@ -3009,11 +3028,11 @@ window.FIT_BOARD = {
             },
             {
               "file": "coach-client-groups__s-group-schedule__ai-quick-starts.webp",
-              "label": "AI · 3 contextual conversation starters"
+              "label": "AI · 3 contextual quick actions"
             },
             {
               "file": "coach-client-groups__s-group-schedule__ai-chat.webp",
-              "label": "AI · full-screen chat from first prompt"
+              "label": "AI · full-screen chat from first action"
             },
             {
               "file": "coach-client-groups__s-group-schedule__recurring-only.webp",
@@ -3032,7 +3051,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-smart",
-          "hash": "e045e6fc904e",
+          "hash": "81f4c8bb58ad",
           "title": "Smart group detail",
           "inApp": "Owes money",
           "status": "shipped",
@@ -3053,7 +3072,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-create",
-          "hash": "45b4c0409526",
+          "hash": "31119d5faf1e",
           "title": "Create group",
           "inApp": "New group",
           "status": "shipped",
@@ -3072,7 +3091,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-rename",
-          "hash": "04cf782af2c8",
+          "hash": "58d0a176d669",
           "title": "Rename group",
           "inApp": "Group name",
           "status": "shipped",
@@ -3091,7 +3110,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-add-to-group",
-          "hash": "bfaff5f477a1",
+          "hash": "5c88176583e0",
           "title": "Client → groups",
           "inApp": "Anna’s groups",
           "status": "shipped",
@@ -3119,7 +3138,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-add",
-          "hash": "e9cfdb41c453",
+          "hash": "e13b9a2400e6",
           "title": "Add clients",
           "inApp": "Add to Morning",
           "status": "shipped",
@@ -3138,7 +3157,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-chat",
-          "hash": "3a368a0e3c42",
+          "hash": "c6f6d25684be",
           "title": "Group chat",
           "inApp": "Morning",
           "status": "proposal",
@@ -3250,7 +3269,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-create",
-          "hash": "b52eb6f157d9",
+          "hash": "7ed8de89dd7d",
           "title": "Create Session",
           "inApp": "Training session setup",
           "status": "canon",
@@ -3268,11 +3287,11 @@ window.FIT_BOARD = {
             },
             {
               "file": "coach-sessions__s-create__ai-quick-starts.webp",
-              "label": "AI · 3 contextual conversation starters"
+              "label": "AI · 3 contextual quick actions"
             },
             {
               "file": "coach-sessions__s-create__ai-chat.webp",
-              "label": "AI · full-screen chat from first prompt"
+              "label": "AI · full-screen chat from first action"
             }
           ],
           "level": 0,
@@ -3297,7 +3316,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-list",
-          "hash": "c590ae475974",
+          "hash": "8a9efb2133bb",
           "title": "My Sessions",
           "inApp": "My training sessions",
           "status": "canon",
@@ -3323,7 +3342,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-detail-group",
-          "hash": "e429b2415631",
+          "hash": "0a8a24998cf5",
           "title": "Detail — Group",
           "inApp": "HIIT Group Session",
           "status": "canon",
@@ -3348,7 +3367,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-detail-personal",
-          "hash": "baf8987d8a8a",
+          "hash": "6a958cf15728",
           "title": "Detail — Personal",
           "inApp": "Basketball Training",
           "status": "canon",
@@ -3374,7 +3393,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-detail-selfpaced",
-          "hash": "2dc322221508",
+          "hash": "545c65528bf1",
           "title": "Detail — Self-paced",
           "inApp": "Tennis self-paced",
           "status": "canon",
@@ -3402,7 +3421,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-series",
-          "hash": "aaebd5b4d94a",
+          "hash": "38e553a7014c",
           "title": "Series detail",
           "inApp": "Tue & Thu · 18:00",
           "status": "canon",
@@ -3430,7 +3449,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-edit",
-          "hash": "ce6c65f17779",
+          "hash": "9cacc1076826",
           "title": "Edit template",
           "inApp": "Edit training session",
           "status": "canon",
@@ -3453,7 +3472,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "pkg-pick",
-          "hash": "15b5c11eb85a",
+          "hash": "891d9196bf67",
           "title": "Pick session (create)",
           "inApp": "Choose a session",
           "status": "canon",
@@ -3473,7 +3492,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "pkg-editor",
-          "hash": "929d496b6d3e",
+          "hash": "5612da6f279f",
           "title": "Package detail",
           "inApp": "New package",
           "status": "canon",
@@ -3485,11 +3504,24 @@ window.FIT_BOARD = {
             {
               "file": "coach-sessions__pkg-editor.webp",
               "label": ""
+            },
+            {
+              "file": "coach-sessions__pkg-editor__ai-quick-starts.webp",
+              "label": "AI · 3 contextual quick actions"
+            },
+            {
+              "file": "coach-sessions__pkg-editor__ai-chat.webp",
+              "label": "AI · full-screen chat from first action"
             }
           ],
           "level": 1,
           "order": 7,
           "inFrom": [
+            {
+              "file": "flows/shared/assistant-entry.html",
+              "label": "Contextual AI quick starts (WIP)",
+              "id": "s-guide-coach"
+            },
             {
               "file": "flows/coach/sessions.html",
               "label": "Training templates",
@@ -3499,7 +3531,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "pkg-tier-edit",
-          "hash": "3b2c4ecaed84",
+          "hash": "250aca1bbebb",
           "title": "Package tier edit",
           "inApp": "New package tier",
           "status": "canon",
@@ -3584,7 +3616,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-calendar",
-          "hash": "053e5a1188fb",
+          "hash": "dfce5acf889a",
           "title": "Cross-role drawer",
           "inApp": "",
           "status": "canon",
@@ -3622,7 +3654,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-event",
-          "hash": "c3962e660749",
+          "hash": "8f77149e058a",
           "title": "Event Detail",
           "inApp": "HIIT Group Session",
           "status": "canon",
@@ -3641,7 +3673,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite",
-          "hash": "09c42b745b48",
+          "hash": "6023a3ef723c",
           "title": "Invite athletes",
           "inApp": "Invite athletes",
           "status": "canon",
@@ -3660,7 +3692,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-cash",
-          "hash": "fe93465609b9",
+          "hash": "88716a0a88fe",
           "title": "Event Completion",
           "inApp": "Event completion",
           "status": "canon",
@@ -3679,7 +3711,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-block-time-off",
-          "hash": "996d9a7ef398",
+          "hash": "382d7c148e9b",
           "title": "Busy time form",
           "inApp": "Busy time",
           "status": "canon",
@@ -3700,7 +3732,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-event-edit",
-          "hash": "d1062731b2b6",
+          "hash": "7ad112d0cb65",
           "title": "Edit details",
           "inApp": "Edit event",
           "status": "canon",
@@ -3772,7 +3804,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-schedule-pick-athlete",
-          "hash": "4ac17305e536",
+          "hash": "529e605b7868",
           "title": "Pick athlete (schedule)",
           "inApp": "Choose athlete",
           "status": "canon",
@@ -3792,7 +3824,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-select",
-          "hash": "6850b7cbff8d",
+          "hash": "5db50499e1e2",
           "title": "Select Training",
           "inApp": "Select training",
           "status": "canon",
@@ -3835,7 +3867,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-time",
-          "hash": "5fbabcd71e0e",
+          "hash": "894455da64a4",
           "title": "Date & Time (Personal)",
           "inApp": "",
           "status": "canon",
@@ -3855,7 +3887,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-review",
-          "hash": "0e24a80223f2",
+          "hash": "e426fcc45aaa",
           "title": "Invite Review",
           "inApp": "Review & Send",
           "status": "canon",
@@ -3875,7 +3907,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-schedule-review",
-          "hash": "660d69fff95a",
+          "hash": "130b743883be",
           "title": "Schedule: Review Request",
           "inApp": "Review request",
           "status": "canon",
@@ -3910,7 +3942,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-availability-hub",
-          "hash": "bc3d3feb93c3",
+          "hash": "c8ab17c5cc8a",
           "title": "Availability",
           "inApp": "Availability",
           "status": "canon",
@@ -3940,7 +3972,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-tz-select",
-          "hash": "9f59d568cb96",
+          "hash": "4322a808d2a0",
           "title": "Time zone",
           "inApp": "Time zone",
           "status": "canon",
@@ -3979,7 +4011,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-availability",
-          "hash": "dedfe2962362",
+          "hash": "c1949597c008",
           "title": "Available Hours",
           "inApp": "Available hours",
           "status": "canon",
@@ -4012,7 +4044,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-vacation-start",
-          "hash": "71c3839a96d4",
+          "hash": "4ee1dac1f062",
           "title": "Time off · edit form",
           "inApp": "Time off",
           "status": "canon",
@@ -4032,7 +4064,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-time-off",
-          "hash": "deb36307fa28",
+          "hash": "55a496249db5",
           "title": "Time off",
           "inApp": "Time off",
           "status": "canon",
@@ -4052,7 +4084,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-time-off-history",
-          "hash": "a66ea3f7add2",
+          "hash": "6f463e4454dc",
           "title": "Time off · history",
           "inApp": "Past time off",
           "status": "canon",
@@ -4072,7 +4104,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-booking-rules",
-          "hash": "f94131d5aaf0",
+          "hash": "e77c15275f63",
           "title": "Booking rules (WIP)",
           "inApp": "Booking rules",
           "status": "canon",
@@ -4132,7 +4164,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-locations",
-          "hash": "792cb1a56a00",
+          "hash": "ea2fceda3f8d",
           "title": "Training Locations",
           "inApp": "Training locations",
           "status": "canon",
@@ -4173,7 +4205,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-loc-map",
-          "hash": "8e39fc3eab7f",
+          "hash": "0428ac7c5808",
           "title": "Add In-person",
           "inApp": "Add location",
           "status": "canon",
@@ -4192,7 +4224,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-loc-pick",
-          "hash": "0de59d3b11bf",
+          "hash": "5a13eb5e7e9a",
           "title": "Pick on Map",
           "inApp": "",
           "status": "canon",
@@ -4212,7 +4244,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-loc-form",
-          "hash": "52f4d98c3430",
+          "hash": "283b01e067b8",
           "title": "Location Details",
           "inApp": "Location details",
           "status": "canon",
@@ -4231,7 +4263,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-loc-homevisit",
-          "hash": "84b8e750e8d9",
+          "hash": "929ce48ddd9f",
           "title": "Home Visit",
           "inApp": "Home visit",
           "status": "canon",
@@ -4250,7 +4282,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-loc-online",
-          "hash": "015ecdae1c89",
+          "hash": "7418485a0913",
           "title": "Add Online",
           "inApp": "Add online location",
           "status": "canon",
@@ -4309,7 +4341,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-earnings",
-          "hash": "878768ce4d06",
+          "hash": "0ca155859e14",
           "title": "Earnings",
           "inApp": "Earnings",
           "status": "canon",
@@ -4324,11 +4356,11 @@ window.FIT_BOARD = {
             },
             {
               "file": "coach-balance-v2__s-earnings__ai-quick-starts.webp",
-              "label": "AI · 3 contextual conversation starters"
+              "label": "AI · 3 contextual quick actions"
             },
             {
               "file": "coach-balance-v2__s-earnings__ai-chat.webp",
-              "label": "AI · full-screen chat from first prompt"
+              "label": "AI · full-screen chat from first action"
             }
           ],
           "level": 0,
@@ -4343,7 +4375,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-pending",
-          "hash": "ea6d74fb96f9",
+          "hash": "61abdd7145aa",
           "title": "Pending breakdown",
           "inApp": "Pending",
           "status": "canon",
@@ -4362,7 +4394,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-transactions",
-          "hash": "9d193598b1a9",
+          "hash": "8221d034074f",
           "title": "Transactions",
           "inApp": "Transactions",
           "status": "canon",
@@ -4381,7 +4413,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-txn-earning",
-          "hash": "5cbf5caf1037",
+          "hash": "402b5a87e6a1",
           "title": "Earning Detail",
           "inApp": "Earning",
           "status": "canon",
@@ -4400,7 +4432,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-txn-cash",
-          "hash": "5d248fc4c00a",
+          "hash": "155ddb8d24c1",
           "title": "Cash Detail",
           "inApp": "Cash earning",
           "status": "canon",
@@ -4419,7 +4451,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-earnings-history",
-          "hash": "8ef997e8a9c3",
+          "hash": "ff1b4558fbaf",
           "title": "Earnings History",
           "inApp": "Earnings history",
           "status": "canon",
@@ -4439,7 +4471,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-txn-payout",
-          "hash": "f14aaa82d957",
+          "hash": "4cabb0edb86b",
           "title": "Payout Detail",
           "inApp": "Payout",
           "status": "canon",
@@ -4458,7 +4490,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-methods",
-          "hash": "d1a68725dab4",
+          "hash": "c1f33c66d75a",
           "title": "Payout Methods",
           "inApp": "Payout methods",
           "status": "canon",
@@ -4553,7 +4585,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-stripe",
-          "hash": "297437e5d795",
+          "hash": "fb4edc6cbc13",
           "title": "Stripe Connect",
           "inApp": "Stripe",
           "status": "canon",
@@ -4568,11 +4600,11 @@ window.FIT_BOARD = {
             },
             {
               "file": "coach-stripe__s-stripe__ai-quick-starts.webp",
-              "label": "AI · 3 contextual conversation starters"
+              "label": "AI · 3 contextual quick actions"
             },
             {
               "file": "coach-stripe__s-stripe__ai-chat.webp",
-              "label": "AI · full-screen chat from first prompt"
+              "label": "AI · full-screen chat from first action"
             }
           ],
           "level": 0,
@@ -4587,7 +4619,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-confirm",
-          "hash": "a9c2abde813e",
+          "hash": "a101dbbf032a",
           "title": "Onboarding — Confirm info",
           "inApp": "Your info",
           "status": "canon",
@@ -4606,7 +4638,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-edit-name",
-          "hash": "116c35994535",
+          "hash": "b8c8d5fb2846",
           "title": "Edit Name",
           "inApp": "",
           "status": "canon",
@@ -4625,7 +4657,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-edit-email",
-          "hash": "0bb7ffc7f5de",
+          "hash": "53c16ae525db",
           "title": "Edit Email",
           "inApp": "",
           "status": "canon",
@@ -4644,7 +4676,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-edit-phone",
-          "hash": "660da50114d8",
+          "hash": "71cd55eb5b18",
           "title": "Edit Phone",
           "inApp": "",
           "status": "canon",
@@ -4663,7 +4695,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-edit-country",
-          "hash": "77f54a3a55cd",
+          "hash": "8217452408e0",
           "title": "Edit Country",
           "inApp": "Country",
           "status": "canon",
@@ -4682,7 +4714,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-edit-address",
-          "hash": "64eb50d2a0c2",
+          "hash": "72635a689a75",
           "title": "Edit address",
           "inApp": "",
           "status": "canon",
@@ -4701,7 +4733,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-id",
-          "hash": "506858e72405",
+          "hash": "c993dfd60cfd",
           "title": "Onboarding — Verification",
           "inApp": "Verification",
           "status": "canon",
@@ -4720,7 +4752,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-bank",
-          "hash": "da8ccb2321eb",
+          "hash": "ea0edcec3da0",
           "title": "Onboarding — Payout destination",
           "inApp": "Payout destination",
           "status": "canon",
@@ -4740,7 +4772,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-bank-add",
-          "hash": "3f96702515c5",
+          "hash": "099b3033a471",
           "title": "Add payout method",
           "inApp": "Add payout method",
           "status": "canon",
@@ -4759,7 +4791,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-bank-detail",
-          "hash": "ec86bf38a3a8",
+          "hash": "83f808edb239",
           "title": "Payout method detail",
           "inApp": "Payout method",
           "status": "canon",
@@ -4778,7 +4810,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-withdraw",
-          "hash": "fad8674125c7",
+          "hash": "49f04222adb4",
           "title": "Withdraw",
           "inApp": "Withdraw",
           "status": "canon",
@@ -4797,7 +4829,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-payouts",
-          "hash": "f6bf142bf16c",
+          "hash": "0764a43990d2",
           "title": "Payouts history",
           "inApp": "Payouts",
           "status": "canon",
@@ -4951,7 +4983,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-coach-profile",
-          "hash": "2511fb3f4aa6",
+          "hash": "8a95f29b5137",
           "title": "Coach Profile",
           "inApp": "",
           "status": "canon",
@@ -4982,7 +5014,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-coach-reviews",
-          "hash": "c4e89ac1c1ce",
+          "hash": "cb248a341a6f",
           "title": "All Reviews",
           "inApp": "Reviews",
           "status": "canon",
@@ -5021,7 +5053,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-referral",
-          "hash": "47df7ad1079a",
+          "hash": "4a43a5375e74",
           "title": "Refer a coach",
           "inApp": "Refer a coach",
           "status": "canon",
@@ -5049,7 +5081,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-referral-list",
-          "hash": "af524bb6b940",
+          "hash": "ca97f2be1def",
           "title": "All invites (push)",
           "inApp": "Your invites",
           "status": "canon",
@@ -5088,7 +5120,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-settings",
-          "hash": "c1df90783be9",
+          "hash": "a16312074ac0",
           "title": "Settings root",
           "inApp": "Settings",
           "status": "canon",
@@ -5121,6 +5153,11 @@ window.FIT_BOARD = {
               "id": "s-hub"
             },
             {
+              "file": "flows/shared/assistant-entry.html",
+              "label": "Contextual AI quick starts (WIP)",
+              "id": "s-guide-coach"
+            },
+            {
               "file": "flows/coach/availability.html",
               "label": "Availability",
               "id": "s-availability-hub"
@@ -5148,7 +5185,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-personal-data",
-          "hash": "3050a484bcf3",
+          "hash": "1211f97df98f",
           "title": "DOB Picker",
           "inApp": "Personal data",
           "status": "canon",
@@ -5184,7 +5221,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-notes-editor",
-          "hash": "0f003b603b37",
+          "hash": "c12534227842",
           "title": "About Me Editor",
           "inApp": "",
           "status": "canon",
@@ -5203,7 +5240,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-tz-select",
-          "hash": "7341184db1b1",
+          "hash": "7265b60e8cea",
           "title": "Time Zone",
           "inApp": "Time zone",
           "status": "canon",
@@ -5222,7 +5259,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-country-select",
-          "hash": "4e0c1b433ac2",
+          "hash": "acb0ca69f209",
           "title": "Home Country",
           "inApp": "Home country",
           "status": "canon",
@@ -5241,7 +5278,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-city-select",
-          "hash": "b7e98f56eb84",
+          "hash": "059670311229",
           "title": "Home City",
           "inApp": "Home city",
           "status": "canon",
@@ -5260,7 +5297,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-lang-select",
-          "hash": "34b4be972680",
+          "hash": "6ecdddd2ec69",
           "title": "Languages",
           "inApp": "Languages",
           "status": "canon",
@@ -5279,7 +5316,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-currency-select",
-          "hash": "76dfaf37d758",
+          "hash": "c4ba5cadcdf2",
           "title": "Currency",
           "inApp": "Currency",
           "status": "canon",
@@ -5358,7 +5395,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-sport-types",
-          "hash": "207c69ee2a74",
+          "hash": "74b7b37acbc6",
           "title": "Sport Types",
           "inApp": "Sport types",
           "status": "canon",
@@ -5413,7 +5450,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-calsync",
-          "hash": "6b5e617e95da",
+          "hash": "f2f390e0be2c",
           "title": "Calendar Sync",
           "inApp": "Calendar sync",
           "status": "canon",
@@ -5425,11 +5462,24 @@ window.FIT_BOARD = {
             {
               "file": "coach-calendar-sync__s-calsync.webp",
               "label": ""
+            },
+            {
+              "file": "coach-calendar-sync__s-calsync__ai-quick-starts.webp",
+              "label": "AI · 3 contextual quick actions"
+            },
+            {
+              "file": "coach-calendar-sync__s-calsync__ai-chat.webp",
+              "label": "AI · full-screen chat from first action"
             }
           ],
           "level": 0,
           "order": 0,
           "inFrom": [
+            {
+              "file": "flows/shared/assistant-entry.html",
+              "label": "Contextual AI quick starts (WIP)",
+              "id": "s-guide-coach"
+            },
             {
               "file": "flows/coach/settings.html",
               "label": "Settings",
@@ -5444,7 +5494,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-cal-detail",
-          "hash": "1f20300df29b",
+          "hash": "145f2ad04bfd",
           "title": "Google Detail",
           "inApp": "Google Calendar",
           "status": "canon",
@@ -5463,7 +5513,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-write-target-picker",
-          "hash": "7ba0b919eee8",
+          "hash": "0e8a80f4b597",
           "title": "Write Target Picker",
           "inApp": "Calendar to add events to",
           "status": "canon",
@@ -5482,7 +5532,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-apple-connect",
-          "hash": "df96a2c490e9",
+          "hash": "dadf886d04cb",
           "title": "Apple Connect (hidden v1)",
           "inApp": "Apple Calendar",
           "status": "canon",
@@ -5501,7 +5551,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-apple-detail",
-          "hash": "973d244afcc7",
+          "hash": "b885720d0f07",
           "title": "Apple Detail (hidden v1)",
           "inApp": "Apple Calendar",
           "status": "canon",
@@ -5556,7 +5606,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-dashboard",
-          "hash": "e3f07371c9af",
+          "hash": "adeb1862a6c0",
           "title": "Dashboard",
           "inApp": "Home",
           "status": "canon",
@@ -5581,7 +5631,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-rate-queue",
-          "hash": "30eb7f94ff26",
+          "hash": "953a37ad0e51",
           "title": "Sessions to rate",
           "inApp": "Sessions to rate",
           "status": "canon",
@@ -5600,7 +5650,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-notifications",
-          "hash": "3539be4a606a",
+          "hash": "fa19d9703e92",
           "title": "Notifications inbox",
           "inApp": "Inbox",
           "status": "canon",
@@ -5651,7 +5701,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-search-landing",
-          "hash": "7478ccba16a2",
+          "hash": "17aebdc8c68d",
           "title": "Landing",
           "inApp": "Find a coach",
           "status": "canon",
@@ -5669,11 +5719,11 @@ window.FIT_BOARD = {
             },
             {
               "file": "athlete-search__s-search-landing__ai-quick-starts.webp",
-              "label": "AI · 3 contextual conversation starters"
+              "label": "AI · 3 contextual quick actions"
             },
             {
               "file": "athlete-search__s-search-landing__ai-chat.webp",
-              "label": "AI · full-screen chat from first prompt"
+              "label": "AI · full-screen chat from first action"
             }
           ],
           "level": 0,
@@ -5688,7 +5738,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-results",
-          "hash": "2ae7b88093bc",
+          "hash": "dc03b102c38a",
           "title": "Sort (sheet)",
           "inApp": "",
           "status": "canon",
@@ -5710,7 +5760,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-results-empty",
-          "hash": "2948304f1936",
+          "hash": "21183da10217",
           "title": "Results · empty",
           "inApp": "",
           "status": "canon",
@@ -5732,7 +5782,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-loading",
-          "hash": "cf76e9216cf4",
+          "hash": "eff75833e1e6",
           "title": "Results · loading",
           "inApp": "",
           "status": "canon",
@@ -5754,7 +5804,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-error",
-          "hash": "a9f9b8041194",
+          "hash": "a7b19026c6ab",
           "title": "Results · error",
           "inApp": "",
           "status": "canon",
@@ -5776,7 +5826,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-text",
-          "hash": "bb0c0389663d",
+          "hash": "1bbce70882d7",
           "title": "Text search",
           "inApp": "",
           "status": "canon",
@@ -5797,7 +5847,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-filters",
-          "hash": "60411dd9094f",
+          "hash": "0e91adb79b5d",
           "title": "Filters · gender (sheet)",
           "inApp": "Filters",
           "status": "canon",
@@ -5816,7 +5866,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-lang",
-          "hash": "62baa7d06a2a",
+          "hash": "701c8834a1c7",
           "title": "Filters · languages",
           "inApp": "Languages",
           "status": "canon",
@@ -5835,7 +5885,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-country",
-          "hash": "edc6ed7a17dc",
+          "hash": "4c8a3044623a",
           "title": "Filters · country",
           "inApp": "Country",
           "status": "canon",
@@ -5854,7 +5904,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-city",
-          "hash": "dbb3944c73a0",
+          "hash": "f6bb0d3afb31",
           "title": "Filters · city",
           "inApp": "City",
           "status": "canon",
@@ -5873,7 +5923,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-map",
-          "hash": "0f66b328e332",
+          "hash": "9e47b6680200",
           "title": "Map",
           "inApp": "Map view",
           "status": "canon",
@@ -5978,7 +6028,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-my-coaches",
-          "hash": "aacb378b620d",
+          "hash": "c8c344f4bc31",
           "title": "Error",
           "inApp": "My coaches",
           "status": "canon",
@@ -6001,7 +6051,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-coach-detail",
-          "hash": "eb109cc284bf",
+          "hash": "d579fad19352",
           "title": "Coach detail",
           "inApp": "",
           "status": "canon",
@@ -6024,7 +6074,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-pkg-detail",
-          "hash": "3f98e9a6b7db",
+          "hash": "b27edfe6b9e4",
           "title": "Package Detail",
           "inApp": "Package",
           "status": "canon",
@@ -6044,7 +6094,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-pkg-history",
-          "hash": "bb339f6f847d",
+          "hash": "49b077378a76",
           "title": "Package History",
           "inApp": "Activity",
           "status": "canon",
@@ -6064,7 +6114,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-coach-history",
-          "hash": "57872ca193d0",
+          "hash": "2c781482dfb5",
           "title": "Coach history",
           "inApp": "Training history",
           "status": "canon",
@@ -6083,7 +6133,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-coach-note-editor",
-          "hash": "253f87949663",
+          "hash": "b5c2fea391f0",
           "title": "Note editor",
           "inApp": "",
           "status": "canon",
@@ -6102,7 +6152,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-coach-review",
-          "hash": "b8e34650cb8c",
+          "hash": "7ab2464e6273",
           "title": "Review composer",
           "inApp": "",
           "status": "canon",
@@ -6172,7 +6222,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-schedule",
-          "hash": "6d68848e7260",
+          "hash": "a0fe26116d2a",
           "title": "Cancel · refund",
           "inApp": "",
           "status": "canon",
@@ -6211,7 +6261,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-balance",
-          "hash": "0f7b83b4314b",
+          "hash": "40755f00a303",
           "title": "Error",
           "inApp": "Balance",
           "status": "canon",
@@ -6230,7 +6280,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-history",
-          "hash": "d276c39940d2",
+          "hash": "4fde70306015",
           "title": "Transactions (History)",
           "inApp": "Transactions",
           "status": "canon",
@@ -6249,7 +6299,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-history-filter",
-          "hash": "1e25d0664c42",
+          "hash": "79e32b06faa1",
           "title": "Filter history",
           "inApp": "Filter history",
           "status": "canon",
@@ -6269,7 +6319,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-top-up",
-          "hash": "bf376f1b216a",
+          "hash": "b7434997ed1b",
           "title": "Loading",
           "inApp": "Top up",
           "status": "canon",
@@ -6288,7 +6338,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-txn-spend",
-          "hash": "3798481e550d",
+          "hash": "67182698813e",
           "title": "Session payment (card)",
           "inApp": "Session payment",
           "status": "canon",
@@ -6303,11 +6353,11 @@ window.FIT_BOARD = {
             },
             {
               "file": "athlete-balance-v2__s-txn-spend__ai-quick-starts.webp",
-              "label": "AI · 3 contextual conversation starters"
+              "label": "AI · 3 contextual quick actions"
             },
             {
               "file": "athlete-balance-v2__s-txn-spend__ai-chat.webp",
-              "label": "AI · full-screen chat from first prompt"
+              "label": "AI · full-screen chat from first action"
             }
           ],
           "level": 1,
@@ -6322,7 +6372,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-txn-spend-cash",
-          "hash": "1664a6bf4a68",
+          "hash": "d0039f29a0a5",
           "title": "Session payment (cash)",
           "inApp": "Session payment",
           "status": "canon",
@@ -6341,7 +6391,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-txn-topup",
-          "hash": "e8a440e63e28",
+          "hash": "d81f477e183c",
           "title": "Top-up",
           "inApp": "Top-up",
           "status": "canon",
@@ -6360,7 +6410,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-txn-refund",
-          "hash": "2b83b55e44b7",
+          "hash": "47674de1d5b0",
           "title": "Refund",
           "inApp": "Refund",
           "status": "canon",
@@ -6379,7 +6429,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-owed",
-          "hash": "b250bca7791f",
+          "hash": "b19fcba3930f",
           "title": "Owed sessions (list)",
           "inApp": "Owed",
           "status": "canon",
@@ -6398,7 +6448,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-owed-detail",
-          "hash": "c7f8f4549722",
+          "hash": "82b62d2c6467",
           "title": "Owed session (detail)",
           "inApp": "Session payment",
           "status": "canon",
@@ -6419,7 +6469,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-booked",
-          "hash": "dcff157d0e69",
+          "hash": "94bcd24dff89",
           "title": "Booked sessions (list)",
           "inApp": "Booked",
           "status": "canon",
@@ -6438,7 +6488,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-booked-detail",
-          "hash": "2418716a2023",
+          "hash": "28941e197c79",
           "title": "Booked session (detail)",
           "inApp": "Booked session",
           "status": "canon",
@@ -6587,7 +6637,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-profile",
-          "hash": "cd309c1ebc05",
+          "hash": "8bcc35f2a84e",
           "title": "Error",
           "inApp": "",
           "status": "canon",
@@ -6609,7 +6659,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-training-history",
-          "hash": "166e69f860f1",
+          "hash": "770adcb8ac0c",
           "title": "· History loading",
           "inApp": "Training history",
           "status": "canon",
@@ -6648,7 +6698,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-settings",
-          "hash": "b623f1137231",
+          "hash": "5975382d919c",
           "title": "Settings root",
           "inApp": "Settings",
           "status": "canon",
@@ -6671,7 +6721,14 @@ window.FIT_BOARD = {
             }
           ],
           "level": 0,
-          "order": 0
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/shared/assistant-entry.html",
+              "label": "Contextual AI quick starts (WIP)",
+              "id": "s-guide-athlete"
+            }
+          ]
         }
       ],
       "edges": []
@@ -6684,7 +6741,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-personal-data",
-          "hash": "1ad3bdc6d4fe",
+          "hash": "6f76a8e6a274",
           "title": "Height / Weight Picker",
           "inApp": "Personal data",
           "status": "canon",
@@ -6703,7 +6760,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-notes-editor",
-          "hash": "df956bccab8d",
+          "hash": "8ebf156d5037",
           "title": "About Me Editor",
           "inApp": "",
           "status": "canon",
@@ -6722,7 +6779,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-tz-select",
-          "hash": "c21277f9b3f5",
+          "hash": "0b50623fbeac",
           "title": "Time Zone",
           "inApp": "Time zone",
           "status": "canon",
@@ -6741,7 +6798,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-country-select",
-          "hash": "05b537a31a11",
+          "hash": "e050b19024bc",
           "title": "Home Country",
           "inApp": "Home country",
           "status": "canon",
@@ -6760,7 +6817,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-city-select",
-          "hash": "3006dbd162ec",
+          "hash": "315878b31719",
           "title": "Home City",
           "inApp": "Home city",
           "status": "canon",
@@ -6779,7 +6836,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-lang-select",
-          "hash": "4709dfd9996e",
+          "hash": "1a5f607dc457",
           "title": "Languages",
           "inApp": "Languages",
           "status": "canon",
@@ -6798,7 +6855,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-currency-select",
-          "hash": "0fd9eaf7c756",
+          "hash": "361af8cd8791",
           "title": "Currency",
           "inApp": "Currency",
           "status": "canon",
@@ -6877,7 +6934,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-sport-types",
-          "hash": "504c709a6fc1",
+          "hash": "85f05a0ab037",
           "title": "Sport Types",
           "inApp": "Sport types",
           "status": "canon",
@@ -6905,7 +6962,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-calsync",
-          "hash": "57b38172eb9f",
+          "hash": "0d1dac352725",
           "title": "Calendar Sync",
           "inApp": "Calendar sync",
           "status": "canon",
@@ -6917,14 +6974,29 @@ window.FIT_BOARD = {
             {
               "file": "athlete-calendar-sync__s-calsync.webp",
               "label": ""
+            },
+            {
+              "file": "athlete-calendar-sync__s-calsync__ai-quick-starts.webp",
+              "label": "AI · 3 contextual quick actions"
+            },
+            {
+              "file": "athlete-calendar-sync__s-calsync__ai-chat.webp",
+              "label": "AI · full-screen chat from first action"
             }
           ],
           "level": 0,
-          "order": 0
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/shared/assistant-entry.html",
+              "label": "Contextual AI quick starts (WIP)",
+              "id": "s-guide-athlete"
+            }
+          ]
         },
         {
           "id": "s-cal-detail",
-          "hash": "b45c0cd4ad22",
+          "hash": "042f769b9979",
           "title": "Google Detail",
           "inApp": "Google Calendar",
           "status": "canon",
@@ -6943,7 +7015,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-write-target-picker",
-          "hash": "5c7cf26fa63c",
+          "hash": "89fdcb1ce68a",
           "title": "Write Target Picker",
           "inApp": "Calendar to add events to",
           "status": "canon",
@@ -6962,7 +7034,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-apple-connect",
-          "hash": "d193dad9719e",
+          "hash": "7aa32e8fb712",
           "title": "Apple Connect (hidden v1)",
           "inApp": "Apple Calendar",
           "status": "canon",
@@ -6981,7 +7053,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-apple-detail",
-          "hash": "f714c05bb462",
+          "hash": "7bc97ba70bf2",
           "title": "Apple Detail (hidden v1)",
           "inApp": "Apple Calendar",
           "status": "canon",
@@ -7036,7 +7108,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-integrations",
-          "hash": "ad4ef01fee57",
+          "hash": "54e1452f8109",
           "title": "HealthKit permission",
           "inApp": "Integrations",
           "status": "canon",

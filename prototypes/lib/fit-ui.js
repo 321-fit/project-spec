@@ -630,59 +630,87 @@
   // ============================================================
   const GUIDE_CONTEXTS = {
     'coach-client': {
-      title: 'Ask about this client screen', items: [
-        ['How do I schedule this client?', 'Open the … menu and choose Schedule training. The client is already selected for the next step.'],
-        ['How do I add them to a group?', 'Open the … menu, choose Add to group, then select one or more groups and save.'],
-        ['Where is their session history?', 'Scroll to Training history or tap the history summary on this client card.']
+      title: 'Manage this client', suggested: 'Quick actions', items: [
+        ['Schedule a training with this client', 'I’ll set it up. Which training template should I use, and when should it happen?'],
+        ['Add this client to a group', 'Which group should I add them to? I can show the available groups and update the membership.'],
+        ['Show this client’s training history', 'I’ll open the full history for this client, including completed, cancelled and missed sessions.']
       ]
     },
     'coach-sessions': {
       title: 'Create a training template', suggested: 'Quick actions', items: [
         ['Help me create a training template', 'Absolutely. I’ll build it with you. First, should this template be Personal, Group or Self-paced?'],
-        ['Create a personal training template', 'I’ll create a Personal template. Tell me its name, duration and price — or send everything in one message.'],
-        ['Create a group training template', 'I’ll create a Group template. What should it be called, how long is it and how many athletes can join?']
+        ['Create a group template from my description', 'Describe the training in one message. I’ll fill in its name, duration, price and participant limits for you.'],
+        ['Create a package for this training', 'Save the template first, then I’ll help you choose the number of sessions and package price.']
       ]
     },
     'coach-group-schedule': {
       title: 'Manage this group schedule', suggested: 'Quick actions', items: [
-        ['Create a group training', 'I can set that up. Which group and training template should I use, and when should the first session happen?'],
-        ['Schedule this group every week', 'I’ll make it recurring. Tell me the weekday, start time and optional end date.'],
-        ['Add another training date', 'I’ll add a date to this group schedule. Send me the date and start time.']
+        ['Create a training for this group', 'I can set that up. Which training template should I use, and when should the first session happen?'],
+        ['Make this group repeat every week', 'Tell me the weekday, start time and optional end date. I’ll create the recurring schedule.'],
+        ['Add a one-off training date', 'Send me the date, start time and training template. I’ll add it without changing the recurring schedule.']
       ]
     },
     'coach-earnings': {
-      title: 'Ask about Earnings', items: [
-        ['How do I withdraw money?', 'Open the available balance and tap Withdraw. Choose a connected payout method and confirm the amount.'],
-        ['What does Pending mean?', 'Pending money belongs to sessions that are not ready for payout yet. Open Pending to see the reason per item.'],
+      title: 'Manage earnings and payouts', suggested: 'Quick actions', items: [
+        ['Withdraw my available balance', 'How much would you like to withdraw, and which connected payout method should receive it?'],
+        ['Show why payouts are pending', 'I’ll inspect the pending items and explain what each one is waiting for.'],
         ['Change my payout details', 'I can help update them. Which payout method do you want to change: your bank account or debit card?']
       ]
     },
     'coach-stripe': {
-      title: 'Ask about payout setup', items: [
-        ['What do I need to complete?', 'Finish every item marked Required: identity, business details and a payout account.'],
-        ['Why does Stripe need documents?', 'Stripe verifies the identity of people receiving payments. The requested document depends on your country and account type.'],
-        ['Why are payouts unavailable?', 'Open the requirements list. Payouts stay unavailable while required information is missing or under review.']
+      title: 'Complete payout setup', suggested: 'Quick actions', items: [
+        ['Help me finish Stripe setup', 'I’ll check what is already complete and guide you through the remaining requirements in order.'],
+        ['Show which documents I still need', 'I’ll open the outstanding verification requirements and explain which document is accepted for each one.'],
+        ['Check why payouts are unavailable', 'I’ll check for missing information, verification reviews and payout-method issues.']
+      ]
+    },
+    'coach-package': {
+      title: 'Build this session package', suggested: 'Quick actions', items: [
+        ['Help me create this package', 'I’ll build it with you. How many sessions should the first tier include, and what discount do you want to offer?'],
+        ['Add a discounted 10-session tier', 'I’ll add a 10-session tier. Tell me the total price or the discount percentage you want.'],
+        ['Calculate package prices from my session rate', 'I’ll calculate clear 5- and 10-session options from the base rate, including the saving per session.']
       ]
     },
     'self-paced-builder': {
       title: 'Build a self-paced workout', suggested: 'Quick actions', items: [
         ['Help me create a self-paced workout', 'Let’s build it together. What is the workout goal, athlete level and target duration?'],
-        ['Build a self-paced workout from my plan', 'Send me your plan in any format. I’ll turn it into ordered steps with reps, timers and rest periods.'],
-        ['Add video and timer steps for me', 'I can add them. Upload or describe the exercises, then tell me the work and rest duration for each step.']
+        ['Turn my plan into ordered steps', 'Send me your plan in any format. I’ll convert it into exercises with reps, timers and instructions.'],
+        ['Add timers and rest automatically', 'Tell me the work-to-rest pattern you want, or let me suggest one from the workout goal and level.']
+      ]
+    },
+    'coach-calendar-sync': {
+      title: 'Set up calendar sync', suggested: 'Quick actions', items: [
+        ['Connect my work calendar', 'I’ll start the Google Calendar connection and help you choose which calendars should block booking times.'],
+        ['Choose where 321Fit adds sessions', 'I’ll show the calendars from your connected accounts so you can choose the write destination.'],
+        ['Check why a session is missing from my calendar', 'I’ll check the write destination, account permissions and the latest sync error for your coaching calendar.']
       ]
     },
     'athlete-search': {
-      title: 'Ask about coach search', items: [
-        ['How do I find a coach nearby?', 'Choose a sport, open Filters and set your country or city. You can switch to Map to compare locations.'],
-        ['How do the filters work?', 'Filters narrow the same results by location, language, gender and other preferences. Clear a filter chip to broaden the list.'],
-        ['How do I book a training?', 'Open a coach, tap Book training, choose a session type and then select an available time.']
+      title: 'Find and book a coach', suggested: 'Quick actions', items: [
+        ['Find a coach near me', 'Tell me the sport and how far you are willing to travel. I’ll apply the location filters for you.'],
+        ['Apply filters for what I need', 'Tell me your preferred language, location, coach gender or price range, and I’ll narrow these results.'],
+        ['Book a coach from these results', 'Tell me which coach you want. I’ll open their available training types and guide you to a time.']
+      ]
+    },
+    'athlete-booking': {
+      title: 'Book with this coach', suggested: 'Quick actions', items: [
+        ['Book a personal session with this coach', 'I’ll help you choose a personal training, find an available time and review the payment before sending the request.'],
+        ['Join the next group session', 'I’ll find the next group session with space and show its time, location and price before you join.'],
+        ['Book using my package credits', 'I’ll show which trainings your active package covers and use one credit for the booking.']
       ]
     },
     'athlete-balance': {
-      title: 'Ask about this payment', items: [
-        ['What is this transaction?', 'The detail shows which session, coach and payment source created this balance entry.'],
-        ['Why is a payment pending?', 'Pending means the payment or session has not reached its final state yet. Its detail shows the current reason.'],
-        ['When will a refund arrive?', 'Open the refund transaction for its status. Card refunds depend on the bank; balance refunds appear in the app first.']
+      title: 'Understand this payment', suggested: 'Quick actions', items: [
+        ['Explain this payment', 'This €25 payment covered the 1:1 Tennis session with Maria Rodriguez and was deducted from your 321Fit balance.'],
+        ['Show how it changed my balance', 'Your balance was €265 before this payment. €25 was deducted, leaving the €240 shown here.'],
+        ['Find this session in my schedule', 'I’ll open the Apr 21 session with Maria Rodriguez in your schedule.']
+      ]
+    },
+    'athlete-calendar-sync': {
+      title: 'Set up calendar sync', suggested: 'Quick actions', items: [
+        ['Connect my personal calendar', 'I’ll start the Google Calendar connection so your 321Fit bookings can avoid conflicts.'],
+        ['Choose where 321Fit adds bookings', 'I’ll show the calendars from your connected accounts so you can choose where bookings appear.'],
+        ['Check why a booking is missing from my calendar', 'I’ll check the write destination, account permissions and the latest sync error for your bookings.']
       ]
     }
   };
@@ -691,10 +719,28 @@
   const GUIDE_CLOSE = '<svg class="fit-guide-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
   const GUIDE_CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>';
   const GUIDE_STORAGE_KEY = 'fit.quickStarts.hidden';
+  const GUIDE_SESSION_KEY_PREFIX = 'fit.quickStarts.sessionHidden.';
 
   function isGuideHidden() {
     try { return localStorage.getItem(GUIDE_STORAGE_KEY) === '1'; }
     catch (e) { return false; }
+  }
+
+  function isGuideSessionHidden(contextKey) {
+    try { return sessionStorage.getItem(GUIDE_SESSION_KEY_PREFIX + contextKey) === '1'; }
+    catch (e) { return false; }
+  }
+
+  function hideGuideForSession(host, guide, contextKey) {
+    try { sessionStorage.setItem(GUIDE_SESSION_KEY_PREFIX + contextKey, '1'); }
+    catch (e) {}
+    guide.classList.remove('open');
+    const fab = guide.querySelector('.fit-guide-fab');
+    if (fab) {
+      fab.setAttribute('aria-expanded', 'false');
+      fab.setAttribute('aria-label', 'Ask AI about this screen');
+    }
+    host.classList.add('fit-guide-page-hidden');
   }
 
   function updateGuideSetting(el) {
@@ -745,7 +791,8 @@
 
   function initGuide(host) {
     if (host._fitGuide) return;
-    const ctx = GUIDE_CONTEXTS[host.getAttribute('data-fit-guide')];
+    const contextKey = host.getAttribute('data-fit-guide');
+    const ctx = GUIDE_CONTEXTS[contextKey];
     if (!ctx) return;
     host._fitGuide = true;
 
@@ -759,6 +806,7 @@
         '<div class="fit-guide-widget-head">' +
           '<span class="fit-guide-widget-avatar">' + GUIDE_SPARK + '</span>' +
           '<div class="fit-guide-widget-person"><div class="fit-guide-widget-name">321Fit Assistant</div><div class="fit-guide-widget-context"></div></div>' +
+          '<button class="fit-guide-widget-close" type="button" aria-label="Hide AI quick starts on this screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
         '</div>' +
         '<div class="fit-guide-widget-body">' +
           '<div class="fit-guide-welcome"><span class="fit-guide-welcome-av">' + GUIDE_SPARK + '</span><div class="fit-guide-welcome-bubble">What can I help you with on this screen?</div></div>' +
@@ -801,6 +849,10 @@
     const prompts = guide.querySelector('.fit-guide-prompts');
     guide.querySelector('.fit-guide-widget-context').textContent = ctx.title;
     guide.querySelector('.fit-guide-suggested').textContent = ctx.suggested || 'Suggested questions';
+    guide.querySelector('.fit-guide-widget-close').addEventListener('click', function(e) {
+      e.stopPropagation();
+      hideGuideForSession(host, guide, contextKey);
+    });
     guide.querySelector('.fit-guide-dismiss').addEventListener('click', function(e) {
       e.stopPropagation();
       setGuideHidden(true);
@@ -862,6 +914,7 @@
       }
     });
     host.appendChild(guide);
+    host.classList.toggle('fit-guide-page-hidden', isGuideSessionHidden(contextKey));
     host.classList.toggle('fit-guide-hidden', isGuideHidden());
   }
 

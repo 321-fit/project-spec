@@ -116,37 +116,53 @@ export const STATES = {
   // Contextual AI entry — every mounted point gets an open quick-start shot and
   // a second shot after its first screen-specific prompt starts the chat.
   "flows/coach/clients.html#s-client-detail": [
-    { id: "ai-quick-starts", label: "AI · 3 contextual conversation starters", run: "document.querySelector('#s-client-detail .fit-guide-fab').click()", wait: 250 },
-    { id: "ai-chat", label: "AI · full-screen chat from first prompt", run: "document.querySelector('#s-client-detail .fit-guide-fab').click();document.querySelector('#s-client-detail .fit-guide-prompt').click()", wait: 250 },
+    { id: "ai-quick-starts", label: "AI · 3 contextual quick actions", run: "document.querySelector('#s-client-detail .fit-guide-fab').click()", wait: 250 },
+    { id: "ai-chat", label: "AI · full-screen chat from first action", run: "document.querySelector('#s-client-detail .fit-guide-fab').click();document.querySelector('#s-client-detail .fit-guide-prompt').click()", wait: 250 },
   ],
   "flows/coach/sessions.html#s-create": [
-    { id: "ai-quick-starts", label: "AI · 3 contextual conversation starters", run: "document.querySelector('#s-create .fit-guide-fab').click()", wait: 250 },
-    { id: "ai-chat", label: "AI · full-screen chat from first prompt", run: "document.querySelector('#s-create .fit-guide-fab').click();document.querySelector('#s-create .fit-guide-prompt').click()", wait: 250 },
+    { id: "ai-quick-starts", label: "AI · 3 contextual quick actions", run: "document.querySelector('#s-create .fit-guide-fab').click()", wait: 250 },
+    { id: "ai-chat", label: "AI · full-screen chat from first action", run: "document.querySelector('#s-create .fit-guide-fab').click();document.querySelector('#s-create .fit-guide-prompt').click()", wait: 250 },
+  ],
+  "flows/coach/sessions.html#pkg-editor": [
+    { id: "ai-quick-starts", label: "AI · 3 contextual quick actions", run: "document.querySelector('#pkg-editor .fit-guide-fab').click()", wait: 250 },
+    { id: "ai-chat", label: "AI · full-screen chat from first action", run: "document.querySelector('#pkg-editor .fit-guide-fab').click();document.querySelector('#pkg-editor .fit-guide-prompt').click()", wait: 250 },
   ],
   "flows/coach/client-groups.html#s-group-schedule": [
-    { id: "ai-quick-starts", label: "AI · 3 contextual conversation starters", run: "document.querySelector('#s-group-schedule .fit-guide-fab').click()", wait: 250 },
-    { id: "ai-chat", label: "AI · full-screen chat from first prompt", run: "document.querySelector('#s-group-schedule .fit-guide-fab').click();document.querySelector('#s-group-schedule .fit-guide-prompt').click()", wait: 250 },
+    { id: "ai-quick-starts", label: "AI · 3 contextual quick actions", run: "document.querySelector('#s-group-schedule .fit-guide-fab').click()", wait: 250 },
+    { id: "ai-chat", label: "AI · full-screen chat from first action", run: "document.querySelector('#s-group-schedule .fit-guide-fab').click();document.querySelector('#s-group-schedule .fit-guide-prompt').click()", wait: 250 },
     { id: "recurring-only", label: "Filtered to recurring", run: "cgSchedFilter('rec', document.querySelector('#s-group-schedule .fit-filter-chip:nth-child(2)'))" },
   ],
   "flows/coach/balance-v2.html#s-earnings": [
-    { id: "ai-quick-starts", label: "AI · 3 contextual conversation starters", run: "document.querySelector('#s-earnings .fit-guide-fab').click()", wait: 250 },
-    { id: "ai-chat", label: "AI · full-screen chat from first prompt", run: "document.querySelector('#s-earnings .fit-guide-fab').click();document.querySelector('#s-earnings .fit-guide-prompt').click()", wait: 250 },
+    { id: "ai-quick-starts", label: "AI · 3 contextual quick actions", run: "document.querySelector('#s-earnings .fit-guide-fab').click()", wait: 250 },
+    { id: "ai-chat", label: "AI · full-screen chat from first action", run: "document.querySelector('#s-earnings .fit-guide-fab').click();document.querySelector('#s-earnings .fit-guide-prompt').click()", wait: 250 },
   ],
   "flows/coach/stripe.html#s-stripe": [
-    { id: "ai-quick-starts", label: "AI · 3 contextual conversation starters", run: "document.querySelector('#s-stripe .fit-guide-fab').click()", wait: 250 },
-    { id: "ai-chat", label: "AI · full-screen chat from first prompt", run: "document.querySelector('#s-stripe .fit-guide-fab').click();document.querySelector('#s-stripe .fit-guide-prompt').click()", wait: 250 },
+    { id: "ai-quick-starts", label: "AI · 3 contextual quick actions", run: "document.querySelector('#s-stripe .fit-guide-fab').click()", wait: 250 },
+    { id: "ai-chat", label: "AI · full-screen chat from first action", run: "document.querySelector('#s-stripe .fit-guide-fab').click();document.querySelector('#s-stripe .fit-guide-prompt').click()", wait: 250 },
   ],
   "flows/shared/self-paced.html#s-setup": [
-    { id: "ai-quick-starts", label: "AI · 3 contextual conversation starters", run: "document.querySelector('#s-setup .fit-guide-fab').click()", wait: 250 },
-    { id: "ai-chat", label: "AI · full-screen chat from first prompt", run: "document.querySelector('#s-setup .fit-guide-fab').click();document.querySelector('#s-setup .fit-guide-prompt').click()", wait: 250 },
+    { id: "ai-quick-starts", label: "AI · 3 contextual quick actions", run: "document.querySelector('#s-setup .fit-guide-fab').click()", wait: 250 },
+    { id: "ai-chat", label: "AI · full-screen chat from first action", run: "document.querySelector('#s-setup .fit-guide-fab').click();document.querySelector('#s-setup .fit-guide-prompt').click()", wait: 250 },
+  ],
+  "flows/coach/calendar-sync.html#s-calsync": [
+    { id: "ai-quick-starts", label: "AI · 3 contextual quick actions", run: "document.querySelector('#s-calsync .fit-guide-fab').click()", wait: 250 },
+    { id: "ai-chat", label: "AI · full-screen chat from first action", run: "document.querySelector('#s-calsync .fit-guide-fab').click();document.querySelector('#s-calsync .fit-guide-prompt').click()", wait: 250 },
   ],
   "flows/athlete/search.html#s-search-landing": [
-    { id: "ai-quick-starts", label: "AI · 3 contextual conversation starters", run: "document.querySelector('#s-search-landing .fit-guide-fab').click()", wait: 250 },
-    { id: "ai-chat", label: "AI · full-screen chat from first prompt", run: "document.querySelector('#s-search-landing .fit-guide-fab').click();document.querySelector('#s-search-landing .fit-guide-prompt').click()", wait: 250 },
+    { id: "ai-quick-starts", label: "AI · 3 contextual quick actions", run: "document.querySelector('#s-search-landing .fit-guide-fab').click()", wait: 250 },
+    { id: "ai-chat", label: "AI · full-screen chat from first action", run: "document.querySelector('#s-search-landing .fit-guide-fab').click();document.querySelector('#s-search-landing .fit-guide-prompt').click()", wait: 250 },
   ],
   "flows/athlete/balance-v2.html#s-txn-spend": [
-    { id: "ai-quick-starts", label: "AI · 3 contextual conversation starters", run: "document.querySelector('#s-txn-spend .fit-guide-fab').click()", wait: 250 },
-    { id: "ai-chat", label: "AI · full-screen chat from first prompt", run: "document.querySelector('#s-txn-spend .fit-guide-fab').click();document.querySelector('#s-txn-spend .fit-guide-prompt').click()", wait: 250 },
+    { id: "ai-quick-starts", label: "AI · 3 contextual quick actions", run: "document.querySelector('#s-txn-spend .fit-guide-fab').click()", wait: 250 },
+    { id: "ai-chat", label: "AI · full-screen chat from first action", run: "document.querySelector('#s-txn-spend .fit-guide-fab').click();document.querySelector('#s-txn-spend .fit-guide-prompt').click()", wait: 250 },
+  ],
+  "flows/shared/profile.html#s-book-sessions": [
+    { id: "ai-quick-starts", label: "AI · 3 contextual quick actions", run: "document.querySelector('#s-book-sessions .fit-guide-fab').click()", wait: 250 },
+    { id: "ai-chat", label: "AI · full-screen chat from first action", run: "document.querySelector('#s-book-sessions .fit-guide-fab').click();document.querySelector('#s-book-sessions .fit-guide-prompt').click()", wait: 250 },
+  ],
+  "flows/athlete/calendar-sync.html#s-calsync": [
+    { id: "ai-quick-starts", label: "AI · 3 contextual quick actions", run: "document.querySelector('#s-calsync .fit-guide-fab').click()", wait: 250 },
+    { id: "ai-chat", label: "AI · full-screen chat from first action", run: "document.querySelector('#s-calsync .fit-guide-fab').click();document.querySelector('#s-calsync .fit-guide-prompt').click()", wait: 250 },
   ],
   "flows/coach/settings.html#s-settings": [
     { id: "ai-quick-starts-hidden", label: "AI quick starts hidden · tap to restore", run: "var el=document.querySelector('#s-settings [data-fit-guide-setting]');el.classList.remove('active');el.setAttribute('aria-checked','false');el.querySelector('[data-fit-guide-setting-sub]').textContent='Hidden · tap to show again'" },
