@@ -480,7 +480,7 @@
             <div style="flex:1;min-width:0;"><div class="spq-name">Paul Weber</div><div class="spq-sub"><span class="spq-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 9l5-2v10l-5-2z"/></svg>Self-paced</span> sent 2 days ago</div></div>
           </div>
           <div class="spq-title">Mobility reset</div>
-          <div class="spq-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Waiting for Paul to do it · 3 steps</div>
+          <div class="spq-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Scheduled Thu, Apr 17 · 19:00 &middot; 3 steps</div>
         </div>
         <div class="spq">
           <div class="spq-head" style="cursor:default;">
@@ -991,11 +991,24 @@
       <div style="font-size:22px;font-weight:600;color:var(--fit-text-primary);margin-top:2px;">Lower-body mobility</div>
       <div style="font-size:14px;color:var(--fit-text-secondary);margin-top:6px;display:inline-flex;align-items:center;gap:8px;"><span>🎬 3 steps</span><span>·</span><span>~15 min</span></div>
     </div>
-    <!-- Day-bound schedule + free reschedule -->
-    <div style="margin:0 16px 16px;padding:12px 14px;border-radius:12px;background:var(--fit-surface-high);display:flex;align-items:center;gap:10px;">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-secondary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-      <div style="flex:1;min-width:0;"><div style="font-size:14px;color:var(--fit-text-primary);">Thu, Apr 17</div><div style="font-size:12px;color:var(--fit-text-tertiary);">1h block · do it anytime that day</div></div>
-      <button style="border:none;background:transparent;color:var(--fit-brand-primary);font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;" onclick="document.getElementById('resched-sheet').classList.add('visible')">Reschedule</button>
+    <!-- The coach picks a DAY and it is a suggestion, not an appointment: there is no hour to
+         inherit, and a block the athlete never chose is noise they will ignore. So the athlete
+         puts it in their own calendar, with a time they picked — and that act is optional and
+         never gates Start. Nothing of this ever reaches the coach's calendar. -->
+    <div data-sched="none" style="margin:0 16px 16px;padding:12px 14px;border-radius:12px;background:var(--fit-surface-high);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-secondary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <div style="flex:1;min-width:0;"><div style="font-size:14px;color:var(--fit-text-primary);">Maria suggests Thu, Apr 17</div><div style="font-size:12px;color:var(--fit-text-tertiary);">Not in your calendar yet · do it whenever suits you</div></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button data-a11y-id="athlete.self-paced.schedule" style="flex:1;height:38px;border:none;border-radius:99px;background:rgba(0,167,208,0.12);color:var(--fit-brand-primary);font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;" onclick="document.getElementById('sp-schedule-sheet').classList.add('visible')">Add to calendar</button>
+        <button data-a11y-id="athlete.self-paced.change-day" style="height:38px;padding:0 14px;border:1px solid var(--fit-divider);border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;" onclick="document.getElementById('resched-sheet').classList.add('visible')">Another day</button>
+      </div>
+    </div>
+    <div data-sched="set" style="display:none;margin:0 16px 16px;padding:12px 14px;border-radius:12px;background:var(--fit-surface-high);align-items:center;gap:10px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>
+      <div style="flex:1;min-width:0;"><div style="font-size:14px;color:var(--fit-text-primary);">In your calendar &middot; <span id="sp-sched-when">Thu, Apr 17 at 19:00</span></div><div style="font-size:12px;color:var(--fit-text-tertiary);">Only you see it &mdash; never on Maria&rsquo;s calendar</div></div>
+      <button data-a11y-id="athlete.self-paced.reschedule" style="border:none;background:transparent;color:var(--fit-brand-primary);font-family:var(--fit-font);font-size:14px;font-weight:500;cursor:pointer;" onclick="document.getElementById('sp-schedule-sheet').classList.add('visible')">Change</button>
     </div>
     <div style="text-align:center;margin:-4px 16px 14px;">
       <button style="border:none;background:transparent;color:var(--fit-text-tertiary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;" onclick="document.getElementById('sp-cancel-sheet').classList.add('visible')">Cancel this session</button>
@@ -1015,12 +1028,52 @@
     <button data-wlc="paid" onclick="go('s-player',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Start</button>
     <button data-wlc="unpaid" onclick="go('s-player',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Pay €12 &amp; start</button>
   </div>
+  <!-- Put it in the athlete's own calendar. Day defaults to the coach's suggestion; the hour is
+       the athlete's, and it is the only hour anyone ever sees. Canonical fit-wheel-picker. -->
+  <div class="fit-sheet-overlay" id="sp-schedule-sheet">
+    <div class="fit-sheet tp-sheet"><div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:600;margin-bottom:4px;">Add to your calendar</div>
+      <div style="font-size:13px;color:var(--fit-text-secondary);margin-bottom:16px;">Pick when you&rsquo;ll do it. Only you see this block &mdash; it never appears on Maria&rsquo;s calendar.</div>
+      <div class="fit-input" style="cursor:pointer;margin-bottom:14px;" onclick="document.getElementById('sp-schedule-sheet').classList.remove('visible');document.getElementById('resched-sheet').classList.add('visible')">
+        <span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+        Thu, Apr 17<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+      </div>
+      <div class="fit-wheel-picker">
+        <div class="fit-wheel-col">
+          <span class="fit-wheel-label">Hour</span>
+          <div class="fit-wheel-scroll">
+            <div class="fit-wheel-item dim">17</div>
+            <div class="fit-wheel-item dim">18</div>
+            <div class="fit-wheel-item active">19</div>
+            <div class="fit-wheel-item dim">20</div>
+            <div class="fit-wheel-item dim">21</div>
+          </div>
+          <div class="fit-wheel-fade-top"></div>
+          <div class="fit-wheel-fade-bottom"></div>
+        </div>
+        <div class="fit-wheel-col">
+          <span class="fit-wheel-label">Minutes</span>
+          <div class="fit-wheel-scroll">
+            <div class="fit-wheel-item active">00</div>
+            <div class="fit-wheel-item dim">15</div>
+            <div class="fit-wheel-item dim">30</div>
+            <div class="fit-wheel-item dim">45</div>
+          </div>
+          <div class="fit-wheel-fade-top"></div>
+          <div class="fit-wheel-fade-bottom"></div>
+        </div>
+      </div>
+      <button class="fit-btn fit-btn-primary" data-a11y-id="athlete.self-paced.schedule.confirm" style="border-radius:99px;margin-top:20px;" onclick="spSchedule('Thu, Apr 17 at 19:00')">Add to calendar &middot; 19:00</button>
+      <button style="width:100%;height:50px;margin-top:8px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('sp-schedule-sheet').classList.remove('visible')">Cancel</button>
+    </div>
+  </div>
+
   <!-- Reschedule sheet (day picker; coach notified only on day-change) -->
   <div class="fit-sheet-overlay" id="resched-sheet">
     <div class="fit-sheet">
       <div class="fit-sheet-handle"></div>
-      <div style="font-size:18px;font-weight:600;margin-bottom:4px;">Move to another day</div>
-      <div style="font-size:13px;color:var(--fit-text-secondary);margin-bottom:14px;">Pick a new day — you can do it anytime that day. Changing the <strong>time</strong> within a day is silent; moving to a <strong>different day</strong> lets Maria know.</div>
+      <div style="font-size:18px;font-weight:600;margin-bottom:4px;">Pick a day</div>
+      <div style="font-size:13px;color:var(--fit-text-secondary);margin-bottom:14px;">Maria suggested Thu, Apr 17 — you can do it whenever. The <strong>hour</strong> you pick stays yours; moving to a <strong>different day</strong> lets Maria know.</div>
       <div class="fit-sheet-item" onclick="document.getElementById('resched-sheet').classList.remove('visible');spSnack('Moved to Fri, Apr 18 · Maria notified')">Fri, Apr 18</div>
       <div class="fit-sheet-item" onclick="document.getElementById('resched-sheet').classList.remove('visible');spSnack('Moved to Sat, Apr 19 · Maria notified')">Sat, Apr 19</div>
       <div class="fit-sheet-item" onclick="document.getElementById('resched-sheet').classList.remove('visible');spSnack('Moved to Mon, Apr 21 · Maria notified')">Mon, Apr 21</div>
@@ -1347,10 +1400,23 @@
   </div>
 
   <div class="ann" id="ann-s-welcome"><span class="ann-role athlete">Athlete</span>
+    <div class="state-toggle">
+      <button class="active" onclick="spSchedState('none',this)">Not in calendar</button>
+      <button onclick="spSchedState('set',this)">Scheduled</button>
+    </div>
     <div class="state-toggle"><button class="active" onclick="setWlc('paid',this)">Already paid</button><button onclick="setWlc('unpaid',this)">Coach-initiated</button></div>
     <h3>Welcome / intro</h3>
     <p>What the coach prepared: title · steps · ~total time · note · step preview. Then start.</p>
     <ul><li><strong>Already paid</strong> (athlete booked) → CTA <strong>Start</strong>.</li><li><strong>Coach-initiated</strong> (coach pushed it, not yet paid) → CTA <strong>Pay €12 &amp; start</strong>.</li></ul>
+    <hr>
+    <p><strong>The coach's day is a suggestion, and putting it in a calendar is the athlete's act.</strong> The coach picks a day and never an hour — self-paced has no appointment to keep — so there is no time to inherit. The spec used to say a 1-hour block appears automatically, but it never said <em>at what hour</em>, which is exactly why it was never built: you cannot implement a default block without knowing when. And a block nobody chose is noise that gets ignored, which kills the reminder the product depends on.</p>
+    <ul>
+      <li><strong>Not in calendar</strong> (default) — "Maria suggests Thu, Apr 17 · not in your calendar yet". Two actions: <em>Add to calendar</em> (wheel picker for the hour, day pre-filled with the coach's) and <em>Another day</em>.</li>
+      <li><strong>Scheduled</strong> — "In your calendar · Thu, Apr 17 at 19:00 · only you see it".</li>
+      <li><strong>Start is never gated by either.</strong> An athlete who opened it to train right now must not be asked when they plan to train.</li>
+      <li><strong>Nothing reaches the coach's calendar</strong> — self-paced does not occupy the coach's time, so it must not occupy their grid. What the coach gets instead is a line inside the session: <em>Planned for Thu, Apr 17</em> → <em>Scheduled Thu, Apr 17 · 19:00</em> → <em>Completed Thu, Apr 17 · 19:42</em>. The hour only appears once the athlete deliberately set one — for a "do it whenever" product, broadcasting an hour they never chose would be surveillance.</li>
+    </ul>
+    <p class="note">Moving to a <strong>different day</strong> still notifies the coach; the <strong>hour</strong> is the athlete's alone and changing it is silent.</p>
   </div>
 
   <div class="ann" id="ann-s-player"><span class="ann-role athlete">Athlete</span>
@@ -1432,6 +1498,20 @@ window.addEventListener('DOMContentLoaded', function(){
 function spSetupBack(){
   if (new URLSearchParams(location.search).get('offering')) { history.back(); return; }
   go('s-queue', null);
+}
+// Scheduling is the athlete's act, so the card flips only once they have done it. The coach
+// never gets a calendar entry - they see the chosen slot inside the session instead.
+function spSchedule(when){
+  var sh=document.getElementById('sp-schedule-sheet'); if(sh) sh.classList.remove('visible');
+  var w=document.getElementById('sp-sched-when'); if(w) w.textContent=when;
+  spSchedState('set');
+  spSnack('Added to your calendar \u00b7 ' + when);
+}
+function spSchedState(state, btn){
+  if(btn){ btn.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('active');}); btn.classList.add('active'); }
+  document.querySelectorAll('#s-welcome [data-sched]').forEach(function(el){
+    el.style.display = (el.dataset.sched===state) ? (state==='set'?'flex':'block') : 'none';
+  });
 }
 function splClearCoach(){ var el=document.getElementById('spl-coach-filter'); if(el) el.style.display='none'; }
 function setSt(id, state, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} var el=document.getElementById(id); el.classList.remove('ls-default','ls-empty','ls-loading'); el.classList.add('ls-'+state); }
