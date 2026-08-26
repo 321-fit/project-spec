@@ -191,6 +191,11 @@
   .sb-name { font-size: 24px; font-weight: 600; color: var(--fit-text-primary); padding: 4px 22px 0; }
   .sb-target { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 22px 0; }
   .sb-cue { margin: 16px 22px 0; padding: 14px; border-radius: 12px; border: 1px solid var(--fit-divider); font-size: 15px; line-height: 1.5; color: var(--fit-text-secondary); }
+  /* No cues: the card comes off entirely rather than standing empty under its own label — an
+     empty labelled box advertises a missing thing, and nothing is missing here. The demo and
+     the target already say what to do. The height the text is not using goes to the clip. */
+  #s-step-brief.sb-nocue .sb-cue { display: none; }
+  #s-step-brief.sb-nocue .sb-media { max-height: 42vh; }
   .sb-cue-label { font-size: 11px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--fit-text-tertiary); margin-bottom: 6px; }
   /* Thin rail, not a list of cards: the video is the hero here and cards would eat it. */
   .sb-rail { display: flex; align-items: center; gap: 5px; padding: 20px 22px 0; }
@@ -1511,6 +1516,7 @@
     <div class="state-toggle">
       <button class="active" onclick="spGoStep(0)">First step</button>
       <button onclick="spGoStep(1)">Mid-workout</button>
+      <button onclick="spGoStep(2)">No cues</button>
     </div>
     <h3>Step brief</h3>
     <p>The screen the coach&rsquo;s per-step <strong>Video</strong> and <strong>Instructions / cues</strong> finally reach. Both fields have always existed in the step editor and were displayed to <em>nobody</em> &mdash; the coach wrote form cues no one could read.</p>
@@ -1519,6 +1525,7 @@
       <li><strong>The tick names the step, never its number.</strong> "Hip openers done" &mdash; not "Step 3 done". The screen already says <em>Step 4 of 6</em>, and two numbers would have to be reconciled by the reader.</li>
       <li><strong>A rail, not a list of cards.</strong> The full step list would eat the video, which is the hero here. The rail plus "step N of M" gives the same orientation for one line.</li>
       <li><strong>Nothing from &ldquo;before&rdquo; leaks in</strong> &mdash; no reschedule, no cancel, no coach note. Those live on Welcome. Inside a workout there are only steps.</li>
+      <li><strong>No cues is a normal step, not a gap.</strong> The field is optional and a &ldquo;follow the video&rdquo; step is exactly where a coach writes nothing. The card comes off entirely &mdash; an empty box under its own label advertises something missing, and nothing is: the demo and the target already say what to do. The height the text is not using goes to the clip.</li>
       <li>The last step&rsquo;s end goes to <strong>Complete</strong>, not to another brief.</li>
     </ul>
   </div>
@@ -1641,7 +1648,7 @@ function setPl(v, btn) { if(btn){btn.parentElement.querySelectorAll('button').fo
 var SP_STEPS = [
   { name: 'Warm-up',          target: '3:00',                    rest: '',     cues: 'Easy pace — this is just to get warm. Nothing here should feel like work.' },
   { name: 'Hip openers',      target: '\u00d712 \u00b7 4 sets', rest: '0:20', cues: 'Keep the knee tracking over the toes and go only as deep as the hip allows. Film set 3 so I can check your depth.' },
-  { name: 'Cooldown stretch', target: 'follow video',            rest: '',     cues: 'Follow along with the video and breathe out into each position.' }
+  { name: 'Cooldown stretch', target: 'follow video',            rest: '',     cues: '' }
 ];
 var SP_RESUME = 0;          // index of the step to (re)start at — 0 = nothing done yet
 var SP_CUR = 0;
@@ -1679,7 +1686,8 @@ function spGoStep(i){
   var rst = document.getElementById('sb-rest');
   rst.style.display = st.rest ? '' : 'none';
   if (st.rest) rst.lastChild.textContent = 'rest ' + st.rest;
-  brief.querySelector('.sb-cue').lastChild.textContent = ' ' + st.cues;
+  brief.classList.toggle('sb-nocue', !st.cues);
+  if (st.cues) brief.querySelector('.sb-cue').lastChild.textContent = ' ' + st.cues;
   var left = document.getElementById('sb-left');
   if (left) left.textContent = i + (i === 1 ? ' done' : ' done');
   var rail = brief.querySelector('.sb-rail');

@@ -199,6 +199,11 @@ both collected by the step editor since day one — were displayed to **nobody**
   On step one the band is absent and only the rail remains.
 - **A rail, not a list of cards** — the full step list would crowd out the video, which is the
   hero. Rail + "step N of M" gives the same orientation in one line.
+- **No cues is a normal step, not a gap.** `Instructions / cues` is optional in the builder, and
+  a "follow the video" step is exactly where a coach writes nothing. The card comes off entirely
+  rather than standing empty under its own label — an empty labelled box advertises something
+  missing, and nothing is: the demo and the target already say what to do. The height the text is
+  not using goes to the clip.
 - **Nothing from "before" leaks into the workout** — reschedule, cancel and the coach's note stay
   on Welcome. Inside a workout there are only steps.
 - **Partly done is a real state.** The athlete can close the app mid-workout. Welcome then shows
