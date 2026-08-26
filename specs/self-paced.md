@@ -176,6 +176,48 @@ Two rules that follow:
 
 ---
 
+## 6a. Doing the workout — steps, briefs, resume *(added 2026-08-26)*
+
+The player used to be a **single exercise** whose only exit was Complete: a three-step workout
+was literally unfinishable, and the coach's per-step **Video** and **Instructions / cues** —
+both collected by the step editor since day one — were displayed to **nobody**.
+
+- **Step brief** (`#s-step-brief`) sits before every step: the coach's demo clip, the step name,
+  its target chips, and the cues. `Start` on Welcome opens the brief for step 1; the end of each
+  step opens the brief for the next; the last step ends at **Complete**.
+- **One screen, two jobs.** Between exercises the athlete needs *what did I just finish* and
+  *what is next*, and the video belongs to the second — so the finished step is a slim tick line
+  above the next step's demo rather than a screen of its own. Two screens would be two taps back
+  to training.
+- **The tick names the step, never its number** — "Hip openers done", not "Step 3 done". The
+  screen already says *Step 4 of 6*; two numbers would have to be reconciled by the reader.
+- **A rail, not a list of cards** — the full step list would crowd out the video, which is the
+  hero. Rail + "step N of M" gives the same orientation in one line.
+- **Nothing from "before" leaks into the workout** — reschedule, cancel and the coach's note stay
+  on Welcome. Inside a workout there are only steps.
+- **Partly done is a real state.** The athlete can close the app mid-workout. Welcome then shows
+  *N of M done*, ticks the finished steps, accents the resume step, and its CTA becomes
+  **Continue · step N of M**; the athlete's list card and the dashboard hero carry the same
+  number. **Resume is at step granularity** — a step closes when its last set does, sets inside
+  it are not remembered. Storing "set 2 of 4" is fiddly state for no gain, and redoing a couple
+  of sets of the exercise you walked away from is the better outcome anyway.
+- **Submitting is unchanged** — it happens at Complete, after the last step. A half-done workout
+  stays *With athlete* and ages into *Overdue* by the normal rule.
+- **Coach visibility: a stall, not a percentage.** The With-athlete card shows
+  `Started · 1 of 3 · stalled 2 days` once progress has been sitting. It is a coaching signal
+  (too hard? cue unclear?) worth acting on. A live progress bar was rejected and its dead
+  `.td-prog` CSS deleted: a bar turns an unfinished attempt into a watch-metric, where a stated
+  fact reads as information.
+- **Player layout (reshaped 2026-08-26).** Media was `flex:1` and ate ~55% of the screen showing
+  a static frame while the athlete was mid-set — they are on the floor doing the move, not
+  watching. Now the brief carries the demo, so in-set media is capped at 38% and the metric
+  block takes the room. The session rail moved to the **top** (at the bottom it was clipped by
+  the footer) and now carries step context. `12×` became `12` over a `REPS` label — the unit was
+  a grey subscript on the baseline and read as an unfinished sum. Set dots replaced "Set 3 of 4"
+  as prose, which needs reading mid-exercise.
+
+---
+
 ## 7. Setup builder (coach) — best-practice pattern
 
 One **builder-home** screen: workout title + welcome note (outline-card → editor) + **day to do it** (date picker, no time) + a **step list** (compact cards, drag-reorder, target badge) + Add step + Send. Each step opens a **focused editor screen** with a **"Step N of M ‹ ›" counter**: name · video [record/upload/library → optional trim] · **targets as independent toggles** — `Reps × sets` and `Timer` (duration) can be on **together, either, or neither** (neither = just follow the video) — plus an independent `Rest after` · instructions.

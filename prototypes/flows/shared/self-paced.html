@@ -121,25 +121,62 @@
   .sp-timer-cap { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
   /* Player (Freeletics-style): full-bleed media, bottom-left metric, one segment bar */
   #s-player .fit-phone-content { padding: 0 !important; display: flex; flex-direction: column; }
-  .plf-media { flex: 1; min-height: 0; position: relative; display: flex; align-items: center; justify-content: center; background: var(--fit-gray-100); overflow: hidden; }
+  /* Capped, not flex:1. The video used to eat ~55% of the screen and show a static frame while
+     the athlete was mid-set — they are on the floor doing the move, not watching. Now that the
+     step brief carries the demo, in-set media is a reference glance, so the metric gets the room
+     and the session rail stops being squeezed off the bottom edge. */
+  .plf-media { flex: 0 0 auto; height: 38%; min-height: 0; position: relative; display: flex; align-items: center; justify-content: center; background: var(--fit-gray-100); overflow: hidden; }
+  #s-player.pl-rest .plf-media { height: 46%; }
   .plf-exvis { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
   .plf-exvis .ph { position: absolute; inset: 0; }
   .plf-exvis .play { position: relative; width: 46px; height: 46px; opacity: 0.92; }
   #s-player.pl-rest .plf-exvis { display: none; }
   #s-player.pl-rest .plf-media { background: var(--fit-screen-bg); }
-  .plf-bottom { padding: 18px 22px 6px; min-height: 168px; box-sizing: border-box; }  /* fixed → media stays same size across reps/timed */
+  .plf-bottom { flex: 1; min-height: 0; padding: 22px 22px 6px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
   .plf-metric { font-size: 60px; font-weight: 700; line-height: 1; color: var(--fit-text-primary); font-variant-numeric: tabular-nums; }
   /* Rest = centered ring inside the (blank) media area */
   .plf-rest-ring { display: none; flex-direction: column; align-items: center; justify-content: center; width: 200px; height: 200px; border-radius: 50%; border: 5px solid var(--fit-divider); }
   #s-player.pl-rest .plf-rest-ring { display: flex; }
   .plf-rest-ring .n { font-size: 56px; font-weight: 700; color: var(--fit-text-primary); line-height: 1; font-variant-numeric: tabular-nums; }
   .plf-rest-ring .l { font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--fit-teal-500); margin-top: 6px; }
-  .plf-metric small { font-size: 26px; font-weight: 600; color: var(--fit-text-tertiary); }
+  /* "12×" put the unit on the baseline as a grey subscript and read as an unfinished sum.
+     The unit is a word under the number instead. */
+  .plf-unit { font-size: 13px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; color: var(--fit-text-tertiary); margin-top: 4px; }
+  /* Set dots — what you actually track mid-exercise; "Set 3 of 4" as prose needs reading. */
+  .plf-sets { display: flex; align-items: center; gap: 6px; margin-top: 14px; }
+  .plf-sets i { width: 9px; height: 9px; border-radius: 50%; background: var(--fit-gray-300); }
+  .fit-dark .plf-sets i { background: var(--fit-gray-600); }
+  .plf-sets i.done { background: var(--fit-brand-primary); }
+  .plf-sets i.cur { background: var(--fit-brand-primary); box-shadow: 0 0 0 4px rgba(0,167,208,0.18); }
+  .plf-sets span { font-size: 13px; color: var(--fit-text-tertiary); margin-left: 4px; }
   .plf-name { font-size: 20px; font-weight: 600; color: var(--fit-text-primary); margin-top: 8px; }
   .plf-detail { font-size: 14px; color: var(--fit-text-secondary); margin-top: 2px; }
   .plf-next { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 8px; display: flex; align-items: center; gap: 5px; }
   .plf-pause { display: inline-block; margin-top: 12px; font-size: 14px; font-weight: 600; color: var(--fit-brand-primary); cursor: pointer; }
-  .plf-bar { display: flex; gap: 3px; padding: 10px 22px 0; }
+  /* Step brief — the screen the coach's per-step Video and Instructions/cues finally reach.
+     Both fields exist in the builder and were shown to nobody. Also the between-steps moment:
+     one screen answers "what did I just finish" and "what is next", instead of two taps. */
+  .sb-done { display: flex; align-items: center; gap: 7px; padding: 0 22px 12px; font-size: 14px; font-weight: 500; color: var(--fit-teal-600); }
+  .fit-dark .sb-done { color: var(--fit-teal-400); }
+  .sb-done svg { width: 17px; height: 17px; flex-shrink: 0; }
+  .sb-media { margin: 0 22px; border-radius: 16px; overflow: hidden; aspect-ratio: 16/10; position: relative; display: flex; align-items: center; justify-content: center; background: var(--fit-gray-200); }
+  .sb-media .ph { position: absolute; inset: 0; }
+  .sb-media .play { position: relative; width: 44px; height: 44px; opacity: 0.95; }
+  .sb-media .loop { position: absolute; left: 10px; bottom: 10px; font-size: 11px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: #fff; background: rgba(0,0,0,0.4); padding: 3px 8px; border-radius: 6px; }
+  .sb-of { font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--fit-text-tertiary); padding: 18px 22px 0; }
+  .sb-name { font-size: 24px; font-weight: 600; color: var(--fit-text-primary); padding: 4px 22px 0; }
+  .sb-target { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 22px 0; }
+  .sb-cue { margin: 16px 22px 0; padding: 14px; border-radius: 12px; border: 1px solid var(--fit-divider); font-size: 15px; line-height: 1.5; color: var(--fit-text-secondary); }
+  .sb-cue-label { font-size: 11px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--fit-text-tertiary); margin-bottom: 6px; }
+  /* Thin rail, not a list of cards: the video is the hero here and cards would eat it. */
+  .sb-rail { display: flex; align-items: center; gap: 5px; padding: 20px 22px 0; }
+  .sb-rail i { flex: 1; height: 4px; border-radius: 2px; background: var(--fit-gray-200); }
+  .fit-dark .sb-rail i { background: var(--fit-gray-700); }
+  .sb-rail i.done { background: var(--fit-teal-500); }
+  .sb-rail i.cur { background: var(--fit-brand-primary); }
+  .plf-top { padding: 2px 22px 12px; }
+  .plf-step { font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--fit-text-tertiary); margin-bottom: 8px; }
+  .plf-bar { display: flex; gap: 3px; }
   .plf-bar i { flex: 1; height: 4px; border-radius: 2px; background: var(--fit-gray-200); }
   .plf-bar i.done { background: var(--fit-brand-primary); }
   .plf-bar i.cur { background: var(--fit-brand-primary); opacity: 0.4; }
@@ -298,6 +335,17 @@
   #s-welcome [data-wlc] { display: none; }
   #s-welcome.wlc-paid [data-wlc="paid"] { display: block; }
   #s-welcome.wlc-unpaid [data-wlc="unpaid"] { display: block; }
+  /* Resume: a partly-done workout must say so everywhere, or the list lies about not having
+     started. Done steps get a tick and recede; the one you resume at is the only accented row. */
+  #s-welcome [data-res] { display: none; }
+  #s-welcome.wlc-part [data-res="part"] { display: inline; }
+  .sp-step.st-done { opacity: 0.55; }
+  .sp-step.st-done .sp-num { background: var(--fit-teal-500); color: #fff; font-size: 0; position: relative; }
+  .sp-step.st-done .sp-num::after { content: "\2713"; font-size: 13px; font-weight: 700; }
+  .sp-step.st-next { border-color: var(--fit-brand-primary); box-shadow: 0 0 0 1px var(--fit-brand-primary); }
+  .sp-step.st-next .sp-num { background: var(--fit-brand-primary); color: #fff; }
+  #s-step-brief [data-sb] { display: none; }
+  #s-step-brief.sb-mid [data-sb="mid"] { display: flex; }
   #s-player [data-pl] { display: none; }
   #s-player.pl-timed [data-pl="timed"] { display: block; }
   #s-player.pl-reps  [data-pl="reps"]  { display: block; }
@@ -481,6 +529,7 @@
           </div>
           <div class="spq-title">Mobility reset</div>
           <div class="spq-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Scheduled Thu, Apr 17 · 19:00 &middot; 3 steps</div>
+          <div class="spq-meta" style="color:var(--fit-yellow-600);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Started &middot; 1 of 3 &middot; stalled 2 days</div>
         </div>
         <div class="spq">
           <div class="spq-head" style="cursor:default;">
@@ -941,7 +990,7 @@
       <div class="sp-sec"><span class="fit-section-title--md" style="padding:0;">To do</span></div>
       <div style="padding:0 16px;">
         <div class="sp-card" onclick="go('s-welcome',null)" style="border:1px solid rgba(240,92,91,0.3);"><span class="sp-thumb" style="background:linear-gradient(135deg,#f05c5b,#f59e0b);"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Core stability</span><span class="sp-pill overdue">Overdue</span></div><div class="sp-meta">Was due Apr 15 · do it now or reschedule</div></div></div>
-        <div class="sp-card" onclick="go('s-welcome',null)"><span class="sp-thumb"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Lower-body mobility</span></div><div class="sp-meta">From Maria · 3 steps · ~15 min</div></div></div>
+        <div class="sp-card" onclick="go('s-welcome',null)"><span class="sp-thumb"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="sp-body"><div class="sp-row1"><span class="sp-title">Lower-body mobility</span></div><div class="sp-meta" id="spl-progress">From Maria · 3 steps · ~15 min</div></div></div>
       </div>
       <!-- Not "To do" - the athlete cannot act on it yet. Its own section, mirroring the coach's
            "To set up", so the row needs no pill to explain why it is inert. -->
@@ -989,7 +1038,7 @@
       <span class="sp-av" style="width:56px;height:56px;background:var(--fit-brand-gradient);margin:0 auto 12px;">MR</span>
       <div style="font-size:13px;color:var(--fit-text-tertiary);">From Maria Rodriguez</div>
       <div style="font-size:22px;font-weight:600;color:var(--fit-text-primary);margin-top:2px;">Lower-body mobility</div>
-      <div style="font-size:14px;color:var(--fit-text-secondary);margin-top:6px;display:inline-flex;align-items:center;gap:8px;"><span>🎬 3 steps</span><span>·</span><span>~15 min</span></div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-top:6px;display:inline-flex;align-items:center;gap:8px;"><span>🎬 3 steps</span><span>·</span><span>~15 min</span><span data-res="part">·</span><span data-res="part" style="color:var(--fit-teal-600);font-weight:500;" id="wlc-progress">1 of 3 done</span></div>
     </div>
     <!-- The coach picks a DAY and it is a suggestion, not an appointment: there is no hour to
          inherit, and a block the athlete never chose is noise they will ignore. So the athlete
@@ -1016,14 +1065,14 @@
     </div>
     <div class="fit-section-title--md">What you'll do</div>
     <div style="padding:0 16px;">
-      <div class="sp-step" style="cursor:default;"><span class="sp-num">1</span><div class="sp-body"><div class="sp-title">Warm-up</div></div><span class="sp-tbadge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>3:00</span></div>
-      <div class="sp-step" style="cursor:default;"><span class="sp-num">2</span><div class="sp-body"><div class="sp-title">Hip openers</div></div><span class="sp-tbadge">×12 · 4 sets</span></div>
-      <div class="sp-step" style="cursor:default;"><span class="sp-num">3</span><div class="sp-body"><div class="sp-title">Cooldown stretch</div></div><span class="sp-tbadge" style="background:transparent;color:var(--fit-text-tertiary);padding-right:0;">follow video</span></div>
+      <div class="sp-step" data-wstep="0" style="cursor:default;"><span class="sp-num">1</span><div class="sp-body"><div class="sp-title">Warm-up</div></div><span class="sp-tbadge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>3:00</span></div>
+      <div class="sp-step" data-wstep="1" style="cursor:default;"><span class="sp-num">2</span><div class="sp-body"><div class="sp-title">Hip openers</div></div><span class="sp-tbadge">×12 · 4 sets</span></div>
+      <div class="sp-step" data-wstep="2" style="cursor:default;"><span class="sp-num">3</span><div class="sp-body"><div class="sp-title">Cooldown stretch</div></div><span class="sp-tbadge" style="background:transparent;color:var(--fit-text-tertiary);padding-right:0;">follow video</span></div>
     </div>
   </div>
   <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
-    <button data-wlc="paid" onclick="go('s-player',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Start</button>
-    <button data-wlc="unpaid" onclick="go('s-player',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Pay €12 &amp; start</button>
+    <button data-wlc="paid" data-a11y-id="athlete.self-paced.start" onclick="spGoStep(SP_RESUME)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;"><span id="wlc-cta">Start</span></button>
+    <button data-wlc="unpaid" onclick="spGoStep(SP_RESUME)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Pay &euro;12 &amp; start</button>
   </div>
   <!-- Cancel sheet — session already set up (case C): no refund, coach spent the time -->
   <div class="fit-sheet-overlay" id="sp-cancel-sheet">
@@ -1042,6 +1091,48 @@
 </div>
 
 <!-- ==================== ATHLETE: PLAYER ==================== -->
+<!-- ==================== ATHLETE: STEP BRIEF ==================== -->
+<div class="fit-phone fit-light sb-mid" id="s-step-brief" data-status="canon">
+  <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-icon-btn" aria-label="Close" onclick="go('s-welcome',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      <span style="flex:1;"></span>
+      <button class="fit-icon-btn" aria-label="Message coach" onclick="go('s-comments',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></button>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-top:6px;">
+    <!-- Only when arriving off a finished step. Names what you did, never its number: the screen
+         already says which step you are ON, and two numbers would have to be reconciled. -->
+    <div class="sb-done" data-sb="mid">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <span id="sb-prev">Warm-up done</span>
+    </div>
+
+    <div class="sb-media" onclick="alert('Full-screen demo — TBD')">
+      <div class="ph" style="background:linear-gradient(135deg,#ef4444,#f59e0b);"></div>
+      <svg class="play" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+      <span class="loop">Loops</span>
+    </div>
+
+    <div class="sb-of">Step <span id="sb-n">2</span> of <span id="sb-total">3</span></div>
+    <div class="sb-name" id="sb-name">Hip openers</div>
+    <div class="sb-target">
+      <span class="sp-tbadge">&times;12 &middot; 4 sets</span>
+      <span class="sp-tbadge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>rest 0:20</span>
+    </div>
+
+    <div class="sb-cue">
+      <div class="sb-cue-label">Maria&rsquo;s cues</div>
+      Keep the knee tracking over the toes and go only as deep as the hip allows. Film set 3 so I can check your depth.
+    </div>
+
+    <div class="sb-rail"><i class="done"></i><i class="cur"></i><i></i></div>
+  </div>
+  <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
+    <button data-a11y-id="athlete.self-paced.step.start" onclick="setPl('ready',null);go('s-player',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Start step <span id="sb-cta-n">2</span></button>
+  </div>
+</div>
+
 <div class="fit-phone fit-light pl-reps" id="s-player" data-status="canon">
   <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
@@ -1052,7 +1143,13 @@
     </div>
   </div>
   <div class="fit-phone-content">
-    <!-- big exercise media (fills) -->
+    <!-- Where you are in the whole workout. At the bottom it was being clipped by the footer,
+         and it carried no step context at all — the player never said which exercise of how many. -->
+    <div class="plf-top">
+      <div class="plf-step">Step 2 of 3 &middot; Hip openers</div>
+      <div class="plf-bar"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="cur"></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+    <!-- exercise media — a reference glance now that the brief carries the demo -->
     <div class="plf-media">
       <div class="plf-exvis"><div class="ph" style="background:linear-gradient(135deg,#ef4444,#f59e0b);"></div><svg class="play" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>
       <!-- rest: centered ring (media is blank during rest) -->
@@ -1065,17 +1162,28 @@
     </div>
     <!-- bottom block (one per phase) -->
     <div class="plf-bottom">
-      <div data-pl="reps"><div class="plf-metric">12<small>×</small></div><div class="plf-name">Hip openers</div><div class="plf-detail">Set 3 of 4 · at your pace</div><div class="plf-next">Next: 20s rest</div></div>
-      <div data-pl="timed"><div class="plf-metric">00:45</div><div class="plf-name">Hip openers</div><div class="plf-detail">Set 3 of 4 · hold the position</div><div class="plf-next">Next: 20s rest</div><span class="plf-pause" onclick="spToggleTimer(this)">Pause</span></div>
+      <div data-pl="reps">
+        <div class="plf-metric">12</div><div class="plf-unit">reps</div>
+        <div class="plf-name">Hip openers</div>
+        <div class="plf-detail">At your pace</div>
+        <div class="plf-sets"><i class="done"></i><i class="done"></i><i class="cur"></i><i></i><span>Set 3 of 4</span></div>
+        <div class="plf-next">Next: 20s rest</div>
+      </div>
+      <div data-pl="timed">
+        <div class="plf-metric">00:45</div><div class="plf-unit">remaining</div>
+        <div class="plf-name">Hip openers</div>
+        <div class="plf-detail">Hold the position</div>
+        <div class="plf-sets"><i class="done"></i><i class="done"></i><i class="cur"></i><i></i><span>Set 3 of 4</span></div>
+        <div class="plf-next">Next: 20s rest</div>
+        <span class="plf-pause" onclick="spToggleTimer(this)">Pause</span>
+      </div>
       <div data-pl="rest" style="text-align:center;"><div class="plf-name">Get ready for set 4</div><div class="plf-detail">×12 · Hip openers</div><div class="plf-next" style="justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 010 7"/></svg>“Twenty… get ready for set four”</div></div>
     </div>
-    <!-- whole-session progress (sets + rests across the workout) -->
-    <div class="plf-bar"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="cur"></i><i></i><i></i><i></i><i></i><i></i></div>
   </div>
   <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
     <button data-pl="reps" onclick="setPl('rest',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;text-align:center;">Done</button>
     <button data-pl="timed" onclick="setPl('rest',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;text-align:center;">Done</button>
-    <button data-pl="rest" onclick="go('s-complete',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;border:1px solid var(--fit-divider);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;text-align:center;">Skip to next →</button>
+    <button data-pl="rest" data-a11y-id="athlete.self-paced.step.next" onclick="spFinishStep()" style="width:100%;height:50px;border:none;border-radius:99px;background:transparent;border:1px solid var(--fit-divider);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;text-align:center;">Skip rest &rarr;</button>
   </div>
 </div>
 
@@ -1349,6 +1457,10 @@
       <button onclick="spSchedState('set',this)">Scheduled</button>
     </div>
     <div class="state-toggle"><button class="active" onclick="setWlc('paid',this)">Already paid</button><button onclick="setWlc('unpaid',this)">Coach-initiated</button></div>
+    <div class="state-toggle">
+      <button class="active" onclick="spResume(0)">Fresh</button>
+      <button onclick="spResume(1)">Resumed &middot; 1 of 3</button>
+    </div>
     <h3>Welcome / intro</h3>
     <p>What the coach prepared: title · steps · ~total time · note · step preview. Then start.</p>
     <ul><li><strong>Already paid</strong> (athlete booked) → CTA <strong>Start</strong>.</li><li><strong>Coach-initiated</strong> (coach pushed it, not yet paid) → CTA <strong>Pay €12 &amp; start</strong>.</li></ul>
@@ -1362,6 +1474,26 @@
       <li><strong>Nothing reaches the coach's calendar</strong> — self-paced does not occupy the coach's time, so it must not occupy their grid. What the coach gets instead is a line inside the session: <em>Planned for Thu, Apr 17</em> → <em>Scheduled Thu, Apr 17 · 19:00</em> → <em>Completed Thu, Apr 17 · 19:42</em>. The hour only appears once the athlete deliberately set one — for a "do it whenever" product, broadcasting an hour they never chose would be surveillance.</li>
     </ul>
     <p class="note">Moving to a <strong>different day</strong> still notifies the coach; the <strong>hour</strong> is the athlete's alone and changing it is silent.</p>
+    <hr>
+    <p><strong>Partly done is a real state.</strong> An athlete can close the app mid-workout, and every surface has to say so or it lies about them not having started. Here: a <em>N of M done</em> line under the title, ticks on the finished steps, the resume step accented, and the CTA becomes <strong>Continue · step N of M</strong>. The athlete&rsquo;s list card and the dashboard hero follow the same number.</p>
+    <p><strong>Resume is at step granularity.</strong> A step closes when its last set does; sets inside it are not remembered. Storing "set 2 of 4" is fiddly state for no gain, and redoing a couple of sets of the exercise you walked away from is the better outcome anyway &mdash; you had cooled down.</p>
+    <p class="note">Submitting is unchanged: it happens at <strong>Complete</strong>, after the last step. A workout left half-done stays <em>With athlete</em> and ages into <em>Overdue</em> by the normal rule.</p>
+  </div>
+
+  <div class="ann" id="ann-s-step-brief"><span class="ann-role athlete">Athlete</span>
+    <div class="state-toggle">
+      <button class="active" onclick="spGoStep(0)">First step</button>
+      <button onclick="spGoStep(1)">Mid-workout</button>
+    </div>
+    <h3>Step brief</h3>
+    <p>The screen the coach&rsquo;s per-step <strong>Video</strong> and <strong>Instructions / cues</strong> finally reach. Both fields have always existed in the step editor and were displayed to <em>nobody</em> &mdash; the coach wrote form cues no one could read.</p>
+    <ul>
+      <li><strong>One screen, two jobs.</strong> Between exercises the athlete needs "what did I just finish" and "what is next", and the video belongs to the second. Two screens would be two taps back to training, so the finished step is a slim tick line above the next step&rsquo;s demo.</li>
+      <li><strong>The tick names the step, never its number.</strong> "Hip openers done" &mdash; not "Step 3 done". The screen already says <em>Step 4 of 6</em>, and two numbers would have to be reconciled by the reader.</li>
+      <li><strong>A rail, not a list of cards.</strong> The full step list would eat the video, which is the hero here. The rail plus "step N of M" gives the same orientation for one line.</li>
+      <li><strong>Nothing from &ldquo;before&rdquo; leaks in</strong> &mdash; no reschedule, no cancel, no coach note. Those live on Welcome. Inside a workout there are only steps.</li>
+      <li>The last step&rsquo;s end goes to <strong>Complete</strong>, not to another brief.</li>
+    </ul>
   </div>
 
   <div class="ann" id="ann-s-player"><span class="ann-role athlete">Athlete</span>
@@ -1473,6 +1605,65 @@ function setRvProc(on, btn) { if(btn){btn.parentElement.querySelectorAll('button
 function setUp(state, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} document.getElementById('s-upload').classList.toggle('up-error', state==='error'); }
 function setWlc(v, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} var el=document.getElementById('s-welcome'); el.classList.remove('wlc-paid','wlc-unpaid'); el.classList.add('wlc-'+v); }
 function setPl(v, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} var el=document.getElementById('s-player'); el.classList.remove('pl-timed','pl-reps','pl-rest','pl-ready'); el.classList.add('pl-'+v); }
+/* The workout is a sequence of steps, and until now the player was a single exercise whose only
+   exit was Complete — a three-step workout was literally unfinishable. Steps carry the coach's
+   video and cues, which the builder has always collected and nothing ever displayed.
+   Resume is at STEP granularity on purpose: remembering "set 2 of 4" is fiddly state for no
+   gain, and repeating a couple of sets of the exercise you walked away from is the better
+   outcome anyway — you had cooled down. */
+var SP_STEPS = [
+  { name: 'Warm-up',          target: '3:00',           cues: 'Easy pace — this is just to get warm. Nothing here should feel like work.' },
+  { name: 'Hip openers',      target: '\u00d712 \u00b7 4 sets', cues: 'Keep the knee tracking over the toes and go only as deep as the hip allows. Film set 3 so I can check your depth.' },
+  { name: 'Cooldown stretch', target: 'follow video',   cues: 'Follow along with the video and breathe out into each position.' }
+];
+var SP_RESUME = 0;          // index of the step to (re)start at — 0 = nothing done yet
+var SP_CUR = 0;
+
+// Demo toggle for the annotation: fresh workout vs one abandoned partway.
+function spResume(done){
+  SP_RESUME = done;
+  var wlc = document.getElementById('s-welcome');
+  wlc.classList.toggle('wlc-part', done > 0);
+  var pr = document.getElementById('wlc-progress');
+  if (pr) pr.textContent = done + ' of ' + SP_STEPS.length + ' done';
+  var cta = document.getElementById('wlc-cta');
+  if (cta) cta.textContent = done > 0 ? ('Continue \u00b7 step ' + (done+1) + ' of ' + SP_STEPS.length) : 'Start';
+  document.querySelectorAll('#s-welcome [data-wstep]').forEach(function(el){
+    var k = +el.dataset.wstep;
+    el.classList.toggle('st-done', k < done);
+    el.classList.toggle('st-next', done > 0 && k === done);
+  });
+  // the athlete's own list card must not read "3 steps · ~15 min" once they are halfway in
+  var meta = document.getElementById('spl-progress');
+  if (meta) meta.textContent = done > 0 ? ('From Maria \u00b7 ' + done + ' of ' + SP_STEPS.length + ' done') : 'From Maria \u00b7 3 steps \u00b7 ~15 min';
+}
+
+function spGoStep(i){
+  SP_CUR = i;
+  var st = SP_STEPS[i]; if(!st) return;
+  var brief = document.getElementById('s-step-brief');
+  brief.classList.toggle('sb-mid', i > 0);
+  if (i > 0) document.getElementById('sb-prev').textContent = SP_STEPS[i-1].name + ' done';
+  document.getElementById('sb-n').textContent = i + 1;
+  document.getElementById('sb-total').textContent = SP_STEPS.length;
+  document.getElementById('sb-name').textContent = st.name;
+  document.getElementById('sb-cta-n').textContent = i + 1;
+  brief.querySelector('.sb-cue').lastChild.textContent = ' ' + st.cues;
+  var rail = brief.querySelector('.sb-rail');
+  rail.innerHTML = SP_STEPS.map(function(_, k){
+    return '<i class="' + (k < i ? 'done' : k === i ? 'cur' : '') + '"></i>';
+  }).join('');
+  var ps = document.querySelector('#s-player .plf-step');
+  if (ps) ps.textContent = 'Step ' + (i+1) + ' of ' + SP_STEPS.length + ' \u00b7 ' + st.name;
+  go('s-step-brief', null);
+}
+
+// End of a step: hand over the next brief, or finish the workout after the last one.
+function spFinishStep(){
+  if (SP_CUR + 1 < SP_STEPS.length) { spGoStep(SP_CUR + 1); }
+  else { go('s-complete', null); }
+}
+
 function spVoice(btn) { btn.classList.toggle('muted'); }
 function spCp(practice, btn) { if(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');} document.getElementById('s-complete').classList.toggle('cp-practice', practice); }
 function spScale(btn) {
