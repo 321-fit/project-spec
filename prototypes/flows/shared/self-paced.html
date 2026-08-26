@@ -169,12 +169,21 @@
   /* Step brief — the screen the coach's per-step Video and Instructions/cues finally reach.
      Both fields exist in the builder and were shown to nobody. Also the between-steps moment:
      one screen answers "what did I just finish" and "what is next", instead of two taps. */
-  .sb-done { display: flex; align-items: center; gap: 7px; padding: 0 22px 12px; font-size: 14px; font-weight: 500; color: var(--fit-teal-600); }
+  /* "✓ Warm-up done" as a bare line above the next step's video read as a label of the screen,
+     not a report about the past: it was anchored to nothing and sat over the wrong content.
+     It is a banded confirmation now, tied to the rail directly beneath it, so the tick and the
+     filled segment say the same thing in the same place. */
+  .sb-head { background: rgba(5,224,166,0.10); border-bottom: 1px solid rgba(5,224,166,0.22); padding: 12px 22px 14px; margin-bottom: 18px; }
+  .fit-light .sb-head { background: rgba(8,180,143,0.09); }
+  #s-step-brief:not(.sb-mid) .sb-head { background: transparent; border-bottom: none; padding: 2px 22px 12px; margin-bottom: 8px; }
+  .sb-done { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 15px; font-weight: 600; color: var(--fit-teal-600); }
   .fit-dark .sb-done { color: var(--fit-teal-400); }
-  .sb-done svg { width: 17px; height: 17px; flex-shrink: 0; }
+  .sb-done svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .sb-done b { font-weight: 600; }
+  .sb-done s { margin-left: auto; font-size: 12px; font-weight: 600; letter-spacing: 1.1px; text-transform: uppercase; color: var(--fit-text-tertiary); text-decoration: none; }
   /* Portrait, like everything else that gets filmed on a phone. Capped so the cues below it
      stay on screen without scrolling. */
-  .sb-media { margin: 0 auto; max-width: calc(100% - 44px); border-radius: 16px; overflow: hidden; aspect-ratio: 4/5; max-height: 36vh; position: relative; display: flex; align-items: center; justify-content: center; background: var(--fit-gray-200); }
+  .sb-media { margin: 0 auto; max-width: calc(100% - 44px); border-radius: 16px; overflow: hidden; aspect-ratio: 4/5; max-height: 30vh; position: relative; display: flex; align-items: center; justify-content: center; background: var(--fit-gray-200); }
   .sb-media .ph { position: absolute; inset: 0; }
   .sb-media .play { position: relative; width: 44px; height: 44px; opacity: 0.95; }
   .sb-media .loop { position: absolute; left: 10px; bottom: 10px; font-size: 11px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: #fff; background: rgba(0,0,0,0.4); padding: 3px 8px; border-radius: 6px; }
@@ -1118,9 +1127,13 @@
   <div class="fit-phone-content" style="padding-top:6px;">
     <!-- Only when arriving off a finished step. Names what you did, never its number: the screen
          already says which step you are ON, and two numbers would have to be reconciled. -->
-    <div class="sb-done" data-sb="mid">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      <span id="sb-prev">Warm-up done</span>
+    <div class="sb-head">
+      <div class="sb-done" data-sb="mid">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="sb-prev">Warm-up done</span>
+        <s id="sb-left">1 done</s>
+      </div>
+      <div class="sb-rail"><i class="done"></i><i class="cur"></i><i></i></div>
     </div>
 
     <div class="sb-media" onclick="alert('Full-screen demo — TBD')">
@@ -1132,8 +1145,8 @@
     <div class="sb-of">Step <span id="sb-n">2</span> of <span id="sb-total">3</span></div>
     <div class="sb-name" id="sb-name">Hip openers</div>
     <div class="sb-target">
-      <span class="sp-tbadge">&times;12 &middot; 4 sets</span>
-      <span class="sp-tbadge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>rest 0:20</span>
+      <span class="sp-tbadge" id="sb-target">&times;12 &middot; 4 sets</span>
+      <span class="sp-tbadge" id="sb-rest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>rest 0:20</span>
     </div>
 
     <div class="sb-cue">
@@ -1141,7 +1154,6 @@
       Keep the knee tracking over the toes and go only as deep as the hip allows. Film set 3 so I can check your depth.
     </div>
 
-    <div class="sb-rail"><i class="done"></i><i class="cur"></i><i></i></div>
   </div>
   <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
     <button data-a11y-id="athlete.self-paced.step.start" onclick="setPl('ready',null);go('s-player',null)" style="width:100%;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:#fff;font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Start step <span id="sb-cta-n">2</span></button>
@@ -1627,9 +1639,9 @@ function setPl(v, btn) { if(btn){btn.parentElement.querySelectorAll('button').fo
    gain, and repeating a couple of sets of the exercise you walked away from is the better
    outcome anyway — you had cooled down. */
 var SP_STEPS = [
-  { name: 'Warm-up',          target: '3:00',           cues: 'Easy pace — this is just to get warm. Nothing here should feel like work.' },
-  { name: 'Hip openers',      target: '\u00d712 \u00b7 4 sets', cues: 'Keep the knee tracking over the toes and go only as deep as the hip allows. Film set 3 so I can check your depth.' },
-  { name: 'Cooldown stretch', target: 'follow video',   cues: 'Follow along with the video and breathe out into each position.' }
+  { name: 'Warm-up',          target: '3:00',                    rest: '',     cues: 'Easy pace — this is just to get warm. Nothing here should feel like work.' },
+  { name: 'Hip openers',      target: '\u00d712 \u00b7 4 sets', rest: '0:20', cues: 'Keep the knee tracking over the toes and go only as deep as the hip allows. Film set 3 so I can check your depth.' },
+  { name: 'Cooldown stretch', target: 'follow video',            rest: '',     cues: 'Follow along with the video and breathe out into each position.' }
 ];
 var SP_RESUME = 0;          // index of the step to (re)start at — 0 = nothing done yet
 var SP_CUR = 0;
@@ -1663,7 +1675,13 @@ function spGoStep(i){
   document.getElementById('sb-total').textContent = SP_STEPS.length;
   document.getElementById('sb-name').textContent = st.name;
   document.getElementById('sb-cta-n').textContent = i + 1;
+  document.getElementById('sb-target').textContent = st.target;
+  var rst = document.getElementById('sb-rest');
+  rst.style.display = st.rest ? '' : 'none';
+  if (st.rest) rst.lastChild.textContent = 'rest ' + st.rest;
   brief.querySelector('.sb-cue').lastChild.textContent = ' ' + st.cues;
+  var left = document.getElementById('sb-left');
+  if (left) left.textContent = i + (i === 1 ? ' done' : ' done');
   var rail = brief.querySelector('.sb-rail');
   rail.innerHTML = SP_STEPS.map(function(_, k){
     return '<i class="' + (k < i ? 'done' : k === i ? 'cur' : '') + '"></i>';

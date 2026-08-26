@@ -190,7 +190,13 @@ both collected by the step editor since day one — were displayed to **nobody**
   above the next step's demo rather than a screen of its own. Two screens would be two taps back
   to training.
 - **The tick names the step, never its number** — "Hip openers done", not "Step 3 done". The
-  screen already says *Step 4 of 6*; two numbers would have to be reconciled by the reader.
+  screen already says *Step 4 of 6*; two numbers would have to be reconciled by the reader. The
+  same trap caught a "1 of 3" counter sitting beside "Step 2 of 3"; it reads **"1 done"**.
+- **The confirmation is banded and tied to the rail.** As a bare line above the next step's video
+  it read as a label of the screen rather than a report about the past — anchored to nothing, and
+  spatially attached to the wrong content. It is now a tinted band at the top with the rail
+  directly beneath it, so the tick and the filled segment state the same fact in the same place.
+  On step one the band is absent and only the rail remains.
 - **A rail, not a list of cards** — the full step list would crowd out the video, which is the
   hero. Rail + "step N of M" gives the same orientation in one line.
 - **Nothing from "before" leaks into the workout** — reschedule, cancel and the coach's note stay
