@@ -629,13 +629,6 @@
   // different prompt sets.
   // ============================================================
   const GUIDE_CONTEXTS = {
-    'coach-calendar': {
-      title: 'Ask about Calendar', items: [
-        ['How do I schedule a training?', 'Tap +, choose Schedule training, pick a client and template, then place it on an available time.'],
-        ['How do I block personal time?', 'Tap + and choose Block time off. Add the time range and an optional title, then save it.'],
-        ['What do the event colours mean?', 'Open the ? legend in the calendar header. It explains requests, planned sessions, reviews and blocked time.']
-      ]
-    },
     'coach-client': {
       title: 'Ask about this client screen', items: [
         ['How do I schedule this client?', 'Open the … menu and choose Schedule training. The client is already selected for the next step.'],
@@ -644,31 +637,24 @@
       ]
     },
     'coach-sessions': {
-      title: 'Ask about session setup', items: [
-        ['How do I create a session type?', 'Choose Personal, Group or Self-paced, complete the required fields, then save the template.'],
-        ['What is the difference between the types?', 'Personal is one-to-one, Group has capacity and participants, and Self-paced is completed without a live time slot.'],
-        ['How do I create a package?', 'Save the session template first. Open it from My Sessions, then add package tiers from its Packages section.']
+      title: 'Create a training template', suggested: 'Quick actions', items: [
+        ['Help me create a training template', 'Absolutely. I’ll build it with you. First, should this template be Personal, Group or Self-paced?'],
+        ['Create a personal training template', 'I’ll create a Personal template. Tell me its name, duration and price — or send everything in one message.'],
+        ['Create a group training template', 'I’ll create a Group template. What should it be called, how long is it and how many athletes can join?']
       ]
     },
     'coach-group-schedule': {
-      title: 'Ask about group scheduling', items: [
-        ['How do I add more dates?', 'Choose Schedule new dates, place the group template on the grid, then publish one date or a weekly series.'],
-        ['How do I make it repeat?', 'In the publish drawer choose Weekly, select weekdays and set an optional end date.'],
-        ['Why was a date skipped?', 'A date is skipped when it conflicts with your own calendar. External-calendar conflicts can be reviewed and kept manually.']
-      ]
-    },
-    'coach-availability': {
-      title: 'Ask about Availability', items: [
-        ['How do I set working hours?', 'Enable a day, set its start and end time, then save. Repeat for every day you accept bookings.'],
-        ['How do I add time off?', 'Return to Availability and open Time off. Add the unavailable date or range there.'],
-        ['Why can’t an athlete book this time?', 'Check working hours, time off, calendar conflicts, location rules and the session duration.']
+      title: 'Manage this group schedule', suggested: 'Quick actions', items: [
+        ['Create a group training', 'I can set that up. Which group and training template should I use, and when should the first session happen?'],
+        ['Schedule this group every week', 'I’ll make it recurring. Tell me the weekday, start time and optional end date.'],
+        ['Add another training date', 'I’ll add a date to this group schedule. Send me the date and start time.']
       ]
     },
     'coach-earnings': {
       title: 'Ask about Earnings', items: [
         ['How do I withdraw money?', 'Open the available balance and tap Withdraw. Choose a connected payout method and confirm the amount.'],
         ['What does Pending mean?', 'Pending money belongs to sessions that are not ready for payout yet. Open Pending to see the reason per item.'],
-        ['Where do I change payout details?', 'Open Payout methods from this screen to add or change the bank account or debit card.']
+        ['Change my payout details', 'I can help update them. Which payout method do you want to change: your bank account or debit card?']
       ]
     },
     'coach-stripe': {
@@ -679,10 +665,10 @@
       ]
     },
     'self-paced-builder': {
-      title: 'Ask about this builder', items: [
-        ['How do I build this workout?', 'Add steps in the order the athlete should complete them, then review the workout and send it.'],
-        ['How do I add video or a timer?', 'Open a step. Attach or record a video, then enable Reps, Timer or both under Targets.'],
-        ['What will the athlete receive?', 'The athlete sees your welcome note followed by the ordered steps, targets, rest periods and attached videos.']
+      title: 'Build a self-paced workout', suggested: 'Quick actions', items: [
+        ['Help me create a self-paced workout', 'Let’s build it together. What is the workout goal, athlete level and target duration?'],
+        ['Build a self-paced workout from my plan', 'Send me your plan in any format. I’ll turn it into ordered steps with reps, timers and rest periods.'],
+        ['Add video and timer steps for me', 'I can add them. Upload or describe the exercises, then tell me the work and rest duration for each step.']
       ]
     },
     'athlete-search': {
@@ -690,13 +676,6 @@
         ['How do I find a coach nearby?', 'Choose a sport, open Filters and set your country or city. You can switch to Map to compare locations.'],
         ['How do the filters work?', 'Filters narrow the same results by location, language, gender and other preferences. Clear a filter chip to broaden the list.'],
         ['How do I book a training?', 'Open a coach, tap Book training, choose a session type and then select an available time.']
-      ]
-    },
-    'athlete-calendar': {
-      title: 'Ask about Schedule', items: [
-        ['How do I reschedule a training?', 'Open the event and tap Reschedule. Pick another available slot and send the change request.'],
-        ['How do I cancel a booking?', 'Open the event, tap Cancel and review the refund policy before confirming.'],
-        ['What do Request and Planned mean?', 'Request needs a response. Planned means the training is confirmed and already occupies your schedule.']
       ]
     },
     'athlete-balance': {
@@ -711,6 +690,58 @@
   const GUIDE_SPARK = '<svg class="fit-guide-spark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg>';
   const GUIDE_CLOSE = '<svg class="fit-guide-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
   const GUIDE_CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>';
+  const GUIDE_STORAGE_KEY = 'fit.quickStarts.hidden';
+
+  function isGuideHidden() {
+    try { return localStorage.getItem(GUIDE_STORAGE_KEY) === '1'; }
+    catch (e) { return false; }
+  }
+
+  function updateGuideSetting(el) {
+    const enabled = !isGuideHidden();
+    el.classList.toggle('active', enabled);
+    el.setAttribute('aria-checked', enabled ? 'true' : 'false');
+    const sub = el.querySelector('[data-fit-guide-setting-sub]');
+    if (sub) sub.textContent = enabled
+      ? 'Show contextual help bubbles'
+      : 'Hidden · tap to show again';
+  }
+
+  function setGuideHidden(hidden) {
+    try { localStorage.setItem(GUIDE_STORAGE_KEY, hidden ? '1' : '0'); }
+    catch (e) {}
+    document.querySelectorAll('[data-fit-guide]').forEach(function(host) {
+      host.classList.toggle('fit-guide-hidden', hidden);
+      if (hidden) {
+        const guide = host.querySelector('.fit-guide');
+        if (guide) {
+          guide.classList.remove('open');
+          const fab = guide.querySelector('.fit-guide-fab');
+          if (fab) {
+            fab.setAttribute('aria-expanded', 'false');
+            fab.setAttribute('aria-label', 'Ask AI about this screen');
+          }
+        }
+      }
+    });
+    document.querySelectorAll('[data-fit-guide-setting]').forEach(updateGuideSetting);
+  }
+
+  function initGuideSetting(el) {
+    if (el._fitGuideSetting) return;
+    el._fitGuideSetting = true;
+    el.setAttribute('role', 'switch');
+    el.setAttribute('tabindex', '0');
+    updateGuideSetting(el);
+    function toggle() { setGuideHidden(!isGuideHidden()); }
+    el.addEventListener('click', toggle);
+    el.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggle();
+      }
+    });
+  }
 
   function initGuide(host) {
     if (host._fitGuide) return;
@@ -731,8 +762,12 @@
         '</div>' +
         '<div class="fit-guide-widget-body">' +
           '<div class="fit-guide-welcome"><span class="fit-guide-welcome-av">' + GUIDE_SPARK + '</span><div class="fit-guide-welcome-bubble">What can I help you with on this screen?</div></div>' +
-          '<div class="fit-guide-suggested">Suggested questions</div>' +
+          '<div class="fit-guide-suggested"></div>' +
           '<div class="fit-guide-prompts"></div>' +
+          '<button class="fit-guide-dismiss" type="button">' +
+            '<span class="fit-guide-dismiss-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 10.7a2 2 0 0 0 2.7 2.7"/><path d="M9.9 4.2A10.8 10.8 0 0 1 12 4c5.5 0 9 5 9 5a15.3 15.3 0 0 1-2.1 2.6"/><path d="M6.6 6.6C4.3 8.1 3 10 3 10s3.5 5 9 5c1 0 2-.2 2.8-.5"/></svg></span>' +
+            '<span>Hide quick starts</span>' +
+          '</button>' +
         '</div>' +
       '</div>' +
       '<button class="fit-guide-fab" type="button" aria-label="Ask AI about this screen" aria-expanded="false">' + GUIDE_SPARK + GUIDE_CLOSE + '</button>';
@@ -765,6 +800,11 @@
 
     const prompts = guide.querySelector('.fit-guide-prompts');
     guide.querySelector('.fit-guide-widget-context').textContent = ctx.title;
+    guide.querySelector('.fit-guide-suggested').textContent = ctx.suggested || 'Suggested questions';
+    guide.querySelector('.fit-guide-dismiss').addEventListener('click', function(e) {
+      e.stopPropagation();
+      setGuideHidden(true);
+    });
     ctx.items.forEach(function(item) {
       const btn = document.createElement('button');
       btn.type = 'button';
@@ -791,6 +831,7 @@
       });
       const open = guide.classList.toggle('open');
       fab.setAttribute('aria-expanded', open ? 'true' : 'false');
+      fab.setAttribute('aria-label', open ? 'Close AI quick starts' : 'Ask AI about this screen');
     });
     chat.querySelector('.fit-guide-chat-back').addEventListener('click', function(e) {
       e.stopPropagation();
@@ -821,6 +862,7 @@
       }
     });
     host.appendChild(guide);
+    host.classList.toggle('fit-guide-hidden', isGuideHidden());
   }
 
   // ============================================================
@@ -829,6 +871,8 @@
   function initAll(root) {
     if (root.matches && root.matches('[data-fit-guide]')) initGuide(root);
     root.querySelectorAll('[data-fit-guide]').forEach(initGuide);
+    if (root.matches && root.matches('[data-fit-guide-setting]')) initGuideSetting(root);
+    root.querySelectorAll('[data-fit-guide-setting]').forEach(initGuideSetting);
     root.querySelectorAll('[data-fit-timeline-scroll]').forEach(initTimelineScroll);
     root.querySelectorAll('[data-fit-swipe]').forEach(initSwipe);
     root.querySelectorAll('.fit-sheet-overlay').forEach(initSheet);

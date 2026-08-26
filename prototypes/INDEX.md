@@ -74,7 +74,7 @@ Path root: `project-spec/prototypes/flows/`
 | `voice-assistant.html` | Voice assistant (canvas, athlete+coach views) | assistant surfaces |
 | `self-paced.html` | Self-paced training builder (WIP) | step-builder flows |
 | `profile.html` | Coach profile (shared variant) | — |
-| `assistant-entry.html` | **Contextual AI quick starts (WIP, proposal)** — searchable coach/athlete maps linking every AI FAB to its real screen. Each point has two board states: **“AI · 3 contextual conversation starters”** and **“AI · full-screen chat from first prompt”**. The prompt set is authored per screen; choosing one opens the dedicated assistant chat with that text already sent. Calendar screens intentionally have no AI FAB. | complex screens where users need a contextual way to start a dialogue about using the app |
+| `assistant-entry.html` | **Contextual AI quick starts (WIP, proposal)** — searchable coach/athlete maps linking every AI FAB to its real screen. Each point has two board states: **“AI · 3 contextual conversation starters”** and **“AI · full-screen chat from first prompt”**. The prompt set is authored per screen; choosing one opens the dedicated assistant chat with that text already sent. The expanded widget can be dismissed with **“Hide quick starts”** and restored from **Settings → Assistance → AI quick starts**. Calendar and Available Hours intentionally have no AI FAB. | complex screens where users need a contextual way to start a dialogue about using the app |
 | `calendar-legend.html` | **Calendar legend** — every tile state, zone type + colour rules, both themes (`?` sheet from the calendar header) | any legend / key surface |
 
 ### Journeys (`journeys/`)

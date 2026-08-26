@@ -3,400 +3,107 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>321Fit — Assistant entry points (WIP)</title>
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+<title>321Fit — Contextual AI Quick Starts</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../lib/fit-ui.css">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { font-family: var(--fit-font); background: #0a0a0a; display: flex; justify-content: center; align-items: flex-start; padding: 24px; min-height: 100vh; min-width: 900px; }
-  .sidebar { position: fixed; left: 24px; top: 24px; bottom: 24px; width: 200px; display: flex; flex-direction: column; }
-  .sidebar-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
-  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
-  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
-  .sidebar .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--fit-gray-600); padding: 0 8px; margin: 16px 0 8px; }
-  .sidebar .label:first-child { margin-top: 0; }
-  .sidebar button { font-family: var(--fit-font); font-size: 14px; font-weight: 400; padding: 10px 12px; border-radius: 10px; border: none; background: transparent; color: var(--fit-gray-400); cursor: pointer; text-align: left; width: 100%; transition: all 0.15s; }
+  body {
+    min-width: 900px; min-height: 100vh; padding: 24px;
+    display: flex; justify-content: center; align-items: flex-start;
+    background: #0a0a0a; font-family: var(--fit-font);
+  }
+  .sidebar {
+    position: fixed; left: 24px; top: 24px; bottom: 24px; width: 200px;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-scroll { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .sidebar .label {
+    margin: 16px 0 8px; padding: 0 8px; color: var(--fit-gray-600);
+    font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+  }
+  .sidebar button {
+    width: 100%; padding: 10px 12px; border: 0; border-radius: 10px;
+    background: transparent; color: var(--fit-gray-400); cursor: pointer;
+    font: 400 14px var(--fit-font); text-align: left;
+  }
   .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
   .sidebar button.active { background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500; }
-  .ann-container { position: fixed; left: calc(50% + 195px + 48px); right: 24px; top: 24px; bottom: 24px; width: auto; overflow-y: auto; }
-  .ann-container::-webkit-scrollbar { width: 4px; }
-  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
-  .ann { display: none; } .ann.active { display: block; }
-  .ann-role { display: inline-block; font-size: 14px; font-weight: 500; padding: 4px 12px; border-radius: 8px; margin-bottom: 16px; background: rgba(5,224,166,0.15); color: var(--fit-teal-500); }
-  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
-  .ann p { font-size: 15px; line-height: 1.6; color: var(--fit-gray-400); margin-bottom: 8px; }
-  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
-  .ann ul { margin: 10px 0 10px 18px; font-size: 15px; line-height: 1.6; color: var(--fit-gray-400); }
-  .ann li { margin-bottom: 5px; }
-  .ann code { font-family: 'SF Mono', Menlo, monospace; font-size: 12px; background: var(--fit-gray-800); padding: 1px 5px; border-radius: 4px; color: var(--fit-text-secondary); }
-  .ann hr { border: none; height: 1px; background: var(--fit-gray-700); margin: 16px 0; }
-  .ann .note { font-size: 13px; color: var(--fit-gray-600); font-style: italic; line-height: 1.5; }
-  .state-toggle { display: inline-flex; gap: 0; border-radius: 6px; overflow: hidden; border: 1px solid var(--fit-gray-700); margin-bottom: 12px; flex-wrap: wrap; }
-  .state-toggle button { font-family: var(--fit-font); font-size: 12px; font-weight: 500; padding: 4px 10px; border: none; cursor: pointer; background: transparent; color: var(--fit-gray-400); }
-  .state-toggle button.active { background: var(--fit-gray-700); color: var(--fit-white); }
-
+  .theme-switch {
+    display: flex; overflow: hidden; flex-shrink: 0; border: 1px solid var(--fit-gray-700); border-radius: 8px;
+  }
+  .theme-switch button { flex: 1; padding: 8px 0; border-radius: 0; font-size: 12px; font-weight: 500; text-align: center; }
+  .theme-switch button.active { background: var(--fit-gray-700); }
   .fit-phone { display: none; }
   .fit-phone.active { display: flex; }
-  .fit-dark .fit-phone-header, .fit-light .fit-phone-header { background: var(--fit-screen-bg); }
-  .fit-dark .fit-phone-footer, .fit-light .fit-phone-footer { background: var(--fit-screen-bg); }
-
-  /* ===== Assistant header ===== */
-  .va-head { display: flex; align-items: center; gap: 10px; }
-  .va-spark { width: 30px; height: 30px; border-radius: 50%; background: var(--fit-brand-gradient); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
-  .va-spark svg { width: 16px; height: 16px; }
-  .va-head-title { font-size: 16px; font-weight: 600; color: var(--fit-text-primary); }
-  .va-head-sub { font-size: 12px; color: var(--fit-teal-500); display: inline-flex; align-items: center; gap: 5px; }
-  .va-head-sub .live { width: 6px; height: 6px; border-radius: 50%; background: var(--fit-teal-500); }
-
-  /* ===== Conversation ===== */
-  .va-convo { padding: 10px 16px 14px; display: flex; flex-direction: column; gap: 18px; }
-  .va-msg { display: flex; gap: 8px; max-width: 88%; }
-  .va-msg.user { align-self: flex-end; }
-  .va-msg.agent { align-self: flex-start; }
-  .va-bubble { padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.45; }
-  /* User bubble — calm, neutral-tinted (NOT full brand). "You" read via alignment + faint tint. */
-  .va-msg.user .va-bubble { background: var(--fit-surface-higher); color: var(--fit-text-primary); border-bottom-right-radius: 5px; }
-  .fit-light .va-msg.user .va-bubble { background: var(--fit-gray-100); }
-  .va-msg.agent .va-bubble { background: var(--fit-surface-high); color: var(--fit-text-primary); border-bottom-left-radius: 5px; }
-  .fit-light .va-msg.agent .va-bubble { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.06); }
-  /* Agent avatar — tinted teal (AI identity), not a loud gradient dot on every line */
-  .va-av { width: 26px; height: 26px; border-radius: 50%; background: rgba(5,224,166,0.16); display: flex; align-items: center; justify-content: center; color: var(--fit-teal-500); flex-shrink: 0; align-self: flex-end; }
-  .va-av svg { width: 13px; height: 13px; }
-  /* typing dots */
-  .va-typing { display: inline-flex; gap: 4px; padding: 13px 14px; }
-  .va-typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--fit-text-tertiary); animation: vatype 1.2s infinite ease-in-out; }
-  .va-typing span:nth-child(2){ animation-delay: .2s; } .va-typing span:nth-child(3){ animation-delay: .4s; }
-  @keyframes vatype { 0%,80%,100%{ opacity:.3; transform: translateY(0);} 40%{ opacity:1; transform: translateY(-3px);} }
-
-  /* ===== Rich blocks (rendered from data-channel messages) ===== */
-  .va-block { align-self: stretch; }
-  .va-block-cap { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--fit-text-tertiary); margin: 0 2px 7px; display: flex; align-items: center; gap: 6px; }
-  .va-block-cap .tag { font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--fit-text-tertiary); background: var(--fit-bg-tinted, rgba(127,127,127,0.12)); padding: 1px 7px; border-radius: 99px; font-size: 10px; margin-left: auto; }
-  /* Caption status dot — the colour grammar: green=done, amber=needs action, blue=question/tip, neutral=browsing */
-  .va-cap-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--fit-text-tertiary); flex-shrink: 0; }
-  .va-block-cap.is-success .va-cap-dot { background: var(--fit-green-500); }
-  .va-block-cap.is-success { color: var(--fit-green-500); }
-  .va-block-cap.is-pending .va-cap-dot { background: var(--fit-yellow-400); }
-  .va-block-cap.is-pending { color: var(--fit-yellow-400); }
-  .va-block-cap.is-info .va-cap-dot { background: var(--fit-blue-500); }
-  .va-block-cap.is-info { color: var(--fit-blue-500); }
-
-  /* coach cards carousel (coach_results) */
-  .va-coaches { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-  .va-coaches::-webkit-scrollbar { display: none; }
-  .va-coach { flex: 0 0 188px; border-radius: 16px; overflow: hidden; background: var(--fit-surface-high); cursor: pointer; }
-  .fit-light .va-coach { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
-  .va-coach-top { background: transparent; padding: 12px 14px 8px; display: flex; align-items: center; gap: 10px; }
-  .va-coach-av { width: 38px; height: 38px; border-radius: 50%; background: rgba(5,224,166,0.16); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: var(--fit-teal-500); flex-shrink: 0; }
-  .va-coach-name { font-size: 15px; font-weight: 600; color: var(--fit-text-primary); }
-  .va-coach-sport { font-size: 12px; color: var(--fit-text-secondary); }
-  .va-coach-body { padding: 10px 14px; }
-  .va-coach-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-size: 13px; color: var(--fit-text-secondary); }
-  .va-coach-rating { display: inline-flex; align-items: center; gap: 3px; color: var(--fit-yellow-400); }
-  .va-coach-price { font-weight: 600; color: var(--fit-text-primary); }
-  /* Per-coach Book = secondary action (tinted), not a loud gradient ×3. The one strong gradient CTA is the final Confirm. */
-  .va-coach-btn { width: 100%; height: 36px; border: none; border-radius: 99px; background: rgba(5,224,166,0.16); color: var(--fit-teal-500); font-family: var(--fit-font); font-size: 14px; font-weight: 600; cursor: pointer; }
-
-  /* slot chips (slots) */
-  .va-slots { display: flex; flex-wrap: wrap; gap: 8px; }
-  .va-slot { padding: 9px 14px; border-radius: 99px; border: 1px solid var(--fit-divider); background: transparent; color: var(--fit-text-primary); font-family: var(--fit-font); font-size: 13px; font-weight: 500; cursor: pointer; }
-  .va-slot.sel { background: rgba(5,224,166,0.15); border-color: rgba(5,224,166,0.32); color: var(--fit-teal-500); }
-
-  /* booking confirm card (training_event_preview) + reschedule (update_preview) */
-  .va-card { border-radius: 16px; padding: 14px; background: var(--fit-surface-high); }
-  .fit-light .va-card { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
-  .va-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-  .va-card-title { font-size: 15px; font-weight: 600; color: var(--fit-text-primary); }
-  .va-card-sub { font-size: 12px; color: var(--fit-text-tertiary); }
-  .va-kv { display: flex; justify-content: space-between; padding: 7px 0; font-size: 14px; border-top: 1px solid var(--fit-divider); }
-  .va-kv:first-of-type { border-top: none; }
-  .va-kv .k { color: var(--fit-text-secondary); } .va-kv .v { color: var(--fit-text-primary); font-weight: 500; }
-  .va-card-actions { display: flex; gap: 8px; margin-top: 12px; }
-  .va-btn-primary { flex: 1; height: 44px; border: none; border-radius: 99px; background: var(--fit-brand-gradient); color: #fff; font-family: var(--fit-font); font-size: 15px; font-weight: 500; cursor: pointer; }
-  .va-btn-ghost { height: 44px; padding: 0 16px; border: 1px solid var(--fit-divider); border-radius: 99px; background: transparent; color: var(--fit-text-secondary); font-family: var(--fit-font); font-size: 15px; font-weight: 500; cursor: pointer; }
-  .va-confirmed { margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; color: var(--fit-green-500); font-weight: 500; }
-
-  /* success (training_event_created/updated) */
-  .va-success { border-radius: 16px; padding: 16px; background: rgba(0,226,157,0.10); border: 1px solid rgba(0,226,157,0.28); }
-  .va-success-row { display: flex; align-items: center; gap: 10px; }
-  .va-success-ic { width: 34px; height: 34px; border-radius: 50%; background: var(--fit-green-500); color: #062; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .va-success-ic svg { width: 18px; height: 18px; color: #04130d; }
-  .va-success-t { font-size: 15px; font-weight: 600; color: var(--fit-text-primary); }
-  .va-success-s { font-size: 12px; color: var(--fit-text-secondary); }
-  .va-success-link { margin-top: 10px; width: 100%; height: 40px; border: 1px solid rgba(0,226,157,0.4); border-radius: 99px; background: transparent; color: var(--fit-green-500); font-family: var(--fit-font); font-size: 14px; font-weight: 500; cursor: pointer; }
-
-  /* follow-up options (followup_options) */
-  .va-options { display: flex; flex-direction: column; gap: 8px; }
-  .va-opt { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--fit-divider); background: var(--fit-surface-high); cursor: pointer; font-size: 14px; font-weight: 500; color: var(--fit-text-primary); }
-  .fit-light .va-opt { background: var(--fit-white); }
-  .va-opt:active { transform: scale(0.99); }
-  .va-opt .ic { width: 30px; height: 30px; border-radius: 8px; background: var(--fit-bg-tinted, rgba(127,127,127,0.12)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--fit-text-secondary); }
-  .va-opt .ic svg { width: 16px; height: 16px; }
-  .va-opt-sub { font-size: 12px; font-weight: 400; color: var(--fit-text-tertiary); }
-  .va-opts-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-  .va-chip { padding: 9px 16px; border-radius: 99px; border: 1px solid var(--fit-divider); background: transparent; color: var(--fit-text-primary); font-family: var(--fit-font); font-size: 13px; font-weight: 500; cursor: pointer; }
-
-  /* navigation hint (agent knows app_ui_map → deep-link) */
-  .va-nav { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; background: var(--fit-surface-high); cursor: pointer; }
-  .fit-light .va-nav { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.06); }
-  .va-nav .ic { width: 30px; height: 30px; border-radius: 8px; background: rgba(3,178,226,0.12); color: var(--fit-blue-500); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .va-nav .ic svg { width: 16px; height: 16px; }
-  .va-nav-body { flex: 1; }
-  .va-nav-t { font-size: 14px; font-weight: 500; color: var(--fit-text-primary); }
-  .va-nav-s { font-size: 12px; color: var(--fit-text-tertiary); }
-
-  /* ===== Control bar (voice / text) ===== */
-  .va-bar { padding: 10px 16px 34px; border-top: 1px solid var(--fit-divider); display: flex; align-items: center; gap: 12px; }
-  .va-mic { width: 58px; height: 58px; border-radius: 50%; border: none; flex-shrink: 0; background: var(--fit-brand-gradient); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto; position: relative; }
-  .va-mic svg { width: 24px; height: 24px; }
-  .va-mic.listening { box-shadow: 0 0 0 6px rgba(5,224,166,0.18), 0 0 0 12px rgba(5,224,166,0.08); }
-  .va-bar-state { flex: 1; text-align: center; font-size: 13px; color: var(--fit-text-tertiary); }
-  .va-wave { display: inline-flex; align-items: center; gap: 3px; height: 18px; }
-  .va-wave i { width: 3px; border-radius: 2px; background: var(--fit-teal-500); animation: vawave 1s infinite ease-in-out; }
-  .va-wave i:nth-child(1){height:6px;animation-delay:0s} .va-wave i:nth-child(2){height:14px;animation-delay:.1s} .va-wave i:nth-child(3){height:18px;animation-delay:.2s} .va-wave i:nth-child(4){height:10px;animation-delay:.3s} .va-wave i:nth-child(5){height:16px;animation-delay:.15s} .va-wave i:nth-child(6){height:8px;animation-delay:.25s}
-  @keyframes vawave { 0%,100%{transform:scaleY(.4)} 50%{transform:scaleY(1)} }
-  .va-bar-icon { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--fit-divider); background: transparent; color: var(--fit-text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
-  .va-bar-icon svg { width: 18px; height: 18px; }
-  /* control-bar state swap */
-  #s-assistant [data-vb] { display: none; }
-  #s-assistant.vb-idle [data-vb="idle"],
-  #s-assistant.vb-listening [data-vb="listening"],
-  #s-assistant.vb-thinking [data-vb="thinking"],
-  #s-assistant.vb-speaking [data-vb="speaking"],
-  #s-assistant.vb-text [data-vb="text"] { display: flex; }
-  #s-assistant.vb-listening .va-mic { box-shadow: 0 0 0 6px rgba(5,224,166,0.18), 0 0 0 12px rgba(5,224,166,0.08); }
-  /* text input row */
-  .va-textbar { flex: 1; display: flex; align-items: center; gap: 8px; }
-  .va-textfield { flex: 1; height: 44px; padding: 0 16px; border-radius: 99px; border: 1px solid var(--fit-divider); background: var(--fit-surface-high); color: var(--fit-text-primary); font-family: var(--fit-font); font-size: 15px; outline: none; }
-  .fit-light .va-textfield { background: var(--fit-white); }
-  .va-send { width: 44px; height: 44px; border-radius: 50%; border: none; background: var(--fit-brand-gradient); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
-  .va-send svg { width: 18px; height: 18px; }
-
-  /* ===== Screen states (welcome / error) ===== */
-  #s-assistant [data-vs] { display: none; }
-  #s-assistant.vs-convo [data-vs="convo"] { display: flex; }
-  #s-assistant.vs-welcome [data-vs="welcome"] { display: flex; }
-  #s-assistant.vs-error [data-vs="error"] { display: flex; }
-  /* viewer = which role's conversation (athlete books with coaches; coach manages requests/clients) */
-  #s-assistant [data-vr] { display: none; }
-  #s-assistant.vr-athlete [data-vr="athlete"] { display: flex; }
-  #s-assistant.vr-coach [data-vr="coach"] { display: flex; }
-  /* accept/decline row on coach pending-request cards */
-  .va-btn-decline { height: 44px; padding: 0 16px; border: 1px solid var(--fit-divider); border-radius: 99px; background: transparent; color: var(--fit-red-400); font-family: var(--fit-font); font-size: 15px; font-weight: 500; cursor: pointer; }
-  .va-welcome { flex: 1; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; gap: 6px; }
-  .va-welcome-spark { width: 64px; height: 64px; border-radius: 50%; background: var(--fit-brand-gradient); display: flex; align-items: center; justify-content: center; color: #fff; margin-bottom: 10px; }
-  .va-welcome-spark svg { width: 30px; height: 30px; }
-  .va-welcome-t { font-size: 20px; font-weight: 600; color: var(--fit-text-primary); }
-  .va-welcome-s { font-size: 14px; color: var(--fit-text-secondary); line-height: 1.5; max-width: 280px; margin-bottom: 14px; }
-  .va-examples { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 300px; }
-  .va-example { padding: 11px 14px; border-radius: 12px; border: 1px solid var(--fit-divider); background: transparent; color: var(--fit-text-secondary); font-family: var(--fit-font); font-size: 13px; cursor: pointer; text-align: left; }
-  .va-error-box { flex: 1; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; gap: 8px; }
-
-  /* ===== dm-* cloned from shared/messages.html (chat list rows) ===== */
-  .dm-sectitle { font-size: 20px; font-weight: 600; color: var(--fit-text-primary); padding: 10px 16px 6px; }
-  .dm-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; }
-  .dm-row:active { background: var(--fit-surface-high); }
-  .dm-av { width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600; color: #fff; background: #0a6b54; overflow: hidden; }
-  .dm-av img { width: 100%; height: 100%; object-fit: cover; }
-  .dm-body { flex: 1; min-width: 0; }
-  .dm-name { font-size: 16px; font-weight: 600; color: var(--fit-text-primary); }
-  .dm-prev { font-size: 14px; color: var(--fit-text-tertiary); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .dm-row.unread .dm-prev { color: var(--fit-text-primary); font-weight: 500; }
-  .dm-meta { display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--fit-text-tertiary); flex-shrink: 0; align-self: flex-start; margin-top: 2px; }
-  .dm-meta svg { width: 14px; height: 14px; }
-  .dm-unread-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--fit-brand-primary); flex-shrink: 0; }
-  .dm-search { margin: 10px 16px 6px; height: 40px; border-radius: 99px; background: var(--fit-surface-high); display: flex; align-items: center; gap: 8px; padding: 0 14px; color: var(--fit-text-tertiary); }
-  .dm-search svg { width: 16px; height: 16px; }
-  .dm-pick { display: flex; align-items: center; gap: 12px; padding: 11px 16px; cursor: pointer; }
-  .dm-pick:active { background: var(--fit-surface-high); }
-  .dm-pick-av { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: var(--fit-teal-500); background: rgba(5,224,166,0.16); overflow: hidden; }
-  .dm-pick-av img { width: 100%; height: 100%; object-fit: cover; }
-  .dm-pick-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 1px; }
-  .dm-pick-chev { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
-  .dm-remove { width: 30px; height: 30px; border: none; background: transparent; color: var(--fit-red-400); cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-  .dm-remove svg { width: 20px; height: 20px; }
-  .dm-check { width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--fit-gray-600); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-  .dm-check svg { width: 14px; height: 14px; color: #fff; opacity: 0; }
-  .dm-pick.sel .dm-check { background: var(--fit-brand-primary); border-color: var(--fit-brand-primary); }
-  .dm-pick.sel .dm-check svg { opacity: 1; }
-  .dm-create { background: none; border: none; font-family: var(--fit-font); font-size: 16px; font-weight: 600; cursor: pointer; color: var(--fit-text-tertiary); }
-  .dm-create.on { color: var(--fit-brand-primary); }
-  .dm-grp-avs { display: flex; }
-  .dm-grp-avs .dm-grp-ic { width: 28px; height: 28px; border-radius: 50%; font-size: 11px; font-weight: 600; color: #fff; display: flex; align-items: center; justify-content: center; border: 2px solid var(--fit-screen-bg); }
-  .dm-grp-avs .dm-grp-ic:not(:first-child) { margin-left: -10px; }
-  .dm-presence { font-size: 12px; color: var(--fit-text-tertiary); font-weight: 400; margin-top: 1px; }
-  .dm-set-hero { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 22px 16px 18px; gap: 4px; }
-  .dm-set-avs { display: flex; margin-bottom: 8px; }
-  .dm-set-avs .dm-pick-av { width: 56px; height: 56px; border: 3px solid var(--fit-screen-bg); }
-  .dm-set-avs .dm-pick-av:nth-child(2) { margin-left: -14px; }
-  .dm-set-t { font-size: 20px; font-weight: 600; color: var(--fit-text-primary); }
-  .dm-set-s { font-size: 14px; color: var(--fit-text-tertiary); }
-  .dm-set-rows { padding: 6px 16px; }
-
-  /* the source scopes this to #s-assistant, so the composer needs its own line */
-  #s-ai-context [data-vb="text"] { display: flex; }
-
-  /* ===== ai-* — only what does not exist yet ===== */
-  /* Circle action row lives in the kit now: .fit-action-circle / .fit-action-circles
-     in fit-ui.css, FitActionCircle in design-tokens. The page-local copy that used
-     to sit here was a second source of truth for a component two files draw. */
-
-  /* The context the assistant was handed — visible, never invisible priming */
-  .ai-ctx { margin: 12px 16px 4px; border: 1px solid var(--fit-divider); border-radius: var(--fit-radius-lg); overflow: hidden; }
-  .fit-light .ai-ctx { border-color: transparent; background: var(--fit-white); box-shadow: 0 0 10px rgba(0,0,0,.06); }
-  .ai-ctx-cap { display: flex; align-items: center; gap: 6px; padding: 8px 12px 6px;
-                font-size: 11px; font-weight: 600; letter-spacing: .3px; text-transform: uppercase;
-                color: var(--fit-teal-500); }
-  .ai-ctx-cap svg { width: 13px; height: 13px; }
-  .ai-ctx-body { display: flex; align-items: center; gap: 11px; padding: 0 12px 11px; }
-  .ai-ctx-ic { width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0; display: flex;
-               align-items: center; justify-content: center; background: var(--fit-surface-high); color: var(--fit-text-secondary); }
-  .ai-ctx-ic svg { width: 20px; height: 20px; }
-  .ai-ctx-t { font-size: 15px; font-weight: 600; color: var(--fit-text-primary); }
-  .ai-ctx-s { font-size: 12.5px; color: var(--fit-text-tertiary); margin-top: 2px; }
-
-  /* Suggested openers — a blank composer is the fastest way to kill an assistant */
-  .ai-sug { display: flex; flex-wrap: wrap; gap: 7px; padding: 4px 16px 10px; }
-  .ai-sug button { font-family: var(--fit-font); font-size: 13px; min-height: 44px; padding: 0 15px; border-radius: 99px;
-                   border: 1px solid var(--fit-divider); background: transparent;
-                   color: var(--fit-text-secondary); cursor: pointer; }
-  .ai-sug button:active { background: var(--fit-surface-high); }
-
-  /* What the assistant offers to DO — it must be able to finish the job */
-  .ai-act { display: flex; gap: 8px; padding: 2px 0 4px; }
-  .ai-act button { flex: 1; height: 44px; border-radius: 99px; font-family: var(--fit-font);
-                   font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid var(--fit-divider);
-                   background: transparent; color: var(--fit-text-primary); }
-  .ai-act button.go { border: none; background: var(--fit-brand-gradient); color: #fff; }
-
-  .ai-done { display: flex; align-items: center; gap: 9px; margin: 2px 0 4px; padding: 10px 12px;
-             border-radius: var(--fit-radius-md); background: rgba(5,224,166,0.10);
-             border: 1px solid rgba(5,224,166,0.35); font-size: 13.5px; color: var(--fit-text-primary); }
-  .ai-done svg { width: 17px; height: 17px; color: var(--fit-teal-500); flex-shrink: 0; }
-
-  /* pinned assistant row in the chat list */
-  .dm-row.ai-pin { background: rgba(5,224,166,0.05); }
-  .ai-pin .dm-av { background: rgba(5,224,166,0.16); color: var(--fit-teal-500); }
-  .ai-pin .dm-av svg { width: 24px; height: 24px; }
-  .ai-pin-tag { font-size: 9.5px; font-weight: 600; letter-spacing: .3px; text-transform: uppercase;
-                color: var(--fit-teal-500); border: 1px solid rgba(5,224,166,0.4); border-radius: 4px; padding: 1px 5px; }
-
-  /* group pills, cloned whole from coach/clients.html — the multi-line .cd-grp
-     rule sets the pill size, so half the block is not enough */
-  .cd-grp-row { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px 24px; align-items: center; }
-  .cd-grp-label { width: 100%; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--fit-text-secondary); margin-bottom: 8px; }
-  .cd-grp {
-    display: inline-flex; align-items: center; gap: 6px;
-    height: 32px; padding: 0 12px; border-radius: 99px; cursor: pointer;
-    border: 1px solid var(--fit-divider); background: transparent;
-    font-family: var(--fit-font); font-size: 14px; color: var(--fit-text-primary);
+  .ann-container {
+    position: fixed; left: calc(50% + 195px + 48px); right: 24px; top: 24px; bottom: 24px;
+    overflow-y: auto;
   }
-  .fit-light .cd-grp { background: var(--fit-white); border-color: transparent; box-shadow: 0 0 8px rgba(0,0,0,0.06); }
-  .cd-grp svg { width: 14px; height: 14px; color: var(--fit-text-tertiary); flex-shrink: 0; }
-  .cd-grp--add { color: var(--fit-brand-primary); border-style: dashed; }
-  .cd-grp--add svg { color: var(--fit-brand-primary); }
-  /* Names truncate rather than push the row into a second line */
-  .cd-grp-name { max-width: 108px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  /* Overflow counter — opens the same membership screen */
-  .cd-grp--more { color: var(--fit-text-secondary); padding: 0 10px; }
-  /* With pills present the add affordance is icon-only (constant width);
-     with none it keeps its label, because then nothing else explains the section */
-  #cd-groups.has-groups .cd-grp--add span { display: none; }
-  #cd-groups.has-groups .cd-grp--add { padding: 0 9px; }
-  #cd-groups.no-groups .cd-grp:not(.cd-grp--add) { display: none; }
-  #cd-groups.no-groups .cd-grp--more { display: none; }
-  /* invisible hit-area expansion → 44px effective (HIG) */
-  .cd-grp { position: relative; }
-  .cd-grp::before { content: ""; position: absolute; top: -6px; right: -4px; bottom: -6px; left: -4px; }
-
-  /* the dimmed screen a sheet sits on */
-  .ai-behind { padding: 14px 16px; opacity: .5; pointer-events: none; }
-  .ai-slot { display: flex; gap: 10px; align-items: center; padding: 11px 12px; margin-bottom: 8px;
-             border-radius: var(--fit-radius-md); background: var(--fit-surface-high); }
-  .ai-slot b { font-size: 14px; font-weight: 600; color: var(--fit-text-primary); }
-  .ai-slot span { font-size: 12px; color: var(--fit-text-tertiary); }
-  .ai-slot.req { background: rgba(222,145,29,0.10); border: 1px solid rgba(222,145,29,0.45); }
-
-  /* UI-guide inventory — the one place on the board that links every mounted
-     help FAB back to its real screen. */
+  .ann-title { margin-bottom: 8px; color: var(--fit-white); font-size: 24px; font-weight: 600; }
+  .ann-intro { margin-bottom: 24px; color: var(--fit-gray-400); font-size: 15px; line-height: 1.55; }
+  .ann { display: none; }
+  .ann.active { display: block; }
+  .ann-role { display: inline-block; margin-bottom: 14px; padding: 4px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; }
+  .ann-role.coach { background: rgba(3,178,226,.15); color: var(--fit-blue-500); }
+  .ann-role.athlete { background: rgba(5,224,166,.15); color: var(--fit-teal-500); }
+  .ann h3 { margin-bottom: 12px; color: var(--fit-white); font-size: 21px; }
+  .ann p { color: var(--fit-gray-400); font-size: 15px; line-height: 1.6; }
+  .ann strong { color: var(--fit-gray-300); }
   .gh-hero { padding: 8px 18px 16px; }
-  .gh-kicker { font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--fit-teal-500); }
-  .gh-title { margin-top: 6px; font-size: 25px; font-weight: 650; line-height: 1.15; color: var(--fit-text-primary); }
-  .gh-sub { margin-top: 8px; font-size: 13.5px; line-height: 1.45; color: var(--fit-text-secondary); }
+  .gh-kicker { color: var(--fit-teal-500); font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+  .gh-title { margin-top: 6px; color: var(--fit-text-primary); font-size: 25px; font-weight: 600; line-height: 1.15; }
+  .gh-sub { margin-top: 8px; color: var(--fit-text-secondary); font-size: 13.5px; line-height: 1.45; }
   .gh-section { padding: 6px 16px 18px; }
-  .gh-section-title { padding: 0 2px 8px; font-size: 12px; font-weight: 650; color: var(--fit-text-tertiary); text-transform: uppercase; letter-spacing: .4px; }
+  .gh-section-title { padding: 0 2px 8px; color: var(--fit-text-tertiary); font-size: 12px; font-weight: 600; letter-spacing: .4px; text-transform: uppercase; }
   .gh-list { overflow: hidden; border-radius: 16px; background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,.07); }
   .fit-dark .gh-list { background: var(--fit-surface-high); box-shadow: none; }
-  .gh-row { min-height: 64px; display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-bottom: 1px solid var(--fit-divider); cursor: pointer; }
-  .gh-row:last-child { border-bottom: none; }
-  .gh-ic { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--fit-teal-500); background: rgba(5,224,166,.11); }
-  .gh-ic svg { width: 18px; height: 18px; }
+  .gh-row { min-height: 64px; padding: 10px 12px; display: flex; align-items: center; gap: 11px; border-bottom: 1px solid var(--fit-divider); cursor: pointer; }
+  .gh-row:last-child { border-bottom: 0; }
+  .gh-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 50%; background: rgba(5,224,166,.11); color: var(--fit-teal-500); }
+  .gh-icon svg { width: 18px; height: 18px; }
   .gh-body { flex: 1; min-width: 0; }
-  .gh-name { font-size: 14px; font-weight: 600; color: var(--fit-text-primary); }
-  .gh-meta { margin-top: 3px; font-size: 11.5px; color: var(--fit-text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .gh-tag { padding: 3px 7px; border-radius: 99px; font-size: 10px; font-weight: 650; color: var(--fit-brand-primary); background: rgba(3,178,226,.10); }
+  .gh-name { color: var(--fit-text-primary); font-size: 14px; font-weight: 600; }
+  .gh-meta { margin-top: 3px; overflow: hidden; color: var(--fit-text-tertiary); font-size: 11.5px; text-overflow: ellipsis; white-space: nowrap; }
+  .gh-tag { padding: 3px 7px; border-radius: 99px; background: rgba(3,178,226,.1); color: var(--fit-brand-primary); font-size: 10px; font-weight: 600; }
   .gh-switch { display: flex; gap: 8px; padding: 8px 16px 16px; }
   .gh-switch button { flex: 1; height: 42px; border: 1px solid var(--fit-divider); border-radius: 99px; background: transparent; color: var(--fit-text-secondary); font: 600 13px var(--fit-font); cursor: pointer; }
-  .gh-switch button.active { border-color: var(--fit-teal-500); color: var(--fit-teal-500); background: rgba(5,224,166,.08); }
+  .gh-switch button.active { border-color: var(--fit-teal-500); background: rgba(5,224,166,.08); color: var(--fit-teal-500); }
 </style>
 </head>
 <body>
-
-<!-- ==================== SIDEBAR ==================== -->
 <nav class="sidebar">
   <div class="sidebar-scroll">
-    <button onclick="window.location.href='../../modules.html'" style="display:flex;align-items:center;gap:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;padding:8px 12px;border-radius:10px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-gray-300);cursor:pointer;width:100%;margin-bottom:8px;">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      All modules
-    </button>
-  <div class="label">AI quick-start map</div>
-  <button class="active" onclick="go('s-guide-coach',this)">Coach AI entry points</button>
-  <button onclick="go('s-guide-athlete',this)">Athlete AI entry points</button>
-  <div class="label">The tab</div>
-  <button onclick="go('s-chats',this)">Chats (assistant pinned)</button>
-  <div class="label">Entering with context</div>
-  <button onclick="go('s-request-drawer',this)">Request drawer &middot; circle actions</button>
-  <button onclick="go('s-ai-context',this)">Assistant with context</button>
-  <button onclick="go('s-ai-entry-client',this)">From a client card</button>
-  <div class="label">States</div>
-  <button onclick="go('s-request-drawer',this);aiPlanned(true)">Drawer &middot; planned (2 actions)</button>
-  <button onclick="go('s-request-drawer',this);aiPlanned(false)">Drawer &middot; request (4 actions)</button>
-  <button onclick="go('s-ai-context',this);aiAct()">Assistant acted</button>
-  <button onclick="go('s-ai-entry-client',this);aiMenu(true)">Client card &middot; &hellip; menu open</button>
-  <button onclick="go('s-ai-entry-client',this);aiHeaderEntry(true)">Client card &middot; sparkle in the header</button>
-  <div class="label">Other modules</div>
-  <button onclick="window.location.href='./messages.html'">&larr; Messages (DM)</button>
-  <button onclick="window.location.href='./voice-assistant.html'">&larr; Assistant canvas</button>
-  <button onclick="window.location.href='../athlete/calendar.html'">&larr; Athlete calendar</button>
+    <button onclick="window.location.href='../../board.html'">All modules</button>
+    <div class="label">Contextual AI quick starts</div>
+    <button class="active" onclick="go('s-guide-coach',this)">Coach entry points</button>
+    <button onclick="go('s-guide-athlete',this)">Athlete entry points</button>
   </div>
-  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
-    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
-    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  <div class="theme-switch">
+    <button id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button class="active" id="theme-light" onclick="switchTheme('light')">Light</button>
   </div>
 </nav>
 
-<!-- ==================== SCREEN: UI GUIDE MAP · COACH ==================== -->
 <div class="fit-phone fit-light active" id="s-guide-coach" data-status="proposal">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header" style="justify-content:space-between;"><span style="width:32px;"></span><span class="fit-header-title">AI quick starts</span><span class="gh-tag">7 points</span></div>
+    <div class="fit-header" style="justify-content:space-between;"><span style="width:32px;"></span><span class="fit-header-title">AI quick starts</span><span class="gh-tag">6 points</span></div>
   </div>
   <div class="fit-phone-content">
     <div class="gh-hero"><div class="gh-kicker">Start a contextual AI dialogue</div><div class="gh-title">Coach entry points</div><div class="gh-sub">Each selected complex screen has three conversation starters. Choosing one opens the full assistant chat with that message already sent.</div></div>
     <div class="gh-section"><div class="gh-section-title">Mounted in prototypes</div><div class="gh-list">
-      <div class="gh-row" onclick="window.location.href='../coach/clients.html#s-client-detail'"><span class="gh-ic">?</span><div class="gh-body"><div class="gh-name">Client detail</div><div class="gh-meta">Schedule · groups · history</div></div><span class="gh-tag">3</span></div>
-      <div class="gh-row" onclick="window.location.href='../coach/sessions.html#s-create'"><span class="gh-ic">?</span><div class="gh-body"><div class="gh-name">Training templates</div><div class="gh-meta">Types · required fields · packages</div></div><span class="gh-tag">3</span></div>
-      <div class="gh-row" onclick="window.location.href='../coach/client-groups.html#s-group-schedule'"><span class="gh-ic">?</span><div class="gh-body"><div class="gh-name">Group schedule</div><div class="gh-meta">Dates · recurrence · conflicts</div></div><span class="gh-tag">3</span></div>
-      <div class="gh-row" onclick="window.location.href='../coach/available-hours.html#s-availability'"><span class="gh-ic">?</span><div class="gh-body"><div class="gh-name">Available hours</div><div class="gh-meta">Working hours · time off · blocked slots</div></div><span class="gh-tag">3</span></div>
-      <div class="gh-row" onclick="window.location.href='../coach/balance-v2.html#s-earnings'"><span class="gh-ic">?</span><div class="gh-body"><div class="gh-name">Earnings</div><div class="gh-meta">Withdraw · pending · payout methods</div></div><span class="gh-tag">3</span></div>
-      <div class="gh-row" onclick="window.location.href='../coach/stripe.html#s-stripe'"><span class="gh-ic">?</span><div class="gh-body"><div class="gh-name">Stripe setup</div><div class="gh-meta">Requirements · documents · availability</div></div><span class="gh-tag">3</span></div>
-      <div class="gh-row" onclick="window.location.href='./self-paced.html#s-setup'"><span class="gh-ic">?</span><div class="gh-body"><div class="gh-name">Self-paced builder</div><div class="gh-meta">Steps · video and timer · athlete view</div></div><span class="gh-tag">3</span></div>
+      <div class="gh-row" onclick="window.location.href='../coach/clients.html#s-client-detail'"><span class="gh-icon">&#10022;</span><div class="gh-body"><div class="gh-name">Client detail</div><div class="gh-meta">Schedule · groups · history</div></div><span class="gh-tag">3</span></div>
+      <div class="gh-row" onclick="window.location.href='../coach/sessions.html#s-create'"><span class="gh-icon">&#10022;</span><div class="gh-body"><div class="gh-name">Training templates</div><div class="gh-meta">Create template · personal · group</div></div><span class="gh-tag">3</span></div>
+      <div class="gh-row" onclick="window.location.href='../coach/client-groups.html#s-group-schedule'"><span class="gh-icon">&#10022;</span><div class="gh-body"><div class="gh-name">Group schedule</div><div class="gh-meta">Create training · repeat · add date</div></div><span class="gh-tag">3</span></div>
+      <div class="gh-row" onclick="window.location.href='../coach/balance-v2.html#s-earnings'"><span class="gh-icon">&#10022;</span><div class="gh-body"><div class="gh-name">Earnings</div><div class="gh-meta">Withdraw · pending · payout methods</div></div><span class="gh-tag">3</span></div>
+      <div class="gh-row" onclick="window.location.href='../coach/stripe.html#s-stripe'"><span class="gh-icon">&#10022;</span><div class="gh-body"><div class="gh-name">Stripe setup</div><div class="gh-meta">Requirements · documents · availability</div></div><span class="gh-tag">3</span></div>
+      <div class="gh-row" onclick="window.location.href='./self-paced.html#s-setup'"><span class="gh-icon">&#10022;</span><div class="gh-body"><div class="gh-name">Self-paced builder</div><div class="gh-meta">Create workout · use plan · add media</div></div><span class="gh-tag">3</span></div>
     </div></div>
   </div>
-  <div class="fit-phone-footer gh-switch"><button class="active">Coach · 7</button><button onclick="go('s-guide-athlete',null)">Athlete · 2</button></div>
+  <div class="fit-phone-footer gh-switch"><button class="active">Coach · 6</button><button onclick="go('s-guide-athlete',null)">Athlete · 2</button></div>
 </div>
 
-<!-- ==================== SCREEN: UI GUIDE MAP · ATHLETE ==================== -->
 <div class="fit-phone fit-light" id="s-guide-athlete" data-status="proposal">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
@@ -405,457 +112,37 @@
   <div class="fit-phone-content">
     <div class="gh-hero"><div class="gh-kicker">Start a contextual AI dialogue</div><div class="gh-title">Athlete entry points</div><div class="gh-sub">Search and Payment each open a different set of three suggested first messages, then continue in the full assistant chat.</div></div>
     <div class="gh-section"><div class="gh-section-title">Mounted in prototypes</div><div class="gh-list">
-      <div class="gh-row" onclick="window.location.href='../athlete/search.html#s-search-landing'"><span class="gh-ic">?</span><div class="gh-body"><div class="gh-name">Coach search</div><div class="gh-meta">Nearby · filters · booking</div></div><span class="gh-tag">3</span></div>
-      <div class="gh-row" onclick="window.location.href='../athlete/balance-v2.html#s-txn-spend'"><span class="gh-ic">?</span><div class="gh-body"><div class="gh-name">Payment detail</div><div class="gh-meta">Transaction · pending · refund</div></div><span class="gh-tag">3</span></div>
+      <div class="gh-row" onclick="window.location.href='../athlete/search.html#s-search-landing'"><span class="gh-icon">&#10022;</span><div class="gh-body"><div class="gh-name">Coach search</div><div class="gh-meta">Nearby · filters · booking</div></div><span class="gh-tag">3</span></div>
+      <div class="gh-row" onclick="window.location.href='../athlete/balance-v2.html#s-txn-spend'"><span class="gh-icon">&#10022;</span><div class="gh-body"><div class="gh-name">Payment detail</div><div class="gh-meta">Transaction · pending · refund</div></div><span class="gh-tag">3</span></div>
     </div></div>
   </div>
-  <div class="fit-phone-footer gh-switch"><button onclick="go('s-guide-coach',null)">Coach · 7</button><button class="active">Athlete · 2</button></div>
+  <div class="fit-phone-footer gh-switch"><button onclick="go('s-guide-coach',null)">Coach · 6</button><button class="active">Athlete · 2</button></div>
 </div>
 
-<!-- ==================== SCREEN: CHATS (the centre tab) ==================== -->
-<div class="fit-phone fit-light vr-athlete" id="s-chats" data-status="proposal">
-  <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header" style="justify-content:space-between;">
-      <span style="width:32px;"></span>
-      <span class="fit-header-title">Chats</span>
-      <button class="fit-icon-btn" aria-label="New message" data-a11y-id="chats.compose" onclick="window.location.href='./messages.html#s-new-message'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>
-    </div>
-  </div>
-  <div class="fit-phone-content" style="padding-bottom:90px;">
+<aside class="ann-container">
+  <div class="ann-title">Contextual AI quick starts — WIP</div>
+  <p class="ann-intro">Inventory of every lower-right AI bubble. Each link opens the real screen with its own three suggested first messages.</p>
+  <div class="ann active" id="ann-s-guide-coach"><span class="ann-role coach">Coach</span><h3>Coach quick-start placements</h3><p><strong>Six complex screens.</strong> Select a suggestion to open the full assistant chat with the screen context and first message already attached.</p></div>
+  <div class="ann" id="ann-s-guide-athlete"><span class="ann-role athlete">Athlete</span><h3>Athlete quick-start placements</h3><p><strong>Two complex screens.</strong> Search and Payment each provide a separate prompt set. Calendar intentionally has no bubble.</p></div>
+</aside>
 
-    <div class="dm-row ai-pin" onclick="go('s-ai-context',null)" data-a11y-id="chats.assistant">
-      <div class="dm-av"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z" /><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg></div>
-      <div class="dm-body">
-        <div class="dm-name" style="display:flex;align-items:center;gap:7px;">321Fit Assistant <span class="ai-pin-tag">AI</span></div>
-        <div class="dm-prev">Diana&rsquo;s request clashes with Thursday&rsquo;s session</div>
-      </div>
-      <div class="dm-meta"><span class="dm-unread-dot"></span>now</div>
-    </div>
-
-    <div class="dm-sectitle" style="font-size:14px;color:var(--fit-text-tertiary);padding-top:14px;">Direct messages</div>
-
-    <div class="dm-row unread" onclick="window.location.href='./messages.html#s-thread'">
-      <div class="dm-av">JM</div>
-      <div class="dm-body"><div class="dm-name">John Miller</div><div class="dm-prev">Great session today &mdash; same time next week?</div></div>
-      <div class="dm-meta"><span class="dm-unread-dot"></span>2h</div>
-    </div>
-    <div class="dm-row" onclick="window.location.href='./messages.html#s-thread'">
-      <div class="dm-av" style="background:#5b3fa6;">AK</div>
-      <div class="dm-body"><div class="dm-name">Anna K.</div><div class="dm-prev">You: thanks, see you Friday</div></div>
-      <div class="dm-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Yesterday</div>
-    </div>
-    <div class="dm-row" onclick="window.location.href='./messages.html#s-group-thread'">
-      <div class="dm-av" style="background:rgba(5,224,166,0.16);color:var(--fit-teal-500);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><circle cx="9" cy="8" r="3"/><path d="M2 20v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="17.5" cy="9" r="2.5"/></svg></div>
-      <div class="dm-body"><div class="dm-name">Morning Padel</div><div class="dm-prev">Marco: see you all at 8</div></div>
-      <div class="dm-meta">Mon</div>
-    </div>
-  </div>
-  <div class="fit-phone-footer" style="padding:0;">
-    <div class="fit-navbar">
-      <div class="fit-navbar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>
-      <div class="fit-navbar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg></div>
-      <div class="fit-navbar-item active" aria-label="Chats"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 01-9 8.4L3 21l1.1-3.3A8.4 8.4 0 1121 11.5z"/><path d="M12 7.6l.9 2.5 2.5.9-2.5.9-.9 2.5-.9-2.5-2.5-.9 2.5-.9z" fill="var(--fit-brand-primary)" stroke="none"/></svg></div>
-      <div class="fit-navbar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
-      <div class="fit-navbar-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== SCREEN: REQUEST DRAWER (circle actions) ==================== -->
-<div class="fit-phone fit-light vr-athlete" id="s-request-drawer" data-status="proposal">
-  <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header" style="justify-content:space-between;">
-      <button class="fit-header-back" style="position:static;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">April 10</span>
-      <span style="width:32px;"></span>
-    </div>
-  </div>
-  <div class="fit-phone-content" style="padding:0;">
-    <div class="ai-behind">
-      <div class="ai-slot"><b>09:00</b><span>Padel &middot; Court C</span></div>
-      <div class="ai-slot req"><b>13:00</b><span>Basketball Training &middot; request</span></div>
-      <div class="ai-slot"><b>18:00</b><span>Tennis &middot; TNT GYM</span></div>
-    </div>
-  </div>
-
-  <!-- The real athlete drawer (athlete/calendar.html#ath-event-sheet), with the
-       footer buttons replaced by the circle row. Everything above it — status
-       header, message icon, the ... menu that carries Edit details — already
-       exists and stays exactly where it is. -->
-  <div class="fit-sheet-overlay visible">
-    <div class="fit-sheet" style="padding:8px 16px 40px;">
-      <div class="fit-sheet-handle"></div>
-
-      <div class="fit-sheet-status-header">
-        <div class="fit-sheet-descriptor" id="ai-ev-descriptor">Session request</div>
-        <span class="fit-cal-event-pill" id="ai-ev-pill" style="background:rgba(222,145,29,0.16);color:var(--fit-yellow-600);">Request</span>
-        <button class="fit-sheet-menu-btn" aria-label="Open chat" style="color:var(--fit-brand-primary);" onclick="window.location.href='./messages.html'">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        </button>
-        <button class="fit-sheet-menu-btn" aria-label="More options" onclick="event.stopPropagation();document.getElementById('ai-ev-menu').classList.toggle('visible')">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>
-        </button>
-      </div>
-
-      <div class="fit-context-menu" id="ai-ev-menu" style="top:44px;right:8px;">
-        <div class="fit-context-menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit details</div>
-        <div class="fit-context-menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8h16v-8M12 3v13M8 7l4-4 4 4"/></svg>Share</div>
-      </div>
-
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px;cursor:pointer;">
-        <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;">DK</div>
-        <div style="flex:1;"><div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Coach Diana Kim</div></div>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
-      </div>
-
-      <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);margin-bottom:12px;">Basketball Training</div>
-      <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-        <span>Thu, Apr 10 &middot; 13:00 &ndash; 14:00</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;">
-        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-          <span>TNT GYM</span>
-        </div>
-        <div style="font-size:14px;color:var(--fit-text-secondary);">&euro;50 &middot; cash</div>
-      </div>
-
-      <!-- REQUEST — four actions -->
-      <div class="fit-action-circles" id="ai-row-request">
-        <button class="fit-action-circle fit-action-circle--danger" data-a11y-id="athlete.calendar.event.decline">
-          <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></i><span>Decline</span>
-        </button>
-        <button class="fit-action-circle" data-a11y-id="athlete.calendar.event.reschedule">
-          <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></i><span>Reschedule</span>
-        </button>
-        <button class="fit-action-circle fit-action-circle--ask" onclick="go('s-ai-context',null)" data-a11y-id="athlete.calendar.event.ask-assistant">
-          <i><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z" /><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg></i><span>Ask AI</span>
-        </button>
-        <button class="fit-action-circle fit-action-circle--primary" data-a11y-id="athlete.calendar.event.accept">
-          <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></i><span>Accept</span>
-        </button>
-      </div>
-
-      <!-- PLANNED — the same row, three actions. Ask AI is always there, so a
-           drawer never drops below three: circles are simply what a drawer uses. -->
-      <div class="fit-action-circles" id="ai-row-planned" style="display:none;">
-        <button class="fit-action-circle fit-action-circle--danger">
-          <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></i><span>Cancel</span>
-        </button>
-        <button class="fit-action-circle">
-          <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></i><span>Reschedule</span>
-        </button>
-        <button class="fit-action-circle fit-action-circle--ask" onclick="go('s-ai-context',null)">
-          <i><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z" /><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg></i><span>Ask AI</span>
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== SCREEN: ASSISTANT WITH CONTEXT ==================== -->
-<div class="fit-phone fit-light vr-athlete vb-text" id="s-ai-context" data-status="proposal">
-  <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header" style="justify-content:space-between;">
-      <button class="fit-header-back" style="position:static;" onclick="go('s-request-drawer',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <div class="va-head">
-        <span class="va-spark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z" /><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg></span>
-        <div><div class="va-head-title">Assistant</div><div class="va-head-sub"><span class="live"></span>Connected</div></div>
-      </div>
-      <button class="fit-icon-btn" aria-label="More"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></button>
-    </div>
-  </div>
-
-  <div class="fit-phone-content" style="flex-direction:column;padding:0;">
-
-    <!-- what the assistant was handed, spelled out -->
-    <div class="ai-ctx">
-      <div class="ai-ctx-cap"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z" /><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg>Asking about</div>
-      <div class="ai-ctx-body">
-        <span class="ai-ctx-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
-        <div style="flex:1;min-width:0;">
-          <div class="ai-ctx-t">Basketball Training &middot; request</div>
-          <div class="ai-ctx-s">Diana Kim &middot; Apr 10, 13:00 &middot; TNT GYM &middot; &euro;50 cash</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="va-convo" data-vr="athlete" style="padding-top:6px;">
-      <div class="va-msg agent"><span class="va-av"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z" /><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg></span><div class="va-bubble">I can see this request. What do you want to know?</div></div>
-
-      <div class="ai-sug">
-        <button>Does it fit my week?</button>
-        <button>Find a better time</button>
-        <button>What if I decline?</button>
-      </div>
-
-      <div class="va-msg user"><div class="va-bubble">Does it fit my week?</div></div>
-
-      <div class="va-msg agent"><span class="va-av"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z" /><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg></span><div class="va-bubble">It fits &mdash; but it&rsquo;s your third session that week and it sits 40 min after Padel at TNT GYM, so you&rsquo;d go straight from one to the other.</div></div>
-
-      <div class="va-block">
-        <div class="va-block-cap"><span class="va-cap-dot"></span>That week <span class="tag">schedule</span></div>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <div class="ai-slot"><b>Mon</b><span>Tennis &middot; 18:00</span></div>
-          <div class="ai-slot"><b>Wed</b><span>Padel &middot; 12:00 &middot; TNT GYM</span></div>
-          <div class="ai-slot req"><b>Wed</b><span>Basketball &middot; 13:00 &middot; TNT GYM &mdash; this request</span></div>
-        </div>
-        <!-- the assistant has the tools, so it finishes the job here -->
-        <div class="ai-act">
-          <button onclick="aiAct()">Accept anyway</button>
-          <button class="go" onclick="aiAct()">Ask Diana for 15:00</button>
-        </div>
-      </div>
-
-      <div id="ai-result" style="display:none;">
-        <div class="va-msg agent"><span class="va-av"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z" /><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg></span><div class="va-bubble">Sent. Diana has to confirm the new time &mdash; the 13:00 slot stays held until she does.</div></div>
-        <div class="va-block">
-          <div class="ai-done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Reschedule requested &middot; Apr 10, 15:00</div>
-          <div class="ai-act"><button onclick="window.location.href='../athlete/calendar.html'">Open in calendar</button></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="fit-phone-footer va-bar">
-    <div data-vb="text" style="width:100%;align-items:center;gap:8px;">
-      <button class="va-bar-icon" aria-label="Voice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3"/></svg></button>
-      <input class="va-textfield" placeholder="Ask about this request&hellip;">
-      <button class="va-send" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== SCREEN: ENTRY FROM A CLIENT CARD (coach) ==================== -->
-<!-- The real client card (coach/clients.html#s-client-detail): header, identity,
-     group pills, stats. Header carries ... only — as shipped. The footer is the
-     pattern from shared/profile.html (athlete viewing a coach): a round message
-     button beside the screen's one CTA. Two candidate homes for the assistant are
-     drawn: in that footer row (default) or in the header (a state), plus the row
-     in the ... menu either way. -->
-<div class="fit-phone fit-dark vr-coach" id="s-ai-entry-client" data-status="proposal">
-  <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;">
-      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <div style="display:flex;gap:8px;">
-        <button id="ai-head-spark" style="display:none;width:32px;height:32px;border-radius:50%;background:var(--fit-surface-high);border:none;align-items:center;justify-content:center;cursor:pointer;color:var(--fit-teal-500);" aria-label="Ask the assistant" onclick="go('s-ai-context',null)">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg>
-        </button>
-        <button style="width:32px;height:32px;border-radius:50%;background:var(--fit-surface-high);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--fit-text-primary);" aria-label="Client options" onclick="aiMenu()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div class="fit-phone-content">
-<div style="display:flex;align-items:center;gap:16px;padding:0 16px 12px;">
-      <div style="width:72px;height:72px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:600;color:var(--fit-white);flex-shrink:0;">AK</div>
-      <div style="flex:1;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-          <span class="fit-identity-name">Anna Kowalski</span>
-          <span id="cd-name-pill" style="display:none;font-size:10px;font-weight:500;color:var(--fit-teal-500);background:rgba(5,224,166,0.08);border:1px solid rgba(5,224,166,0.3);padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:0.3px;">CRM</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:4px;font-size:14px;color:var(--fit-text-secondary);">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-          Warsaw, Poland
-        </div>
-      </div>
-    </div>
-
-<div class="cd-grp-row has-groups" id="cd-groups">
-      <span class="cd-grp-label">Groups</span>
-      <span class="cd-grp" data-a11y-id="coach.client.group" onclick="window.location.href='./client-groups.html#s-group-detail'">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg>
-        <span class="cd-grp-name">Morning</span>
-      </span>
-      <span class="cd-grp" onclick="window.location.href='./client-groups.html#s-group-detail'">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg>
-        <span class="cd-grp-name">Beginners</span>
-      </span>
-      <span class="cd-grp cd-grp--more" id="cd-grp-more" style="display:none;" onclick="window.location.href='./client-groups.html#s-add-to-group'">+4</span>
-      <span class="cd-grp cd-grp--add" data-a11y-id="coach.client.add-to-group" onclick="window.location.href='./client-groups.html#s-add-to-group'">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-        <span>Add to group</span>
-      </span>
-    </div>
-<div style="display:flex;justify-content:space-around;padding:14px 16px;margin:0 16px 24px;border-radius:12px;background:var(--fit-surface-high);">
-      <div style="text-align:center;">
-        <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">12</div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);">Sessions</div>
-      </div>
-      <div style="width:1px;background:var(--fit-divider);"></div>
-      <div style="text-align:center;">
-        <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);">3</div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);">Upcoming</div>
-      </div>
-      <div style="width:1px;background:var(--fit-divider);"></div>
-      <div style="text-align:center;">
-        <div style="font-size:18px;font-weight:600;color:var(--fit-teal-500);" id="cd-stat-revenue">&euro;580</div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);">Revenue</div>
-      </div>
-      <div style="width:1px;background:var(--fit-divider);"></div>
-      <div style="text-align:center;">
-        <div style="font-size:18px;font-weight:600;color:var(--fit-red-400);" id="cd-stat-owed">&euro;75</div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);">Owed</div>
-      </div>
-    </div>
-
-    <div class="fit-context-menu" id="ai-client-menu" style="top:56px;right:12px;">
-      <div class="fit-context-menu-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v4M10 16h4"/></svg>
-        Schedule training
-      </div>
-      <div class="fit-context-menu-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg>
-        Add to group
-      </div>
-      <!-- the proposal: one row in a menu that already exists -->
-      <div class="fit-context-menu-item" style="color:var(--fit-teal-500);" onclick="go('s-ai-context',null)">
-        <svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--fit-teal-500);"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg>
-        Ask the assistant
-      </div>
-      <div class="fit-context-menu-divider"></div>
-      <div class="fit-context-menu-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M3 12h18"/></svg>
-        Archive client
-      </div>
-    </div>
-  </div>
-
-  <div class="fit-phone-footer" style="padding:12px 16px 40px;background:var(--fit-screen-bg);border-top:1px solid var(--fit-divider);">
-    <div style="display:flex;gap:8px;">
-      <button style="width:50px;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" aria-label="Message">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-      </button>
-      <button id="ai-foot-spark" style="width:50px;height:50px;border:1.5px solid var(--fit-teal-500);border-radius:99px;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" aria-label="Ask the assistant" onclick="go('s-ai-context',null)">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--fit-teal-500)"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M18.5 14l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/></svg>
-      </button>
-      <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;">Schedule training</button>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== ANNOTATIONS ==================== -->
-<div class="ann-container">
-  <div class="ann-title">Contextual AI quick starts &amp; entry points &mdash; WIP</div>
-  <p class="ann-intro">The first two screens inventory every lower-right AI FAB. Tap a FAB for three screen-specific conversation starters; choosing one opens the assistant thread with that prompt already sent.</p>
-
-  <div class="ann active" id="ann-s-guide-coach"><span class="ann-role coach">Coach</span><h3>Contextual AI quick starts &mdash; coach</h3>
-    <p><strong>Lower-right AI FAB · three conversation starters · full chat.</strong> This inventory links every coach-side placement to the real screen, and each screen authors a different prompt set.</p>
-    <p>A prompt is the first user message, not a local FAQ answer. Selecting it pushes the 321Fit Assistant thread with the current screen named as visible context.</p>
-  </div>
-  <div class="ann" id="ann-s-guide-athlete"><span class="ann-role athlete">Athlete</span><h3>Contextual AI quick starts &mdash; athlete</h3>
-    <p><strong>Lower-right AI FAB · three conversation starters · full chat.</strong> Search, Schedule and Payment use separate first-message sets because the user’s likely question changes with the screen.</p>
-  </div>
-
-  <div class="ann" id="ann-s-chats"><span class="ann-role athlete">Athlete</span><h3>Chats &mdash; the centre tab</h3>
-    <p>The assistant is a <strong>correspondent</strong>, pinned at the top of the conversation list, and the tab is the history of every session you started elsewhere. That only works because most sessions <em>do</em> start elsewhere &mdash; from a drawer, from a client card &mdash; so the tab is where you come back, not where you begin.</p>
-    <p><strong>Consequence:</strong> the Messages icon in the Dashboard header goes away. Two doors into one room is the mistake we already made with the bell and the Inbox. This contradicts <code>specs/messages.md</code> (Approved), which puts messaging in the header and explicitly rejected a nav tab &mdash; the spec has to change with the decision.</p>
-    <p><strong>Open:</strong> one eternal assistant thread (drawn here), or one thread per context? Per-context threads make it easy to return to &ldquo;that Tuesday question&rdquo; but turn the list into a machine&rsquo;s scratchpad.</p>
-  </div>
-
-  <div class="ann" id="ann-s-request-drawer"><span class="ann-role athlete">Athlete</span><h3>Event drawer &mdash; circle actions</h3>
-    <p>This is the <strong>existing</strong> drawer (<code>athlete/calendar.html#ath-event-sheet</code>) with one change: the footer buttons become a circle row. Everything above stays &mdash; status header, the Request pill, the <strong>message icon</strong> (available in every state, that is why it lives up there) and <strong>&hellip;</strong> with Edit details.</p>
-    <p><strong>Adding Ask AI settles the pattern.</strong> If the assistant is always offered, a drawer never has fewer than three actions &mdash; so &ldquo;wide buttons below three, circles above&rdquo; has no cases left. Simpler and truer: <strong>the event drawer always uses circles</strong>. Wide buttons keep the job they are actually good at &mdash; confirmation sheets, where there is one decision and a way out.</p>
-    <p><strong>Colour is the hierarchy, so it is rationed.</strong> Exactly one gradient (the expected answer, under the thumb), exactly one red (destructive, farthest from it), everything else the same neutral plate. Ask AI is that neutral plate with a brand <em>outline</em> &mdash; a third fill would turn four actions into four warnings, and asking is not a decision anyway.</p>
-    <p><strong>Not resolved:</strong> the reference had both <em>Replan</em> and <em>Schedule</em>. Our vocabulary has one &mdash; <em>Reschedule</em> &mdash; and two calendar-ish actions side by side read as the same thing twice, so only one is drawn.</p>
-  </div>
-
-  <div class="ann" id="ann-s-ai-context"><span class="ann-role athlete">Athlete</span><h3>Assistant with context</h3>
-    <p>Three things make this more than a chat box:</p>
-    <p><strong>1. The context is visible.</strong> The request is pinned as a card, not slipped into a hidden prompt. If you cannot see what it was told, you cannot trust what it says.</p>
-    <p><strong>2. It opens with questions, not a blank field.</strong> Suggested openers are the difference between a tool and a text input.</p>
-    <p><strong>3. It can finish the job.</strong> The assistant has the tools, so the answer ends in <em>Accept anyway</em> / <em>Ask Diana for 15:00</em> &mdash; and the result block says exactly what happened to the held slot. An assistant that can only advise sends you back to the drawer, and nobody comes back twice.</p>
-    <p><strong>Cost:</strong> acting means the assistant needs the same permissions and the same guardrails as the UI &mdash; every backend rule (holds, 24h policy, who may accept) has to be enforced server-side, not in the prompt.</p>
-  </div>
-
-  <div class="ann" id="ann-s-ai-entry-client"><span class="ann-role coach">Coach</span><h3>Entering from a client card</h3>
-    <p>The other kind of context: a <em>person</em> rather than an event &mdash; &ldquo;how is Anna doing?&rdquo;, &ldquo;when does her package run out?&rdquo;, &ldquo;draft a note about the session she missed&rdquo;.</p>
-    <p>The card is the shipped one: header carries <strong>&hellip;</strong> only, and the screen&rsquo;s one job sits in a footer &mdash; <em>Schedule training</em> &mdash; with a round message button beside it, the pattern from an athlete viewing a coach (<code>shared/profile.html</code>). Both are cloned, not redrawn.</p>
-    <p><strong>Proposed rule &mdash; the assistant sits with the object&rsquo;s actions:</strong></p>
-    <p>&bull; a sheet or drawer &rarr; a circle in the action row<br>
-       &bull; a screen with an action footer &rarr; an icon in that footer, beside message<br>
-       &bull; a screen without one (lists, settings) &rarr; the <strong>&hellip;</strong> menu</p>
-    <p>That is why the default here is the <strong>footer</strong>: one predictable place per surface, always next to what you can do with the thing you are looking at. The <em>sparkle in the header</em> state shows the alternative &mdash; it works, and it costs the CTA nothing (300px vs 242px), but the header is navigation plus overflow, so it starts competing with &hellip; the moment anything else needs to live there. The menu row stays in both, as the discoverable-once fallback.</p>
-    <p><strong>Not drawn on purpose:</strong> per-block sparkles (&ldquo;draft this note for me&rdquo; next to Notes). That is a different class &mdash; <em>do</em> rather than <em>ask</em> &mdash; and scattering sparkles turns them into wallpaper. Worth its own pass once the entry pattern is settled.</p>
-  </div>
-</div>
-
-<script src="../../lib/fit-ui.js"></script>
 <script>
-function switchTheme(theme) {
-  document.getElementById("theme-dark").style.background = theme === "dark" ? "var(--fit-gray-700)" : "transparent";
-  document.getElementById("theme-dark").style.color = theme === "dark" ? "var(--fit-white)" : "var(--fit-gray-400)";
-  document.getElementById("theme-light").style.background = theme === "light" ? "var(--fit-gray-700)" : "transparent";
-  document.getElementById("theme-light").style.color = theme === "light" ? "var(--fit-white)" : "var(--fit-gray-400)";
-  document.querySelectorAll(".fit-phone").forEach(function (p) {
-    if (theme === "light") { p.classList.remove("fit-dark"); p.classList.add("fit-light"); }
-    else { p.classList.remove("fit-light"); p.classList.add("fit-dark"); }
-  });
-}
 function go(id, btn) {
-  document.querySelectorAll('.fit-phone').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.fit-phone').forEach(function(screen) { screen.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.sidebar button').forEach(function(button) { button.classList.remove('active'); });
+  if (!btn) btn = document.querySelector('.sidebar button[onclick*="' + id + '"]');
   if (btn) btn.classList.add('active');
-  document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
-  const ann = document.getElementById('ann-' + id); if (ann) ann.classList.add('active');
+  document.querySelectorAll('.ann').forEach(function(note) { note.classList.remove('active'); });
+  document.getElementById('ann-' + id).classList.add('active');
 }
-function setVs(state, btn) {
-  var el = document.getElementById('s-assistant'); if (!el) return;
-  el.classList.remove('vs-convo','vs-welcome','vs-error'); el.classList.add('vs-' + state);
-  if (btn) { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
-}
-function setVb(state, btn) {
-  var el = document.getElementById('s-assistant'); if (!el) return;
-  el.classList.remove('vb-idle','vb-listening','vb-thinking','vb-speaking','vb-text'); el.classList.add('vb-' + state);
-  if (btn) { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
-}
-// viewer = which role's conversation; also sets theme (athlete light / coach dark)
-function setViewer(role, btn) {
-  var el = document.getElementById('s-assistant'); if (!el) return;
-  el.classList.remove('vr-athlete','vr-coach'); el.classList.add('vr-' + role);
-  switchTheme(role === 'coach' ? 'dark' : 'light');
-  if (btn) { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
-}
-// entry context: ?role=coach|athlete (from the role's Core Modules hub card)
-(function initVa() {
-  var role = new URLSearchParams(location.search).get('role');
-  if (role === 'coach') setViewer('coach');
-})();
-</script>
-
-<script>
-// The drawer swaps its action row by event kind — the point of the state.
-function aiPlanned(on) {
-  document.getElementById('ai-row-request').style.display = on ? 'none' : 'flex';
-  document.getElementById('ai-row-planned').style.display = on ? 'flex' : 'none';
-  document.getElementById('ai-ev-descriptor').textContent = on ? 'Confirmed session' : 'Session request';
-  var pill = document.getElementById('ai-ev-pill');
-  pill.textContent = on ? 'Planned' : 'Request';
-  pill.style.background = on ? 'rgba(5,224,166,0.16)' : 'rgba(222,145,29,0.16)';
-  pill.style.color = on ? 'var(--fit-teal-500)' : 'var(--fit-yellow-600)';
-}
-function aiMenu(on) {
-  var m = document.getElementById('ai-client-menu');
-  m.classList.toggle('visible', on === undefined ? !m.classList.contains('visible') : on);
-}
-// The alternative placement, side by side for comparison: sparkle in the header,
-// footer back to message + CTA.
-function aiHeaderEntry(on) {
-  document.getElementById('ai-head-spark').style.display = on ? 'flex' : 'none';
-  document.getElementById('ai-foot-spark').style.display = on ? 'none' : 'flex';
-}
-function aiAct() {
-  var el = document.getElementById('ai-result');
-  el.style.display = 'block';
-  el.scrollIntoView({ behavior: 'smooth', block: 'end' });
+function switchTheme(theme) {
+  document.querySelectorAll('.fit-phone').forEach(function(phone) {
+    phone.classList.toggle('fit-dark', theme === 'dark');
+    phone.classList.toggle('fit-light', theme === 'light');
+  });
+  document.getElementById('theme-dark').classList.toggle('active', theme === 'dark');
+  document.getElementById('theme-light').classList.toggle('active', theme === 'light');
 }
 </script>
 </body>

@@ -128,10 +128,6 @@ export const STATES = {
     { id: "ai-chat", label: "AI · full-screen chat from first prompt", run: "document.querySelector('#s-group-schedule .fit-guide-fab').click();document.querySelector('#s-group-schedule .fit-guide-prompt').click()", wait: 250 },
     { id: "recurring-only", label: "Filtered to recurring", run: "cgSchedFilter('rec', document.querySelector('#s-group-schedule .fit-filter-chip:nth-child(2)'))" },
   ],
-  "flows/coach/available-hours.html#s-availability": [
-    { id: "ai-quick-starts", label: "AI · 3 contextual conversation starters", run: "document.querySelector('#s-availability .fit-guide-fab').click()", wait: 250 },
-    { id: "ai-chat", label: "AI · full-screen chat from first prompt", run: "document.querySelector('#s-availability .fit-guide-fab').click();document.querySelector('#s-availability .fit-guide-prompt').click()", wait: 250 },
-  ],
   "flows/coach/balance-v2.html#s-earnings": [
     { id: "ai-quick-starts", label: "AI · 3 contextual conversation starters", run: "document.querySelector('#s-earnings .fit-guide-fab').click()", wait: 250 },
     { id: "ai-chat", label: "AI · full-screen chat from first prompt", run: "document.querySelector('#s-earnings .fit-guide-fab').click();document.querySelector('#s-earnings .fit-guide-prompt').click()", wait: 250 },
@@ -152,17 +148,11 @@ export const STATES = {
     { id: "ai-quick-starts", label: "AI · 3 contextual conversation starters", run: "document.querySelector('#s-txn-spend .fit-guide-fab').click()", wait: 250 },
     { id: "ai-chat", label: "AI · full-screen chat from first prompt", run: "document.querySelector('#s-txn-spend .fit-guide-fab').click();document.querySelector('#s-txn-spend .fit-guide-prompt').click()", wait: 250 },
   ],
-
-  // Assistant entry points (WIP)
-  "flows/shared/assistant-entry.html#s-request-drawer": [
-    { id: "planned", label: "Planned event — 2 actions stay wide buttons", run: "aiPlanned(true)" },
+  "flows/coach/settings.html#s-settings": [
+    { id: "ai-quick-starts-hidden", label: "AI quick starts hidden · tap to restore", run: "var el=document.querySelector('#s-settings [data-fit-guide-setting]');el.classList.remove('active');el.setAttribute('aria-checked','false');el.querySelector('[data-fit-guide-setting-sub]').textContent='Hidden · tap to show again'" },
   ],
-  "flows/shared/assistant-entry.html#s-ai-entry-client": [
-    { id: "header", label: "Alternative: sparkle in the header", run: "aiHeaderEntry(true)" },
-    { id: "menu", label: "The … row, present either way", run: "aiMenu(true)" },
-  ],
-  "flows/shared/assistant-entry.html#s-ai-context": [
-    { id: "acted", label: "The assistant finished the job", run: "aiAct()", wait: 400 },
+  "flows/athlete/settings.html#s-settings": [
+    { id: "ai-quick-starts-hidden", label: "AI quick starts hidden · tap to restore", run: "var el=document.querySelector('#s-settings [data-fit-guide-setting]');el.classList.remove('active');el.setAttribute('aria-checked','false');el.querySelector('[data-fit-guide-setting-sub]').textContent='Hidden · tap to show again'" },
   ],
 
   "s-groups": [
