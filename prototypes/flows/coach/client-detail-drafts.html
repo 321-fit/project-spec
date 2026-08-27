@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Client Detail drafts (WIP)</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: var(--fit-font); background: #0a0a0a; display: flex; justify-content: center; align-items: flex-start; padding: 24px; min-height: 100vh; min-width: 900px; }
+  .sidebar { position: fixed; left: 24px; top: 24px; bottom: 24px; width: 200px; display: flex; flex-direction: column; }
+  .sidebar-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--fit-gray-600); padding: 0 8px; margin: 16px 0 8px; }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button { font-family: var(--fit-font); font-size: 14px; font-weight: 400; padding: 10px 12px; border-radius: 10px; border: none; background: transparent; color: var(--fit-gray-400); cursor: pointer; text-align: left; width: 100%; transition: all 0.15s; }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active { background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500; }
+  .ann-container { position: fixed; left: calc(50% + 195px + 48px); right: 24px; top: 24px; bottom: 24px; width: auto; overflow-y: auto; }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; } .ann.active { display: block; }
+  .ann-role { display: inline-block; font-size: 14px; font-weight: 500; padding: 4px 12px; border-radius: 8px; margin-bottom: 16px; background: rgba(5,224,166,0.15); color: var(--fit-teal-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 15px; line-height: 1.6; color: var(--fit-gray-400); margin-bottom: 10px; }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 6px; padding-left: 18px; font-size: 14px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann li { margin-bottom: 6px; }
+  .ann li strong { color: var(--fit-gray-200); font-weight: 500; }
+  .ann hr { border: none; border-top: 1px solid var(--fit-gray-800); margin: 16px 0; }
+  .ann .note { font-size: 13px; color: var(--fit-gray-500); }
+  .ann code { font-family: ui-monospace, monospace; font-size: 12px; background: var(--fit-gray-900); padding: 1px 5px; border-radius: 4px; color: var(--fit-gray-300); }
+  .ann .bet { border-left: 3px solid var(--fit-teal-500); padding: 8px 0 8px 12px; margin-bottom: 14px; font-size: 15px; color: var(--fit-gray-300); }
+  .ann .cost { border-left: 3px solid var(--fit-red-400); padding: 8px 0 8px 12px; margin: 14px 0; font-size: 14px; color: var(--fit-gray-400); }
+  .state-toggle { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .state-toggle button { font-family: var(--fit-font); font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 99px; border: 1px solid var(--fit-gray-700); background: transparent; color: var(--fit-gray-400); cursor: pointer; }
+  .state-toggle button.active { background: var(--fit-gray-700); color: var(--fit-white); }
+
+  /* ===========================================================================
+     DRAFT-LOCAL STYLES — prefix cd-*. These are exploration, deliberately not
+     bound by the shipped rules: the brief was "ignore the rulebook, find the
+     shape". Nothing here is promoted to fit-ui.css until a direction wins.
+     =========================================================================== */
+
+  /* --- liveliness kit, shared by all three drafts --- */
+  /* Entry stagger. The difference between "a screen appeared" and "a screen
+     assembled itself" is almost entirely this. */
+  @keyframes cd-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .fit-phone.active .cd-in { animation: cd-rise 0.44s cubic-bezier(0.22,1,0.36,1) backwards; }
+  .fit-phone.active .cd-in:nth-child(1) { animation-delay: 0.02s; }
+  .fit-phone.active .cd-in:nth-child(2) { animation-delay: 0.07s; }
+  .fit-phone.active .cd-in:nth-child(3) { animation-delay: 0.12s; }
+  .fit-phone.active .cd-in:nth-child(4) { animation-delay: 0.17s; }
+  .fit-phone.active .cd-in:nth-child(5) { animation-delay: 0.22s; }
+  .fit-phone.active .cd-in:nth-child(6) { animation-delay: 0.27s; }
+  .fit-phone.active .cd-in:nth-child(7) { animation-delay: 0.32s; }
+  .fit-phone.active .cd-in:nth-child(8) { animation-delay: 0.37s; }
+  /* Press spring — the cheapest signal that a surface is a control. */
+  .cd-press { transition: transform 0.14s cubic-bezier(0.34,1.56,0.64,1), background 0.14s; cursor: pointer; }
+  .cd-press:active { transform: scale(0.975); }
+
+  /* --- A: FOCUS ------------------------------------------------------------ */
+  .cd-a-hero { margin: 4px 16px 14px; border-radius: 22px; overflow: hidden; background: var(--fit-surface-high); }
+  .fit-light .cd-a-hero { background: var(--fit-white); box-shadow: 0 6px 22px rgba(0,0,0,0.08); }
+  .cd-a-who { display: flex; align-items: center; gap: 12px; padding: 16px 16px 14px; }
+  .cd-a-av { width: 48px; height: 48px; border-radius: 50%; background: var(--fit-brand-gradient); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 600; flex-shrink: 0; }
+  .cd-a-name { font-size: 19px; font-weight: 600; color: var(--fit-text-primary); }
+  .cd-a-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .cd-a-next { padding: 16px; background: var(--fit-brand-gradient); color: #fff; }
+  .cd-a-label { font-size: 11px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; opacity: 0.75; }
+  .cd-a-when { font-size: 22px; font-weight: 600; margin-top: 4px; }
+  .cd-a-where { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+  .cd-a-acts { display: flex; gap: 8px; margin-top: 14px; }
+  .cd-a-acts button { flex: 1; height: 42px; border: none; border-radius: 99px; font-family: var(--fit-font); font-size: 15px; font-weight: 500; cursor: pointer; background: rgba(255,255,255,0.22); color: #fff; backdrop-filter: blur(4px); }
+  .cd-a-acts button.ghost { background: transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.45); }
+  /* The live row: everything with a state, on one line, in one glance. */
+  .cd-a-live { display: flex; gap: 8px; overflow-x: auto; padding: 0 16px 16px; scrollbar-width: none; }
+  .cd-a-live::-webkit-scrollbar { display: none; }
+  .cd-a-chip { flex-shrink: 0; display: flex; align-items: center; gap: 7px; padding: 9px 14px; border-radius: 99px; font-size: 13px; font-weight: 500; background: var(--fit-surface-high); color: var(--fit-text-primary); }
+  .fit-light .cd-a-chip { background: var(--fit-white); box-shadow: 0 0 10px rgba(0,0,0,0.06); }
+  .cd-a-chip i { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .cd-a-chip.warn i { background: var(--fit-yellow-400); }
+  .cd-a-chip.due i  { background: var(--fit-red-400); }
+  .cd-a-chip.ok i   { background: var(--fit-teal-500); }
+  /* Everything that is merely a record: flat rows, one tap deep. */
+  .cd-a-row { display: flex; align-items: center; gap: 12px; padding: 15px 16px; cursor: pointer; }
+  .cd-a-row + .cd-a-row { border-top: 1px solid var(--fit-divider); }
+  .cd-a-rows { margin: 0 16px 20px; border-radius: 18px; overflow: hidden; background: var(--fit-surface-high); }
+  .fit-light .cd-a-rows { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.06); }
+  .cd-a-rt { flex: 1; font-size: 16px; color: var(--fit-text-primary); }
+  .cd-a-rv { font-size: 15px; color: var(--fit-text-tertiary); }
+  .cd-a-ic { width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--fit-divider); color: var(--fit-text-secondary); }
+  .cd-a-ic svg { width: 16px; height: 16px; }
+
+  /* --- B: TIMELINE --------------------------------------------------------- */
+  .cd-b-head { display: flex; align-items: center; gap: 12px; padding: 6px 16px 12px; }
+  .cd-b-live { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 16px 16px; }
+  .cd-b-pill { font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 99px; }
+  .cd-b-pill.due { background: rgba(240,92,91,0.14); color: var(--fit-red-400); }
+  .cd-b-pill.warn { background: rgba(245,158,11,0.14); color: var(--fit-yellow-600); }
+  .cd-b-pill.ok { background: rgba(5,224,166,0.12); color: var(--fit-teal-600); }
+  .cd-b-day { font-size: 11px; font-weight: 600; letter-spacing: 1.3px; text-transform: uppercase; color: var(--fit-text-tertiary); padding: 18px 16px 8px; display: flex; align-items: center; gap: 10px; }
+  .cd-b-day::after { content: ""; flex: 1; height: 1px; background: var(--fit-divider); }
+  /* The spine. One vertical line makes a list of cards read as a chronology. */
+  .cd-b-item { position: relative; margin: 0 16px 8px 42px; padding: 13px 14px; border-radius: 15px; background: var(--fit-surface-high); }
+  .fit-light .cd-b-item { background: var(--fit-white); box-shadow: 0 0 10px rgba(0,0,0,0.055); }
+  .cd-b-item::before { content: ""; position: absolute; left: -26px; top: 20px; width: 11px; height: 11px; border-radius: 50%; background: var(--fit-gray-600); box-shadow: 0 0 0 4px var(--fit-screen-bg); }
+  .cd-b-item::after { content: ""; position: absolute; left: -21px; top: 31px; bottom: -20px; width: 1px; background: var(--fit-divider); }
+  .cd-b-item:last-of-type::after { display: none; }
+  .cd-b-item.up::before { background: var(--fit-brand-primary); }
+  .cd-b-item.money::before { background: var(--fit-yellow-400); }
+  .cd-b-item.warn::before { background: var(--fit-yellow-400); box-shadow: 0 0 0 4px var(--fit-screen-bg), 0 0 0 7px rgba(245,158,11,0.22); }
+  .cd-b-item.good::before { background: var(--fit-teal-500); }
+  .cd-b-item.bad::before { background: var(--fit-red-400); }
+  .cd-b-t { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .cd-b-m { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; }
+  .cd-b-cta { margin-top: 11px; display: flex; gap: 8px; }
+  .cd-b-cta button { height: 34px; padding: 0 16px; border: none; border-radius: 99px; font-family: var(--fit-font); font-size: 13px; font-weight: 500; cursor: pointer; background: var(--fit-brand-gradient); color: #fff; }
+  .cd-b-cta button.ghost { background: transparent; box-shadow: inset 0 0 0 1px var(--fit-divider); color: var(--fit-text-primary); }
+  .cd-b-up { margin: 0 16px 8px 42px; padding: 15px 16px; border-radius: 15px; background: var(--fit-brand-gradient); color: #fff; position: relative; }
+  .cd-b-up::before { content: ""; position: absolute; left: -26px; top: 22px; width: 11px; height: 11px; border-radius: 50%; background: var(--fit-brand-primary); box-shadow: 0 0 0 4px var(--fit-screen-bg); }
+  .cd-b-up::after { content: ""; position: absolute; left: -21px; top: 33px; bottom: -16px; width: 1px; background: var(--fit-divider); }
+
+  /* --- C: SEGMENTS --------------------------------------------------------- */
+  .cd-c-hero { position: relative; padding: 18px 16px 20px; text-align: center; overflow: hidden; }
+  .cd-c-glow { position: absolute; left: 50%; top: -110px; width: 300px; height: 300px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(circle, rgba(0,167,208,0.30), transparent 68%); pointer-events: none; }
+  .cd-c-ring { position: relative; width: 104px; height: 104px; margin: 0 auto 12px; }
+  .cd-c-ring svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+  .cd-c-ring circle { fill: none; stroke-width: 4; stroke-linecap: round; }
+  .cd-c-ring .bg { stroke: var(--fit-divider); }
+  .cd-c-ring .fg { stroke: url(#cdgrad); stroke-dasharray: 302; stroke-dashoffset: 302; transition: stroke-dashoffset 1.15s cubic-bezier(0.22,1,0.36,1); }
+  .fit-phone.active .cd-c-ring .fg { stroke-dashoffset: 64; }
+  .cd-c-av { position: absolute; inset: 11px; border-radius: 50%; background: var(--fit-brand-gradient); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 600; }
+  .cd-c-name { font-size: 22px; font-weight: 600; color: var(--fit-text-primary); }
+  .cd-c-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; }
+  .cd-c-stats { display: flex; margin-top: 16px; }
+  .cd-c-stat { flex: 1; }
+  .cd-c-sv { font-size: 24px; font-weight: 700; color: var(--fit-text-primary); font-variant-numeric: tabular-nums; }
+  .cd-c-sl { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .cd-c-sep { width: 1px; background: var(--fit-divider); margin: 4px 0; }
+  .cd-c-tabs { display: flex; gap: 6px; padding: 4px; margin: 0 16px 16px; border-radius: 99px; background: var(--fit-surface-high); }
+  .fit-light .cd-c-tabs { background: var(--fit-gray-100); }
+  .cd-c-tab { flex: 1; height: 38px; border: none; border-radius: 99px; background: transparent; font-family: var(--fit-font); font-size: 14px; font-weight: 500; color: var(--fit-text-tertiary); cursor: pointer; transition: all 0.2s; }
+  .cd-c-tab.on { background: var(--fit-brand-gradient); color: #fff; }
+  .cd-c-card { margin: 0 16px 10px; padding: 15px 16px; border-radius: 16px; background: var(--fit-surface-high); }
+  .fit-light .cd-c-card { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.06); }
+  .cd-c-ct { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .cd-c-cm { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; }
+  #s-draft-segments [data-cpane] { display: none; }
+  #s-draft-segments.cp-train [data-cpane="train"] { display: block; }
+  #s-draft-segments.cp-money [data-cpane="money"] { display: block; }
+  #s-draft-segments.cp-about [data-cpane="about"] { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+    <button onclick="window.location.href='../../modules.html'" style="display:flex;align-items:center;gap:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;padding:8px 12px;border-radius:10px;border:1px solid var(--fit-gray-700);background:transparent;color:var(--fit-gray-300);cursor:pointer;width:100%;margin-bottom:8px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      All modules
+    </button>
+  <div class="label">Drafts</div>
+  <button class="active" onclick="go('s-draft-focus',this)">A &middot; Focus card</button>
+  <button onclick="go('s-draft-timeline',this)">B &middot; Timeline</button>
+  <button onclick="go('s-draft-segments',this)">C &middot; Segments</button>
+  <div class="label">Compare with</div>
+  <button onclick="window.location.href='./clients.html#s-client-detail'">Client Detail (live) &rarr;</button>
+  <button onclick="window.location.href='../athlete/my-coaches.html#s-coach-detail'">Coach Detail (live) &rarr;</button>
+  </div>
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<svg width="0" height="0" style="position:absolute;"><defs>
+  <linearGradient id="cdgrad" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#00a7d0"/><stop offset="100%" stop-color="#05e0a6"/>
+  </linearGradient>
+</defs></svg>
+
+<!-- ==================== A · FOCUS CARD ==================== -->
+<!-- Bet: the coach opened this for ONE thing, and it is almost always the next
+     session or the money. Everything else is reference and can cost a tap. -->
+<div class="fit-phone fit-dark active" id="s-draft-focus" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span style="flex:1;"></span>
+      <button class="fit-icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <div class="cd-a-hero cd-in">
+      <div class="cd-a-who">
+        <div class="cd-a-av">AK</div>
+        <div style="flex:1;min-width:0;">
+          <div class="cd-a-name">Anna Kowalski</div>
+          <div class="cd-a-sub">Tennis &middot; 8 months together &middot; 47 sessions</div>
+        </div>
+      </div>
+      <!-- The one thing. Not a row in a carousel of three — the reason the
+           screen was opened, at the size that says so. -->
+      <div class="cd-a-next">
+        <div class="cd-a-label">Next session</div>
+        <div class="cd-a-when">Tomorrow &middot; 10:00</div>
+        <div class="cd-a-where">Tennis &middot; 60 min &middot; TNT Studio</div>
+        <div class="cd-a-acts">
+          <button class="cd-press">Open</button>
+          <button class="cd-press ghost">Message</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Everything that has a STATE, on one line. Anything not here is a record. -->
+    <div class="cd-a-live cd-in">
+      <span class="cd-a-chip due cd-press"><i></i>&euro;70 owed</span>
+      <span class="cd-a-chip warn cd-press"><i></i>2 to review</span>
+      <span class="cd-a-chip ok cd-press"><i></i>Pack 4 of 5</span>
+      <span class="cd-a-chip cd-press"><i style="background:var(--fit-gray-500);"></i>Morning crew</span>
+    </div>
+
+    <div class="cd-a-rows cd-in">
+      <div class="cd-a-row cd-press">
+        <span class="cd-a-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+        <span class="cd-a-rt">Sessions</span><span class="cd-a-rv">3 upcoming</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="cd-a-row cd-press">
+        <span class="cd-a-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 11h20"/></svg></span>
+        <span class="cd-a-rt">Money</span><span class="cd-a-rv">&euro;70 due</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="cd-a-row cd-press">
+        <span class="cd-a-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg></span>
+        <span class="cd-a-rt">Self-paced</span><span class="cd-a-rv">1 of 3</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="cd-a-row cd-press">
+        <span class="cd-a-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></span>
+        <span class="cd-a-rt">About Anna</span><span class="cd-a-rv">note, address</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="cd-a-row cd-press">
+        <span class="cd-a-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></span>
+        <span class="cd-a-rt">History</span><span class="cd-a-rv">47</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-footer fit-footer-btn">
+    <button class="fit-btn fit-btn-primary cd-press">Book a session</button>
+  </div>
+</div>
+
+<!-- ==================== B · TIMELINE ==================== -->
+<!-- Bet: a coaching relationship is a story, and people read stories as a feed.
+     Money, training and self-paced stop being three sections and become three
+     kinds of event on one spine — which is what kills the carousels. -->
+<div class="fit-phone fit-dark" id="s-draft-timeline" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span style="flex:1;"></span>
+      <button class="fit-icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <div class="cd-b-head cd-in">
+      <div class="cd-a-av">AK</div>
+      <div style="flex:1;min-width:0;">
+        <div class="cd-a-name">Anna Kowalski</div>
+        <div class="cd-a-sub">Tennis &middot; 47 sessions &middot; since Jan</div>
+      </div>
+    </div>
+    <div class="cd-b-live cd-in">
+      <span class="cd-b-pill due">&euro;70 owed</span>
+      <span class="cd-b-pill warn">2 to review</span>
+      <span class="cd-b-pill ok">Pack 4 / 5</span>
+    </div>
+
+    <div class="cd-b-day cd-in">Tomorrow</div>
+    <div class="cd-b-up cd-in cd-press">
+      <div style="font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;opacity:0.8;">Next session</div>
+      <div style="font-size:18px;font-weight:600;margin-top:3px;">10:00 &middot; Tennis</div>
+      <div style="font-size:13px;opacity:0.85;margin-top:2px;">60 min &middot; TNT Studio</div>
+    </div>
+
+    <div class="cd-b-day cd-in">Today</div>
+    <div class="cd-b-item warn cd-in cd-press">
+      <div class="cd-b-t">Sent a clip for review</div>
+      <div class="cd-b-m">Lower-body mobility &middot; 2h ago</div>
+      <div class="cd-b-cta"><button>Review</button><button class="ghost">Later</button></div>
+    </div>
+
+    <div class="cd-b-day cd-in">3 days ago</div>
+    <div class="cd-b-item money cd-in cd-press">
+      <div class="cd-b-t">Bought a 5-session pack</div>
+      <div class="cd-b-m">&euro;225 &middot; cash &middot; 1 used since</div>
+    </div>
+    <div class="cd-b-item good cd-in cd-press">
+      <div class="cd-b-t">Tennis &middot; 60 min</div>
+      <div class="cd-b-m">You rated 4&#9733; &middot; TNT Studio</div>
+    </div>
+
+    <div class="cd-b-day cd-in">Last week</div>
+    <div class="cd-b-item bad cd-in cd-press">
+      <div class="cd-b-t">No-show &middot; Tennis</div>
+      <div class="cd-b-m">Fri, Apr 4 &middot; &euro;50 never collected</div>
+      <div class="cd-b-cta"><button class="ghost">Mark paid</button><button class="ghost">Waive</button></div>
+    </div>
+    <div class="cd-b-item good cd-in cd-press">
+      <div class="cd-b-t">Tennis &middot; 60 min</div>
+      <div class="cd-b-m">You rated 5&#9733;</div>
+    </div>
+  </div>
+  <div class="fit-phone-footer fit-footer-btn">
+    <button class="fit-btn fit-btn-primary cd-press">Book a session</button>
+  </div>
+</div>
+
+<!-- ==================== C · SEGMENTS ==================== -->
+<!-- Bet: the mess comes from three unrelated domains sharing one scroll. Give
+     each its own pane and the screen stops competing with itself. Pays for it
+     by hiding two thirds of the content behind a tab. -->
+<div class="fit-phone fit-dark cp-train" id="s-draft-segments" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span style="flex:1;"></span>
+      <button class="fit-icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <div class="cd-c-hero cd-in">
+      <div class="cd-c-glow"></div>
+      <div class="cd-c-ring">
+        <svg viewBox="0 0 104 104"><circle class="bg" cx="52" cy="52" r="48"/><circle class="fg" cx="52" cy="52" r="48"/></svg>
+        <div class="cd-c-av">AK</div>
+      </div>
+      <div class="cd-c-name">Anna Kowalski</div>
+      <div class="cd-c-sub">Tennis &middot; with you since January</div>
+      <div class="cd-c-stats">
+        <div class="cd-c-stat"><div class="cd-c-sv" data-count="47">0</div><div class="cd-c-sl">Sessions</div></div>
+        <div class="cd-c-sep"></div>
+        <div class="cd-c-stat"><div class="cd-c-sv" data-count="8">0</div><div class="cd-c-sl">Months</div></div>
+        <div class="cd-c-sep"></div>
+        <div class="cd-c-stat"><div class="cd-c-sv" data-count="4" data-suffix="&#9733;">0</div><div class="cd-c-sl">Avg rating</div></div>
+      </div>
+    </div>
+
+    <div class="cd-c-tabs cd-in">
+      <button class="cd-c-tab on" onclick="cPane('train',this)">Training</button>
+      <button class="cd-c-tab" onclick="cPane('money',this)">Money</button>
+      <button class="cd-c-tab" onclick="cPane('about',this)">About</button>
+    </div>
+
+    <div data-cpane="train">
+      <div class="cd-c-card cd-in cd-press" style="background:var(--fit-brand-gradient);color:#fff;">
+        <div class="cd-c-ct" style="color:#fff;">Tomorrow &middot; 10:00</div>
+        <div class="cd-c-cm" style="color:rgba(255,255,255,0.85);">Tennis &middot; 60 min &middot; TNT Studio</div>
+      </div>
+      <div class="cd-c-card cd-in cd-press"><div class="cd-c-ct">Wed, Apr 16 &middot; 09:00</div><div class="cd-c-cm">Tennis &middot; TNT Studio</div></div>
+      <div class="cd-c-card cd-in cd-press"><div class="cd-c-ct">Self-paced &middot; 1 of 3 done</div><div class="cd-c-cm">2 waiting for your review &middot; stalled 2 days</div></div>
+      <div class="cd-c-card cd-in cd-press"><div class="cd-c-ct">Morning crew</div><div class="cd-c-cm">In this group since March</div></div>
+      <div class="cd-c-card cd-in cd-press"><div class="cd-c-ct">History</div><div class="cd-c-cm">47 sessions together</div></div>
+    </div>
+
+    <div data-cpane="money">
+      <div class="cd-c-card cd-in cd-press" style="border:1px solid rgba(240,92,91,0.35);">
+        <div class="cd-c-ct" style="color:var(--fit-red-400);">&euro;70 to settle</div>
+        <div class="cd-c-cm">2 cash sessions &middot; oldest Apr 4</div>
+      </div>
+      <div class="cd-c-card cd-in cd-press"><div class="cd-c-ct">Tennis pack &middot; 4 of 5 used</div><div class="cd-c-cm">Bought Apr 8 &middot; &euro;225 &middot; running low</div></div>
+      <div class="cd-c-card cd-in cd-press"><div class="cd-c-ct">Sell a package</div><div class="cd-c-cm">3 offers configured</div></div>
+      <div class="cd-c-card cd-in cd-press"><div class="cd-c-ct">Paid to date</div><div class="cd-c-cm">&euro;1,880 across 47 sessions</div></div>
+    </div>
+
+    <div data-cpane="about">
+      <div class="cd-c-card cd-in cd-press"><div class="cd-c-ct">Note</div><div class="cd-c-cm">Left knee &mdash; no deep lunges. Prefers mornings.</div></div>
+      <div class="cd-c-card cd-in cd-press"><div class="cd-c-ct">Home visit address</div><div class="cd-c-cm">Gedimino pr. 9&ndash;12, Vilnius</div></div>
+      <div class="cd-c-card cd-in cd-press"><div class="cd-c-ct">Sports</div><div class="cd-c-cm">Tennis &middot; Padel</div></div>
+      <div class="cd-c-card cd-in cd-press"><div class="cd-c-ct">Contact</div><div class="cd-c-cm">anna.k@mail.com &middot; +370 600 12345</div></div>
+    </div>
+  </div>
+  <div class="fit-phone-footer fit-footer-btn">
+    <button class="fit-btn fit-btn-primary cd-press">Book a session</button>
+  </div>
+</div>
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+
+  <div class="ann active" id="ann-s-draft-focus"><span class="ann-role">Coach &middot; draft A</span>
+    <h3>A &middot; Focus card</h3>
+    <div class="bet"><strong>Bet:</strong> the coach opened this for one thing, and it is almost always the next session or the money. Everything else is reference and can afford a tap.</div>
+    <p>The live screen stacks <strong>12 blocks of equal weight</strong>, three of them horizontal carousels. Nothing is foregrounded, so it reads as a table rotated on its side. This draft takes the opposite position: <strong>one hero, one line of live state, five flat rows.</strong></p>
+    <ul>
+      <li><strong>The hero is the next session</strong>, at the size that says the screen was opened for it. Two actions on it, not five.</li>
+      <li><strong>The live row</strong> is the whole idea: anything with a <em>state</em> (money owed, reviews due, a pack running out, group membership) is a chip on one scrollable line. Anything without a state is a record, and records go in the list below.</li>
+      <li><strong>All three carousels are gone.</strong> A carousel says "homogeneous data, keep swiping" &mdash; the opposite of "here is what matters".</li>
+      <li><strong>Rows carry their own count</strong> (3 upcoming, &euro;70 due, 1 of 3, 47), so the list is scannable without opening anything.</li>
+    </ul>
+    <div class="cost"><strong>What it costs:</strong> a coach who wants to compare next week's three sessions has to open a screen to do it. If that turns out to be a frequent job, A is wrong.</div>
+    <p class="note">Liveliness here is restrained on purpose: staggered entry and a press spring. The energy is in the hero's colour, not in motion.</p>
+  </div>
+
+  <div class="ann" id="ann-s-draft-timeline"><span class="ann-role">Coach &middot; draft B</span>
+    <h3>B &middot; Timeline</h3>
+    <div class="bet"><strong>Bet:</strong> a coaching relationship is a story, and people read stories as a feed. Categories are the app's problem, not the coach's.</div>
+    <p>Money, training and self-paced stop being three sections and become <strong>three kinds of event on one spine</strong>. That is what actually kills the carousels &mdash; not restyling them, but removing the reason they existed.</p>
+    <ul>
+      <li><strong>Chronology instead of categories.</strong> "Bought a pack", "sent a clip", "no-show" and "next session" sit together because that is how they happened.</li>
+      <li><strong>Colour on the spine dot</strong> carries the kind: blue upcoming, amber money, teal good, red trouble. No section headers needed.</li>
+      <li><strong>Actions live on the event</strong> &mdash; <em>Review</em> on the clip, <em>Mark paid</em> on the no-show. The live screen makes you find the right section first.</li>
+      <li><strong>Liveliness is free here.</strong> A feed has a natural loading rhythm; the stagger reads as the story assembling rather than as decoration.</li>
+    </ul>
+    <div class="cost"><strong>What it costs:</strong> "how much do they owe in total" is no longer a place, it is a pill you have to trust. A feed is bad at aggregates &mdash; that is why the three pills sit pinned at the top, and if they turn out to carry too much, B is wrong.</div>
+  </div>
+
+  <div class="ann" id="ann-s-draft-segments"><span class="ann-role">Coach &middot; draft C</span>
+    <h3>C &middot; Segments</h3>
+    <div class="bet"><strong>Bet:</strong> the mess comes from three unrelated domains sharing one scroll. Give each a pane and the screen stops competing with itself.</div>
+    <ul>
+      <li><strong>The hero is the emotional one</strong> &mdash; ring that draws on entry, counters that run up, a soft brand glow. This is the draft that answers "not enough life" most directly.</li>
+      <li><strong>Training / Money / About</strong> &mdash; three panes, and the split is real: those are three different jobs on three different days.</li>
+      <li><strong>Every pane is a flat list of equal cards</strong>, which is fine <em>inside</em> a domain and was the problem only across domains.</li>
+    </ul>
+    <div class="cost"><strong>What it costs:</strong> two thirds of the screen is behind a tab, and tabs hide badly &mdash; a coach with &euro;70 outstanding sees nothing about it while on Training. The obvious patch (a badge on the tab) starts rebuilding the noise we removed.</div>
+    <p class="note">Also worth noticing: the stats hero is charming but it is <em>vanity</em> &mdash; 47 sessions and 8 months do not change what the coach does next. A and B spend that space on the next session instead. Whether that trade is right is the actual question this draft asks.</p>
+  </div>
+
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+function go(id, btn) {
+  document.querySelectorAll('.fit-phone').forEach(function (s) { s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar button').forEach(function (b) { b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.ann').forEach(function (a) { a.classList.remove('active'); });
+  var ann = document.getElementById('ann-' + id);
+  if (ann) ann.classList.add('active');
+  if (window.FitUI) FitUI.initAll(document.getElementById(id));
+  countUp(document.getElementById(id));
+}
+function cPane(name, btn) {
+  var el = document.getElementById('s-draft-segments');
+  el.classList.remove('cp-train', 'cp-money', 'cp-about');
+  el.classList.add('cp-' + name);
+  el.querySelectorAll('.cd-c-tab').forEach(function (t) { t.classList.remove('on'); });
+  if (btn) btn.classList.add('on');
+}
+// Numbers that run up on entry. Cheap, and it is the difference between a stat
+// being printed at you and a stat being counted for you.
+function countUp(scope) {
+  (scope || document).querySelectorAll('[data-count]').forEach(function (el) {
+    var to = +el.dataset.count, sfx = el.dataset.suffix || '', t0 = null;
+    function step(ts) {
+      if (!t0) t0 = ts;
+      var p = Math.min((ts - t0) / 900, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.innerHTML = Math.round(to * eased) + (el.dataset.suffix ? '.9' + sfx : '');
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+function switchTheme(theme) {
+  document.querySelectorAll('.fit-phone').forEach(function (p) {
+    p.classList.remove('fit-dark', 'fit-light');
+    p.classList.add('fit-' + theme);
+  });
+  var d = document.getElementById('theme-dark'), l = document.getElementById('theme-light');
+  var on = 'var(--fit-gray-700)', off = 'transparent';
+  d.style.background = theme === 'dark' ? on : off;
+  d.style.color = theme === 'dark' ? 'var(--fit-white)' : 'var(--fit-gray-400)';
+  l.style.background = theme === 'light' ? on : off;
+  l.style.color = theme === 'light' ? 'var(--fit-white)' : 'var(--fit-gray-400)';
+}
+countUp(document);
+(function(){
+  var h = (location.hash || '').replace('#','');
+  if (!h) return;
+  var t = document.getElementById(h);
+  if (t && t.classList.contains('fit-phone')) go(h, document.querySelector('.sidebar button[onclick*="' + h + '"]'));
+})();
+</script>
+</body>
+</html>
