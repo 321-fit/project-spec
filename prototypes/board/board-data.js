@@ -5611,7 +5611,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-focus",
-          "hash": "9f684ba9315f",
+          "hash": "56971bb45022",
           "title": "A · Focus card",
           "inApp": "",
           "status": "proposal",
@@ -5630,7 +5630,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-timeline",
-          "hash": "6e326bb8473f",
+          "hash": "ec3d0290fc88",
           "title": "B · Timeline",
           "inApp": "",
           "status": "proposal",
@@ -5650,7 +5650,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-segments",
-          "hash": "057f194fc8be",
+          "hash": "53981520c0b2",
           "title": "C · Segments",
           "inApp": "",
           "status": "proposal",
