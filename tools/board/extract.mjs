@@ -240,3 +240,23 @@ fs.writeFileSync(
   `window.FIT_BOARD = ${JSON.stringify({ generated: stamp, modules: covered }, null, 2)};\n`
 );
 console.log(`\n→ ${path.relative(process.cwd(), path.join(outDir, "board-data.js"))}`);
+
+// ---------------------------------------------------------------------------
+// Cache-bust board.html's <script src> from the data itself. It used to be a
+// hand-typed token, which meant it was only ever bumped when somebody
+// remembered: it sat on one feature's name for months while modules were added
+// underneath it. Anyone who had opened the board once kept the stale graph
+// forever — same URL, same query — so new screens were invisible and deep links
+// into them silently fell back to the default view. Derived, it cannot go stale.
+// ---------------------------------------------------------------------------
+const dataPath = path.join(outDir, "board-data.js");
+const digest = crypto.createHash("sha1").update(fs.readFileSync(dataPath)).digest("hex").slice(0, 10);
+const boardHtml = path.resolve(HERE, PROTO_ROOT, "board.html");
+if (fs.existsSync(boardHtml)) {
+  const before = fs.readFileSync(boardHtml, "utf8");
+  const after = before.replace(/(\.\/board\/board-data\.js\?v=)[^"']*/, `$1${digest}`);
+  if (after !== before) {
+    fs.writeFileSync(boardHtml, after);
+    console.log(`· board.html cache token → ${digest}`);
+  }
+}
