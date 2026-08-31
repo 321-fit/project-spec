@@ -217,15 +217,103 @@
 }
 
 /* ============================================================
-   TYPOGRAPHY
+   TYPOGRAPHY — the twelve roles, straight from the token file.
+
+   Before 2026-08-31 this block re-typed six roles as literal numbers, the
+   other six had no class at all, and `var(--fit-font-*)` was referenced
+   nowhere in this file. So every consumer wrote font-size by hand: 3593
+   declarations across the prototypes in 31 distinct px values — 9.5, 11.5,
+   12.5, 13.5, 15, 19, 21, 25, 26 among them. Half of them are not sizes the
+   design system has.
+
+   Each class carries all four properties of its role. A size written as a
+   bare number gives you one of the four: `footnote` is 13px AND weight 400
+   AND line-height 1.4. **If a size you want is not a class here, it is not
+   in the design system** — take it up with the tokens, not with the page.
+
+   Letter-spacing tokens are unitless (Figma emits `0.5`, not `0.5px`), so
+   they go through `calc(… * 1px)`.
    ============================================================ */
-.fit-h1 { font-size: 22px; font-weight: 400; line-height: 1.2; }
-.fit-h2 { font-size: 20px; font-weight: 500; line-height: 1.25; }
-.fit-btn1 { font-size: 18px; font-weight: 500; line-height: 1.3; }
-.fit-btn2 { font-size: 16px; font-weight: 500; line-height: 1.35; }
-.fit-body1 { font-size: 16px; font-weight: 400; line-height: 1.35; }
-.fit-body2 { font-size: 14px; font-weight: 400; line-height: 1.35; }
-.fit-caption { font-size: 12px; font-weight: 400; line-height: 1.4; }
+.fit-headline {
+  font-size: var(--fit-font-headline-size); font-weight: var(--fit-font-headline-weight);
+  line-height: var(--fit-font-headline-line-height);
+  letter-spacing: calc(var(--fit-font-headline-letter-spacing) * 1px);
+}
+.fit-heading1 {
+  font-size: var(--fit-font-heading1-size); font-weight: var(--fit-font-heading1-weight);
+  line-height: var(--fit-font-heading1-line-height);
+  letter-spacing: calc(var(--fit-font-heading1-letter-spacing) * 1px);
+}
+.fit-heading2 {
+  font-size: var(--fit-font-heading2-size); font-weight: var(--fit-font-heading2-weight);
+  line-height: var(--fit-font-heading2-line-height);
+  letter-spacing: calc(var(--fit-font-heading2-letter-spacing) * 1px);
+}
+.fit-heading3 {
+  font-size: var(--fit-font-heading3-size); font-weight: var(--fit-font-heading3-weight);
+  line-height: var(--fit-font-heading3-line-height);
+  letter-spacing: calc(var(--fit-font-heading3-letter-spacing) * 1px);
+}
+.fit-button1 {
+  font-size: var(--fit-font-button1-size); font-weight: var(--fit-font-button1-weight);
+  line-height: var(--fit-font-button1-line-height);
+  letter-spacing: calc(var(--fit-font-button1-letter-spacing) * 1px);
+}
+.fit-nav-title {
+  font-size: var(--fit-font-nav-title-size); font-weight: var(--fit-font-nav-title-weight);
+  line-height: var(--fit-font-nav-title-line-height);
+  letter-spacing: calc(var(--fit-font-nav-title-letter-spacing) * 1px);
+}
+.fit-body1 {
+  font-size: var(--fit-font-body1-size); font-weight: var(--fit-font-body1-weight);
+  line-height: var(--fit-font-body1-line-height);
+  letter-spacing: calc(var(--fit-font-body1-letter-spacing) * 1px);
+}
+.fit-button2 {
+  font-size: var(--fit-font-button2-size); font-weight: var(--fit-font-button2-weight);
+  line-height: var(--fit-font-button2-line-height);
+  letter-spacing: calc(var(--fit-font-button2-letter-spacing) * 1px);
+}
+.fit-body2 {
+  font-size: var(--fit-font-body2-size); font-weight: var(--fit-font-body2-weight);
+  line-height: var(--fit-font-body2-line-height);
+  letter-spacing: calc(var(--fit-font-body2-letter-spacing) * 1px);
+}
+.fit-footnote {
+  font-size: var(--fit-font-footnote-size); font-weight: var(--fit-font-footnote-weight);
+  line-height: var(--fit-font-footnote-line-height);
+  letter-spacing: calc(var(--fit-font-footnote-letter-spacing) * 1px);
+}
+.fit-caption {
+  font-size: var(--fit-font-caption-size); font-weight: var(--fit-font-caption-weight);
+  line-height: var(--fit-font-caption-line-height);
+  letter-spacing: calc(var(--fit-font-caption-letter-spacing) * 1px);
+}
+.fit-pill {
+  font-size: var(--fit-font-pill-size); font-weight: var(--fit-font-pill-weight);
+  line-height: var(--fit-font-pill-line-height);
+  letter-spacing: calc(var(--fit-font-pill-letter-spacing) * 1px);
+}
+.fit-caption-micro {
+  font-size: var(--fit-font-caption-micro-size); font-weight: var(--fit-font-caption-micro-weight);
+  line-height: var(--fit-font-caption-micro-line-height);
+  letter-spacing: calc(var(--fit-font-caption-micro-letter-spacing) * 1px);
+}
+
+/* Colour modifiers — a role says how big, these say how loud. Compose them:
+   `class="fit-footnote fit-t-tertiary"`. */
+.fit-t-primary   { color: var(--fit-text-primary); }
+.fit-t-secondary { color: var(--fit-text-secondary); }
+.fit-t-tertiary  { color: var(--fit-text-tertiary); }
+
+/* DEPRECATED aliases — the old hand-typed names. `.fit-h1` was 22px/400,
+   which is `heading2`'s size at the wrong weight; it now inherits the token's
+   600. Two uses existed repo-wide when this changed. Use the role names. */
+.fit-h1   { font-size: var(--fit-font-heading2-size); font-weight: var(--fit-font-heading2-weight); line-height: var(--fit-font-heading2-line-height); }
+.fit-h2   { font-size: var(--fit-font-heading3-size); font-weight: var(--fit-font-heading3-weight); line-height: var(--fit-font-heading3-line-height); }
+.fit-btn1 { font-size: var(--fit-font-button1-size); font-weight: var(--fit-font-button1-weight); line-height: var(--fit-font-button1-line-height); }
+.fit-btn2 { font-size: var(--fit-font-button2-size); font-weight: var(--fit-font-button2-weight); line-height: var(--fit-font-button2-line-height); }
+
 .fit-section-title {
   font-size: 12px; font-weight: 600; text-transform: uppercase;
   letter-spacing: 0.5px; color: var(--fit-text-secondary);
@@ -1785,6 +1873,93 @@
 .fit-col-stack.gap-4 { gap: var(--fit-sp-4); }
 
 /* Row with center alignment + gap — replaces inline `display:flex;align-items:center;gap:N` */
+/* ============================================================
+   LIST ROW — the tappable row that leads somewhere.
+
+   The single most common shape in the app, and until 2026-08-31 the kit had
+   no class for it: a scan of the prototypes found **30 different chevron
+   class names across 29 files** (`set-chev`, `aa-chev`, `td-ev-chev`,
+   `cs-chev`, `dash-action-chev`, `balance-chev`, `rate-chev` …), each with
+   its own hand-typed padding and font sizes. Android has had `FitListRow`
+   all along. This is that row, derived from the two fullest existing
+   implementations (`aa-row` in shared/account-access, `set-card` in
+   coach/settings) — not designed fresh.
+
+   Structure:
+     .fit-list-row
+       ├ .fit-list-row-icon      leading 32×32 plate (or a .fit-avatar)
+       ├ .fit-list-row-body      title + optional sub, takes the slack
+       ├ .fit-list-row-value     optional trailing value
+       └ .fit-list-row-chevron   optional, only when the row navigates
+
+   Grammar (project_list_grammars): rows go inside `.fit-list-group` for the
+   inset-container grammar, `.fit-list-group--bleed` for full-bleed, or carry
+   `.fit-list-row--card` to be their own card. Pick one per screen.
+   ============================================================ */
+.fit-list-row {
+  display: flex; align-items: center; gap: var(--fit-sp-3);
+  padding: var(--fit-sp-3_5) var(--fit-sp-4);
+  min-height: 64px;                      /* > 44px HIG tap target */
+  background: var(--fit-surface-high);
+  cursor: pointer;
+}
+.fit-list-row.static,
+.fit-list-row[aria-disabled='true'] { cursor: default; }
+.fit-list-row[aria-disabled='true'] { opacity: 0.6; }
+.fit-list-row + .fit-list-row { border-top: 1px solid var(--fit-divider); }
+.fit-list-row:active { opacity: 0.85; }
+
+.fit-list-row-icon {
+  width: 32px; height: 32px; border-radius: var(--fit-radius-8);
+  background: var(--fit-surface-higher);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; color: var(--fit-text-primary);
+}
+.fit-list-row-icon svg { width: 18px; height: 18px; }
+
+.fit-list-row-body { flex: 1; min-width: 0; }
+.fit-list-row-title {
+  font-size: var(--fit-font-body2-size); font-weight: var(--fit-font-body2-weight);
+  line-height: var(--fit-font-body2-line-height); color: var(--fit-text-primary);
+}
+.fit-list-row-sub {
+  font-size: var(--fit-font-footnote-size); font-weight: var(--fit-font-footnote-weight);
+  line-height: var(--fit-font-footnote-line-height);
+  /* secondary, not tertiary: the fitting room's live audit measures tertiary at
+     4.1/4.5 on this surface in both themes. `coach/settings.html` had already
+     patched its own `set-sub` to secondary for the light theme only; this makes
+     it the canon for both. */
+  color: var(--fit-text-secondary);
+  margin-top: 2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.fit-list-row-value {
+  flex-shrink: 0;
+  font-size: var(--fit-font-footnote-size); font-weight: var(--fit-font-footnote-weight);
+  line-height: var(--fit-font-footnote-line-height); color: var(--fit-text-secondary);
+}
+.fit-list-row-chevron {
+  flex-shrink: 0; width: 16px; height: 16px; color: var(--fit-text-tertiary);
+}
+.fit-list-row-chevron svg { width: 16px; height: 16px; }
+
+/* Grammar containers */
+.fit-list-group {
+  margin: 0 var(--fit-sp-4) var(--fit-sp-3);
+  border-radius: var(--fit-radius-md); overflow: hidden;
+}
+.fit-list-group--bleed { margin-left: 0; margin-right: 0; border-radius: 0; }
+.fit-list-row--card {
+  border-radius: var(--fit-radius-md);
+  margin: 0 var(--fit-sp-4) var(--fit-sp-2);
+}
+.fit-list-row--card + .fit-list-row--card { border-top: 0; }
+
+.fit-light .fit-list-row       { background: var(--fit-white); }
+.fit-light .fit-list-row-icon  { background: var(--fit-gray-100); }
+.fit-light .fit-list-group     { box-shadow: var(--fit-elevation-card); }
+.fit-light .fit-list-row--card { box-shadow: var(--fit-elevation-card); }
+
 .fit-row { display: flex; align-items: center; }
 .fit-row.gap-1 { gap: var(--fit-sp-1); }
 .fit-row.gap-2 { gap: var(--fit-sp-2); }
@@ -1796,9 +1971,11 @@
   font-size: 12px; color: var(--fit-text-tertiary);
 }
 
-/* Caption text — 14px, tertiary (paragraph sub-labels) */
-.fit-caption {
-  font-size: 14px; color: var(--fit-text-tertiary);
+/* Paragraph sub-label — body2 size, tertiary, roomier line-height for prose.
+   Was a second `.fit-caption` declaration that silently overrode the role class
+   200 lines above it (P18). Renamed; `.fit-caption` is the 12px token role. */
+.fit-sublabel {
+  font-size: var(--fit-font-body2-size); color: var(--fit-text-tertiary);
   line-height: 1.5;
 }
 
