@@ -165,8 +165,9 @@ component in `design-tokens/docs/components.md` (and live in `design-tokens/Sour
 | `.fit-participant` / `.fit-spot(s)` | Group participants / spot counters | `FitParticipant`, `FitSpotCounter` |
 | `.fit-toast` / `.fit-snackbar` | Transient feedback | `FitToast`, `FitSnackbar` |
 | `.fit-context` | Context (⋯) menu | `FitContextMenu` |
-| `.fit-empty` | Empty states | `FitEmptyState` |
-| `.fit-skeleton` | Loading skeletons | `FitSkeleton` |
+| `.fit-empty-state` (+ `-title` `-sub`, `svg.fes-illus`) | Empty states | `FitEmptyState` |
+| `.sk-*` — `sk-card` `sk-row` `sk-circle` `sk-lines` `sk-line` `sk-block` `sk-btn` + `sk-shimmer` | Loading skeletons. **Note the odd prefix** — a third namespace in a library that is otherwise `fit-*`; see the block comment above the family for the markup. | `FitSkeleton` |
+| `.fit-banner` (+ `--info` `--warn` `--error`, `-body` `-title` `-link` `-retry`) | Inline error / warning / info banner | `FitBanner` |
 | `.fit-ticket` | Ticket / booking cards | `FitTicket` |
 | `.fit-invite` | Invite rows | `FitInviteRow` |
 | `.fit-settings-*` | Settings cards | `FitSettingsCard` |
