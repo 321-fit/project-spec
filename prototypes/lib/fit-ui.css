@@ -1893,6 +1893,81 @@
   transition: width 0.25s ease;
 }
 
+/* --- Note block. Content a person attached to a card — an event note, a quote, a
+   pinned reply. **Outlined, never filled and never tinted**: a colour tint is the
+   language of info / warning / error, and user-written content is not system
+   messaging (`feedback_note_block`). Dashed stays reserved for the empty variant,
+   because a dashed border everywhere else means "drop something here".
+
+   Page-local in three prototypes with a memory rule describing it in detail, and
+   absent from the kit — the same gap `.fit-list-row` had. Label is sentence case,
+   12px medium, secondary: no uppercase, no letter-spacing, no brand colour. --- */
+.fit-note {
+  margin: 0 var(--fit-sp-4) var(--fit-sp-4);
+  padding: var(--fit-sp-3) 14px;
+  background: transparent;
+  border: 1px solid var(--fit-divider);
+  border-radius: var(--fit-radius-10);
+  display: flex; align-items: flex-start; gap: 10px;
+  cursor: pointer;
+}
+/* The divider is too faint to read as an edge on the light ground. */
+.fit-light .fit-note { border-color: var(--fit-gray-200); }
+.fit-note-icon { flex-shrink: 0; color: var(--fit-text-secondary); margin-top: 2px; }
+.fit-note-body { flex: 1; min-width: 0; }
+.fit-note-label {
+  font-size: var(--fit-font-caption-size); font-weight: var(--fit-font-weight-medium);
+  color: var(--fit-text-secondary); margin-bottom: 4px;
+}
+.fit-note-text {
+  font-size: var(--fit-font-body2-size); line-height: var(--fit-font-body2-line-height);
+  color: var(--fit-text-primary);
+}
+.fit-note-edit { flex-shrink: 0; color: var(--fit-text-tertiary); margin-top: 2px; }
+
+/* Empty: dashed, because here it genuinely is an add-zone. */
+.fit-note--empty {
+  padding: 10px 14px; align-items: center;
+  border: 1px dashed var(--fit-gray-700);
+}
+.fit-light .fit-note--empty { border-color: var(--fit-gray-300); }
+.fit-note--empty .fit-note-icon { color: var(--fit-text-tertiary); margin-top: 0; }
+.fit-note--empty .fit-note-text {
+  font-size: var(--fit-font-footnote-size); color: var(--fit-text-secondary);
+}
+
+/* --- Scope option card. A choice between two outcomes — "Just this date" vs
+   "Every Saturday and Sunday" — is two full-width cards stacked, not radios: a
+   radio list reads as a form to fill in, and a decision with two outcomes should
+   show the chosen one as chosen (`feedback_scope_choice_cards`). The narrower
+   option is the default. Android has had `ScopeOptionCard` in ui/common; this is
+   that card, derived from it, and the CSS kit had no equivalent — so the stand's
+   scope questions were being drawn with instrument buttons. --- */
+.fit-scope-option {
+  display: flex; flex-direction: column; gap: 2px;
+  width: 100%; min-height: 56px; text-align: left;
+  padding: var(--fit-sp-3_5) var(--fit-sp-3);
+  border-radius: var(--fit-radius-14);
+  background: var(--fit-surface-high);
+  border: 1px solid transparent;
+  cursor: pointer; font-family: var(--fit-font);
+}
+.fit-scope-option + .fit-scope-option { margin-top: var(--fit-sp-2); }
+.fit-scope-option.selected {
+  background: var(--fit-selection-gradient), var(--fit-surface-high);
+  border-color: var(--fit-selection-border);
+}
+.fit-scope-option-title {
+  font-size: var(--fit-font-body1-size); font-weight: var(--fit-font-weight-regular);
+  line-height: var(--fit-font-body1-line-height); color: var(--fit-text-primary);
+}
+.fit-scope-option.selected .fit-scope-option-title { font-weight: var(--fit-font-weight-medium); }
+.fit-scope-option-sub {
+  font-size: var(--fit-font-caption-size); font-weight: var(--fit-font-caption-weight);
+  line-height: var(--fit-font-caption-line-height); color: var(--fit-text-tertiary);
+}
+.fit-light .fit-scope-option { box-shadow: var(--fit-elevation-card); }
+
 /* ============================================================
    LIST ROW — the tappable row that leads somewhere.
 
