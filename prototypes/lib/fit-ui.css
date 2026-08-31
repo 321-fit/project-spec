@@ -1184,6 +1184,11 @@
 }
 .fit-light .fit-context-menu { background: var(--fit-white); border-color: var(--fit-gray-200); box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
 .fit-context-menu.visible { display: block; }
+/* Anchored under a header's right edge. `.fit-header` is already `position:
+   relative`, so this is the placement a header `⋯` always wants — and every
+   prototype call site was writing it inline (`style="top:56px;right:12px"`),
+   which is the same re-typing the row and type families suffered from. */
+.fit-context-menu--anchor-header { top: calc(100% - 6px); right: var(--fit-sp-3); }
 .fit-context-menu-backdrop { position: absolute; inset: 0; z-index: 55; display: none; }
 .fit-context-menu-backdrop.visible { display: block; }
 .fit-context-menu-item {
@@ -1969,6 +1974,22 @@
   margin: 0 var(--fit-sp-4) var(--fit-sp-2);
 }
 .fit-list-row--card + .fit-list-row--card { border-top: 0; }
+
+/* Unread. Android's notification row (`NotificationsInboxV2Row`) does not dim the
+   whole row — it keeps the title at primary and medium weight, drops a read one to
+   secondary and regular, and marks the unread with a 6px brand dot at the leading
+   edge. Dimming the row wholesale takes the icon and the timestamp down with it,
+   which reads as disabled rather than as already-seen. */
+.fit-list-row--unread { position: relative; }
+.fit-list-row--unread::before {
+  content: ''; position: absolute; left: 6px; top: 50%;
+  width: 6px; height: 6px; margin-top: -3px; border-radius: 50%;
+  background: var(--fit-brand-primary);
+}
+.fit-list-row--unread .fit-list-row-title { font-weight: var(--fit-font-weight-medium); }
+.fit-list-row--read .fit-list-row-title {
+  color: var(--fit-text-secondary); font-weight: var(--fit-font-weight-regular);
+}
 
 .fit-light .fit-list-row       { background: var(--fit-white); }
 .fit-light .fit-list-row-icon  { background: var(--fit-gray-100); }

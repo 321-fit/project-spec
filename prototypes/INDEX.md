@@ -133,7 +133,7 @@ component in `design-tokens/docs/components.md` (and live in `design-tokens/Sour
 |---|---|---|
 | `.fit-phone-*` | Phone shell / footer (prototype-only) | — |
 | **type roles** `.fit-headline` `.fit-heading1-3` `.fit-button1-2` `.fit-nav-title` `.fit-body1-2` `.fit-footnote` `.fit-caption` `.fit-pill` `.fit-caption-micro` (+ `.fit-t-primary/secondary/tertiary`) | **The twelve sizes there are.** Each carries size + weight + line-height + letter-spacing from the tokens. Never hand-type a `font-size` — if the size you want is not here, it is not in the system. | `FitTypography` |
-| `.fit-list-row` (+ `-icon` `-body` `-title` `-sub` `-value` `-chevron`, in `.fit-list-group` / `.fit-list-group--bleed` / `.fit-list-row--card`) | **The tappable row that leads somewhere** — the most common shape in the app. Added 2026-08-31 after finding 30 hand-rolled versions across 29 files. | `FitListRow` |
+| `.fit-list-row` (+ `-icon` `-body` `-title` `-sub` `-value` `-chevron`, in `.fit-list-group` / `.fit-list-group--bleed` / `.fit-list-row--card` / `--unread` / `--read`) | **The tappable row that leads somewhere** — the most common shape in the app. Added 2026-08-31 after finding 30 hand-rolled versions across 29 files. | `FitListRow` |
 | `.fit-row` (+ `.gap-1–4`) | Bare flex row on the spacing scale | — |
 | `.fit-progress` (+ `-fill`) | Plain progress bar, 3px gradient. Not `.fit-vuc-progress` (video upload card) or `.fit-maturity-progress` (a checklist). | `FitProgress` |
 | `.fit-header` | Screen header (back + title + right actions) | `FitHeader` |
