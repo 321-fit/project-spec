@@ -3271,6 +3271,134 @@ window.FIT_BOARD = {
       ]
     },
     {
+      "file": "flows/coach/client-detail-drafts.html",
+      "label": "Client Detail drafts (WIP)",
+      "role": "coach",
+      "slug": "coach-client-detail-drafts",
+      "screens": [
+        {
+          "id": "s-draft-focus",
+          "hash": "5d9a6e083eb8",
+          "title": "A · Focus card",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": true,
+          "note": "The live screen stacks 12 blocks of equal weight, three of them horizontal carousels. Nothing is foregrounded, so it reads as a table rotated on its side. This draft takes the opposite position: one hero, one line of liv",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-draft-focus.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-draft-timeline",
+          "hash": "155c2481c8e8",
+          "title": "B · Timeline",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Money, training and self-paced stop being three sections and become three kinds of event on one spine. That is what actually kills the carousels — not restyling them, but removing the reason they existed.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-draft-timeline.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-draft-segments",
+          "hash": "42b5156c9003",
+          "title": "C · Segments",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Also worth noticing: the stats hero is charming but it is vanity — 47 sessions and 8 months do not change what the coach does next. A and B spend that space on the next session instead. Whether that trade is right is the",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-draft-segments.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-draft-accent",
+          "hash": "2ed96107e17e",
+          "title": "D · Accent budget",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Counted across flows/: brand-primary 244×, teal-500 457×, brand-gradient 129×. On coach/dashboard.html alone the same brand paints a link, a metric value, an icon plate, a chip and the CTA — five meanings, one colour. Pu",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-draft-accent.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-draft-media",
+          "hash": "7d1c92be1f43",
+          "title": "E · Media grammar",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Across 830 screens in the prototypes there are 18 <img> tags, in 3 files. fit-ui.css has .fit-avatar and no media primitive at all — no cover, no tile, no scrim. The icon was never chosen as a style; it is the only thing",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-draft-media.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 3
+        },
+        {
+          "id": "s-draft-quiet",
+          "hash": "8e08834a1918",
+          "title": "F · Both (light)",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "light",
+          "entry": false,
+          "note": "Same screen as E, wearing D's rule, opened in light on purpose: light is where the mud was reported, and where a scrim, a white surface and a brand fill are hardest to keep apart. Toggle Dark in the sidebar — it has to s",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-draft-quiet.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 4
+        }
+      ],
+      "edges": []
+    },
+    {
       "file": "flows/coach/sessions.html",
       "label": "Training templates",
       "role": "coach",
@@ -5602,134 +5730,6 @@ window.FIT_BOARD = {
           "back": true
         }
       ]
-    },
-    {
-      "file": "flows/coach/client-detail-drafts.html",
-      "label": "Client Detail drafts (WIP)",
-      "role": "coach",
-      "slug": "coach-client-detail-drafts",
-      "screens": [
-        {
-          "id": "s-draft-focus",
-          "hash": "5d9a6e083eb8",
-          "title": "A · Focus card",
-          "inApp": "",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": true,
-          "note": "The live screen stacks 12 blocks of equal weight, three of them horizontal carousels. Nothing is foregrounded, so it reads as a table rotated on its side. This draft takes the opposite position: one hero, one line of liv",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-client-detail-drafts__s-draft-focus.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0
-        },
-        {
-          "id": "s-draft-timeline",
-          "hash": "155c2481c8e8",
-          "title": "B · Timeline",
-          "inApp": "",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "Money, training and self-paced stop being three sections and become three kinds of event on one spine. That is what actually kills the carousels — not restyling them, but removing the reason they existed.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-client-detail-drafts__s-draft-timeline.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-draft-segments",
-          "hash": "42b5156c9003",
-          "title": "C · Segments",
-          "inApp": "",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "Also worth noticing: the stats hero is charming but it is vanity — 47 sessions and 8 months do not change what the coach does next. A and B spend that space on the next session instead. Whether that trade is right is the",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-client-detail-drafts__s-draft-segments.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 1
-        },
-        {
-          "id": "s-draft-accent",
-          "hash": "2ed96107e17e",
-          "title": "D · Accent budget",
-          "inApp": "",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "Counted across flows/: brand-primary 244×, teal-500 457×, brand-gradient 129×. On coach/dashboard.html alone the same brand paints a link, a metric value, an icon plate, a chip and the CTA — five meanings, one colour. Pu",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-client-detail-drafts__s-draft-accent.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 2
-        },
-        {
-          "id": "s-draft-media",
-          "hash": "7d1c92be1f43",
-          "title": "E · Media grammar",
-          "inApp": "",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "Across 830 screens in the prototypes there are 18 <img> tags, in 3 files. fit-ui.css has .fit-avatar and no media primitive at all — no cover, no tile, no scrim. The icon was never chosen as a style; it is the only thing",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-client-detail-drafts__s-draft-media.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 3
-        },
-        {
-          "id": "s-draft-quiet",
-          "hash": "8e08834a1918",
-          "title": "F · Both (light)",
-          "inApp": "",
-          "status": "proposal",
-          "theme": "light",
-          "entry": false,
-          "note": "Same screen as E, wearing D's rule, opened in light on purpose: light is where the mud was reported, and where a scrim, a white surface and a brand fill are hardest to keep apart. Toggle Dark in the sidebar — it has to s",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-client-detail-drafts__s-draft-quiet.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 4
-        }
-      ],
-      "edges": []
     },
     {
       "file": "flows/athlete/dashboard.html",
