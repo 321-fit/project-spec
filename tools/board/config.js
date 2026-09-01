@@ -116,6 +116,11 @@ export const ORDER = [
 export const STATES = {
   // Contextual AI entry — every mounted point gets an open quick-start shot and
   // a second shot after its first screen-specific prompt starts the chat.
+  "flows/coach/client-detail-drafts.html#s-draft-client": [
+    { id: "nothing-to-do", label: "Nothing to answer → Needs-you gone, Sell pack", run: "document.getElementById('s-draft-client').classList.add('j-clean')" },
+    { id: "crm-contact", label: "CRM contact → Invite instead of Message", run: "document.getElementById('s-draft-client').classList.add('j-crm')" },
+    { id: "blocked", label: "Blocked → banner, cash still settleable", run: "document.getElementById('s-draft-client').classList.add('j-blocked')" },
+  ],
   "flows/coach/client-detail-drafts.html#s-draft-full": [
     { id: "no-next-session", label: "No next session → CTA in the same slot", run: "document.getElementById('s-draft-full').classList.add('no-next')" },
   ],

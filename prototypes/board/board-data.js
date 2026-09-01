@@ -3278,7 +3278,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-focus",
-          "hash": "ecbc08dd1b6f",
+          "hash": "c1c9f2502f5e",
           "title": "A · Focus card",
           "inApp": "",
           "status": "proposal",
@@ -3297,7 +3297,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-timeline",
-          "hash": "ef3aa8559314",
+          "hash": "c2fb3d6b39f9",
           "title": "B · Timeline",
           "inApp": "",
           "status": "proposal",
@@ -3317,7 +3317,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-segments",
-          "hash": "aa732607d7a2",
+          "hash": "8c370c7b927d",
           "title": "C · Segments",
           "inApp": "",
           "status": "proposal",
@@ -3337,7 +3337,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-accent",
-          "hash": "ce6c4f49a6e2",
+          "hash": "304e43c39b17",
           "title": "D · Accent budget",
           "inApp": "",
           "status": "proposal",
@@ -3357,7 +3357,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-media",
-          "hash": "260ba473fb3f",
+          "hash": "bd9ae850781c",
           "title": "E · Media grammar",
           "inApp": "",
           "status": "proposal",
@@ -3377,7 +3377,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-quiet",
-          "hash": "684db33f57e7",
+          "hash": "623c93a7df44",
           "title": "F · Both (light)",
           "inApp": "",
           "status": "proposal",
@@ -3397,7 +3397,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-floating",
-          "hash": "b55b662827fd",
+          "hash": "3dc2f36aff99",
           "title": "G · Floating panels",
           "inApp": "",
           "status": "proposal",
@@ -3417,7 +3417,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-tiles",
-          "hash": "245f1d53932d",
+          "hash": "11f120ab83d1",
           "title": "H · Big title + tiles",
           "inApp": "",
           "status": "proposal",
@@ -3437,7 +3437,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-full",
-          "hash": "f52cae1f10e1",
+          "hash": "94ded98ae1b1",
           "title": "I · Floating, filled",
           "inApp": "",
           "status": "proposal",
@@ -3458,6 +3458,38 @@ window.FIT_BOARD = {
           "orphan": true,
           "level": 1,
           "order": 7
+        },
+        {
+          "id": "s-draft-client",
+          "hash": "ddbab3fc536d",
+          "title": "J · Client Detail, placed",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Order here is: who this is &rarr; what you owe an answer to &rarr; what is next &rarr; the assets &rarr; the archive. Every block from clients-coaches.md is placed against that, nothing dropped.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-draft-client.webp",
+              "label": ""
+            },
+            {
+              "file": "coach-client-detail-drafts__s-draft-client__nothing-to-do.webp",
+              "label": "Nothing to answer → Needs-you gone, Sell pack"
+            },
+            {
+              "file": "coach-client-detail-drafts__s-draft-client__crm-contact.webp",
+              "label": "CRM contact → Invite instead of Message"
+            },
+            {
+              "file": "coach-client-detail-drafts__s-draft-client__blocked.webp",
+              "label": "Blocked → banner, cash still settleable"
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 8
         }
       ],
       "edges": []
