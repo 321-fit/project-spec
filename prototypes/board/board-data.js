@@ -3278,7 +3278,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-focus",
-          "hash": "5d9a6e083eb8",
+          "hash": "7732ba6f0d17",
           "title": "A · Focus card",
           "inApp": "",
           "status": "proposal",
@@ -3297,7 +3297,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-timeline",
-          "hash": "155c2481c8e8",
+          "hash": "a5bb38e1eb42",
           "title": "B · Timeline",
           "inApp": "",
           "status": "proposal",
@@ -3317,7 +3317,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-segments",
-          "hash": "42b5156c9003",
+          "hash": "468e20596fe2",
           "title": "C · Segments",
           "inApp": "",
           "status": "proposal",
@@ -3337,7 +3337,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-accent",
-          "hash": "2ed96107e17e",
+          "hash": "5921b236a24d",
           "title": "D · Accent budget",
           "inApp": "",
           "status": "proposal",
@@ -3357,7 +3357,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-media",
-          "hash": "7d1c92be1f43",
+          "hash": "8c2c4f68ee9c",
           "title": "E · Media grammar",
           "inApp": "",
           "status": "proposal",
@@ -3377,7 +3377,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-quiet",
-          "hash": "8e08834a1918",
+          "hash": "db55a4ee6560",
           "title": "F · Both (light)",
           "inApp": "",
           "status": "proposal",
@@ -3394,6 +3394,46 @@ window.FIT_BOARD = {
           "orphan": true,
           "level": 1,
           "order": 4
+        },
+        {
+          "id": "s-draft-floating",
+          "hash": "871446c8ca28",
+          "title": "G · Floating panels",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Three borrowings, each answering something we complained about:",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-draft-floating.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 5
+        },
+        {
+          "id": "s-draft-tiles",
+          "hash": "8bf8b7b5e61f",
+          "title": "H · Big title + tiles",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Both G and H drop the footer CTA on purpose. Worth watching whether the screen still answers \"book a session\" fast enough — if not, the answer is probably H's tile grid plus a footer, not a return to the old header.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-draft-tiles.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 6
         }
       ],
       "edges": []

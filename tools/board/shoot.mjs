@@ -103,7 +103,7 @@ for (const mod of discover()) {
         await page.evaluate(activate, id);
         await new Promise((r) => setTimeout(r, shot.wait || 250));
       }
-      await new Promise((r) => setTimeout(r, 250)); // fonts / layout settle
+      await new Promise((r) => setTimeout(r, 700)); // fonts / layout settle + entry animations
       const el = await page.$(".fit-phone.active");
       const out = path.join(shotsDir, outName(shot));
       await el.screenshot({ path: out, type: "webp", quality: SHOT.quality });
