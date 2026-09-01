@@ -318,17 +318,13 @@
   /* The wash now runs past the action circles and dissolves over ~180px instead
      of ending on a visible edge: two layers, a radial for the colour and a linear
      for the landing. */
+  /* The original wash, only taller: it has to run under the action pills, not
+     stop above them. Same stops, same softness — just more room. */
   #s-draft-client::before {
-    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 620px; z-index: 0; pointer-events: none;
-    background:
-      linear-gradient(180deg, rgba(0,0,0,0) 58%, var(--fit-screen-bg) 96%),
-      radial-gradient(135% 62% at 50% -2%, rgba(0,167,208,0.46), rgba(5,224,166,0.16) 42%, rgba(5,224,166,0.05) 62%, transparent 82%);
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 640px; z-index: 0; pointer-events: none;
+    background: radial-gradient(125% 78% at 50% -6%, rgba(0,167,208,0.42), rgba(5,224,166,0.12) 46%, transparent 74%);
   }
-  #s-draft-client.fit-light::before {
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0) 58%, var(--fit-screen-bg) 96%),
-      radial-gradient(135% 62% at 50% -2%, rgba(0,167,208,0.28), rgba(5,224,166,0.10) 42%, rgba(5,224,166,0.04) 62%, transparent 82%);
-  }
+  #s-draft-client.fit-light::before { background: radial-gradient(125% 78% at 50% -6%, rgba(0,167,208,0.26), rgba(5,224,166,0.09) 46%, transparent 74%); }
   #s-draft-client .fit-phone-header, #s-draft-client .fit-phone-content { position: relative; z-index: 1; background: transparent; }
   .cd-j-badge { display: none; margin-top: 8px; }
   #s-draft-client.j-crm .cd-j-badge { display: inline-block; padding: 3px 10px; border-radius: 7px; background: var(--fit-surface-higher); font-size: 12px; font-weight: 600; letter-spacing: 0.4px; color: var(--fit-text-secondary); }
@@ -338,18 +334,7 @@
   #s-draft-client.j-blocked .cd-j-banner { display: flex; background: rgba(240,92,91,0.13); color: var(--fit-red-400); }
   .cd-j-banner svg { width: 18px; height: 18px; flex-shrink: 0; }
   .cd-j-banner button { margin-left: auto; flex-shrink: 0; height: 32px; padding: 0 14px; border: 1px solid currentColor; border-radius: 99px; background: transparent; font-family: var(--fit-font); font-size: 13px; font-weight: 500; color: inherit; cursor: pointer; }
-  /* Sticky so the four actions survive the scroll on a dense client. */
-  .cd-j-acts { position: sticky; top: 0; z-index: 4; padding: 16px 12px 24px; }
-  /* The blur lives on a masked layer so the sticky bar has no visible edge where
-     the filter region stops. */
-  .cd-j-acts::before {
-    content: ""; position: absolute; inset: -8px 0 0; z-index: -1;
-    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-    background: linear-gradient(180deg, rgba(16,18,20,0.92) 72%, rgba(16,18,20,0.55) 100%);
-    -webkit-mask-image: linear-gradient(180deg, #000 84%, transparent 100%);
-    mask-image: linear-gradient(180deg, #000 84%, transparent 100%);
-  }
-  #s-draft-client.fit-light .cd-j-acts::before { background: linear-gradient(180deg, rgba(242,242,247,0.95) 72%, rgba(242,242,247,0.6) 100%); }
+  .cd-j-acts { padding: 16px 12px 24px; }
   .cd-j-c-invite { display: none; }
   .fit-action-circle { position: relative; }
   .cd-j-badge-n { position: absolute; top: -2px; right: 8px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 99px; background: var(--fit-red-400); color: #fff; font-size: 12px; font-weight: 600; line-height: 20px; text-align: center; }
@@ -1421,10 +1406,10 @@
       <li><strong>"Needs you" is the only variable block at the top</strong> and it absorbs three scattered ones &mdash; the pending-payments carousel, self-paced <em>To review</em>, and an open request. When there is nothing to answer it disappears entirely (see the <em>nothing to do</em> state).</li>
       <li><strong>The state banner sits above the actions</strong>, because it decides which are legal. Blocked greys Book and Message but never Mark paid &mdash; the spec is explicit that cash stays settleable through archive, block and deletion.</li>
       <li><strong>Assets became tiles, and every tile leads with a visual</strong> &mdash; a group is people (stacked faces), an address is a place (map thumbnail), a note and a history are concepts (icon plates). Four unlabelled text tiles were unreadable at a glance; the visual is what makes the grid scannable. The note shows its text: it is the single most useful thing to see without tapping.</li>
-      <li><strong>The wash runs past the circles</strong> and dissolves over ~180px into the canvas instead of ending on an edge, and the sticky bar frosts what scrolls under it with a masked blur, so it has no visible boundary either.</li>
-      <li><strong>The circles are sticky.</strong> On a dense client they used to scroll away with the first flick.</li>
+      <li><strong>The wash runs past the circles</strong> — the gradient has to sit under the action pills, not stop above them. The pills scroll with the page: pinning them to the header was tried and dropped, a bar that locks on top of the identity is more chrome than help.</li>
     </ul>
     <div class="cost"><strong>What it costs:</strong> promoting Self-paced and Packages to circles means the two most frequent errands &mdash; marking cash paid and jotting a note &mdash; are now one level deeper, reachable through a chip or a tile rather than a fixed control. If a coach settles cash ten times a day, that trade is wrong and Mark paid earns the circle back. The note preview is also a real exposure decision: it is medical and financial detail rendered on a screen someone else can see over a shoulder.</div>
+    <p class="note">Open: does a coach lose the actions on a long client now that nothing is pinned? <em>Book</em> is duplicated in the Next-session slot, which may be enough.</p>
     <p class="note">Sidebar states: <em>nothing to do</em> (no debt, no reviews &rarr; Needs-you gone, third circle becomes Sell pack), <em>CRM contact</em> (badge, Invite instead of Message), <em>blocked</em> (banner, Book/Message dead, Mark paid alive).</p>
   </div>
 
