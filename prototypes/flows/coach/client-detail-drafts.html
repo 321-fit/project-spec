@@ -370,6 +370,45 @@
   .cd-j-tt { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
   .cd-j-note { font-size: 13px; line-height: 1.45; color: var(--fit-text-secondary); margin-top: 6px; }
 
+  /* --- K: TINTED CANVAS ----------------------------------------------------
+     The gradient is not a wash at the top any more — it IS the screen, top to
+     bottom. Nothing below it carries its own colour: panels, tiles and chips are
+     the same canvas seen through a flat darkening (an alpha scrim, no blur).
+     All of it is token overrides on one id; the markup is J's, untouched. */
+  #s-draft-alpha {
+    --fit-text-primary: #ffffff;
+    --fit-text-secondary: rgba(255,255,255,0.74);
+    --fit-text-tertiary: rgba(255,255,255,0.52);
+    --fit-divider: rgba(255,255,255,0.10);
+    --fit-surface-higher: rgba(255,255,255,0.13);
+    position: relative;
+  }
+  #s-draft-alpha::before {
+    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(120% 48% at 50% -8%, rgba(0,190,215,0.60), rgba(5,224,166,0.10) 55%, transparent 78%),
+      linear-gradient(180deg, #0a5f68 0%, #084653 22%, #062e3b 48%, #05202a 72%, #04161d 100%);
+  }
+  #s-draft-alpha .fit-phone-header, #s-draft-alpha .fit-phone-content { position: relative; z-index: 1; background: transparent; }
+  #s-draft-alpha .cd-i-panel,
+  #s-draft-alpha .cd-i-tile,
+  #s-draft-alpha .cd-j-chip {
+    background: rgba(0,0,0,0.28);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+  }
+  #s-draft-alpha .cd-g-row:active { background: rgba(255,255,255,0.06); }
+  #s-draft-alpha .cd-i-nacts button { background: rgba(255,255,255,0.14); color: #fff; }
+  #s-draft-alpha .cd-i-av,
+  #s-draft-alpha .cd-j-plate,
+  #s-draft-alpha .cd-j-face { background: rgba(255,255,255,0.14); color: #fff; }
+  #s-draft-alpha .cd-j-face { box-shadow: 0 0 0 2px rgba(0,0,0,0.30); }
+  #s-draft-alpha .cd-g-circ { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.18); color: #fff; }
+  #s-draft-alpha .fit-action-circle i { border-color: rgba(255,255,255,0.30); color: #fff; }
+  #s-draft-alpha .fit-action-circle span { color: #fff; }
+  #s-draft-alpha .fit-action-circle--primary span { color: var(--fit-teal-500); }
+  #s-draft-alpha .cd-j-badge-n.calm { background: rgba(255,255,255,0.18); color: #fff; }
+  #s-draft-alpha .cd-i-tbar { background: rgba(255,255,255,0.16); }
+
   #s-draft-segments [data-cpane] { display: none; }
   #s-draft-segments.cp-train [data-cpane="train"] { display: block; }
   #s-draft-segments.cp-money [data-cpane="money"] { display: block; }
@@ -403,6 +442,7 @@
   <button onclick="jState('clean',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; nothing to do</button>
   <button onclick="jState('crm',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; CRM contact</button>
   <button onclick="jState('blocked',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; blocked</button>
+  <button onclick="go('s-draft-alpha',this)">K &middot; Tinted canvas</button>
   <div class="label">Compare with</div>
   <button onclick="window.location.href='./clients.html#s-client-detail'">Client Detail (live) &rarr;</button>
   <button onclick="window.location.href='../athlete/my-coaches.html#s-coach-detail'">Coach Detail (live) &rarr;</button>
@@ -1261,6 +1301,149 @@
   </div>
 </div>
 
+<!-- One question: what if the gradient owns the whole canvas, Revolut-style, and
+     every surface stops being a colour and becomes a translucent darkening of
+     what is behind it? Content is J's, so the comparison is only about surface. -->
+<!-- ==================== K · TINTED CANVAS ==================== -->
+<!-- Every block from clients-coaches.md, ordered by what it is for:
+     who → what you owe an answer to → what is next → the assets → the archive.
+     Header is chrome only (message moved to the circles, where it already was),
+     and the circles never repeat a menu item: they are what you DO to a person,
+     the menu is how you administer the relationship. -->
+<div class="fit-phone fit-dark cd-media k-alpha" id="s-draft-alpha" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="cd-g-top">
+      <button class="cd-g-circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span style="flex:1;"></span>
+      <button class="cd-g-circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <div class="cd-i-id cd-in">
+      <div class="cd-i-av">AK</div>
+      <div class="cd-i-name">Anna Kowalski</div>
+      <div class="cd-i-sub">Tennis &middot; Fitness &middot; 8 months &middot; 47 sessions</div>
+      <div class="cd-j-badge">CRM</div>
+    </div>
+
+    <div class="cd-j-banner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>Blocked &middot; Anna can't book or message you. Her &euro;70 stays settleable.</span><button>Unblock</button></div>
+
+    <!-- Four things you do TO this person. Third slot is contextual: money owed
+         → Mark paid; nothing owed → Sell a pack (the business goal, currently
+         buried six blocks down). -->
+    <div class="cd-j-acts">
+      <div class="fit-action-circles">
+        <button class="fit-action-circle fit-action-circle--primary cd-press cd-j-c-book"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></i><span>Book</span></button>
+        <button class="fit-action-circle cd-press cd-j-c-msg"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></i><span>Message</span><span class="cd-j-badge-n calm">2</span></button>
+        <button class="fit-action-circle cd-press cd-j-c-invite"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></i><span>Invite</span></button>
+        <button class="fit-action-circle cd-press cd-j-c-self"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z"/></svg></i><span>Self-paced</span><span class="cd-j-badge-n">2</span></button>
+        <button class="fit-action-circle cd-press cd-j-c-pack"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7L12 12l8.7-5M12 22V12"/></svg></i><span>Packages</span><span class="cd-j-badge-n calm">1</span></button>
+      </div>
+    </div>
+
+    <div class="cd-in">
+      <div class="cd-i-sec cd-j-need-sec">Needs you <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="cd-j-need">
+        <div class="cd-j-chips">
+          <span class="cd-j-chip due cd-press"><i></i>&euro;70 &middot; 2 sessions</span>
+          <span class="cd-j-chip warn cd-press"><i></i>2 clips to review</span>
+          <span class="cd-j-chip ask cd-press"><i></i>Reschedule request</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cd-in cd-j-sec-next">
+      <div class="cd-i-sec">Next session <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="cd-i-panel">
+        <div class="cd-i-next">
+          <div class="cd-i-nrow">
+            <div class="cd-m-tile t-tennis" style="width:46px;height:46px;"></div>
+            <div style="flex:1;min-width:0;">
+              <div class="cd-i-when">Tomorrow &middot; 10:00</div>
+              <div class="cd-i-what">Tennis &middot; 60 min &middot; TNT Studio, court 3</div>
+            </div>
+          </div>
+          <div class="cd-i-nacts">
+            <button class="cd-press">Open</button>
+            <button class="cd-press">Reschedule</button>
+          </div>
+        </div>
+        <div class="cd-i-empty">
+          <p>Nothing booked with Anna. Last session was 4 days ago.</p>
+          <button class="fit-btn fit-btn-primary cd-press">Book a session</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cd-in cd-j-sec-week">
+      <div class="cd-i-sec">This week <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg><span>3 sessions</span></div>
+      <div class="cd-i-panel">
+        <div class="cd-g-row cd-press">
+          <div class="cd-m-tile t-tennis" style="width:40px;height:40px;border-radius:12px;"></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Tennis &middot; 60 min</div><div class="cd-g-r2">Thu 10:00 &middot; TNT Studio</div></div>
+          <div class="cd-g-rv">&euro;35</div>
+        </div>
+        <div class="cd-g-row cd-press">
+          <div class="cd-m-tile t-group" style="width:40px;height:40px;border-radius:12px;"></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Morning crew</div><div class="cd-g-r2">Sat 08:00 &middot; 6 people</div></div>
+          <div class="cd-g-rv">&euro;12</div>
+        </div>
+        <div class="cd-g-row cd-press">
+          <div class="cd-m-tile" style="width:40px;height:40px;border-radius:12px;background-image:var(--cd-img-gym);"></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Home workout</div><div class="cd-g-r2">Sun &middot; self-paced, due 20:00</div></div>
+          <div class="cd-g-rv"><small>sent</small></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Money: the stats card is gone. Owed lived there AND in the carousel;
+         Upcoming duplicated This week; lifetime revenue moved behind the chevron. -->
+    <div class="cd-in">
+      <div class="cd-i-sec">Money <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg><span>&euro;1 640 earned</span></div>
+      <div class="cd-i-grid">
+        <div class="cd-i-tile cd-press">
+          <div class="cd-i-tv due">&euro;70</div>
+          <div class="cd-i-tl">Owed &middot; 2 sessions, cash</div>
+        </div>
+        <div class="cd-i-tile cd-press">
+          <div class="cd-i-tv">1 left</div>
+          <div class="cd-i-tl">Tennis pack &middot; 4 of 5 used</div>
+          <div class="cd-i-tbar"><i></i></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cd-in" style="padding-bottom:22px;">
+      <div class="cd-i-sec">Anna <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="cd-i-grid">
+        <!-- A group is people: show the people. -->
+        <div class="cd-i-tile cd-press">
+          <div class="cd-j-thead">
+            <div class="cd-j-faces"><span class="cd-j-face">MK</span><span class="cd-j-face">TP</span><span class="cd-j-face">+4</span></div>
+          </div>
+          <div class="cd-j-tt">2 groups</div>
+          <div class="cd-i-tl">Morning crew, Beginners</div>
+        </div>
+        <!-- An address is a place: show the map. -->
+        <div class="cd-i-tile cd-press">
+          <div class="cd-j-thead"><div class="cd-j-thumb" style="background-image:var(--cd-img-map);"></div></div>
+          <div class="cd-j-tt">2 addresses</div>
+          <div class="cd-i-tl">Home &middot; Work &middot; home visits</div>
+        </div>
+        <div class="cd-i-tile cd-press" style="grid-column:1 / -1;">
+          <div class="cd-j-thead"><div class="cd-j-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div><div class="cd-j-tt">Note</div></div>
+          <div class="cd-j-note">Left knee &mdash; no jumping drills. Mornings only, works late shifts. Prefers cash.</div>
+        </div>
+        <div class="cd-i-tile cd-press" style="grid-column:1 / -1;">
+          <div class="cd-j-thead"><div class="cd-j-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div style="flex:1;"><div class="cd-j-tt">47 sessions</div><div class="cd-i-tl">since Jan &middot; 3 missed</div></div><span style="color:var(--fit-text-tertiary);font-size:13px;">History</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
 
@@ -1410,7 +1593,21 @@
     </ul>
     <div class="cost"><strong>What it costs:</strong> promoting Self-paced and Packages to circles means the two most frequent errands &mdash; marking cash paid and jotting a note &mdash; are now one level deeper, reachable through a chip or a tile rather than a fixed control. If a coach settles cash ten times a day, that trade is wrong and Mark paid earns the circle back. The note preview is also a real exposure decision: it is medical and financial detail rendered on a screen someone else can see over a shoulder.</div>
     <p class="note">Open: does a coach lose the actions on a long client now that nothing is pinned? <em>Book</em> is duplicated in the Next-session slot, which may be enough.</p>
-    <p class="note">Sidebar states: <em>nothing to do</em> (no debt, no reviews &rarr; Needs-you gone, third circle becomes Sell pack), <em>CRM contact</em> (badge, Invite instead of Message), <em>blocked</em> (banner, Book/Message dead, Mark paid alive).</p>
+    <p class="note">Sidebar states: <em>nothing to do</em> (no debt, no reviews &rarr; the Needs-you block disappears entirely), <em>CRM contact</em> (badge, Invite instead of Message), <em>blocked</em> (banner, Book/Message dead, Mark paid alive).</p>
+  </div>
+
+  <div class="ann" id="ann-s-draft-alpha"><span class="ann-role">Coach &middot; draft K &middot; look study</span>
+    <h3>K &middot; Tinted canvas</h3>
+    <div class="bet"><strong>Bet:</strong> the gradient should not be a hat on the screen. It should <em>be</em> the screen &mdash; and then nothing below it needs a colour of its own, because a card is just the canvas, darkened.</div>
+    <p><strong>The technique has a name, and it is not blur.</strong> Apple calls it a <em>material</em> (vibrancy over a backdrop), Material 3 calls it a <em>scrim</em> / surface-tint layer, the web habit calls it "glassmorphism" &mdash; but glass implies blur and Revolut's cards are not blurred. They are <strong>alpha surfaces</strong>: a flat <code>rgba(0,0,0,0.28)</code> over a tinted canvas plus a 1px inner white highlight, so the edge exists without a border colour. Blur costs GPU on every scroll frame; a scrim costs nothing.</p>
+    <p>Content is <strong>identical to J</strong>, so the comparison is only about the surface language. Everything is token overrides on one id: text and dividers go alpha-white, and three rules repaint every panel, tile and chip.</p>
+    <ul>
+      <li><strong>One recipe everywhere.</strong> Depth comes from stacking translucency, not from five different greys.</li>
+      <li><strong>The gradient runs the full height and does not scroll</strong> &mdash; content slides over it, which is what makes a screen feel like one object instead of a list on a background.</li>
+      <li><strong>Everything drops a contrast step:</strong> secondary text at 74% white, dividers at 10%. On a coloured canvas fixed greys go muddy; alpha-white stays neutral over every part of the gradient.</li>
+    </ul>
+    <div class="cost"><strong>What it costs:</strong> it is a <strong>dark-only</strong> language &mdash; a light canvas with darkened cards reads as dirty, so light needs the opposite recipe (white scrims on a pale tint), which is a second design, not a token swap. Contrast becomes a function of <em>where</em> a card sits: the same scrim is a different effective colour at the top of the gradient and at the bottom, so WCAG has to be measured at both ends. And a screen this saturated leaves the brand nothing left to say &mdash; the accent is already everywhere, so the primary action has to earn attention by shape and size alone.</div>
+    <p class="note">Judge it against <strong>J</strong> on the board: same content, same order, only the surface differs.</p>
   </div>
 
 </div>

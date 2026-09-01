@@ -3278,7 +3278,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-focus",
-          "hash": "d5ef2bb6d195",
+          "hash": "9b19acc42604",
           "title": "A · Focus card",
           "inApp": "",
           "status": "proposal",
@@ -3297,7 +3297,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-timeline",
-          "hash": "14b6905b0d8a",
+          "hash": "551dbc9b8df2",
           "title": "B · Timeline",
           "inApp": "",
           "status": "proposal",
@@ -3317,7 +3317,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-segments",
-          "hash": "1ad2ee11d67d",
+          "hash": "8af0a54770d8",
           "title": "C · Segments",
           "inApp": "",
           "status": "proposal",
@@ -3337,7 +3337,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-accent",
-          "hash": "5f67a28a2054",
+          "hash": "ba5b20c130c7",
           "title": "D · Accent budget",
           "inApp": "",
           "status": "proposal",
@@ -3357,7 +3357,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-media",
-          "hash": "1c3439e2d08f",
+          "hash": "51521327fcad",
           "title": "E · Media grammar",
           "inApp": "",
           "status": "proposal",
@@ -3377,7 +3377,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-quiet",
-          "hash": "a16c6307024f",
+          "hash": "c4d2b1944d4d",
           "title": "F · Both (light)",
           "inApp": "",
           "status": "proposal",
@@ -3397,7 +3397,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-floating",
-          "hash": "ffbb74b1e945",
+          "hash": "972c1a3b3ece",
           "title": "G · Floating panels",
           "inApp": "",
           "status": "proposal",
@@ -3417,7 +3417,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-tiles",
-          "hash": "fd4441400bde",
+          "hash": "f43eb5372b71",
           "title": "H · Big title + tiles",
           "inApp": "",
           "status": "proposal",
@@ -3437,7 +3437,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-full",
-          "hash": "512f32c865be",
+          "hash": "d3c9358f419f",
           "title": "I · Floating, filled",
           "inApp": "",
           "status": "proposal",
@@ -3461,7 +3461,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-client",
-          "hash": "1bac02d568fd",
+          "hash": "6aa948068d13",
           "title": "J · Client Detail, placed",
           "inApp": "",
           "status": "proposal",
@@ -3490,6 +3490,26 @@ window.FIT_BOARD = {
           "orphan": true,
           "level": 1,
           "order": 8
+        },
+        {
+          "id": "s-draft-alpha",
+          "hash": "8af61461ec60",
+          "title": "K · Tinted canvas",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "The technique has a name, and it is not blur. Apple calls it a material (vibrancy over a backdrop), Material 3 calls it a scrim / surface-tint layer, the web habit calls it \"glassmorphism\" — but glass implies blur and Re",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-draft-alpha.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 9
         }
       ],
       "edges": []
