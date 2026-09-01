@@ -341,7 +341,9 @@ Removes the event. **Athlete returns 200; coach returns 204.**
 
 #### Scheduled tasks (server-side)
 
-- **Auto-cancel on no-response:** every `request` older than 48h → `cancelled`. Run every 15 min.
+- **Auto-cancel on no-response:** every `request` past its `expires_at` → `cancelled`. Run **every 15 min** (shipped code runs hourly — drift, see below).
+  - **`event_approval.expires_at` is stored at creation** *(new 2026-09-01)*: `expires_at = min(submitted_at + 48h, datetime_start − 2h)`. The 48 h leg is the product promise; the second leg exists because the shipped task also auto-declines the moment `datetime_start` passes — a request for *today 19:00* died **at 19:00**, too late for either side to re-plan. One stored column keeps the sweep, the reminder pass and the client countdown chip in agreement.
+  - **Two reminders before the deadline** *(new 2026-09-01)* — anchored on time remaining, not time elapsed: R = 24 h and R = 4 h on a full window, compressed to 50 % / R = 1 h (or a single 50 % nudge) on short-lead requests. The sender gets one nudge at the step-2 mark while re-booking is still realistic. Quiet hours 22:00–08:00 pull a nudge **forward** to 21:45, never back to the morning. Full ladder, caps, digest and idempotency rules: [notifications-catalog.md](./notifications-catalog.md) § 1.3.
 - **Auto-transition to review (payment-type-aware):** every `planned` event past `endAt` → `review` after delay:
   - **Cash event** (1-on-1 or any group with at least one cash participant): `endAt + 10 min`. Triggers push: "Mark who paid · {N} sessions" → deep-links to review queue (1-on-1) or `s-cash` per-participant screen (group, see [review-queue.md](./review-queue.md)).
   - **Card-only event**: `endAt + 4h` OR end of coach's local day (00:00 of next day in coach's TZ), whichever comes first. Triggers batched morning push: "Yesterday's sessions ready to confirm".
@@ -395,6 +397,9 @@ Map of state transition → push notification, following push-notifications.md c
 | New `request` (coach created — Schedule) | Athlete | "{coach_name} proposed a training session." | Requests inbox |
 | `request → planned` (accept) | Creator | "Your training session request has been approved." | Calendar, event day |
 | `request → cancelled` (decline) | Creator | "Your training session request with {name} has been declined." | None |
+| `request` still pending, R = 24 h (or 50 % of a short window) | Receiver | "{other_name} is waiting for your answer on {session_name}, {date} at {time} — expires in {time_left}." | Requests list |
+| `request` still pending, R = 4 h (or R = 1 h / 30 min on short windows) | Receiver | "Last chance to answer {other_name}'s {session_name} on {date} — auto-declines in {time_left}." | Requests list |
+| Same mark, if R ≥ 1 h | Sender | "{other_name} hasn't answered your {session_name} on {date} yet — you can pick another time." | Event sheet (`awaiting`) → Choose another time |
 | `request → cancelled` (48h auto) | Both | "Request was not answered in time and has been automatically cancelled." | None |
 | `planned → cancelled` | Other party | "Your session on {date} at {time} has been cancelled." | None |
 | `planned → review` (cash event, +10min) | Coach | "Mark who paid · {N} sessions" (batched if multiple) | Review queue or s-cash screen |

@@ -2,7 +2,7 @@
 
 > Status: Approved
 > Companion to: [notifications.md](./notifications.md) (infrastructure — registration, delivery, inbox UI, routing internals)
-> Last updated: 2026-08-10
+> Last updated: 2026-09-01
 
 The **single source of truth** for every notification the app sends — what triggers it, who receives it, what copy lands in the push body / inbox row, what template variables backend must pass, where tap routes to.
 
@@ -32,7 +32,11 @@ Each notification has two visible parts on the user's device:
 | 4 | `training_request_declined` | `declined` | Other side declines | P · I | **Request declined** | `{sender_name} declined your {session_name} on {date} at {time}.` | Recipient → Schedule (sheet on the date) | tap | `sender_name, session_name, date, time` |
 | 5 | `coach_rescheduled_training` | `reschedule` | Coach proposes a new time | P · I | **Session moved** | `{coach_name} moved {session_name} to {new_date} at {new_time}.` | Athlete → Schedule (sheet on new_date) | tap + state | `coach_name, session_name, new_date, new_time` (+ optional `old_date`, `old_time`) |
 | 6 | `athlete_rescheduled_training` | `reschedule` | Athlete proposes a new time | P · I | **Session moved** | `{athlete_name} moved {session_name} to {new_date} at {new_time}.` | Coach → Schedule (sheet on new_date) | tap + state | `athlete_name, session_name, new_date, new_time` |
-| 7 | `pending_request_auto_declined` | `expired` | 48h timeout on a pending request | P · I | **Request expired** | `Request for {session_name} with {other_name} on {date} expired — auto-declined after 48h.` | Recipient → Clients → athlete detail (or Coaches → coach detail) | tap | `session_name, other_name, date` |
+| 7 | `pending_request_auto_declined` | `expired` | The request hit `expires_at` without an answer (see § 1.3) | P · I | **Request expired** | `Request for {session_name} with {other_name} on {date} expired — auto-declined after 48h.` *(copy fix pending: the window is no longer always 48h — see § 1.3)* | Recipient → Clients → athlete detail (or Coaches → coach detail) | tap | `session_name, other_name, date` |
+| 7a | `pending_request_reminder` *new 2026-09-01 — spec-ahead* | `reminder` | Ladder step 1 — the request is still `pending` and `expires_at` is approaching (§ 1.3) | P · I | **Request waiting** | `{other_name} is waiting for your answer on {session_name}, {date} at {time} — expires in {time_left}.` | Same target as #1 / #2 (receiver's Requests list) | tap + state | `other_name, session_name, date, time, time_left` |
+| 7b | `pending_request_last_call` *new 2026-09-01 — spec-ahead* | `reminder` | Ladder step 2 — final nudge before `expires_at` (§ 1.3) | P · I | **Expires soon** | `Last chance to answer {other_name}'s {session_name} on {date} — auto-declines in {time_left}.` | Same target as #7a | tap + state | `other_name, session_name, date, time_left` |
+| 7c | `pending_request_sender_nudge` *new 2026-09-01 — spec-ahead* | `reminder` | Fires **once, for the sender**, at the step-2 mark — and only while there is still time to rebook (§ 1.3) | P · I | **Still no answer** | `{other_name} hasn't answered your {session_name} on {date} yet — you can pick another time.` | Sender → Schedule (event sheet, `awaiting` state) with **Choose another time** action | tap + state | `other_name, session_name, date` |
+| 7d | `pending_requests_digest` *new 2026-09-01 — spec-ahead* | `reminder` | Replaces 7a/7b when **3+** of the recipient's requests are due a nudge in the same pass (§ 1.3) | P · I | **Requests waiting** | `{count} requests are waiting for your answer — {expiring_count} expire today.` | Receiver's Requests list (no single event) | tap | `count, expiring_count` |
 | 8 | `athlete_onboarding_completed` | `onboardingDone` | Athlete finishes onboarding and is connected to coach (NOT referral path) | P · I | **Athlete joined** | `{athlete_name} just joined 321Fit and is ready to train with you.` | Coach → Clients → athlete detail | tap | `athlete_name` |
 | 9 | `training_event_cancelled` | `cancelled` | Session cancelled by either side | P · I | **Session cancelled** | `{sender_name} cancelled {session_name} on {date} at {time}.` | Recipient → Schedule (sheet, cancelled state) | tap | `sender_name, session_name, date, time` |
 | 9b | `coach_updated_training` *(shipped #728, documented 2026-08-10)* | `approved` | Coach edits a planned event's **location or price** (not time — a time move is a reschedule, #5/#6). Event returns to pending, athlete must re-confirm | P · I | **Session updated** | `{coach_name} updated {session_name}. Please re-confirm.` | Athlete → Schedule (sheet, pending state) | tap + state | `coach_name, session_name` |
@@ -79,6 +83,61 @@ A flat "1 left" doesn't scale: on a 20-pack it warns on the *last* session of tw
 - **Manual ≠ automatic.** #29 is coach-initiated and independent of the milestone; it exists so a coach can pitch at their own moment ("renew now while the discount holds"). Rate-limited to **once per 7 days per pack** so a coach tapping repeatedly can't hammer the athlete on top of the automatic nudges.
 - **UI must use the same threshold.** The amber "running low" card state + inline **Offer renewal** key off `low_at`, not a hardcoded `1` — otherwise the coach gets "Anna is running low" and opens a green card. See `session-packages.md` § 4.4.
 
+### 1.3 Pending-request reminder ladder *(new 2026-09-01)*
+
+Until now a pending request produced **exactly two** notifications: the initial request (#1 / #2) and, up to 48 h later, the auto-decline (#7). Nothing in between — a coach who did not answer on the first buzz got no second chance, and the athlete learned about it only when the slot was already gone. This section defines the nudges that fill that gap, and the deadline they are anchored to.
+
+#### The deadline — `event_approval.expires_at`
+
+Every nudge is measured **backwards from a stored deadline**, never forwards from creation. Backend writes it once, when the approval row is created:
+
+```
+expires_at = min(submitted_at + 48h, datetime_start − 2h)
+```
+
+- **Why a stored column, not a computed 48 h.** The sweep, the reminder pass and the UI countdown must agree on one instant. A column also gives the client an honest "expires in 6 h" chip on the request card without re-deriving the rule per platform.
+- **Why `datetime_start − 2h`.** The shipped task also auto-declines once `datetime_start` has passed, which means a request for *today 19:00* silently died **at 19:00** — too late for the athlete to book anyone else. Ending the window 2 h before the session gives both sides a chance to re-plan.
+- The 48 h leg stays the product promise quoted in [booking-flow.md](./booking-flow.md) ("coach has 48h to approve"); the second leg only ever makes the window *shorter*, never longer.
+
+#### The ladder
+
+Reminders are placed by **time remaining (R) until `expires_at`**, and the window length decides how many fit:
+
+| Window (`expires_at` − creation) | Step 1 (#7a) | Step 2 (#7b) |
+|---|---|---|
+| ≥ 30 h | R = 24 h | R = 4 h |
+| 6–30 h | 50 % of the window elapsed | R = 1 h |
+| 2–6 h | 50 % of the window elapsed | — |
+| < 2 h | — (the initial push is the whole story) | — |
+
+```
+creation                          R=24h        R=4h      expires_at
+  │ #1/#2 request                   │ #7a        │ #7b      │ #7 expired
+  ●────────────────────────────────►●───────────►●─────────►●
+  └──────────────── 48h window (the common case) ───────────┘
+
+short lead (session in 5h → window = 3h)
+  ●──────────► #7a at 50% ──────────► #7b at R=30min ──────► ●
+```
+
+**Never more than two reminders per request.** A third read as spam in every comparable product (Booking, Airbnb, Calendly) and costs push opt-ins, which are unrecoverable.
+
+#### Rules
+
+- **Escalation, not repetition.** #7a is a neutral nudge; #7b changes tone ("Last chance", "auto-declines in…"). Same category, different templates — never the same string twice.
+- **The sender gets one signal, not a stream** (#7c), fired at the step-2 mark and **only** if `R ≥ 1 h`, i.e. while switching to another slot is still realistic. Below that it is noise about something the sender cannot fix.
+- **Quiet hours 22:00–08:00 in the recipient's timezone.** A nudge due inside quiet hours is **pulled forward to 21:45**, never pushed back to the morning — a deadline-bound reminder delivered after the deadline is worse than none. If the pull-forward would land before the request was even created, the step is skipped.
+- **Digest above 3.** When a single pass owes the same recipient nudges for **3 or more** requests, send one #7d instead of N pushes. Individual inbox rows are still written per request; only the push collapses.
+- **Cap.** Max **3** pushes from this family per recipient per rolling 24 h. Overflow collapses into the next digest.
+- **Inbox stays one row per request.** A nudge **updates** the existing request row (`created_at` bumped so it resurfaces, body replaced) rather than appending a new one. Two nudges must never leave three rows about one booking.
+- **Clearance is inherited, not new.** Accept / decline / cancel / expire already bulk-clears everything referencing that `event_id` (`tap + state`, § 5) — the nudges ride that hook and need no clearance of their own.
+- **Idempotency.** `event_approval.reminders_sent` (smallint) + `last_reminder_at` gate the pass, in the same shape as `cash_overdue_notified_at`. A restarted or double-run beat must not re-fire a step.
+- **One pass, one cadence.** The reminder pass rides the existing `auto_decline_pending_requests` beat, which moves from hourly to **every 15 min** — the cadence [event-statuses.md](./event-statuses.md) § 6 has specified all along, and the precision the R = 1 h / R = 30 min steps need.
+
+#### Scope
+
+Personal `request` / `awaiting` first. The same ladder is the intended pattern for the other "waiting on a human" windows — group join requests, self-paced booking expiry, coach invites — but each has its own window and is **not** covered by this section until it is written up in its own spec.
+
 ### 1.2 Shipped categories owned by other module specs *(added 2026-07-17)*
 
 These enum categories ship on backend `main` but their copy / triggers / routing are owned by the module specs below — registered here so this file accounts for the full 50, not duplicated. Update copy in the owning spec first.
@@ -105,7 +164,7 @@ These enum categories ship on backend `main` but their copy / triggers / routing
 - `coach_profile_approved`, `coach_profile_rejected` — ⚠️ **dead code**: in the enum, never emitted. Either wire them to the moderation flow or drop them from the enum.
 - `coach_rejected_athlete` (listed under Invites above) — ⚠️ same: never emitted.
 
-**Count check (2026-08-10).** § 1 documents **26** enum values in full: #1–11 + `coach_updated_training` #9b + `training_soon` #12 + the 2 phantom reminders #13 + `cash_overdue` #16 + `calendar_sync_needs_attention` #17 + `referred_athlete_joined` #19 + the 9 `package_*` rows #21–29. § 1.2 registers the remaining **24**. 26 + 24 = **50**. (§ 1 rows #11b, #14, #15, #18, #20 are spec-ahead and not in the enum.)
+**Count check (2026-08-10).** § 1 documents **26** enum values in full: #1–11 + `coach_updated_training` #9b + `training_soon` #12 + the 2 phantom reminders #13 + `cash_overdue` #16 + `calendar_sync_needs_attention` #17 + `referred_athlete_joined` #19 + the 9 `package_*` rows #21–29. § 1.2 registers the remaining **24**. 26 + 24 = **50**. (§ 1 rows #7a, #7b, #7c, #7d, #11b, #14, #15, #18, #20 are spec-ahead and not in the enum.)
 
 ### Clearance tag legend
 
@@ -133,6 +192,8 @@ Backend `template_data` dict keys must match these literals exactly — the temp
 | `{rating}` | Review stars | "5" | Used in `new_review` only. |
 | `{pack_size}` | Sessions in the purchased pack (the lot), not the lifetime total | "5" | Session packages. Integer. |
 | `{sessions_left}` | Credits remaining across **all** of that session type's lots (they burn FIFO) | "2" | Session packages. Integer; drives the milestone rules in § 1.1. |
+| `{time_left}` | Rounded human time until `expires_at` | "24 hours" / "4 hours" / "30 minutes" | Pending-request ladder (§ 1.3). Round down to the unit; never render seconds. |
+| `{count}` / `{expiring_count}` | Requests waiting / of those, expiring today | "3" / "2" | `pending_requests_digest` only. Integers. |
 | `{provider}` | "Google" or "Apple" calendar | "Google" | Used in `calendar_sync_needs_attention`. |
 
 **Deprecated** (do not use in new templates; migrate in BE-NOTIF-1):
