@@ -34,6 +34,7 @@ Path root: `project-spec/prototypes/flows/`
 | `calendar.html` | Coach calendar (state-aware event drawer, 96px grid) | any calendar/schedule surface |
 | `clients.html` | Clients CRM (state matrix, Mark Paid, notes) | list-with-detail + context menus |
 | `client-groups.html` | **Client groups** — `Clients \| Groups` pane · group detail (schedule block + members, edit w/ undo) · group schedule (rules + dates by month) · smart groups · create / add-members / rename · **client → groups membership** (opened from the client card) · group chat · group publish drawer | bulk-select + set-of-people surfaces |
+| `client-detail-drafts.html` | **Client Detail explorations (proposal, not shipped)** — A Focus / B Timeline / C Segments answer *what belongs on the screen*; **D Accent budget / E Media grammar / F Both (light)** answer *how it is painted*: one brand-filled surface per screen, and imagery for the objects we control (person → avatar · thing → picture · concept → icon plate). Reference for the palette + media direction, never a clone source for a feature. | accent-colour discipline, media cards, de-tabling a list |
 | `sessions.html` | Training Sessions — create · list · **template detail per type** · series detail · edit (type read-only) · packages | template + object-detail-then-edit flows |
 | `availability.html` | Availability hub (TZ, Time off, conflict drawer) | settings-hub-style screens |
 | `available-hours.html` | Weekly available-hours editor | day/time editors |
