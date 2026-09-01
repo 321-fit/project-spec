@@ -315,11 +315,20 @@
      archive. Header carries chrome only; the circles are the four things you do
      TO a person and never repeat what lives in the menu. */
   #s-draft-client { position: relative; }
+  /* The wash now runs past the action circles and dissolves over ~180px instead
+     of ending on a visible edge: two layers, a radial for the colour and a linear
+     for the landing. */
   #s-draft-client::before {
-    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 430px; z-index: 0; pointer-events: none;
-    background: radial-gradient(125% 78% at 50% -6%, rgba(0,167,208,0.42), rgba(5,224,166,0.12) 46%, transparent 74%);
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 620px; z-index: 0; pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0) 58%, var(--fit-screen-bg) 96%),
+      radial-gradient(135% 62% at 50% -2%, rgba(0,167,208,0.46), rgba(5,224,166,0.16) 42%, rgba(5,224,166,0.05) 62%, transparent 82%);
   }
-  #s-draft-client.fit-light::before { background: radial-gradient(125% 78% at 50% -6%, rgba(0,167,208,0.26), rgba(5,224,166,0.09) 46%, transparent 74%); }
+  #s-draft-client.fit-light::before {
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0) 58%, var(--fit-screen-bg) 96%),
+      radial-gradient(135% 62% at 50% -2%, rgba(0,167,208,0.28), rgba(5,224,166,0.10) 42%, rgba(5,224,166,0.04) 62%, transparent 82%);
+  }
   #s-draft-client .fit-phone-header, #s-draft-client .fit-phone-content { position: relative; z-index: 1; background: transparent; }
   .cd-j-badge { display: none; margin-top: 8px; }
   #s-draft-client.j-crm .cd-j-badge { display: inline-block; padding: 3px 10px; border-radius: 7px; background: var(--fit-surface-higher); font-size: 12px; font-weight: 600; letter-spacing: 0.4px; color: var(--fit-text-secondary); }
@@ -330,17 +339,27 @@
   .cd-j-banner svg { width: 18px; height: 18px; flex-shrink: 0; }
   .cd-j-banner button { margin-left: auto; flex-shrink: 0; height: 32px; padding: 0 14px; border: 1px solid currentColor; border-radius: 99px; background: transparent; font-family: var(--fit-font); font-size: 13px; font-weight: 500; color: inherit; cursor: pointer; }
   /* Sticky so the four actions survive the scroll on a dense client. */
-  .cd-j-acts { position: sticky; top: 0; z-index: 4; padding: 16px 12px 10px; backdrop-filter: blur(14px); }
-  .cd-j-acts::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(20,22,24,0.55), rgba(20,22,24,0)); }
-  .fit-light .cd-j-acts::after { background: linear-gradient(180deg, rgba(246,247,249,0.75), rgba(246,247,249,0)); }
-  .cd-j-c-invite, .cd-j-c-sell { display: none; }
+  .cd-j-acts { position: sticky; top: 0; z-index: 4; padding: 16px 12px 24px; }
+  /* The blur lives on a masked layer so the sticky bar has no visible edge where
+     the filter region stops. */
+  .cd-j-acts::before {
+    content: ""; position: absolute; inset: -8px 0 0; z-index: -1;
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    background: linear-gradient(180deg, rgba(16,18,20,0.92) 72%, rgba(16,18,20,0.55) 100%);
+    -webkit-mask-image: linear-gradient(180deg, #000 84%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 84%, transparent 100%);
+  }
+  #s-draft-client.fit-light .cd-j-acts::before { background: linear-gradient(180deg, rgba(242,242,247,0.95) 72%, rgba(242,242,247,0.6) 100%); }
+  .cd-j-c-invite { display: none; }
+  .fit-action-circle { position: relative; }
+  .cd-j-badge-n { position: absolute; top: -2px; right: 8px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 99px; background: var(--fit-red-400); color: #fff; font-size: 12px; font-weight: 600; line-height: 20px; text-align: center; }
+  .cd-j-badge-n.calm { background: var(--fit-surface-higher); color: var(--fit-text-secondary); }
   #s-draft-client.j-crm .cd-j-c-msg { display: none; }
   #s-draft-client.j-crm .cd-j-c-invite { display: flex; }
-  #s-draft-client.j-clean .cd-j-c-cash { display: none; }
-  #s-draft-client.j-clean .cd-j-c-sell { display: flex; }
   #s-draft-client.j-blocked .cd-j-sec-next, #s-draft-client.j-blocked .cd-j-sec-week { display: none; }
   #s-draft-client.j-blocked .cd-j-chip:not(.due) { display: none; }
-  #s-draft-client.j-blocked .cd-j-c-book, #s-draft-client.j-blocked .cd-j-c-msg { opacity: 0.32; pointer-events: none; }
+  #s-draft-client.j-blocked .cd-j-c-book, #s-draft-client.j-blocked .cd-j-c-msg,
+  #s-draft-client.j-blocked .cd-j-c-self, #s-draft-client.j-blocked .cd-j-c-pack { opacity: 0.32; pointer-events: none; }
   /* "Needs you" — the only block with variable visibility at the top. It replaces
      the pending-payments carousel, the self-paced To-review bucket and the request
      banner: three scattered blocks, one line, gone when there is nothing to do. */
@@ -354,6 +373,16 @@
   .cd-j-chip.due i { background: var(--fit-red-400); }
   .cd-j-chip.warn i { background: var(--fit-yellow-400); }
   .cd-j-chip.ask i { background: var(--fit-brand-primary); }
+  .cd-j-thead { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .cd-j-thumb { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; background-size: cover; background-position: center; }
+  .cd-j-plate { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--fit-surface-higher); color: var(--fit-text-secondary); }
+  .fit-light .cd-j-plate { background: var(--fit-gray-100); }
+  .cd-j-plate svg { width: 17px; height: 17px; }
+  .cd-j-faces { display: flex; flex-shrink: 0; }
+  .cd-j-face { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; background: var(--fit-surface-higher); color: var(--fit-text-secondary); box-shadow: 0 0 0 2px var(--fit-surface-high); }
+  .fit-light .cd-j-face { background: var(--fit-gray-100); box-shadow: 0 0 0 2px var(--fit-white); }
+  .cd-j-face + .cd-j-face { margin-left: -9px; }
+  .cd-j-tt { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
   .cd-j-note { font-size: 13px; line-height: 1.45; color: var(--fit-text-secondary); margin-top: 6px; }
 
   #s-draft-segments [data-cpane] { display: none; }
@@ -1139,11 +1168,10 @@
     <div class="cd-j-acts">
       <div class="fit-action-circles">
         <button class="fit-action-circle fit-action-circle--primary cd-press cd-j-c-book"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></i><span>Book</span></button>
-        <button class="fit-action-circle cd-press cd-j-c-msg"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></i><span>Message</span></button>
+        <button class="fit-action-circle cd-press cd-j-c-msg"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></i><span>Message</span><span class="cd-j-badge-n calm">2</span></button>
         <button class="fit-action-circle cd-press cd-j-c-invite"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></i><span>Invite</span></button>
-        <button class="fit-action-circle cd-press cd-j-c-cash"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></i><span>Mark paid</span></button>
-        <button class="fit-action-circle cd-press cd-j-c-sell"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7L12 12l8.7-5M12 22V12"/></svg></i><span>Sell pack</span></button>
-        <button class="fit-action-circle cd-press"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></i><span>Note</span></button>
+        <button class="fit-action-circle cd-press cd-j-c-self"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z"/></svg></i><span>Self-paced</span><span class="cd-j-badge-n">2</span></button>
+        <button class="fit-action-circle cd-press cd-j-c-pack"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7L12 12l8.7-5M12 22V12"/></svg></i><span>Packages</span><span class="cd-j-badge-n calm">1</span></button>
       </div>
     </div>
 
@@ -1222,18 +1250,26 @@
     <div class="cd-in" style="padding-bottom:22px;">
       <div class="cd-i-sec">Anna <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
       <div class="cd-i-grid">
+        <!-- A group is people: show the people. -->
         <div class="cd-i-tile cd-press">
-          <div class="cd-i-tv">2</div><div class="cd-i-tl">Groups &middot; Morning crew, Beginners</div>
+          <div class="cd-j-thead">
+            <div class="cd-j-faces"><span class="cd-j-face">MK</span><span class="cd-j-face">TP</span><span class="cd-j-face">+4</span></div>
+          </div>
+          <div class="cd-j-tt">2 groups</div>
+          <div class="cd-i-tl">Morning crew, Beginners</div>
         </div>
+        <!-- An address is a place: show the map. -->
         <div class="cd-i-tile cd-press">
-          <div class="cd-i-tv">2</div><div class="cd-i-tl">Home addresses &middot; Home, Work</div>
+          <div class="cd-j-thead"><div class="cd-j-thumb" style="background-image:var(--cd-img-map);"></div></div>
+          <div class="cd-j-tt">2 addresses</div>
+          <div class="cd-i-tl">Home &middot; Work &middot; home visits</div>
         </div>
         <div class="cd-i-tile cd-press" style="grid-column:1 / -1;">
-          <div class="cd-i-tl" style="margin:0 0 4px;">Note</div>
+          <div class="cd-j-thead"><div class="cd-j-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div><div class="cd-j-tt">Note</div></div>
           <div class="cd-j-note">Left knee &mdash; no jumping drills. Mornings only, works late shifts. Prefers cash.</div>
         </div>
         <div class="cd-i-tile cd-press" style="grid-column:1 / -1;">
-          <div class="cd-i-tv">47 sessions</div><div class="cd-i-tl">History &middot; since Jan &middot; 3 missed</div>
+          <div class="cd-j-thead"><div class="cd-j-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div style="flex:1;"><div class="cd-j-tt">47 sessions</div><div class="cd-i-tl">since Jan &middot; 3 missed</div></div><span style="color:var(--fit-text-tertiary);font-size:13px;">History</span></div>
         </div>
       </div>
     </div>
@@ -1374,20 +1410,21 @@
     <h3 style="font-size:16px;margin-top:18px;">The four duplications this removes</h3>
     <ul>
       <li><strong>Message</strong> was in the header <em>and</em> in the circles &rarr; header is chrome only: back and &ctdot;.</li>
-      <li><strong>The fourth circle was &ctdot;</strong>, sitting 40px from the header's &ctdot; &rarr; the circles are now four real actions and never a menu.</li>
+      <li><strong>The fourth circle was &ctdot;</strong>, sitting 40px from the header's &ctdot; &rarr; the circles are now four real destinations and never a menu.</li>
       <li><strong>Schedule training</strong> had three entrances (menu, circle, empty-state button) &rarr; one circle, plus the CTA that takes over the Next-session slot when nothing is booked.</li>
       <li><strong>The stats card</strong> repeated Owed (also in the payments carousel) and Upcoming (also This week) &rarr; deleted; lifetime sessions moved into the subtitle, revenue behind the Money chevron.</li>
     </ul>
     <h3 style="font-size:16px;margin-top:18px;">The rules it proposes</h3>
     <ul>
-      <li><strong>Circles = what you do to a person. &ctdot; = how you administer the relationship.</strong> Book / Message / Mark paid / Note against Edit info, Add to group, Invite, Archive, Block. No overlap, and the split is memorable.</li>
-      <li><strong>The third circle is contextual:</strong> money owed &rarr; <em>Mark paid</em>; nothing owed &rarr; <em>Sell pack</em>. A CRM contact has no app account, so <em>Message</em> becomes <em>Invite</em>.</li>
+      <li><strong>Circles carry the weight, not the errands.</strong> <em>Book &middot; Message &middot; Self-paced &middot; Packages</em> &mdash; the four heavy things a coaching relationship contains, each with its own count. <em>Mark paid</em> and <em>Note</em> were tried here and pulled: a one-tap errand does not deserve the largest control on the screen. Mark paid now rides the &euro;70 chip in <em>Needs you</em> and the Money tile, where it is already in context; Note is a tile with its text visible.</li>
+      <li><strong>The slot is fixed, not contextual.</strong> An earlier pass swapped the third circle by state (Mark paid / Sell pack) &mdash; a button that moves under the thumb is how wrong taps happen. The only swap left is forced by reality: a CRM contact has no app account, so <em>Message</em> becomes <em>Invite</em>.</li>
       <li><strong>"Needs you" is the only variable block at the top</strong> and it absorbs three scattered ones &mdash; the pending-payments carousel, self-paced <em>To review</em>, and an open request. When there is nothing to answer it disappears entirely (see the <em>nothing to do</em> state).</li>
       <li><strong>The state banner sits above the actions</strong>, because it decides which are legal. Blocked greys Book and Message but never Mark paid &mdash; the spec is explicit that cash stays settleable through archive, block and deletion.</li>
-      <li><strong>Assets became tiles</strong> (groups, addresses, note, history) so the scroll stops being one column of identical rows. The note shows its text: it is the single most useful thing to see without tapping.</li>
+      <li><strong>Assets became tiles, and every tile leads with a visual</strong> &mdash; a group is people (stacked faces), an address is a place (map thumbnail), a note and a history are concepts (icon plates). Four unlabelled text tiles were unreadable at a glance; the visual is what makes the grid scannable. The note shows its text: it is the single most useful thing to see without tapping.</li>
+      <li><strong>The wash runs past the circles</strong> and dissolves over ~180px into the canvas instead of ending on an edge, and the sticky bar frosts what scrolls under it with a masked blur, so it has no visible boundary either.</li>
       <li><strong>The circles are sticky.</strong> On a dense client they used to scroll away with the first flick.</li>
     </ul>
-    <div class="cost"><strong>What it costs:</strong> a contextual third circle means the button in that slot moves under the coach's thumb depending on state &mdash; muscle memory suffers, and "Mark paid" appearing where "Sell pack" was is the kind of swap that produces a wrong tap. Worth testing against a fixed fourth circle with a badge. The note preview is also a real exposure decision: it is medical and financial detail rendered on a screen someone else can see over a shoulder.</div>
+    <div class="cost"><strong>What it costs:</strong> promoting Self-paced and Packages to circles means the two most frequent errands &mdash; marking cash paid and jotting a note &mdash; are now one level deeper, reachable through a chip or a tile rather than a fixed control. If a coach settles cash ten times a day, that trade is wrong and Mark paid earns the circle back. The note preview is also a real exposure decision: it is medical and financial detail rendered on a screen someone else can see over a shoulder.</div>
     <p class="note">Sidebar states: <em>nothing to do</em> (no debt, no reviews &rarr; Needs-you gone, third circle becomes Sell pack), <em>CRM contact</em> (badge, Invite instead of Message), <em>blocked</em> (banner, Book/Message dead, Mark paid alive).</p>
   </div>
 
