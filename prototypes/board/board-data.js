@@ -3278,7 +3278,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-focus",
-          "hash": "7732ba6f0d17",
+          "hash": "ecbc08dd1b6f",
           "title": "A · Focus card",
           "inApp": "",
           "status": "proposal",
@@ -3297,7 +3297,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-timeline",
-          "hash": "a5bb38e1eb42",
+          "hash": "ef3aa8559314",
           "title": "B · Timeline",
           "inApp": "",
           "status": "proposal",
@@ -3317,7 +3317,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-segments",
-          "hash": "468e20596fe2",
+          "hash": "aa732607d7a2",
           "title": "C · Segments",
           "inApp": "",
           "status": "proposal",
@@ -3337,7 +3337,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-accent",
-          "hash": "5921b236a24d",
+          "hash": "ce6c4f49a6e2",
           "title": "D · Accent budget",
           "inApp": "",
           "status": "proposal",
@@ -3357,7 +3357,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-media",
-          "hash": "8c2c4f68ee9c",
+          "hash": "260ba473fb3f",
           "title": "E · Media grammar",
           "inApp": "",
           "status": "proposal",
@@ -3377,7 +3377,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-quiet",
-          "hash": "db55a4ee6560",
+          "hash": "684db33f57e7",
           "title": "F · Both (light)",
           "inApp": "",
           "status": "proposal",
@@ -3397,7 +3397,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-floating",
-          "hash": "871446c8ca28",
+          "hash": "b55b662827fd",
           "title": "G · Floating panels",
           "inApp": "",
           "status": "proposal",
@@ -3417,7 +3417,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-tiles",
-          "hash": "8bf8b7b5e61f",
+          "hash": "245f1d53932d",
           "title": "H · Big title + tiles",
           "inApp": "",
           "status": "proposal",
@@ -3434,6 +3434,30 @@ window.FIT_BOARD = {
           "orphan": true,
           "level": 1,
           "order": 6
+        },
+        {
+          "id": "s-draft-full",
+          "hash": "f52cae1f10e1",
+          "title": "I · Floating, filled",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "What changed from G, point by point:",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-draft-full.webp",
+              "label": ""
+            },
+            {
+              "file": "coach-client-detail-drafts__s-draft-full__no-next-session.webp",
+              "label": "No next session → CTA in the same slot"
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 7
         }
       ],
       "edges": []

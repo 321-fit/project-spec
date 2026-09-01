@@ -258,6 +258,57 @@
   .cd-h-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; }
   .cd-h-thumb { width: 44px; height: 44px; border-radius: 12px; background-size: cover; background-position: center; flex-shrink: 0; }
 
+  /* --- I: FLOATING, FILLED -------------------------------------------------
+     G with the notes from review: the wash now starts above the status bar (the
+     black band under a phone chrome is not a design, it is a leak), the header
+     is only chrome, identity is bigger, and the next session moved OUT of the
+     header into the first section under the action circles. Density is deliberate
+     — a bare screen proves nothing about how the language behaves at scale. */
+  #s-draft-full { position: relative; }
+  #s-draft-full::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 430px; z-index: 0; pointer-events: none;
+    background: radial-gradient(125% 78% at 50% -6%, rgba(0,167,208,0.42), rgba(5,224,166,0.12) 46%, transparent 74%);
+  }
+  #s-draft-full.fit-light::before {
+    background: radial-gradient(125% 78% at 50% -6%, rgba(0,167,208,0.26), rgba(5,224,166,0.09) 46%, transparent 74%);
+  }
+  #s-draft-full .fit-phone-header, #s-draft-full .fit-phone-content { position: relative; z-index: 1; background: transparent; }
+  .cd-i-id { text-align: center; padding: 6px 16px 2px; }
+  .cd-i-av { width: 84px; height: 84px; border-radius: 50%; margin: 0 auto 12px; background: var(--fit-surface-higher); color: var(--fit-text-primary); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 600; }
+  .fit-light .cd-i-av { background: rgba(255,255,255,0.75); }
+  .cd-i-name { font-size: 28px; font-weight: 700; letter-spacing: -0.4px; color: var(--fit-text-primary); }
+  .cd-i-sub { font-size: 14px; color: var(--fit-text-secondary); margin-top: 5px; }
+  /* Section titles live outside the panel here — the panel is the answer, the
+     title is the question, and Revolut keeps them on different planes. */
+  .cd-i-sec { display: flex; align-items: center; gap: 6px; padding: 20px 20px 8px 20px; font-size: 15px; font-weight: 600; color: var(--fit-text-secondary); cursor: pointer; }
+  .cd-i-sec svg { width: 14px; height: 14px; color: var(--fit-text-tertiary); }
+  .cd-i-sec span { margin-left: auto; font-size: 13px; font-weight: 500; color: var(--fit-text-tertiary); }
+  .cd-i-panel { margin: 0 16px; padding: 6px; border-radius: 22px; background: var(--fit-surface-high); }
+  .fit-light .cd-i-panel { background: var(--fit-white); box-shadow: 0 8px 26px rgba(0,0,0,0.07); }
+  .cd-i-next { padding: 14px; }
+  .cd-i-nrow { display: flex; align-items: center; gap: 12px; }
+  .cd-i-when { font-size: 17px; font-weight: 600; color: var(--fit-text-primary); }
+  .cd-i-what { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; }
+  .cd-i-nacts { display: flex; gap: 8px; margin-top: 12px; }
+  .cd-i-nacts button { flex: 1; height: 40px; border: none; border-radius: 99px; font-family: var(--fit-font); font-size: 15px; font-weight: 500; cursor: pointer; background: var(--fit-surface-higher); color: var(--fit-text-primary); }
+  .fit-light .cd-i-nacts button { background: var(--fit-gray-100); }
+  /* Empty next-session → the CTA takes the same slot, and is then the one filled
+     brand surface on the screen. Never both. */
+  .cd-i-empty { display: none; padding: 16px; text-align: center; }
+  .cd-i-empty p { font-size: 14px; color: var(--fit-text-tertiary); margin-bottom: 12px; }
+  #s-draft-full.no-next .cd-i-next { display: none; }
+  #s-draft-full.no-next .cd-i-empty { display: block; }
+  /* One section as tiles instead of a list — same data, different grammar, so the
+     scroll stops being one long column of identical rows. */
+  .cd-i-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 16px; }
+  .cd-i-tile { padding: 14px; border-radius: 18px; background: var(--fit-surface-high); cursor: pointer; }
+  .fit-light .cd-i-tile { background: var(--fit-white); box-shadow: 0 8px 26px rgba(0,0,0,0.07); }
+  .cd-i-tv { font-size: 22px; font-weight: 700; color: var(--fit-text-primary); letter-spacing: -0.3px; }
+  .cd-i-tv.due { color: var(--fit-red-400); }
+  .cd-i-tl { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; }
+  .cd-i-tbar { height: 4px; border-radius: 99px; background: var(--fit-divider); margin-top: 10px; overflow: hidden; }
+  .cd-i-tbar i { display: block; height: 100%; width: 80%; border-radius: 99px; background: var(--fit-brand-secondary); }
+
   #s-draft-segments [data-cpane] { display: none; }
   #s-draft-segments.cp-train [data-cpane="train"] { display: block; }
   #s-draft-segments.cp-money [data-cpane="money"] { display: block; }
@@ -284,6 +335,8 @@
   <div class="label">Shape &amp; chrome</div>
   <button onclick="go('s-draft-floating',this)">G &middot; Floating panels</button>
   <button onclick="go('s-draft-tiles',this)">H &middot; Big title + tiles</button>
+  <button onclick="go('s-draft-full',this)">I &middot; Floating, filled</button>
+  <button onclick="toggleNoNext(this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; no next session</button>
   <div class="label">Compare with</div>
   <button onclick="window.location.href='./clients.html#s-client-detail'">Client Detail (live) &rarr;</button>
   <button onclick="window.location.href='../athlete/my-coaches.html#s-coach-detail'">Coach Detail (live) &rarr;</button>
@@ -879,6 +932,128 @@
   </div>
 </div>
 
+
+<!-- ==================== I · FLOATING, FILLED ==================== -->
+<!-- G, taken as the base and answered against review: wash to the very top (the
+     black band was a leak, not a design), header reduced to chrome, identity
+     bigger, next session moved out of the header into the first section under
+     the circles, and one section rendered as tiles instead of a list. Loaded
+     with a realistic client so the language is tested at density, not on two rows. -->
+<div class="fit-phone fit-dark cd-media" id="s-draft-full" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="cd-g-top">
+      <button class="cd-g-circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span style="flex:1;"></span>
+      <button class="cd-g-circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+      <button class="cd-g-circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <div class="cd-i-id cd-in">
+      <div class="cd-i-av">AK</div>
+      <div class="cd-i-name">Anna Kowalski</div>
+      <div class="cd-i-sub">Tennis &middot; 8 months together &middot; 47 sessions</div>
+    </div>
+
+    <div class="cd-g-acts cd-in" style="padding-top:16px;">
+      <div class="fit-action-circles">
+        <button class="fit-action-circle fit-action-circle--primary cd-press"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></i><span>Book</span></button>
+        <button class="fit-action-circle cd-press"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></i><span>Message</span></button>
+        <button class="fit-action-circle cd-press"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 11h20"/></svg></i><span>Money</span></button>
+        <button class="fit-action-circle cd-press"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></i><span>More</span></button>
+      </div>
+    </div>
+
+    <div class="cd-in">
+      <div class="cd-i-sec">Next session <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="cd-i-panel">
+        <div class="cd-i-next">
+          <div class="cd-i-nrow">
+            <div class="cd-m-tile t-tennis" style="width:46px;height:46px;"></div>
+            <div style="flex:1;min-width:0;">
+              <div class="cd-i-when">Tomorrow &middot; 10:00</div>
+              <div class="cd-i-what">Tennis &middot; 60 min &middot; TNT Studio, court 3</div>
+            </div>
+          </div>
+          <div class="cd-i-nacts">
+            <button class="cd-press">Open</button>
+            <button class="cd-press">Reschedule</button>
+          </div>
+        </div>
+        <!-- Same slot, empty state: then the CTA is the one filled brand surface. -->
+        <div class="cd-i-empty">
+          <p>Nothing booked with Anna. Last session was 4 days ago.</p>
+          <button class="fit-btn fit-btn-primary cd-press">Book a session</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cd-in">
+      <div class="cd-i-sec">Money <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg><span>&euro;70 owed</span></div>
+      <div class="cd-i-grid">
+        <div class="cd-i-tile cd-press">
+          <div class="cd-i-tv due">&euro;70</div>
+          <div class="cd-i-tl">Owed &middot; 2 sessions, cash</div>
+        </div>
+        <div class="cd-i-tile cd-press">
+          <div class="cd-i-tv">1 left</div>
+          <div class="cd-i-tl">Tennis pack &middot; 4 of 5 used</div>
+          <div class="cd-i-tbar"><i></i></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cd-in">
+      <div class="cd-i-sec">This week <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg><span>3 sessions</span></div>
+      <div class="cd-i-panel">
+        <div class="cd-g-row cd-press">
+          <div class="cd-m-tile t-tennis" style="width:40px;height:40px;border-radius:12px;"></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Tennis &middot; 60 min</div><div class="cd-g-r2">Thu 10:00 &middot; TNT Studio</div></div>
+          <div class="cd-g-rv">&euro;35</div>
+        </div>
+        <div class="cd-g-row cd-press">
+          <div class="cd-m-tile t-group" style="width:40px;height:40px;border-radius:12px;"></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Morning crew</div><div class="cd-g-r2">Sat 08:00 &middot; 6 people</div></div>
+          <div class="cd-g-rv">&euro;12</div>
+        </div>
+        <div class="cd-g-row cd-press">
+          <div class="cd-m-tile t-gym" style="width:40px;height:40px;border-radius:12px;background-image:var(--cd-img-gym);"></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Home workout</div><div class="cd-g-r2">Sun &middot; self-paced, due 20:00</div></div>
+          <div class="cd-g-rv"><small>sent</small></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cd-in">
+      <div class="cd-i-sec">More <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="cd-i-grid">
+        <div class="cd-i-tile cd-press"><div class="cd-i-tv">1 of 3</div><div class="cd-i-tl">Self-paced &middot; 2 to review</div></div>
+        <div class="cd-i-tile cd-press"><div class="cd-i-tv">2</div><div class="cd-i-tl">Groups &middot; Morning crew, Spring</div></div>
+        <div class="cd-i-tile cd-press"><div class="cd-i-tv">47</div><div class="cd-i-tl">History &middot; since Jan</div></div>
+        <div class="cd-i-tile cd-press"><div class="cd-i-tv">Note</div><div class="cd-i-tl">Knee, mornings only</div></div>
+      </div>
+    </div>
+
+    <div class="cd-in" style="padding-bottom:22px;">
+      <div class="cd-i-sec">Recent <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="cd-i-panel">
+        <div class="cd-g-row cd-press">
+          <div class="cd-m-tile t-tennis" style="width:40px;height:40px;border-radius:12px;"></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Tennis &middot; 60 min</div><div class="cd-g-r2">28 Aug &middot; cash</div></div>
+          <button class="cd-h-pill cd-press" style="margin-top:0;">Mark paid</button>
+        </div>
+        <div class="cd-g-row cd-press">
+          <div class="cd-m-tile t-gym" style="width:40px;height:40px;border-radius:12px;background-image:var(--cd-img-gym);"></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Home workout</div><div class="cd-g-r2">27 Aug &middot; clip submitted</div></div>
+          <button class="cd-h-pill cd-press" style="margin-top:0;">Review</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
 
@@ -990,6 +1165,22 @@
     <p class="note">Both G and H drop the footer CTA on purpose. Worth watching whether the screen still answers "book a session" fast enough &mdash; if not, the answer is probably H's tile grid plus a footer, not a return to the old header.</p>
   </div>
 
+  <div class="ann" id="ann-s-draft-full"><span class="ann-role">Coach &middot; draft I &middot; G reworked</span>
+    <h3>I &middot; Floating, filled</h3>
+    <div class="bet"><strong>Bet:</strong> G's language is right, but it was proven on an empty screen. This is the same language on a client who actually has a life &mdash; a debt, a pack, three things this week, two groups, a clip to review.</div>
+    <p><strong>What changed from G, point by point:</strong></p>
+    <ul>
+      <li><strong>The wash starts above the status bar.</strong> The black band under the phone chrome was a leak, not a design &mdash; the gradient now owns the whole top of the device and the header floats in it.</li>
+      <li><strong>The header is chrome only</strong> &mdash; back, message, &ctdot;. No title, no state, no session.</li>
+      <li><strong>Identity got the room it earns:</strong> 84px avatar, the name at 28px. This is a screen about a person; the person should be the largest thing on it.</li>
+      <li><strong>The next session left the header</strong> and became the <em>first section</em> under the circles, with its own actions. And when there is nothing booked, <strong>the same slot carries the CTA</strong> ("no next session" in the sidebar toggles it) &mdash; so the primary action never disappears, it just changes shape. That is also the only moment a brand-filled button exists on this screen.</li>
+      <li><strong>Sections came back from D</strong> &mdash; a title outside the panel, a chevron into the full list, and a count on the right where a count means something ("&euro;70 owed", "3 sessions").</li>
+      <li><strong>One section is a tile grid, not a list</strong> (Money as two tiles, More as four). Same data, different grammar &mdash; and it breaks the single long column that made every draft feel like a table.</li>
+    </ul>
+    <div class="cost"><strong>What it costs:</strong> the screen is now long &mdash; five sections deep, which is the honest length for this much state, but it means the circles scroll away and the coach loses the actions after one flick. Worth testing a sticky circle row, or accepting that "Book" also lives in the Next-session slot. And the tile grid caps at four: a fifth thing under <em>More</em> either replaces one or reopens the list.</div>
+    <p class="note">Density on purpose: the earlier drafts looked calm because Anna had two rows. This is the version to judge &mdash; a language that only holds at bare minimum will break the first time a real client opens.</p>
+  </div>
+
 </div>
 
 <script src="../../lib/fit-ui.js"></script>
@@ -1004,6 +1195,12 @@ function go(id, btn) {
   if (ann) ann.classList.add('active');
   if (window.FitUI) FitUI.initAll(document.getElementById(id));
   countUp(document.getElementById(id));
+}
+function toggleNoNext(btn) {
+  var el = document.getElementById('s-draft-full');
+  if (!el.classList.contains('active')) { go('s-draft-full', document.querySelector('.sidebar button[onclick*="s-draft-full"]')); }
+  el.classList.toggle('no-next');
+  if (btn) btn.style.color = el.classList.contains('no-next') ? 'var(--fit-teal-500)' : '';
 }
 function cPane(name, btn) {
   var el = document.getElementById('s-draft-segments');

@@ -116,6 +116,9 @@ export const ORDER = [
 export const STATES = {
   // Contextual AI entry — every mounted point gets an open quick-start shot and
   // a second shot after its first screen-specific prompt starts the chat.
+  "flows/coach/client-detail-drafts.html#s-draft-full": [
+    { id: "no-next-session", label: "No next session → CTA in the same slot", run: "document.getElementById('s-draft-full').classList.add('no-next')" },
+  ],
   "flows/coach/clients.html#s-client-detail": [
     { id: "ai-quick-starts", label: "AI · 3 contextual quick actions", run: "document.querySelector('#s-client-detail .fit-guide-fab').click()", wait: 250 },
     { id: "ai-chat", label: "AI · full-screen chat from first action", run: "document.querySelector('#s-client-detail .fit-guide-fab').click();document.querySelector('#s-client-detail .fit-guide-prompt').click()", wait: 250 },
