@@ -409,6 +409,27 @@
   #s-draft-alpha .cd-j-badge-n.calm { background: rgba(255,255,255,0.18); color: #fff; }
   #s-draft-alpha .cd-i-tbar { background: rgba(255,255,255,0.16); }
 
+  /* --- J/K shared refinements ---------------------------------------------
+     The shipped .fit-action-circle is 64px with a 30px glyph. On a row of four
+     that is most of the width above the fold; Revolut's sit around 52. Local
+     override, not a token change — if the smaller size wins on both screens it
+     goes into fit-ui.css as a size variant, not as a redefinition. */
+  #s-draft-client .fit-action-circle i, #s-draft-alpha .fit-action-circle i { width: 52px; height: 52px; }
+  #s-draft-client .fit-action-circle i svg, #s-draft-alpha .fit-action-circle i svg { width: 23px; height: 23px; }
+  #s-draft-client .fit-action-circle, #s-draft-alpha .fit-action-circle { gap: 8px; }
+  #s-draft-client .fit-action-circle span, #s-draft-alpha .fit-action-circle span { font-size: 12px; }
+  #s-draft-client .cd-j-badge-n, #s-draft-alpha .cd-j-badge-n { top: -1px; right: 16px; min-width: 18px; height: 18px; line-height: 18px; font-size: 11px; }
+  /* Money as one widget: the debt is the headline and carries its own action,
+     the rest of the money picture reads underneath it. */
+  .cd-j-money { padding: 14px 14px 12px; }
+  .cd-j-money-top { display: flex; align-items: flex-start; gap: 12px; }
+  .cd-j-money-v { font-size: 30px; font-weight: 700; letter-spacing: -0.6px; color: var(--fit-text-primary); }
+  .cd-j-money-v.due { color: var(--fit-red-400); }
+  .cd-j-money-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .cd-j-money-rule { height: 1px; background: var(--fit-divider); margin: 14px 0 12px; }
+  .cd-j-money-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .cd-j-money-s { font-size: 17px; font-weight: 600; color: var(--fit-text-primary); }
+
   #s-draft-segments [data-cpane] { display: none; }
   #s-draft-segments.cp-train [data-cpane="train"] { display: block; }
   #s-draft-segments.cp-money [data-cpane="money"] { display: block; }
@@ -1234,6 +1255,35 @@
       </div>
     </div>
 
+    <!-- Money: the stats card is gone (Owed lived there AND in the carousel;
+         Upcoming duplicated This week). One widget instead of two tiles — the
+         debt is the headline and carries its own action, everything else reads
+         underneath it. -->
+    <div class="cd-in">
+      <div class="cd-i-sec">Money <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg><span>&euro;1 640 earned</span></div>
+      <div class="cd-i-panel cd-j-money">
+        <div class="cd-j-money-top">
+          <div style="flex:1;min-width:0;">
+            <div class="cd-j-money-v due">&euro;70</div>
+            <div class="cd-j-money-sub">Owed &middot; 2 sessions, cash &middot; oldest 12 days</div>
+          </div>
+          <button class="cd-h-pill cd-press" style="margin-top:4px;">Mark paid</button>
+        </div>
+        <div class="cd-j-money-rule"></div>
+        <div class="cd-j-money-grid">
+          <div>
+            <div class="cd-j-money-s">&euro;320</div>
+            <div class="cd-i-tl">Paid this month &middot; 8 sessions</div>
+          </div>
+          <div>
+            <div class="cd-j-money-s">1 left</div>
+            <div class="cd-i-tl">Tennis pack &middot; 4 of 5 used</div>
+            <div class="cd-i-tbar"><i></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="cd-in cd-j-sec-week">
       <div class="cd-i-sec">This week <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg><span>3 sessions</span></div>
       <div class="cd-i-panel">
@@ -1251,23 +1301,6 @@
           <div class="cd-m-tile" style="width:40px;height:40px;border-radius:12px;background-image:var(--cd-img-gym);"></div>
           <div class="cd-g-rt"><div class="cd-g-r1">Home workout</div><div class="cd-g-r2">Sun &middot; self-paced, due 20:00</div></div>
           <div class="cd-g-rv"><small>sent</small></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Money: the stats card is gone. Owed lived there AND in the carousel;
-         Upcoming duplicated This week; lifetime revenue moved behind the chevron. -->
-    <div class="cd-in">
-      <div class="cd-i-sec">Money <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg><span>&euro;1 640 earned</span></div>
-      <div class="cd-i-grid">
-        <div class="cd-i-tile cd-press">
-          <div class="cd-i-tv due">&euro;70</div>
-          <div class="cd-i-tl">Owed &middot; 2 sessions, cash</div>
-        </div>
-        <div class="cd-i-tile cd-press">
-          <div class="cd-i-tv">1 left</div>
-          <div class="cd-i-tl">Tennis pack &middot; 4 of 5 used</div>
-          <div class="cd-i-tbar"><i></i></div>
         </div>
       </div>
     </div>
@@ -1377,6 +1410,35 @@
       </div>
     </div>
 
+    <!-- Money: the stats card is gone (Owed lived there AND in the carousel;
+         Upcoming duplicated This week). One widget instead of two tiles — the
+         debt is the headline and carries its own action, everything else reads
+         underneath it. -->
+    <div class="cd-in">
+      <div class="cd-i-sec">Money <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg><span>&euro;1 640 earned</span></div>
+      <div class="cd-i-panel cd-j-money">
+        <div class="cd-j-money-top">
+          <div style="flex:1;min-width:0;">
+            <div class="cd-j-money-v due">&euro;70</div>
+            <div class="cd-j-money-sub">Owed &middot; 2 sessions, cash &middot; oldest 12 days</div>
+          </div>
+          <button class="cd-h-pill cd-press" style="margin-top:4px;">Mark paid</button>
+        </div>
+        <div class="cd-j-money-rule"></div>
+        <div class="cd-j-money-grid">
+          <div>
+            <div class="cd-j-money-s">&euro;320</div>
+            <div class="cd-i-tl">Paid this month &middot; 8 sessions</div>
+          </div>
+          <div>
+            <div class="cd-j-money-s">1 left</div>
+            <div class="cd-i-tl">Tennis pack &middot; 4 of 5 used</div>
+            <div class="cd-i-tbar"><i></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="cd-in cd-j-sec-week">
       <div class="cd-i-sec">This week <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg><span>3 sessions</span></div>
       <div class="cd-i-panel">
@@ -1394,23 +1456,6 @@
           <div class="cd-m-tile" style="width:40px;height:40px;border-radius:12px;background-image:var(--cd-img-gym);"></div>
           <div class="cd-g-rt"><div class="cd-g-r1">Home workout</div><div class="cd-g-r2">Sun &middot; self-paced, due 20:00</div></div>
           <div class="cd-g-rv"><small>sent</small></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Money: the stats card is gone. Owed lived there AND in the carousel;
-         Upcoming duplicated This week; lifetime revenue moved behind the chevron. -->
-    <div class="cd-in">
-      <div class="cd-i-sec">Money <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg><span>&euro;1 640 earned</span></div>
-      <div class="cd-i-grid">
-        <div class="cd-i-tile cd-press">
-          <div class="cd-i-tv due">&euro;70</div>
-          <div class="cd-i-tl">Owed &middot; 2 sessions, cash</div>
-        </div>
-        <div class="cd-i-tile cd-press">
-          <div class="cd-i-tv">1 left</div>
-          <div class="cd-i-tl">Tennis pack &middot; 4 of 5 used</div>
-          <div class="cd-i-tbar"><i></i></div>
         </div>
       </div>
     </div>
@@ -1444,6 +1489,9 @@
   </div>
 </div>
 
+<!-- One question: what if the gradient owns the whole canvas, Revolut-style, and
+     every surface stops being a colour and becomes a translucent darkening of
+     what is behind it? Content is J's, so the comparison is only about surface. -->
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
 
@@ -1588,10 +1636,12 @@
       <li><strong>The slot is fixed, not contextual.</strong> An earlier pass swapped the third circle by state (Mark paid / Sell pack) &mdash; a button that moves under the thumb is how wrong taps happen. The only swap left is forced by reality: a CRM contact has no app account, so <em>Message</em> becomes <em>Invite</em>.</li>
       <li><strong>"Needs you" is the only variable block at the top</strong> and it absorbs three scattered ones &mdash; the pending-payments carousel, self-paced <em>To review</em>, and an open request. When there is nothing to answer it disappears entirely (see the <em>nothing to do</em> state).</li>
       <li><strong>The state banner sits above the actions</strong>, because it decides which are legal. Blocked greys Book and Message but never Mark paid &mdash; the spec is explicit that cash stays settleable through archive, block and deletion.</li>
+      <li><strong>Money is one widget, above This week.</strong> Two tiles read as two unrelated facts and sat below the schedule, which is wrong for the thing a coach chases hardest. Now the debt is the headline with its own <em>Mark paid</em>, and paid-this-month plus the pack read underneath it as context.</li>
       <li><strong>Assets became tiles, and every tile leads with a visual</strong> &mdash; a group is people (stacked faces), an address is a place (map thumbnail), a note and a history are concepts (icon plates). Four unlabelled text tiles were unreadable at a glance; the visual is what makes the grid scannable. The note shows its text: it is the single most useful thing to see without tapping.</li>
       <li><strong>The wash runs past the circles</strong> — the gradient has to sit under the action pills, not stop above them. The pills scroll with the page: pinning them to the header was tried and dropped, a bar that locks on top of the identity is more chrome than help.</li>
     </ul>
     <div class="cost"><strong>What it costs:</strong> promoting Self-paced and Packages to circles means the two most frequent errands &mdash; marking cash paid and jotting a note &mdash; are now one level deeper, reachable through a chip or a tile rather than a fixed control. If a coach settles cash ten times a day, that trade is wrong and Mark paid earns the circle back. The note preview is also a real exposure decision: it is medical and financial detail rendered on a screen someone else can see over a shoulder.</div>
+    <p class="note">Circles are locally 52px, not the shipped 64 — a row of four at 64 owns most of the first screen. If it holds up here and on K, it belongs in <code>fit-ui.css</code> as a size variant, never as a redefinition of the shipped one.</p>
     <p class="note">Open: does a coach lose the actions on a long client now that nothing is pinned? <em>Book</em> is duplicated in the Next-session slot, which may be enough.</p>
     <p class="note">Sidebar states: <em>nothing to do</em> (no debt, no reviews &rarr; the Needs-you block disappears entirely), <em>CRM contact</em> (badge, Invite instead of Message), <em>blocked</em> (banner, Book/Message dead, Mark paid alive).</p>
   </div>
