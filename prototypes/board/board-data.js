@@ -3278,7 +3278,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-focus",
-          "hash": "1589748703ec",
+          "hash": "956df1a2005d",
           "title": "A · Focus card",
           "inApp": "",
           "status": "proposal",
@@ -3297,7 +3297,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-timeline",
-          "hash": "e21a5c0a8697",
+          "hash": "101532b26bbe",
           "title": "B · Timeline",
           "inApp": "",
           "status": "proposal",
@@ -3317,7 +3317,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-segments",
-          "hash": "57567bce415a",
+          "hash": "b6abdfe027c2",
           "title": "C · Segments",
           "inApp": "",
           "status": "proposal",
@@ -3337,7 +3337,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-accent",
-          "hash": "eb2a626b13a5",
+          "hash": "291881427b57",
           "title": "D · Accent budget",
           "inApp": "",
           "status": "proposal",
@@ -3357,7 +3357,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-media",
-          "hash": "a34a2b8b4a97",
+          "hash": "ee56093c56e5",
           "title": "E · Media grammar",
           "inApp": "",
           "status": "proposal",
@@ -3377,7 +3377,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-quiet",
-          "hash": "5b1adfd33f26",
+          "hash": "c02885261812",
           "title": "F · Both (light)",
           "inApp": "",
           "status": "proposal",
@@ -3397,7 +3397,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-floating",
-          "hash": "7fb19a0d244e",
+          "hash": "b16e0eacc6ba",
           "title": "G · Floating panels",
           "inApp": "",
           "status": "proposal",
@@ -3417,7 +3417,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-tiles",
-          "hash": "f5a31af9f46f",
+          "hash": "b64109ce4264",
           "title": "H · Big title + tiles",
           "inApp": "",
           "status": "proposal",
@@ -3437,7 +3437,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-full",
-          "hash": "5b6f0482d05f",
+          "hash": "53954fdb79d9",
           "title": "I · Floating, filled",
           "inApp": "",
           "status": "proposal",
@@ -3461,7 +3461,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-client",
-          "hash": "b5d04277e316",
+          "hash": "94b9d2bf41d2",
           "title": "J · Client Detail, placed",
           "inApp": "",
           "status": "proposal",
@@ -3493,7 +3493,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-alpha",
-          "hash": "f8339c354cb9",
+          "hash": "2385a329b00e",
           "title": "K · Tinted canvas",
           "inApp": "",
           "status": "proposal",
