@@ -77,6 +77,7 @@ export const ORDER = [
   "flows/coach/client-detail-drafts.html",
   "flows/coach/sessions.html",
   "flows/coach/calendar.html",
+  "flows/coach/semi-private.html",
   "flows/coach/invite.html",
   "flows/coach/availability.html",
   "flows/coach/available-hours.html",
