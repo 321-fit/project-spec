@@ -3865,7 +3865,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-calendar",
-          "hash": "587458b68d69",
+          "hash": "468969c6c020",
           "title": "Cross-role drawer",
           "inApp": "",
           "status": "canon",
@@ -3907,7 +3907,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-event",
-          "hash": "cca282cf4984",
+          "hash": "6f67cd622468",
           "title": "Event Detail",
           "inApp": "HIIT Group Session",
           "status": "canon",
@@ -3926,7 +3926,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite",
-          "hash": "84c3cb341837",
+          "hash": "0db1305d2d55",
           "title": "Invite athletes",
           "inApp": "Invite athletes",
           "status": "canon",
@@ -3945,7 +3945,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-cash",
-          "hash": "01a9fff77b9f",
+          "hash": "4713f2628d9d",
           "title": "Event Completion",
           "inApp": "Event completion",
           "status": "canon",
@@ -3964,7 +3964,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-block-time-off",
-          "hash": "dd54d14779a1",
+          "hash": "a91318c38651",
           "title": "Busy time form",
           "inApp": "Busy time",
           "status": "canon",
@@ -3985,13 +3985,13 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-event-edit",
-          "hash": "388f6e796684",
-          "title": "Edit details",
+          "hash": "1c346695da89",
+          "title": "↳ seat editor",
           "inApp": "Edit event",
           "status": "canon",
           "theme": "dark",
           "entry": false,
-          "note": "",
+          "note": "Instance-level, not the template: an event created from a Training Session is its own entity, so Location / Duration / Price / Note are edited for this occurrence only (the template editor is sessions.html#s-edit). Chang",
           "external": [
             "./locations.html",
             "./invite.html?mode=seat&origin=s-event-edit#s-invite-select"

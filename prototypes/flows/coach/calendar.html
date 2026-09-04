@@ -341,21 +341,32 @@
   .fit-light .sp-tag { background: var(--fit-gray-100); }
   .sp-add { display: flex; align-items: center; justify-content: center; gap: 8px; height: 48px; margin-top: var(--fit-sp-2); border: 1px dashed var(--fit-divider); border-radius: 14px; font-size: 15px; font-weight: 500; color: var(--fit-text-primary); cursor: pointer; }
   .sp-add svg { width: 18px; height: 18px; }
-  .sp-extra { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--fit-divider); font-size: 15px; color: var(--fit-text-primary); }
+  /* An extra is a row, not a table cell: 56px tall, its own surface, and a 44px
+     hit target for the remove button — the 26px circle between two hairlines was
+     unhittable on a phone. No rules above or below: the surfaces already separate. */
+  .sp-extra { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 0 6px 0 14px; border-radius: 14px; background: var(--fit-surface-high); font-size: 15px; color: var(--fit-text-primary); }
+  .fit-light .sp-extra { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.06); }
+  .sp-extra + .sp-extra { margin-top: var(--fit-sp-2); }
   .sp-extra-a { color: var(--fit-text-secondary); }
-  .sp-extra-x { width: 26px; height: 26px; border-radius: 50%; border: none; background: var(--fit-surface-higher); color: var(--fit-text-tertiary); font-size: 15px; line-height: 1; cursor: pointer; flex-shrink: 0; }
-  .sp-total { display: flex; align-items: baseline; justify-content: space-between; margin-top: var(--fit-sp-3); padding-top: var(--fit-sp-3); border-top: 1px solid var(--fit-divider); }
+  .sp-extra-x { width: 44px; height: 44px; border: none; background: transparent; color: var(--fit-text-tertiary); font-size: 20px; line-height: 1; cursor: pointer; flex-shrink: 0; border-radius: 50%; }
+  .sp-extra-x:active { background: var(--fit-surface-higher); }
+  .sp-total { display: flex; align-items: baseline; justify-content: space-between; margin-top: var(--fit-sp-4); }
   .sp-total-v { font-size: 20px; font-weight: 700; color: var(--fit-text-primary); }
   /* With one athlete the drawer's own name row already answers "who" — the roster
      earns its place from the second seat on. */
   #cal-event-sheet-body.is-semi .ev-semi-only { display: block !important; }
-  #cal-event-sheet-body.is-semi .sp-seats-head { display: flex !important; }
   /* the roster now names everyone and prices are per seat, so the solo identity
      row and the event-level price would both be lying */
   #cal-event-sheet-body.is-semi .ev-solo-only { display: none !important; }
   /* one athlete → a price field; two or three → the seat list owns the prices */
   #s-event-edit.sp-seats .sp-single { display: none; }
   #s-event-edit:not(.sp-seats) .sp-multi { display: none; }
+  #s-event-edit .fit-input-label .sp-single, #s-event-edit .fit-input-label .sp-multi,
+  #s-event-edit .fit-phone-content > div .sp-single, #s-event-edit .fit-phone-content > div .sp-multi { display: inline; }
+  #s-event-edit.sp-seats span.sp-single { display: none; }
+  #s-event-edit:not(.sp-seats) span.sp-multi { display: none; }
+  #s-event-edit.sp-seats .fit-input-label .sp-single { display: none; }
+  #s-event-edit:not(.sp-seats) .fit-input-label .sp-multi { display: none; }
 
 </style>
 </head>
@@ -375,10 +386,14 @@
   <button onclick="go('s-cash',this)">Event Completion</button>
   <div class="label">Edit event</div>
   <button onclick="go('s-event-edit',this)">Edit details</button>
+  <button onclick="go('s-event-edit',this);document.getElementById('s-event-edit').classList.add('sp-seats')">&nbsp;&nbsp;&#8627; two seats (semi-private)</button>
+  <button onclick="go('s-event-edit',this);document.getElementById('event-extra-sheet').classList.add('visible')">&nbsp;&nbsp;&#8627; add an extra</button>
+  <button onclick="go('s-event-edit',this);document.getElementById('s-event-edit').classList.add('sp-seats');document.getElementById('event-seat-sheet').classList.add('visible')">&nbsp;&nbsp;&#8627; seat editor</button>
   <div class="label">Busy time</div>
   <button onclick="go('s-block-time-off',this)">Busy time form</button>
   <div class="label">Sheets / drawers</div>
   <button onclick="go('s-calendar',this);document.getElementById('fab-sheet').classList.add('visible')">FAB sheet</button>
+  <button onclick="go('s-calendar',this);document.getElementById('cal-event-sheet-body').classList.add('is-semi');document.getElementById('cal-event-sheet').classList.add('visible')">Semi-private drawer</button>
   <button onclick="go('s-calendar',this);document.getElementById('cal-custom-sheet').classList.add('visible')">Custom event drawer</button>
   <button onclick="go('s-calendar',this);document.getElementById('cal-cross-role-sheet').classList.add('visible')">Cross-role drawer</button>
   <button onclick="setCalState('overlap',document.querySelector('#ann-s-calendar .state-toggle button:nth-child(8)'))">Overlap drawer</button>
@@ -751,6 +766,30 @@
         </div>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
       </div>
+      <!-- Participants — sits where the single-athlete row sits, because the sheet
+           reads people first, then the event. No "2 of 3": a count the coach did
+           not ask for. Rows open the seat editor, so they carry a chevron. -->
+      <div class="fit-participants-card ev-semi-only" id="cal-ev-seats" style="display:none;margin-bottom:28px;">
+        <div class="fit-participant" onclick="calEditEvent();document.getElementById('s-event-edit').classList.add('sp-seats');document.getElementById('event-seat-sheet').classList.add('visible')">
+          <div class="fit-avatar">AK</div>
+          <div class="fit-participant-info">
+            <div class="fit-participant-name">Anna Kowalski</div>
+            <div class="fit-participant-sub">Anchor · Cash · paid</div>
+          </div>
+          <div class="sp-money"><div class="sp-money-v">€35</div></div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-left:10px;"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="fit-participant" onclick="calEditEvent();document.getElementById('s-event-edit').classList.add('sp-seats');document.getElementById('event-seat-sheet').classList.add('visible')">
+          <div class="fit-avatar">PN</div>
+          <div class="fit-participant-info">
+            <div class="fit-participant-name">Piotr Nowak</div>
+            <div class="fit-participant-sub">Card · awaiting answer</div>
+          </div>
+          <div class="sp-money"><div class="sp-money-v">€65</div></div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-left:10px;"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+
       <!-- Event info -->
       <div style="font-size:18px;font-weight:600;color:var(--fit-text-primary);margin-bottom:12px;display:flex;align-items:center;gap:8px;"><span id="cal-ev-title">Basketball Training</span><span class="ev-hv-only fit-badge fit-badge-neutral" style="display:none;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:3px;"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home visit</span></div>
       <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">
@@ -775,28 +814,6 @@
       <!-- Participants — the group drawer's roster, rendered here at one seat too.
            A personal session can hold 2–3 (specs/semi-private.md); adding one
            lives in the ⋯ menu, not as a fourth action circle. -->
-      <div class="sp-seats-head ev-semi-only" style="display:none;">
-        <span class="fit-input-label" style="padding:0;">Participants</span>
-        <span class="sp-cap" id="cal-ev-seat-count">2 of 3</span>
-      </div>
-      <div class="fit-participants-card ev-semi-only" id="cal-ev-seats" style="display:none;margin-bottom:28px;">
-        <div class="fit-participant">
-          <div class="fit-avatar">AK</div>
-          <div class="fit-participant-info">
-            <div class="fit-participant-name">Anna Kowalski<span class="sp-tag">Anchor</span></div>
-            <div class="fit-participant-sub">Cash · paid</div>
-          </div>
-          <div class="sp-money"><div class="sp-money-v">€35</div></div>
-        </div>
-        <div class="fit-participant">
-          <div class="fit-avatar">PN</div>
-          <div class="fit-participant-info">
-            <div class="fit-participant-name">Piotr Nowak</div>
-            <div class="fit-participant-sub">Card · + Video analysis · awaiting answer</div>
-          </div>
-          <div class="sp-money"><div class="sp-money-v">€65</div></div>
-        </div>
-      </div>
       <!-- Footer variants — one visible per data-event-state -->
       <!-- planned: Cancel + Reschedule (Edit lives in the ⋯ menu) -->
       <div class="fit-sheet-footer-variant ev-planned">
@@ -1816,7 +1833,7 @@
       <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">AK</div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Basketball Training</div>
-        <div style="font-size:13px;color:var(--fit-text-tertiary);">Anna K. &middot; Thu, Apr 17 &middot; 19:30</div>
+        <div style="font-size:13px;color:var(--fit-text-tertiary);"><span class="sp-single">Anna K.</span><span class="sp-multi">Anna K. + 1</span> &middot; Thu, Apr 17 &middot; 19:30</div>
       </div>
     </div>
 
@@ -1837,26 +1854,23 @@
 
     <div class="sp-multi">
       <div class="fit-input-group" style="margin-bottom:8px;">
-        <div class="sp-seats-head">
-          <span class="fit-input-label" style="padding:0;">Participants &amp; price</span>
-          <span class="sp-cap">2 of 3</span>
-        </div>
+        <span class="fit-input-label" style="padding:0;">Participants &amp; price</span>
       </div>
       <div style="padding:0 var(--fit-sp-4);">
         <div class="fit-participants-card">
           <div class="fit-participant" onclick="openSheet('event-seat-sheet')">
             <div class="fit-avatar">AK</div>
             <div class="fit-participant-info">
-              <div class="fit-participant-name">Anna Kowalski<span class="sp-tag">Anchor</span></div>
-              <div class="fit-participant-sub">Cash · was €50</div>
+              <div class="fit-participant-name">Anna Kowalski</div>
+              <div class="fit-participant-sub">Anchor · Cash · was €50</div>
             </div>
             <div class="sp-money"><div class="sp-money-v">€35</div><div class="sp-money-s">re-confirms</div></div>
           </div>
           <div class="fit-participant" onclick="openSheet('event-seat-sheet')">
             <div class="fit-avatar">PN</div>
             <div class="fit-participant-info">
-              <div class="fit-participant-name">Piotr Nowak<span class="sp-tag">New</span></div>
-              <div class="fit-participant-sub">Card · + Video analysis €15</div>
+              <div class="fit-participant-name">Piotr Nowak</div>
+              <div class="fit-participant-sub">New · Card · + Video analysis €15</div>
             </div>
             <div class="sp-money"><div class="sp-money-v">€65</div><div class="sp-money-s">invited</div></div>
           </div>
@@ -1867,12 +1881,13 @@
         </div>
       </div>
     </div>
+    <div class="sp-multi" style="height:var(--fit-sp-5);"></div>
 
     <!-- Extras: what the athlete asked for on top of the session. Its own line,
          never an overwrite of the price — otherwise neither the receipt nor
          Earnings can say why a €50 session cost €65. -->
     <div class="sp-single" style="padding:0 var(--fit-sp-4);margin-bottom:var(--fit-sp-5);">
-      <span class="fit-input-label" style="display:block;margin-bottom:0;">Extras</span>
+      <span class="fit-input-label" style="display:block;margin-bottom:var(--fit-sp-2);">Extras</span>
       <div class="sp-extra"><span style="flex:1;">Video analysis</span><span class="sp-extra-a">€15</span><button class="sp-extra-x" aria-label="Remove extra">&times;</button></div>
       <div class="sp-add" onclick="openSheet('event-extra-sheet')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -1888,7 +1903,7 @@
       </div>
     </div>
 
-    <div class="fit-input-group"><span class="fit-input-label">Note to athlete <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+    <div class="fit-input-group"><span class="fit-input-label"><span class="sp-single">Note to athlete</span><span class="sp-multi">Note to athletes</span> <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
       <textarea class="fit-input-ta" maxlength="200" placeholder="e.g. bring a towel, court changed" style="margin-top:8px;"></textarea>
     </div>
 
@@ -1913,12 +1928,7 @@
     <div class="fit-input-group" style="padding:0;"><span class="fit-input-label">Amount</span>
       <div class="price-row" style="padding:0;"><div class="fit-input" contenteditable="true" style="flex:1;outline:none;cursor:text;">15</div><div class="price-currency">&euro;</div></div>
     </div>
-    <span class="fit-input-label" style="display:block;margin-bottom:8px;">You charged before</span>
-    <div class="fit-selection-group" data-fit-selection="single" style="margin-bottom:24px;">
-      <div class="fit-selection-chip" data-value="video">Video analysis</div>
-      <div class="fit-selection-chip" data-value="extra30">Extra 30 min</div>
-      <div class="fit-selection-chip" data-value="plan">Nutrition plan</div>
-    </div>
+    
     <div style="display:flex;gap:8px;">
       <button class="fit-btn" style="flex:1;background:var(--fit-surface-high);color:var(--fit-text-primary);" onclick="document.getElementById('event-extra-sheet').classList.remove('visible');">Cancel</button>
       <button class="fit-btn fit-btn-primary" style="flex:1;" onclick="document.getElementById('event-extra-sheet').classList.remove('visible');">Add</button>
@@ -1945,7 +1955,7 @@
       <div class="fit-selection-chip" data-value="balance"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 010-4h14v4"/><path d="M3 5v14a2 2 0 002 2h16v-5"/><circle cx="18" cy="12" r="1.5"/></svg> Balance</div>
       <div class="fit-selection-chip" data-value="pack"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8l-9-5-9 5v8l9 5 9-5z"/><path d="M3.3 7L12 12l8.7-5M12 22V12"/></svg> Pack</div>
     </div>
-    <span class="fit-input-label" style="display:block;margin-bottom:0;">Extras</span>
+    <span class="fit-input-label" style="display:block;margin-bottom:var(--fit-sp-2);">Extras</span>
     <div class="sp-extra"><span style="flex:1;">Video analysis</span><span class="sp-extra-a">&euro;15</span><button class="sp-extra-x" aria-label="Remove extra">&times;</button></div>
     <div class="sp-add" onclick="openSheet('event-extra-sheet')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -2005,6 +2015,18 @@
     </div>
     <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Behavior details</span><div class="ann-detail"><h4>Day Navigation</h4><p><strong>Tap day</strong> on strip = instant switch. <strong>Swipe day strip</strong> = scroll. <strong>Swipe content</strong> left/right = page transition (Apple Calendar). Day strip auto-scrolls to selected day.</p><h4>Month View Toggle</h4><p><strong>"April 2026 ▼"</strong> — tap title + chevron expands month grid. Day strip replaced by full month calendar. Tap a day = collapse back to day strip with selected day. Same component across all calendar screens (Coach, Athlete, Booking, Invite).</p><h4>Drag & Drop</h4><p><strong>Long press event</strong> → event lifts, enters drag mode (<code>.fit-timeline.dragging</code>). Drag within same day only. Over any slot that won't take it — occupied, blocked, or outside available hours — the <strong>dragged tile</strong> turns <code>.invalid</code> (red tint + red perimeter + red text), the off-hours band deepens and its label steps aside, and the snackbar names the reason (<em>“Outside your available hours”</em>). The zone itself never turns red: flooding half the day with an error colour mid-drag is alarm without information and competes with the tile the coach is actually looking at. Same grammar as <code>.fit-bk-sel.invalid</code> in the booking grid. Drop is refused. Participant conflicts → warning dialog "2 of 7 have conflicts. Move anyway?" Coach decides. Drop releases event at new time.</p><h4>Day Strip Dots</h4><p>p=personal (green), g=group (cyan), e=external (gray). At-a-glance overview.</p><h4>Off-hours vs Blocked zones</h4><p>The grid is <strong>always a full 00:00–24:00</strong> — day height never depends on availability, and the view auto-scrolls to the now-line (or to the first available hour) on open.</p><p><strong>Off-hours</strong> (<code>.fit-cal-offhours</code>) = outside the coach's available hours. Flat tonal wash, <strong>full-bleed edge to edge</strong> (time gutter included) and <strong>no radius</strong> — an inset rounded band reads as an object lying on the day, full-bleed reads as a state OF the day. Hour labels stay on top, dimmed. Calm enough to cover 8+ hours without visual noise.</p><p>Every contiguous zone carries its own centered <strong>“Outside your hours”</strong> label — a fragmented availability day (06–10, 12–14, 18–20) explains itself wherever the coach lands. No time range in the text: the ruler on the left already says it, and the short phrase repeats across many segments without becoming noise. Zones under 32px drop the label (it wouldn't fit) and keep the wash.</p><p><strong>Blocked</strong> (<code>.fit-cal-blocked</code>) = a slot inside working hours that is taken (external calendar, time off). Diagonal hatch — the hatch pattern is reserved for “busy” so it keeps exactly one meaning.</p><h4>External Events</h4><p>Imported from Google/Apple Calendar. Full-width, opacity 0.7, anonymized (title only).</p><h4>Cross-role Events</h4><p>A 321Fit event belonging to the user's OTHER role profile (e.g. Coach calendar showing a slot the user booked as an Athlete with another coach). Visually muted (opacity 0.75) with a dashed left stripe + small role tag in the corner to distinguish from external (which is solid stripe, no tag). Title shows sport name; meta line includes time and the OTHER party's name (e.g. "with Coach Mark S."). Tap → cross-role drawer with read-only event info + a primary CTA <strong>"Switch to athlete"</strong> (or "Switch to coach") that flips the active role and reopens the event in its proper full drawer. No drag, no actions on the tile itself — current role doesn't own this event.</p><h4>Event Status System (6 states)</h4><p>All non-Planned states share the same visual grammar: colored 10% bg tint + 1px perimeter + 3px left stripe + inline pill next to title. Pill appears inline (not absolute-positioned) — reads as part of the title. Colors map to semantic roles, not to coach/athlete roles.</p><ul><li><strong>Planned</strong> — teal (dark: teal-400 / light: teal-600) for personal, blue-400/600 for group. Base surface, no perimeter. No pill.</li><li><strong>Request</strong> (incoming, pre-event) — yellow-600 perimeter + 10% yellow bg + yellow pill "Request". Athlete asked, coach needs to Accept/Decline.</li><li><strong>Awaiting</strong> (outgoing, pre-event) — yellow-600 <strong>dashed</strong> perimeter, <strong>no fill</strong> + outlined yellow pill "Awaiting". Same “not confirmed yet” hue as Request but outline instead of fill: filled yellow = act on it, dashed outline = tentative, nothing to do. Previously gray-on-surface, which read as an ordinary Planned tile.</li><li><strong>Review</strong> (post-event, unfinalized) — same yellow visual as Request. Event ended, coach hasn't opened Completion screen yet. Yellow because coach action needed — consistent lane with Request.</li><li><strong>Missed</strong> — red-400 perimeter + 10% red bg + red pill "Missed". Explicit no-show or auto after N days without coach review.</li><li><strong>Finished</strong> — base card at opacity 0.5, no pill, no perimeter. Past events that coach confirmed via Completion flow. Time + fade are sufficient signal; pill would be redundant.</li></ul><p><strong>Group events</strong> use only 4 of these states: Planned, Review, Missed, Finished. Request and Awaiting don't apply — group is a template, athletes join without approval.</p><p><strong>Cancelled events</strong> disappear from calendar entirely (not a visible state). All visible statuses retained for 2 months, then archived.</p><h4>API</h4><p><code>GET {role}/training-events/?startDate&endDate</code><br><code>GET coach/training-events/allowed-hours/</code><br><code>PATCH {role}/training-events/{id}/change-status/</code></p></div>
     <p style="margin-top:12px;">24-hour vertical timeline, 15-min grid snap.</p><ul><li><strong>Day strip</strong> — colored dots under days: 🟢 personal, 🔵 group, ⚫ external</li><li><strong>Group events</strong> — cyan border + badge "7/10"</li><li><strong>Personal events</strong> — teal tint + teal stripe + athlete name (Group = blue tint + blue stripe). Same grammar in both themes; the alpha differs per theme (dark: accent-500 @10&ndash;12%, light: accent-600 @16&ndash;20%) so both land the same distance off their canvas.</li><li><strong>Status pills</strong> — inline with title (not absolute-positioned). Filled yellow = Request or Review (coach action needed), dashed/outlined yellow = Awaiting (passive wait), red = Missed, no pill = Planned or Finished. See Behavior details for full system.</li><li><strong>External events</strong> — gray, opacity, side-by-side with the hatched <em>blocked</em> zone</li><li><strong>Cross-role events</strong> — dashed-stripe muted tile + role tag (e.g. "Athlete"). Tap → drawer with read-only info + <strong>"Switch to athlete"</strong> CTA. See Behavior details.</li><li><strong>Off-hours</strong> — full 00:00–24:00 grid; hours outside availability get a full-bleed flat wash + dimmed labels + a centered label per segment (hatch is reserved for “blocked”). Auto-scrolls to the working band on open.</li><li><strong>FAB "+"</strong> → sheet: Personal, Group, Custom event</li><li><strong>Long tap empty slot</strong> → same sheet, time prefilled</li><li><strong>Tap event</strong> → event action sheet (personal/group/invitation)</li><li><strong>Long press event</strong> → activates drag & drop (same day only)</li></ul></div>
+  <div class="ann" id="ann-s-event-edit"><span class="ann-role coach">Coach</span><h3>Edit event</h3>
+    <p><strong>Instance-level</strong>, not the template: an event created from a Training Session is its own entity, so Location / Duration / Price / Note are edited for this occurrence only (the template editor is <code>sessions.html#s-edit</code>). Changing a dry field on a confirmed event sends it back to the athlete — the note does not.</p>
+    <hr>
+    <p><strong>Semi-private (proposal, <code>specs/semi-private.md</code>).</strong> A personal session can hold <strong>2–3 people</strong> without becoming a group: no minimum, no join link, no chat, and only the coach can fill a seat.</p>
+    <ul>
+      <li><strong>One athlete → a Price field. Two or three → the seat list owns the prices</strong>, because money on a semi-private session is per person. The seat rows are the group drawer's own roster component.</li>
+      <li><strong>Extras</strong> are separate lines under the price (<em>Video analysis €15</em>), never an overwrite of it — overwrite it and neither the receipt nor Earnings can say why a €50 session cost €65. A pack credit pays for the session, never for an extra.</li>
+      <li><strong>Adding a person or raising a price</strong> sends the session back to the athlete; her spot is held while she answers, and declining reverts the session to the terms she agreed to rather than cancelling it. <strong>Lowering a price alone asks nothing.</strong></li>
+      <li><strong>Add participant</strong> is a ⋯ item on the drawer, not a fourth action circle — it is an edit, and edits live in the menu.</li>
+    </ul>
+    <p class="note">Sidebar: <em>two seats</em>, <em>add an extra</em>, <em>seat editor</em> — the three states of this screen. Athlete side: <code>athlete/calendar.html</code> → <em>Session updated · re-confirm</em> and <em>Invited to join someone</em>.</p>
+  </div>
   <div class="ann" id="ann-s-event"><span class="ann-role coach">Coach</span><h3>Group Event Detail</h3>
     <div class="state-toggle"><button class="active" onclick="toggleEventState('filled',this)">Filled</button><button onclick="toggleEventState('empty',this)">Empty</button></div>
     <span class="ann-detail-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>Invite &amp; deep-link</span>
