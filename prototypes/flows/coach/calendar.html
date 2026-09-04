@@ -326,6 +326,37 @@
   .inv-note-text { font-size: 12px; line-height: 1.5; color: var(--fit-text-secondary); }
   /* CRM badge on the roster row inside s-event */
   .crm-badge { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; color: var(--fit-yellow-600); background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); flex-shrink: 0; }
+  /* ===== Semi-private: seats + extras (proposal, specs/semi-private.md) =====
+     A personal event can carry 2–3 seats. The roster is the same component the
+     group drawer uses, and it renders at one seat too — "who is coming" must not
+     move depending on the count. Extras are their own lines: overwriting the
+     price makes the receipt unable to explain itself. */
+  .sp-seats-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .sp-seats-head .fit-input-label { margin: 0; }
+  .sp-cap { font-size: 12px; color: var(--fit-text-tertiary); }
+  .fit-participants-card .fit-participant .sp-money { margin-left: auto; text-align: right; flex-shrink: 0; }
+  .sp-money-v { font-size: 14px; font-weight: 600; color: var(--fit-text-primary); }
+  .sp-money-s { font-size: 11px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .sp-tag { font-size: 10px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; padding: 2px 6px; border-radius: 5px; background: var(--fit-surface-higher); color: var(--fit-text-tertiary); margin-left: 6px; }
+  .fit-light .sp-tag { background: var(--fit-gray-100); }
+  .sp-add { display: flex; align-items: center; justify-content: center; gap: 8px; height: 48px; margin-top: var(--fit-sp-2); border: 1px dashed var(--fit-divider); border-radius: 14px; font-size: 15px; font-weight: 500; color: var(--fit-text-primary); cursor: pointer; }
+  .sp-add svg { width: 18px; height: 18px; }
+  .sp-extra { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--fit-divider); font-size: 15px; color: var(--fit-text-primary); }
+  .sp-extra-a { color: var(--fit-text-secondary); }
+  .sp-extra-x { width: 26px; height: 26px; border-radius: 50%; border: none; background: var(--fit-surface-higher); color: var(--fit-text-tertiary); font-size: 15px; line-height: 1; cursor: pointer; flex-shrink: 0; }
+  .sp-total { display: flex; align-items: baseline; justify-content: space-between; margin-top: var(--fit-sp-3); padding-top: var(--fit-sp-3); border-top: 1px solid var(--fit-divider); }
+  .sp-total-v { font-size: 20px; font-weight: 700; color: var(--fit-text-primary); }
+  /* With one athlete the drawer's own name row already answers "who" — the roster
+     earns its place from the second seat on. */
+  #cal-event-sheet-body.is-semi .ev-semi-only { display: block !important; }
+  #cal-event-sheet-body.is-semi .sp-seats-head { display: flex !important; }
+  /* the roster now names everyone and prices are per seat, so the solo identity
+     row and the event-level price would both be lying */
+  #cal-event-sheet-body.is-semi .ev-solo-only { display: none !important; }
+  /* one athlete → a price field; two or three → the seat list owns the prices */
+  #s-event-edit.sp-seats .sp-single { display: none; }
+  #s-event-edit:not(.sp-seats) .sp-multi { display: none; }
+
 </style>
 </head>
 <body>
@@ -703,13 +734,17 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
           Reschedule
         </div>
+        <div class="fit-context-menu-item" data-a11y-id="coach.calendar.event.menu.add-participant" onclick="closeSheetMenu('cal-event-menu');calEditEvent();document.getElementById('s-event-edit').classList.add('sp-seats')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+          Add participant
+        </div>
         <div class="fit-context-menu-item" data-a11y-id="coach.calendar.event.menu.edit" onclick="closeSheetMenu('cal-event-menu');calEditEvent()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           Edit details
         </div>
       </div>
       <!-- Avatar + name (tap → profile) -->
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;cursor:pointer;">
+      <div class="ev-solo-only" style="display:flex;align-items:center;gap:12px;margin-bottom:28px;cursor:pointer;">
         <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;" id="cal-ev-av">AK</div>
         <div style="flex:1;">
           <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);" id="cal-ev-athlete">Anna K.</div>
@@ -732,9 +767,34 @@
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
           <span id="cal-ev-loc">TNT Studio</span><span class="ev-hv-only" style="display:none;"> · Get directions</span>
         </div>
-        <div style="display:flex;align-items:center;gap:6px;">
+        <div class="ev-solo-only" style="display:flex;align-items:center;gap:6px;">
           <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;50</span>
           <span class="fit-badge fit-badge-neutral">Card</span>
+        </div>
+      </div>
+      <!-- Participants — the group drawer's roster, rendered here at one seat too.
+           A personal session can hold 2–3 (specs/semi-private.md); adding one
+           lives in the ⋯ menu, not as a fourth action circle. -->
+      <div class="sp-seats-head ev-semi-only" style="display:none;">
+        <span class="fit-input-label" style="padding:0;">Participants</span>
+        <span class="sp-cap" id="cal-ev-seat-count">2 of 3</span>
+      </div>
+      <div class="fit-participants-card ev-semi-only" id="cal-ev-seats" style="display:none;margin-bottom:28px;">
+        <div class="fit-participant">
+          <div class="fit-avatar">AK</div>
+          <div class="fit-participant-info">
+            <div class="fit-participant-name">Anna Kowalski<span class="sp-tag">Anchor</span></div>
+            <div class="fit-participant-sub">Cash · paid</div>
+          </div>
+          <div class="sp-money"><div class="sp-money-v">€35</div></div>
+        </div>
+        <div class="fit-participant">
+          <div class="fit-avatar">PN</div>
+          <div class="fit-participant-info">
+            <div class="fit-participant-name">Piotr Nowak</div>
+            <div class="fit-participant-sub">Card · + Video analysis · awaiting answer</div>
+          </div>
+          <div class="sp-money"><div class="sp-money-v">€65</div></div>
         </div>
       </div>
       <!-- Footer variants — one visible per data-event-state -->
@@ -1768,8 +1828,65 @@
       <div class="fit-wheel-col"><span class="fit-wheel-label">Minutes</span><div class="fit-wheel-scroll"><div class="fit-wheel-item dim" onclick="changeDuration(this)">00</div><div class="fit-wheel-item active" onclick="changeDuration(this)">30</div><div class="fit-wheel-item dim" onclick="changeDuration(this)">45</div></div><div class="fit-wheel-fade-top"></div><div class="fit-wheel-fade-bottom"></div></div>
     </div>
 
-    <div class="fit-input-group"><span class="fit-input-label">Price</span></div>
-    <div class="price-row"><div class="fit-input" contenteditable="true" style="flex:1;outline:none;cursor:text;">50</div><div class="price-currency">&euro;</div></div>
+    <!-- One athlete: a price field, as before. Two or three: the seat list owns
+         the prices, because money on a semi-private session is per person. -->
+    <div class="sp-single">
+      <div class="fit-input-group"><span class="fit-input-label">Price</span></div>
+      <div class="price-row"><div class="fit-input" contenteditable="true" style="flex:1;outline:none;cursor:text;">50</div><div class="price-currency">&euro;</div></div>
+    </div>
+
+    <div class="sp-multi">
+      <div class="fit-input-group" style="margin-bottom:8px;">
+        <div class="sp-seats-head">
+          <span class="fit-input-label" style="padding:0;">Participants &amp; price</span>
+          <span class="sp-cap">2 of 3</span>
+        </div>
+      </div>
+      <div style="padding:0 var(--fit-sp-4);">
+        <div class="fit-participants-card">
+          <div class="fit-participant" onclick="openSheet('event-seat-sheet')">
+            <div class="fit-avatar">AK</div>
+            <div class="fit-participant-info">
+              <div class="fit-participant-name">Anna Kowalski<span class="sp-tag">Anchor</span></div>
+              <div class="fit-participant-sub">Cash · was €50</div>
+            </div>
+            <div class="sp-money"><div class="sp-money-v">€35</div><div class="sp-money-s">re-confirms</div></div>
+          </div>
+          <div class="fit-participant" onclick="openSheet('event-seat-sheet')">
+            <div class="fit-avatar">PN</div>
+            <div class="fit-participant-info">
+              <div class="fit-participant-name">Piotr Nowak<span class="sp-tag">New</span></div>
+              <div class="fit-participant-sub">Card · + Video analysis €15</div>
+            </div>
+            <div class="sp-money"><div class="sp-money-v">€65</div><div class="sp-money-s">invited</div></div>
+          </div>
+        </div>
+        <div class="sp-add" onclick="window.location.href='./invite.html?mode=seat&amp;origin=s-event-edit#s-invite-select'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          Add participant
+        </div>
+      </div>
+    </div>
+
+    <!-- Extras: what the athlete asked for on top of the session. Its own line,
+         never an overwrite of the price — otherwise neither the receipt nor
+         Earnings can say why a €50 session cost €65. -->
+    <div class="sp-single" style="padding:0 var(--fit-sp-4);margin-bottom:var(--fit-sp-5);">
+      <span class="fit-input-label" style="display:block;margin-bottom:0;">Extras</span>
+      <div class="sp-extra"><span style="flex:1;">Video analysis</span><span class="sp-extra-a">€15</span><button class="sp-extra-x" aria-label="Remove extra">&times;</button></div>
+      <div class="sp-add" onclick="openSheet('event-extra-sheet')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Add an extra
+      </div>
+      <div class="sp-total"><span style="font-size:14px;color:var(--fit-text-tertiary);">Anna pays</span><span class="sp-total-v">€65</span></div>
+    </div>
+
+    <div class="sp-single" style="padding:0 var(--fit-sp-4);margin-bottom:var(--fit-sp-5);">
+      <div class="sp-add" onclick="window.location.href='./invite.html?mode=seat&amp;origin=s-event-edit#s-invite-select'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+        Add participant
+      </div>
+    </div>
 
     <div class="fit-input-group"><span class="fit-input-label">Note to athlete <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
       <textarea class="fit-input-ta" maxlength="200" placeholder="e.g. bring a towel, court changed" style="margin-top:8px;"></textarea>
@@ -1782,6 +1899,66 @@
     </div>
   </div>
   <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" data-a11y-id="coach.event-edit.save" onclick="openSheet('event-reconfirm-sheet')">Save changes</button></div>
+<!-- Add an extra — the only genuinely new surface this feature needs. Two fields,
+     and suggestions from what this coach has charged before, so Earnings does not
+     fill up with six spellings of "video analysis". -->
+<div class="fit-sheet-overlay" id="event-extra-sheet">
+  <div class="fit-sheet"><div class="fit-sheet-handle"></div>
+    <div class="fit-sheet-status-header">
+      <div class="fit-sheet-descriptor">Add an extra</div>
+    </div>
+    <div class="fit-input-group" style="padding:0;"><span class="fit-input-label">What was it</span>
+      <div class="fit-input" contenteditable="true" style="outline:none;cursor:text;">Video analysis</div>
+    </div>
+    <div class="fit-input-group" style="padding:0;"><span class="fit-input-label">Amount</span>
+      <div class="price-row" style="padding:0;"><div class="fit-input" contenteditable="true" style="flex:1;outline:none;cursor:text;">15</div><div class="price-currency">&euro;</div></div>
+    </div>
+    <span class="fit-input-label" style="display:block;margin-bottom:8px;">You charged before</span>
+    <div class="fit-selection-group" data-fit-selection="single" style="margin-bottom:24px;">
+      <div class="fit-selection-chip" data-value="video">Video analysis</div>
+      <div class="fit-selection-chip" data-value="extra30">Extra 30 min</div>
+      <div class="fit-selection-chip" data-value="plan">Nutrition plan</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="fit-btn" style="flex:1;background:var(--fit-surface-high);color:var(--fit-text-primary);" onclick="document.getElementById('event-extra-sheet').classList.remove('visible');">Cancel</button>
+      <button class="fit-btn fit-btn-primary" style="flex:1;" onclick="document.getElementById('event-extra-sheet').classList.remove('visible');">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- Seat editor — everything that belongs to one person on a semi-private event.
+     Payment uses the canonical selection chips with cash preselected, the same as
+     session creation. -->
+<div class="fit-sheet-overlay" id="event-seat-sheet">
+  <div class="fit-sheet"><div class="fit-sheet-handle"></div>
+    <div class="fit-sheet-status-header">
+      <div class="fit-sheet-descriptor">Piotr Nowak</div>
+      <span class="fit-badge fit-badge-warning">Invited</span>
+    </div>
+    <div class="fit-input-group" style="padding:0;"><span class="fit-input-label">Price for this seat</span>
+      <div class="price-row" style="padding:0;"><div class="fit-input" contenteditable="true" style="flex:1;outline:none;cursor:text;">50</div><div class="price-currency">&euro;</div></div>
+    </div>
+    <div class="fit-input-group" style="padding:0;"><span class="fit-input-label">Payment</span></div>
+    <div class="fit-selection-group" data-fit-selection="single" style="margin-bottom:20px;flex-wrap:wrap;">
+      <div class="fit-selection-chip selected" data-value="cash"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h2M20 10h2M2 14h2M20 14h2"/><circle cx="12" cy="12" r="3"/></svg> Cash</div>
+      <div class="fit-selection-chip" data-value="card"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card</div>
+      <div class="fit-selection-chip" data-value="balance"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 010-4h14v4"/><path d="M3 5v14a2 2 0 002 2h16v-5"/><circle cx="18" cy="12" r="1.5"/></svg> Balance</div>
+      <div class="fit-selection-chip" data-value="pack"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8l-9-5-9 5v8l9 5 9-5z"/><path d="M3.3 7L12 12l8.7-5M12 22V12"/></svg> Pack</div>
+    </div>
+    <span class="fit-input-label" style="display:block;margin-bottom:0;">Extras</span>
+    <div class="sp-extra"><span style="flex:1;">Video analysis</span><span class="sp-extra-a">&euro;15</span><button class="sp-extra-x" aria-label="Remove extra">&times;</button></div>
+    <div class="sp-add" onclick="openSheet('event-extra-sheet')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      Add an extra
+    </div>
+    <div class="sp-total" style="margin-bottom:24px;"><span style="font-size:14px;color:var(--fit-text-tertiary);">Piotr pays</span><span class="sp-total-v">&euro;65</span></div>
+    <div style="display:flex;gap:8px;">
+      <button class="fit-btn" style="flex:1;background:var(--fit-surface-high);color:var(--fit-red-400);" onclick="document.getElementById('event-seat-sheet').classList.remove('visible');">Remove</button>
+      <button class="fit-btn fit-btn-primary" style="flex:1;" onclick="document.getElementById('event-seat-sheet').classList.remove('visible');">Done</button>
+    </div>
+  </div>
+</div>
+
 </div>
 
 <!-- Re-confirm sheet — shown on Save when a dry field changed on a confirmed event -->

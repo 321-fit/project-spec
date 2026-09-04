@@ -230,6 +230,8 @@
   <div class="label">Event drawer · states</div>
   <button onclick="go('s-schedule',this);openAthEvent('planned')">Planned</button>
   <button onclick="go('s-schedule',this);openAthEvent('request')">Request · accept/decline</button>
+  <button onclick="go('s-schedule',this);openAthEvent('reconfirm')">Session updated &middot; re-confirm</button>
+  <button onclick="go('s-schedule',this);openAthEvent('request',{seat:true})">Invited to join someone</button>
   <button onclick="go('s-schedule',this);openAthEvent('awaiting')">Awaiting</button>
   <button onclick="go('s-schedule',this);openAthEvent('finished')">Finished · rate</button>
   <button onclick="go('s-schedule',this);openAthEvent('missed')">Missed</button>
@@ -473,6 +475,28 @@
         </div>
       </div>
 
+      <!-- Re-confirm only: what the coach changed. A re-confirmation that does not
+           say what changed is just a button (specs/semi-private.md §4 Flow 2). -->
+      <div class="ev-change-only" style="display:none;margin:0 0 16px;padding:14px;background:var(--fit-surface-high);border-radius:14px;">
+        <div style="font-size:12px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--fit-text-tertiary);margin-bottom:10px;">What changes</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:15px;margin-bottom:8px;">
+          <span style="color:var(--fit-text-tertiary);text-decoration:line-through;">Just you</span>
+          <span style="color:var(--fit-text-tertiary);">&rarr;</span>
+          <span style="font-weight:600;color:var(--fit-text-primary);">You and Piotr Nowak</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:15px;">
+          <span style="color:var(--fit-text-tertiary);text-decoration:line-through;">&euro;50</span>
+          <span style="color:var(--fit-text-tertiary);">&rarr;</span>
+          <span style="font-weight:600;color:var(--fit-text-primary);">&euro;35</span>
+        </div>
+      </div>
+
+      <!-- Seat invite only: say up front that the session is not one-to-one. -->
+      <div class="ev-seat-note" style="display:none;margin:0 0 16px;padding:12px 14px;background:rgba(3,178,226,0.10);border-radius:12px;gap:10px;align-items:flex-start;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/></svg>
+        <span style="font-size:13px;color:var(--fit-text-secondary);line-height:1.45;">You&rsquo;d be joining <strong style="color:var(--fit-text-primary);">Anna Kowalski</strong> &mdash; this session is not one-to-one.</span>
+      </div>
+
       <!-- Coach avatar + name (tap → coach profile) -->
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;cursor:pointer;" onclick="window.location.href='../shared/profile.html'">
         <div style="width:44px;height:44px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--fit-white);flex-shrink:0;" id="ath-ev-av">JM</div>
@@ -491,9 +515,26 @@
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
           <span id="ath-ev-loc">TNT Studio</span>
         </div>
-        <div style="display:flex;align-items:center;gap:6px;">
+        <div class="ev-solo-price" style="display:flex;align-items:center;gap:6px;">
           <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);" id="ath-ev-price">&euro;25</span>
           <span class="fit-badge fit-badge-neutral" id="ath-ev-method">Balance</span>
+        </div>
+      </div>
+
+      <!-- Who else is on it. Names and photos, never anyone else's price —
+           per-seat money is between the coach and that seat. -->
+      <div class="ev-seats" style="display:none;margin-bottom:24px;">
+        <div style="font-size:12px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--fit-text-tertiary);margin-bottom:8px;">Training with</div>
+        <div class="fit-participants-card">
+          <div class="fit-participant">
+            <div class="fit-avatar" id="ath-seat-you-av">AK</div>
+            <div class="fit-participant-info"><div class="fit-participant-name">You</div><div class="fit-participant-sub" id="ath-seat-you-sub">Cash &middot; pay at the session</div></div>
+            <div style="margin-left:auto;font-size:14px;font-weight:600;color:var(--fit-text-primary);" id="ath-seat-you-price">&euro;35</div>
+          </div>
+          <div class="fit-participant">
+            <div class="fit-avatar" id="ath-seat-other-av">PN</div>
+            <div class="fit-participant-info"><div class="fit-participant-name" id="ath-seat-other-name">Piotr Nowak</div><div class="fit-participant-sub" id="ath-seat-other-sub">Tennis</div></div>
+          </div>
         </div>
       </div>
 
@@ -509,6 +550,13 @@
           <button class="fit-action-circle fit-action-circle--danger" data-a11y-id="athlete.event.decline" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');showAthToast('Request declined')" aria-label="Decline"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></i><span>Decline</span></button>
           <button class="fit-action-circle" data-a11y-id="athlete.event.request.reschedule" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');document.getElementById('ath-reschedule-sheet').classList.add('visible');" aria-label="Reschedule"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></i><span>Reschedule</span></button>
           <button class="fit-action-circle fit-action-circle--primary" data-a11y-id="athlete.event.accept" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');showAthToast('Session confirmed')" aria-label="Accept"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></i><span>Accept</span></button>
+        </div>
+      </div>
+<div class="fit-sheet-footer-variant ev-reconfirm">
+        <div class="fit-action-circles">
+          <button class="fit-action-circle" data-a11y-id="athlete.event.reconfirm.keep" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');showAthToast('Kept as it was — €50, just you')" aria-label="Decline"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></i><span>Keep as it was</span></button>
+          <button class="fit-action-circle" data-a11y-id="athlete.event.reconfirm.reschedule" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');document.getElementById('ath-reschedule-sheet').classList.add('visible');" aria-label="Reschedule"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></i><span>Reschedule</span></button>
+          <button class="fit-action-circle fit-action-circle--primary" data-a11y-id="athlete.event.reconfirm.accept" onclick="document.getElementById('ath-event-sheet').classList.remove('visible');showAthToast('Session confirmed · €35')" aria-label="Accept"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></i><span>Accept</span></button>
         </div>
       </div>
       <div class="fit-sheet-footer-variant ev-awaiting">
@@ -562,6 +610,15 @@
   <style>
     #ath-event-body[data-event-state="awaiting"] .ev-await-only { display: flex !important; }
     #ath-event-body.is-coach-confirmed[data-event-state="planned"] .ev-confirmed-note { display: flex !important; }
+    #ath-event-body[data-event-state="reconfirm"] .ev-change-only { display: block !important; }
+    /* once the roster carries a price per person, the event-level price is a lie */
+    #ath-event-body[data-event-state="reconfirm"] .ev-solo-price,
+    #ath-event-body.is-seat[data-event-state="request"] .ev-solo-price { display: none !important; }
+    #ath-event-body[data-event-state="reconfirm"] .ev-seats,
+    #ath-event-body.is-seat[data-event-state="request"] .ev-seats { display: block !important; }
+    #ath-event-body.is-seat[data-event-state="request"] .ev-seat-note { display: flex !important; }
+    #ath-event-body[data-event-state="reconfirm"] .ev-reconfirm { display: block; }
+    #ath-event-body:not([data-event-state="reconfirm"]) .ev-reconfirm { display: none; }
   </style>
 
   <!-- Rate sheet — opens from a Finished event's "Rate this session" (the written
@@ -676,6 +733,8 @@ var ATH_EVENT_STATES = {
               c: { av:'SL', coach:'Coach Sarah L.', title:'Yoga Private',        time:'Thu, Apr 10 · 17:00 – 18:00', loc:'Wellness Studio', price:'€40', method:'Balance' } },
   finished: { descriptor: 'Completed',           pill: null,
               c: { av:'SL', coach:'Coach Sarah L.', title:'Strength Training',   time:'Thu, Apr 10 · 07:00 – 08:00', loc:'Wellness Studio', price:'€40', method:'Balance' } },
+  reconfirm:{ descriptor: 'Session updated',     pill: { text:'Re-confirm', mod:'request' },
+              c: { av:'MS', coach:'Coach Mark S.',  title:'Tennis · 60 min',     time:'Tomorrow · 10:00 – 11:00',   loc:'TNT Studio',      price:'€35', method:'Cash' } },
   missed:   { descriptor: 'Missed — no-show',    pill: { text:'Missed',   mod:'missed' },
               c: { av:'JM', coach:'Coach John M.',  title:'Basketball Training', time:'Thu, Apr 10 · 12:00 – 13:00', loc:'TNT Studio',      price:'€30', method:'Balance' } }
 };
@@ -684,6 +743,7 @@ function openAthEvent(state, opts) {
   var body = document.getElementById('ath-event-body');
   body.dataset.eventState = state;
   body.classList.toggle('is-coach-confirmed', !!(opts && opts.coachConfirmed));
+  body.classList.toggle('is-seat', !!(opts && opts.seat));
   document.getElementById('ath-ev-descriptor').textContent = s.descriptor;
   var pill = document.getElementById('ath-ev-pill');
   if (s.pill) { pill.textContent = s.pill.text; pill.className = 'fit-cal-event-pill fit-cal-event-pill--' + s.pill.mod; pill.style.display = ''; }
@@ -691,6 +751,13 @@ function openAthEvent(state, opts) {
   var set = function(id, v){ var e=document.getElementById(id); if(e) e.textContent=v; };
   set('ath-ev-av', s.c.av); set('ath-ev-coach', s.c.coach); set('ath-ev-title', s.c.title);
   set('ath-ev-time', s.c.time); set('ath-ev-loc', s.c.loc); set('ath-ev-price', s.c.price); set('ath-ev-method', s.c.method);
+  // The roster is written from the reader's side: "You" is whoever is looking,
+  // and the other row never carries a price — per-seat money is private.
+  var seat = (state === 'reconfirm')
+    ? { av:'AK', sub:'Cash · pay at the session', price:'€35', otherAv:'PN', otherName:'Piotr Nowak', otherSub:'Tennis' }
+    : { av:'PN', sub:'Card · charged when you accept', price:'€50', otherAv:'AK', otherName:'Anna Kowalski', otherSub:'Tennis · booked this session' };
+  set('ath-seat-you-av', seat.av); set('ath-seat-you-sub', seat.sub); set('ath-seat-you-price', seat.price);
+  set('ath-seat-other-av', seat.otherAv); set('ath-seat-other-name', seat.otherName); set('ath-seat-other-sub', seat.otherSub);
   document.getElementById('ath-event-sheet').classList.add('visible');
 }
 // Sidebar / annotation shortcut: planned + coach-confirmed note

@@ -77,7 +77,6 @@ export const ORDER = [
   "flows/coach/client-detail-drafts.html",
   "flows/coach/sessions.html",
   "flows/coach/calendar.html",
-  "flows/coach/semi-private.html",
   "flows/coach/invite.html",
   "flows/coach/availability.html",
   "flows/coach/available-hours.html",
@@ -121,6 +120,18 @@ export const STATES = {
     { id: "nothing-to-do", label: "Nothing to answer → Needs-you gone, Sell pack", run: "document.getElementById('s-draft-client').classList.add('j-clean')" },
     { id: "crm-contact", label: "CRM contact → Invite instead of Message", run: "document.getElementById('s-draft-client').classList.add('j-crm')" },
     { id: "blocked", label: "Blocked → banner, cash still settleable", run: "document.getElementById('s-draft-client').classList.add('j-blocked')" },
+  ],
+  "flows/coach/calendar.html#s-calendar": [
+    { id: "semi-private", label: "Semi-private · drawer with two seats", run: "document.getElementById('cal-event-sheet-body').classList.add('is-semi');document.getElementById('cal-event-sheet').classList.add('visible')" },
+  ],
+  "flows/coach/calendar.html#s-event-edit": [
+    { id: "semi-private", label: "Semi-private · two seats, price per seat", run: "document.getElementById('s-event-edit').classList.add('sp-seats')" },
+    { id: "add-extra", label: "Add an extra", run: "document.getElementById('event-extra-sheet').classList.add('visible')" },
+    { id: "seat-editor", label: "Seat editor · price, payment, extras", run: "document.getElementById('s-event-edit').classList.add('sp-seats');document.getElementById('event-seat-sheet').classList.add('visible')" },
+  ],
+  "flows/athlete/calendar.html#s-schedule": [
+    { id: "reconfirm", label: "Session updated · re-confirm (was → now)", run: "openAthEvent('reconfirm')" },
+    { id: "seat-invite", label: "Invited to join someone else's session", run: "openAthEvent('request',{seat:true})" },
   ],
   "flows/coach/client-detail-drafts.html#s-draft-full": [
     { id: "no-next-session", label: "No next session → CTA in the same slot", run: "document.getElementById('s-draft-full').classList.add('no-next')" },

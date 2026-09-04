@@ -3865,7 +3865,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-calendar",
-          "hash": "3ac09a44b68a",
+          "hash": "587458b68d69",
           "title": "Cross-role drawer",
           "inApp": "",
           "status": "canon",
@@ -3879,6 +3879,10 @@ window.FIT_BOARD = {
             {
               "file": "coach-calendar__s-calendar.webp",
               "label": ""
+            },
+            {
+              "file": "coach-calendar__s-calendar__semi-private.webp",
+              "label": "Semi-private · drawer with two seats"
             }
           ],
           "level": 0,
@@ -3903,7 +3907,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-event",
-          "hash": "2ec90bafd968",
+          "hash": "cca282cf4984",
           "title": "Event Detail",
           "inApp": "HIIT Group Session",
           "status": "canon",
@@ -3922,7 +3926,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite",
-          "hash": "ce309f031f3e",
+          "hash": "84c3cb341837",
           "title": "Invite athletes",
           "inApp": "Invite athletes",
           "status": "canon",
@@ -3941,7 +3945,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-cash",
-          "hash": "c95bd1a5687b",
+          "hash": "01a9fff77b9f",
           "title": "Event Completion",
           "inApp": "Event completion",
           "status": "canon",
@@ -3960,7 +3964,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-block-time-off",
-          "hash": "cafa823c9ad0",
+          "hash": "dd54d14779a1",
           "title": "Busy time form",
           "inApp": "Busy time",
           "status": "canon",
@@ -3981,7 +3985,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-event-edit",
-          "hash": "3137a35cc57b",
+          "hash": "388f6e796684",
           "title": "Edit details",
           "inApp": "Edit event",
           "status": "canon",
@@ -3989,12 +3993,25 @@ window.FIT_BOARD = {
           "entry": false,
           "note": "",
           "external": [
-            "./locations.html"
+            "./locations.html",
+            "./invite.html?mode=seat&origin=s-event-edit#s-invite-select"
           ],
           "shots": [
             {
               "file": "coach-calendar__s-event-edit.webp",
               "label": ""
+            },
+            {
+              "file": "coach-calendar__s-event-edit__semi-private.webp",
+              "label": "Semi-private · two seats, price per seat"
+            },
+            {
+              "file": "coach-calendar__s-event-edit__add-extra.webp",
+              "label": "Add an extra"
+            },
+            {
+              "file": "coach-calendar__s-event-edit__seat-editor.webp",
+              "label": "Seat editor · price, payment, extras"
             }
           ],
           "orphan": true,
@@ -4041,181 +4058,6 @@ window.FIT_BOARD = {
         {
           "from": "s-event-edit",
           "to": "s-calendar",
-          "back": true
-        }
-      ]
-    },
-    {
-      "file": "flows/coach/semi-private.html",
-      "label": "Semi-private (coach)",
-      "role": "coach",
-      "slug": "coach-semi-private",
-      "screens": [
-        {
-          "id": "s-sp-event",
-          "hash": "3040a597f584",
-          "title": "1 · Event drawer",
-          "inApp": "Thu, Apr 17",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": true,
-          "note": "The drawer gains one block: Participants, with the seat count and + Add participant. It is the same roster component the group drawer uses (.fit-participant) — and it renders at one seat too. A one-row list is a normal l",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-semi-private__s-sp-event.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0
-        },
-        {
-          "id": "s-sp-edit",
-          "hash": "c8c7f0b09b94",
-          "title": "2 · Participants & price",
-          "inApp": "Edit event",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "This is the existing instance editor (calendar.html#s-event-edit), not a new screen. Its single Price field grows into seats; Location, Duration and Note are untouched. Both the drawer’s + Add participant and Edit detail",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-semi-private__s-sp-edit.webp",
-              "label": ""
-            }
-          ],
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-sp-picker",
-          "hash": "21a36af045cd",
-          "title": "3 · Who to add",
-          "inApp": "Add participant",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "The invite picker from invite.html#s-invite-select, reused — own clients and CRM contacts, search, already-on-this-session rows disabled.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-semi-private__s-sp-picker.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 0
-        },
-        {
-          "id": "s-sp-seat",
-          "hash": "704c2c3817ab",
-          "title": "4 · Seat editor",
-          "inApp": "Edit event",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "Everything that belongs to one person: their price, their payment method, and what extra they asked for. The seat table already stores payment per participant, so this is not new plumbing — it is that plumbing, exposed.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-semi-private__s-sp-seat.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 1
-        },
-        {
-          "id": "s-sp-review",
-          "hash": "02a85d79cd6c",
-          "title": "5 · Before saving",
-          "inApp": "Edit event",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "Same grammar as the existing conflict drawer (calendar.html#cal-overlap-sheet): a severity badge, the list, one line of consequence, and actions named after what they do.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-semi-private__s-sp-review.webp",
-              "label": ""
-            }
-          ],
-          "level": 2,
-          "order": 2
-        },
-        {
-          "id": "s-sp-athlete",
-          "hash": "383d7d850fe3",
-          "title": "6 · Re-confirmation",
-          "inApp": "Session updated",
-          "status": "proposal",
-          "theme": "light",
-          "entry": false,
-          "note": "Shown in light, the athlete default. Three things carry the screen:",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-semi-private__s-sp-athlete.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 3,
-          "order": 0
-        }
-      ],
-      "edges": [
-        {
-          "from": "s-sp-event",
-          "to": "s-sp-edit",
-          "back": false
-        },
-        {
-          "from": "s-sp-edit",
-          "to": "s-sp-event",
-          "back": true
-        },
-        {
-          "from": "s-sp-edit",
-          "to": "s-sp-seat",
-          "back": false
-        },
-        {
-          "from": "s-sp-edit",
-          "to": "s-sp-picker",
-          "back": false
-        },
-        {
-          "from": "s-sp-edit",
-          "to": "s-sp-review",
-          "back": false
-        },
-        {
-          "from": "s-sp-picker",
-          "to": "s-sp-edit",
-          "back": true
-        },
-        {
-          "from": "s-sp-picker",
-          "to": "s-sp-seat",
-          "back": true
-        },
-        {
-          "from": "s-sp-seat",
-          "to": "s-sp-edit",
-          "back": true
-        },
-        {
-          "from": "s-sp-review",
-          "to": "s-sp-edit",
-          "back": true
-        },
-        {
-          "from": "s-sp-review",
-          "to": "s-sp-event",
           "back": true
         }
       ]
@@ -4285,7 +4127,7 @@ window.FIT_BOARD = {
             {
               "file": "flows/coach/calendar.html",
               "label": "Coach Calendar",
-              "id": "s-calendar"
+              "id": "s-event-edit"
             }
           ]
         },
@@ -6645,7 +6487,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-schedule",
-          "hash": "a36e0184bb02",
+          "hash": "d5a83c7f882c",
           "title": "Cancel · refund",
           "inApp": "",
           "status": "canon",
@@ -6661,6 +6503,14 @@ window.FIT_BOARD = {
             {
               "file": "athlete-calendar__s-schedule.webp",
               "label": ""
+            },
+            {
+              "file": "athlete-calendar__s-schedule__reconfirm.webp",
+              "label": "Session updated · re-confirm (was → now)"
+            },
+            {
+              "file": "athlete-calendar__s-schedule__seat-invite.webp",
+              "label": "Invited to join someone else's session"
             }
           ],
           "level": 0,

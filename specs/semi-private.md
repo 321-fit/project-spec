@@ -1,7 +1,10 @@
 # Semi-private sessions (personal training with a second person)
 
 > Status: Approved — design agreed 2026-09-03/04, not yet built
-> Prototype: [coach/semi-private.html — 6 screens](https://321-fit.github.io/project-spec/prototypes/flows/coach/semi-private.html)
+> Prototype: no screen of its own — the feature is **states of existing screens**.
+> Coach: [calendar.html#s-calendar](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html#s-calendar) drawer (`is-semi`) · [#s-event-edit](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html#s-event-edit) (`sp-seats`, `event-seat-sheet`, `event-extra-sheet`).
+> Athlete: [calendar.html#s-schedule](https://321-fit.github.io/project-spec/prototypes/flows/athlete/calendar.html#s-schedule) — `openAthEvent('reconfirm')` and `openAthEvent('request', {seat:true})`.
+> Board: the five states are cards under **Coach Calendar** and **Athlete Schedule**.
 > Last updated: 2026-09-04
 
 A coach has a booked **personal** session and wants a second (or third) person on it — a partner, a friend, a spouse — without turning it into a group session. The same lever also covers the smaller case: an athlete asks for something extra on the day (video analysis, thirty more minutes) and the coach needs to charge for it.
@@ -66,8 +69,8 @@ A semi-private event is therefore: **`is_group_event = false`**, `max_participan
 
 ### Flow 1: Coach adds a second person
 
-1. Calendar → tap event → **event drawer**. The drawer carries a **Participants** block (roster, §6) with **+ Add participant**.
-2. Both `+ Add participant` and `⋯ → Edit details` open **`s-event-edit`** — the same instance-edit screen that already exists ([coach-calendar.md](./coach-calendar.md) Flow 12); the drawer entry opens it scrolled to the participants section. **No separate "extend" screen.**
+1. Calendar → tap event → **event drawer** (`cal-event-sheet`). From the second seat on it carries a **Participants** block (roster, §6); with one athlete the drawer's own name row already answers "who", so the list stays hidden and the solo name row and event-level price stay visible.
+2. **Add participant** lives in the drawer's **⋯ menu** next to *Edit details* — not as a fourth action circle. Both it and *Edit details* open **`s-event-edit`** — the same instance-edit screen that already exists ([coach-calendar.md](./coach-calendar.md) Flow 12); the drawer entry opens it scrolled to the participants section. **No separate "extend" screen.**
 3. Section **Participants & price** lists the seats: the **anchor** seat (the original athlete) and any added seats, each with its price, plus `+ Add participant` while `seats < 3`.
 4. Tapping a seat opens the **seat editor** (sheet):
    - **Who** — client picker, reused from [`invite.html#s-invite-select`](https://321-fit.github.io/project-spec/prototypes/flows/coach/invite.html) (own clients / CRM contacts). **The by-link row is hidden**: a semi-private seat cannot be filled by a stranger with a link.
@@ -115,9 +118,9 @@ Reuses the conflict-drawer grammar already in the prototypes (`coach/calendar.ht
 
 ## 6. What the screens show
 
-### Coach — the roster is one component at any count
+### Coach — the roster replaces the solo row, it does not stack on it
 
-The participants block is the **same list whether there is one seat or three** — a one-row list is a normal list, and the coach should not have to learn two layouts to find out who is coming. It reuses `.fit-participants-card` / `.fit-participant` (avatar, name, payment state, CRM badge) from the group drawer.
+The roster is `.fit-participants-card` / `.fit-participant`, reused from the group drawer. It appears **from the second seat on**: at one seat the drawer's own athlete row is already the one-seat renderer, and showing both would print the same person twice. When the roster appears, the solo name row **and the event-level price** are hidden — money is per seat by then, so one number at the top of the sheet would be wrong.
 
 The event **title stays personal**: "Tennis · 60 min", never "Group session". Kind changes what the block contains, not what the event is called.
 
@@ -128,7 +131,7 @@ Personal teal, unchanged — the two-colour type language (personal teal / group
 ### Athlete — same roster, different money
 
 - Sees who else is on the session: **name and photo**.
-- Sees **only their own price and their own payment state**. Per-seat money is private between the coach and that seat — the coach may have given one of them a discount, and that is not the other's business. Other rows render without the money column.
+- Sees **only their own price and their own payment state** — and the roster is written from the reader's side: "You" is whoever is looking, and the other row carries no money at all. Per-seat money is private between the coach and that seat — the coach may have given one of them a discount, and that is not the other's business. Other rows render without the money column.
 - Never sees the words "semi-private". For the athlete it is "Tennis · 60 min, with Mark".
 
 ## 7. Notifications — no new categories
