@@ -75,7 +75,7 @@ A semi-private event is therefore: **`is_group_event = false`**, `max_participan
 4. Tapping a seat opens the **seat editor** (sheet):
    - **Who** — client picker, reused from [`invite.html#s-invite-select`](https://321-fit.github.io/project-spec/prototypes/flows/coach/invite.html) (own clients / CRM contacts). **The by-link row is hidden**: a semi-private seat cannot be filled by a stranger with a link.
    - **Price for this seat** — defaults to the session price, editable per seat.
-   - **Payment type** — cash / card / balance / pack, defaults to the anchor seat's type.
+   - **No payment picker.** The coach sets *what* is owed, never *how* it is paid: the athlete chooses the method when they accept, out of what the session template accepts — exactly as on any other booking. (CRM seats are the exception the proxy-accept already covers.)
    - **Extras** — repeating `label + amount` rows, added to that seat's price. An extra is a **separate line, never an overwrite of the price**: otherwise the receipt and Earnings cannot explain why a €50 session cost €65.
 5. **Save** → the **review drawer** (§5) lists everything the coach should know before committing. Confirm → the change is written and notifications go out (§7).
 
@@ -120,6 +120,8 @@ Reuses the conflict-drawer grammar already in the prototypes (`coach/calendar.ht
 
 ### Coach — the roster replaces the solo row, it does not stack on it
 
+Inside the drawer the roster drops the card's own margins: `.fit-participants-card` carries 16px of margin and its rows another 16px of padding, which stacks with the sheet's 16px into a 48px gutter. Rows align with the rest of the sheet instead. The footer's action circles use **`.fit-action-circles--sm`** (52px, new in `fit-ui.css`) — four at the shipped 64px own most of the first screen.
+
 The roster is `.fit-participants-card` / `.fit-participant`, reused from the group drawer. It appears **from the second seat on**: at one seat the drawer's own athlete row is already the one-seat renderer, and showing both would print the same person twice. When the roster appears, the solo name row **and the event-level price** are hidden — money is per seat by then, so one number at the top of the sheet would be wrong.
 
 The event **title stays personal**: "Tennis · 60 min", never "Group session". Kind changes what the block contains, not what the event is called.
@@ -152,6 +154,7 @@ Copy in [notifications-catalog.md](./notifications-catalog.md) §1 already carri
 | `max_participants = 2..3` | `training_event` | exists; `is_group_event` stays **false** |
 | seat row | `group_event_participant` | exists — reused as-is for personal events |
 | `price`, `currency` per seat | **new column on the seat** | today the price lives on the event; semi-private needs it per seat |
+| `payment_type` per seat | already on `group_event_participant` | written when the athlete accepts, not when the coach adds the seat |
 | `extras: [{label, amount}]` | **new, per seat** | separate lines, summed into the seat total |
 | `expires_at` per seat | from [poly-backend#938](https://github.com/321-fit/poly-backend/issues/938) | each answer has its own deadline |
 | `anchor` | derive from `training_event.athlete_profile_id` | the event cannot lose its anchor; removing them cancels the event |
@@ -164,6 +167,7 @@ Copy in [notifications-catalog.md](./notifications-catalog.md) §1 already carri
 - **Confirmation is required when composition changes or a price rises. A price cut alone needs nothing** — there is nothing to refuse about a discount.
 - **The anchor's decline reverts; it never cancels.**
 - **Money is per seat**, and one seat's terms are never visible to another.
+- **The coach sets the amount; the athlete picks the method.** The seat editor has no payment selector — the method is chosen on acceptance, within what the session template accepts.
 - **Counting** (against `event-statuses.md` §7): the coach's lifetime `sessions_count` counts **one** finished event — the same way a group session with six people counts once. Each athlete counts **one** session. Earnings records **one earning per seat** — two payments, one event, exactly as group events already do.
 - **An extra cannot be paid with a pack credit.** The credit covers the session it was sold for.
 

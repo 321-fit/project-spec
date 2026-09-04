@@ -358,6 +358,11 @@
   /* the roster now names everyone and prices are per seat, so the solo identity
      row and the event-level price would both be lying */
   #cal-event-sheet-body.is-semi .ev-solo-only { display: none !important; }
+  /* The card carries 16px of margin and its rows another 16px of padding — inside a
+     sheet that already has 16px that stacks to a 48px gutter. In the sheet the rows
+     align with everything else instead. */
+  #cal-event-sheet .fit-participants-card { margin: 0 0 var(--fit-sp-5); padding: 0; }
+  #cal-event-sheet .fit-participants-card .fit-participant { padding: var(--fit-sp-3) 0; }
   /* one athlete → a price field; two or three → the seat list owns the prices */
   #s-event-edit.sp-seats .sp-single { display: none; }
   #s-event-edit:not(.sp-seats) .sp-multi { display: none; }
@@ -777,7 +782,7 @@
             <div class="fit-participant-sub">Anchor · Cash · paid</div>
           </div>
           <div class="sp-money"><div class="sp-money-v">€35</div></div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-left:10px;"><path d="M9 18l6-6-6-6"/></svg>
+          <span class="fit-participant-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
         </div>
         <div class="fit-participant" onclick="calEditEvent();document.getElementById('s-event-edit').classList.add('sp-seats');document.getElementById('event-seat-sheet').classList.add('visible')">
           <div class="fit-avatar">PN</div>
@@ -786,7 +791,7 @@
             <div class="fit-participant-sub">Card · awaiting answer</div>
           </div>
           <div class="sp-money"><div class="sp-money-v">€65</div></div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-left:10px;"><path d="M9 18l6-6-6-6"/></svg>
+          <span class="fit-participant-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
         </div>
       </div>
 
@@ -817,14 +822,14 @@
       <!-- Footer variants — one visible per data-event-state -->
       <!-- planned: Cancel + Reschedule (Edit lives in the ⋯ menu) -->
       <div class="fit-sheet-footer-variant ev-planned">
-<div class="fit-action-circles">
+<div class="fit-action-circles fit-action-circles--sm">
           <button class="fit-action-circle fit-action-circle--danger" data-a11y-id="coach.calendar.event.cancel" onclick="document.getElementById('cal-event-sheet').classList.remove('visible');document.getElementById('cal-cancel-sheet').classList.add('visible');" aria-label="Cancel"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></i><span>Cancel</span></button>
           <button class="fit-action-circle" data-a11y-id="coach.calendar.event.reschedule" onclick="document.getElementById('cal-event-sheet').classList.remove('visible');document.getElementById('cal-reschedule-sheet').classList.add('visible');" aria-label="Reschedule"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></i><span>Reschedule</span></button>
         </div>
       </div>
       <!-- request: the decision (Reschedule/Edit live in the ⋯ menu) -->
       <div class="fit-sheet-footer-variant ev-request">
-<div class="fit-action-circles">
+<div class="fit-action-circles fit-action-circles--sm">
           <button class="fit-action-circle fit-action-circle--danger" data-a11y-id="coach.calendar.event.decline" onclick="document.getElementById('cal-event-sheet').classList.remove('visible');" aria-label="Decline"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></i><span>Decline</span></button>
           <button class="fit-action-circle" data-a11y-id="coach.calendar.event.request.reschedule" onclick="document.getElementById('cal-event-sheet').classList.remove('visible');document.getElementById('cal-reschedule-sheet').classList.add('visible');" aria-label="Reschedule"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></i><span>Reschedule</span></button>
           <button class="fit-action-circle fit-action-circle--primary" data-a11y-id="coach.calendar.event.accept" onclick="document.getElementById('cal-event-sheet').classList.remove('visible');" aria-label="Accept"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></i><span>Accept</span></button>
@@ -897,7 +902,7 @@
       <!-- Footer variants — one visible per data-event-state -->
       <!-- planned: Cancel + Reschedule (Edit + Invite live in the ⋯ menu) -->
       <div class="fit-sheet-footer-variant ev-planned">
-<div class="fit-action-circles">
+<div class="fit-action-circles fit-action-circles--sm">
           <button class="fit-action-circle fit-action-circle--danger" data-a11y-id="coach.calendar.group.cancel" onclick="document.getElementById('cal-group-sheet').classList.remove('visible');document.getElementById('cal-cancel-sheet').classList.add('visible');" aria-label="Cancel"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></i><span>Cancel</span></button>
           <button class="fit-action-circle" data-a11y-id="coach.calendar.group.reschedule" onclick="document.getElementById('cal-group-sheet').classList.remove('visible');document.getElementById('cal-reschedule-sheet').classList.add('visible');" aria-label="Reschedule"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></i><span>Reschedule</span></button>
         </div>
@@ -1948,14 +1953,7 @@
     <div class="fit-input-group" style="padding:0;"><span class="fit-input-label">Price for this seat</span>
       <div class="price-row" style="padding:0;"><div class="fit-input" contenteditable="true" style="flex:1;outline:none;cursor:text;">50</div><div class="price-currency">&euro;</div></div>
     </div>
-    <div class="fit-input-group" style="padding:0;"><span class="fit-input-label">Payment</span></div>
-    <div class="fit-selection-group" data-fit-selection="single" style="margin-bottom:20px;flex-wrap:wrap;">
-      <div class="fit-selection-chip selected" data-value="cash"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h2M20 10h2M2 14h2M20 14h2"/><circle cx="12" cy="12" r="3"/></svg> Cash</div>
-      <div class="fit-selection-chip" data-value="card"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card</div>
-      <div class="fit-selection-chip" data-value="balance"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 010-4h14v4"/><path d="M3 5v14a2 2 0 002 2h16v-5"/><circle cx="18" cy="12" r="1.5"/></svg> Balance</div>
-      <div class="fit-selection-chip" data-value="pack"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8l-9-5-9 5v8l9 5 9-5z"/><path d="M3.3 7L12 12l8.7-5M12 22V12"/></svg> Pack</div>
-    </div>
-    <span class="fit-input-label" style="display:block;margin-bottom:var(--fit-sp-2);">Extras</span>
+<span class="fit-input-label" style="display:block;margin-bottom:var(--fit-sp-2);">Extras</span>
     <div class="sp-extra"><span style="flex:1;">Video analysis</span><span class="sp-extra-a">&euro;15</span><button class="sp-extra-x" aria-label="Remove extra">&times;</button></div>
     <div class="sp-add" onclick="openSheet('event-extra-sheet')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
