@@ -2,7 +2,7 @@
 
 > Status: Approved — design agreed 2026-09-03/04, not yet built
 > Prototype: no screen of its own — the feature is **states of existing screens**.
-> Coach: [calendar.html#s-calendar](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html#s-calendar) drawer (`is-semi`) · [#s-event-edit](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html#s-event-edit) (`sp-seats`, `event-seat-sheet`, `event-extra-sheet`).
+> Coach: [calendar.html#s-calendar](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html#s-calendar) drawer (`is-semi`) · [#s-event-edit](https://321-fit.github.io/project-spec/prototypes/flows/coach/calendar.html#s-event-edit) (`sp-seats`, `event-seat-sheet`, `event-extra-sheet`, `event-save-warnings-sheet`) · picker [invite.html?mode=seat](https://321-fit.github.io/project-spec/prototypes/flows/coach/invite.html?mode=seat#s-invite-select).
 > Athlete: [calendar.html#s-schedule](https://321-fit.github.io/project-spec/prototypes/flows/athlete/calendar.html#s-schedule) — `openAthEvent('reconfirm')` and `openAthEvent('request', {seat:true})`.
 > Board: the five states are cards under **Coach Calendar** and **Athlete Schedule**.
 > Last updated: 2026-09-04
@@ -73,11 +73,11 @@ A semi-private event is therefore: **`is_group_event = false`**, `max_participan
 2. **Add participant** lives in the drawer's **⋯ menu** next to *Edit details* — not as a fourth action circle. Both it and *Edit details* open **`s-event-edit`** — the same instance-edit screen that already exists ([coach-calendar.md](./coach-calendar.md) Flow 12); the drawer entry opens it scrolled to the participants section. **No separate "extend" screen.**
 3. Section **Participants & price** lists the seats: the **anchor** seat (the original athlete) and any added seats, each with its price, plus `+ Add participant` while `seats < 3`.
 4. Tapping a seat opens the **seat editor** (sheet):
-   - **Who** — client picker, reused from [`invite.html#s-invite-select`](https://321-fit.github.io/project-spec/prototypes/flows/coach/invite.html) (own clients / CRM contacts). **The by-link row is hidden**: a semi-private seat cannot be filled by a stranger with a link.
+   - **Who** — client picker, reused from [`invite.html#s-invite-select`](https://321-fit.github.io/project-spec/prototypes/flows/coach/invite.html) (own clients / CRM contacts), opened as **`?mode=seat`**, which hides the **invite-by-link** row: a semi-private seat cannot be filled by a stranger with a link.
    - **Price for this seat** — defaults to the session price, editable per seat.
    - **No payment picker.** The coach sets *what* is owed, never *how* it is paid: the athlete chooses the method when they accept, out of what the session template accepts — exactly as on any other booking. (CRM seats are the exception the proxy-accept already covers.)
    - **Extras** — repeating `label + amount` rows, added to that seat's price. An extra is a **separate line, never an overwrite of the price**: otherwise the receipt and Earnings cannot explain why a €50 session cost €65.
-5. **Save** → the **review drawer** (§5) lists everything the coach should know before committing. Confirm → the change is written and notifications go out (§7).
+5. **Save** → the **review drawer** (§5, `event-save-warnings-sheet`) lists everything the coach should know before committing. Confirm → the change is written and notifications go out (§7). With a single athlete and no seat change, Save keeps its existing behaviour — the plain `event-reconfirm-sheet`.
 
 ### Flow 2: Athlete answers
 
@@ -103,17 +103,17 @@ Adding an extra before the session runs through Flow 1 (seat editor → review �
 
 ## 5. The review drawer
 
-Reuses the conflict-drawer grammar already in the prototypes (`coach/calendar.html#cal-overlap-sheet` and the group-drop participant conflict drawer): status header with a severity badge, hero line, a scrollable list, one line of consequence, and actions **named after what they do**.
+Built as **`event-save-warnings-sheet`** inside `#s-event-edit`, reusing the conflict-drawer grammar already in the prototypes (`coach/calendar.html#cal-overlap-sheet` and the group-drop participant conflict drawer): status header with a severity badge, a scrollable list, one line of consequence, and actions **named after what they do**. Severity is carried by the icon plate alone — red for blocking, amber for a warning, neutral for information — so the list stays readable at three items and at seven.
 
 | Condition | Message | Severity |
 |---|---|---|
-| The added athlete has their own event at this time | "Mark is busy: Tennis 10:00–11:00" + the clashing entries | coach decides — save is allowed |
-| The event starts in under 2 hours | "Mark won't have time to answer — the window closes 2 h before the start" | warning |
+| The added athlete has their own event at this time | "Piotr is busy: Tennis 10:00–11:00" + the clashing entries | coach decides — save is allowed |
+| The event starts in under 2 hours | "Piotr won't have time to answer — the window closes 2 h before the start" | warning |
 | The anchor's price rises, or the composition changes | "Anna confirms again. Her spot is held while she answers" | mandatory notice |
-| The seat is on **home visit** at another athlete's address | "**Mark will see Anna's home address**" | mandatory, own confirmation |
+| The seat is on **home visit** at another athlete's address | "**Piotr will see Anna's home address**" | mandatory — its own checkbox, not a line of grey text |
 | The anchor pays with a **pack credit** and an extra was added | "A credit covers the session, not the €15 extra — a second payment method is needed" | blocking |
 | The anchor pays by card and the total rises | "Hold €50 → a new authorisation for €65 is required" | warning |
-| The added person is a CRM contact with no app account | "Mark can't confirm in the app — you confirm the seat" (existing proxy-accept) | informational |
+| The added person is a CRM contact with no app account | "Piotr can't confirm in the app — you confirm the seat" (existing proxy-accept) | informational |
 | The added person is archived, blocked, or a deleted account | cannot be added | blocking |
 
 ## 6. What the screens show
@@ -170,6 +170,17 @@ Copy in [notifications-catalog.md](./notifications-catalog.md) §1 already carri
 - **The coach sets the amount; the athlete picks the method.** The seat editor has no payment selector — the method is chosen on acceptance, within what the session template accepts.
 - **Counting** (against `event-statuses.md` §7): the coach's lifetime `sessions_count` counts **one** finished event — the same way a group session with six people counts once. Each athlete counts **one** session. Earnings records **one earning per seat** — two payments, one event, exactly as group events already do.
 - **An extra cannot be paid with a pack credit.** The credit covers the session it was sold for.
+
+## 9a. Interface rules this produced
+
+Rules that came out of drawing it, and hold beyond this feature:
+
+- **The roster replaces the solo row; it never stacks on it.** One athlete is already rendered by the drawer's own name row.
+- **`.fit-participants-card` inside a sheet must drop its own margins.** The card's 16px plus its rows' 16px plus the sheet's 16px stack into a 48px gutter, which reads as a different screen.
+- **A tappable row carries `.fit-participant-chevron`** — the seat rows open the seat editor, so they say so.
+- **Compact action circles are a size variant, not an override:** `.fit-action-circles--sm` (52px) in `fit-ui.css`, used by both event drawers and the client-detail drafts.
+- **A removable line needs a 44px hit target**, not a 26px glyph squeezed between hairlines.
+- **The coach sets the amount, the athlete picks the method.** No payment selector in the seat editor.
 
 ## 10. Open questions
 

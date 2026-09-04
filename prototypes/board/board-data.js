@@ -3865,7 +3865,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-calendar",
-          "hash": "e3428dabe36c",
+          "hash": "22fb2a3345af",
           "title": "Cross-role drawer",
           "inApp": "",
           "status": "canon",
@@ -3907,7 +3907,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-event",
-          "hash": "802d82db7339",
+          "hash": "c32004d58760",
           "title": "Event Detail",
           "inApp": "HIIT Group Session",
           "status": "canon",
@@ -3926,7 +3926,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite",
-          "hash": "4a9e25912fdc",
+          "hash": "029743e86726",
           "title": "Invite athletes",
           "inApp": "Invite athletes",
           "status": "canon",
@@ -3945,7 +3945,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-cash",
-          "hash": "440cb3193913",
+          "hash": "69e5122cd571",
           "title": "Event Completion",
           "inApp": "Event completion",
           "status": "canon",
@@ -3964,7 +3964,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-block-time-off",
-          "hash": "48737b7c7bb9",
+          "hash": "edba1df61402",
           "title": "Busy time form",
           "inApp": "Busy time",
           "status": "canon",
@@ -3985,8 +3985,8 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-event-edit",
-          "hash": "d8aa1ca0784d",
-          "title": "↳ seat editor",
+          "hash": "0288ed3da9a5",
+          "title": "↳ before you save",
           "inApp": "Edit event",
           "status": "canon",
           "theme": "dark",
@@ -4011,7 +4011,11 @@ window.FIT_BOARD = {
             },
             {
               "file": "coach-calendar__s-event-edit__seat-editor.webp",
-              "label": "Seat editor · price, payment, extras"
+              "label": "Seat editor · price and extras"
+            },
+            {
+              "file": "coach-calendar__s-event-edit__before-you-save.webp",
+              "label": "Before you save · conflicts, address, re-confirm"
             }
           ],
           "orphan": true,
@@ -4070,7 +4074,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-schedule-pick-athlete",
-          "hash": "464db56617ce",
+          "hash": "d0d54547efa5",
           "title": "Pick athlete (schedule)",
           "inApp": "Choose athlete",
           "status": "canon",
@@ -4090,7 +4094,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-select",
-          "hash": "88f60d50665a",
+          "hash": "25b33587e980",
           "title": "Select Training",
           "inApp": "Select training",
           "status": "canon",
@@ -4133,7 +4137,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-time",
-          "hash": "9cd7f453ec31",
+          "hash": "a449cac11dc9",
           "title": "Date & Time (Personal)",
           "inApp": "",
           "status": "canon",
@@ -4153,7 +4157,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-review",
-          "hash": "7cb8cd2ceee6",
+          "hash": "2b47a2a96cb6",
           "title": "Invite Review",
           "inApp": "Review & Send",
           "status": "canon",
@@ -4173,7 +4177,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-schedule-review",
-          "hash": "95ccc156d61b",
+          "hash": "130e3148263c",
           "title": "Schedule: Review Request",
           "inApp": "Review request",
           "status": "canon",
@@ -6487,7 +6491,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-schedule",
-          "hash": "2afb336f10e3",
+          "hash": "642c10c3d18f",
           "title": "Cancel · refund",
           "inApp": "",
           "status": "canon",

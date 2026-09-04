@@ -127,7 +127,8 @@ export const STATES = {
   "flows/coach/calendar.html#s-event-edit": [
     { id: "semi-private", label: "Semi-private · two seats, price per seat", run: "document.getElementById('s-event-edit').classList.add('sp-seats')" },
     { id: "add-extra", label: "Add an extra", run: "document.getElementById('event-extra-sheet').classList.add('visible')" },
-    { id: "seat-editor", label: "Seat editor · price, payment, extras", run: "document.getElementById('s-event-edit').classList.add('sp-seats');document.getElementById('event-seat-sheet').classList.add('visible')" },
+    { id: "seat-editor", label: "Seat editor · price and extras", run: "document.getElementById('s-event-edit').classList.add('sp-seats');document.getElementById('event-seat-sheet').classList.add('visible')" },
+    { id: "before-you-save", label: "Before you save · conflicts, address, re-confirm", run: "document.getElementById('s-event-edit').classList.add('sp-seats');document.getElementById('event-save-warnings-sheet').classList.add('visible')" },
   ],
   "flows/athlete/calendar.html#s-schedule": [
     { id: "reconfirm", label: "Session updated · re-confirm (was → now)", run: "openAthEvent('reconfirm')" },

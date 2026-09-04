@@ -363,6 +363,21 @@
      align with everything else instead. */
   #cal-event-sheet .fit-participants-card { margin: 0 0 var(--fit-sp-5); padding: 0; }
   #cal-event-sheet .fit-participants-card .fit-participant { padding: var(--fit-sp-3) 0; }
+  /* Warning rows for the pre-save sheet — icon, claim, consequence, severity by
+     the plate colour only. */
+  .sp-warn { display: flex; gap: 12px; padding: 12px; border-radius: 14px; background: var(--fit-surface-low); margin-bottom: var(--fit-sp-2); }
+  .fit-light .sp-warn { background: var(--fit-gray-50); }
+  .sp-warn-i { width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .sp-warn-i svg { width: 16px; height: 16px; }
+  .sp-warn-i.block { background: rgba(240,92,91,0.16); color: var(--fit-red-400); }
+  .sp-warn-i.warn { background: rgba(245,158,11,0.16); color: var(--fit-yellow-600); }
+  .sp-warn-i.info { background: var(--fit-surface-higher); color: var(--fit-text-secondary); }
+  .sp-warn-t { font-size: 14px; font-weight: 500; color: var(--fit-text-primary); }
+  .sp-warn-s { font-size: 12px; line-height: 1.45; color: var(--fit-text-tertiary); margin-top: 3px; }
+  .sp-check { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 13px; color: var(--fit-text-secondary); cursor: pointer; }
+  .sp-check i { width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid var(--fit-gray-500); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .sp-check.on i { background: var(--fit-brand-gradient); border-color: transparent; }
+  .sp-check.on i::after { content: "\2713"; color: #fff; font-size: 13px; }
   /* one athlete → a price field; two or three → the seat list owns the prices */
   #s-event-edit.sp-seats .sp-single { display: none; }
   #s-event-edit:not(.sp-seats) .sp-multi { display: none; }
@@ -394,6 +409,7 @@
   <button onclick="go('s-event-edit',this);document.getElementById('s-event-edit').classList.add('sp-seats')">&nbsp;&nbsp;&#8627; two seats (semi-private)</button>
   <button onclick="go('s-event-edit',this);document.getElementById('event-extra-sheet').classList.add('visible')">&nbsp;&nbsp;&#8627; add an extra</button>
   <button onclick="go('s-event-edit',this);document.getElementById('s-event-edit').classList.add('sp-seats');document.getElementById('event-seat-sheet').classList.add('visible')">&nbsp;&nbsp;&#8627; seat editor</button>
+  <button onclick="go('s-event-edit',this);document.getElementById('s-event-edit').classList.add('sp-seats');document.getElementById('event-save-warnings-sheet').classList.add('visible')">&nbsp;&nbsp;&#8627; before you save</button>
   <div class="label">Busy time</div>
   <button onclick="go('s-block-time-off',this)">Busy time form</button>
   <div class="label">Sheets / drawers</div>
@@ -1918,10 +1934,59 @@
       <span style="font-size:13px;line-height:1.45;color:var(--fit-text-secondary);">Changing location, duration or price sends this session back to <strong>Anna</strong> for re-confirmation. Note changes don&rsquo;t.</span>
     </div>
   </div>
-  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" data-a11y-id="coach.event-edit.save" onclick="openSheet('event-reconfirm-sheet')">Save changes</button></div>
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" data-a11y-id="coach.event-edit.save" onclick="openSheet(document.getElementById('s-event-edit').classList.contains('sp-seats') ? 'event-save-warnings-sheet' : 'event-reconfirm-sheet')">Save changes</button></div>
 <!-- Add an extra — the only genuinely new surface this feature needs. Two fields,
      and suggestions from what this coach has charged before, so Earnings does not
      fill up with six spellings of "video analysis". -->
+<!-- Before you save — the pre-commit warnings for a seat change. Same grammar as
+     cal-overlap-sheet: severity badge, the list, one line of consequence, actions
+     named after what they do (specs/semi-private.md §5). -->
+<div class="fit-sheet-overlay" id="event-save-warnings-sheet">
+  <div class="fit-sheet"><div class="fit-sheet-handle"></div>
+    <div class="fit-sheet-status-header">
+      <div class="fit-sheet-descriptor">Before you save</div>
+      <span class="fit-badge fit-badge-warning">3 things</span>
+    </div>
+    <div style="max-height:290px;overflow-y:auto;margin-bottom:var(--fit-sp-4);">
+      <div class="sp-warn">
+        <span class="sp-warn-i block"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/></svg></span>
+        <div><div class="sp-warn-t">Piotr will see Anna&rsquo;s home address</div>
+        <div class="sp-warn-s">This session is a home visit at Anna&rsquo;s place. Confirm below before saving.</div></div>
+      </div>
+      <div class="sp-warn">
+        <span class="sp-warn-i warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+        <div><div class="sp-warn-t">Piotr is busy at this time</div>
+        <div class="sp-warn-s">Tennis with you &middot; 10:00 &ndash; 11:00. You can still invite him &mdash; he decides.</div></div>
+      </div>
+      <div class="sp-warn">
+        <span class="sp-warn-i info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+        <div><div class="sp-warn-t">Anna confirms again</div>
+        <div class="sp-warn-s">Someone is joining her session, and her price drops &euro;50 &rarr; &euro;35. Her spot is held while she answers; if she declines, the session stays as it was.</div></div>
+      </div>
+    </div>
+    <div class="sp-check on" onclick="this.classList.toggle('on')"><i></i>I&rsquo;ve told Anna someone is joining at her home</div>
+    <div style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.5;margin-bottom:var(--fit-sp-4);">Anna and Piotr each get their own request with their own deadline. The slot stays yours until both answer.</div>
+    <div style="display:flex;gap:8px;">
+      <button class="fit-btn" style="flex:1;padding:0 16px;background:var(--fit-surface-high);color:var(--fit-text-primary);" onclick="document.getElementById('event-save-warnings-sheet').classList.remove('visible');">Keep editing</button>
+      <button class="fit-btn fit-btn-primary" style="flex:1;padding:0 16px;" onclick="document.getElementById('event-save-warnings-sheet').classList.remove('visible');go('s-calendar',document.querySelector('[onclick*=s-calendar]'));">Save &amp; notify</button>
+    </div>
+  </div>
+</div>
+
+<!-- Re-confirm sheet — shown on Save when a dry field changed on a confirmed event -->
+<div class="fit-sheet-overlay" id="event-reconfirm-sheet">
+  <div class="fit-sheet"><div class="fit-sheet-handle"></div>
+    <div class="fit-sheet-status-header">
+      <div class="fit-sheet-descriptor">Send for re-confirmation?</div>
+    </div>
+    <div style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;margin-bottom:28px;">You changed the price, duration or location. <strong>Anna</strong> will need to accept the updated session again before it&rsquo;s confirmed. She keeps her spot while it&rsquo;s pending.</div>
+    <div style="display:flex;gap:8px;">
+      <button data-a11y-id="coach.event-edit.reconfirm.cancel" style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('event-reconfirm-sheet').classList.remove('visible');">Keep editing</button>
+      <button class="fit-btn fit-btn-primary" data-a11y-id="coach.event-edit.reconfirm.save" style="flex:1;height:50px;font-size:16px;" onclick="document.getElementById('event-reconfirm-sheet').classList.remove('visible');go('s-calendar',document.querySelector('[onclick*=s-calendar]'));">Save &amp; notify</button>
+    </div>
+  </div>
+</div>
+
 <div class="fit-sheet-overlay" id="event-extra-sheet">
   <div class="fit-sheet"><div class="fit-sheet-handle"></div>
     <div class="fit-sheet-status-header">
@@ -1935,8 +2000,8 @@
     </div>
     
     <div style="display:flex;gap:8px;">
-      <button class="fit-btn" style="flex:1;background:var(--fit-surface-high);color:var(--fit-text-primary);" onclick="document.getElementById('event-extra-sheet').classList.remove('visible');">Cancel</button>
-      <button class="fit-btn fit-btn-primary" style="flex:1;" onclick="document.getElementById('event-extra-sheet').classList.remove('visible');">Add</button>
+      <button class="fit-btn" style="flex:1;padding:0 16px;background:var(--fit-surface-high);color:var(--fit-text-primary);" onclick="document.getElementById('event-extra-sheet').classList.remove('visible');">Cancel</button>
+      <button class="fit-btn fit-btn-primary" style="flex:1;padding:0 16px;" onclick="document.getElementById('event-extra-sheet').classList.remove('visible');">Add</button>
     </div>
   </div>
 </div>
@@ -1961,26 +2026,12 @@
     </div>
     <div class="sp-total" style="margin-bottom:24px;"><span style="font-size:14px;color:var(--fit-text-tertiary);">Piotr pays</span><span class="sp-total-v">&euro;65</span></div>
     <div style="display:flex;gap:8px;">
-      <button class="fit-btn" style="flex:1;background:var(--fit-surface-high);color:var(--fit-red-400);" onclick="document.getElementById('event-seat-sheet').classList.remove('visible');">Remove</button>
-      <button class="fit-btn fit-btn-primary" style="flex:1;" onclick="document.getElementById('event-seat-sheet').classList.remove('visible');">Done</button>
+      <button class="fit-btn" style="flex:1;padding:0 16px;background:var(--fit-surface-high);color:var(--fit-red-400);" onclick="document.getElementById('event-seat-sheet').classList.remove('visible');">Remove</button>
+      <button class="fit-btn fit-btn-primary" style="flex:1;padding:0 16px;" onclick="document.getElementById('event-seat-sheet').classList.remove('visible');">Done</button>
     </div>
   </div>
 </div>
 
-</div>
-
-<!-- Re-confirm sheet — shown on Save when a dry field changed on a confirmed event -->
-<div class="fit-sheet-overlay" id="event-reconfirm-sheet">
-  <div class="fit-sheet"><div class="fit-sheet-handle"></div>
-    <div class="fit-sheet-status-header">
-      <div class="fit-sheet-descriptor">Send for re-confirmation?</div>
-    </div>
-    <div style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;margin-bottom:28px;">You changed the price, duration or location. <strong>Anna</strong> will need to accept the updated session again before it&rsquo;s confirmed. She keeps her spot while it&rsquo;s pending.</div>
-    <div style="display:flex;gap:8px;">
-      <button data-a11y-id="coach.event-edit.reconfirm.cancel" style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('event-reconfirm-sheet').classList.remove('visible');">Keep editing</button>
-      <button class="fit-btn fit-btn-primary" data-a11y-id="coach.event-edit.reconfirm.save" style="flex:1;height:50px;font-size:16px;" onclick="document.getElementById('event-reconfirm-sheet').classList.remove('visible');go('s-calendar',document.querySelector('[onclick*=s-calendar]'));">Save &amp; notify</button>
-    </div>
-  </div>
 </div>
 
 <!-- Annotations -->
