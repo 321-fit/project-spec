@@ -3,7 +3,7 @@
 > Status: Draft — copy is written, facts are checked against the specs, nothing is published yet
 > Owner: product (copy) · growth (placement on the site)
 > Last updated: 2026-09-08 — answers walked against the **live Android build** (dev, emulator) and checked against `strings.xml` + the iOS `Localizable.strings`
-> Companion: [§ 14 Videos](#14-videos--the-step-by-step-clips) sets the format for the step-by-step clips; [video-storyboards.md](./video-storyboards.md) holds their shot lists.
+> Companion: [§ 15 Videos](#15-videos--the-step-by-step-clips) sets the format for the step-by-step clips; [video-storyboards.md](./video-storyboards.md) holds their shot lists.
 
 This file is the **source of truth for the FAQ block on the marketing site**. The site copies from here; nobody writes FAQ answers directly in the website CMS. When a feature changes, the spec changes first, this file second, the site third.
 
@@ -15,7 +15,7 @@ This file is the **source of truth for the FAQ block on the marketing site**. Th
 - **Say "you".** Name the role only when the answer differs for a coach and an athlete.
 - **Only words that exist in the app.** No "anchor seat", no "event approval", no "CRM". If the product's own screen says *Requests*, the FAQ says Requests.
 - **No numbers that drift.** Prices, commissions and percentages do not belong here. Product constants that specs pin down (48 hours to answer a request, free cancellation up to 24 hours) are fine — they are linked to their spec so they can be re-checked.
-- **Everything below § 13 is true today.** Anything not yet built lives in § 15 and does not go on the site.
+- **Everything above § 16 is true today.** Anything not yet built lives in § 16 and does not go on the site.
 
 ---
 
@@ -33,9 +33,6 @@ As an athlete, yes: the app is built around working with a coach. If you already
 **What does it cost me as an athlete?**
 Nothing. Athletes use 321Fit for free and pay only their coach for training.
 
-**What does it cost as a coach?**
-A subscription. 321Fit does not take a cut of what you earn — what your client pays for a session is yours.
-
 ---
 
 ## 2. Finding a coach and booking (athlete)
@@ -47,7 +44,7 @@ Search by sport, city and language, and open a coach's profile to see what they 
 Open the coach's profile, pick the training you want, then a free time on their calendar, and send the request — you can add a note for the coach on the way. You'll see it as *Awaiting* until they accept.
 
 **Why isn't my booking confirmed straight away?**
-Every session is confirmed by the coach — they may be double-booked, travelling or out of hours. Coaches have **48 hours** to answer, and the request expires on its own if they don't ([booking-flow.md](../specs/booking-flow.md) § 7 — the number is under review, see § 15a).
+Every session is confirmed by the coach — they may be double-booked, travelling or out of hours. Coaches have **48 hours** to answer, and the request expires on its own if they don't ([booking-flow.md](../specs/booking-flow.md) § 7 — the number is under review, see § 17).
 
 **Why are some times greyed out?**
 Because the coach is busy then — their own sessions, anything in a calendar they've connected, and hours they don't work. You only get offered times they can actually take.
@@ -149,7 +146,7 @@ Money reserved for a session that doesn't happen comes back to your balance: the
 In the calendar: everything booked, waiting, and finished, day by day.
 
 **What is calendar sync?**
-Connect your Google or Apple calendar and 321Fit reads what's already in it, so a coach's free slots never fall on top of your dentist appointment. You choose which calendar 321Fit writes its own sessions into.
+Connect your Google calendar and 321Fit reads what's already in it, so a coach's free slots never fall on top of your dentist appointment. You also choose which calendar 321Fit writes its own sessions into.
 
 **Will my personal appointments be visible to anyone?**
 No. Events imported from your calendar are only used to keep your schedule honest — no title, no detail, is shown to anyone else.
@@ -165,7 +162,10 @@ Your available hours, plus anything in a connected calendar, plus time off you'v
 ## 9. Messages and notifications
 
 **Can I message my coach?**
-Yes, in the app. Group sessions have their own chat with everyone in them.
+Yes — Messages holds your direct conversations with the people you train with, coach or athlete. Group sessions also get their own chat with everyone in them.
+
+**Where do messages live?**
+In one place, not scattered across sessions: open Messages, pick the person, and the whole history is there.
 
 **What will 321Fit notify me about?**
 The things that need you: a request to answer, a session confirmed or moved, money owed, and a reminder before training starts.
@@ -218,9 +218,6 @@ Cash in person, or online — online money lands in your 321Fit balance and is p
 **When does the money arrive?**
 Card money clears about 24 hours after the session and then becomes available; payouts run to your bank on the schedule shown in Earnings.
 
-**Does 321Fit take a commission?**
-No. You pay a subscription for the app; what a client pays for training is yours.
-
 **What about clients who pay cash?**
 Mark the session as paid when you receive the money. Anything unpaid stays visible so nothing quietly disappears.
 
@@ -229,7 +226,28 @@ Yes — price lives on the session, so you can set it per booking without touchi
 
 ---
 
-## 13. Account, roles and privacy
+## 13. What you'll see in the app
+
+Not a tour of every screen — five places, each answering one question the app has to answer for you every day.
+
+**Home**
+Where you land: what is next, what needs an answer, what is unfinished. If nothing here asks anything of you, your day is clear.
+
+**Calendar**
+Your training in time. Everything booked, waiting and finished, day by day — a coach also sees their working hours, blocked time and anything synced from another calendar.
+
+**Clients** *(coach)* **· My Coaches** *(athlete)*
+Your people. A coach opens a client and sees their sessions, money, packages, groups and notes in one place; an athlete opens a coach and sees what they offer and everything they've trained together.
+
+**Messages**
+Direct conversations with the people you train with, plus a chat for each group session.
+
+**Balance** *(athlete)* **· Earnings** *(coach)*
+The money side: what you've topped up and spent, or what you've earned, what's still owed in cash and what has been paid out.
+
+---
+
+## 14. Account, roles and privacy
 
 **Can I be a coach and an athlete at once?**
 Yes, on one account. Switch roles in the app; each side keeps its own profile and schedule.
@@ -245,7 +263,7 @@ On our servers in the EU, and with the services that run parts of the product: p
 
 ---
 
-## 14. Videos — the step-by-step clips
+## 15. Videos — the step-by-step clips
 
 The written answer says *what*; a short clip shows *how*. The clips sit next to the FAQ entry they belong to, not in a separate "watch our video" section.
 
@@ -281,13 +299,7 @@ Shot lists live in **[video-storyboards.md](./video-storyboards.md)** — screen
 
 ---
 
-## 15a. Checked against the app — 2026-09-08
-
-Walked on the live Android build (dev flavour, emulator) and cross-read against `strings.xml` and the iOS `Localizable.strings`. Everything above uses words the app actually shows: *Requests*, *Awaiting*, *Balance*, *Top up*, *Calendar sync*, *Available hours*, *Time off*, *Home visit*, *Self-paced*, *Packages*, *Earnings*, *Mark as paid*, *Clients*, *Groups*.
-
-**One conflict found, and it is a product decision, not a bug to file yet.** The booking screen on both platforms says *"Coach has 24h to approve"*; the backend auto-declines at **48 hours** (`auto_decline_pending_requests`, `timedelta(hours=48)`) and the spec has said 48h since 2026-06-26. Which number is right is **open with product** — the window may go back to 24h. Until it is decided, do not touch either side, and treat the 48h in § 2 as provisional: whatever is decided lands in the spec first, then here, then the apps.
-
-## 15. Not on the site yet
+## 16. Not on the site yet
 
 Do not publish an answer for anything in this list — the words would be a promise. Move an entry up into the FAQ in the same commit that ships the feature.
 
@@ -297,7 +309,15 @@ Do not publish an answer for anything in this list — the words would be a prom
 | Written reviews | Ratings exist; the review module is not finished |
 | AI assistant | In the app but still changing — check with product before it goes on the site |
 | Referral rewards | Invites work; the reward mechanics are not decided |
-| Anything with a number attached — subscription price, payout timing in days | Owned by growth/finance, not by this file |
+| **How 321Fit makes money** — subscription, commission, anything with a price | Not decided/announced. Removed from § 1 and § 12 on 2026-09-08; put it back only when growth says what it is |
+| **Apple calendar sync** | Google is what the copy names for now. The Apple half is not advertised until product says it is |
+| Payout timing in days | Owned by finance, not by this file |
+
+## 17. Checked against the app — 2026-09-08
+
+Walked on the live Android build (dev flavour, emulator) and cross-read against `strings.xml` and the iOS `Localizable.strings`. Everything above uses words the app actually shows: *Requests*, *Awaiting*, *Balance*, *Top up*, *Calendar sync*, *Available hours*, *Time off*, *Home visit*, *Self-paced*, *Packages*, *Earnings*, *Mark as paid*, *Clients*, *Groups*.
+
+**One conflict found, and it is a product decision, not a bug to file yet.** The booking screen on both platforms says *"Coach has 24h to approve"*; the backend auto-declines at **48 hours** (`auto_decline_pending_requests`, `timedelta(hours=48)`) and the spec has said 48h since 2026-06-26. Which number is right is **open with product** — the window may go back to 24h. Until it is decided, do not touch either side, and treat the 48h in § 2 as provisional: whatever is decided lands in the spec first, then here, then the apps.
 
 ## Related
 

@@ -1,7 +1,7 @@
 # Video storyboards — the first eight clips
 
 > Status: Draft — shot lists ready, nothing recorded
-> Companion to [faq.md](./faq.md) § 14, which sets the format and says why these exist
+> Companion to [faq.md](./faq.md) § 15, which sets the format and says why these exist
 > Last updated: 2026-09-08
 
 Each clip answers **one** FAQ question. The shot lists below are built from screens that already exist on the [prototype board](https://321-fit.github.io/project-spec/prototypes/board.html), so a clip cannot show a flow the product does not have — if a shot has no screen link, that screen does not exist and the clip is wrong, not the product.
@@ -145,4 +145,4 @@ Each clip answers **one** FAQ question. The shot lists below are built from scre
 1. **Three shots have no prototype screen** — the athlete's review-&-send sheet (clips 1, 6, 8), the coach's event drawer in `request` state (clip 2) and the group join confirm (clip 4). They exist in the build; record them there, and if a clip needs a *fourth* such shot, stop and check the flow is real.
 2. **Fixture data first.** One coach, two athletes, one gym, one home address, one package, one self-paced workout — set up once and reused across all eight, or the clips will look like eight different products.
 3. **Decide the recorder** (screen capture vs motion over frames) before shot 1 of clip 1: it changes how the fixtures are prepared, not just how the file looks.
-4. **The 48h line does not appear in any clip.** The approval window is under review ([faq.md](./faq.md) § 15a) — no caption should name a number until it is settled.
+4. **The 48h line does not appear in any clip.** The approval window is under review ([faq.md](./faq.md) § 17) — no caption should name a number until it is settled.
