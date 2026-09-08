@@ -35,6 +35,9 @@ project-spec/
 │   ├── index.html                  # Hub
 │   ├── flows/                      # Per-module flows
 │   └── lib/                        # fit-ui.css + fit-ui-tokens.css + fit-ui.js
+├── marketing/
+│   └── faq.md                      # Landing-page FAQ — source copy + the plan for step-by-step clips
+├── store-assets/                   # App Store / Play listing + screenshot generator
 ├── architecture/
 │   ├── system-overview.md          # Full system diagram, deployment
 │   ├── data-model.md               # ER diagram, all DB tables
