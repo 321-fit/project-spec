@@ -3,7 +3,7 @@
 > Status: Draft — copy is written, facts are checked against the specs, nothing is published yet
 > Owner: product (copy) · growth (placement on the site)
 > Last updated: 2026-09-08 — answers walked against the **live Android build** (dev, emulator) and checked against `strings.xml` + the iOS `Localizable.strings`
-> Companion: [§ 14 Videos](#14-videos--the-step-by-step-clips) plans the step-by-step clips that sit next to these answers.
+> Companion: [§ 14 Videos](#14-videos--the-step-by-step-clips) sets the format for the step-by-step clips; [video-storyboards.md](./video-storyboards.md) holds their shot lists.
 
 This file is the **source of truth for the FAQ block on the marketing site**. The site copies from here; nobody writes FAQ answers directly in the website CMS. When a feature changes, the spec changes first, this file second, the site third.
 
@@ -47,7 +47,7 @@ Search by sport, city and language, and open a coach's profile to see what they 
 Open the coach's profile, pick the training you want, then a free time on their calendar, and send the request — you can add a note for the coach on the way. You'll see it as *Awaiting* until they accept.
 
 **Why isn't my booking confirmed straight away?**
-Every session is confirmed by the coach — they may be double-booked, travelling or out of hours. Coaches have **48 hours** to answer, and the request expires on its own if they don't ([booking-flow.md](../specs/booking-flow.md) § 7 — note the app currently prints 24h, see § 16).
+Every session is confirmed by the coach — they may be double-booked, travelling or out of hours. Coaches have **48 hours** to answer, and the request expires on its own if they don't ([booking-flow.md](../specs/booking-flow.md) § 7 — the number is under review, see § 15a).
 
 **Why are some times greyed out?**
 Because the coach is busy then — their own sessions, anything in a calendar they've connected, and hours they don't work. You only get offered times they can actually take.
@@ -258,6 +258,8 @@ The written answer says *what*; a short clip shows *how*. The clips sit next to 
 
 ### The first set
 
+Shot lists live in **[video-storyboards.md](./video-storyboards.md)** — screen by screen, with a board link per shot and the caption text.
+
 | # | Clip | FAQ entry | Storyboard: screens it walks |
 |---|---|---|---|
 | 1 | Book a session with a coach | § 2 | search → coach profile → session type → time → confirm → *Awaiting* → confirmed |
@@ -283,7 +285,7 @@ The written answer says *what*; a short clip shows *how*. The clips sit next to 
 
 Walked on the live Android build (dev flavour, emulator) and cross-read against `strings.xml` and the iOS `Localizable.strings`. Everything above uses words the app actually shows: *Requests*, *Awaiting*, *Balance*, *Top up*, *Calendar sync*, *Available hours*, *Time off*, *Home visit*, *Self-paced*, *Packages*, *Earnings*, *Mark as paid*, *Clients*, *Groups*.
 
-**One conflict found, and the FAQ keeps the true number.** The booking screen on both platforms says *"Coach has 24h to approve"*; the backend auto-declines at **48 hours** (`auto_decline_pending_requests`, `timedelta(hours=48)`) and the spec has said 48h since 2026-06-26. The app copy is the thing that is wrong — filed as [321fit_android_new#191](https://github.com/321-fit/321fit_android_new/issues/191) and [321fit_ios#537](https://github.com/321-fit/321fit_ios/issues/537). **Do not "correct" this file down to 24h**; correct the apps up to 48h.
+**One conflict found, and it is a product decision, not a bug to file yet.** The booking screen on both platforms says *"Coach has 24h to approve"*; the backend auto-declines at **48 hours** (`auto_decline_pending_requests`, `timedelta(hours=48)`) and the spec has said 48h since 2026-06-26. Which number is right is **open with product** — the window may go back to 24h. Until it is decided, do not touch either side, and treat the 48h in § 2 as provisional: whatever is decided lands in the spec first, then here, then the apps.
 
 ## 15. Not on the site yet
 

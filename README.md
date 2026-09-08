@@ -36,7 +36,8 @@ project-spec/
 │   ├── flows/                      # Per-module flows
 │   └── lib/                        # fit-ui.css + fit-ui-tokens.css + fit-ui.js
 ├── marketing/
-│   └── faq.md                      # Landing-page FAQ — source copy + the plan for step-by-step clips
+│   ├── faq.md                      # Landing-page FAQ — source copy
+│   └── video-storyboards.md        # Shot lists for the step-by-step clips, screen by screen
 ├── store-assets/                   # App Store / Play listing + screenshot generator
 ├── architecture/
 │   ├── system-overview.md          # Full system diagram, deployment
