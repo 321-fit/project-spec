@@ -5,7 +5,7 @@
 > Last updated: 2026-09-08 — answers walked against the **live Android build** (dev, emulator) and checked against `strings.xml` + the iOS `Localizable.strings`
 > Companion: [§ 15 Videos](#15-videos--the-step-by-step-clips) sets the format for the step-by-step clips; [video-storyboards.md](./video-storyboards.md) holds their shot lists.
 
-This file is the **source of truth for the FAQ block on the marketing site**. The site copies from here; nobody writes FAQ answers directly in the website CMS. When a feature changes, the spec changes first, this file second, the site third.
+This file is the **source of truth for FAQ copy on the marketing site** — both the short block on the landing and the full /faq page (§ 0a). The site copies from here; nobody writes FAQ answers directly in the website CMS. When a feature changes, the spec changes first, this file second, the site third.
 
 ## 0. How to write an entry
 
@@ -16,6 +16,36 @@ This file is the **source of truth for the FAQ block on the marketing site**. Th
 - **Only words that exist in the app.** No "anchor seat", no "event approval", no "CRM". If the product's own screen says *Requests*, the FAQ says Requests.
 - **No numbers that drift.** Prices, commissions and percentages do not belong here. Product constants that specs pin down (48 hours to answer a request, free cancellation up to 24 hours) are fine — they are linked to their spec so they can be re-checked.
 - **Everything above § 16 is true today.** Anything not yet built lives in § 16 and does not go on the site.
+
+---
+
+## 0a. Where each answer goes
+
+Two surfaces, two jobs — **one source, this file**. Never write an answer twice: the landing block renders a subset of the same entries.
+
+| | **Landing block** | **/faq page** |
+|---|---|---|
+| Job | remove the objection that stops a signup | answer everything, once someone is interested |
+| Length | 6 questions, accordion, all closed | the full file, sectioned, anchor-linkable |
+| Voice | the shortest true answer | the same answers, with the detail |
+| Role | matches the section it sits in (coach block / athlete block) | a role switch at the top — half of this file is irrelevant to whoever is reading |
+| Video | none — a clip on the landing competes with the CTA | inline, next to the section it belongs to |
+
+**The six for the landing**, in this order — they are the six things a visitor decides on, not the six we most want to say:
+
+1. § 1 — What is 321Fit?
+2. § 1 — Do I need a coach to use it?
+3. § 1 — What does it cost me as an athlete?
+4. § 2 — Why isn't my booking confirmed straight away?
+5. § 7 — How do I pay for training?
+6. § 14 — What do other people see about me?
+
+Everything else is a reason to open **/faq**, and the landing block ends with one link to it — not a "read more" per answer.
+
+**Two notes for whoever builds the page.**
+
+- **The role switch is not a nicety.** An athlete reading "how do I get paid" and a coach reading "how do I find a coach" both conclude the product is not for them. If the page cannot switch, split it into two pages instead.
+- **Don't build it for FAQ rich results.** Google restricted FAQ rich snippets to a narrow set of sites in 2023, so `FAQPage` markup buys almost nothing in search now. Mark it up for accessibility — real headings, real `<details>`, linkable anchors — and let the content do the SEO.
 
 ---
 
