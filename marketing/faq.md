@@ -2,7 +2,7 @@
 
 > Status: Draft — copy is written, facts are checked against the specs, nothing is published yet
 > Owner: product (copy) · growth (placement on the site)
-> Last updated: 2026-09-08
+> Last updated: 2026-09-08 — answers walked against the **live Android build** (dev, emulator) and checked against `strings.xml` + the iOS `Localizable.strings`
 > Companion: [§ 14 Videos](#14-videos--the-step-by-step-clips) plans the step-by-step clips that sit next to these answers.
 
 This file is the **source of truth for the FAQ block on the marketing site**. The site copies from here; nobody writes FAQ answers directly in the website CMS. When a feature changes, the spec changes first, this file second, the site third.
@@ -44,10 +44,13 @@ A subscription. 321Fit does not take a cut of what you earn — what your client
 Search by sport, city and language, and open a coach's profile to see what they offer, their prices and what other athletes say. If your coach is already on 321Fit, they can send you an invite instead.
 
 **How do I book a session?**
-Open the coach's profile, pick a session type, then a free time from their calendar, and send the request. You'll see it as *Awaiting* until the coach accepts.
+Open the coach's profile, pick the training you want, then a free time on their calendar, and send the request — you can add a note for the coach on the way. You'll see it as *Awaiting* until they accept.
 
 **Why isn't my booking confirmed straight away?**
-Every session is confirmed by the coach — they may be double-booked, travelling or out of hours. Coaches have **48 hours** to answer, and the request expires on its own if they don't ([booking-flow.md](../specs/booking-flow.md) § 7).
+Every session is confirmed by the coach — they may be double-booked, travelling or out of hours. Coaches have **48 hours** to answer, and the request expires on its own if they don't ([booking-flow.md](../specs/booking-flow.md) § 7 — note the app currently prints 24h, see § 16).
+
+**Why are some times greyed out?**
+Because the coach is busy then — their own sessions, anything in a calendar they've connected, and hours they don't work. You only get offered times they can actually take.
 
 **Can the coach book me in?**
 Yes. If a coach schedules a session for you, it lands in your app as a request and nothing is booked until you accept it.
@@ -63,7 +66,7 @@ Propose a different one — from the session, choose *Reschedule*. The other sid
 One-to-one training with your coach at an agreed time and place — a gym, a studio, outdoors, online, or at your home if the coach offers home visits.
 
 **Can I cancel?**
-Yes, free of charge up to **24 hours** before the session. Later than that, it is between you and your coach.
+Yes, free of charge up to **24 hours** before the session, and the money goes back to your balance. Later than that it depends on your coach's own policy.
 
 **What happens if I don't show up?**
 The coach marks what happened after the session. A missed session is recorded as missed, and money follows the coach's own terms.
@@ -85,7 +88,7 @@ Your coach shares the session or invites you directly; you take a seat if there 
 You can't take a seat that isn't there. Ask your coach — they can tell you when the next one runs.
 
 **Can I leave a group session?**
-Yes, the same way you cancel a personal one, and your seat goes back to the group.
+Yes, and your seat goes back to the group. Leave more than 24 hours before it starts and anything you paid comes back to your balance; later than that it may not.
 
 **Can the coach cancel a group session?**
 Yes — if too few people sign up, or anything else. Everyone is notified, and anyone who paid online gets their money back.
@@ -111,7 +114,7 @@ Only if your coach asks for it. Some coaches review video, some just want you to
 A block of sessions bought at once, usually cheaper per session than paying each time. Your coach decides which sessions they offer as a package and at what price.
 
 **How do I use it?**
-Book as usual — a session is taken from your package instead of being paid for separately. The app shows how many you have left.
+Book as usual — a session is taken from your package instead of being paid for separately, and the app shows how many you have left. If the coach sells one for the training you're booking, you'll see the offer on the booking screen before you send it.
 
 **What happens if a session I paid for with a package is cancelled?**
 The session comes back to your package. Nothing is lost when a coach declines, cancels, or a request expires unanswered.
@@ -213,7 +216,7 @@ You can archive a client to clear your list, or block them so they can't book yo
 Cash in person, or online — online money lands in your 321Fit balance and is paid out to your bank account through Stripe.
 
 **When does the money arrive?**
-Online payments become available after the session, and payouts run to your bank on a schedule you can see in Earnings.
+Card money clears about 24 hours after the session and then becomes available; payouts run to your bank on the schedule shown in Earnings.
 
 **Does 321Fit take a commission?**
 No. You pay a subscription for the app; what a client pays for training is yours.
@@ -275,6 +278,12 @@ The written answer says *what*; a short clip shows *how*. The clips sit next to 
 3. **Where they live on the site** — inline in the FAQ entry, or a gallery at the top? Inline is the reason to have them; a gallery is how they get ignored.
 
 ---
+
+## 15a. Checked against the app — 2026-09-08
+
+Walked on the live Android build (dev flavour, emulator) and cross-read against `strings.xml` and the iOS `Localizable.strings`. Everything above uses words the app actually shows: *Requests*, *Awaiting*, *Balance*, *Top up*, *Calendar sync*, *Available hours*, *Time off*, *Home visit*, *Self-paced*, *Packages*, *Earnings*, *Mark as paid*, *Clients*, *Groups*.
+
+**One conflict found, and the FAQ keeps the true number.** The booking screen on both platforms says *"Coach has 24h to approve"*; the backend auto-declines at **48 hours** (`auto_decline_pending_requests`, `timedelta(hours=48)`) and the spec has said 48h since 2026-06-26. The app copy is the thing that is wrong — filed as [321fit_android_new#191](https://github.com/321-fit/321fit_android_new/issues/191) and [321fit_ios#537](https://github.com/321-fit/321fit_ios/issues/537). **Do not "correct" this file down to 24h**; correct the apps up to 48h.
 
 ## 15. Not on the site yet
 
