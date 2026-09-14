@@ -571,6 +571,27 @@
   .fit-phone[class*="src-"].rs-error [data-review-state="error"] { display: block; }
 
   /* --- Dashboard in J's grammar (cd-d-*) --- */
+  /* anchor options */
+  .cd-d-anchor { display: none; padding-top: 6px; padding-bottom: 6px; }
+  .cd-d-anchor-when { font-size: 13px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--fit-teal-500); margin-top: 12px; }
+  #s-draft-dash.d-quiet .cd-d-anchor-when { color: var(--fit-text-tertiary); }
+  .cd-d-anchor-person .cd-i-name { margin-top: 4px; }
+  .cd-d-day-num { font-size: 64px; font-weight: 700; letter-spacing: -2px; line-height: 1; color: var(--fit-text-primary); }
+  .cd-d-anchor-day .cd-i-name { margin-top: 2px; }
+  .cd-d-anchor-day .cd-i-sub span { display: none; }
+  .cd-d-anchor-day .cd-i-sub .cd-d-sub-day { display: inline; }
+  #s-draft-dash.d-quiet .cd-d-anchor-day .cd-i-sub .cd-d-sub-day { display: none; }
+  #s-draft-dash.d-quiet .cd-d-anchor-day .cd-i-sub .cd-d-sub-quiet { display: inline; }
+  #s-draft-dash.d-anchor-person:not(.d-idle):not(.d-ready):not(.d-loading) .cd-d-anchor-person { display: block; }
+  #s-draft-dash.d-anchor-person:not(.d-idle):not(.d-ready):not(.d-loading) .cd-d-sec-next { display: none; }
+  #s-draft-dash.d-anchor-day:not(.d-loading) .cd-d-anchor-day { display: block; }
+  #s-draft-dash.d-anchor-person .cd-d-hello, #s-draft-dash.d-anchor-day .cd-d-hello { padding-top: 2px; }
+  #s-draft-dash.d-anchor-person .cd-d-hi, #s-draft-dash.d-anchor-day .cd-d-hi { font-size: 17px; font-weight: 600; letter-spacing: 0; }
+  #s-draft-dash.d-anchor-person .cd-d-sub, #s-draft-dash.d-anchor-day .cd-d-sub { margin-top: 2px; font-size: 13px; color: var(--fit-text-tertiary); }
+  #s-draft-dash.d-anchor-day .cd-d-sub { display: none; }
+  #s-draft-dash.d-anchor-person.d-ready .cd-d-hi, #s-draft-dash.d-anchor-person.d-idle .cd-d-hi { font-size: 26px; font-weight: 700; letter-spacing: -0.4px; }
+  #s-draft-dash.d-anchor-person.d-ready .cd-d-sub, #s-draft-dash.d-anchor-person.d-idle .cd-d-sub { font-size: 14px; color: var(--fit-text-secondary); margin-top: 5px; }
+  #s-draft-dash.d-anchor-person.d-ready .cd-d-hello, #s-draft-dash.d-anchor-person.d-idle .cd-d-hello { padding-top: 10px; }
   .cd-d-av { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; background: var(--fit-surface-higher); color: var(--fit-text-primary); flex-shrink: 0; }
   .cd-d-av-lg { width: 46px; height: 46px; font-size: 15px; }
   .fit-dark.k-alpha .cd-d-av { background: rgba(255,255,255,0.14); color: #fff; }
@@ -1173,6 +1194,22 @@
     <div class="cd-in cd-d-hello">
       <div class="cd-d-hi"><span class="cd-d-hi-day">Good morning, Robert</span><span class="cd-d-hi-ready">You&rsquo;re all set, Robert</span><span class="cd-d-hi-idle">Nothing on the schedule</span></div>
       <div class="cd-d-sub"><span class="cd-d-sub-day">Wed 23 Apr &middot; 3 sessions &middot; &euro;180 today</span><span class="cd-d-sub-quiet">Wed 23 Apr &middot; nothing today &mdash; enjoy the quiet</span><span class="cd-d-sub-ready">Ready to coach &mdash; let&rsquo;s get you your first client</span><span class="cd-d-sub-idle">Wed 23 Apr &middot; let&rsquo;s fix that</span></div>
+    </div>
+
+    <!-- ANCHOR (toggle in the annotation). Client Detail is anchored by a person — avatar,
+         name, one line — and Home had nothing of that weight. Option "person": the anchor
+         is the person you are about to meet, in exactly the identity grammar of Client
+         Detail. Option "day": the anchor is today, calendar-style. -->
+    <div class="cd-i-id cd-in cd-d-anchor cd-d-anchor-person cd-press" onclick="dOpenEvent()">
+      <div class="cd-i-av">SM</div>
+      <div class="cd-d-anchor-when"><span class="cd-d-when-day">In 45 min &middot; 10:30</span><span class="cd-d-when-quiet">Tomorrow &middot; 10:30</span></div>
+      <div class="cd-i-name">Sarah Mitchell</div>
+      <div class="cd-i-sub">Tennis &middot; 60 min &middot; Court A</div>
+    </div>
+    <div class="cd-i-id cd-in cd-d-anchor cd-d-anchor-day">
+      <div class="cd-d-day-num">23</div>
+      <div class="cd-i-name">Wednesday</div>
+      <div class="cd-i-sub"><span class="cd-d-sub-day">3 sessions &middot; &euro;180 today &middot; next in 45 min</span><span class="cd-d-sub-quiet">Nothing today &middot; next tomorrow 10:30</span></div>
     </div>
 
     <!-- Bookability: non-dismissable, above everything, decides what is legal (spec Flow 11). -->
@@ -3412,10 +3449,16 @@
       <button data-v="hidden" onclick="dSet('hidden',this)">Hidden from search</button>
       <button data-v="loading" onclick="dSet('loading',this)">Loading</button>
     </div>
+    <div class="state-toggle" data-d="anchor" style="margin-bottom:6px;">
+      <span style="font-size:12px;color:var(--fit-gray-500);padding:4px 8px 4px 10px;">Anchor</span>
+      <button class="active" data-v="person" onclick="dAnchor('person',this)">The next person</button>
+      <button data-v="day" onclick="dAnchor('day',this)">The day</button>
+      <button data-v="none" onclick="dAnchor('none',this)">None (card only)</button>
+    </div>
     <div class="bet"><strong>Bet:</strong> the shipped Home (<a href="dashboard.html#s-dashboard">dashboard.html</a>) already knows everything it needs to say; it says it as six labelled sections in the spec's order, five of them identical cards. Ordered by the coach's morning &mdash; <strong>who you are today &rarr; what you owe an answer to &rarr; what is next &rarr; the money &rarr; the day &rarr; the signals</strong> &mdash; and with each block in its own grammar, the same content is one screen instead of two.</div>
     <h3 style="font-size:16px;margin-top:18px;">What changed and why</h3>
     <ul>
-      <li><strong>The greeting is the title.</strong> No <em>Home</em> nav title above a greeting that already says where you are; the sub-line is the whole day in one breath (<em>Wed 23 Apr &middot; 3 sessions &middot; &euro;180 today</em>). Messages and the bell stay as chrome circles, as on Client Detail.</li>
+      <li><strong>The anchor.</strong> Client Detail is held together by a person at the top &mdash; avatar, name, one line &mdash; and a greeting alone did not do that for Home. <em>The next person</em> (default): the identity block is <strong>the athlete you are about to meet</strong>, in exactly Client Detail's grammar (big avatar, <em>IN 45 MIN &middot; 10:30</em> as the kicker, name, what); it replaces the Next-session card, tap &rarr; the drawer; quiet day &rarr; tomorrow's person, grey kicker; idle/ready &rarr; no person to show, so the empty card returns. <em>The day</em>: calendar-style, the date as the anchor. <em>None</em>: greeting + card, the first cut. Greeting shrinks to one line when an anchor is on.</li>
       <li><strong>Four circles, fixed slots:</strong> <em>Book &middot; Invite &middot; Time off &middot; Ask AI</em> &mdash; the things a coach does <em>from</em> Home rather than <em>in</em> a tab. Book and Invite were buried in the Ready state's empty card; Time off is the second most frequent thing a coach does on a weekday; Ask AI is the assistant's proposed FAB-grade entry (see voice-assistant). ⏳ the set is a bet.</li>
       <li><strong>Needs you is chips, not five cards.</strong> Cash to collect (red) &middot; requests (blue) &middot; to review / self-paced (yellow) &middot; invites waiting (grey). Each opens its list &mdash; Cash to collect (new, across clients), Inbox on the right tab, the review queue, the self-paced hub. Cost: the cards' second lines (&ldquo;1 awaiting your reply over 24h&rdquo;, &ldquo;Tom overdue&rdquo;) move to the destination; the chip carries the count. <em>All caught up</em> replaces the block with one line.</li>
       <li><strong>Next session is the same card as on Client Detail</strong> &mdash; face instead of type tile (here the person is the variable), no buttons, tap &rarr; the calendar's drawer. Quiet day: tomorrow, when-line grey. Idle / Ready: the empty card takes the slot with secondary buttons (<em>Book a session</em>; <em>+ Share profile</em> for a new coach).</li>
@@ -3503,6 +3546,13 @@ function showClientSnack(m) { showSnack(m); }
 function toastStub(m) { showSnack(m); }
 // Home states — annotation toggles
 var D_STATES = ['zero', 'quiet', 'idle', 'ready', 'hidden', 'loading'];
+function dAnchor(name, btn) {
+  var el = document.getElementById('s-draft-dash');
+  el.classList.remove('d-anchor-person', 'd-anchor-day'); if (name !== 'none') el.classList.add('d-anchor-' + name);
+  var host = document.querySelector('.state-toggle[data-d="anchor"]');
+  host.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); });
+  var hit = btn || host.querySelector('button[data-v="' + name + '"]'); if (hit) hit.classList.add('active');
+}
 function dSet(name, btn) {
   var el = document.getElementById('s-draft-dash');
   if (!el.classList.contains('active')) go('s-draft-dash', document.querySelector('.sidebar button[onclick*="s-draft-dash"]'));
@@ -4283,6 +4333,7 @@ function handleSend(flow) {
   if (snack) { snack.classList.add('show'); setTimeout(function () { snack.classList.remove('show'); }, 1400); }
   setTimeout(function () { go('s-draft-dash', document.querySelector('.sidebar button[onclick*=s-draft-dash]')); }, 700);
 }
+dAnchor('person');
 try { setLook(localStorage.getItem('cd-look') || 'tinted'); setCta(localStorage.getItem('cd-cta') || 'white'); } catch (e) { setLook('tinted'); setCta('white'); }
 invInitGrid(); invRender();
 (function(){
