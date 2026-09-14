@@ -3300,196 +3300,13 @@ window.FIT_BOARD = {
       "slug": "coach-client-detail-drafts",
       "screens": [
         {
-          "id": "s-draft-focus",
-          "hash": "b26d694b6474",
-          "title": "A · Focus card",
-          "inApp": "",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": true,
-          "note": "The live screen stacks 12 blocks of equal weight, three of them horizontal carousels. Nothing is foregrounded, so it reads as a table rotated on its side. This draft takes the opposite position: one hero, one line of liv",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-client-detail-drafts__s-draft-focus.webp",
-              "label": ""
-            }
-          ],
-          "level": 0,
-          "order": 0
-        },
-        {
-          "id": "s-draft-timeline",
-          "hash": "afb54428a76a",
-          "title": "B · Timeline",
-          "inApp": "",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "Money, training and self-paced stop being three sections and become three kinds of event on one spine. That is what actually kills the carousels — not restyling them, but removing the reason they existed.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-client-detail-drafts__s-draft-timeline.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 0
-        },
-        {
-          "id": "s-draft-segments",
-          "hash": "80b2dd0d98b2",
-          "title": "C · Segments",
-          "inApp": "",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "Also worth noticing: the stats hero is charming but it is vanity — 47 sessions and 8 months do not change what the coach does next. A and B spend that space on the next session instead. Whether that trade is right is the",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-client-detail-drafts__s-draft-segments.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 1
-        },
-        {
-          "id": "s-draft-accent",
-          "hash": "a90269901be9",
-          "title": "D · Accent budget",
-          "inApp": "",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "Counted across flows/: brand-primary 244×, teal-500 457×, brand-gradient 129×. On coach/dashboard.html alone the same brand paints a link, a metric value, an icon plate, a chip and the CTA — five meanings, one colour. Pu",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-client-detail-drafts__s-draft-accent.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 2
-        },
-        {
-          "id": "s-draft-media",
-          "hash": "bad5d1e8bd91",
-          "title": "E · Media grammar",
-          "inApp": "",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "Across 830 screens in the prototypes there are 18 <img> tags, in 3 files. fit-ui.css has .fit-avatar and no media primitive at all — no cover, no tile, no scrim. The icon was never chosen as a style; it is the only thing",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-client-detail-drafts__s-draft-media.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 3
-        },
-        {
-          "id": "s-draft-quiet",
-          "hash": "0a93d587b238",
-          "title": "F · Both (light)",
-          "inApp": "",
-          "status": "proposal",
-          "theme": "light",
-          "entry": false,
-          "note": "Same screen as E, wearing D's rule, opened in light on purpose: light is where the mud was reported, and where a scrim, a white surface and a brand fill are hardest to keep apart. Toggle Dark in the sidebar — it has to s",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-client-detail-drafts__s-draft-quiet.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 4
-        },
-        {
-          "id": "s-draft-floating",
-          "hash": "bb32084fabf1",
-          "title": "G · Floating panels",
-          "inApp": "",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "Three borrowings, each answering something we complained about:",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-client-detail-drafts__s-draft-floating.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 5
-        },
-        {
-          "id": "s-draft-tiles",
-          "hash": "cf06e3951869",
-          "title": "H · Big title + tiles",
-          "inApp": "",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "Both G and H drop the footer CTA on purpose. Worth watching whether the screen still answers \"book a session\" fast enough — if not, the answer is probably H's tile grid plus a footer, not a return to the old header.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-client-detail-drafts__s-draft-tiles.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 6
-        },
-        {
-          "id": "s-draft-full",
-          "hash": "8d055e71b511",
-          "title": "I · Floating, filled",
-          "inApp": "",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "What changed from G, point by point:",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-client-detail-drafts__s-draft-full.webp",
-              "label": ""
-            },
-            {
-              "file": "coach-client-detail-drafts__s-draft-full__no-next-session.webp",
-              "label": "No next session → CTA in the same slot"
-            }
-          ],
-          "orphan": true,
-          "level": 1,
-          "order": 7
-        },
-        {
           "id": "s-draft-client",
-          "hash": "12677ec26f05",
+          "hash": "501877b784b9",
           "title": "J · Client Detail, placed",
           "inApp": "",
           "status": "proposal",
           "theme": "dark",
-          "entry": false,
+          "entry": true,
           "note": "Order here is: who this is &rarr; what you owe an answer to &rarr; what is next &rarr; the money &rarr; the week &rarr; the assets. Every block from clients-coaches.md is placed against that, nothing dropped.",
           "external": [],
           "shots": [
@@ -3510,13 +3327,12 @@ window.FIT_BOARD = {
               "label": "Blocked → banner, cash still settleable"
             }
           ],
-          "orphan": true,
-          "level": 1,
-          "order": 8
+          "level": 0,
+          "order": 0
         },
         {
           "id": "s-draft-owed",
-          "hash": "164e73c42cd2",
+          "hash": "e326c6a30e18",
           "title": "↳ Owed (push)",
           "inApp": "Owed",
           "status": "proposal",
@@ -3530,13 +3346,12 @@ window.FIT_BOARD = {
               "label": ""
             }
           ],
-          "orphan": true,
           "level": 1,
-          "order": 9
+          "order": 0
         },
         {
           "id": "s-draft-selfpaced",
-          "hash": "8b8606c3f70e",
+          "hash": "33797a4c173e",
           "title": "↳ Self-paced",
           "inApp": "Anna’s self-paced",
           "status": "proposal",
@@ -3552,13 +3367,12 @@ window.FIT_BOARD = {
               "label": ""
             }
           ],
-          "orphan": true,
           "level": 1,
-          "order": 10
+          "order": 1
         },
         {
           "id": "s-draft-packages",
-          "hash": "2ffdaa0fd825",
+          "hash": "e2bd78ff10dc",
           "title": "↳ Packages",
           "inApp": "Anna’s packages",
           "status": "proposal",
@@ -3572,13 +3386,12 @@ window.FIT_BOARD = {
               "label": ""
             }
           ],
-          "orphan": true,
           "level": 1,
-          "order": 11
+          "order": 2
         },
         {
           "id": "s-client-selfpaced",
-          "hash": "d28e6644d0d5",
+          "hash": "5b5ded1e9a42",
           "title": "↳ canon copy",
           "inApp": "Self-paced",
           "status": "proposal",
@@ -3594,13 +3407,12 @@ window.FIT_BOARD = {
               "label": ""
             }
           ],
-          "orphan": true,
-          "level": 1,
-          "order": 12
+          "level": 2,
+          "order": 0
         },
         {
           "id": "s-pkg-detail",
-          "hash": "5df17a583534",
+          "hash": "f7a9a3eae97b",
           "title": "↳ Package detail",
           "inApp": "Package",
           "status": "proposal",
@@ -3615,12 +3427,12 @@ window.FIT_BOARD = {
             }
           ],
           "orphan": true,
-          "level": 1,
-          "order": 13
+          "level": 3,
+          "order": 0
         },
         {
           "id": "s-pkg-history",
-          "hash": "48038f5b2918",
+          "hash": "4df073e462df",
           "title": "↳ Package history",
           "inApp": "Activity",
           "status": "proposal",
@@ -3635,12 +3447,12 @@ window.FIT_BOARD = {
             }
           ],
           "orphan": true,
-          "level": 1,
-          "order": 14
+          "level": 3,
+          "order": 1
         },
         {
           "id": "s-crm-addr-pick",
-          "hash": "a257cdfd9b40",
+          "hash": "075e255096e4",
           "title": "↳ Addresses",
           "inApp": "",
           "status": "proposal",
@@ -3654,13 +3466,12 @@ window.FIT_BOARD = {
               "label": ""
             }
           ],
-          "orphan": true,
           "level": 1,
-          "order": 15
+          "order": 3
         },
         {
           "id": "s-crm-addr-form",
-          "hash": "62bf94ea68ca",
+          "hash": "23f6b8c2f011",
           "title": "↳ Address form",
           "inApp": "Home address",
           "status": "proposal",
@@ -3674,13 +3485,12 @@ window.FIT_BOARD = {
               "label": ""
             }
           ],
-          "orphan": true,
-          "level": 1,
-          "order": 16
+          "level": 2,
+          "order": 1
         },
         {
           "id": "s-client-notes-editor",
-          "hash": "3a13e1f42f76",
+          "hash": "dd79208425ca",
           "title": "↳ Note",
           "inApp": "",
           "status": "proposal",
@@ -3694,13 +3504,12 @@ window.FIT_BOARD = {
               "label": ""
             }
           ],
-          "orphan": true,
           "level": 1,
-          "order": 17
+          "order": 4
         },
         {
           "id": "s-client-history",
-          "hash": "b8a96d73bc4e",
+          "hash": "ece4cb12459e",
           "title": "↳ History",
           "inApp": "Anna’s history",
           "status": "proposal",
@@ -3714,13 +3523,12 @@ window.FIT_BOARD = {
               "label": ""
             }
           ],
-          "orphan": true,
           "level": 1,
-          "order": 18
+          "order": 5
         },
         {
           "id": "s-create-client",
-          "hash": "680c7bbef947",
+          "hash": "2f53db871eba",
           "title": "↳ Edit info",
           "inApp": "New client",
           "status": "proposal",
@@ -3734,13 +3542,12 @@ window.FIT_BOARD = {
               "label": ""
             }
           ],
-          "orphan": true,
           "level": 1,
-          "order": 19
+          "order": 6
         },
         {
           "id": "s-add-to-group",
-          "hash": "4498c824c46b",
+          "hash": "4bf19e2530e3",
           "title": "↳ Groups",
           "inApp": "Anna’s groups",
           "status": "proposal",
@@ -3754,13 +3561,12 @@ window.FIT_BOARD = {
               "label": ""
             }
           ],
-          "orphan": true,
           "level": 1,
-          "order": 20
+          "order": 7
         },
         {
           "id": "s-thread",
-          "hash": "5d41f8abc0ee",
+          "hash": "ad67252ea146",
           "title": "↳ Message",
           "inApp": "John Miller",
           "status": "proposal",
@@ -3776,13 +3582,12 @@ window.FIT_BOARD = {
               "label": ""
             }
           ],
-          "orphan": true,
           "level": 1,
-          "order": 21
+          "order": 8
         },
         {
           "id": "s-review",
-          "hash": "59f6bbb1126a",
+          "hash": "1130f32ed9f6",
           "title": "↳ Self-paced · review clips",
           "inApp": "Review · Julia",
           "status": "proposal",
@@ -3798,13 +3603,12 @@ window.FIT_BOARD = {
               "label": ""
             }
           ],
-          "orphan": true,
           "level": 1,
-          "order": 22
+          "order": 9
         },
         {
           "id": "s-setup",
-          "hash": "6cef0fa2177c",
+          "hash": "ce3631b3a725",
           "title": "↳ Self-paced · setup",
           "inApp": "Set up for Anna",
           "status": "proposal",
@@ -3822,13 +3626,12 @@ window.FIT_BOARD = {
               "label": ""
             }
           ],
-          "orphan": true,
           "level": 1,
-          "order": 23
+          "order": 10
         },
         {
           "id": "s-invite-select",
-          "hash": "532d7eac32f2",
+          "hash": "3c0e70fbb943",
           "title": "↳ Book · session",
           "inApp": "Select training",
           "status": "proposal",
@@ -3844,13 +3647,12 @@ window.FIT_BOARD = {
               "label": ""
             }
           ],
-          "orphan": true,
           "level": 1,
-          "order": 24
+          "order": 11
         },
         {
           "id": "s-invite-time",
-          "hash": "a245d4cd4b87",
+          "hash": "661ed0927546",
           "title": "↳ Book · time",
           "inApp": "",
           "status": "proposal",
@@ -3865,12 +3667,12 @@ window.FIT_BOARD = {
             }
           ],
           "orphan": true,
-          "level": 1,
-          "order": 25
+          "level": 3,
+          "order": 2
         },
         {
           "id": "s-schedule-review",
-          "hash": "1bfaec116d58",
+          "hash": "345533c28792",
           "title": "↳ Book · review",
           "inApp": "Review request",
           "status": "proposal",
@@ -3885,70 +3687,70 @@ window.FIT_BOARD = {
             }
           ],
           "orphan": true,
-          "level": 1,
-          "order": 26
+          "level": 3,
+          "order": 3
         }
       ],
       "edges": [
         {
           "from": "s-draft-client",
           "to": "s-invite-select",
-          "back": true
+          "back": false
         },
         {
           "from": "s-draft-client",
           "to": "s-thread",
-          "back": true
+          "back": false
         },
         {
           "from": "s-draft-client",
           "to": "s-draft-selfpaced",
-          "back": true
+          "back": false
         },
         {
           "from": "s-draft-client",
           "to": "s-draft-packages",
-          "back": true
+          "back": false
         },
         {
           "from": "s-draft-client",
           "to": "s-draft-owed",
-          "back": true
+          "back": false
         },
         {
           "from": "s-draft-client",
           "to": "s-review",
-          "back": true
+          "back": false
         },
         {
           "from": "s-draft-client",
           "to": "s-setup",
-          "back": true
+          "back": false
         },
         {
           "from": "s-draft-client",
           "to": "s-add-to-group",
-          "back": true
+          "back": false
         },
         {
           "from": "s-draft-client",
           "to": "s-crm-addr-pick",
-          "back": true
+          "back": false
         },
         {
           "from": "s-draft-client",
           "to": "s-client-notes-editor",
-          "back": true
+          "back": false
         },
         {
           "from": "s-draft-client",
           "to": "s-client-history",
-          "back": true
+          "back": false
         },
         {
           "from": "s-draft-client",
           "to": "s-create-client",
-          "back": true
+          "back": false
         },
         {
           "from": "s-draft-owed",
@@ -3973,7 +3775,7 @@ window.FIT_BOARD = {
         {
           "from": "s-draft-selfpaced",
           "to": "s-client-selfpaced",
-          "back": true
+          "back": false
         },
         {
           "from": "s-draft-packages",
@@ -4003,7 +3805,7 @@ window.FIT_BOARD = {
         {
           "from": "s-crm-addr-pick",
           "to": "s-crm-addr-form",
-          "back": true
+          "back": false
         },
         {
           "from": "s-crm-addr-form",
