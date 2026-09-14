@@ -600,20 +600,27 @@
   #s-draft-dash.d-widget-ring .cd-d-sec-money { display: none; }
   #s-draft-dash.d-ready .cd-d-sec-ring, #s-draft-dash.d-idle .cd-d-sec-ring { display: none; }
   #s-draft-dash.d-widget-ring.d-idle .cd-d-sec-money { display: block; }
+  /* widget as anchor carries no week bars → the Money widget stays below */
+  #s-draft-dash.d-widget-ring.d-anchor-widget:not(.d-ready) .cd-d-sec-money { display: block; }
   /* anchor options */
   .cd-d-anchor { display: none; padding-top: 6px; padding-bottom: 6px; }
   .cd-d-anchor-when { font-size: 13px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--fit-teal-500); margin-top: 12px; }
   #s-draft-dash.d-quiet .cd-d-anchor-when { color: var(--fit-text-tertiary); }
   .cd-d-anchor-person .cd-i-name { margin-top: 4px; }
   #s-draft-dash.d-anchor-widget:not(.d-idle):not(.d-ready):not(.d-loading) .cd-d-anchor-widget { display: block; padding: 4px 0 2px; }
-  #s-draft-dash.d-anchor-widget .cd-d-sec-ring, #s-draft-dash.d-anchor-widget .cd-d-sec-money { display: none; }
-  #s-draft-dash.d-anchor-widget.d-idle .cd-d-sec-money { display: block; }
+  #s-draft-dash.d-anchor-widget .cd-d-sec-ring { display: none; }
+  /* widget as anchor = ring + earned/planned only; then Next session, then the circles */
+  #s-draft-dash.d-anchor-widget .cd-w--anchor .cd-w-bars, #s-draft-dash.d-anchor-widget .cd-w--anchor .cd-w-line, #s-draft-dash.d-anchor-widget .cd-w--anchor .cd-w-link { display: none; }
+  #s-draft-dash.d-anchor-widget:not(.d-idle):not(.d-ready):not(.d-loading) .cd-d-anchor-next { display: block; padding-top: 0; }
+  #s-draft-dash.d-anchor-widget:not(.d-idle):not(.d-ready) .cd-d-sec-next { display: none; }
+  #s-draft-dash.d-anchor-widget .cd-d-anchor-next .cd-i-sec { padding-top: 10px; }
+  #s-draft-dash.d-anchor-widget .cd-j-acts { padding-top: 18px; }
   #s-draft-dash.d-anchor-widget .cd-d-hello { padding-top: 2px; }
   #s-draft-dash.d-anchor-widget .cd-d-hi { font-size: 17px; font-weight: 600; letter-spacing: 0; }
   #s-draft-dash.d-anchor-widget .cd-d-sub { margin-top: 2px; font-size: 13px; color: var(--fit-text-tertiary); }
   #s-draft-dash.d-anchor-widget.d-ready .cd-d-hi, #s-draft-dash.d-anchor-widget.d-idle .cd-d-hi { font-size: 26px; font-weight: 700; letter-spacing: -0.4px; }
   #s-draft-dash.d-anchor-widget.d-ready .cd-d-sub, #s-draft-dash.d-anchor-widget.d-idle .cd-d-sub { font-size: 14px; color: var(--fit-text-secondary); margin-top: 5px; }
-  .cd-w--anchor { margin-top: 6px; padding-top: 12px; }
+  .cd-w--anchor { margin-top: 6px; padding: 12px 14px 8px; }
   /* no greeting in this mode — the widget is the first thing; the day sits in its corner */
   #s-draft-dash.d-anchor-widget:not(.d-idle):not(.d-ready) .cd-d-hello { display: none; }
   .cd-w-date { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--fit-text-secondary); margin-bottom: 10px; }
@@ -1274,6 +1281,22 @@
         </div>
         <div class="cd-w-line">Two bookings ahead of last week &mdash; 3 open requests could fill Thursday.</div>
         <div class="cd-w-link">See earnings <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+    </div>
+    <div class="cd-in cd-d-anchor cd-d-anchor-next">
+      <div class="cd-i-sec">Next session</div>
+      <div class="cd-i-panel cd-j-next-panel">
+        <div class="cd-i-next cd-press" onclick="dOpenEvent()">
+          <div class="cd-i-nrow">
+            <div class="cd-d-av cd-d-av-lg">SM</div>
+            <div style="flex:1;min-width:0;">
+              <div class="cd-j-when-row">
+                <div class="cd-i-when"><span class="cd-d-when-day">In 45 min &middot; 10:30</span><span class="cd-d-when-quiet">Tomorrow &middot; 10:30</span></div>
+              </div>
+              <div class="cd-i-what">Sarah Mitchell &middot; Tennis &middot; 60 min &middot; Court A</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -3555,7 +3578,7 @@
     <div class="bet"><strong>Bet:</strong> the shipped Home (<a href="dashboard.html#s-dashboard">dashboard.html</a>) already knows everything it needs to say; it says it as six labelled sections in the spec's order, five of them identical cards. Ordered by the coach's morning &mdash; <strong>who you are today &rarr; what you owe an answer to &rarr; what is next &rarr; the money &rarr; the day &rarr; the signals</strong> &mdash; and with each block in its own grammar, the same content is one screen instead of two.</div>
     <h3 style="font-size:16px;margin-top:18px;">What changed and why</h3>
     <ul>
-      <li><strong>The anchor.</strong> Client Detail is held together by a person at the top &mdash; avatar, name, one line &mdash; and a greeting alone did not do that for Home. <em>The next person</em> (default): the identity block is <strong>the athlete you are about to meet</strong>, in exactly Client Detail's grammar (big avatar, <em>IN 45 MIN &middot; 10:30</em> as the kicker, name, what); it replaces the Next-session card, tap &rarr; the drawer; quiet day &rarr; tomorrow's person, grey kicker; idle/ready &rarr; no person to show, so the empty card returns. <em>The day widget</em> (default): the ring widget itself takes the anchor slot &mdash; <strong>no greeting at all</strong>, the day sits in the widget's corner, the widget is the first thing on the screen (no person block; Next session returns as a card, the widget section below disappears) &mdash; the hero is your day in numbers, Revolut-style. <em>The date</em>: calendar-style, the date as the anchor. <em>None</em>: greeting + card, the first cut. Greeting shrinks to one line when an anchor is on.</li>
+      <li><strong>The anchor.</strong> Client Detail is held together by a person at the top &mdash; avatar, name, one line &mdash; and a greeting alone did not do that for Home. <em>The next person</em> (default): the identity block is <strong>the athlete you are about to meet</strong>, in exactly Client Detail's grammar (big avatar, <em>IN 45 MIN &middot; 10:30</em> as the kicker, name, what); it replaces the Next-session card, tap &rarr; the drawer; quiet day &rarr; tomorrow's person, grey kicker; idle/ready &rarr; no person to show, so the empty card returns. <em>The day widget</em> (default): the ring widget itself takes the anchor slot &mdash; <strong>no greeting at all</strong>, the day sits in the widget's corner, and the widget is cut to <strong>the ring + earned / planned</strong>; the week bars, sentence and link go (the Money widget carries the week below). Order becomes <strong>widget &rarr; Next session &rarr; circles &rarr; Needs you</strong> &mdash; the hero is your day in numbers, Revolut-style. <em>The date</em>: calendar-style, the date as the anchor. <em>None</em>: greeting + card, the first cut. Greeting shrinks to one line when an anchor is on.</li>
       <li><strong>Four circles, fixed slots:</strong> <em>Book &middot; Invite &middot; Time off &middot; Ask AI</em> &mdash; the things a coach does <em>from</em> Home rather than <em>in</em> a tab. Book and Invite were buried in the Ready state's empty card; Time off is the second most frequent thing a coach does on a weekday; Ask AI is the assistant's proposed FAB-grade entry (see voice-assistant). ⏳ the set is a bet.</li>
       <li><strong>Needs you is chips, not five cards.</strong> Cash to collect (red) &middot; requests (blue) &middot; to review / self-paced (yellow) &middot; invites waiting (grey). Each opens its list &mdash; Cash to collect (new, across clients), Inbox on the right tab, the review queue, the self-paced hub. Cost: the cards' second lines (&ldquo;1 awaiting your reply over 24h&rdquo;, &ldquo;Tom overdue&rdquo;) move to the destination; the chip carries the count. <em>All caught up</em> replaces the block with one line.</li>
       <li><strong>Next session is the same card as on Client Detail</strong> &mdash; face instead of type tile (here the person is the variable), no buttons, tap &rarr; the calendar's drawer. Quiet day: tomorrow, when-line grey. Idle / Ready: the empty card takes the slot with secondary buttons (<em>Book a session</em>; <em>+ Share profile</em> for a new coach).</li>
