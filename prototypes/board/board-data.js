@@ -1186,7 +1186,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-thread",
-          "hash": "2b0bf710881c",
+          "hash": "e0fae5926ca9",
           "title": "Conversation · new",
           "inApp": "John Miller",
           "status": "canon",
@@ -1201,14 +1201,7 @@ window.FIT_BOARD = {
             }
           ],
           "level": 1,
-          "order": 1,
-          "inFrom": [
-            {
-              "file": "flows/coach/client-detail-drafts.html",
-              "label": "Client Detail drafts (WIP)",
-              "id": "s-draft-client"
-            }
-          ]
+          "order": 1
         },
         {
           "id": "s-thread-settings",
@@ -1231,7 +1224,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-thread",
-          "hash": "8632f7af019d",
+          "hash": "7c0ad3746c7a",
           "title": "Group chat",
           "inApp": "Sat tennis squad",
           "status": "canon",
@@ -1650,11 +1643,6 @@ window.FIT_BOARD = {
               "file": "flows/coach/clients.html",
               "label": "Coach Clients",
               "id": "s-client-selfpaced"
-            },
-            {
-              "file": "flows/coach/client-detail-drafts.html",
-              "label": "Client Detail drafts (WIP)",
-              "id": "s-draft-client"
             }
           ]
         },
@@ -1701,11 +1689,6 @@ window.FIT_BOARD = {
               "file": "flows/coach/clients.html",
               "label": "Coach Clients",
               "id": "s-client-selfpaced"
-            },
-            {
-              "file": "flows/coach/client-detail-drafts.html",
-              "label": "Client Detail drafts (WIP)",
-              "id": "s-draft-client"
             }
           ]
         },
@@ -1903,6 +1886,11 @@ window.FIT_BOARD = {
             {
               "file": "flows/coach/clients.html",
               "label": "Coach Clients",
+              "id": "s-client-selfpaced"
+            },
+            {
+              "file": "flows/coach/client-detail-drafts.html",
+              "label": "Client Detail drafts (WIP)",
               "id": "s-client-selfpaced"
             }
           ]
@@ -3295,7 +3283,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-focus",
-          "hash": "f28ea6f5cbee",
+          "hash": "09672eca7090",
           "title": "A · Focus card",
           "inApp": "",
           "status": "proposal",
@@ -3314,7 +3302,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-timeline",
-          "hash": "edba23880df1",
+          "hash": "488efd5215b4",
           "title": "B · Timeline",
           "inApp": "",
           "status": "proposal",
@@ -3334,7 +3322,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-segments",
-          "hash": "08100f3a478b",
+          "hash": "11466c9997c2",
           "title": "C · Segments",
           "inApp": "",
           "status": "proposal",
@@ -3354,7 +3342,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-accent",
-          "hash": "0dd55ec5a9c9",
+          "hash": "9b8831911a93",
           "title": "D · Accent budget",
           "inApp": "",
           "status": "proposal",
@@ -3374,7 +3362,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-media",
-          "hash": "38f964a0454d",
+          "hash": "c476d90c1911",
           "title": "E · Media grammar",
           "inApp": "",
           "status": "proposal",
@@ -3394,7 +3382,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-quiet",
-          "hash": "fbf3c860fa87",
+          "hash": "273645a18e11",
           "title": "F · Both (light)",
           "inApp": "",
           "status": "proposal",
@@ -3414,7 +3402,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-floating",
-          "hash": "cfb2b13557f2",
+          "hash": "1d39ac29468b",
           "title": "G · Floating panels",
           "inApp": "",
           "status": "proposal",
@@ -3434,7 +3422,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-tiles",
-          "hash": "4726daa30861",
+          "hash": "4993439515de",
           "title": "H · Big title + tiles",
           "inApp": "",
           "status": "proposal",
@@ -3454,7 +3442,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-full",
-          "hash": "b2f56f900d0e",
+          "hash": "c4c21a03c8a8",
           "title": "I · Floating, filled",
           "inApp": "",
           "status": "proposal",
@@ -3478,18 +3466,14 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-client",
-          "hash": "aae2dfa70fd7",
+          "hash": "e3007ded922f",
           "title": "J · Client Detail, placed",
           "inApp": "",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
           "note": "Order here is: who this is &rarr; what you owe an answer to &rarr; what is next &rarr; the money &rarr; the week &rarr; the assets. Every block from clients-coaches.md is placed against that, nothing dropped.",
-          "external": [
-            "../shared/messages.html#s-thread",
-            "../shared/self-paced.html#s-review",
-            "../shared/self-paced.html#s-setup"
-          ],
+          "external": [],
           "shots": [
             {
               "file": "coach-client-detail-drafts__s-draft-client.webp",
@@ -3514,7 +3498,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-owed",
-          "hash": "672ad3fc3ab1",
+          "hash": "24720841aa09",
           "title": "↳ Owed (push)",
           "inApp": "Owed",
           "status": "proposal",
@@ -3533,35 +3517,419 @@ window.FIT_BOARD = {
           "order": 9
         },
         {
-          "id": "s-draft-alpha",
-          "hash": "610959688c9d",
-          "title": "K · Tinted canvas",
-          "inApp": "",
+          "id": "s-client-selfpaced",
+          "hash": "050ecdc2a92e",
+          "title": "↳ Self-paced",
+          "inApp": "Self-paced",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
-          "note": "The technique has a name, and it is not blur. Apple calls it a material (vibrancy over a backdrop), Material 3 calls it a scrim / surface-tint layer, the web habit calls it \"glassmorphism\" — but glass implies blur and Re",
-          "external": [],
+          "note": "From the Self-paced circle. The client's self-paced list; assign/offer flows are its own.",
+          "external": [
+            "../shared/self-paced.html#s-comments"
+          ],
           "shots": [
             {
-              "file": "coach-client-detail-drafts__s-draft-alpha.webp",
+              "file": "coach-client-detail-drafts__s-client-selfpaced.webp",
               "label": ""
             }
           ],
           "orphan": true,
           "level": 1,
           "order": 10
+        },
+        {
+          "id": "s-pkg-detail",
+          "hash": "b2cf5f257815",
+          "title": "↳ Packages",
+          "inApp": "Package",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From the Packages circle. Renewal / sell-a-pack sheet lives here, not on J.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-pkg-detail.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 11
+        },
+        {
+          "id": "s-pkg-history",
+          "hash": "e69c54286629",
+          "title": "↳ Package history",
+          "inApp": "Activity",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "See all from the pack.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-pkg-history.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 12
+        },
+        {
+          "id": "s-crm-addr-pick",
+          "hash": "4b8bea8a405e",
+          "title": "↳ Addresses",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From the addresses tile. Home-visit addresses of this client.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-crm-addr-pick.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 13
+        },
+        {
+          "id": "s-crm-addr-form",
+          "hash": "91b68979aaa8",
+          "title": "↳ Address form",
+          "inApp": "Home address",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Add / edit one address.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-crm-addr-form.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 14
+        },
+        {
+          "id": "s-client-notes-editor",
+          "hash": "4a598d5102ac",
+          "title": "↳ Note",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From the note tile (and the dashed add-zone when empty). Journal-style, no limit.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-client-notes-editor.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 15
+        },
+        {
+          "id": "s-client-history",
+          "hash": "c4608be17a89",
+          "title": "↳ History",
+          "inApp": "Training history",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From the 47 sessions tile.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-client-history.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 16
+        },
+        {
+          "id": "s-create-client",
+          "hash": "1efdd1ae6ab8",
+          "title": "↳ Edit info",
+          "inApp": "New client",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From &ctdot; &rarr; Edit info. Two modes in one screen (CRM = full card, app = sport + notes only) — see clients-coaches.md.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-create-client.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 17
+        },
+        {
+          "id": "s-add-to-group",
+          "hash": "aa70bc198618",
+          "title": "↳ Groups",
+          "inApp": "Anna’s groups",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From the groups tile and &ctdot; &rarr; Add to group: the client's membership, toggled per group.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-add-to-group.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 18
+        },
+        {
+          "id": "s-thread",
+          "hash": "1892c1d242a3",
+          "title": "↳ Message",
+          "inApp": "John Miller",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From the Message circle. Kept dark here — the shared screen defaults light when reached from the athlete side, which is a route bug, not a design.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-thread.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 19
+        },
+        {
+          "id": "s-review",
+          "hash": "6e2ce08f81f6",
+          "title": "↳ Self-paced · review clips",
+          "inApp": "Review · Julia",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From the clips to review chip. Reviewing lands in the self-paced journey proper.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-review.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 20
+        },
+        {
+          "id": "s-setup",
+          "hash": "e40f1632c3e7",
+          "title": "↳ Self-paced · setup",
+          "inApp": "Set up for Anna",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From the Home workout row in This week.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-setup.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 21
+        },
+        {
+          "id": "s-invite-select",
+          "hash": "407f144808c1",
+          "title": "↳ Book · session",
+          "inApp": "Select training",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From the Book circle and the empty Next-session CTA. Schedule mode: athlete is pre-filled, so this is session &rarr; time &rarr; review. Back returns to J.",
+          "external": [
+            "../coach/settings.html#s-create"
+          ],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-invite-select.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 22
+        },
+        {
+          "id": "s-invite-time",
+          "hash": "4d5bbfff5634",
+          "title": "↳ Book · time",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Time grid with the athlete's busy time overlaid (schedule mode). Unchanged from the canon flow.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-invite-time.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 23
+        },
+        {
+          "id": "s-schedule-review",
+          "hash": "70e58095b4b1",
+          "title": "↳ Book · review",
+          "inApp": "Review request",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Send request &rarr; snackbar &rarr; back on J with Next session in its Awaiting state. That is the round trip the coach actually feels.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-client-detail-drafts__s-schedule-review.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 24
         }
       ],
       "edges": [
+        {
+          "from": "s-draft-client",
+          "to": "s-invite-select",
+          "back": true
+        },
+        {
+          "from": "s-draft-client",
+          "to": "s-thread",
+          "back": true
+        },
+        {
+          "from": "s-draft-client",
+          "to": "s-client-selfpaced",
+          "back": true
+        },
+        {
+          "from": "s-draft-client",
+          "to": "s-pkg-detail",
+          "back": true
+        },
         {
           "from": "s-draft-client",
           "to": "s-draft-owed",
           "back": true
         },
         {
+          "from": "s-draft-client",
+          "to": "s-review",
+          "back": true
+        },
+        {
+          "from": "s-draft-client",
+          "to": "s-setup",
+          "back": true
+        },
+        {
+          "from": "s-draft-client",
+          "to": "s-add-to-group",
+          "back": true
+        },
+        {
+          "from": "s-draft-client",
+          "to": "s-crm-addr-pick",
+          "back": true
+        },
+        {
+          "from": "s-draft-client",
+          "to": "s-client-notes-editor",
+          "back": true
+        },
+        {
+          "from": "s-draft-client",
+          "to": "s-client-history",
+          "back": true
+        },
+        {
+          "from": "s-draft-client",
+          "to": "s-create-client",
+          "back": true
+        },
+        {
           "from": "s-draft-owed",
           "to": "s-draft-client",
+          "back": true
+        },
+        {
+          "from": "s-client-selfpaced",
+          "to": "s-draft-client",
+          "back": true
+        },
+        {
+          "from": "s-client-selfpaced",
+          "to": "s-setup",
+          "back": true
+        },
+        {
+          "from": "s-client-selfpaced",
+          "to": "s-review",
+          "back": true
+        },
+        {
+          "from": "s-pkg-detail",
+          "to": "s-draft-client",
+          "back": true
+        },
+        {
+          "from": "s-crm-addr-pick",
+          "to": "s-crm-addr-form",
+          "back": true
+        },
+        {
+          "from": "s-crm-addr-form",
+          "to": "s-crm-addr-pick",
+          "back": true
+        },
+        {
+          "from": "s-client-notes-editor",
+          "to": "s-draft-client",
+          "back": true
+        },
+        {
+          "from": "s-add-to-group",
+          "to": "s-draft-client",
+          "back": true
+        },
+        {
+          "from": "s-invite-time",
+          "to": "s-invite-select",
           "back": true
         }
       ]
