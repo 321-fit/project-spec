@@ -825,6 +825,49 @@
 .src-cal #s-event-edit.sp-seats .fit-input-label .sp-single { display: none; }
 .src-cal #s-event-edit:not(.sp-seats) .fit-input-label .sp-multi { display: none; }
 
+  /* --- Self-paced / Packages in J's language (cd-s-*, cd-p-*) --- */
+  .cd-s-person { display: flex; align-items: center; gap: 12px; margin: 4px 16px 14px; padding: 10px 12px; border-radius: 16px; }
+  .cd-s-person:active { background: var(--fit-surface-high); }
+  .cd-s-av { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; background: var(--fit-surface-higher); color: var(--fit-text-primary); flex-shrink: 0; }
+  .fit-dark.k-alpha .cd-s-av { background: rgba(255,255,255,0.14); color: #fff; }
+  .cd-s-pname { font-size: 17px; font-weight: 600; color: var(--fit-text-primary); }
+  .cd-s-person .cd-i-tl { margin-top: 1px; }
+  .cd-s-pcount-empty, .cd-p-pcount-empty { display: none; }
+  .cd-s-hero-empty { display: none; background: linear-gradient(135deg, #1b3a3f, #0f1f24); }
+  .cd-s-hero .cd-m-acts button, .cd-s-hero-empty .cd-m-acts button { flex: 0 0 auto; padding: 0 22px; }
+  /* clips strip: a poster per clip, 3:2, play glyph + duration; no clip → a plate saying so */
+  .cd-s-strip { display: flex; gap: 10px; padding: 0 16px 4px; overflow-x: auto; scrollbar-width: none; }
+  .cd-s-strip::-webkit-scrollbar { display: none; }
+  .cd-s-clip { flex: 0 0 172px; }
+  .cd-s-poster { position: relative; height: 112px; border-radius: 16px; background: var(--fit-surface-high) center/cover no-repeat; margin-bottom: 8px; overflow: hidden; }
+  .cd-s-poster::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.45)); }
+  .cd-s-play { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.92); color: #12161a; display: flex; align-items: center; justify-content: center; z-index: 1; }
+  .cd-s-play svg { width: 18px; height: 18px; margin-left: 2px; }
+  .cd-s-dur { position: absolute; right: 10px; bottom: 8px; z-index: 1; font-size: 12px; font-weight: 600; color: #fff; }
+  .cd-s-poster--none { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--fit-text-tertiary); font-size: 12px; box-shadow: inset 0 0 0 1px var(--fit-divider); }
+  .cd-s-poster--none::after { display: none; }
+  .cd-s-poster--none svg { width: 22px; height: 22px; }
+  .fit-light .cd-s-poster { box-shadow: 0 8px 26px rgba(0,0,0,0.07); background-color: var(--fit-white); }
+  .fit-dark.k-alpha .cd-s-poster { background-color: rgba(0,0,0,0.28); }
+  .cd-g-rt .cd-i-tbar { margin-top: 7px; }
+  /* self-paced states */
+  #s-draft-selfpaced.sp-quiet .cd-s-hero, #s-draft-selfpaced.sp-quiet .cd-s-sec-review { display: none; }
+  #s-draft-selfpaced.sp-empty .cd-s-hero, #s-draft-selfpaced.sp-empty .cd-s-sec-review,
+  #s-draft-selfpaced.sp-empty .cd-s-sec-active, #s-draft-selfpaced.sp-empty .cd-s-sec-done,
+  #s-draft-selfpaced.sp-empty .cd-s-footer, #s-draft-selfpaced.sp-empty .cd-s-pcount { display: none; }
+  #s-draft-selfpaced.sp-empty .cd-s-hero-empty { display: block; }
+  #s-draft-selfpaced.sp-empty .cd-s-pcount-empty { display: block; }
+  /* packages */
+  .cd-p-low { color: var(--fit-yellow-400); }
+  .cd-p-due { color: var(--fit-red-400); }
+  .cd-p-empty { display: none; }
+  #s-draft-packages.pk-empty .cd-p-sec-need, #s-draft-packages.pk-empty .cd-p-sec-list,
+  #s-draft-packages.pk-empty .cd-p-sec-done, #s-draft-packages.pk-empty .cd-p-pcount { display: none; }
+  #s-draft-packages.pk-empty .cd-p-empty, #s-draft-packages.pk-empty .cd-p-pcount-empty { display: block; }
+  #s-draft-packages.pk-clean .cd-p-sec-need { display: none; }
+  /* groups membership: instant apply, no footer */
+  #s-add-to-group .fit-phone-footer { display: none; }
+
   #s-draft-segments [data-cpane] { display: none; }
   #s-draft-segments.cp-train [data-cpane="train"] { display: block; }
   #s-draft-segments.cp-money [data-cpane="money"] { display: block; }
@@ -860,10 +903,12 @@
   <button onclick="go('s-invite-time',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Book &middot; time</button>
   <button onclick="go('s-schedule-review',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Book &middot; review</button>
   <button onclick="go('s-thread',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Message</button>
-  <button onclick="go('s-client-selfpaced',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Self-paced</button>
+  <button onclick="go('s-draft-selfpaced',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Self-paced</button>
+  <button onclick="go('s-client-selfpaced',this)" style="font-size:13px;color:var(--fit-gray-500);">&nbsp;&nbsp;&nbsp;&nbsp;&#8627; canon copy</button>
   <button onclick="go('s-review',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Self-paced &middot; review clips</button>
   <button onclick="go('s-setup',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Self-paced &middot; setup</button>
-  <button onclick="go('s-pkg-detail',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Packages</button>
+  <button onclick="go('s-draft-packages',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Packages</button>
+  <button onclick="go('s-pkg-detail',this)" style="font-size:13px;">&nbsp;&nbsp;&nbsp;&nbsp;&#8627; Package detail</button>
   <button onclick="go('s-pkg-history',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Package history</button>
   <button onclick="go('s-add-to-group',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Groups</button>
   <button onclick="go('s-crm-addr-pick',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Addresses</button>
@@ -1630,8 +1675,8 @@
         <button class="fit-action-circle fit-action-circle--primary cd-press cd-j-c-book" onclick="go('s-invite-select',document.querySelector('.sidebar button[onclick*=s-invite-select]'))"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></i><span>Book</span></button>
         <button class="fit-action-circle cd-press cd-j-c-msg" onclick="go('s-thread',document.querySelector('.sidebar button[onclick*=s-thread]'))"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></i><span>Message</span><span class="cd-j-badge-n calm">2</span></button>
         <button class="fit-action-circle cd-press cd-j-c-invite"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></i><span>Invite</span></button>
-        <button class="fit-action-circle cd-press cd-j-c-self" onclick="go('s-client-selfpaced',document.querySelector('.sidebar button[onclick*=s-client-selfpaced]'))"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z"/></svg></i><span>Self-paced</span><span class="cd-j-badge-n">2</span></button>
-        <button class="fit-action-circle cd-press cd-j-c-pack" onclick="go('s-pkg-detail',document.querySelector('.sidebar button[onclick*=s-pkg-detail]'))"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7L12 12l8.7-5M12 22V12"/></svg></i><span>Packages</span><span class="cd-j-badge-n calm">1</span></button>
+        <button class="fit-action-circle cd-press cd-j-c-self" onclick="go('s-draft-selfpaced',document.querySelector('.sidebar button[onclick*=s-draft-selfpaced]'))"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z"/></svg></i><span>Self-paced</span><span class="cd-j-badge-n">2</span></button>
+        <button class="fit-action-circle cd-press cd-j-c-pack" onclick="go('s-draft-packages',document.querySelector('.sidebar button[onclick*=s-draft-packages]'))"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7L12 12l8.7-5M12 22V12"/></svg></i><span>Packages</span><span class="cd-j-badge-n calm">1</span></button>
       </div>
     </div>
 
@@ -1714,7 +1759,7 @@
             <div class="cd-j-money-s">&euro;320</div>
             <div class="cd-i-tl">Paid this month</div>
           </div>
-          <div>
+          <div class="cd-press" onclick="go('s-draft-packages',document.querySelector('.sidebar button[onclick*=s-draft-packages]'))">
             <div class="cd-j-money-s">1 left</div>
             <div class="cd-i-tl">Tennis pack &middot; 4 of 5 used</div>
           </div>
@@ -2123,6 +2168,202 @@
 <!-- One question: what if the gradient owns the whole canvas, Revolut-style, and
      every surface stops being a colour and becomes a translucent darkening of
      what is behind it? Content is J's, so the comparison is only about surface. -->
+<!-- ==================== SELF-PACED · per client, in J's language ==================== -->
+<!-- The canon copy (#s-client-selfpaced) is one flat list in four sections: it tells the
+     truth but has no weight. Here the screen is ordered like J — what you owe first, as
+     the one object that owns the top; the clips as pictures (reviewing is watching);
+     what is with the athlete as quiet progress; the archive as a single tile. -->
+<div class="fit-phone fit-dark cd-media" id="s-draft-selfpaced" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-draft-client',document.querySelector('.sidebar button[onclick*=s-draft-client]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Self-paced</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <!-- The person is a door (this list is also reached from the offering detail). -->
+    <div class="cd-s-person cd-press" onclick="go('s-draft-client',document.querySelector('.sidebar button[onclick*=s-draft-client]'))">
+      <div class="cd-s-av">AK</div>
+      <div style="flex:1;min-width:0;"><div class="cd-s-pname">Anna Kowalski</div><div class="cd-i-tl cd-s-pcount">15 self-paced &middot; since Jan</div><div class="cd-i-tl cd-s-pcount-empty">No self-paced yet</div></div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-text-tertiary);flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+
+    <!-- HERO: the one thing you owe. To set up outranks everything — the athlete has paid
+         and has nothing to do until the coach builds. A thing gets a picture. -->
+    <div class="cd-m-cover cd-s-hero cd-press" onclick="go('s-setup',document.querySelector('.sidebar button[onclick*=s-setup]'))">
+      <div class="cd-m-scrim"></div>
+      <div class="cd-m-body">
+        <div class="cd-m-kicker">To set up &middot; bought 2h ago</div>
+        <div class="cd-m-title">Tennis self-paced</div>
+        <div class="cd-m-sub">Build the plan by Thu, Apr 17 &middot; &euro;25 paid</div>
+        <div class="cd-m-acts"><button class="solid">Build the plan</button></div>
+      </div>
+    </div>
+    <!-- Empty (fresh): the same slot, nothing to sell against yet. -->
+    <div class="cd-m-cover cd-s-hero-empty">
+      <div class="cd-m-scrim"></div>
+      <div class="cd-m-body">
+        <div class="cd-m-kicker">Self-paced</div>
+        <div class="cd-m-title">Nothing assigned yet</div>
+        <div class="cd-m-sub">A plan Anna does on her own day &middot; you review the clips</div>
+        <div class="cd-m-acts"><button class="solid" onclick="go('s-setup',document.querySelector('.sidebar button[onclick*=s-setup]'))">Assign self-paced</button></div>
+      </div>
+    </div>
+
+    <!-- TO REVIEW: clips are pictures. A row of text about a video is the wrong grammar;
+         a poster with a play glyph is what the coach is about to do. -->
+    <div class="cd-in cd-s-sec-review">
+      <div class="cd-i-sec">To review<span>2</span></div>
+      <div class="cd-s-strip">
+        <div class="cd-s-clip cd-press" onclick="go('s-review',document.querySelector('.sidebar button[onclick*=s-review]'))">
+          <div class="cd-s-poster" style="background-image:var(--cd-img-gym);"><span class="cd-s-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><span class="cd-s-dur">0:42</span></div>
+          <div class="cd-j-tt">Lower-body mobility</div>
+          <div class="cd-i-tl">Apr 12 &middot; note attached</div>
+        </div>
+        <div class="cd-s-clip cd-press" onclick="go('s-review',document.querySelector('.sidebar button[onclick*=s-review]'))">
+          <div class="cd-s-poster cd-s-poster--none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12.5l2.5 2.5L16 9.5"/><circle cx="12" cy="12" r="9"/></svg><span>Marked done</span></div>
+          <div class="cd-j-tt">Core circuit</div>
+          <div class="cd-i-tl">Apr 10 &middot; no clip</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WITH ATHLETE: nothing to do; progress and the day it is due. -->
+    <div class="cd-in cd-s-sec-active">
+      <div class="cd-i-sec">With athlete<span>2</span></div>
+      <div class="cd-i-panel">
+        <div class="cd-g-row cd-press" onclick="location.href='../shared/self-paced.html#s-comments'">
+          <div class="cd-m-tile t-gym" style="width:40px;height:40px;border-radius:12px;"></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Mobility reset</div><div class="cd-g-r2">Started &middot; 1 of 3 steps</div><div class="cd-i-tbar"><i style="width:33%;"></i></div></div>
+          <div class="cd-g-rv"><small>due Sun</small></div>
+        </div>
+        <div class="cd-g-row cd-press" onclick="location.href='../shared/self-paced.html#s-comments'">
+          <div class="cd-m-tile t-gym" style="width:40px;height:40px;border-radius:12px;filter:hue-rotate(40deg);"></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Breathing reset</div><div class="cd-g-r2">Sent yesterday &middot; not started</div><div class="cd-i-tbar"><i style="width:0;"></i></div></div>
+          <div class="cd-g-rv"><small>due Tue</small></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DONE: an archive is one tile, not nine rows. -->
+    <div class="cd-in cd-s-sec-done" style="padding-bottom:22px;">
+      <div class="cd-i-sec">Done</div>
+      <div class="cd-i-grid">
+        <div class="cd-i-tile cd-press" style="grid-column:1 / -1;" onclick="go('s-client-selfpaced',document.querySelector('.sidebar button[onclick*=s-client-selfpaced]'))">
+          <div class="cd-j-thead" style="margin-bottom:0;"><div class="cd-j-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12.5l2.5 2.5L16 9.5"/><circle cx="12" cy="12" r="9"/></svg></div><div style="flex:1;"><div class="cd-j-tt">9 done</div><div class="cd-i-tl">avg 4.4&#9733; &middot; 6 with clips &middot; last Apr 2</div></div><span style="color:var(--fit-text-tertiary);font-size:13px;">All</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-footer fit-footer-btn cd-s-footer"><button class="fit-btn fit-btn-primary" onclick="go('s-setup',document.querySelector('.sidebar button[onclick*=s-setup]'))">Assign self-paced</button></div>
+</div>
+
+<!-- ==================== PACKAGES · per client, in J's language ==================== -->
+<!-- One card per SESSION TYPE (lots aggregate inside — decision 2026-07-14); the detail
+     behind each card lists the lots. The Packages circle lands here, never on one pack:
+     a client can hold packs of several types, and a screen that assumes one would break
+     the day she buys a second. -->
+<div class="fit-phone fit-dark cd-media" id="s-draft-packages" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-draft-client',document.querySelector('.sidebar button[onclick*=s-draft-client]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Packages</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="cd-s-person cd-press" onclick="go('s-draft-client',document.querySelector('.sidebar button[onclick*=s-draft-client]'))">
+      <div class="cd-s-av">AK</div>
+      <div style="flex:1;min-width:0;"><div class="cd-s-pname">Anna Kowalski</div><div class="cd-i-tl cd-p-pcount">3 packs &middot; &euro;775 prepaid</div><div class="cd-i-tl cd-p-pcount-empty">No packages yet</div></div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-text-tertiary);flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+
+    <!-- NEEDS YOU: cash pack not received yet. Same chip grammar as J. -->
+    <div class="cd-in cd-p-sec-need">
+      <div class="cd-i-sec">Needs you</div>
+      <div class="cd-j-need">
+        <div class="cd-j-chips">
+          <span class="cd-j-chip due cd-press" onclick="openPkgDetail('yoga')"><i></i>&euro;200 cash &middot; Yoga pack</span>
+          <span class="cd-j-chip warn cd-press" onclick="openPkgDetail('tennis')"><i></i>Tennis pack &middot; 1 left</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- The packs. One card per session type; the tile is the type (a thing gets a picture). -->
+    <div class="cd-in cd-p-sec-list">
+      <div class="cd-i-sec">Active<span>3 packs</span></div>
+      <div class="cd-i-panel">
+        <div class="cd-g-row cd-press" onclick="openPkgDetail('tennis')">
+          <div class="cd-m-tile t-tennis" style="width:40px;height:40px;border-radius:12px;"></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Tennis</div><div class="cd-g-r2">Personal &middot; 5-pack &middot; 4 of 5 used</div><div class="cd-i-tbar"><i style="width:80%;background:var(--fit-yellow-400);"></i></div></div>
+          <div class="cd-g-rv cd-p-low">1 left</div>
+        </div>
+        <div class="cd-g-row cd-press" onclick="openPkgDetail('basketball')">
+          <div class="cd-m-tile t-group" style="width:40px;height:40px;border-radius:12px;filter:hue-rotate(-60deg);"></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Basketball</div><div class="cd-g-r2">Personal &middot; 2 packs &middot; 11 of 25 used</div><div class="cd-i-tbar"><i style="width:44%;"></i></div></div>
+          <div class="cd-g-rv">14 left</div>
+        </div>
+        <div class="cd-g-row cd-press" onclick="openPkgDetail('yoga')">
+          <div class="cd-m-tile t-group" style="width:40px;height:40px;border-radius:12px;"></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Yoga Morning Flow</div><div class="cd-g-r2">Group &middot; 10-pack &middot; cash unpaid</div><div class="cd-i-tbar"><i style="width:0;"></i></div></div>
+          <div class="cd-g-rv cd-p-due">&euro;200</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty: the CTA takes the slot. -->
+    <div class="cd-in cd-p-empty">
+      <div class="cd-i-panel"><div class="cd-i-empty" style="display:block;">
+        <p>Anna holds no packs. Sell her a block of sessions at a discount &mdash; she prepays, you stop chasing cash.</p>
+      </div></div>
+    </div>
+
+    <!-- Used up: history, one tile. -->
+    <div class="cd-in cd-p-sec-done" style="padding-bottom:22px;">
+      <div class="cd-i-sec">Used up</div>
+      <div class="cd-i-grid">
+        <div class="cd-i-tile cd-press" style="grid-column:1 / -1;" onclick="openPkgDetail('basketball')">
+          <div class="cd-j-thead" style="margin-bottom:0;"><div class="cd-j-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7L12 12l8.7-5M12 22V12"/></svg></div><div style="flex:1;"><div class="cd-j-tt">2 packs finished</div><div class="cd-i-tl">Basketball 5-pack &middot; Tennis 5-pack &middot; &euro;285</div></div><span style="color:var(--fit-text-tertiary);font-size:13px;">History</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" onclick="openSellPackage()">Sell a package</button></div>
+<div class="src-clients fit-sheet-overlay" id="cd-sell-package-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Sell a package</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;margin-bottom:20px;">Anna prepays for multiple sessions at a discount.</div>
+
+      <div id="cd-sell-body">
+        <!-- Tiers render from COACH_OFFERS, grouped by session — same grammar as the coach's
+             Packages tab (card per session, tiers inside) and the athlete's buy sheet. -->
+        <div id="cd-sell-tiers" style="margin-bottom:12px;"></div>
+
+        <!-- Payment method -->
+        <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--fit-text-tertiary);margin-bottom:8px;">Payment method</div>
+        <div class="fit-selection-group" style="padding:0;margin-bottom:10px;">
+          <div class="fit-selection-chip selected" id="cd-sell-cash" data-a11y-id="coach.client-detail.package.pay.cash" onclick="cdSellPay('cash')"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h2M20 10h2M2 14h2M20 14h2"/><circle cx="12" cy="12" r="3"/></svg> Cash</div>
+          <div class="fit-selection-chip" id="cd-sell-card" data-a11y-id="coach.client-detail.package.pay.card" onclick="cdSellPay('card')"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:24px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <span id="cd-sell-paytext" style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.45;">Cash packs are bookable right away — you approve each booking anyway. Mark the cash received once it&rsquo;s in hand.</span>
+        </div>
+
+        <button class="fit-btn fit-btn-primary" id="cd-sell-cta" data-a11y-id="coach.client-detail.package.sell.confirm" onclick="sellPackage()">Sell package</button>
+      </div>
+
+      <!-- No packages configured yet → nothing to sell; send the coach to build one -->
+      <div id="cd-sell-empty" style="display:none;">
+        <div style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;margin-bottom:20px;">You haven&rsquo;t set up any packages yet. Create one on a training session, then sell it here.</div>
+        <button class="fit-btn fit-btn-primary" data-a11y-id="coach.client-detail.package.sell.create" onclick="window.location.href='sessions.html#packages'">Create a package</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ==================== SCREENS REACHED FROM J — copies of the canon screens, so the whole flow walks inside one file. Source is named on each block; edit the source, then re-copy. ==================== -->
 <!-- ==== from coach/clients.html #s-client-selfpaced ==== -->
 <div class="src-clients fit-phone fit-dark" id="s-client-selfpaced" data-status="proposal">
@@ -2308,38 +2549,7 @@
     </div>
     <div id="pkgd-history" style="padding-bottom:24px;"></div>
   </div>
-<div class="src-clients fit-sheet-overlay" id="cd-sell-package-sheet">
-    <div class="fit-sheet">
-      <div class="fit-sheet-handle"></div>
-      <div class="fit-sheet-title">Sell a package</div>
-      <div style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;margin-bottom:20px;">Anna prepays for multiple sessions at a discount.</div>
 
-      <div id="cd-sell-body">
-        <!-- Tiers render from COACH_OFFERS, grouped by session — same grammar as the coach's
-             Packages tab (card per session, tiers inside) and the athlete's buy sheet. -->
-        <div id="cd-sell-tiers" style="margin-bottom:12px;"></div>
-
-        <!-- Payment method -->
-        <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--fit-text-tertiary);margin-bottom:8px;">Payment method</div>
-        <div class="fit-selection-group" style="padding:0;margin-bottom:10px;">
-          <div class="fit-selection-chip selected" id="cd-sell-cash" data-a11y-id="coach.client-detail.package.pay.cash" onclick="cdSellPay('cash')"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h2M20 10h2M2 14h2M20 14h2"/><circle cx="12" cy="12" r="3"/></svg> Cash</div>
-          <div class="fit-selection-chip" id="cd-sell-card" data-a11y-id="coach.client-detail.package.pay.card" onclick="cdSellPay('card')"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card</div>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:24px;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
-          <span id="cd-sell-paytext" style="font-size:12px;color:var(--fit-text-tertiary);line-height:1.45;">Cash packs are bookable right away — you approve each booking anyway. Mark the cash received once it&rsquo;s in hand.</span>
-        </div>
-
-        <button class="fit-btn fit-btn-primary" id="cd-sell-cta" data-a11y-id="coach.client-detail.package.sell.confirm" onclick="sellPackage()">Sell package</button>
-      </div>
-
-      <!-- No packages configured yet → nothing to sell; send the coach to build one -->
-      <div id="cd-sell-empty" style="display:none;">
-        <div style="font-size:14px;color:var(--fit-text-secondary);line-height:1.5;margin-bottom:20px;">You haven&rsquo;t set up any packages yet. Create one on a training session, then sell it here.</div>
-        <button class="fit-btn fit-btn-primary" data-a11y-id="coach.client-detail.package.sell.create" onclick="window.location.href='sessions.html#packages'">Create a package</button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- ==== from clients.html #s-pkg-history ==== -->
@@ -3610,9 +3820,16 @@
     <p class="note">Copy of <code>clients.html#s-pkg-history</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy; nothing here is a redesign.</p>
   </div>
   <div class="ann" id="ann-s-add-to-group"><span class="ann-role">Coach &middot; reached from J</span>
-    <h3>Groups</h3>
-    <p>From the <strong>groups tile</strong> and <strong>&ctdot; &rarr; Add to group</strong>: the client's membership, toggled per group.</p>
-    <p class="note">Copy of <code>client-groups.html#s-add-to-group</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy; nothing here is a redesign.</p>
+    <h3>Groups &middot; membership applies on the tap</h3>
+    <p>The canon screen had a footer that read <em>Save</em> with nothing changed, <em>Add to 2 groups</em> after adds, <em>Save changes</em> once a removal was in &mdash; three labels for one button, and a Save you could press to do nothing. The button was carrying state the rows already show.</p>
+    <ul>
+      <li><strong>A group is a state, not a form.</strong> Rows start checked for the groups she is in; tapping toggles membership <em>now</em>. No footer, nothing to remember to press, no &ldquo;did it save?&rdquo; on the way back.</li>
+      <li><strong>Every tap lands a snackbar with Undo</strong> (5 s, Gmail pattern &mdash; the same one participant-remove uses). That is what makes the removal side safe without a confirmation step.</li>
+      <li><strong>The chat consequence commits when the window closes</strong>, so a mis-tap undone in time never posts a join/leave line to the group.</li>
+      <li><strong>Create a new group</strong> stays the first row, with Anna pre-selected.</li>
+    </ul>
+    <p class="note">Fallback if instant apply is rejected: keep the footer but <em>disable</em> it until the set differs from the start (lost definition + depth), label = the diff. Never an enabled Save that does nothing.</p>
+    <p class="note">Copy of <code>client-groups.html#s-add-to-group</code>; the source still has the footer &mdash; port the decision back once agreed.</p>
   </div>
   <div class="ann" id="ann-s-crm-addr-pick"><span class="ann-role">Coach &middot; reached from J</span>
     <h3>Addresses</h3>
@@ -3638,6 +3855,38 @@
     <h3>Edit info</h3>
     <p>From <strong>&ctdot; &rarr; Edit info</strong>. Two modes in one screen (CRM = full card, app = sport + notes only) &mdash; see clients-coaches.md.</p>
     <p class="note">Copy of <code>clients.html#s-create-client</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy; nothing here is a redesign.</p>
+  </div>
+  <div class="ann" id="ann-s-draft-selfpaced"><span class="ann-role">Coach &middot; draft &middot; self-paced, placed</span>
+    <h3>Self-paced &middot; ordered by weight</h3>
+    <div class="state-toggle" style="margin-bottom:6px;">
+      <button class="active" onclick="spSet('none',this)">Owes work</button>
+      <button onclick="spSet('quiet',this)">Nothing to do</button>
+      <button onclick="spSet('empty',this)">Fresh</button>
+    </div>
+    <div class="bet"><strong>Bet:</strong> the canon list (sidebar &rarr; <em>canon copy</em>) is true and weightless &mdash; four sections of identical rows, so a paid plan nobody has built yet looks the same as a workout finished in March. Order it like J: <strong>what you owe &rarr; what is with her &rarr; the archive</strong>, and give each its own grammar.</div>
+    <ul>
+      <li><strong>The hero is the debt.</strong> <em>To set up</em> outranks everything: she paid, and until the coach builds she has nothing to do. It takes the media cover (draft E &mdash; a thing gets a picture), kicker says how long she has waited, one solid action. When there is nothing to set up the cover goes to the oldest clip to review; when nothing owes at all, the slot disappears (<em>Nothing to do</em>).</li>
+      <li><strong>Clips are pictures.</strong> Reviewing is watching, so <em>To review</em> is a strip of posters with a play glyph and duration, not rows of text about a video. &ldquo;Marked done, no clip&rdquo; is a plate that says so &mdash; the coach knows before opening it there is nothing to watch.</li>
+      <li><strong>With athlete is quiet.</strong> Rows with a progress bar and the due day; nothing to do here, so no accent, no action.</li>
+      <li><strong>Done is one tile</strong> (9 done &middot; avg 4.4&#9733; &middot; 6 with clips), the same tile grammar as History on J. Nine rows of finished work were the bulk of the old screen and the least useful part of it; the full list is one tap behind.</li>
+      <li><strong>Person stays a door</strong> (this screen is also reached from the offering detail), <strong>Assign self-paced</strong> stays the one footer action &mdash; both are canon decisions, unchanged.</li>
+    </ul>
+    <div class="cost"><strong>What it costs:</strong> a second layout for a screen that already shipped as a list; and the hero assumes one thing is owed at a time &mdash; two to set up at once shows the older one and counts the rest in the section below.</div>
+  </div>
+  <div class="ann" id="ann-s-draft-packages"><span class="ann-role">Coach &middot; draft &middot; packages, placed</span>
+    <h3>Packages &middot; one card per session type</h3>
+    <div class="state-toggle" style="margin-bottom:6px;">
+      <button class="active" onclick="pkSet('none',this)">3 packs</button>
+      <button onclick="pkSet('clean',this)">Nothing to chase</button>
+      <button onclick="pkSet('empty',this)">None yet</button>
+    </div>
+    <p>The <strong>Packages</strong> circle landed straight on one pack &mdash; wrong the day she holds a second type. This is the missing middle: the old Client Detail <em>Packages</em> section as its own screen, in J's grammar. <strong>One card per session type, lots aggregate inside</strong> (decision 2026-07-14: Basketball = 20-pack + 5-pack reads as &ldquo;2 packs &middot; 11 of 25 used&rdquo;); the <a href="#s-pkg-detail" onclick="go('s-pkg-detail',document.querySelector('.sidebar button[onclick*=s-pkg-detail]'));return false;">detail</a> behind each card lists the lots.</p>
+    <ul>
+      <li><strong>Needs you chips</strong> &mdash; the same grammar as J: a cash pack not received (red, &rarr; that pack, <em>Mark received</em> lives there), a pack running low (amber, &rarr; that pack, <em>Offer renewal</em>). Nothing to chase &rarr; the block is gone.</li>
+      <li><strong>Row = tile + name + bar + what is left.</strong> Amber bar and amber &ldquo;1 left&rdquo; for low; red amount for unpaid cash; teal bar otherwise. The bar is the current lot, not lifetime (canon rule).</li>
+      <li><strong>Used up</strong> is one history tile, like Done on self-paced and History on J.</li>
+      <li><strong>Sell a package</strong> is the footer &mdash; the one thing this screen exists for. Opens the canon sell sheet (tier &middot; card/cash), moved here from the detail.</li>
+    </ul>
   </div>
   <div class="ann" id="ann-s-draft-owed"><span class="ann-role">Coach &middot; Owed &middot; push from J</span>
     <h3>Owed &middot; settle one session at a time</h3>
@@ -4174,17 +4423,7 @@ function csAssignPick(offering) {
   window.location.href = '../shared/self-paced.html?offering=' + encodeURIComponent(offering) + '#s-setup';
 }
 
-// ==== copied from client-groups.html ====
-function cgMembershipToggle(row) {
-  row.classList.toggle('selected');
-  const rows = [...document.querySelectorAll('#cg-membership-list .imp-row')];
-  const added = rows.filter(r => r.classList.contains('selected') && r.dataset.in === '0').length;
-  const removed = rows.filter(r => !r.classList.contains('selected') && r.dataset.in === '1').length;
-  const cta = document.querySelector('#cg-membership-cta span');
-  if (removed > 0) cta.textContent = 'Save changes';
-  else if (added > 0) cta.textContent = 'Add to ' + added + (added === 1 ? ' group' : ' groups');
-  else cta.textContent = 'Save';
-}
+// ==== copied from client-groups.html ==== (cgMembershipToggle replaced below: instant apply)
 
 // ==== copied from ../shared/messages.html ====
 
@@ -4609,6 +4848,73 @@ function setLook(name, btn) {
 }
 try { setLook(localStorage.getItem('cd-look') || 'plain'); } catch (e) {}
 invInitGrid(); invRender();
+
+// ==== Self-paced / Packages drafts + membership glue ====
+function cdSellRender(){
+  var wrap = document.getElementById('cd-sell-tiers');
+  var offers = COACH_OFFERS.filter(function(o){ return o.tiers.length; });
+  document.getElementById('cd-sell-empty').style.display = offers.length ? 'none' : '';
+  document.getElementById('cd-sell-body').style.display = offers.length ? '' : 'none';
+  var first = true, html = '';
+  offers.forEach(function(o){
+    html += '<div class="cd-sell-group">' + o.name + '</div>';
+    o.tiers.forEach(function(t){
+      var per = Math.round(t.total / t.n * 100) / 100;
+      var pct = o.single > 0 ? Math.round((1 - per / o.single) * 100) : 0;
+      var sel = first ? ' selected' : '';
+      if(first){ cdSell = {key:o.key, n:t.n, total:t.total, method:cdSell.method}; first = false; }
+      html += '<div class="pkg-buy-tier' + sel + '" data-a11y-id="coach.client-detail.package.tier"' +
+        ' onclick="cdSellTier(this,\'' + o.key + '\',' + t.n + ',' + t.total + ')">' +
+        '<div class="pkg-buy-tier-main">' +
+          '<div class="pkg-buy-tier-t">' + t.n + ' sessions</div>' +
+          '<div class="pkg-buy-tier-s">€' + t.total + ' · €' + per + ' / session</div>' +
+          (pct > 0 ? '<div class="pkg-buy-tier-save">Save ' + pct + '% vs €' + o.single + ' single</div>' : '') +
+        '</div><div class="pkg-buy-radio"></div></div>';
+    });
+  });
+  wrap.innerHTML = html;
+  cdSellCta();
+}
+function cdSellTier(el, key, n, total){
+  document.querySelectorAll('#cd-sell-tiers .pkg-buy-tier').forEach(function(t){ t.classList.remove('selected'); });
+  el.classList.add('selected');
+  cdSell.key = key; cdSell.n = n; cdSell.total = total;
+  cdSellCta();
+}
+function openSellPackage(){
+  cdSellRender();
+  cdSellPay(cdSell.method);
+  document.getElementById('cd-sell-package-sheet').classList.add('visible');
+}
+function spSet(name, btn) {
+  var el = document.getElementById('s-draft-selfpaced');
+  el.classList.remove('sp-quiet','sp-empty'); if (name !== 'none') el.classList.add('sp-' + name);
+  if (btn) { btn.parentNode.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); }); btn.classList.add('active'); }
+}
+function pkSet(name, btn) {
+  var el = document.getElementById('s-draft-packages');
+  el.classList.remove('pk-clean','pk-empty'); if (name !== 'none') el.classList.add('pk-' + name);
+  if (btn) { btn.parentNode.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); }); btn.classList.add('active'); }
+}
+// Membership applies on the tap — a group is a state, not a form. One snackbar with Undo
+// per tap (Gmail pattern); the chat side effect commits when the window closes.
+var _cgUndo = null;
+function cgMembershipToggle(row) {
+  row.classList.toggle('selected');
+  var on = row.classList.contains('selected'), name = row.dataset.name;
+  var ph = document.getElementById('s-add-to-group'); var snack = ph.querySelector('.fit-snackbar');
+  if (!snack) { snack = document.createElement('div'); snack.className = 'fit-snackbar'; ph.appendChild(snack); }
+  snack.innerHTML = (on ? 'Added to ' : 'Removed from ') + name + ' <span class="snack-action" onclick="cgUndo()">Undo</span>';
+  snack.classList.add('show');
+  clearTimeout(_cgUndo && _cgUndo.t);
+  _cgUndo = { row: row, t: setTimeout(function () { snack.classList.remove('show'); _cgUndo = null; }, 5000) };
+}
+function cgUndo() {
+  if (!_cgUndo) return; clearTimeout(_cgUndo.t);
+  _cgUndo.row.classList.toggle('selected');
+  var snack = document.getElementById('s-add-to-group').querySelector('.fit-snackbar'); if (snack) snack.classList.remove('show');
+  _cgUndo = null;
+}
 
 countUp(document);
 (function(){
