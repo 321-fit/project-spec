@@ -2549,7 +2549,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-notifications",
-          "hash": "c4d139304822",
+          "hash": "d6baa86bb314",
           "title": "Notifications inbox",
           "inApp": "Inbox",
           "status": "canon",
@@ -2660,7 +2660,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-notifications",
-          "hash": "46c58ec493dc",
+          "hash": "404c56012ae3",
           "title": "↳ Inbox",
           "inApp": "Inbox",
           "status": "proposal",
