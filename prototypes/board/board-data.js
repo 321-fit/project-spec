@@ -3295,7 +3295,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-focus",
-          "hash": "62f05958a99a",
+          "hash": "f28ea6f5cbee",
           "title": "A · Focus card",
           "inApp": "",
           "status": "proposal",
@@ -3314,7 +3314,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-timeline",
-          "hash": "8bfbd3ff7a67",
+          "hash": "edba23880df1",
           "title": "B · Timeline",
           "inApp": "",
           "status": "proposal",
@@ -3334,7 +3334,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-segments",
-          "hash": "db060896e1e7",
+          "hash": "08100f3a478b",
           "title": "C · Segments",
           "inApp": "",
           "status": "proposal",
@@ -3354,7 +3354,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-accent",
-          "hash": "9b7c10dd5a8a",
+          "hash": "0dd55ec5a9c9",
           "title": "D · Accent budget",
           "inApp": "",
           "status": "proposal",
@@ -3374,7 +3374,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-media",
-          "hash": "3259b4eada32",
+          "hash": "38f964a0454d",
           "title": "E · Media grammar",
           "inApp": "",
           "status": "proposal",
@@ -3394,7 +3394,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-quiet",
-          "hash": "f49b18c8a540",
+          "hash": "fbf3c860fa87",
           "title": "F · Both (light)",
           "inApp": "",
           "status": "proposal",
@@ -3414,7 +3414,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-floating",
-          "hash": "4c886934040d",
+          "hash": "cfb2b13557f2",
           "title": "G · Floating panels",
           "inApp": "",
           "status": "proposal",
@@ -3434,7 +3434,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-tiles",
-          "hash": "80f3f3209424",
+          "hash": "4726daa30861",
           "title": "H · Big title + tiles",
           "inApp": "",
           "status": "proposal",
@@ -3454,7 +3454,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-full",
-          "hash": "df526242f89e",
+          "hash": "b2f56f900d0e",
           "title": "I · Floating, filled",
           "inApp": "",
           "status": "proposal",
@@ -3478,7 +3478,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-client",
-          "hash": "34a84e63cef5",
+          "hash": "aae2dfa70fd7",
           "title": "J · Client Detail, placed",
           "inApp": "",
           "status": "proposal",
@@ -3514,7 +3514,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-owed",
-          "hash": "21ac1458141c",
+          "hash": "672ad3fc3ab1",
           "title": "↳ Owed (push)",
           "inApp": "Owed",
           "status": "proposal",
@@ -3534,7 +3534,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-alpha",
-          "hash": "af4ffdb59853",
+          "hash": "610959688c9d",
           "title": "K · Tinted canvas",
           "inApp": "",
           "status": "proposal",
@@ -3917,7 +3917,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-calendar",
-          "hash": "22fb2a3345af",
+          "hash": "b966f173b6bd",
           "title": "Cross-role drawer",
           "inApp": "",
           "status": "canon",
@@ -3959,7 +3959,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-event",
-          "hash": "c32004d58760",
+          "hash": "53a2c6d96e7a",
           "title": "Event Detail",
           "inApp": "HIIT Group Session",
           "status": "canon",
@@ -3978,7 +3978,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite",
-          "hash": "029743e86726",
+          "hash": "51738b6e1444",
           "title": "Invite athletes",
           "inApp": "Invite athletes",
           "status": "canon",
@@ -3997,7 +3997,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-cash",
-          "hash": "69e5122cd571",
+          "hash": "19b4901dc432",
           "title": "Event Completion",
           "inApp": "Event completion",
           "status": "canon",
@@ -4016,7 +4016,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-block-time-off",
-          "hash": "edba1df61402",
+          "hash": "45510925ca5b",
           "title": "Busy time form",
           "inApp": "Busy time",
           "status": "canon",
@@ -4037,7 +4037,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-event-edit",
-          "hash": "0288ed3da9a5",
+          "hash": "97a37fb34d46",
           "title": "↳ before you save",
           "inApp": "Edit event",
           "status": "canon",

@@ -2791,6 +2791,11 @@ document.querySelectorAll('.sidebar button').forEach(function(b){
 <script>
 // Deep-link: home-visit journey → calendar.html#event-homevisit opens the home-visit event drawer
 (function(){ if((location.hash||'').slice(1)==='event-homevisit'){ setTimeout(function(){ if(typeof openEventSheet==='function') openEventSheet('planned',{homeVisit:1}); }, 120); } })();
+// Deep-link a drawer in a state: calendar.html#event-<planned|request|awaiting|review|missed|finished>
+// or #group-<planned|review|missed|finished>. Used by Client Detail (Next session / This week rows),
+// which opens the same drawer over itself in the app — here it opens over the calendar.
+(function(){ var m=(location.hash||'').slice(1).match(/^(event|group)-([a-z]+)$/); if(!m||m[0]==='event-homevisit')return;
+  setTimeout(function(){ if(m[1]==='event'&&typeof openEventSheet==='function') openEventSheet(m[2]); if(m[1]==='group'&&typeof openGroupSheet==='function') openGroupSheet(m[2]); }, 120); })();
 // Deep-link any screen by id: calendar.html#s-<id> (+ |light)
 (function(){var h=(location.hash||'').replace('#','');if(!h)return;var parts=h.split('|');var el=document.getElementById(parts[0]);if(el&&el.classList.contains('fit-phone')&&typeof go==='function')go(parts[0],null);if(parts.indexOf('light')>=0&&typeof switchTheme==='function')switchTheme('light');})();
 </script>

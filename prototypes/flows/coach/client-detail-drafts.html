@@ -1998,10 +1998,16 @@ function jMenu(open) {
   document.getElementById('cd-j-menu').classList.toggle('visible', !!open);
   document.getElementById('cd-j-menu-backdrop').classList.toggle('visible', !!open);
 }
-// Event drawer over Client Detail — same sheet the calendar uses. Wired in the
-// next pass; until then it is the calendar's own drawer.
+// Event drawer over Client Detail — the calendar's own state-aware sheet, not a
+// copy of it (a copy would drift). The prototype deep-links calendar.html with the
+// drawer already open in the state J is showing; in the app it opens over this
+// screen. kind: undefined = personal in J's current next-state · 'request' ·
+// 'group'.
 function jOpenEvent(kind) {
-  location.href = 'calendar.html#s-calendar';
+  var el = document.getElementById('s-draft-client');
+  if (kind === 'group') { location.href = 'calendar.html#group-planned'; return; }
+  var state = kind || (el.classList.contains('j-next-request') ? 'request' : el.classList.contains('j-next-awaiting') ? 'awaiting' : 'planned');
+  location.href = 'calendar.html#event-' + state;
 }
 function toggleNoNext(btn) {
   var el = document.getElementById('s-draft-full');
