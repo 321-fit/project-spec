@@ -1149,6 +1149,11 @@ window.FIT_BOARD = {
               "id": "s-dashboard"
             },
             {
+              "file": "flows/coach/dashboard-drafts.html",
+              "label": "Coach Home drafts (WIP)",
+              "id": "s-draft-dash"
+            },
+            {
               "file": "flows/athlete/dashboard.html",
               "label": "Athlete Dashboard",
               "id": "s-dashboard"
@@ -1419,7 +1424,14 @@ window.FIT_BOARD = {
             }
           ],
           "level": 0,
-          "order": 0
+          "order": 0,
+          "inFrom": [
+            {
+              "file": "flows/coach/dashboard-drafts.html",
+              "label": "Coach Home drafts (WIP)",
+              "id": "s-draft-dash"
+            }
+          ]
         }
       ],
       "edges": []
@@ -1591,6 +1603,11 @@ window.FIT_BOARD = {
               "file": "flows/coach/dashboard.html",
               "label": "Coach Dashboard",
               "id": "s-dashboard"
+            },
+            {
+              "file": "flows/coach/dashboard-drafts.html",
+              "label": "Coach Home drafts (WIP)",
+              "id": "s-draft-dash"
             },
             {
               "file": "flows/coach/client-detail-drafts.html",
@@ -2574,6 +2591,287 @@ window.FIT_BOARD = {
       ]
     },
     {
+      "file": "flows/coach/dashboard-drafts.html",
+      "label": "Coach Home drafts (WIP)",
+      "role": "coach",
+      "slug": "coach-dashboard-drafts",
+      "screens": [
+        {
+          "id": "s-draft-dash",
+          "hash": "fc46303b3026",
+          "title": "Home, placed",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": true,
+          "note": "",
+          "external": [
+            "../shared/messages.html?role=coach#s-messages",
+            "../shared/voice-assistant.html",
+            "../shared/self-paced.html#s-queue"
+          ],
+          "shots": [
+            {
+              "file": "coach-dashboard-drafts__s-draft-dash.webp",
+              "label": ""
+            },
+            {
+              "file": "coach-dashboard-drafts__s-draft-dash__zero.webp",
+              "label": "All caught up"
+            },
+            {
+              "file": "coach-dashboard-drafts__s-draft-dash__quiet.webp",
+              "label": "Quiet day → tomorrow's session"
+            },
+            {
+              "file": "coach-dashboard-drafts__s-draft-dash__ready.webp",
+              "label": "New coach → share profile"
+            },
+            {
+              "file": "coach-dashboard-drafts__s-draft-dash__hidden.webp",
+              "label": "Hidden from search → banner"
+            },
+            {
+              "file": "coach-dashboard-drafts__s-draft-dash__event-drawer.webp",
+              "label": "Next session → drawer over Home"
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-draft-collect",
+          "hash": "e32a307a0d4a",
+          "title": "↳ Cash to collect (push)",
+          "inApp": "Cash to collect",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "The global twin of Client Detail's Owed: every cash debt across clients, oldest first, one row per owing entity, the canon cash drawer per row (Mark as paid / Waive). A settle is per entity on the backend, never per clie",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-dashboard-drafts__s-draft-collect.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-notifications",
+          "hash": "46c58ec493dc",
+          "title": "↳ Inbox",
+          "inApp": "Inbox",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From the bell and from the requests / invites waiting chips (opens on the right tab). One bell, one inbox, three tabs — unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-dashboard-drafts__s-notifications.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-review-queue",
+          "hash": "e25828285f80",
+          "title": "↳ Sessions to review",
+          "inApp": "Sessions to review",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From the to review chip. Batch queue — unchanged; see review-queue.md.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-dashboard-drafts__s-review-queue.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-earnings",
+          "hash": "73f4eac24282",
+          "title": "↳ Earnings",
+          "inApp": "Earnings",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From the Money widget. Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-dashboard-drafts__s-earnings.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 3
+        },
+        {
+          "id": "s-schedule-pick-athlete",
+          "hash": "a11a9290d7c2",
+          "title": "↳ Book · athlete",
+          "inApp": "Choose athlete",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From the Book circle: from Home the athlete is not known, so the flow starts by picking one.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-dashboard-drafts__s-schedule-pick-athlete.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 4
+        },
+        {
+          "id": "s-invite-select",
+          "hash": "3ad3adca681b",
+          "title": "↳ Book · session",
+          "inApp": "Select training",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Then the session.",
+          "external": [
+            "../coach/settings.html#s-create"
+          ],
+          "shots": [
+            {
+              "file": "coach-dashboard-drafts__s-invite-select.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 2,
+          "order": 0
+        },
+        {
+          "id": "s-invite-time",
+          "hash": "d5b1a27bee73",
+          "title": "↳ Book · time",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Then the time.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-dashboard-drafts__s-invite-time.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 2,
+          "order": 1
+        },
+        {
+          "id": "s-schedule-review",
+          "hash": "0bbf1fc8a3ec",
+          "title": "↳ Book · review",
+          "inApp": "Review request",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Send request &rarr; snackbar &rarr; back on Home.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-dashboard-drafts__s-schedule-review.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 2,
+          "order": 2
+        },
+        {
+          "id": "s-block-time-off",
+          "hash": "aef0f400799f",
+          "title": "↳ Time off",
+          "inApp": "Busy time",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From the Time off circle. The calendar's own screen.",
+          "external": [
+            "./available-hours.html#timeoff"
+          ],
+          "shots": [
+            {
+              "file": "coach-dashboard-drafts__s-block-time-off.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 5
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-draft-dash",
+          "to": "s-notifications",
+          "back": false
+        },
+        {
+          "from": "s-draft-dash",
+          "to": "s-schedule-pick-athlete",
+          "back": false
+        },
+        {
+          "from": "s-draft-dash",
+          "to": "s-block-time-off",
+          "back": false
+        },
+        {
+          "from": "s-draft-dash",
+          "to": "s-draft-collect",
+          "back": false
+        },
+        {
+          "from": "s-draft-dash",
+          "to": "s-review-queue",
+          "back": false
+        },
+        {
+          "from": "s-draft-dash",
+          "to": "s-earnings",
+          "back": false
+        },
+        {
+          "from": "s-draft-collect",
+          "to": "s-draft-dash",
+          "back": true
+        },
+        {
+          "from": "s-notifications",
+          "to": "s-draft-dash",
+          "back": true
+        },
+        {
+          "from": "s-review-queue",
+          "to": "s-draft-dash",
+          "back": true
+        },
+        {
+          "from": "s-invite-time",
+          "to": "s-invite-select",
+          "back": true
+        }
+      ]
+    },
+    {
       "file": "flows/coach/clients.html",
       "label": "Coach Clients",
       "role": "coach",
@@ -3301,7 +3599,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-client",
-          "hash": "24018ff52b04",
+          "hash": "14b3486920a9",
           "title": "J · Client Detail, placed",
           "inApp": "",
           "status": "proposal",
@@ -3316,7 +3614,11 @@ window.FIT_BOARD = {
             },
             {
               "file": "coach-client-detail-drafts__s-draft-client__nothing-to-do.webp",
-              "label": "Nothing to answer → Needs-you gone, Sell pack"
+              "label": "Nothing to answer → Needs-you gone"
+            },
+            {
+              "file": "coach-client-detail-drafts__s-draft-client__fresh.webp",
+              "label": "Fresh client → CTAs take the slots"
             },
             {
               "file": "coach-client-detail-drafts__s-draft-client__crm-contact.webp",
@@ -3324,7 +3626,19 @@ window.FIT_BOARD = {
             },
             {
               "file": "coach-client-detail-drafts__s-draft-client__blocked.webp",
-              "label": "Blocked → banner, cash still settleable"
+              "label": "Blocked → banner, upcoming kept, cash settleable"
+            },
+            {
+              "file": "coach-client-detail-drafts__s-draft-client__next-request.webp",
+              "label": "Next session is a request → yellow perimeter"
+            },
+            {
+              "file": "coach-client-detail-drafts__s-draft-client__nothing-owed.webp",
+              "label": "Nothing owed → money widget calms down"
+            },
+            {
+              "file": "coach-client-detail-drafts__s-draft-client__event-drawer.webp",
+              "label": "Next session → the calendar's drawer over the screen"
             }
           ],
           "level": 0,
@@ -3351,7 +3665,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-selfpaced",
-          "hash": "7372cc1dd445",
+          "hash": "bf36f4b6a890",
           "title": "↳ Self-paced",
           "inApp": "Anna’s self-paced",
           "status": "proposal",
@@ -3365,6 +3679,14 @@ window.FIT_BOARD = {
             {
               "file": "coach-client-detail-drafts__s-draft-selfpaced.webp",
               "label": ""
+            },
+            {
+              "file": "coach-client-detail-drafts__s-draft-selfpaced__busy.webp",
+              "label": "3 to set up · 5 to review"
+            },
+            {
+              "file": "coach-client-detail-drafts__s-draft-selfpaced__fresh.webp",
+              "label": "Nothing assigned yet"
             }
           ],
           "level": 1,

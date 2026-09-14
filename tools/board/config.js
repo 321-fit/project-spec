@@ -72,6 +72,7 @@ export const ORDER = [
 
   // coach — root tabs in nav order, then what they open, then settings
   "flows/coach/dashboard.html",
+  "flows/coach/dashboard-drafts.html",
   "flows/coach/clients.html",
   "flows/coach/client-groups.html",
   "flows/coach/client-detail-drafts.html",
@@ -117,9 +118,24 @@ export const STATES = {
   // Contextual AI entry — every mounted point gets an open quick-start shot and
   // a second shot after its first screen-specific prompt starts the chat.
   "flows/coach/client-detail-drafts.html#s-draft-client": [
-    { id: "nothing-to-do", label: "Nothing to answer → Needs-you gone, Sell pack", run: "document.getElementById('s-draft-client').classList.add('j-clean')" },
-    { id: "crm-contact", label: "CRM contact → Invite instead of Message", run: "document.getElementById('s-draft-client').classList.add('j-crm')" },
-    { id: "blocked", label: "Blocked → banner, cash still settleable", run: "document.getElementById('s-draft-client').classList.add('j-blocked')" },
+    { id: "nothing-to-do", label: "Nothing to answer → Needs-you gone", run: "jSet('status','clean')" },
+    { id: "fresh", label: "Fresh client → CTAs take the slots", run: "jSet('status','fresh')" },
+    { id: "crm-contact", label: "CRM contact → Invite instead of Message", run: "jSet('status','crm')" },
+    { id: "blocked", label: "Blocked → banner, upcoming kept, cash settleable", run: "jSet('status','blocked')" },
+    { id: "next-request", label: "Next session is a request → yellow perimeter", run: "jSet('next','next-request')" },
+    { id: "nothing-owed", label: "Nothing owed → money widget calms down", run: "jSet('money','money-clear')" },
+    { id: "event-drawer", label: "Next session → the calendar's drawer over the screen", run: "jOpenEvent()", wait: 300 },
+  ],
+  "flows/coach/client-detail-drafts.html#s-draft-selfpaced": [
+    { id: "busy", label: "3 to set up · 5 to review", run: "spSet('busy')" },
+    { id: "fresh", label: "Nothing assigned yet", run: "spSet('empty')" },
+  ],
+  "flows/coach/dashboard-drafts.html#s-draft-dash": [
+    { id: "zero", label: "All caught up", run: "dSet('zero')" },
+    { id: "quiet", label: "Quiet day → tomorrow's session", run: "dSet('quiet')" },
+    { id: "ready", label: "New coach → share profile", run: "dSet('ready')" },
+    { id: "hidden", label: "Hidden from search → banner", run: "dSet('hidden')" },
+    { id: "event-drawer", label: "Next session → drawer over Home", run: "dOpenEvent()", wait: 300 },
   ],
   "flows/coach/calendar.html#s-calendar": [
     { id: "semi-private", label: "Semi-private · drawer with two seats", run: "document.getElementById('cal-event-sheet-body').classList.add('is-semi');document.getElementById('cal-event-sheet').classList.add('visible')" },
@@ -133,9 +149,6 @@ export const STATES = {
   "flows/athlete/calendar.html#s-schedule": [
     { id: "reconfirm", label: "Session updated · re-confirm (was → now)", run: "openAthEvent('reconfirm')" },
     { id: "seat-invite", label: "Invited to join someone else's session", run: "openAthEvent('request',{seat:true})" },
-  ],
-  "flows/coach/client-detail-drafts.html#s-draft-full": [
-    { id: "no-next-session", label: "No next session → CTA in the same slot", run: "document.getElementById('s-draft-full').classList.add('no-next')" },
   ],
   "flows/coach/clients.html#s-client-detail": [
     { id: "ai-quick-starts", label: "AI · 3 contextual quick actions", run: "document.querySelector('#s-client-detail .fit-guide-fab').click()", wait: 250 },
