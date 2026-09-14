@@ -509,8 +509,8 @@
   .fit-dark.k-alpha .fit-snackbar { background: rgba(4,22,29,0.88); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-color: rgba(255,255,255,0.14); }
   /* CTA colour on the tinted canvas — the brand gradient is already the canvas, so a gradient
      button has nothing to stand out against. Two candidates: white (Revolut's answer: the one
-     solid object on a coloured screen) and flat teal (brand, but a single colour, no second
-     gradient). Applies only with the tinted look. */
+     solid object on a coloured screen). Flat teal was tried and rejected 2026-09-14. Applies
+     only with the tinted look. */
   /* White is right but a flat white plate has no depth next to alpha surfaces that do. Give it
      the same physics as the rest of the canvas: a faint top-to-bottom fall-off (paper, not
      plastic), a hairline highlight on the top edge, and a soft drop shadow that lifts it off
@@ -528,8 +528,6 @@
   }
   .fit-dark.k-alpha.k-cta-white .fit-action-circle--primary span { color: #fff; }
   .fit-dark.k-alpha.k-cta-white .cd-s-hero-empty .cd-s-go-corner { color: #fff; }
-  .fit-dark.k-alpha.k-cta-teal .fit-btn-primary { background: var(--fit-teal-500); color: #06251f; }
-  .fit-dark.k-alpha.k-cta-teal .fit-action-circle--primary i { background: var(--fit-teal-500); color: #06251f; }
   /* look switch — sits above the annotation column, applies to every phone on the board */
   .look-switch { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; font-size: 12px; color: var(--fit-gray-500); }
   .look-switch .state-toggle { margin-bottom: 0; }
@@ -3666,7 +3664,7 @@
     <div class="state-toggle"><button class="active" data-v="plain" onclick="setLook('plain',this)">Plain</button><button data-v="tinted" onclick="setLook('tinted',this)">Tinted canvas</button></div>
     <span>&middot; dark only</span>
     <span style="margin-left:10px;">CTA</span>
-    <div class="state-toggle"><button class="active" data-c="gradient" onclick="setCta('gradient',this)">Gradient</button><button data-c="white" onclick="setCta('white',this)">White</button><button data-c="teal" onclick="setCta('teal',this)">Flat teal</button></div>
+    <div class="state-toggle"><button class="active" data-c="gradient" onclick="setCta('gradient',this)">Gradient</button><button data-c="white" onclick="setCta('white',this)">White</button></div>
     <span>&middot; tinted only</span>
   </div>
 
@@ -4925,7 +4923,7 @@ function setLook(name, btn) {
   try { localStorage.setItem('cd-look', name); } catch (e) {}
 }
 function setCta(name, btn) {
-  document.querySelectorAll('.fit-phone').forEach(function (p) { p.classList.remove('k-cta-white', 'k-cta-teal'); if (name !== 'gradient') p.classList.add('k-cta-' + name); });
+  document.querySelectorAll('.fit-phone').forEach(function (p) { p.classList.remove('k-cta-white'); if (name === 'white') p.classList.add('k-cta-white'); });
   document.querySelectorAll('.look-switch button[data-c]').forEach(function (b) { b.classList.remove('active'); });
   var hit = btn || document.querySelector('.look-switch button[data-c="' + name + '"]'); if (hit) hit.classList.add('active');
   try { localStorage.setItem('cd-cta', name); } catch (e) {}
