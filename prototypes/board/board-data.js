@@ -3283,7 +3283,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-focus",
-          "hash": "e9c72c2bcd68",
+          "hash": "fc599da4ffd2",
           "title": "A · Focus card",
           "inApp": "",
           "status": "proposal",
@@ -3302,7 +3302,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-timeline",
-          "hash": "cbd92d114c8c",
+          "hash": "d051b2089416",
           "title": "B · Timeline",
           "inApp": "",
           "status": "proposal",
@@ -3322,7 +3322,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-segments",
-          "hash": "c2e06d820b58",
+          "hash": "063716d278f7",
           "title": "C · Segments",
           "inApp": "",
           "status": "proposal",
@@ -3342,7 +3342,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-accent",
-          "hash": "7650fcea051e",
+          "hash": "3272f1ded9e0",
           "title": "D · Accent budget",
           "inApp": "",
           "status": "proposal",
@@ -3362,7 +3362,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-media",
-          "hash": "fbfc7ebed47d",
+          "hash": "eb4a70b10729",
           "title": "E · Media grammar",
           "inApp": "",
           "status": "proposal",
@@ -3382,7 +3382,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-quiet",
-          "hash": "4fe235381c51",
+          "hash": "a379fe208e69",
           "title": "F · Both (light)",
           "inApp": "",
           "status": "proposal",
@@ -3402,7 +3402,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-floating",
-          "hash": "89841f49e60e",
+          "hash": "dd486e34fb89",
           "title": "G · Floating panels",
           "inApp": "",
           "status": "proposal",
@@ -3422,7 +3422,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-tiles",
-          "hash": "d2e55ad4080c",
+          "hash": "10b1f561c840",
           "title": "H · Big title + tiles",
           "inApp": "",
           "status": "proposal",
@@ -3442,7 +3442,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-full",
-          "hash": "84f0da5f49e6",
+          "hash": "c9d2262cdd7b",
           "title": "I · Floating, filled",
           "inApp": "",
           "status": "proposal",
@@ -3466,7 +3466,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-client",
-          "hash": "ce57c75aaf3f",
+          "hash": "20801d4960b9",
           "title": "J · Client Detail, placed",
           "inApp": "",
           "status": "proposal",
@@ -3498,7 +3498,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-owed",
-          "hash": "415678db4815",
+          "hash": "cc0248a09ce0",
           "title": "↳ Owed (push)",
           "inApp": "Owed",
           "status": "proposal",
@@ -3518,7 +3518,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-selfpaced",
-          "hash": "666f63c7d740",
+          "hash": "145e125d72c9",
           "title": "↳ Self-paced",
           "inApp": "Anna’s self-paced",
           "status": "proposal",
@@ -3540,7 +3540,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-packages",
-          "hash": "04b5cf4c07dc",
+          "hash": "1bfa9e866473",
           "title": "↳ Packages",
           "inApp": "Anna’s packages",
           "status": "proposal",
@@ -3560,7 +3560,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-client-selfpaced",
-          "hash": "d158a728694e",
+          "hash": "57c66a4a0279",
           "title": "↳ canon copy",
           "inApp": "Self-paced",
           "status": "proposal",
@@ -3582,7 +3582,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-pkg-detail",
-          "hash": "3995f4487add",
+          "hash": "cd5586146697",
           "title": "↳ Package detail",
           "inApp": "Package",
           "status": "proposal",
@@ -3602,7 +3602,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-pkg-history",
-          "hash": "8b0d1b4cf62d",
+          "hash": "683c6ef67c8b",
           "title": "↳ Package history",
           "inApp": "Activity",
           "status": "proposal",
@@ -3622,7 +3622,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-crm-addr-pick",
-          "hash": "e65befe07408",
+          "hash": "4f84109b6bd6",
           "title": "↳ Addresses",
           "inApp": "",
           "status": "proposal",
@@ -3642,7 +3642,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-crm-addr-form",
-          "hash": "a3c1b8ac178e",
+          "hash": "985508fe79fa",
           "title": "↳ Address form",
           "inApp": "Home address",
           "status": "proposal",
@@ -3662,7 +3662,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-client-notes-editor",
-          "hash": "c180a5eb792e",
+          "hash": "2e841be652cb",
           "title": "↳ Note",
           "inApp": "",
           "status": "proposal",
@@ -3682,9 +3682,9 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-client-history",
-          "hash": "c36e518e7155",
+          "hash": "b99b6c4f97bf",
           "title": "↳ History",
-          "inApp": "Training history",
+          "inApp": "Anna’s history",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
@@ -3702,7 +3702,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-create-client",
-          "hash": "ab8df2392e57",
+          "hash": "6eb7dd7a972a",
           "title": "↳ Edit info",
           "inApp": "New client",
           "status": "proposal",
@@ -3722,7 +3722,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-add-to-group",
-          "hash": "890bc41a41cb",
+          "hash": "041f6409c3a6",
           "title": "↳ Groups",
           "inApp": "Anna’s groups",
           "status": "proposal",
@@ -3742,7 +3742,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-thread",
-          "hash": "b02a23aa485b",
+          "hash": "22523f5f519e",
           "title": "↳ Message",
           "inApp": "John Miller",
           "status": "proposal",
@@ -3762,7 +3762,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-review",
-          "hash": "baa3dab4ca81",
+          "hash": "bcb17cda34f1",
           "title": "↳ Self-paced · review clips",
           "inApp": "Review · Julia",
           "status": "proposal",
@@ -3782,7 +3782,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-setup",
-          "hash": "051788469bba",
+          "hash": "0b3e422ba7d9",
           "title": "↳ Self-paced · setup",
           "inApp": "Set up for Anna",
           "status": "proposal",
@@ -3802,7 +3802,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-select",
-          "hash": "5145b9cb74f8",
+          "hash": "ae5bb6c9b397",
           "title": "↳ Book · session",
           "inApp": "Select training",
           "status": "proposal",
@@ -3824,7 +3824,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-time",
-          "hash": "3c315dbe23b8",
+          "hash": "5873a6928815",
           "title": "↳ Book · time",
           "inApp": "",
           "status": "proposal",
@@ -3844,7 +3844,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-schedule-review",
-          "hash": "aed488679d2b",
+          "hash": "c41588087d50",
           "title": "↳ Book · review",
           "inApp": "Review request",
           "status": "proposal",
@@ -3986,6 +3986,11 @@ window.FIT_BOARD = {
         },
         {
           "from": "s-client-notes-editor",
+          "to": "s-draft-client",
+          "back": true
+        },
+        {
+          "from": "s-client-history",
           "to": "s-draft-client",
           "back": true
         },

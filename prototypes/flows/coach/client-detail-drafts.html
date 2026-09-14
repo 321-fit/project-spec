@@ -489,9 +489,24 @@
   .fit-dark.k-alpha .fit-action-circle--primary span { color: var(--fit-teal-500); }
   .fit-dark.k-alpha .cd-j-badge-n.calm { background: rgba(255,255,255,0.18); color: #fff; }
   .fit-dark.k-alpha .cd-j-tile-empty { background: transparent; box-shadow: none; border-color: rgba(255,255,255,0.22); }
-  .fit-dark.k-alpha .fit-sheet { background: #062e3b; }
-  .fit-dark.k-alpha .fit-context-menu { background: #0a3a47; }
-  .fit-dark.k-alpha .fit-snackbar { background: #04161d; }
+  /* Sheets, menus, snackbars on the tinted canvas are a MATERIAL, not a paint: a dark
+     translucent body that blurs the gradient behind it, a hairline light on the top
+     edge, and a faint teal breath at the top so it belongs to the canvas. Blur is right
+     here where it was wrong on cards — a sheet is a layer above the screen, and the
+     screen showing through is what says so. */
+  .fit-dark.k-alpha .fit-sheet {
+    background: linear-gradient(180deg, rgba(0,190,215,0.10), rgba(0,190,215,0) 120px), rgba(5,24,31,0.80);
+    -webkit-backdrop-filter: blur(28px) saturate(1.5); backdrop-filter: blur(28px) saturate(1.5);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.14) inset, 0 -18px 50px rgba(0,0,0,0.35);
+  }
+  .fit-dark.k-alpha .fit-sheet-overlay { background: rgba(2,12,16,0.45); }
+  .fit-dark.k-alpha .fit-sheet-handle { background: rgba(255,255,255,0.28); }
+  .fit-dark.k-alpha .fit-sheet-action-row, .fit-dark.k-alpha .fit-participants-card { background: rgba(255,255,255,0.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }
+  .fit-dark.k-alpha .fit-context-menu {
+    background: rgba(8,36,45,0.86); -webkit-backdrop-filter: blur(24px) saturate(1.4); backdrop-filter: blur(24px) saturate(1.4);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.12) inset, 0 14px 40px rgba(0,0,0,0.45);
+  }
+  .fit-dark.k-alpha .fit-snackbar { background: rgba(4,22,29,0.88); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-color: rgba(255,255,255,0.14); }
   /* CTA colour on the tinted canvas — the brand gradient is already the canvas, so a gradient
      button has nothing to stand out against. Two candidates: white (Revolut's answer: the one
      solid object on a coloured screen) and flat teal (brand, but a single colour, no second
@@ -501,13 +516,15 @@
      plastic), a hairline highlight on the top edge, and a soft drop shadow that lifts it off
      the scrim. Same recipe on the Book circle. */
   .fit-dark.k-alpha.k-cta-white .fit-btn-primary {
-    background: linear-gradient(180deg, #ffffff 0%, #eef4f6 100%); color: #12161a;
-    box-shadow: 0 1px 0 rgba(255,255,255,0.85) inset, 0 -1px 0 rgba(0,0,0,0.06) inset, 0 10px 26px rgba(0,0,0,0.38), 0 2px 6px rgba(0,0,0,0.22);
+    background: linear-gradient(180deg, #ffffff 0%, #f3f7f8 45%, #e2ebee 100%); color: #12161a;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.95) inset, 0 -2px 0 rgba(0,0,0,0.08) inset, 0 0 0 1px rgba(255,255,255,0.22),
+                0 16px 34px rgba(0,0,0,0.45), 0 3px 8px rgba(0,0,0,0.28), 0 0 40px rgba(5,224,166,0.10);
   }
   .fit-dark.k-alpha.k-cta-white .fit-btn-primary:active { background: linear-gradient(180deg, #f2f6f7 0%, #e3eaec 100%); box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 4px 12px rgba(0,0,0,0.3); }
   .fit-dark.k-alpha.k-cta-white .fit-action-circle--primary i {
-    background: linear-gradient(180deg, #ffffff 0%, #eef4f6 100%); color: #12161a;
-    box-shadow: 0 1px 0 rgba(255,255,255,0.85) inset, 0 8px 22px rgba(0,0,0,0.38), 0 2px 5px rgba(0,0,0,0.22);
+    background: linear-gradient(180deg, #ffffff 0%, #f3f7f8 45%, #e2ebee 100%); color: #12161a;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.95) inset, 0 -2px 0 rgba(0,0,0,0.08) inset, 0 0 0 1px rgba(255,255,255,0.22),
+                0 12px 28px rgba(0,0,0,0.45), 0 3px 7px rgba(0,0,0,0.28), 0 0 30px rgba(5,224,166,0.12);
   }
   .fit-dark.k-alpha.k-cta-white .fit-action-circle--primary span { color: #fff; }
   .fit-dark.k-alpha.k-cta-white .cd-s-hero-empty .cd-s-go-corner { color: #fff; }
@@ -2691,16 +2708,12 @@
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
-      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Training history</span>
+      <button class="fit-header-back" onclick="go('s-draft-client',document.querySelector('.sidebar button[onclick*=s-draft-client]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Anna&rsquo;s history</span>
     </div>
   </div>
   <div class="fit-phone-content">
-    <div style="display:flex;align-items:center;gap:10px;padding:0 16px 16px;">
-      <div style="width:36px;height:36px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;">AK</div>
-      <span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Anna Kowalski</span>
-      <span style="font-size:14px;color:var(--fit-text-tertiary);">· 12 sessions</span>
-    </div>
+    <div style="padding:0 16px 10px;font-size:13px;color:var(--fit-text-tertiary);">47 sessions since Jan &middot; 3 missed &middot; 1 cancelled</div>
 
     <!-- Past events list -->
     <div style="padding:0 16px;">
