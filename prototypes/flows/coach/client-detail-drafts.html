@@ -492,6 +492,16 @@
   .fit-dark.k-alpha .fit-sheet { background: #062e3b; }
   .fit-dark.k-alpha .fit-context-menu { background: #0a3a47; }
   .fit-dark.k-alpha .fit-snackbar { background: #04161d; }
+  /* CTA colour on the tinted canvas — the brand gradient is already the canvas, so a gradient
+     button has nothing to stand out against. Two candidates: white (Revolut's answer: the one
+     solid object on a coloured screen) and flat teal (brand, but a single colour, no second
+     gradient). Applies only with the tinted look. */
+  .fit-dark.k-alpha.k-cta-white .fit-btn-primary { background: #fff; color: #12161a; }
+  .fit-dark.k-alpha.k-cta-white .fit-action-circle--primary i { background: #fff; color: #12161a; }
+  .fit-dark.k-alpha.k-cta-white .fit-action-circle--primary span { color: #fff; }
+  .fit-dark.k-alpha.k-cta-white .cd-s-hero-empty .cd-s-go-corner { color: #fff; }
+  .fit-dark.k-alpha.k-cta-teal .fit-btn-primary { background: var(--fit-teal-500); color: #06251f; }
+  .fit-dark.k-alpha.k-cta-teal .fit-action-circle--primary i { background: var(--fit-teal-500); color: #06251f; }
   /* look switch — sits above the annotation column, applies to every phone on the board */
   .look-switch { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; font-size: 12px; color: var(--fit-gray-500); }
   .look-switch .state-toggle { margin-bottom: 0; }
@@ -841,22 +851,19 @@
   .cd-s-pname { font-size: 17px; font-weight: 600; color: var(--fit-text-primary); }
   .cd-s-person .cd-i-tl { margin-top: 1px; }
   .cd-s-pcount-empty, .cd-p-pcount-empty { display: none; }
-  /* the hero is the offering: violet is the self-paced type colour, so the canvas is the type
-     gradient over dark, not a stock photo that reads as a different product */
-  .cd-s-hero, .cd-s-hero-empty { margin-top: 0; height: 168px; background: linear-gradient(135deg, rgba(139,92,246,0.55), rgba(124,58,237,0.18) 55%, rgba(0,0,0,0) 100%), linear-gradient(180deg, #1a1530, #0d0b17); }
-  .cd-s-hero .cd-m-scrim, .cd-s-hero-empty .cd-m-scrim { background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.45) 100%); }
-  .cd-s-hero-empty { display: none; }
-  .cd-s-hrow { display: flex; align-items: flex-end; gap: 12px; margin-top: 4px; }
-  .cd-s-hrow .cd-m-sub { flex: 1; min-width: 0; margin-top: 0; }
-  .cd-s-go { display: flex; align-items: center; gap: 2px; font-size: 15px; font-weight: 600; color: #fff; flex-shrink: 0; }
+  /* the empty CTA card: green like the product, a clean wash (no photo, no blob); text at the top */
+  .cd-s-hero-empty { display: none; margin-top: 0; height: 160px; background: linear-gradient(135deg, rgba(0,167,208,0.50), rgba(5,224,166,0.22) 55%, rgba(5,224,166,0.06) 100%), linear-gradient(180deg, #10262b, #0b1a1e); }
+  .fit-dark.k-alpha .cd-s-hero-empty { background: linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03)); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.10); }
+  .cd-s-body-top { top: 16px; bottom: auto; }
+  .cd-s-go { display: flex; align-items: center; gap: 2px; font-size: 15px; font-weight: 600; color: var(--fit-text-primary); flex-shrink: 0; }
   .cd-s-go svg { width: 16px; height: 16px; }
-  .cd-s-vtile { background: var(--fit-grad-type-selfpaced), #1a1530; }
-  .cd-s-k3, .cd-s-n5, .cd-s-sec-more, .cd-s-more { display: none; }
-  #s-draft-selfpaced.sp-busy .cd-s-k1, #s-draft-selfpaced.sp-busy .cd-s-n2 { display: none; }
-  #s-draft-selfpaced.sp-busy .cd-s-k3, #s-draft-selfpaced.sp-busy .cd-s-n5 { display: inline; }
-  #s-draft-selfpaced.sp-busy .cd-s-sec-more { display: block; margin-top: -4px; }
-  #s-draft-selfpaced.sp-busy .cd-s-more { display: block; }
-  #s-draft-selfpaced.sp-busy .cd-s-sec-review .cd-i-sec { padding-top: 14px; }
+  .cd-s-go-corner { position: absolute; right: 16px; bottom: 14px; color: #fff; }
+  .cd-s-n3, .cd-s-n5, .cd-s-more { display: none; }
+  #s-draft-selfpaced.sp-busy .cd-s-n1, #s-draft-selfpaced.sp-busy .cd-s-n2 { display: none; }
+  #s-draft-selfpaced.sp-busy .cd-s-n3, #s-draft-selfpaced.sp-busy .cd-s-n5 { display: inline; }
+  #s-draft-selfpaced.sp-busy .cd-g-row.cd-s-more { display: flex; }
+  #s-draft-selfpaced.sp-busy .cd-s-clip.cd-s-more { display: block; }
+  #s-draft-selfpaced .cd-s-sec-setup .cd-i-sec { padding-top: 6px; }
   /* clips strip: a poster per clip, 3:2, play glyph + duration; no clip → a plate saying so */
   .cd-s-strip { display: flex; gap: 10px; padding: 0 16px 4px; overflow-x: auto; scrollbar-width: none; }
   .cd-s-strip::-webkit-scrollbar { display: none; }
@@ -873,11 +880,11 @@
   .fit-dark.k-alpha .cd-s-poster { background-color: rgba(0,0,0,0.28); }
   .cd-g-rt .cd-i-tbar { margin-top: 7px; }
   /* self-paced states */
-  #s-draft-selfpaced.sp-quiet .cd-s-hero, #s-draft-selfpaced.sp-quiet .cd-s-sec-review { display: none; }
+  #s-draft-selfpaced.sp-quiet .cd-s-sec-setup, #s-draft-selfpaced.sp-quiet .cd-s-sec-review { display: none; }
   #s-draft-selfpaced.sp-quiet .cd-s-sec-active .cd-i-sec { padding-top: 6px; }
-  #s-draft-selfpaced.sp-empty .cd-s-hero, #s-draft-selfpaced.sp-empty .cd-s-sec-review,
+  #s-draft-selfpaced.sp-empty .cd-s-sec-setup, #s-draft-selfpaced.sp-empty .cd-s-sec-review,
   #s-draft-selfpaced.sp-empty .cd-s-sec-active, #s-draft-selfpaced.sp-empty .cd-s-sec-done,
-  #s-draft-selfpaced.sp-empty .cd-s-pcount { display: none; }
+  #s-draft-selfpaced.sp-empty .cd-s-footer { display: none; }
   #s-draft-selfpaced.sp-empty .cd-s-hero-empty { display: block; }
   /* packages */
   .cd-p-low { color: var(--fit-yellow-400); }
@@ -2207,37 +2214,37 @@
 
     <!-- HERO: the one thing you owe. To set up outranks everything — the athlete has paid
          and has nothing to do until the coach builds. A thing gets a picture. -->
-    <div class="cd-m-cover cd-s-hero cd-press" onclick="go('s-setup',document.querySelector('.sidebar button[onclick*=s-setup]'))">
-      <div class="cd-m-scrim"></div>
-      <div class="cd-m-body">
-        <div class="cd-m-kicker"><span class="cd-s-k1">To set up &middot; bought 2h ago</span><span class="cd-s-k3">To set up &middot; 1 of 3 &middot; waiting 3 days</span></div>
-        <div class="cd-m-title">Tennis self-paced</div>
-        <div class="cd-s-hrow"><div class="cd-m-sub">Build the plan by Thu, Apr 17 &middot; &euro;25 paid</div><div class="cd-s-go">Build <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div></div>
-      </div>
-    </div>
-    <!-- Several to set up: the hero holds the oldest, the rest queue under it as rows —
-         one debt at a time at the top, nothing hidden. -->
-    <div class="cd-in cd-s-sec-more">
-      <div class="cd-i-panel">
-        <div class="cd-g-row cd-press" onclick="go('s-setup',document.querySelector('.sidebar button[onclick*=s-setup]'))">
-          <div class="cd-m-tile cd-s-vtile" style="width:40px;height:40px;border-radius:12px;"></div>
-          <div class="cd-g-rt"><div class="cd-g-r1">Core strength</div><div class="cd-g-r2">Bought yesterday &middot; by Sat, Apr 19</div></div>
-          <div class="cd-g-rv"><small>2 of 3</small></div>
-        </div>
-        <div class="cd-g-row cd-press" onclick="go('s-setup',document.querySelector('.sidebar button[onclick*=s-setup]'))">
-          <div class="cd-m-tile cd-s-vtile" style="width:40px;height:40px;border-radius:12px;"></div>
-          <div class="cd-g-rt"><div class="cd-g-r1">Hip mobility</div><div class="cd-g-r2">Bought 2h ago &middot; by Sun, Apr 20</div></div>
-          <div class="cd-g-rv"><small>3 of 3</small></div>
-        </div>
-      </div>
-    </div>
-    <!-- Empty (fresh): the same slot, nothing to sell against yet. -->
-    <div class="cd-m-cover cd-s-hero-empty">
-      <div class="cd-m-scrim"></div>
-      <div class="cd-m-body">
+    <!-- Empty (fresh): the one big card on the screen is the CTA — text at the top, the
+         action as a line at the bottom right. Green like the rest of the product, no photo. -->
+    <div class="cd-m-cover cd-s-hero-empty cd-press" onclick="go('s-setup',document.querySelector('.sidebar button[onclick*=s-setup]'))">
+      <div class="cd-m-body cd-s-body-top">
         <div class="cd-m-kicker">Self-paced</div>
         <div class="cd-m-title">Nothing assigned yet</div>
         <div class="cd-m-sub">A plan Anna does on her own day &middot; you review the clips</div>
+      </div>
+      <div class="cd-s-go cd-s-go-corner">Assign <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+    </div>
+
+    <!-- TO SET UP: what you owe. One panel for one or many — each row is a paid request
+         waiting on the coach, oldest first, and the action reads as a line on the row. -->
+    <div class="cd-in cd-s-sec-setup">
+      <div class="cd-i-sec">To set up<span class="cd-s-n1">1</span><span class="cd-s-n3">3</span></div>
+      <div class="cd-i-panel">
+        <div class="cd-g-row cd-press" onclick="go('s-setup',document.querySelector('.sidebar button[onclick*=s-setup]'))">
+          <div class="cd-m-tile t-tennis" style="width:40px;height:40px;border-radius:12px;"></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Tennis self-paced</div><div class="cd-g-r2">Bought 2h ago &middot; by Thu 17</div></div>
+          <div class="cd-s-go">Build <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+        <div class="cd-g-row cd-press cd-s-more" onclick="go('s-setup',document.querySelector('.sidebar button[onclick*=s-setup]'))">
+          <div class="cd-m-tile t-gym" style="width:40px;height:40px;border-radius:12px;"></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Core strength</div><div class="cd-g-r2">Bought yesterday &middot; by Sat 19</div></div>
+          <div class="cd-s-go">Build <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+        <div class="cd-g-row cd-press cd-s-more" onclick="go('s-setup',document.querySelector('.sidebar button[onclick*=s-setup]'))">
+          <div class="cd-m-tile t-tennis" style="width:40px;height:40px;border-radius:12px;filter:hue-rotate(30deg);"></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Hip mobility</div><div class="cd-g-r2">Bought 3 days ago &middot; by Sun 20</div></div>
+          <div class="cd-s-go">Build <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
       </div>
     </div>
 
@@ -3633,7 +3640,10 @@
 <div class="ann-container">
   <div class="look-switch">Look
     <div class="state-toggle"><button class="active" data-v="plain" onclick="setLook('plain',this)">Plain</button><button data-v="tinted" onclick="setLook('tinted',this)">Tinted canvas</button></div>
-    <span>&middot; applies to every screen and drawer in the flow &middot; dark only</span>
+    <span>&middot; dark only</span>
+    <span style="margin-left:10px;">CTA</span>
+    <div class="state-toggle"><button class="active" data-c="gradient" onclick="setCta('gradient',this)">Gradient</button><button data-c="white" onclick="setCta('white',this)">White</button><button data-c="teal" onclick="setCta('teal',this)">Flat teal</button></div>
+    <span>&middot; tinted only</span>
   </div>
 
   <div class="ann active" id="ann-s-draft-focus"><span class="ann-role">Coach &middot; draft A</span>
@@ -3906,8 +3916,9 @@
     </div>
     <div class="bet"><strong>Bet:</strong> the canon list (sidebar &rarr; <em>canon copy</em>) is true and weightless &mdash; four sections of identical rows, so a paid plan nobody has built yet looks the same as a workout finished in March. Order it like J: <strong>what you owe &rarr; what is with her &rarr; the archive</strong>, and give each its own grammar.</div>
     <ul>
-      <li><strong>The hero is the debt.</strong> <em>To set up</em> outranks everything: she paid, and until the coach builds she has nothing to do. It takes the cover slot (draft E), painted in the self-paced type colour (violet) rather than a stock picture, kicker says how long she has waited. <strong>No button in the cover</strong> &mdash; the cover is the tap, the action reads as a line (<em>Build &rsaquo;</em>), same as Next session on J. Nothing to set up &rarr; the slot disappears (<em>Nothing to do</em>).</li>
-      <li><strong>Several at once</strong> (<em>3 to set up &middot; 5 to review</em>): the hero holds the oldest and says <em>1 of 3</em>; the other two queue as rows right under it, so one debt sits at the top and none is hidden. Clips just extend the strip &mdash; the count is on the section, the strip scrolls.</li>
+      <li><strong>To set up is the first block</strong> &mdash; she paid, and until the coach builds she has nothing to do. One panel whether it is one request or three: each row is a paid request, oldest first, with the action as a line on the row (<em>Build &rsaquo;</em>). A hero card for the debt was tried and dropped: it made one request look like a campaign and needed a &ldquo;1 of 3&rdquo; nobody could read. Nothing to set up &rarr; the block is gone (<em>Nothing to do</em>).</li>
+      <li><strong>The big card exists only when there is nothing</strong> (<em>Fresh</em>): text at the top, <em>Assign &rsaquo;</em> bottom-right, green like the product, no photo. It is the CTA, so the footer button hides behind it.</li>
+      <li><strong>Several at once</strong> (<em>3 to set up &middot; 5 to review</em>): rows just stack; clips extend the strip &mdash; the count is on the section, the strip scrolls.</li>
       <li><strong>No person row.</strong> The name moved into the title (<em>Anna&rsquo;s self-paced</em>, as <em>Anna&rsquo;s groups</em> already does) &mdash; a 60px row repeating who we are looking at, on every nested screen, was chrome. Reached from the offering detail, back returns there; the client is one tap away on J.</li>
       <li><strong>Clips are pictures.</strong> Reviewing is watching, so <em>To review</em> is a strip of posters with a play glyph and duration, not rows of text about a video. &ldquo;Marked done, no clip&rdquo; is a plate that says so &mdash; the coach knows before opening it there is nothing to watch.</li>
       <li><strong>Sent is quiet.</strong> (Vocabulary per spec §4, 2026-08-26: <em>To set up / Sent / To review / Done</em> &mdash; &ldquo;With athlete&rdquo; named neither what happened nor whose move it is.) Rows with a progress bar and the due day; nothing to do here, so no accent, no action.</li>
@@ -4889,7 +4900,13 @@ function setLook(name, btn) {
   if (btn) btn.classList.add('active'); else { var hit = document.querySelector('.look-switch button[data-v="' + name + '"]'); if (hit) hit.classList.add('active'); }
   try { localStorage.setItem('cd-look', name); } catch (e) {}
 }
-try { setLook(localStorage.getItem('cd-look') || 'plain'); } catch (e) {}
+function setCta(name, btn) {
+  document.querySelectorAll('.fit-phone').forEach(function (p) { p.classList.remove('k-cta-white', 'k-cta-teal'); if (name !== 'gradient') p.classList.add('k-cta-' + name); });
+  document.querySelectorAll('.look-switch button[data-c]').forEach(function (b) { b.classList.remove('active'); });
+  var hit = btn || document.querySelector('.look-switch button[data-c="' + name + '"]'); if (hit) hit.classList.add('active');
+  try { localStorage.setItem('cd-cta', name); } catch (e) {}
+}
+try { setLook(localStorage.getItem('cd-look') || 'plain'); setCta(localStorage.getItem('cd-cta') || 'gradient'); } catch (e) {}
 invInitGrid(); invRender();
 
 // ==== Self-paced / Packages drafts + membership glue ====
