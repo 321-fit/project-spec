@@ -613,7 +613,11 @@
   #s-draft-dash.d-anchor-widget .cd-d-sub { margin-top: 2px; font-size: 13px; color: var(--fit-text-tertiary); }
   #s-draft-dash.d-anchor-widget.d-ready .cd-d-hi, #s-draft-dash.d-anchor-widget.d-idle .cd-d-hi { font-size: 26px; font-weight: 700; letter-spacing: -0.4px; }
   #s-draft-dash.d-anchor-widget.d-ready .cd-d-sub, #s-draft-dash.d-anchor-widget.d-idle .cd-d-sub { font-size: 14px; color: var(--fit-text-secondary); margin-top: 5px; }
-  .cd-w--anchor { margin-top: 6px; }
+  .cd-w--anchor { margin-top: 6px; padding-top: 12px; }
+  /* no greeting in this mode — the widget is the first thing; the day sits in its corner */
+  #s-draft-dash.d-anchor-widget:not(.d-idle):not(.d-ready) .cd-d-hello { display: none; }
+  .cd-w-date { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--fit-text-secondary); margin-bottom: 10px; }
+  .cd-w-date-r { color: var(--fit-text-tertiary); font-weight: 500; }
   .cd-d-day-num { font-size: 64px; font-weight: 700; letter-spacing: -2px; line-height: 1; color: var(--fit-text-primary); }
   .cd-d-anchor-day .cd-i-name { margin-top: 2px; }
   .cd-d-anchor-day .cd-i-sub span { display: none; }
@@ -1254,6 +1258,7 @@
          section title — the widget is the hero). -->
     <div class="cd-in cd-d-anchor cd-d-anchor-widget">
       <div class="cd-i-panel cd-w cd-w--anchor cd-press" onclick="go('s-earnings',document.querySelector('.sidebar button[onclick*=s-earnings]'))">
+        <div class="cd-w-date"><span>Wednesday</span><span class="cd-w-date-r">23 Apr</span></div>
         <div class="cd-w-top">
           <div class="cd-w-side"><div class="cd-w-sv">&euro;60</div><div class="cd-i-tl">earned</div></div>
           <div class="cd-w-ring">
@@ -3537,8 +3542,8 @@
     </div>
     <div class="state-toggle" data-d="anchor" style="margin-bottom:6px;">
       <span style="font-size:12px;color:var(--fit-gray-500);padding:4px 8px 4px 10px;">Anchor</span>
-      <button class="active" data-v="person" onclick="dAnchor('person',this)">The next person</button>
-      <button data-v="widget" onclick="dAnchor('widget',this)">The day widget</button>
+      <button data-v="person" onclick="dAnchor('person',this)">The next person</button>
+      <button class="active" data-v="widget" onclick="dAnchor('widget',this)">The day widget</button>
       <button data-v="day" onclick="dAnchor('day',this)">The date</button>
       <button data-v="none" onclick="dAnchor('none',this)">None (card only)</button>
     </div>
@@ -3550,7 +3555,7 @@
     <div class="bet"><strong>Bet:</strong> the shipped Home (<a href="dashboard.html#s-dashboard">dashboard.html</a>) already knows everything it needs to say; it says it as six labelled sections in the spec's order, five of them identical cards. Ordered by the coach's morning &mdash; <strong>who you are today &rarr; what you owe an answer to &rarr; what is next &rarr; the money &rarr; the day &rarr; the signals</strong> &mdash; and with each block in its own grammar, the same content is one screen instead of two.</div>
     <h3 style="font-size:16px;margin-top:18px;">What changed and why</h3>
     <ul>
-      <li><strong>The anchor.</strong> Client Detail is held together by a person at the top &mdash; avatar, name, one line &mdash; and a greeting alone did not do that for Home. <em>The next person</em> (default): the identity block is <strong>the athlete you are about to meet</strong>, in exactly Client Detail's grammar (big avatar, <em>IN 45 MIN &middot; 10:30</em> as the kicker, name, what); it replaces the Next-session card, tap &rarr; the drawer; quiet day &rarr; tomorrow's person, grey kicker; idle/ready &rarr; no person to show, so the empty card returns. <em>The day widget</em>: the ring widget itself takes the anchor slot (no person block; Next session returns as a card, the widget section below disappears) &mdash; the hero is your day in numbers, Revolut-style. <em>The date</em>: calendar-style, the date as the anchor. <em>None</em>: greeting + card, the first cut. Greeting shrinks to one line when an anchor is on.</li>
+      <li><strong>The anchor.</strong> Client Detail is held together by a person at the top &mdash; avatar, name, one line &mdash; and a greeting alone did not do that for Home. <em>The next person</em> (default): the identity block is <strong>the athlete you are about to meet</strong>, in exactly Client Detail's grammar (big avatar, <em>IN 45 MIN &middot; 10:30</em> as the kicker, name, what); it replaces the Next-session card, tap &rarr; the drawer; quiet day &rarr; tomorrow's person, grey kicker; idle/ready &rarr; no person to show, so the empty card returns. <em>The day widget</em> (default): the ring widget itself takes the anchor slot &mdash; <strong>no greeting at all</strong>, the day sits in the widget's corner, the widget is the first thing on the screen (no person block; Next session returns as a card, the widget section below disappears) &mdash; the hero is your day in numbers, Revolut-style. <em>The date</em>: calendar-style, the date as the anchor. <em>None</em>: greeting + card, the first cut. Greeting shrinks to one line when an anchor is on.</li>
       <li><strong>Four circles, fixed slots:</strong> <em>Book &middot; Invite &middot; Time off &middot; Ask AI</em> &mdash; the things a coach does <em>from</em> Home rather than <em>in</em> a tab. Book and Invite were buried in the Ready state's empty card; Time off is the second most frequent thing a coach does on a weekday; Ask AI is the assistant's proposed FAB-grade entry (see voice-assistant). ⏳ the set is a bet.</li>
       <li><strong>Needs you is chips, not five cards.</strong> Cash to collect (red) &middot; requests (blue) &middot; to review / self-paced (yellow) &middot; invites waiting (grey). Each opens its list &mdash; Cash to collect (new, across clients), Inbox on the right tab, the review queue, the self-paced hub. Cost: the cards' second lines (&ldquo;1 awaiting your reply over 24h&rdquo;, &ldquo;Tom overdue&rdquo;) move to the destination; the chip carries the count. <em>All caught up</em> replaces the block with one line.</li>
       <li><strong>Next session is the same card as on Client Detail</strong> &mdash; face instead of type tile (here the person is the variable), no buttons, tap &rarr; the calendar's drawer. Quiet day: tomorrow, when-line grey. Idle / Ready: the empty card takes the slot with secondary buttons (<em>Book a session</em>; <em>+ Share profile</em> for a new coach).</li>
@@ -4432,7 +4437,7 @@ function handleSend(flow) {
   if (snack) { snack.classList.add('show'); setTimeout(function () { snack.classList.remove('show'); }, 1400); }
   setTimeout(function () { go('s-draft-dash', document.querySelector('.sidebar button[onclick*=s-draft-dash]')); }, 700);
 }
-dAnchor('person'); dWidget('ring');
+dAnchor('widget'); dWidget('ring');
 try { setLook(localStorage.getItem('cd-look') || 'tinted'); setCta(localStorage.getItem('cd-cta') || 'white'); } catch (e) { setLook('tinted'); setCta('white'); }
 invInitGrid(); invRender();
 (function(){

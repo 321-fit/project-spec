@@ -2598,7 +2598,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-dash",
-          "hash": "712cdd9a325a",
+          "hash": "8d2444134784",
           "title": "Home, placed",
           "inApp": "",
           "status": "proposal",
@@ -2641,7 +2641,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-collect",
-          "hash": "8b5c31da0735",
+          "hash": "a69121d9c15f",
           "title": "↳ Cash to collect (push)",
           "inApp": "Cash to collect",
           "status": "proposal",
@@ -2660,7 +2660,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-notifications",
-          "hash": "5f690399c398",
+          "hash": "6147e54d7862",
           "title": "↳ Inbox",
           "inApp": "Inbox",
           "status": "proposal",
@@ -2679,7 +2679,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-review-queue",
-          "hash": "7fc661de1275",
+          "hash": "c2a71063d9aa",
           "title": "↳ Sessions to review",
           "inApp": "Sessions to review",
           "status": "proposal",
@@ -2698,7 +2698,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-earnings",
-          "hash": "d5efd173dfd3",
+          "hash": "4860c8982e3a",
           "title": "↳ Earnings",
           "inApp": "Earnings",
           "status": "proposal",
@@ -2717,7 +2717,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-schedule-pick-athlete",
-          "hash": "d87837bc463a",
+          "hash": "9c40cfc9503e",
           "title": "↳ Book · athlete",
           "inApp": "Choose athlete",
           "status": "proposal",
@@ -2736,7 +2736,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-select",
-          "hash": "36cc5a622585",
+          "hash": "ddf822537b11",
           "title": "↳ Book · session",
           "inApp": "Select training",
           "status": "proposal",
@@ -2758,7 +2758,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-time",
-          "hash": "b741be7b13b9",
+          "hash": "a84061d01da3",
           "title": "↳ Book · time",
           "inApp": "",
           "status": "proposal",
@@ -2778,7 +2778,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-schedule-review",
-          "hash": "9baf97aa2bb6",
+          "hash": "bd6e9619a45c",
           "title": "↳ Book · review",
           "inApp": "Review request",
           "status": "proposal",
@@ -2798,7 +2798,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-block-time-off",
-          "hash": "d89271f56499",
+          "hash": "71ce0e8eff31",
           "title": "↳ Time off",
           "inApp": "Busy time",
           "status": "proposal",
