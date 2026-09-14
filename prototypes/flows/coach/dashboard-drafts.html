@@ -571,6 +571,35 @@
   .fit-phone[class*="src-"].rs-error [data-review-state="error"] { display: block; }
 
   /* --- Dashboard in J's grammar (cd-d-*) --- */
+  /* the day widget (cd-w-*): ring + three bars + a sentence + a link. Reusable shape. */
+  .cd-w { padding: 16px 14px 14px; }
+  .cd-w-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .cd-w-side { flex: 1; text-align: center; }
+  .cd-w-sv { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; color: var(--fit-text-primary); }
+  .cd-w-ring { position: relative; width: 132px; height: 132px; flex-shrink: 0; }
+  .cd-w-ring svg { width: 132px; height: 132px; transform: rotate(-90deg); }
+  .cd-w-track { fill: none; stroke: var(--fit-divider); stroke-width: 9; }
+  .cd-w-fill { fill: none; stroke-width: 9; stroke-linecap: round; transition: stroke-dashoffset 0.9s cubic-bezier(0.22,1,0.36,1); }
+  .cd-w-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .cd-w-n { font-size: 34px; font-weight: 700; letter-spacing: -0.8px; line-height: 1; color: var(--fit-text-primary); }
+  .cd-w-n small { font-size: 18px; font-weight: 600; color: var(--fit-text-tertiary); letter-spacing: 0; }
+  .cd-w-bars { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 18px; }
+  .cd-w-bl { font-size: 12px; color: var(--fit-text-tertiary); margin-bottom: 6px; white-space: nowrap; }
+  .cd-w-bt { height: 4px; border-radius: 99px; background: var(--fit-divider); overflow: hidden; }
+  .cd-w-bt i { display: block; height: 100%; border-radius: 99px; background: var(--fit-brand-secondary); }
+  .cd-w-bv { font-size: 14px; font-weight: 600; color: var(--fit-text-primary); margin-top: 6px; white-space: nowrap; }
+  .cd-w-bv small { font-weight: 500; color: var(--fit-text-tertiary); font-size: 12px; }
+  .cd-w-line { margin-top: 16px; font-size: 14px; line-height: 1.45; color: var(--fit-text-secondary); }
+  .cd-w-link { display: flex; align-items: center; gap: 2px; margin-top: 10px; font-size: 14px; font-weight: 600; color: var(--fit-teal-500); }
+  .cd-w-link svg { width: 14px; height: 14px; }
+  .fit-dark.k-alpha .cd-w-track { stroke: rgba(255,255,255,0.10); }
+  .fit-dark.k-alpha .cd-w-bt { background: rgba(255,255,255,0.10); }
+  /* widget toggle */
+  .cd-d-sec-ring { display: none; }
+  #s-draft-dash.d-widget-ring .cd-d-sec-ring { display: block; }
+  #s-draft-dash.d-widget-ring .cd-d-sec-money { display: none; }
+  #s-draft-dash.d-ready .cd-d-sec-ring, #s-draft-dash.d-idle .cd-d-sec-ring { display: none; }
+  #s-draft-dash.d-widget-ring.d-idle .cd-d-sec-money { display: block; }
   /* anchor options */
   .cd-d-anchor { display: none; padding-top: 6px; padding-bottom: 6px; }
   .cd-d-anchor-when { font-size: 13px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--fit-teal-500); margin-top: 12px; }
@@ -1273,6 +1302,32 @@
           <button class="fit-btn fit-btn-secondary cd-press cd-d-empty-book" onclick="go('s-schedule-pick-athlete',document.querySelector('.sidebar button[onclick*=s-schedule-pick-athlete]'))">Book a session</button>
           <button class="fit-btn fit-btn-secondary cd-press cd-d-empty-share" onclick="dShare()">Share profile</button>
         </div>
+      </div>
+    </div>
+
+    <!-- THE DAY WIDGET (toggle: ring / money). One reusable shape — a ring for the thing
+         with a target, three bars for the things with a denominator, one sentence, one
+         link. Coach: sessions today in the ring, money around it, the week in the bars.
+         Athlete (same component): sessions this week in the ring, balance / self-paced /
+         streak in the bars, "Next: Tennis with Mark · tomorrow 10:30" as the sentence. -->
+    <div class="cd-in cd-d-sec-ring">
+      <div class="cd-i-sec">Your day<span>Wed 23 Apr</span></div>
+      <div class="cd-i-panel cd-w cd-press" onclick="go('s-earnings',document.querySelector('.sidebar button[onclick*=s-earnings]'))">
+        <div class="cd-w-top">
+          <div class="cd-w-side"><div class="cd-w-sv">&euro;60</div><div class="cd-i-tl">earned</div></div>
+          <div class="cd-w-ring">
+            <svg viewBox="0 0 120 120"><circle class="cd-w-track" cx="60" cy="60" r="52"/><circle class="cd-w-fill" cx="60" cy="60" r="52" stroke="url(#cdgrad)" stroke-dasharray="326.7" stroke-dashoffset="217.8"/></svg>
+            <div class="cd-w-center"><div class="cd-w-n">1<small>/3</small></div><div class="cd-i-tl">sessions</div></div>
+          </div>
+          <div class="cd-w-side right"><div class="cd-w-sv">&euro;180</div><div class="cd-i-tl">planned</div></div>
+        </div>
+        <div class="cd-w-bars">
+          <div class="cd-w-bar"><div class="cd-w-bl">This week</div><div class="cd-w-bt"><i style="width:80%;"></i></div><div class="cd-w-bv">&euro;480 <small>&uarr; &euro;80</small></div></div>
+          <div class="cd-w-bar"><div class="cd-w-bl">Cash collected</div><div class="cd-w-bt"><i style="width:50%;background:var(--fit-red-400);"></i></div><div class="cd-w-bv">&euro;40 <small>/ &euro;80</small></div></div>
+          <div class="cd-w-bar"><div class="cd-w-bl">Hours booked</div><div class="cd-w-bt"><i style="width:60%;"></i></div><div class="cd-w-bv">9 <small>/ 15 open</small></div></div>
+        </div>
+        <div class="cd-w-line">Two bookings ahead of last week &mdash; 3 open requests could fill Thursday.</div>
+        <div class="cd-w-link">See earnings <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
       </div>
     </div>
 
@@ -3455,6 +3510,11 @@
       <button data-v="day" onclick="dAnchor('day',this)">The day</button>
       <button data-v="none" onclick="dAnchor('none',this)">None (card only)</button>
     </div>
+    <div class="state-toggle" data-d="widget" style="margin-bottom:6px;">
+      <span style="font-size:12px;color:var(--fit-gray-500);padding:4px 8px 4px 10px;">Widget</span>
+      <button class="active" data-v="ring" onclick="dWidget('ring',this)">Your day (ring)</button>
+      <button data-v="money" onclick="dWidget('money',this)">Money only</button>
+    </div>
     <div class="bet"><strong>Bet:</strong> the shipped Home (<a href="dashboard.html#s-dashboard">dashboard.html</a>) already knows everything it needs to say; it says it as six labelled sections in the spec's order, five of them identical cards. Ordered by the coach's morning &mdash; <strong>who you are today &rarr; what you owe an answer to &rarr; what is next &rarr; the money &rarr; the day &rarr; the signals</strong> &mdash; and with each block in its own grammar, the same content is one screen instead of two.</div>
     <h3 style="font-size:16px;margin-top:18px;">What changed and why</h3>
     <ul>
@@ -3462,7 +3522,7 @@
       <li><strong>Four circles, fixed slots:</strong> <em>Book &middot; Invite &middot; Time off &middot; Ask AI</em> &mdash; the things a coach does <em>from</em> Home rather than <em>in</em> a tab. Book and Invite were buried in the Ready state's empty card; Time off is the second most frequent thing a coach does on a weekday; Ask AI is the assistant's proposed FAB-grade entry (see voice-assistant). ⏳ the set is a bet.</li>
       <li><strong>Needs you is chips, not five cards.</strong> Cash to collect (red) &middot; requests (blue) &middot; to review / self-paced (yellow) &middot; invites waiting (grey). Each opens its list &mdash; Cash to collect (new, across clients), Inbox on the right tab, the review queue, the self-paced hub. Cost: the cards' second lines (&ldquo;1 awaiting your reply over 24h&rdquo;, &ldquo;Tom overdue&rdquo;) move to the destination; the chip carries the count. <em>All caught up</em> replaces the block with one line.</li>
       <li><strong>Next session is the same card as on Client Detail</strong> &mdash; face instead of type tile (here the person is the variable), no buttons, tap &rarr; the calendar's drawer. Quiet day: tomorrow, when-line grey. Idle / Ready: the empty card takes the slot with secondary buttons (<em>Book a session</em>; <em>+ Share profile</em> for a new coach).</li>
-      <li><strong>Money is one widget:</strong> this week as the headline with the trend pill, planned + booked under it, Card / Cash as the grid. Tap &rarr; Earnings. Idle: &euro;0, grey. Ready: gone.</li>
+      <li><strong>The day widget</strong> (default; <em>Money only</em> is the first cut). One reusable shape &mdash; <strong>a ring for the one thing with a target, three bars for the things with a denominator, one sentence, one link</strong> &mdash; the Nutrition-card grammar, with our content. Coach: the ring is <em>sessions today</em> (fills through the day, so Home is alive at 8:00 and at 18:00), money around it (<em>earned</em> / <em>planned</em>), the week in the bars (<em>This week</em> vs last, <em>Cash collected</em> of cash due, <em>Hours booked</em> of hours open &mdash; the one number that says &ldquo;open more hours&rdquo; or &ldquo;invite&rdquo; without saying it), the sentence is the insight, the link is Earnings. <strong>Athlete, same component:</strong> ring = sessions this week of planned, bars = balance / self-paced done / streak, sentence = &ldquo;Next: Tennis with Mark &middot; tomorrow 10:30&rdquo;, link = Schedule. Idle: falls back to the money widget (a ring of 0/0 is a hole). Ready: none.</li>
       <li><strong>Today never disappears</strong> &mdash; the rest of the day after the next one; empty is a quiet row.</li>
       <li><strong>Signals are tiles</strong> (a review = star plate, new clients = faces), <strong>one tip at a time</strong> as an outlined dismissable card (a suggestion is not system messaging), and the <strong>bookability warning</strong> is a banner above the circles, non-dismissable, exactly where Client Detail puts its status banner.</li>
       <li><strong>Pre-approval states</strong> (New wizard, Under review, Rejected) are not redrawn here &mdash; they are a different screen (the wizard) and stay as in the canon file.</li>
@@ -3546,6 +3606,13 @@ function showClientSnack(m) { showSnack(m); }
 function toastStub(m) { showSnack(m); }
 // Home states — annotation toggles
 var D_STATES = ['zero', 'quiet', 'idle', 'ready', 'hidden', 'loading'];
+function dWidget(name, btn) {
+  var el = document.getElementById('s-draft-dash');
+  el.classList.remove('d-widget-ring'); if (name === 'ring') el.classList.add('d-widget-ring');
+  var host = document.querySelector('.state-toggle[data-d="widget"]');
+  host.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); });
+  var hit = btn || host.querySelector('button[data-v="' + name + '"]'); if (hit) hit.classList.add('active');
+}
 function dAnchor(name, btn) {
   var el = document.getElementById('s-draft-dash');
   el.classList.remove('d-anchor-person', 'd-anchor-day'); if (name !== 'none') el.classList.add('d-anchor-' + name);
@@ -4333,7 +4400,7 @@ function handleSend(flow) {
   if (snack) { snack.classList.add('show'); setTimeout(function () { snack.classList.remove('show'); }, 1400); }
   setTimeout(function () { go('s-draft-dash', document.querySelector('.sidebar button[onclick*=s-draft-dash]')); }, 700);
 }
-dAnchor('person');
+dAnchor('person'); dWidget('ring');
 try { setLook(localStorage.getItem('cd-look') || 'tinted'); setCta(localStorage.getItem('cd-cta') || 'white'); } catch (e) { setLook('tinted'); setCta('white'); }
 invInitGrid(); invRender();
 (function(){
