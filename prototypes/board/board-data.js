@@ -1618,11 +1618,6 @@ window.FIT_BOARD = {
               "file": "flows/coach/dashboard.html",
               "label": "Coach Dashboard",
               "id": "s-dashboard"
-            },
-            {
-              "file": "flows/coach/client-detail-drafts.html",
-              "label": "Client Detail drafts (WIP)",
-              "id": "s-setup"
             }
           ]
         },
@@ -1947,11 +1942,6 @@ window.FIT_BOARD = {
               "file": "flows/coach/clients.html",
               "label": "Coach Clients",
               "id": "s-client-selfpaced"
-            },
-            {
-              "file": "flows/coach/client-detail-drafts.html",
-              "label": "Client Detail drafts (WIP)",
-              "id": "s-setup"
             }
           ]
         },
@@ -2550,11 +2540,6 @@ window.FIT_BOARD = {
               "file": "flows/coach/profile.html",
               "label": "Coach Profile",
               "id": "s-coach-profile"
-            },
-            {
-              "file": "flows/coach/profile-drafts.html",
-              "label": "Coach Profile & Settings (rework)",
-              "id": "s-coach-profile"
             }
           ]
         },
@@ -2628,7 +2613,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-dash",
-          "hash": "6b5bf439a37e",
+          "hash": "d151ff6b3056",
           "title": "Home, placed",
           "inApp": "",
           "status": "proposal",
@@ -2670,7 +2655,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-spq",
-          "hash": "75db7b792e55",
+          "hash": "2fabecbed60c",
           "title": "↳ Self-paced hub",
           "inApp": "Self-paced",
           "status": "proposal",
@@ -2689,7 +2674,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-collect",
-          "hash": "990ab6e6e615",
+          "hash": "edb1c48217bd",
           "title": "↳ Cash to collect (push)",
           "inApp": "Cash to collect",
           "status": "proposal",
@@ -2708,7 +2693,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-notifications",
-          "hash": "0335bab0588b",
+          "hash": "5d4770a9cfc7",
           "title": "↳ Inbox",
           "inApp": "Inbox",
           "status": "proposal",
@@ -2727,7 +2712,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-review-queue",
-          "hash": "a088265852b2",
+          "hash": "b8be6631eef9",
           "title": "↳ Sessions to review",
           "inApp": "Sessions to review",
           "status": "proposal",
@@ -2746,7 +2731,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-earnings",
-          "hash": "f40416abc931",
+          "hash": "19b594e3f0b1",
           "title": "↳ Earnings",
           "inApp": "Earnings",
           "status": "proposal",
@@ -2765,7 +2750,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-schedule-pick-athlete",
-          "hash": "e984722686f3",
+          "hash": "5384d7106e38",
           "title": "↳ Book · athlete",
           "inApp": "Choose athlete",
           "status": "proposal",
@@ -2784,16 +2769,14 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-select",
-          "hash": "2772ec6be44d",
+          "hash": "837ae85f08ff",
           "title": "↳ Book · session",
           "inApp": "Select training",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
           "note": "Then the session.",
-          "external": [
-            "../coach/settings.html#s-create"
-          ],
+          "external": [],
           "shots": [
             {
               "file": "coach-dashboard-drafts__s-invite-select.webp",
@@ -2806,7 +2789,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-time",
-          "hash": "c9279a8b843b",
+          "hash": "731cba2c7dac",
           "title": "↳ Book · time",
           "inApp": "",
           "status": "proposal",
@@ -2826,7 +2809,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-schedule-review",
-          "hash": "6f48414fe190",
+          "hash": "406221978fe5",
           "title": "↳ Book · review",
           "inApp": "Review request",
           "status": "proposal",
@@ -2846,16 +2829,14 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-block-time-off",
-          "hash": "c98a552c304f",
+          "hash": "168552b74025",
           "title": "↳ Time off",
           "inApp": "Busy time",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
           "note": "From the Time off circle. The calendar's own screen.",
-          "external": [
-            "./available-hours.html#timeoff"
-          ],
+          "external": [],
           "shots": [
             {
               "file": "coach-dashboard-drafts__s-block-time-off.webp",
@@ -2867,7 +2848,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-setup",
-          "hash": "283802e18565",
+          "hash": "642b463f4b0e",
           "title": "↳ Self-paced · builder",
           "inApp": "Set up for Anna",
           "status": "proposal",
@@ -2888,7 +2869,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-review",
-          "hash": "fb6f9ebb03f2",
+          "hash": "a7de27e46d16",
           "title": "↳ Self-paced · review",
           "inApp": "Review · Julia",
           "status": "proposal",
@@ -2907,7 +2888,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-comments",
-          "hash": "e285a3144917",
+          "hash": "fe82a0250857",
           "title": "↳ Self-paced · thread",
           "inApp": "Lower-body mobility",
           "status": "proposal",
@@ -3069,18 +3050,8 @@ window.FIT_BOARD = {
               "id": "s-detail-selfpaced"
             },
             {
-              "file": "flows/coach/sessions-drafts.html",
-              "label": "Training Sessions & Packages (rework)",
-              "id": "s-detail-selfpaced"
-            },
-            {
               "file": "flows/coach/profile.html",
               "label": "Coach Profile",
-              "id": "s-coach-profile"
-            },
-            {
-              "file": "flows/coach/profile-drafts.html",
-              "label": "Coach Profile & Settings (rework)",
               "id": "s-coach-profile"
             }
           ]
@@ -3160,11 +3131,6 @@ window.FIT_BOARD = {
               "file": "flows/coach/sessions.html",
               "label": "Training templates",
               "id": "s-detail-selfpaced"
-            },
-            {
-              "file": "flows/coach/sessions-drafts.html",
-              "label": "Training Sessions & Packages (rework)",
-              "id": "s-detail-selfpaced"
             }
           ]
         },
@@ -3230,11 +3196,6 @@ window.FIT_BOARD = {
             {
               "file": "flows/coach/sessions.html",
               "label": "Training templates",
-              "id": "s-detail-personal"
-            },
-            {
-              "file": "flows/coach/sessions-drafts.html",
-              "label": "Training Sessions & Packages (rework)",
               "id": "s-detail-personal"
             }
           ]
@@ -3458,7 +3419,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-clients",
-          "hash": "da6faab0b56a",
+          "hash": "136b570cc902",
           "title": "Clients, placed",
           "inApp": "",
           "status": "proposal",
@@ -3466,8 +3427,7 @@ window.FIT_BOARD = {
           "entry": true,
           "note": "Every screen reached from here is copied into this file (source named on each). Client rows open the Client Detail rework (client-detail-drafts.html), Home in the tab bar opens the Home rework.",
           "external": [
-            "../shared/messages.html?role=coach#s-messages",
-            "../coach/invite.html?mode=invite&origin=s-clients#s-invite-select"
+            "../shared/messages.html?role=coach#s-messages"
           ],
           "shots": [
             {
@@ -3488,7 +3448,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-archived",
-          "hash": "088ea2514dd2",
+          "hash": "9e47018900c4",
           "title": "↳ Archived & Blocked",
           "inApp": "Archived & Blocked",
           "status": "proposal",
@@ -3507,7 +3467,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-group",
-          "hash": "65bb72bbc450",
+          "hash": "cbba91f6bdc6",
           "title": "↳ Group",
           "inApp": "",
           "status": "proposal",
@@ -3526,7 +3486,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-group-schedule",
-          "hash": "def3ca973772",
+          "hash": "408fe4389f00",
           "title": "↳ Group · all dates",
           "inApp": "Morning · schedule",
           "status": "proposal",
@@ -3545,7 +3505,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-group-add",
-          "hash": "627652d15f8a",
+          "hash": "2a568752e0d9",
           "title": "↳ Group · add clients",
           "inApp": "Add to Morning",
           "status": "proposal",
@@ -3564,7 +3524,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-group-rename",
-          "hash": "768ed088cef1",
+          "hash": "83110c5b748a",
           "title": "↳ Group · rename",
           "inApp": "Group name",
           "status": "proposal",
@@ -3583,7 +3543,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-group-create",
-          "hash": "9d545c355bb0",
+          "hash": "39042efbaaeb",
           "title": "↳ Create group",
           "inApp": "New group",
           "status": "proposal",
@@ -3602,7 +3562,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-smart",
-          "hash": "95ae56eeee51",
+          "hash": "7cfa17f86762",
           "title": "↳ Smart group (from a chip)",
           "inApp": "Owes money",
           "status": "proposal",
@@ -3622,7 +3582,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-import",
-          "hash": "78e940c507c3",
+          "hash": "56a4b35f9d02",
           "title": "↳ Import contacts",
           "inApp": "Import contacts",
           "status": "proposal",
@@ -3641,7 +3601,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-create-client",
-          "hash": "1504064bfef6",
+          "hash": "74c63796bccc",
           "title": "↳ Create client",
           "inApp": "New client",
           "status": "proposal",
@@ -4081,7 +4041,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-client",
-          "hash": "edf32d72354d",
+          "hash": "7a30fb450612",
           "title": "J · Client Detail, placed",
           "inApp": "",
           "status": "proposal",
@@ -4128,7 +4088,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-owed",
-          "hash": "8cb60414d125",
+          "hash": "3c3e60015d6f",
           "title": "↳ Owed (push)",
           "inApp": "Owed",
           "status": "proposal",
@@ -4147,16 +4107,14 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-selfpaced",
-          "hash": "8e9f37186176",
+          "hash": "583794cc74b0",
           "title": "↳ Self-paced",
           "inApp": "Anna’s self-paced",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
           "note": "",
-          "external": [
-            "../shared/self-paced.html#s-comments"
-          ],
+          "external": [],
           "shots": [
             {
               "file": "coach-client-detail-drafts__s-draft-selfpaced.webp",
@@ -4176,7 +4134,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-packages",
-          "hash": "d53a7d826a0d",
+          "hash": "bb99c5bb2083",
           "title": "↳ Packages",
           "inApp": "Anna’s packages",
           "status": "proposal",
@@ -4195,7 +4153,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-history",
-          "hash": "109e4fc0e039",
+          "hash": "154905d5abda",
           "title": "↳ History",
           "inApp": "Anna’s history",
           "status": "proposal",
@@ -4214,7 +4172,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-groups",
-          "hash": "4e74ce10c7b7",
+          "hash": "38b3d7699883",
           "title": "↳ Groups",
           "inApp": "Anna’s groups",
           "status": "proposal",
@@ -4233,16 +4191,14 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-client-selfpaced",
-          "hash": "13f77c23a888",
+          "hash": "425c340543e0",
           "title": "↳ canon copy",
           "inApp": "Self-paced",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
           "note": "From the Self-paced circle. The client's self-paced list; assign/offer flows are its own.",
-          "external": [
-            "../shared/self-paced.html#s-comments"
-          ],
+          "external": [],
           "shots": [
             {
               "file": "coach-client-detail-drafts__s-client-selfpaced.webp",
@@ -4254,7 +4210,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-pkg-detail",
-          "hash": "096d9969ea1f",
+          "hash": "0440de21fe0f",
           "title": "↳ Package detail",
           "inApp": "Package",
           "status": "proposal",
@@ -4274,7 +4230,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-pkg-history",
-          "hash": "48c23c5998b9",
+          "hash": "da93bdb24096",
           "title": "↳ Package history",
           "inApp": "Activity",
           "status": "proposal",
@@ -4294,7 +4250,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-crm-addr-pick",
-          "hash": "57647628299b",
+          "hash": "439eb31f01d8",
           "title": "↳ Addresses",
           "inApp": "",
           "status": "proposal",
@@ -4313,7 +4269,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-crm-addr-form",
-          "hash": "ea67dbea2705",
+          "hash": "47ab1b1e7e59",
           "title": "↳ Address form",
           "inApp": "Home address",
           "status": "proposal",
@@ -4332,7 +4288,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-client-notes-editor",
-          "hash": "10ba61de0fee",
+          "hash": "f48d88b87382",
           "title": "↳ Note",
           "inApp": "",
           "status": "proposal",
@@ -4351,7 +4307,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-create-client",
-          "hash": "29f03edcc7fe",
+          "hash": "95d8786d9af2",
           "title": "↳ Edit info",
           "inApp": "New client",
           "status": "proposal",
@@ -4370,7 +4326,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-thread",
-          "hash": "5e783cda8ac9",
+          "hash": "71b4db063f16",
           "title": "↳ Message",
           "inApp": "John Miller",
           "status": "proposal",
@@ -4391,16 +4347,14 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-review",
-          "hash": "7f427865b9e3",
+          "hash": "99a31266253c",
           "title": "↳ Self-paced · review clips",
           "inApp": "Review · Julia",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
           "note": "From the clips to review chip. Reviewing lands in the self-paced journey proper.",
-          "external": [
-            "../shared/self-paced.html#s-queue"
-          ],
+          "external": [],
           "shots": [
             {
               "file": "coach-client-detail-drafts__s-review.webp",
@@ -4412,7 +4366,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-setup",
-          "hash": "8ac98f38f8d4",
+          "hash": "3686684939a6",
           "title": "↳ Self-paced · setup",
           "inApp": "Set up for Anna",
           "status": "proposal",
@@ -4420,9 +4374,7 @@ window.FIT_BOARD = {
           "entry": false,
           "note": "From the Home workout row in This week.",
           "external": [
-            "../shared/self-paced.html#s-comments",
-            "../shared/self-paced.html#s-step",
-            "../shared/self-paced.html#s-queue"
+            "../shared/self-paced.html#s-step"
           ],
           "shots": [
             {
@@ -4435,16 +4387,14 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-select",
-          "hash": "5d16492d2a1a",
+          "hash": "e18813d2c61f",
           "title": "↳ Book · session",
           "inApp": "Select training",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
           "note": "From the Book circle and the empty Next-session CTA. Schedule mode: athlete is pre-filled, so this is session &rarr; time &rarr; review. Back returns to J.",
-          "external": [
-            "../coach/settings.html#s-create"
-          ],
+          "external": [],
           "shots": [
             {
               "file": "coach-client-detail-drafts__s-invite-select.webp",
@@ -4456,7 +4406,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-time",
-          "hash": "52b47b3e5397",
+          "hash": "759c9041c68a",
           "title": "↳ Book · time",
           "inApp": "",
           "status": "proposal",
@@ -4476,7 +4426,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-schedule-review",
-          "hash": "5fb01bd1abd1",
+          "hash": "d423efe08b0b",
           "title": "↳ Book · review",
           "inApp": "Review request",
           "status": "proposal",
@@ -4692,11 +4642,6 @@ window.FIT_BOARD = {
             {
               "file": "flows/coach/profile.html",
               "label": "Coach Profile",
-              "id": "s-coach-profile"
-            },
-            {
-              "file": "flows/coach/profile-drafts.html",
-              "label": "Coach Profile & Settings (rework)",
               "id": "s-coach-profile"
             }
           ]
@@ -5018,17 +4963,14 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-create",
-          "hash": "fd4c07edd8fb",
+          "hash": "791127aa555f",
           "title": "↳ Create",
           "inApp": "Training session setup",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
           "note": "Canon form; form-grammar pass pending.",
-          "external": [
-            "./sport-types.html",
-            "./locations.html"
-          ],
+          "external": [],
           "shots": [
             {
               "file": "coach-sessions-drafts__s-create.webp",
@@ -5040,17 +4982,14 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-detail-group",
-          "hash": "42c571fdb2f6",
+          "hash": "13c09941164e",
           "title": "↳ Group · detail",
           "inApp": "HIIT Group Session",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
           "note": "Unchanged.",
-          "external": [
-            "./calendar.html",
-            "./invite.html?mode=schedule&origin=s-detail"
-          ],
+          "external": [],
           "shots": [
             {
               "file": "coach-sessions-drafts__s-detail-group.webp",
@@ -5062,19 +5001,14 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-detail-personal",
-          "hash": "39c29623d5e7",
+          "hash": "397c737d3246",
           "title": "↳ Personal · detail",
           "inApp": "Basketball Training",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
           "note": "Unchanged.",
-          "external": [
-            "./clients.html",
-            "./calendar.html",
-            "./clients.html#s-client-history",
-            "./invite.html?mode=schedule&origin=s-detail&step=athlete"
-          ],
+          "external": [],
           "shots": [
             {
               "file": "coach-sessions-drafts__s-detail-personal.webp",
@@ -5086,17 +5020,14 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-detail-selfpaced",
-          "hash": "265143388386",
+          "hash": "37bed2bad2b8",
           "title": "↳ Self-paced · detail",
           "inApp": "Tennis self-paced",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
           "note": "Unchanged.",
-          "external": [
-            "./clients.html?sp=Tennis%20self-paced#s-client-selfpaced",
-            "./clients.html"
-          ],
+          "external": [],
           "shots": [
             {
               "file": "coach-sessions-drafts__s-detail-selfpaced.webp",
@@ -5108,16 +5039,14 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-series",
-          "hash": "37910792d702",
+          "hash": "da8f0d840b63",
           "title": "↳ Series",
           "inApp": "Tue & Thu · 18:00",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
           "note": "Unchanged.",
-          "external": [
-            "./calendar.html"
-          ],
+          "external": [],
           "shots": [
             {
               "file": "coach-sessions-drafts__s-series.webp",
@@ -5129,17 +5058,14 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-edit",
-          "hash": "d1e3a2a59f48",
+          "hash": "9298e35d3d37",
           "title": "↳ Edit",
           "inApp": "Edit training session",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
           "note": "Canon form; form-grammar pass pending.",
-          "external": [
-            "./sport-types.html",
-            "./locations.html"
-          ],
+          "external": [],
           "shots": [
             {
               "file": "coach-sessions-drafts__s-edit.webp",
@@ -5328,18 +5254,8 @@ window.FIT_BOARD = {
               "id": "s-series"
             },
             {
-              "file": "flows/coach/sessions-drafts.html",
-              "label": "Training Sessions & Packages (rework)",
-              "id": "s-series"
-            },
-            {
               "file": "flows/coach/profile.html",
               "label": "Coach Profile",
-              "id": "s-coach-profile"
-            },
-            {
-              "file": "flows/coach/profile-drafts.html",
-              "label": "Coach Profile & Settings (rework)",
               "id": "s-coach-profile"
             }
           ]
@@ -5513,16 +5429,14 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-calendar",
-          "hash": "725fc0e3c339",
+          "hash": "81c97796d299",
           "title": "Calendar",
           "inApp": "",
           "status": "proposal",
           "theme": "dark",
           "entry": true,
           "note": "The canon calendar with this week's decisions applied in fit-ui.css (so they are already live everywhere): hatch retired — off-hours, time off, external events, travel buffers and the other party's busy time are one flat",
-          "external": [
-            "./invite.html?mode=schedule&origin=s-calendar"
-          ],
+          "external": [],
           "shots": [
             {
               "file": "coach-calendar-drafts__s-calendar.webp",
@@ -5591,16 +5505,14 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-block-time-off",
-          "hash": "5c355136b927",
+          "hash": "da9c8abdf217",
           "title": "↳ Time off",
           "inApp": "Busy time",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
           "note": "Unchanged.",
-          "external": [
-            "./available-hours.html#timeoff"
-          ],
+          "external": [],
           "shots": [
             {
               "file": "coach-calendar-drafts__s-block-time-off.webp",
@@ -5612,7 +5524,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-event-edit",
-          "hash": "0d869f13760a",
+          "hash": "22efe5938de7",
           "title": "↳ Edit event",
           "inApp": "Edit event",
           "status": "proposal",
@@ -5620,7 +5532,6 @@ window.FIT_BOARD = {
           "entry": false,
           "note": "Instance edit incl. seats. Unchanged.",
           "external": [
-            "./locations.html",
             "./invite.html?mode=seat&origin=s-event-edit#s-invite-select"
           ],
           "shots": [
@@ -5730,11 +5641,6 @@ window.FIT_BOARD = {
               "id": "s-client-detail"
             },
             {
-              "file": "flows/coach/clients-drafts.html",
-              "label": "Coach Clients drafts (WIP)",
-              "id": "s-draft-clients"
-            },
-            {
               "file": "flows/coach/client-groups.html",
               "label": "Client Groups",
               "id": "s-group-chat"
@@ -5742,11 +5648,6 @@ window.FIT_BOARD = {
             {
               "file": "flows/coach/sessions.html",
               "label": "Training templates",
-              "id": "s-detail-personal"
-            },
-            {
-              "file": "flows/coach/sessions-drafts.html",
-              "label": "Training Sessions & Packages (rework)",
               "id": "s-detail-personal"
             },
             {
@@ -6083,18 +5984,8 @@ window.FIT_BOARD = {
               "id": "s-edit"
             },
             {
-              "file": "flows/coach/sessions-drafts.html",
-              "label": "Training Sessions & Packages (rework)",
-              "id": "s-edit"
-            },
-            {
               "file": "flows/coach/calendar.html",
               "label": "Coach Calendar",
-              "id": "s-event-edit"
-            },
-            {
-              "file": "flows/coach/calendar-drafts.html",
-              "label": "Coach Calendar (rework look)",
               "id": "s-event-edit"
             },
             {
@@ -7019,7 +6910,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-coach-profile",
-          "hash": "a3d6be42a5a7",
+          "hash": "66470a19119d",
           "title": "↳ canon copy",
           "inApp": "",
           "status": "proposal",
@@ -7027,13 +6918,7 @@ window.FIT_BOARD = {
           "entry": false,
           "note": "The shipped profile under the rework look, kept for comparison.",
           "external": [
-            "../shared/connect.html?role=coach",
-            "./personal-data.html#pd-video-group",
-            "./sport-types.html",
-            "./sessions.html",
-            "./dashboard.html",
-            "./clients.html",
-            "./calendar.html"
+            "../shared/connect.html?role=coach"
           ],
           "shots": [
             {
@@ -7524,7 +7409,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe",
-          "hash": "67dbe3e1ca84",
+          "hash": "c80d26f509c4",
           "title": "↳ Stripe",
           "inApp": "Stripe",
           "status": "proposal",
@@ -7753,7 +7638,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-payouts",
-          "hash": "1374cc26c1aa",
+          "hash": "955e86a6532c",
           "title": "↳ Payouts",
           "inApp": "Payouts",
           "status": "proposal",
@@ -8247,6 +8132,11 @@ window.FIT_BOARD = {
         {
           "from": "s-coach-profile",
           "to": "s-personal-data",
+          "back": true
+        },
+        {
+          "from": "s-coach-profile",
+          "to": "s-sport-types",
           "back": true
         },
         {
@@ -9044,18 +8934,8 @@ window.FIT_BOARD = {
               "id": "s-edit"
             },
             {
-              "file": "flows/coach/sessions-drafts.html",
-              "label": "Training Sessions & Packages (rework)",
-              "id": "s-edit"
-            },
-            {
               "file": "flows/coach/profile.html",
               "label": "Coach Profile",
-              "id": "s-coach-profile"
-            },
-            {
-              "file": "flows/coach/profile-drafts.html",
-              "label": "Coach Profile & Settings (rework)",
               "id": "s-coach-profile"
             },
             {
