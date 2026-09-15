@@ -20,8 +20,8 @@ Order (2026-09-15): **the day → what is next → what you can do → what you 
  ┌ (SM) In 45 min · 10:30                 ┐  ← solid teal perimeter; tap → event drawer
  └      Sarah Mitchell · Tennis · Court A ┘
  [banner: hidden from search · Fix]          ← only when isBookable=false
- ( + )    ( 👤+ )   ( ▢✕ )   ( ✦ )
- Book     Invite   Time off   Ask AI          ← fixed slots ⏳
+ ( + )    ( ▶ )      ( ▢✕ )   ( ✦ )
+ Book   Self-paced  Time off   Ask AI         ← fixed slots ⏳
  Needs you
  [● €40 cash · 2 clients] [● 3 requests] [● 3 to review] [● Self-paced · 3] [● 2 invites waiting]
  Money                            Mon–Sun
@@ -43,7 +43,7 @@ Order (2026-09-15): **the day → what is next → what you can do → what you 
 |---|---|
 | **The anchor is the day widget** (default): ring = sessions today, *earned* / *planned* either side, the date in its corner; **no greeting at all** — the widget is the first thing under the chrome. Options kept on the prototype: *The next person* (Client Detail's identity grammar for the athlete you are about to meet), *The date*, *None* (greeting + card). | Client Detail is held by a person at the top; Home had nothing of that weight. A ring with a target reads as one object; a greeting is text. |
 | **Next session card sits right under the widget**, before the circles, with a **solid teal perimeter**. | The two things a coach opens Home for — the day and the next person — are the first two objects. |
-| **Four circles: Book · Invite · Time off · Ask AI** ⏳ | Things a coach does *from* Home rather than *in* a tab. Book/Invite were buried in the Ready state's empty card; Time off is a daily errand of weight; Ask AI = the assistant's proposed FAB-grade entry. The set is a bet. |
+| **Four circles: Book · Self-paced · Time off · Ask AI** ⏳ | Things a coach does *from* Home rather than *in* a tab. *Invite* gave its slot to *Self-paced* (2026-09-15): inviting lives on Clients, self-paced work (requests to build, clips to review) arrives daily and had no home but a chip. Time off is a daily errand of weight; Ask AI = the assistant's proposed FAB-grade entry. The set is a bet. |
 | **Needs you = chips, not five stacked cards** — cash (red), requests (blue), to review / self-paced (yellow), invites waiting (grey). Each opens its list. `All caught up` = one line. | Five identical cards took the first screen; the count is what Home must say, the "why" is on the destination. Cost: the cards' second lines (*1 awaiting your reply over 24h*, *Tom overdue*) move one tap away. |
 | **Next session = the Client Detail card** (face instead of type tile), tap → the calendar's drawer. Quiet: tomorrow, grey when. Idle/Ready: the empty card takes the slot with **one** secondary button (*Book a session* / *Share profile*). | One card grammar for "next thing" across the coach side. |
 | **Money = one widget**: this week + trend pill headline (24px), planned + booked, Card / Cash grid, 20px inset like the row panels. → Earnings. The fuller day widget (week bars + sentence + link) stays as the *Widget* option when the person is the anchor. | Was two stacked sections (This week + Payment split). |
@@ -60,6 +60,7 @@ States on the prototype: Active day · All caught up · Quiet day · Idle · Rea
 | €40 cash chip | **Cash to collect** — global twin of Client Detail's *Owed*: every cash debt across clients, canon cash drawer per row | new (clone of `#s-draft-owed`) |
 | requests / invites chips · bell | Inbox, opened on the right tab | `dashboard.html#s-notifications` |
 | to review chip | Sessions to review | `dashboard.html#s-review-queue` |
+| Self-paced circle · chip | **Self-paced hub** — the per-client self-paced screen widened to everyone (To set up · To review posters · Sent), footer *Assign self-paced* → pick athlete → builder | new (`#s-draft-spq`); canon `shared/self-paced.html#s-queue` |
 | Money | Earnings | `balance-v2.html#s-earnings` |
 | Book | athlete → session → time → review → back on Home | `invite.html` (schedule mode, athlete first) |
 | Time off | Block time off | `calendar.html#s-block-time-off` |
@@ -82,6 +83,7 @@ States on the prototype: Active day · All caught up · Quiet day · Idle · Rea
 ### Change log
 
 - 2026-09-14 — first cut (greeting as title, circles, chips, card, money widget, today, signals, tip); Inbox circles → compact; anchor options (person / date / none).
+- 2026-09-15 (later) — Invite circle → Self-paced circle; Self-paced hub redrawn in the flow; booking-grid off-hours lose the hatch too (flat fill everywhere).
 - 2026-09-15 — day widget (ring + bars + sentence + link) built; widget becomes the anchor; greeting removed; widget cut to ring + earned / planned with Next session directly under it, then the circles; equal air around the ring; money headline 24px + 20px inset; plain look has no wash on Home; hub *Rework* section.
 
 ## 4. Open
