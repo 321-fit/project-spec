@@ -3,16 +3,22 @@
 > Status: **Draft — work in progress.** Nothing confirmed for development. Sister of [client-detail-redesign.md](./client-detail-redesign.md): same grammar, same look switch, same rules; this page only records what is specific to Home.
 > Prototype: [flows/coach/dashboard-drafts.html#s-draft-dash](https://321-fit.github.io/project-spec/prototypes/flows/coach/dashboard-drafts.html#s-draft-dash) — the flow walks inside one file; every screen reached from Home is copied in.
 > Supersedes (once approved): the screen layout in [dashboard.md](./dashboard.md) §4–5. **Data, states and endpoints are unchanged** — the snapshot the shipped screen loads already carries everything drawn here.
-> Last updated: 2026-09-14
+> Hub: [modules.html → Rework](https://321-fit.github.io/project-spec/prototypes/modules.html)
+> Last updated: 2026-09-15
 
 ## 1. The screen
 
-Order: **who you are today → what you owe an answer to → what is next → the money → the day → the signals.**
+Order (2026-09-15): **the day → what is next → what you can do → what you owe an answer to → the money → the rest of the day → the signals.**
 
 ```
- (RB)                              [💬1] [🔔3]
- Good morning, Robert
- Wed 23 Apr · 3 sessions · €180 today
+ (RB)                              [💬1] [🔔3]     ← no greeting: the widget is the first thing
+ ┌ Wednesday                       23 Apr ┐
+ │   €60        ◯ 1/3        €180         │      ← THE DAY WIDGET = the anchor (ring: sessions
+ │  earned     sessions     planned       │         today; money around it). Equal air above/below.
+ └────────────────────────────────────────┘
+ Next session
+ ┌ (SM) In 45 min · 10:30                 ┐  ← solid teal perimeter; tap → event drawer
+ └      Sarah Mitchell · Tennis · Court A ┘
  [banner: hidden from search · Fix]          ← only when isBookable=false
  ( + )    ( 👤+ )   ( ▢✕ )   ( ✦ )
  Book     Invite   Time off   Ask AI          ← fixed slots ⏳
@@ -38,11 +44,12 @@ Order: **who you are today → what you owe an answer to → what is next → th
 
 | Change | Why |
 |---|---|
-| **Greeting is the title**; no `Home` nav title; sub-line = the day in one breath. Messages + bell stay as chrome circles. | Two titles said where you are; one is the greeting. |
+| **The anchor is the day widget** (default): ring = sessions today, *earned* / *planned* either side, the date in its corner; **no greeting at all** — the widget is the first thing under the chrome. Options kept on the prototype: *The next person* (Client Detail's identity grammar for the athlete you are about to meet), *The date*, *None* (greeting + card). | Client Detail is held by a person at the top; Home had nothing of that weight. A ring with a target reads as one object; a greeting is text. |
+| **Next session card sits right under the widget**, before the circles, with a **solid teal perimeter**. | The two things a coach opens Home for — the day and the next person — are the first two objects. |
 | **Four circles: Book · Invite · Time off · Ask AI** ⏳ | Things a coach does *from* Home rather than *in* a tab. Book/Invite were buried in the Ready state's empty card; Time off is a daily errand of weight; Ask AI = the assistant's proposed FAB-grade entry. The set is a bet. |
 | **Needs you = chips, not five stacked cards** — cash (red), requests (blue), to review / self-paced (yellow), invites waiting (grey). Each opens its list. `All caught up` = one line. | Five identical cards took the first screen; the count is what Home must say, the "why" is on the destination. Cost: the cards' second lines (*1 awaiting your reply over 24h*, *Tom overdue*) move one tap away. |
 | **Next session = the Client Detail card** (face instead of type tile), tap → the calendar's drawer. Quiet: tomorrow, grey when. Idle/Ready: the empty card takes the slot with **one** secondary button (*Book a session* / *Share profile*). | One card grammar for "next thing" across the coach side. |
-| **Money = one widget**: this week + trend pill headline, planned + booked, Card / Cash grid. → Earnings. | Was two stacked sections (This week + Payment split). |
+| **Money = one widget**: this week + trend pill headline (24px), planned + booked, Card / Cash grid, 20px inset like the row panels. → Earnings. The fuller day widget (week bars + sentence + link) stays as the *Widget* option when the person is the anchor. | Was two stacked sections (This week + Payment split). |
 | **Today never disappears**; empty = quiet row (*Nothing today* / *Nothing else today*). | Layout must not jump between days. |
 | **Signals = tiles** (star plate / faces); **one tip at a time**, outlined + dismissable; **bookability banner** above the circles, non-dismissable. | Same rules as Client Detail: visual leads, a suggestion is not system messaging, a status banner decides what is legal. |
 | Pre-approval states (New wizard · Under review · Rejected) **not redrawn**. | They are a different screen (the wizard); canon file stays. |
@@ -61,6 +68,24 @@ States on the prototype: Active day · All caught up · Quiet day · Idle · Rea
 | Time off | Block time off | `calendar.html#s-block-time-off` |
 | Next session · Today rows | event / group drawer over Home | `calendar.html` sheets |
 | Invite · Ask AI · tab bar · activity tiles | other modules | links |
+
+### User flows (for issues)
+
+1. **Morning glance** — Home renders the widget (sessions today, earned / planned), Next session, Needs-you chips; loading = skeleton below the chrome.
+2. **Act on the next session** — card → event drawer over Home → Cancel / Reschedule / Message / Edit.
+3. **Collect cash** — €40 chip → Cash to collect → row → cash drawer → settled row drops to Settled; hero recounts.
+4. **Answer requests / see invites** — chips → Inbox on *To reply* / *Waiting*; bell → Inbox on *Activity*.
+5. **Review sessions** — chip → Sessions to review → Mark complete / Missed (batched undo).
+6. **Book from Home** — Book → pick athlete → session → time → review → *Send request* → back on Home.
+7. **Time off** — circle → Block time off → back.
+8. **Money** — widget → Earnings.
+9. **Bookability** — `isBookable=false` → banner above the circles → *Fix* → Availability.
+10. **New coach** — Ready state: greeting, empty Next-session card with *Share profile*, CRM tip; no widget, no money.
+
+### Change log
+
+- 2026-09-14 — first cut (greeting as title, circles, chips, card, money widget, today, signals, tip); Inbox circles → compact; anchor options (person / date / none).
+- 2026-09-15 — day widget (ring + bars + sentence + link) built; widget becomes the anchor; greeting removed; widget cut to ring + earned / planned with Next session directly under it, then the circles; equal air around the ring; money headline 24px + 20px inset; plain look has no wash on Home; hub *Rework* section.
 
 ## 4. Open
 

@@ -3,7 +3,8 @@
 > Status: **Draft — work in progress.** Nothing here is confirmed for development; the prototype is the argument, this page is its index. Decisions marked ✅ were agreed with the owner in review on 2026-09-01…14; ⏳ are still being tried.
 > Prototype: [flows/coach/client-detail-drafts.html#s-draft-client](https://321-fit.github.io/project-spec/prototypes/flows/coach/client-detail-drafts.html#s-draft-client) — the whole flow walks inside that one file (every screen it reaches is copied in; the look switch at the top of the annotation column applies to all of them).
 > Supersedes (once approved): the Client Detail section of [clients-coaches.md](./clients-coaches.md) (`#s-client-detail`) and the per-client self-paced / packages sections. It does **not** change endpoints — everything renders from data the shipped screens already load.
-> Last updated: 2026-09-14
+> Hub: [modules.html → Rework](https://321-fit.github.io/project-spec/prototypes/modules.html)
+> Last updated: 2026-09-15
 
 ## 0. What this is
 
@@ -51,7 +52,7 @@ Order, top to bottom: **who this is → what you owe an answer to → what is ne
 | **Nothing is pinned.** | A sticky pill bar over the identity was tried and dropped. |
 | **Needs you is the only variable block at the top** and absorbs the pending-payments carousel, self-paced *To review*, an open request. Empty → gone. | One place to look for "what do I owe". |
 | **Next session is a card, no buttons.** Tap → the calendar's state-aware event drawer over this screen. | The drawer's footer already carries the answer per state (Decline/Accept · Cancel/Reschedule · Cancel request/Reschedule) and its ⋯ has Edit details / Message; card buttons duplicated it. |
-| The card carries the **state in the calendar's language**: yellow perimeter + tint + `Request` badge = act on it; dashed + `Awaiting` = tentative; plain = planned. Badge sits on the title line so the card never grows. | Same visual as the calendar tile, so it is learned once. |
+| The card carries the **state in the calendar's language**: yellow perimeter + tint + `Request` badge = act on it; dashed + `Awaiting` = tentative; **planned = solid teal perimeter** ("this is your next one" — the eye lands here first; added 2026-09-15). Badge sits on the title line so the card never grows. | Same visual as the calendar tile, so it is learned once. |
 | **Money is one widget above This week.** Debt headline is a **row that leads to the Owed list** — not a *Mark paid* button. Paid-this-month + pack credits read under it; no progress bar (the Packages circle already counts it). | A settle is per entity on the backend (personal event / group seat / self-paced booking / pack lot — four endpoints, no per-client or per-transaction one, see [payments.md](./payments.md) and memory *cash-settlement-drawer*). "Mark €70 for 2 sessions paid" cannot be one tap; a button saying so lies. |
 | **This week never disappears** — empty is a quiet row. | The block must not jump in and out between weeks. |
 | **Every asset tile leads with a visual** — faces for a group, map thumb for addresses, icon plate for note/history. | Four unlabelled text tiles were unreadable at a glance. |
@@ -82,6 +83,24 @@ Fresh = subtitle *joined 2 days ago*, no badges on circles, Needs you gone, Mone
 | groups tile · ⋯ Add to group | membership | `client-groups.html#s-add-to-group` (§5) |
 | addresses · note · history · ⋯ Edit info | as shipped | `clients.html#s-crm-addr-pick` · `#s-client-notes-editor` · `#s-client-history` · `#s-create-client` |
 | ⋯ Archive / Block | confirm sheets → status banner on J | as shipped |
+
+### 1.4 User flows (for issues)
+
+1. **Open a client** — Clients list → Client Detail. Identity + circles render from the list row instantly; Needs you / Next / Money / This week / tiles arrive with the detail call (skeleton meanwhile).
+2. **Settle cash** — €70 chip or Money row → Owed → row → cash drawer → *Mark as paid* / *Waive* → row moves to Settled, hero recounts → back to Client Detail (Money in *Nothing owed* when cleared).
+3. **Act on a request** — *Reschedule request* chip or the Next-session card (Request state) → event drawer over Client Detail → Decline / Reschedule / Accept.
+4. **Book** — Book circle → session → time → review → *Send request* → back on Client Detail with Next session = Awaiting.
+5. **Self-paced** — circle → per-client screen → *Build ›* on a To-set-up row → builder → Send → back; clip poster → review.
+6. **Packages** — circle (or the pack line in Money) → per-client list → pack → detail (lots) / *Offer renewal* / *Mark received*; footer *Sell a package* → sell sheet.
+7. **Relationship admin** — ⋯ → Add to group (membership on tap, Undo) · Edit info · Archive / Block → confirm sheet → status banner on the screen.
+8. **Assets** — tiles → groups / addresses / note editor / history; each returns to Client Detail.
+
+### 1.5 Change log
+
+- 2026-09-01/02 — drafts A–K explored; J + K kept.
+- 2026-09-04 — 52px circles land in `fit-ui.css`.
+- 2026-09-14 — Next session card loses its buttons (→ drawer); Money row → Owed (no *Mark paid* button); states move to annotation toggles; every reached screen copied into the file; K retired into the *Tinted canvas* switch; CTA on tinted = white with depth (flat teal rejected); sheets = blurred material; Self-paced + Packages per client redrawn; groups membership on tap; name in the title on nested screens; request perimeter on To set up; drafts A–I removed from the board.
+- 2026-09-15 — planned Next session gets a solid teal perimeter; money headline 30→24px; money widget inset 20px like the row panels; hub *Rework* section.
 
 ## 2. Owed (new screen) ✅
 
