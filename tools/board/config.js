@@ -97,6 +97,7 @@ export const ORDER = [
 
   // athlete — same shape
   "flows/athlete/dashboard.html",
+  "flows/athlete/athlete-drafts.html",
   "flows/athlete/search.html",
   "flows/athlete/my-coaches.html",
   "flows/athlete/calendar.html",

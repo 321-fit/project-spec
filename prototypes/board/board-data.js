@@ -633,6 +633,11 @@ window.FIT_BOARD = {
               "id": "s-settings"
             },
             {
+              "file": "flows/athlete/athlete-drafts.html",
+              "label": "Athlete side (rework)",
+              "id": "s-draft-asettings"
+            },
+            {
               "file": "flows/athlete/settings.html",
               "label": "Athlete · Settings",
               "id": "s-settings"
@@ -1109,6 +1114,11 @@ window.FIT_BOARD = {
               "id": "s-coach-profile"
             },
             {
+              "file": "flows/athlete/athlete-drafts.html",
+              "label": "Athlete side (rework)",
+              "id": "s-draft-asettings"
+            },
+            {
               "file": "flows/athlete/my-coaches.html",
               "label": "Athlete · My Coaches",
               "id": "s-my-coaches"
@@ -1174,6 +1184,11 @@ window.FIT_BOARD = {
               "id": "s-dashboard"
             },
             {
+              "file": "flows/athlete/athlete-drafts.html",
+              "label": "Athlete side (rework)",
+              "id": "s-owed-detail"
+            },
+            {
               "file": "flows/athlete/calendar.html",
               "label": "Athlete Schedule",
               "id": "s-schedule"
@@ -1221,7 +1236,14 @@ window.FIT_BOARD = {
             }
           ],
           "level": 1,
-          "order": 1
+          "order": 1,
+          "inFrom": [
+            {
+              "file": "flows/athlete/athlete-drafts.html",
+              "label": "Athlete side (rework)",
+              "id": "s-draft-acoach"
+            }
+          ]
         },
         {
           "id": "s-thread-settings",
@@ -1822,6 +1844,11 @@ window.FIT_BOARD = {
               "id": "s-comments"
             },
             {
+              "file": "flows/athlete/athlete-drafts.html",
+              "label": "Athlete side (rework)",
+              "id": "s-draft-acoach"
+            },
+            {
               "file": "flows/athlete/my-coaches.html",
               "label": "Athlete · My Coaches",
               "id": "s-coach-detail"
@@ -1856,6 +1883,11 @@ window.FIT_BOARD = {
               "file": "flows/athlete/dashboard.html",
               "label": "Athlete Dashboard",
               "id": "s-dashboard"
+            },
+            {
+              "file": "flows/athlete/athlete-drafts.html",
+              "label": "Athlete side (rework)",
+              "id": "s-draft-acoach"
             }
           ]
         },
@@ -2256,6 +2288,11 @@ window.FIT_BOARD = {
           "order": 0,
           "inFrom": [
             {
+              "file": "flows/athlete/athlete-drafts.html",
+              "label": "Athlete side (rework)",
+              "id": "s-schedule"
+            },
+            {
               "file": "flows/athlete/search.html",
               "label": "Athlete Search",
               "id": "s-search-text"
@@ -2322,6 +2359,11 @@ window.FIT_BOARD = {
               "file": "flows/shared/assistant-entry.html",
               "label": "Contextual AI quick starts (WIP)",
               "id": "s-guide-athlete"
+            },
+            {
+              "file": "flows/athlete/athlete-drafts.html",
+              "label": "Athlete side (rework)",
+              "id": "s-schedule"
             },
             {
               "file": "flows/athlete/my-coaches.html",
@@ -8944,6 +8986,11 @@ window.FIT_BOARD = {
               "id": "s-dashboard"
             },
             {
+              "file": "flows/athlete/athlete-drafts.html",
+              "label": "Athlete side (rework)",
+              "id": "s-search-error"
+            },
+            {
               "file": "flows/athlete/search.html",
               "label": "Athlete Search",
               "id": "s-search-error"
@@ -9205,6 +9252,1874 @@ window.FIT_BOARD = {
           "from": "s-notifications",
           "to": "s-dashboard",
           "back": true
+        }
+      ]
+    },
+    {
+      "file": "flows/athlete/athlete-drafts.html",
+      "label": "Athlete side (rework)",
+      "role": "athlete",
+      "slug": "athlete-athlete-drafts",
+      "screens": [
+        {
+          "id": "s-draft-ahome",
+          "hash": "b484abd5e942",
+          "title": "Home, placed",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": true,
+          "note": "The tinted canvas is dark-only; the athlete side ships light by default (memory: theme = role preference). Judge the grammar here; the light recipe is a separate decision.",
+          "external": [
+            "../shared/messages.html?role=athlete#s-messages",
+            "../shared/self-paced.html#s-list",
+            "../shared/self-paced.html#s-welcome"
+          ],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-draft-ahome.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-draft-acoaches",
+          "hash": "380230200c54",
+          "title": "↳ My coaches, placed",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Needs-you chips (owed, request waiting) &rarr; This week (next session per coach) &rarr; Training with (rating · sport · sessions, heart = saved) &rarr; Saved. Rows speak of time; the canon cards' Book / Cancel buttons m",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-draft-acoaches.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-draft-acoach",
+          "hash": "616febc5a1ac",
+          "title": "↳ Coach detail, placed",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Identity (tap &rarr; public profile) &rarr; Book · Message · Self-paced · Packages &rarr; Needs you (owed, overdue self-paced, rate) &rarr; Next session card &rarr; Money (owed / booked / pack) &rarr; This week &rarr; ti",
+          "external": [
+            "../shared/messages.html?role=athlete#s-thread",
+            "../shared/self-paced.html?c=maria#s-list",
+            "../shared/self-paced.html#s-welcome"
+          ],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-draft-acoach.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 0
+        },
+        {
+          "id": "s-draft-aprofile",
+          "hash": "4b8b4689fd5f",
+          "title": "↳ Profile, placed",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Identity line (city · sessions · hours), this month as the ring (goal, streak, one sentence), Sports / About panels with Edit, Training rows (coaches, history, addresses). Chrome: role switch, share, settings.",
+          "external": [
+            "../shared/connect.html?role=athlete"
+          ],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-draft-aprofile.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-draft-asettings",
+          "hash": "485bad0b0e22",
+          "title": "↳ Settings, placed",
+          "inApp": "Settings",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Same items and groups as canon in the row-panel grammar with current values on the sub-line.",
+          "external": [
+            "../shared/connect.html?role=athlete",
+            "../shared/account-access.html?role=athlete"
+          ],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-draft-asettings.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 1
+        },
+        {
+          "id": "s-rate-queue",
+          "hash": "913ef58cce58",
+          "title": "↳ Rate sessions",
+          "inApp": "Sessions to rate",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-rate-queue.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-notifications",
+          "hash": "d420cbdb459e",
+          "title": "↳ Inbox",
+          "inApp": "Inbox",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-notifications.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 3
+        },
+        {
+          "id": "s-pkg-detail",
+          "hash": "1419272cb767",
+          "title": "↳ Package",
+          "inApp": "Package",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-pkg-detail.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 0
+        },
+        {
+          "id": "s-pkg-history",
+          "hash": "d65d152d481d",
+          "title": "↳ Package history",
+          "inApp": "Activity",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-pkg-history.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 6,
+          "order": 0
+        },
+        {
+          "id": "s-coach-history",
+          "hash": "36b5de20c9f6",
+          "title": "↳ History with coach",
+          "inApp": "Training history",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-coach-history.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 1
+        },
+        {
+          "id": "s-coach-note-editor",
+          "hash": "0a2d226a2b19",
+          "title": "↳ Note",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-coach-note-editor.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 2
+        },
+        {
+          "id": "s-coach-review",
+          "hash": "3da10b4bd929",
+          "title": "↳ Review",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-coach-review.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 3
+        },
+        {
+          "id": "s-schedule",
+          "hash": "b4aeaa2f7236",
+          "title": "↳ Schedule",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [
+            "../shared/messages.html",
+            "../shared/profile.html",
+            "../shared/profile.html#s-book-sessions"
+          ],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-schedule.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 4
+        },
+        {
+          "id": "s-search-landing",
+          "hash": "7ca5fd13cdc9",
+          "title": "↳ Search",
+          "inApp": "Find a coach",
+          "status": "proposal",
+          "theme": "light",
+          "entry": false,
+          "note": "Coach search is athlete-specific and keeps its own (light) design — out of this rework's scope; copied so the flow stays in one file.",
+          "external": [
+            "../coach/sport-types.html"
+          ],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-search-landing.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 5
+        },
+        {
+          "id": "s-search-results",
+          "hash": "7f712b5dfeb7",
+          "title": "↳ Results",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "light",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [
+            "../coach/sport-types.html"
+          ],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-search-results.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 2
+        },
+        {
+          "id": "s-search-results-empty",
+          "hash": "9a38e84a5c42",
+          "title": "Results · empty",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "light",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [
+            "../coach/sport-types.html"
+          ],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-search-results-empty.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 6,
+          "order": 1
+        },
+        {
+          "id": "s-search-loading",
+          "hash": "b4d759cb8bd2",
+          "title": "Results · loading",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "light",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [
+            "../coach/sport-types.html"
+          ],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-search-loading.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 6,
+          "order": 2
+        },
+        {
+          "id": "s-search-error",
+          "hash": "7ebff2efb103",
+          "title": "Results · error",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "light",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [
+            "../coach/sport-types.html"
+          ],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-search-error.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 6,
+          "order": 3
+        },
+        {
+          "id": "s-search-text",
+          "hash": "e46e23125597",
+          "title": "Text search",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "light",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-search-text.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 3
+        },
+        {
+          "id": "s-search-filters",
+          "hash": "ae010637caa8",
+          "title": "↳ Filters",
+          "inApp": "Filters",
+          "status": "proposal",
+          "theme": "light",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-search-filters.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 4
+        },
+        {
+          "id": "s-search-lang",
+          "hash": "5d502800fee1",
+          "title": "Languages",
+          "inApp": "Languages",
+          "status": "proposal",
+          "theme": "light",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-search-lang.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 4
+        },
+        {
+          "id": "s-search-country",
+          "hash": "035ca078f137",
+          "title": "Country",
+          "inApp": "Country",
+          "status": "proposal",
+          "theme": "light",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-search-country.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 5
+        },
+        {
+          "id": "s-search-city",
+          "hash": "d96e0db3f464",
+          "title": "City",
+          "inApp": "City",
+          "status": "proposal",
+          "theme": "light",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-search-city.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 6
+        },
+        {
+          "id": "s-search-map",
+          "hash": "b1d1a57ff3c7",
+          "title": "↳ Map",
+          "inApp": "Map view",
+          "status": "proposal",
+          "theme": "light",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-search-map.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 6,
+          "order": 4
+        },
+        {
+          "id": "s-training-history",
+          "hash": "4b1fd896f439",
+          "title": "↳ Training history",
+          "inApp": "Training history",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-training-history.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 6
+        },
+        {
+          "id": "s-personal-data",
+          "hash": "ec60be15258d",
+          "title": "↳ Personal info",
+          "inApp": "Personal data",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-personal-data.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 5
+        },
+        {
+          "id": "s-notes-editor",
+          "hash": "d2d833eec4fb",
+          "title": "About me",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-notes-editor.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 6
+        },
+        {
+          "id": "s-tz-select",
+          "hash": "62671e029717",
+          "title": "Time zone",
+          "inApp": "Time zone",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-tz-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 7
+        },
+        {
+          "id": "s-country-select",
+          "hash": "b9672eac9421",
+          "title": "Country",
+          "inApp": "Home country",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-country-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 8
+        },
+        {
+          "id": "s-city-select",
+          "hash": "86e7e6c997c6",
+          "title": "City",
+          "inApp": "Home city",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-city-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 9
+        },
+        {
+          "id": "s-lang-select",
+          "hash": "99b527901107",
+          "title": "Languages",
+          "inApp": "Languages",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-lang-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 10
+        },
+        {
+          "id": "s-currency-select",
+          "hash": "a2f4c8b11df0",
+          "title": "Currency",
+          "inApp": "Currency",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-currency-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 11
+        },
+        {
+          "id": "s-balance",
+          "hash": "57b18c57a9b5",
+          "title": "↳ Balance",
+          "inApp": "Balance",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-balance.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 7
+        },
+        {
+          "id": "s-history",
+          "hash": "976c22bc39fd",
+          "title": "↳ History",
+          "inApp": "Transactions",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-history.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 7
+        },
+        {
+          "id": "s-history-filter",
+          "hash": "d9ed5582fb6a",
+          "title": "History · filter",
+          "inApp": "Filter history",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-history-filter.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 6,
+          "order": 5
+        },
+        {
+          "id": "s-top-up",
+          "hash": "edfb06e88feb",
+          "title": "↳ Top up",
+          "inApp": "Top up",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-top-up.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 8
+        },
+        {
+          "id": "s-txn-spend",
+          "hash": "a6028410ffba",
+          "title": "↳ Spend",
+          "inApp": "Session payment",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-txn-spend.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 8
+        },
+        {
+          "id": "s-txn-spend-cash",
+          "hash": "c78a05074002",
+          "title": "Spend · cash",
+          "inApp": "Session payment",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-txn-spend-cash.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 9
+        },
+        {
+          "id": "s-txn-topup",
+          "hash": "b37426f8c4ec",
+          "title": "↳ Top-up",
+          "inApp": "Top-up",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-txn-topup.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 10
+        },
+        {
+          "id": "s-txn-refund",
+          "hash": "8dc0d6f11089",
+          "title": "↳ Refund",
+          "inApp": "Refund",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-txn-refund.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 12
+        },
+        {
+          "id": "s-owed",
+          "hash": "1877cc2d733d",
+          "title": "↳ Owed",
+          "inApp": "Owed",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-owed.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 9
+        },
+        {
+          "id": "s-owed-detail",
+          "hash": "51ec0f8e201c",
+          "title": "↳ Owed · detail",
+          "inApp": "Session payment",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [
+            "../shared/messages.html"
+          ],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-owed-detail.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 11
+        },
+        {
+          "id": "s-booked",
+          "hash": "0f20d9d86e89",
+          "title": "↳ Booked",
+          "inApp": "Booked",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-booked.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 12
+        },
+        {
+          "id": "s-booked-detail",
+          "hash": "5a0f98e912e2",
+          "title": "Booked · detail",
+          "inApp": "Booked session",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-booked-detail.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 13
+        },
+        {
+          "id": "s-calsync",
+          "hash": "fdbc1e1c10f6",
+          "title": "↳ Calendar sync",
+          "inApp": "Calendar sync",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-calsync.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 14
+        },
+        {
+          "id": "s-cal-detail",
+          "hash": "5a3cf55b677e",
+          "title": "Google detail",
+          "inApp": "Google Calendar",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-cal-detail.webp",
+              "label": ""
+            }
+          ],
+          "level": 4,
+          "order": 0
+        },
+        {
+          "id": "s-write-target-picker",
+          "hash": "fb34bde51e80",
+          "title": "Write target",
+          "inApp": "Calendar to add events to",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-write-target-picker.webp",
+              "label": ""
+            }
+          ],
+          "level": 4,
+          "order": 1
+        },
+        {
+          "id": "s-apple-connect",
+          "hash": "41242e92e197",
+          "title": "Apple connect",
+          "inApp": "Apple Calendar",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-apple-connect.webp",
+              "label": ""
+            }
+          ],
+          "level": 4,
+          "order": 2
+        },
+        {
+          "id": "s-apple-detail",
+          "hash": "ba65e5f3f4ff",
+          "title": "Apple detail",
+          "inApp": "Apple Calendar",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-apple-detail.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 6,
+          "order": 6
+        },
+        {
+          "id": "s-integrations",
+          "hash": "e127fdf8b25f",
+          "title": "↳ Integrations",
+          "inApp": "Integrations",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-integrations.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 15
+        },
+        {
+          "id": "s-sport-types",
+          "hash": "45b0bf5daa2d",
+          "title": "↳ Sports",
+          "inApp": "Sport types",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-sport-types.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 13
+        },
+        {
+          "id": "s-coach-v2",
+          "hash": "e9aef002e6f4",
+          "title": "↳ Coach public profile",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-coach-v2.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 14
+        },
+        {
+          "id": "s-reviews",
+          "hash": "dffc2f94284f",
+          "title": "↳ Reviews",
+          "inApp": "Reviews",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-reviews.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 16
+        },
+        {
+          "id": "s-book-sessions",
+          "hash": "9f339b6e3afa",
+          "title": "↳ Book · sessions",
+          "inApp": "Book training",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-book-sessions.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 17
+        },
+        {
+          "id": "s-booking",
+          "hash": "ddb978d3653d",
+          "title": "↳ Book · time",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [
+            "../athlete/calendar.html"
+          ],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-booking.webp",
+              "label": ""
+            }
+          ],
+          "level": 4,
+          "order": 3
+        },
+        {
+          "id": "s-group",
+          "hash": "3f9d38ee819e",
+          "title": "↳ Group session",
+          "inApp": "HIIT Group Session",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-group.webp",
+              "label": ""
+            }
+          ],
+          "level": 4,
+          "order": 4
+        },
+        {
+          "id": "s-joined",
+          "hash": "6753aa6ec39f",
+          "title": "↳ Joined",
+          "inApp": "HIIT Group Session",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-joined.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 6,
+          "order": 7
+        },
+        {
+          "id": "s-full",
+          "hash": "16333c37ad33",
+          "title": "↳ Full",
+          "inApp": "Yoga Morning Flow",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-full.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 6,
+          "order": 8
+        },
+        {
+          "id": "s-hv-address",
+          "hash": "f5d390aebc18",
+          "title": "↳ Home visit · address",
+          "inApp": "Your address",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-hv-address.webp",
+              "label": ""
+            }
+          ],
+          "level": 5,
+          "order": 0
+        },
+        {
+          "id": "s-hv-addr-pick",
+          "hash": "6032dc85968d",
+          "title": "Pick address",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-hv-addr-pick.webp",
+              "label": ""
+            }
+          ],
+          "level": 4,
+          "order": 5
+        },
+        {
+          "id": "s-hv-addr-form",
+          "hash": "8c59fbf52c05",
+          "title": "Address form",
+          "inApp": "Address details",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-hv-addr-form.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 18
+        },
+        {
+          "id": "s-my-addresses",
+          "hash": "347c4ab97d5d",
+          "title": "↳ My addresses",
+          "inApp": "My addresses",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Copied under the rework look; unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "athlete-athlete-drafts__s-my-addresses.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 15
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-draft-ahome",
+          "to": "s-notifications",
+          "back": false
+        },
+        {
+          "from": "s-draft-ahome",
+          "to": "s-search-landing",
+          "back": false
+        },
+        {
+          "from": "s-draft-ahome",
+          "to": "s-draft-acoaches",
+          "back": false
+        },
+        {
+          "from": "s-draft-ahome",
+          "to": "s-top-up",
+          "back": false
+        },
+        {
+          "from": "s-draft-ahome",
+          "to": "s-owed",
+          "back": false
+        },
+        {
+          "from": "s-draft-ahome",
+          "to": "s-rate-queue",
+          "back": false
+        },
+        {
+          "from": "s-draft-ahome",
+          "to": "s-balance",
+          "back": false
+        },
+        {
+          "from": "s-draft-ahome",
+          "to": "s-training-history",
+          "back": false
+        },
+        {
+          "from": "s-draft-ahome",
+          "to": "s-schedule",
+          "back": false
+        },
+        {
+          "from": "s-draft-ahome",
+          "to": "s-draft-aprofile",
+          "back": false
+        },
+        {
+          "from": "s-draft-acoaches",
+          "to": "s-search-landing",
+          "back": true
+        },
+        {
+          "from": "s-draft-acoaches",
+          "to": "s-owed",
+          "back": true
+        },
+        {
+          "from": "s-draft-acoaches",
+          "to": "s-draft-acoach",
+          "back": false
+        },
+        {
+          "from": "s-draft-acoaches",
+          "to": "s-coach-v2",
+          "back": false
+        },
+        {
+          "from": "s-draft-acoaches",
+          "to": "s-draft-ahome",
+          "back": true
+        },
+        {
+          "from": "s-draft-acoaches",
+          "to": "s-schedule",
+          "back": true
+        },
+        {
+          "from": "s-draft-acoaches",
+          "to": "s-draft-aprofile",
+          "back": true
+        },
+        {
+          "from": "s-draft-acoach",
+          "to": "s-draft-acoaches",
+          "back": true
+        },
+        {
+          "from": "s-draft-acoach",
+          "to": "s-coach-v2",
+          "back": true
+        },
+        {
+          "from": "s-draft-acoach",
+          "to": "s-book-sessions",
+          "back": false
+        },
+        {
+          "from": "s-draft-acoach",
+          "to": "s-pkg-detail",
+          "back": false
+        },
+        {
+          "from": "s-draft-acoach",
+          "to": "s-owed",
+          "back": true
+        },
+        {
+          "from": "s-draft-acoach",
+          "to": "s-coach-review",
+          "back": false
+        },
+        {
+          "from": "s-draft-acoach",
+          "to": "s-my-addresses",
+          "back": true
+        },
+        {
+          "from": "s-draft-acoach",
+          "to": "s-coach-note-editor",
+          "back": false
+        },
+        {
+          "from": "s-draft-acoach",
+          "to": "s-coach-history",
+          "back": false
+        },
+        {
+          "from": "s-draft-aprofile",
+          "to": "s-draft-asettings",
+          "back": false
+        },
+        {
+          "from": "s-draft-aprofile",
+          "to": "s-personal-data",
+          "back": false
+        },
+        {
+          "from": "s-draft-aprofile",
+          "to": "s-training-history",
+          "back": true
+        },
+        {
+          "from": "s-draft-aprofile",
+          "to": "s-sport-types",
+          "back": false
+        },
+        {
+          "from": "s-draft-aprofile",
+          "to": "s-notes-editor",
+          "back": false
+        },
+        {
+          "from": "s-draft-aprofile",
+          "to": "s-draft-acoaches",
+          "back": true
+        },
+        {
+          "from": "s-draft-aprofile",
+          "to": "s-my-addresses",
+          "back": false
+        },
+        {
+          "from": "s-draft-aprofile",
+          "to": "s-draft-ahome",
+          "back": true
+        },
+        {
+          "from": "s-draft-aprofile",
+          "to": "s-search-landing",
+          "back": true
+        },
+        {
+          "from": "s-draft-aprofile",
+          "to": "s-schedule",
+          "back": true
+        },
+        {
+          "from": "s-draft-asettings",
+          "to": "s-draft-aprofile",
+          "back": true
+        },
+        {
+          "from": "s-draft-asettings",
+          "to": "s-personal-data",
+          "back": true
+        },
+        {
+          "from": "s-draft-asettings",
+          "to": "s-my-addresses",
+          "back": true
+        },
+        {
+          "from": "s-draft-asettings",
+          "to": "s-sport-types",
+          "back": true
+        },
+        {
+          "from": "s-draft-asettings",
+          "to": "s-calsync",
+          "back": false
+        },
+        {
+          "from": "s-draft-asettings",
+          "to": "s-integrations",
+          "back": false
+        },
+        {
+          "from": "s-draft-asettings",
+          "to": "s-balance",
+          "back": true
+        },
+        {
+          "from": "s-rate-queue",
+          "to": "s-draft-ahome",
+          "back": true
+        },
+        {
+          "from": "s-notifications",
+          "to": "s-draft-ahome",
+          "back": true
+        },
+        {
+          "from": "s-notifications",
+          "to": "s-my-addresses",
+          "back": false
+        },
+        {
+          "from": "s-pkg-detail",
+          "to": "s-draft-acoach",
+          "back": true
+        },
+        {
+          "from": "s-coach-history",
+          "to": "s-draft-acoach",
+          "back": true
+        },
+        {
+          "from": "s-coach-note-editor",
+          "to": "s-draft-acoach",
+          "back": true
+        },
+        {
+          "from": "s-coach-review",
+          "to": "s-draft-acoach",
+          "back": true
+        },
+        {
+          "from": "s-schedule",
+          "to": "s-draft-acoaches",
+          "back": true
+        },
+        {
+          "from": "s-schedule",
+          "to": "s-draft-aprofile",
+          "back": true
+        },
+        {
+          "from": "s-schedule",
+          "to": "s-draft-ahome",
+          "back": true
+        },
+        {
+          "from": "s-search-landing",
+          "to": "s-search-text",
+          "back": false
+        },
+        {
+          "from": "s-search-landing",
+          "to": "s-search-filters",
+          "back": false
+        },
+        {
+          "from": "s-search-landing",
+          "to": "s-search-results",
+          "back": false
+        },
+        {
+          "from": "s-search-landing",
+          "to": "s-draft-aprofile",
+          "back": true
+        },
+        {
+          "from": "s-search-results",
+          "to": "s-search-text",
+          "back": true
+        },
+        {
+          "from": "s-search-results",
+          "to": "s-search-filters",
+          "back": true
+        },
+        {
+          "from": "s-search-results",
+          "to": "s-draft-aprofile",
+          "back": true
+        },
+        {
+          "from": "s-search-results-empty",
+          "to": "s-search-filters",
+          "back": true
+        },
+        {
+          "from": "s-search-text",
+          "to": "s-search-landing",
+          "back": true
+        },
+        {
+          "from": "s-search-text",
+          "to": "s-draft-aprofile",
+          "back": true
+        },
+        {
+          "from": "s-search-filters",
+          "to": "s-search-results",
+          "back": true
+        },
+        {
+          "from": "s-search-filters",
+          "to": "s-search-country",
+          "back": false
+        },
+        {
+          "from": "s-search-filters",
+          "to": "s-search-city",
+          "back": false
+        },
+        {
+          "from": "s-search-filters",
+          "to": "s-search-lang",
+          "back": false
+        },
+        {
+          "from": "s-search-lang",
+          "to": "s-search-filters",
+          "back": true
+        },
+        {
+          "from": "s-search-country",
+          "to": "s-search-filters",
+          "back": true
+        },
+        {
+          "from": "s-search-city",
+          "to": "s-search-filters",
+          "back": true
+        },
+        {
+          "from": "s-search-map",
+          "to": "s-search-landing",
+          "back": true
+        },
+        {
+          "from": "s-training-history",
+          "to": "s-draft-aprofile",
+          "back": true
+        },
+        {
+          "from": "s-training-history",
+          "to": "s-draft-acoaches",
+          "back": true
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-notes-editor",
+          "back": true
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-tz-select",
+          "back": false
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-country-select",
+          "back": false
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-currency-select",
+          "back": false
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-city-select",
+          "back": false
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-lang-select",
+          "back": false
+        },
+        {
+          "from": "s-tz-select",
+          "to": "s-personal-data",
+          "back": true
+        },
+        {
+          "from": "s-country-select",
+          "to": "s-personal-data",
+          "back": true
+        },
+        {
+          "from": "s-city-select",
+          "to": "s-personal-data",
+          "back": true
+        },
+        {
+          "from": "s-currency-select",
+          "to": "s-personal-data",
+          "back": true
+        },
+        {
+          "from": "s-balance",
+          "to": "s-draft-asettings",
+          "back": false
+        },
+        {
+          "from": "s-balance",
+          "to": "s-top-up",
+          "back": true
+        },
+        {
+          "from": "s-balance",
+          "to": "s-history",
+          "back": false
+        },
+        {
+          "from": "s-balance",
+          "to": "s-booked",
+          "back": false
+        },
+        {
+          "from": "s-balance",
+          "to": "s-owed",
+          "back": true
+        },
+        {
+          "from": "s-balance",
+          "to": "s-txn-spend",
+          "back": false
+        },
+        {
+          "from": "s-balance",
+          "to": "s-txn-topup",
+          "back": false
+        },
+        {
+          "from": "s-balance",
+          "to": "s-txn-spend-cash",
+          "back": false
+        },
+        {
+          "from": "s-history",
+          "to": "s-balance",
+          "back": true
+        },
+        {
+          "from": "s-history",
+          "to": "s-txn-spend",
+          "back": true
+        },
+        {
+          "from": "s-history",
+          "to": "s-txn-topup",
+          "back": true
+        },
+        {
+          "from": "s-history",
+          "to": "s-txn-spend-cash",
+          "back": true
+        },
+        {
+          "from": "s-history",
+          "to": "s-txn-refund",
+          "back": false
+        },
+        {
+          "from": "s-history-filter",
+          "to": "s-history",
+          "back": true
+        },
+        {
+          "from": "s-top-up",
+          "to": "s-balance",
+          "back": true
+        },
+        {
+          "from": "s-txn-spend",
+          "to": "s-balance",
+          "back": true
+        },
+        {
+          "from": "s-txn-spend-cash",
+          "to": "s-balance",
+          "back": true
+        },
+        {
+          "from": "s-txn-topup",
+          "to": "s-balance",
+          "back": true
+        },
+        {
+          "from": "s-txn-refund",
+          "to": "s-balance",
+          "back": true
+        },
+        {
+          "from": "s-owed",
+          "to": "s-balance",
+          "back": true
+        },
+        {
+          "from": "s-owed",
+          "to": "s-owed-detail",
+          "back": false
+        },
+        {
+          "from": "s-owed-detail",
+          "to": "s-owed",
+          "back": true
+        },
+        {
+          "from": "s-owed-detail",
+          "to": "s-draft-acoach",
+          "back": true
+        },
+        {
+          "from": "s-booked",
+          "to": "s-balance",
+          "back": true
+        },
+        {
+          "from": "s-booked",
+          "to": "s-booked-detail",
+          "back": false
+        },
+        {
+          "from": "s-booked-detail",
+          "to": "s-booked",
+          "back": true
+        },
+        {
+          "from": "s-booked-detail",
+          "to": "s-draft-acoach",
+          "back": true
+        },
+        {
+          "from": "s-booked-detail",
+          "to": "s-schedule",
+          "back": true
+        },
+        {
+          "from": "s-calsync",
+          "to": "s-apple-connect",
+          "back": false
+        },
+        {
+          "from": "s-calsync",
+          "to": "s-cal-detail",
+          "back": false
+        },
+        {
+          "from": "s-calsync",
+          "to": "s-write-target-picker",
+          "back": false
+        },
+        {
+          "from": "s-write-target-picker",
+          "to": "s-calsync",
+          "back": true
+        },
+        {
+          "from": "s-apple-detail",
+          "to": "s-apple-connect",
+          "back": true
+        },
+        {
+          "from": "s-integrations",
+          "to": "s-draft-asettings",
+          "back": true
+        },
+        {
+          "from": "s-coach-v2",
+          "to": "s-reviews",
+          "back": false
+        },
+        {
+          "from": "s-coach-v2",
+          "to": "s-book-sessions",
+          "back": false
+        },
+        {
+          "from": "s-reviews",
+          "to": "s-book-sessions",
+          "back": true
+        },
+        {
+          "from": "s-book-sessions",
+          "to": "s-booking",
+          "back": false
+        },
+        {
+          "from": "s-book-sessions",
+          "to": "s-group",
+          "back": false
+        },
+        {
+          "from": "s-booking",
+          "to": "s-balance",
+          "back": true
+        },
+        {
+          "from": "s-hv-address",
+          "to": "s-hv-addr-pick",
+          "back": true
+        },
+        {
+          "from": "s-hv-addr-pick",
+          "to": "s-hv-address",
+          "back": false
+        },
+        {
+          "from": "s-hv-addr-pick",
+          "to": "s-hv-addr-form",
+          "back": true
+        },
+        {
+          "from": "s-hv-addr-form",
+          "to": "s-hv-addr-pick",
+          "back": false
+        },
+        {
+          "from": "s-my-addresses",
+          "to": "s-hv-addr-form",
+          "back": false
         }
       ]
     },
@@ -9769,6 +11684,11 @@ window.FIT_BOARD = {
             {
               "file": "flows/shared/profile.html",
               "label": "Coach Profile (public)",
+              "id": "s-booking"
+            },
+            {
+              "file": "flows/athlete/athlete-drafts.html",
+              "label": "Athlete side (rework)",
               "id": "s-booking"
             }
           ]
