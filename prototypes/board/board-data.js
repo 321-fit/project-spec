@@ -628,6 +628,11 @@ window.FIT_BOARD = {
           "order": 0,
           "inFrom": [
             {
+              "file": "flows/coach/profile-drafts.html",
+              "label": "Coach Profile & Settings (rework)",
+              "id": "s-draft-settings"
+            },
+            {
               "file": "flows/coach/settings.html",
               "label": "Settings",
               "id": "s-settings"
@@ -1101,6 +1106,11 @@ window.FIT_BOARD = {
             {
               "file": "flows/coach/profile.html",
               "label": "Coach Profile",
+              "id": "s-coach-profile"
+            },
+            {
+              "file": "flows/coach/profile-drafts.html",
+              "label": "Coach Profile & Settings (rework)",
               "id": "s-coach-profile"
             },
             {
@@ -2540,6 +2550,11 @@ window.FIT_BOARD = {
               "file": "flows/coach/profile.html",
               "label": "Coach Profile",
               "id": "s-coach-profile"
+            },
+            {
+              "file": "flows/coach/profile-drafts.html",
+              "label": "Coach Profile & Settings (rework)",
+              "id": "s-coach-profile"
             }
           ]
         },
@@ -3056,6 +3071,11 @@ window.FIT_BOARD = {
             {
               "file": "flows/coach/profile.html",
               "label": "Coach Profile",
+              "id": "s-coach-profile"
+            },
+            {
+              "file": "flows/coach/profile-drafts.html",
+              "label": "Coach Profile & Settings (rework)",
               "id": "s-coach-profile"
             }
           ]
@@ -4658,6 +4678,11 @@ window.FIT_BOARD = {
               "file": "flows/coach/profile.html",
               "label": "Coach Profile",
               "id": "s-coach-profile"
+            },
+            {
+              "file": "flows/coach/profile-drafts.html",
+              "label": "Coach Profile & Settings (rework)",
+              "id": "s-coach-profile"
             }
           ]
         },
@@ -4996,6 +5021,11 @@ window.FIT_BOARD = {
               "file": "flows/coach/profile.html",
               "label": "Coach Profile",
               "id": "s-coach-profile"
+            },
+            {
+              "file": "flows/coach/profile-drafts.html",
+              "label": "Coach Profile & Settings (rework)",
+              "id": "s-coach-profile"
             }
           ]
         },
@@ -5161,6 +5191,178 @@ window.FIT_BOARD = {
       ]
     },
     {
+      "file": "flows/coach/calendar-drafts.html",
+      "label": "Coach Calendar (rework look)",
+      "role": "coach",
+      "slug": "coach-calendar-drafts",
+      "screens": [
+        {
+          "id": "s-calendar",
+          "hash": "725fc0e3c339",
+          "title": "Calendar",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": true,
+          "note": "The canon calendar with this week's decisions applied in fit-ui.css (so they are already live everywhere): hatch retired — off-hours, time off, external events, travel buffers and the other party's busy time are one flat",
+          "external": [
+            "./invite.html?mode=schedule&origin=s-calendar"
+          ],
+          "shots": [
+            {
+              "file": "coach-calendar-drafts__s-calendar.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-event",
+          "hash": "4098c4091086",
+          "title": "↳ Group event",
+          "inApp": "HIIT Group Session",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Group event detail. Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-calendar-drafts__s-event.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-invite",
+          "hash": "8f5cad9bace0",
+          "title": "↳ Invite athletes",
+          "inApp": "Invite athletes",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-calendar-drafts__s-invite.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-cash",
+          "hash": "8fb604e25dbb",
+          "title": "↳ Complete · cash",
+          "inApp": "Event completion",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-calendar-drafts__s-cash.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-block-time-off",
+          "hash": "5c355136b927",
+          "title": "↳ Time off",
+          "inApp": "Busy time",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [
+            "./available-hours.html#timeoff"
+          ],
+          "shots": [
+            {
+              "file": "coach-calendar-drafts__s-block-time-off.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 3
+        },
+        {
+          "id": "s-event-edit",
+          "hash": "0d869f13760a",
+          "title": "↳ Edit event",
+          "inApp": "Edit event",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Instance edit incl. seats. Unchanged.",
+          "external": [
+            "./locations.html",
+            "./invite.html?mode=seat&origin=s-event-edit#s-invite-select"
+          ],
+          "shots": [
+            {
+              "file": "coach-calendar-drafts__s-event-edit.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 2,
+          "order": 0
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-calendar",
+          "to": "s-block-time-off",
+          "back": false
+        },
+        {
+          "from": "s-calendar",
+          "to": "s-invite",
+          "back": false
+        },
+        {
+          "from": "s-calendar",
+          "to": "s-event",
+          "back": false
+        },
+        {
+          "from": "s-calendar",
+          "to": "s-cash",
+          "back": false
+        },
+        {
+          "from": "s-event",
+          "to": "s-invite",
+          "back": true
+        },
+        {
+          "from": "s-invite",
+          "to": "s-event",
+          "back": true
+        },
+        {
+          "from": "s-block-time-off",
+          "to": "s-calendar",
+          "back": true
+        },
+        {
+          "from": "s-event-edit",
+          "to": "s-calendar",
+          "back": true
+        }
+      ]
+    },
+    {
       "file": "flows/coach/invite.html",
       "label": "Coach Invite",
       "role": "coach",
@@ -5230,6 +5432,11 @@ window.FIT_BOARD = {
             {
               "file": "flows/coach/calendar.html",
               "label": "Coach Calendar",
+              "id": "s-event-edit"
+            },
+            {
+              "file": "flows/coach/calendar-drafts.html",
+              "label": "Coach Calendar (rework look)",
               "id": "s-event-edit"
             }
           ]
@@ -5558,6 +5765,11 @@ window.FIT_BOARD = {
             {
               "file": "flows/coach/calendar.html",
               "label": "Coach Calendar",
+              "id": "s-event-edit"
+            },
+            {
+              "file": "flows/coach/calendar-drafts.html",
+              "label": "Coach Calendar (rework look)",
               "id": "s-event-edit"
             },
             {
@@ -6415,6 +6627,1217 @@ window.FIT_BOARD = {
       ]
     },
     {
+      "file": "flows/coach/profile-drafts.html",
+      "label": "Coach Profile & Settings (rework)",
+      "role": "coach",
+      "slug": "coach-profile-drafts",
+      "screens": [
+        {
+          "id": "s-draft-settings",
+          "hash": "31c25c4da558",
+          "title": "↳ Settings, placed",
+          "inApp": "Settings",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Same items and groups as canon, in the row-panel grammar: section title outside, rows with a plate (or the avatar for Personal info), sub-line carries the current value (Google connected, €340.50 available) so the screen",
+          "external": [
+            "../shared/account-access.html?role=coach"
+          ],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-draft-settings.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-draft-availability",
+          "hash": "5fda9aeda88f",
+          "title": "↳ Availability, placed",
+          "inApp": "Availability",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "The canon hub was three rows. Here the week is the hero: seven bars, open hours per day, one line of totals (open · booked) — the “open more hours” signal from Home lives here. Then the rows: hours, time off, booking rul",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-draft-availability.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 0
+        },
+        {
+          "id": "s-coach-profile",
+          "hash": "c904266f99ce",
+          "title": "Profile",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": true,
+          "note": "The canon profile (video cover, avatar, name, stats, sports, about) copied in under the tinted canvas. It is already identity-first, so the grammar holds; open: the four stat tiles could become the Money-widget shape, an",
+          "external": [
+            "../shared/connect.html?role=coach",
+            "./personal-data.html#pd-video-group",
+            "./sport-types.html",
+            "./sessions.html",
+            "./dashboard.html",
+            "./clients.html",
+            "./calendar.html"
+          ],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-coach-profile.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-coach-reviews",
+          "hash": "78eade7b1a7e",
+          "title": "↳ Reviews",
+          "inApp": "Reviews",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-coach-reviews.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-personal-data",
+          "hash": "ebeeb1e6d0fc",
+          "title": "↳ Personal info",
+          "inApp": "Personal data",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged (form grammar pass pending).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-personal-data.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-notes-editor",
+          "hash": "e9b0a14106dc",
+          "title": "↳ About me editor",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-notes-editor.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 1
+        },
+        {
+          "id": "s-tz-select",
+          "hash": "bafaec965860",
+          "title": "↳ Time zone",
+          "inApp": "Time zone",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-tz-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 2
+        },
+        {
+          "id": "s-country-select",
+          "hash": "ff657f63e48f",
+          "title": "Country",
+          "inApp": "Home country",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-country-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 3
+        },
+        {
+          "id": "s-city-select",
+          "hash": "4be279ae1737",
+          "title": "City",
+          "inApp": "Home city",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-city-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 4
+        },
+        {
+          "id": "s-lang-select",
+          "hash": "d0e992411088",
+          "title": "Languages",
+          "inApp": "Languages",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-lang-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 5
+        },
+        {
+          "id": "s-currency-select",
+          "hash": "13f98010532e",
+          "title": "Currency",
+          "inApp": "Currency",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-currency-select.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 6
+        },
+        {
+          "id": "s-sport-types",
+          "hash": "71fb24b5819d",
+          "title": "↳ Sports",
+          "inApp": "Sport types",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-sport-types.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 5,
+          "order": 0
+        },
+        {
+          "id": "s-availability",
+          "hash": "ab43bcc6ee56",
+          "title": "↳ Available hours",
+          "inApp": "Available hours",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-availability.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 3
+        },
+        {
+          "id": "s-vacation-start",
+          "hash": "3e0562541e18",
+          "title": "↳ Time off · start",
+          "inApp": "Time off",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-vacation-start.webp",
+              "label": ""
+            }
+          ],
+          "level": 4,
+          "order": 0
+        },
+        {
+          "id": "s-time-off",
+          "hash": "47edcfa05cd3",
+          "title": "↳ Time off",
+          "inApp": "Time off",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-time-off.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 0
+        },
+        {
+          "id": "s-time-off-history",
+          "hash": "2bcd4bb0f108",
+          "title": "↳ Time off · history",
+          "inApp": "Past time off",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-time-off-history.webp",
+              "label": ""
+            }
+          ],
+          "level": 4,
+          "order": 1
+        },
+        {
+          "id": "s-booking-rules",
+          "hash": "665d8e110ee1",
+          "title": "↳ Booking rules",
+          "inApp": "Booking rules",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-booking-rules.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 1
+        },
+        {
+          "id": "s-locations",
+          "hash": "61761f34b293",
+          "title": "↳ Locations",
+          "inApp": "Training locations",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-locations.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 4
+        },
+        {
+          "id": "s-loc-map",
+          "hash": "b302d95fac7a",
+          "title": "↳ Map",
+          "inApp": "Add location",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-loc-map.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 7
+        },
+        {
+          "id": "s-loc-pick",
+          "hash": "30c977d872ca",
+          "title": "↳ Pick",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-loc-pick.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 5,
+          "order": 1
+        },
+        {
+          "id": "s-loc-form",
+          "hash": "5656a0f83269",
+          "title": "↳ Form",
+          "inApp": "Location details",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-loc-form.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 2
+        },
+        {
+          "id": "s-loc-homevisit",
+          "hash": "25f0da124e62",
+          "title": "↳ Home visit",
+          "inApp": "Home visit",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-loc-homevisit.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 8
+        },
+        {
+          "id": "s-loc-online",
+          "hash": "42759e57954b",
+          "title": "↳ Online",
+          "inApp": "Add online location",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-loc-online.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 9
+        },
+        {
+          "id": "s-calsync",
+          "hash": "60c53885ad59",
+          "title": "↳ Calendar sync",
+          "inApp": "Calendar sync",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-calsync.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 10
+        },
+        {
+          "id": "s-cal-detail",
+          "hash": "7c219111d444",
+          "title": "↳ Google detail",
+          "inApp": "Google Calendar",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-cal-detail.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 3
+        },
+        {
+          "id": "s-write-target-picker",
+          "hash": "49062ce55bf0",
+          "title": "↳ Write target",
+          "inApp": "Calendar to add events to",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-write-target-picker.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 4
+        },
+        {
+          "id": "s-apple-connect",
+          "hash": "1b8c26527b5e",
+          "title": "↳ Apple connect",
+          "inApp": "Apple Calendar",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-apple-connect.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 5
+        },
+        {
+          "id": "s-apple-detail",
+          "hash": "3e5028932d52",
+          "title": "↳ Apple detail",
+          "inApp": "Apple Calendar",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-apple-detail.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 5,
+          "order": 2
+        },
+        {
+          "id": "s-stripe",
+          "hash": "1521780ecc21",
+          "title": "↳ Stripe",
+          "inApp": "Stripe",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-stripe.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 11
+        },
+        {
+          "id": "s-stripe-onb-confirm",
+          "hash": "406965c3e41b",
+          "title": "↳ Onboarding · confirm",
+          "inApp": "Your info",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-stripe-onb-confirm.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 6
+        },
+        {
+          "id": "s-stripe-onb-edit-name",
+          "hash": "84995238254c",
+          "title": "Edit name",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-stripe-onb-edit-name.webp",
+              "label": ""
+            }
+          ],
+          "level": 4,
+          "order": 2
+        },
+        {
+          "id": "s-stripe-onb-edit-email",
+          "hash": "90037cc5030d",
+          "title": "Edit email",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-stripe-onb-edit-email.webp",
+              "label": ""
+            }
+          ],
+          "level": 4,
+          "order": 3
+        },
+        {
+          "id": "s-stripe-onb-edit-phone",
+          "hash": "f638303d6e9e",
+          "title": "Edit phone",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-stripe-onb-edit-phone.webp",
+              "label": ""
+            }
+          ],
+          "level": 4,
+          "order": 4
+        },
+        {
+          "id": "s-stripe-onb-edit-country",
+          "hash": "cc86f0aa4ee8",
+          "title": "Edit country",
+          "inApp": "Country",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-stripe-onb-edit-country.webp",
+              "label": ""
+            }
+          ],
+          "level": 4,
+          "order": 5
+        },
+        {
+          "id": "s-stripe-onb-edit-address",
+          "hash": "e9fbaf5187e4",
+          "title": "Edit address",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-stripe-onb-edit-address.webp",
+              "label": ""
+            }
+          ],
+          "level": 4,
+          "order": 6
+        },
+        {
+          "id": "s-stripe-onb-id",
+          "hash": "1a5f1fa398a5",
+          "title": "↳ Onboarding · ID",
+          "inApp": "Verification",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-stripe-onb-id.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 7
+        },
+        {
+          "id": "s-stripe-onb-bank",
+          "hash": "0c8f3e40602c",
+          "title": "↳ Onboarding · bank",
+          "inApp": "Payout destination",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-stripe-onb-bank.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 5,
+          "order": 3
+        },
+        {
+          "id": "s-stripe-bank-add",
+          "hash": "491ca5c50300",
+          "title": "↳ Add bank",
+          "inApp": "Add payout method",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-stripe-bank-add.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 8
+        },
+        {
+          "id": "s-stripe-bank-detail",
+          "hash": "78336de24dd6",
+          "title": "↳ Bank detail",
+          "inApp": "Payout method",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-stripe-bank-detail.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 9
+        },
+        {
+          "id": "s-stripe-withdraw",
+          "hash": "09b5d2f617bb",
+          "title": "↳ Withdraw",
+          "inApp": "Withdraw",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-stripe-withdraw.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 10
+        },
+        {
+          "id": "s-stripe-payouts",
+          "hash": "d201b583ea38",
+          "title": "↳ Payouts",
+          "inApp": "Payouts",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-stripe-payouts.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 11
+        },
+        {
+          "id": "s-referral",
+          "hash": "32e970f0db89",
+          "title": "↳ Refer a coach",
+          "inApp": "Refer a coach",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-referral.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 12
+        },
+        {
+          "id": "s-referral-list",
+          "hash": "ba68024f7552",
+          "title": "↳ Referral list",
+          "inApp": "Your invites",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-referral-list.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 12
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-draft-settings",
+          "to": "s-coach-profile",
+          "back": true
+        },
+        {
+          "from": "s-draft-settings",
+          "to": "s-personal-data",
+          "back": true
+        },
+        {
+          "from": "s-draft-settings",
+          "to": "s-referral",
+          "back": false
+        },
+        {
+          "from": "s-draft-settings",
+          "to": "s-draft-availability",
+          "back": false
+        },
+        {
+          "from": "s-draft-settings",
+          "to": "s-locations",
+          "back": true
+        },
+        {
+          "from": "s-draft-settings",
+          "to": "s-calsync",
+          "back": false
+        },
+        {
+          "from": "s-draft-settings",
+          "to": "s-stripe",
+          "back": false
+        },
+        {
+          "from": "s-draft-availability",
+          "to": "s-draft-settings",
+          "back": true
+        },
+        {
+          "from": "s-draft-availability",
+          "to": "s-availability",
+          "back": true
+        },
+        {
+          "from": "s-draft-availability",
+          "to": "s-time-off",
+          "back": false
+        },
+        {
+          "from": "s-draft-availability",
+          "to": "s-booking-rules",
+          "back": false
+        },
+        {
+          "from": "s-draft-availability",
+          "to": "s-tz-select",
+          "back": true
+        },
+        {
+          "from": "s-coach-profile",
+          "to": "s-draft-settings",
+          "back": false
+        },
+        {
+          "from": "s-coach-profile",
+          "to": "s-personal-data",
+          "back": false
+        },
+        {
+          "from": "s-coach-profile",
+          "to": "s-locations",
+          "back": false
+        },
+        {
+          "from": "s-coach-profile",
+          "to": "s-availability",
+          "back": false
+        },
+        {
+          "from": "s-coach-profile",
+          "to": "s-coach-reviews",
+          "back": false
+        },
+        {
+          "from": "s-coach-reviews",
+          "to": "s-coach-profile",
+          "back": true
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-notes-editor",
+          "back": false
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-tz-select",
+          "back": false
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-country-select",
+          "back": false
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-currency-select",
+          "back": false
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-city-select",
+          "back": false
+        },
+        {
+          "from": "s-personal-data",
+          "to": "s-lang-select",
+          "back": false
+        },
+        {
+          "from": "s-tz-select",
+          "to": "s-personal-data",
+          "back": true
+        },
+        {
+          "from": "s-country-select",
+          "to": "s-personal-data",
+          "back": true
+        },
+        {
+          "from": "s-city-select",
+          "to": "s-personal-data",
+          "back": true
+        },
+        {
+          "from": "s-currency-select",
+          "to": "s-personal-data",
+          "back": true
+        },
+        {
+          "from": "s-availability",
+          "to": "s-locations",
+          "back": true
+        },
+        {
+          "from": "s-vacation-start",
+          "to": "s-availability",
+          "back": true
+        },
+        {
+          "from": "s-time-off",
+          "to": "s-availability",
+          "back": true
+        },
+        {
+          "from": "s-time-off",
+          "to": "s-vacation-start",
+          "back": false
+        },
+        {
+          "from": "s-time-off",
+          "to": "s-time-off-history",
+          "back": false
+        },
+        {
+          "from": "s-time-off-history",
+          "to": "s-time-off",
+          "back": true
+        },
+        {
+          "from": "s-booking-rules",
+          "to": "s-availability",
+          "back": true
+        },
+        {
+          "from": "s-locations",
+          "to": "s-loc-map",
+          "back": false
+        },
+        {
+          "from": "s-locations",
+          "to": "s-loc-online",
+          "back": false
+        },
+        {
+          "from": "s-locations",
+          "to": "s-loc-homevisit",
+          "back": false
+        },
+        {
+          "from": "s-loc-map",
+          "to": "s-loc-form",
+          "back": false
+        },
+        {
+          "from": "s-loc-pick",
+          "to": "s-loc-map",
+          "back": true
+        },
+        {
+          "from": "s-loc-pick",
+          "to": "s-loc-form",
+          "back": true
+        },
+        {
+          "from": "s-calsync",
+          "to": "s-apple-connect",
+          "back": false
+        },
+        {
+          "from": "s-calsync",
+          "to": "s-cal-detail",
+          "back": false
+        },
+        {
+          "from": "s-calsync",
+          "to": "s-write-target-picker",
+          "back": false
+        },
+        {
+          "from": "s-write-target-picker",
+          "to": "s-calsync",
+          "back": true
+        },
+        {
+          "from": "s-apple-detail",
+          "to": "s-apple-connect",
+          "back": true
+        },
+        {
+          "from": "s-stripe",
+          "to": "s-stripe-onb-id",
+          "back": false
+        },
+        {
+          "from": "s-stripe",
+          "to": "s-stripe-bank-detail",
+          "back": false
+        },
+        {
+          "from": "s-stripe",
+          "to": "s-stripe-bank-add",
+          "back": false
+        },
+        {
+          "from": "s-stripe",
+          "to": "s-stripe-withdraw",
+          "back": false
+        },
+        {
+          "from": "s-stripe",
+          "to": "s-stripe-payouts",
+          "back": false
+        },
+        {
+          "from": "s-stripe",
+          "to": "s-stripe-onb-confirm",
+          "back": false
+        },
+        {
+          "from": "s-stripe-onb-confirm",
+          "to": "s-stripe",
+          "back": true
+        },
+        {
+          "from": "s-stripe-onb-confirm",
+          "to": "s-stripe-onb-edit-name",
+          "back": false
+        },
+        {
+          "from": "s-stripe-onb-confirm",
+          "to": "s-stripe-onb-edit-email",
+          "back": false
+        },
+        {
+          "from": "s-stripe-onb-confirm",
+          "to": "s-stripe-onb-edit-phone",
+          "back": false
+        },
+        {
+          "from": "s-stripe-onb-confirm",
+          "to": "s-stripe-onb-edit-country",
+          "back": false
+        },
+        {
+          "from": "s-stripe-onb-confirm",
+          "to": "s-stripe-onb-edit-address",
+          "back": false
+        },
+        {
+          "from": "s-stripe-onb-confirm",
+          "to": "s-stripe-onb-id",
+          "back": true
+        },
+        {
+          "from": "s-stripe-onb-edit-name",
+          "to": "s-stripe-onb-confirm",
+          "back": true
+        },
+        {
+          "from": "s-stripe-onb-edit-email",
+          "to": "s-stripe-onb-confirm",
+          "back": true
+        },
+        {
+          "from": "s-stripe-onb-edit-phone",
+          "to": "s-stripe-onb-confirm",
+          "back": true
+        },
+        {
+          "from": "s-stripe-onb-edit-country",
+          "to": "s-stripe-onb-confirm",
+          "back": true
+        },
+        {
+          "from": "s-stripe-onb-edit-address",
+          "to": "s-stripe-onb-confirm",
+          "back": true
+        },
+        {
+          "from": "s-stripe-onb-id",
+          "to": "s-stripe-onb-confirm",
+          "back": true
+        },
+        {
+          "from": "s-stripe-onb-bank",
+          "to": "s-stripe-onb-id",
+          "back": true
+        },
+        {
+          "from": "s-stripe-bank-add",
+          "to": "s-stripe",
+          "back": true
+        },
+        {
+          "from": "s-stripe-bank-detail",
+          "to": "s-stripe",
+          "back": true
+        },
+        {
+          "from": "s-stripe-bank-detail",
+          "to": "s-stripe-bank-add",
+          "back": true
+        },
+        {
+          "from": "s-stripe-withdraw",
+          "to": "s-stripe",
+          "back": true
+        },
+        {
+          "from": "s-stripe-payouts",
+          "to": "s-stripe",
+          "back": true
+        },
+        {
+          "from": "s-referral",
+          "to": "s-draft-settings",
+          "back": true
+        },
+        {
+          "from": "s-referral",
+          "to": "s-referral-list",
+          "back": false
+        },
+        {
+          "from": "s-referral-list",
+          "to": "s-referral",
+          "back": true
+        }
+      ]
+    },
+    {
       "file": "flows/coach/referral.html",
       "label": "Refer a Coach",
       "role": "coach",
@@ -6789,6 +8212,11 @@ window.FIT_BOARD = {
             {
               "file": "flows/coach/profile.html",
               "label": "Coach Profile",
+              "id": "s-coach-profile"
+            },
+            {
+              "file": "flows/coach/profile-drafts.html",
+              "label": "Coach Profile & Settings (rework)",
               "id": "s-coach-profile"
             },
             {
