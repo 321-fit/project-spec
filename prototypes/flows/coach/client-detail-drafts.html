@@ -546,6 +546,15 @@
   .fit-dark.k-alpha .src-inv .v6d-card, .src-inv.fit-dark.k-alpha .v6d-card { background: rgba(0,0,0,0.28); }
   .fit-light .src-inv .v6d-card, .src-inv.fit-light .v6d-card { background: var(--fit-white) !important; box-shadow: 0 8px 26px rgba(0,0,0,0.07); }
   .fit-light .src-inv .v6d-loc-strip, .src-inv.fit-light .v6d-loc-strip { background: rgba(60,60,67,0.05); }
+  /* pickers + date tiles, shared with clients-drafts */
+  .cd-pick-box { width: 22px; height: 22px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--fit-gray-500); flex-shrink: 0; position: relative; }
+  .cd-pick-row.on .cd-pick-box { background: var(--fit-teal-500); box-shadow: none; }
+  .cd-pick-row.on .cd-pick-box::after { content: ""; position: absolute; left: 7px; top: 3px; width: 6px; height: 11px; border: solid #06251f; border-width: 0 2.2px 2.2px 0; transform: rotate(45deg); }
+  .cd-gs-date { width: 40px; text-align: center; flex-shrink: 0; }
+  .cd-gs-date b { display: block; font-size: 18px; font-weight: 700; line-height: 1; color: var(--fit-text-primary); }
+  .cd-gs-date span { display: block; font-size: 11px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .cd-ab-dim { color: var(--fit-text-secondary); }
+  #s-draft-groups .cd-j-faces { flex-shrink: 0; }
   /* look switch — sits above the annotation column, applies to every phone on the board */
   .look-switch { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; font-size: 12px; color: var(--fit-gray-500); }
   .look-switch .state-toggle { margin-bottom: 0; }
@@ -983,11 +992,11 @@
   <button onclick="go('s-draft-packages',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Packages</button>
   <button onclick="go('s-pkg-detail',this)" style="font-size:13px;">&nbsp;&nbsp;&nbsp;&nbsp;&#8627; Package detail</button>
   <button onclick="go('s-pkg-history',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Package history</button>
-  <button onclick="go('s-add-to-group',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Groups</button>
+  <button onclick="go('s-draft-groups',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Groups</button>
   <button onclick="go('s-crm-addr-pick',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Addresses</button>
   <button onclick="go('s-crm-addr-form',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Address form</button>
   <button onclick="go('s-client-notes-editor',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Note</button>
-  <button onclick="go('s-client-history',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; History</button>
+  <button onclick="go('s-draft-history',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; History</button>
   <button onclick="go('s-create-client',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Edit info</button>
   </div>
   <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
@@ -1173,14 +1182,14 @@
     <div class="cd-in cd-j-sec-assets" style="padding-bottom:22px;">
       <div class="cd-i-sec">Anna</div>
       <div class="cd-i-grid">
-        <div class="cd-i-tile cd-press cd-j-t-groups" onclick="go('s-add-to-group',document.querySelector('.sidebar button[onclick*=s-add-to-group]'))">
+        <div class="cd-i-tile cd-press cd-j-t-groups" onclick="go('s-draft-groups',document.querySelector('.sidebar button[onclick*=s-draft-groups]'))">
           <div class="cd-j-thead">
             <div class="cd-j-faces"><span class="cd-j-face">MK</span><span class="cd-j-face">TP</span><span class="cd-j-face">+4</span></div>
           </div>
           <div class="cd-j-tt">2 groups</div>
           <div class="cd-i-tl">Morning crew, Beginners</div>
         </div>
-        <div class="cd-i-tile cd-press cd-j-t-groups-empty" onclick="go('s-add-to-group',document.querySelector('.sidebar button[onclick*=s-add-to-group]'))">
+        <div class="cd-i-tile cd-press cd-j-t-groups-empty" onclick="go('s-draft-groups',document.querySelector('.sidebar button[onclick*=s-draft-groups]'))">
           <div class="cd-j-thead"><div class="cd-j-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div></div>
           <div class="cd-j-tt">No groups</div>
           <div class="cd-i-tl">Add to a group</div>
@@ -1197,7 +1206,7 @@
         <div class="cd-i-tile cd-press cd-j-t-note-empty cd-j-tile-empty" style="grid-column:1 / -1;" onclick="go('s-client-notes-editor',document.querySelector('.sidebar button[onclick*=s-client-notes-editor]'))">
           <div class="cd-j-thead" style="margin-bottom:0;"><div class="cd-j-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div><div><div class="cd-j-tt">Add a note</div><div class="cd-i-tl">Injuries, preferences, how she pays</div></div></div>
         </div>
-        <div class="cd-i-tile cd-press cd-j-t-history" style="grid-column:1 / -1;" onclick="go('s-client-history',document.querySelector('.sidebar button[onclick*=s-client-history]'))">
+        <div class="cd-i-tile cd-press cd-j-t-history" style="grid-column:1 / -1;" onclick="go('s-draft-history',document.querySelector('.sidebar button[onclick*=s-draft-history]'))">
           <div class="cd-j-thead" style="margin-bottom:0;"><div class="cd-j-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div style="flex:1;"><div class="cd-j-tt">47 sessions</div><div class="cd-i-tl">since Jan &middot; 3 missed</div></div><span style="color:var(--fit-text-tertiary);font-size:13px;">History</span></div>
         </div>
       </div>
@@ -1434,7 +1443,7 @@
   <!-- ⋯ = administering the relationship. Never a circle item, never a chip. -->
   <div class="fit-context-menu-backdrop" id="cd-j-menu-backdrop" onclick="jMenu(false)"></div>
   <div class="fit-context-menu" id="cd-j-menu" style="top:56px;right:12px;">
-    <div class="fit-context-menu-item cd-j-mi-group" onclick="jMenu(false);go('s-add-to-group',document.querySelector('.sidebar button[onclick*=s-add-to-group]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Add to group</div>
+    <div class="fit-context-menu-item cd-j-mi-group" onclick="jMenu(false);go('s-draft-groups',document.querySelector('.sidebar button[onclick*=s-draft-groups]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Add to group</div>
     <div class="fit-context-menu-item cd-j-mi-invite-app" onclick="jMenu(false)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>Invite to app</div>
     <div class="fit-context-menu-item cd-j-mi-edit" onclick="jMenu(false);go('s-create-client',document.querySelector('.sidebar button[onclick*=s-create-client]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Edit info</div>
     <div class="fit-context-menu-divider cd-j-mi-div"></div>
@@ -1756,6 +1765,64 @@
   </div>
 </div>
 
+<!-- ==================== ANNA'S HISTORY · in J's grammar ==================== -->
+<div class="fit-phone fit-dark cd-media" id="s-draft-history" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-draft-client',document.querySelector('.sidebar button[onclick*=s-draft-client]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Anna&rsquo;s history</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="cd-in" style="padding-top:4px;">
+      <div class="cd-i-panel cd-j-money">
+        <div class="cd-j-money-top"><div style="flex:1;min-width:0;"><div class="cd-j-money-v">47</div><div class="cd-j-money-sub">sessions since Jan &middot; &euro;1 640 &middot; 3 missed &middot; 1 cancelled</div></div></div>
+      </div>
+    </div>
+    <div class="cd-in" style="padding-bottom:22px;">
+      <div class="cd-i-sec">April</div>
+      <div class="cd-i-panel">
+        <div class="cd-g-row cd-press" onclick="jOpenEvent('finished')"><div class="cd-gs-date"><b>14</b><span>Mon</span></div><div class="cd-g-rt"><div class="cd-g-r1">Basketball Training</div><div class="cd-g-r2">08:00 &middot; TNT Studio &middot; Paid</div></div><div class="cd-g-rv">&euro;50</div></div>
+        <div class="cd-g-row cd-press" onclick="jOpenEvent('finished')"><div class="cd-gs-date"><b>9</b><span>Wed</span></div><div class="cd-g-rt"><div class="cd-g-r1">Basketball Training</div><div class="cd-g-r2">08:00 &middot; TNT Studio &middot; Paid</div></div><div class="cd-g-rv">&euro;50</div></div>
+        <div class="cd-g-row cd-press" onclick="jOpenEvent('group')"><div class="cd-gs-date"><b>3</b><span>Thu</span></div><div class="cd-g-rt"><div class="cd-g-r1">HIIT Group Session</div><div class="cd-g-r2">18:00 &middot; GYM Bro &middot; Paid</div></div><div class="cd-g-rv">&euro;25</div></div>
+      </div>
+      <div class="cd-i-sec">March</div>
+      <div class="cd-i-panel">
+        <div class="cd-g-row cd-press" onclick="jOpenEvent('finished')"><div class="cd-gs-date"><b>31</b><span>Mon</span></div><div class="cd-g-rt"><div class="cd-g-r1 cd-ab-dim">Basketball Training <span class="fit-badge fit-badge-neutral">Cancelled</span></div><div class="cd-g-r2">08:00 &middot; by Anna</div></div><div class="cd-g-rv cd-ab-dim">&mdash;</div></div>
+        <div class="cd-g-row cd-press" onclick="jOpenEvent('finished')"><div class="cd-gs-date"><b>26</b><span>Wed</span></div><div class="cd-g-rt"><div class="cd-g-r1">Basketball Training</div><div class="cd-g-r2">08:00 &middot; TNT Studio &middot; Paid</div></div><div class="cd-g-rv">&euro;50</div></div>
+        <div class="cd-g-row cd-press" onclick="jOpenEvent('missed')"><div class="cd-gs-date"><b>19</b><span>Wed</span></div><div class="cd-g-rt"><div class="cd-g-r1">Basketball Training <span class="fit-badge fit-badge-danger">Missed</span></div><div class="cd-g-r2">08:00 &middot; TNT Studio &middot; no-show</div></div><div class="cd-g-rv">&euro;50</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ANNA'S GROUPS · membership on the tap ==================== -->
+<div class="fit-phone fit-dark cd-media" id="s-draft-groups" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-draft-client',document.querySelector('.sidebar button[onclick*=s-draft-client]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Anna&rsquo;s groups</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="cd-in" style="padding-top:4px;">
+      <div class="cd-i-panel cd-pick">
+        <div class="cd-g-row cd-press cd-pick-row on" data-name="Morning" onclick="cgTap(this)"><span class="cd-pick-box"></span><div class="cd-j-faces"><span class="cd-j-face">AK</span><span class="cd-j-face">MS</span><span class="cd-j-face">+6</span></div><div class="cd-g-rt"><div class="cd-g-r1">Morning</div><div class="cd-g-r2">8 members &middot; Tue &amp; Thu 18:00</div></div></div>
+        <div class="cd-g-row cd-press cd-pick-row on" data-name="Beginners" onclick="cgTap(this)"><span class="cd-pick-box"></span><div class="cd-j-faces"><span class="cd-j-face">PW</span><span class="cd-j-face">TN</span><span class="cd-j-face">+10</span></div><div class="cd-g-rt"><div class="cd-g-r1">Beginners</div><div class="cd-g-r2">12 members</div></div></div>
+        <div class="cd-g-row cd-press cd-pick-row" data-name="Zumba Thursday" onclick="cgTap(this)"><span class="cd-pick-box"></span><div class="cd-j-faces"><span class="cd-j-face">MV</span><span class="cd-j-face">JS</span><span class="cd-j-face">+12</span></div><div class="cd-g-rt"><div class="cd-g-r1">Zumba Thursday</div><div class="cd-g-r2">14 members &middot; Thu 19:00</div></div></div>
+        <div class="cd-g-row cd-press cd-pick-row" data-name="Sat tennis" onclick="cgTap(this)"><span class="cd-pick-box"></span><div class="cd-j-faces"><span class="cd-j-face">LR</span><span class="cd-j-face">SK</span><span class="cd-j-face">+4</span></div><div class="cd-g-rt"><div class="cd-g-r1">Sat tennis</div><div class="cd-g-r2">6 members &middot; Sat 10:00</div></div></div>
+      </div>
+      <div class="cd-i-panel cd-j-tile-empty cd-press" style="margin-top:12px;" onclick="location.href='clients-drafts.html#s-draft-group-create'">
+        <div class="cd-g-row"><div class="cd-j-plate" style="width:40px;height:40px;border-radius:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div><div class="cd-g-rt"><div class="cd-g-r1">New group with Anna</div><div class="cd-g-r2">Pick the others, name it</div></div></div>
+      </div>
+      <div class="cd-i-tl" style="padding:14px 20px 0;line-height:1.5;">Joining a group with a chat adds Anna to that chat; leaving removes her. Smart groups aren&rsquo;t listed &mdash; their membership is calculated.</div>
+    </div>
+  </div>
+  <div class="fit-snackbar" id="cd-grp-snack">Added</div>
+</div>
+
 <!-- ==================== SCREENS REACHED FROM J — copies of the canon screens, so the whole flow walks inside one file. Source is named on each block; edit the source, then re-copy. ==================== -->
 <!-- ==== from coach/clients.html #s-client-selfpaced ==== -->
 <div class="src-clients fit-phone fit-dark" id="s-client-selfpaced" data-status="proposal">
@@ -2020,116 +2087,7 @@
   </div>
 </div>
 
-<!-- ==== from coach/clients.html #s-client-history ==== -->
-<div class="src-clients fit-phone fit-dark ls-default" id="s-client-history" data-status="proposal">
-  <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header">
-      <button class="fit-header-back" onclick="go('s-draft-client',document.querySelector('.sidebar button[onclick*=s-draft-client]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Anna&rsquo;s history</span>
-    </div>
-  </div>
-  <div class="fit-phone-content">
-    <div style="padding:0 16px 10px;font-size:13px;color:var(--fit-text-tertiary);">47 sessions since Jan &middot; 3 missed &middot; 1 cancelled</div>
 
-    <!-- Past events list -->
-    <div style="padding:0 16px;">
-      <div style="padding:14px 0;border-bottom:1px solid var(--fit-divider);">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
-          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Basketball Training</div>
-          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">€50</span>
-        </div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);">Mon, Apr 14 · 08:00 - 09:00 · TNT Studio</div>
-        <span style="font-size:12px;color:var(--fit-green-500);margin-top:4px;display:inline-block;">Completed · Paid</span>
-      </div>
-
-      <div style="padding:14px 0;border-bottom:1px solid var(--fit-divider);">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
-          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Basketball Training</div>
-          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">€50</span>
-        </div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);">Wed, Apr 9 · 08:00 - 09:00 · TNT Studio</div>
-        <span style="font-size:12px;color:var(--fit-green-500);margin-top:4px;display:inline-block;">Completed · Paid</span>
-      </div>
-
-      <div style="padding:14px 0;border-bottom:1px solid var(--fit-divider);">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
-          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">HIIT Group Session</div>
-          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">€25</span>
-        </div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);">Thu, Apr 3 · 18:00 - 19:00 · GYM Bro</div>
-        <span style="font-size:12px;color:var(--fit-green-500);margin-top:4px;display:inline-block;">Completed · Paid</span>
-      </div>
-
-      <div style="padding:14px 0;border-bottom:1px solid var(--fit-divider);">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
-          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Basketball Training</div>
-          <span style="font-size:14px;font-weight:500;color:var(--fit-text-tertiary);text-decoration:line-through;">€50</span>
-        </div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);">Mon, Mar 31 · 08:00 - 09:00 · TNT Studio</div>
-        <span style="font-size:12px;color:var(--fit-red-400);margin-top:4px;display:inline-block;">Cancelled by athlete</span>
-      </div>
-
-      <div style="padding:14px 0;">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
-          <div style="font-size:14px;font-weight:500;color:var(--fit-text-primary);">Basketball Training</div>
-          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">€50</span>
-        </div>
-        <div style="font-size:12px;color:var(--fit-text-tertiary);">Wed, Mar 26 · 08:00 - 09:00 · TNT Studio</div>
-        <span style="font-size:12px;color:var(--fit-green-500);margin-top:4px;display:inline-block;">Completed · Paid</span>
-      </div>
-    </div>
-    </div><!-- /data-list-state="default" -->
-
-    <!-- === EMPTY STATE: no sessions yet === -->
-    <div data-list-state="empty">
-      <div class="fit-empty-state" style="padding-top:72px;">
-        <svg class="fes-illus" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="32" cy="32" r="22"/>
-          <path d="M32 20v12l8 6"/>
-        </svg>
-        <div class="fit-empty-state-title">No sessions yet</div>
-        <div class="fit-empty-state-sub">Completed sessions with this athlete<br>will appear here.</div>
-      </div>
-    </div>
-
-    <!-- === LOADING STATE: row skeletons === -->
-    <div data-list-state="loading" style="padding:0 16px;">
-      <div style="padding:14px 0;border-bottom:1px solid var(--fit-divider);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <div class="sk-line sk-shimmer" style="width:48%;"></div>
-          <div class="sk-line short sk-shimmer" style="width:16%;"></div>
-        </div>
-        <div class="sk-line short sk-shimmer" style="width:70%;margin-bottom:6px;"></div>
-        <div class="sk-line short sk-shimmer" style="width:30%;"></div>
-      </div>
-      <div style="padding:14px 0;border-bottom:1px solid var(--fit-divider);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <div class="sk-line sk-shimmer" style="width:52%;"></div>
-          <div class="sk-line short sk-shimmer" style="width:16%;"></div>
-        </div>
-        <div class="sk-line short sk-shimmer" style="width:68%;margin-bottom:6px;"></div>
-        <div class="sk-line short sk-shimmer" style="width:28%;"></div>
-      </div>
-      <div style="padding:14px 0;border-bottom:1px solid var(--fit-divider);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <div class="sk-line sk-shimmer" style="width:42%;"></div>
-          <div class="sk-line short sk-shimmer" style="width:16%;"></div>
-        </div>
-        <div class="sk-line short sk-shimmer" style="width:72%;margin-bottom:6px;"></div>
-        <div class="sk-line short sk-shimmer" style="width:32%;"></div>
-      </div>
-      <div style="padding:14px 0;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <div class="sk-line sk-shimmer" style="width:46%;"></div>
-          <div class="sk-line short sk-shimmer" style="width:16%;"></div>
-        </div>
-        <div class="sk-line short sk-shimmer" style="width:66%;margin-bottom:6px;"></div>
-        <div class="sk-line short sk-shimmer" style="width:30%;"></div>
-      </div>
-    </div>
-
-  </div>
 
 <!-- ==== from coach/clients.html #s-create-client ==== -->
 <div class="src-clients fit-phone fit-dark" id="s-create-client" data-status="proposal">
@@ -2209,60 +2167,7 @@
 
 
 
-<!-- ==== from coach/client-groups.html #s-add-to-group ==== -->
-<div class="src-groups fit-phone fit-dark" id="s-add-to-group" data-status="proposal">
-  <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header">
-      <button class="fit-header-back" onclick="window.go('s-draft-client',document.querySelector('.sidebar button[onclick*=s-draft-client]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Anna&rsquo;s groups</span>
-    </div>
-  </div>
 
-  <div class="fit-phone-content">
-    <!-- Create-new sits above the list, same grammar as "Add clients" inside a group -->
-    <div class="cg-row" data-a11y-id="coach.client.create-group" onclick="location.href='client-groups.html#s-group-create'">
-      <span class="cg-row-ic cg-row-ic--add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
-      <span class="cg-row-body">
-        <span class="cg-row-title" style="color:var(--fit-brand-primary);">Create a new group</span>
-        <span class="cg-row-sub">Anna will be its first member</span>
-      </span>
-    </div>
-
-    <div class="cg-sec"><span class="cg-sec-title">Your groups</span></div>
-
-    <div id="cg-membership-list">
-      <div class="imp-row selected" data-in="1" onclick="cgMembershipToggle(this)" data-name="Morning">
-        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-        <span class="cg-row-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg></span>
-        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Morning</span></span><span class="imp-sub">8 members &middot; Tue &amp; Thu 18:00</span></span>
-      </div>
-      <div class="imp-row selected" data-in="1" onclick="cgMembershipToggle(this)" data-name="Beginners">
-        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-        <span class="cg-row-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg></span>
-        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Beginners</span></span><span class="imp-sub">12 members</span></span>
-      </div>
-      <div class="imp-row" data-in="0" onclick="cgMembershipToggle(this)" data-name="Zumba Thursday">
-        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-        <span class="cg-row-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg></span>
-        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Zumba Thursday</span></span><span class="imp-sub">14 members</span></span>
-      </div>
-      <div class="imp-row" data-in="0" onclick="cgMembershipToggle(this)" data-name="Sat tennis">
-        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-        <span class="cg-row-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg></span>
-        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Sat tennis</span></span><span class="imp-sub">6 members &middot; Sat 10:00</span></span>
-      </div>
-    </div>
-
-    <div class="cg-note">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 01-11.6 7.2L3 21l1.8-6.4A8 8 0 1121 12z"/></svg>
-      <span>Joining a group with a chat adds Anna to that chat; leaving removes her. Smart groups aren&rsquo;t listed &mdash; their membership is calculated.</span>
-    </div>
-    <div style="height:20px;"></div>
-  </div>
-
-  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" id="cg-membership-cta" data-a11y-id="coach.client.groups.save" onclick="window.go('s-draft-client',document.querySelector('.sidebar button[onclick*=s-draft-client]'))"><span>Save</span></button></div>
-</div>
 
 
 <!-- ==== from shared/messages.html #s-thread ==== -->
@@ -3086,7 +2991,7 @@
     <p>See all from the pack.</p>
     <p class="note">Copy of <code>clients.html#s-pkg-history</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy; nothing here is a redesign.</p>
   </div>
-  <div class="ann" id="ann-s-add-to-group"><span class="ann-role">Coach &middot; reached from J</span>
+  <div class="ann" id="ann-s-draft-groups"><span class="ann-role">Coach &middot; reached from J</span>
     <h3>Groups &middot; membership applies on the tap</h3>
     <p>The canon screen had a footer that read <em>Save</em> with nothing changed, <em>Add to 2 groups</em> after adds, <em>Save changes</em> once a removal was in &mdash; three labels for one button, and a Save you could press to do nothing. The button was carrying state the rows already show.</p>
     <ul>
@@ -3096,7 +3001,7 @@
       <li><strong>Create a new group</strong> stays the first row, with Anna pre-selected.</li>
     </ul>
     <p class="note">Fallback if instant apply is rejected: keep the footer but <em>disable</em> it until the set differs from the start (lost definition + depth), label = the diff. Never an enabled Save that does nothing.</p>
-    <p class="note">Copy of <code>client-groups.html#s-add-to-group</code>; the source still has the footer &mdash; port the decision back once agreed.</p>
+    <p class="note">Redrawn in the picker grammar (check on the row, faces lead); the canon <code>client-groups.html#s-add-to-group</code> still has the Save footer &mdash; port back once agreed.</p>
   </div>
   <div class="ann" id="ann-s-crm-addr-pick"><span class="ann-role">Coach &middot; reached from J</span>
     <h3>Addresses</h3>
@@ -3113,10 +3018,9 @@
     <p>From the <strong>note tile</strong> (and the dashed add-zone when empty). Journal-style, no limit.</p>
     <p class="note">Copy of <code>clients.html#s-client-notes-editor</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy; nothing here is a redesign.</p>
   </div>
-  <div class="ann" id="ann-s-client-history"><span class="ann-role">Coach &middot; reached from J</span>
+  <div class="ann" id="ann-s-draft-history"><span class="ann-role">Coach &middot; reached from J</span>
     <h3>History</h3>
-    <p>From the <strong>47 sessions</strong> tile.</p>
-    <p class="note">Copy of <code>clients.html#s-client-history</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy; nothing here is a redesign.</p>
+    <p>From the <strong>47 sessions</strong> tile. Redrawn: a summary hero (count &middot; earned &middot; missed &middot; cancelled), then months as panels with a date tile per row, price on the right, <em>Cancelled</em> / <em>Missed</em> as the only pills; tap &rarr; the event drawer in its finished / missed state.</p>
   </div>
   <div class="ann" id="ann-s-create-client"><span class="ann-role">Coach &middot; reached from J</span>
     <h3>Edit info</h3>
@@ -3180,6 +3084,7 @@
 <script>
 function go(id, btn) {
   if (!document.getElementById(id)) { console.warn('go: no screen ' + id); return; }
+  var home = document.getElementById('s-draft-client'); ['cal-event-sheet', 'cal-group-sheet'].forEach(function (i) { var e = document.getElementById(i); if (e && home && e.parentNode !== home) { e.classList.remove('visible'); home.appendChild(e); } });
   document.querySelectorAll('.fit-phone').forEach(function (s) { s.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('.sidebar button').forEach(function (b) { b.classList.remove('active'); });
@@ -4088,7 +3993,10 @@ function spSnack(text, action, actionFn) { showClientSnack(text); }
 // Event drawer over Client Detail — the calendar's own sheet, copied into this phone.
 function jOpenEvent(kind) {
   var el = document.getElementById('s-draft-client');
-  if (kind === 'group') { openGroupSheet('planned'); return; }
+  // the drawers live in J's phone; a screen deeper in the flow (history) borrows them
+  var ph = document.querySelector('.fit-phone.active');
+  if (ph && ph !== el) { ph.appendChild(document.getElementById('cal-event-sheet')); ph.appendChild(document.getElementById('cal-group-sheet')); }
+  if (kind === 'group') { openGroupSheet(ph === el ? 'planned' : 'finished'); return; }
   var state = kind || (el.classList.contains('j-next-request') ? 'request' : el.classList.contains('j-next-awaiting') ? 'awaiting' : 'planned');
   openEventSheet(state);
   var body = document.getElementById('cal-event-sheet-body');
@@ -4161,6 +4069,16 @@ function pkSet(name, btn) {
 // Membership applies on the tap — a group is a state, not a form. One snackbar with Undo
 // per tap (Gmail pattern); the chat side effect commits when the window closes.
 var _cgUndo = null;
+function cgTap(row) {
+  row.classList.toggle('on');
+  var on = row.classList.contains('on'), name = row.dataset.name;
+  var snack = document.getElementById('cd-grp-snack');
+  snack.innerHTML = (on ? 'Added to ' : 'Removed from ') + name + ' <span class="snack-action" onclick="cgUndoTap()">Undo</span>';
+  snack.classList.add('show');
+  clearTimeout(_cgUndo && _cgUndo.t);
+  _cgUndo = { row: row, t: setTimeout(function () { snack.classList.remove('show'); _cgUndo = null; }, 5000) };
+}
+function cgUndoTap() { if (!_cgUndo) return; clearTimeout(_cgUndo.t); _cgUndo.row.classList.toggle('on'); document.getElementById('cd-grp-snack').classList.remove('show'); _cgUndo = null; }
 function cgMembershipToggle(row) {
   row.classList.toggle('selected');
   var on = row.classList.contains('selected'), name = row.dataset.name;

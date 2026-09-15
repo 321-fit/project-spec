@@ -1782,11 +1782,16 @@
 .fit-light .fit-bk-grid .fit-cal-event-cross-role::before { background: rgba(5,224,166,0.08); }
 /* Outside working hours — hatched zone (stronger than the calendar's faint
    variant so it never reads as "free"). */
+/* Off-hours in the booking grid = the calendar's off-hours: full-bleed edge to
+   edge (time gutter included), no radius, recessed — a state OF the day, not
+   an object on it. Native already draws it this way (2026-09-15). */
 .fit-bk-off {
-  position: absolute; left: 48px; right: 8px;
-  border-radius: 6px; z-index: 2; pointer-events: none; overflow: hidden;
-  display: flex; align-items: center; padding-left: 12px;
+  position: absolute; left: calc(-1 * var(--fit-cal-gutter, 16px)); right: calc(-1 * var(--fit-cal-gutter, 16px));
+  border-radius: 0; z-index: 2; pointer-events: none; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; padding: 4px 10px;
+  box-shadow: inset 0 7px 9px -7px rgba(0,0,0,0.55), inset 0 -7px 9px -7px rgba(0,0,0,0.55);
 }
+.fit-light .fit-bk-off { box-shadow: inset 0 7px 9px -7px rgba(0,0,0,0.14), inset 0 -7px 9px -7px rgba(0,0,0,0.14); }
 /* off-hours in the booking grid: the same flat "taken" fill as the calendar
    (hatch retired 2026-09-15 everywhere) */
 .fit-bk-off::before {
