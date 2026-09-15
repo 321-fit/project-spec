@@ -3278,7 +3278,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-clients",
-          "hash": "1151adcb3983",
+          "hash": "2126665c9a6a",
           "title": "Clients, placed",
           "inApp": "",
           "status": "proposal",
@@ -3307,18 +3307,18 @@ window.FIT_BOARD = {
           "order": 0
         },
         {
-          "id": "s-archived",
-          "hash": "c26262aed19d",
+          "id": "s-draft-archived",
+          "hash": "f4b08c9fed22",
           "title": "↳ Archived & Blocked",
           "inApp": "Archived & Blocked",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
-          "note": "From the row at the bottom. Unchanged.",
+          "note": "Same content and rules as the canon screen (two segments, each with its own zero state; a deleted account is a terminal row under Blocked; Restore / Unblock are one tap with a snackbar) in the row-panel grammar: muted fa",
           "external": [],
           "shots": [
             {
-              "file": "coach-clients-drafts__s-archived.webp",
+              "file": "coach-clients-drafts__s-draft-archived.webp",
               "label": ""
             }
           ],
@@ -3327,7 +3327,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-import-contacts",
-          "hash": "00f179941ccf",
+          "hash": "06c7d69ae5a0",
           "title": "↳ Import contacts",
           "inApp": "Import contacts",
           "status": "proposal",
@@ -3346,7 +3346,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-import-done",
-          "hash": "25834708c1ed",
+          "hash": "d47dfdeca0aa",
           "title": "↳ Import done",
           "inApp": "",
           "status": "proposal",
@@ -3366,7 +3366,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-create-client",
-          "hash": "510e282bbb4f",
+          "hash": "bac11997483b",
           "title": "↳ Create client",
           "inApp": "New client",
           "status": "proposal",
@@ -3385,7 +3385,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-smart",
-          "hash": "48243a17684b",
+          "hash": "7fc68d1efaf6",
           "title": "↳ Smart group (from a chip)",
           "inApp": "Owes money",
           "status": "proposal",
@@ -3405,7 +3405,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-detail",
-          "hash": "ddbf64c23bad",
+          "hash": "3336a8ca3776",
           "title": "↳ Group",
           "inApp": "Morning",
           "status": "proposal",
@@ -3440,7 +3440,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-create",
-          "hash": "6c2801728fd8",
+          "hash": "18d95d2a8b58",
           "title": "↳ Create group",
           "inApp": "New group",
           "status": "proposal",
@@ -3461,7 +3461,7 @@ window.FIT_BOARD = {
       "edges": [
         {
           "from": "s-draft-clients",
-          "to": "s-archived",
+          "to": "s-draft-archived",
           "back": false
         },
         {
@@ -3483,6 +3483,11 @@ window.FIT_BOARD = {
           "from": "s-draft-clients",
           "to": "s-create-client",
           "back": false
+        },
+        {
+          "from": "s-draft-archived",
+          "to": "s-draft-clients",
+          "back": true
         },
         {
           "from": "s-import-contacts",

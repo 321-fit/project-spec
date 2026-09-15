@@ -672,6 +672,21 @@
   /* loading */
   #s-draft-clients.c-loading .cd-j-skel { display: block; padding-top: 6px; }
   #s-draft-clients.c-loading .cd-j-body { display: none; }
+  /* archived & blocked */
+  .cd-ab-n { font-weight: 500; opacity: 0.7; margin-left: 2px; }
+  .cd-ab-note { display: flex; gap: 10px; align-items: flex-start; margin: 4px 16px 0; padding: 12px 14px; border-radius: 16px; border: 1px solid var(--fit-divider); font-size: 13px; line-height: 1.45; color: var(--fit-text-secondary); }
+  .cd-ab-note svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--fit-text-tertiary); margin-top: 1px; }
+  .fit-dark.k-alpha .cd-ab-note { border-color: rgba(255,255,255,0.12); }
+  .cd-ab-pill { height: 32px; padding: 0 14px; border: 1px solid var(--fit-divider); border-radius: 99px; background: transparent; font-family: var(--fit-font); font-size: 13px; font-weight: 500; color: var(--fit-text-primary); cursor: pointer; flex-shrink: 0; }
+  .fit-dark.k-alpha .cd-ab-pill { border-color: rgba(255,255,255,0.22); }
+  .cd-ab-row .cd-g-r2 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cd-ab-muted { opacity: 0.55; }
+  .cd-ab-dim { color: var(--fit-text-secondary); }
+  .cd-ab-pane { display: none; } .cd-ab-archived { display: block; }
+  #s-draft-archived.a-blocked .cd-ab-archived { display: none; } #s-draft-archived.a-blocked .cd-ab-blocked { display: block; }
+  #s-draft-archived .cd-in { padding-top: 12px; }
+  .cd-ab-empty { display: none; }
+  .cd-ab-row.gone { opacity: 0; transform: translateX(-14px); transition: opacity 0.22s, transform 0.22s; }
   /* tab bar reservation */
   #s-draft-clients > .fit-phone-content { padding-bottom: 96px; }
   /* Groups pane inside the same screen: the segmented control swaps panes */
@@ -850,7 +865,7 @@
   <button onclick="go('s-group-smart',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Smart group (from a chip)</button>
   <button onclick="go('s-group-detail',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Group</button>
   <button onclick="go('s-group-create',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Create group</button>
-  <button onclick="go('s-archived',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Archived &amp; Blocked</button>
+  <button onclick="go('s-draft-archived',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Archived &amp; Blocked</button>
   <button onclick="go('s-import-contacts',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Import contacts</button>
   <button onclick="go('s-import-done',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Import done</button>
   <button onclick="go('s-create-client',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Create client</button>
@@ -943,7 +958,7 @@
           <div class="cd-c-nohit">No one matches</div>
         </div>
       </div>
-      <div class="cd-i-panel cd-c-arch cd-press" onclick="go('s-archived',document.querySelector('.sidebar button[onclick*=s-archived]'))">
+      <div class="cd-i-panel cd-c-arch cd-press" onclick="go('s-draft-archived',document.querySelector('.sidebar button[onclick*=s-draft-archived]'))">
         <div class="cd-g-row"><div class="cd-j-plate" style="width:40px;height:40px;border-radius:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg></div><div class="cd-g-rt"><div class="cd-g-r1">Archived &amp; Blocked</div></div><div class="cd-g-rv" style="color:var(--fit-text-tertiary);font-weight:400;">5</div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-text-tertiary);flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg></div>
       </div>
     </div>
@@ -1061,131 +1076,71 @@
   </div>
 </div>
 
-
-<!-- ==================== SCREENS REACHED FROM HOME — copies of the canon screens; source named on each block. ==================== -->
-<!-- ==== from coach/clients.html #s-archived ==== -->
-<div class="srcc-cl fit-phone fit-dark" id="s-archived" data-tab="archived" data-status="proposal">
+<!-- ==================== ARCHIVED & BLOCKED · in J's grammar ==================== -->
+<!-- Same content as the canon screen (two segments, per-segment zero state, deleted as a
+     terminal row under Blocked), redrawn in the row-panel grammar: muted faces, one quiet
+     action pill per row, info as an outlined note. -->
+<div class="fit-phone fit-dark cd-media" id="s-draft-archived" data-status="proposal">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
-      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="fit-header-back" onclick="go('s-draft-clients',document.querySelector('.sidebar button[onclick*=s-draft-clients]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
       <span class="fit-header-title">Archived &amp; Blocked</span>
-    </div>
-    <!-- Segmented tabs (pill toggle) -->
-    <div class="fit-segmented">
-      <button id="arch-tab-archived" class="fit-segmented-tab selected" onclick="switchArchivedTab('archived')">Archived (2)</button>
-      <button id="arch-tab-blocked" class="fit-segmented-tab" onclick="switchArchivedTab('blocked')">Blocked (3)</button>
     </div>
   </div>
   <div class="fit-phone-content">
-
-    <!-- ARCHIVED TAB -->
-    <div id="arch-panel-archived">
-
-      <div class="arch-content">
-      <!-- Info note (outline card, no action — explains what Archived means) -->
-      <div style="display:flex;align-items:flex-start;gap:10px;margin:0 16px 12px;padding:12px 14px;border:1px solid var(--fit-divider);border-radius:14px;" data-a11y-id="coach.archived.info">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-text-tertiary);flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="8" r="0.5" fill="currentColor"/></svg>
-        <span style="font-size:13px;line-height:1.45;color:var(--fit-text-secondary);">Archived clients are hidden from your active list. They&rsquo;re unaffected &mdash; if they book again, they come back automatically.</span>
-      </div>
-
-      <div class="set-card" style="margin:0 16px 8px;">
-        <div style="display:flex;align-items:center;gap:12px;width:100%;">
-          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;opacity:0.6;">JD</div>
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px;font-weight:500;color:var(--fit-text-secondary);">Julia Dent</span><span class="fit-badge fit-badge-danger">€75 owed</span></div>
-            <div style="font-size:12px;color:var(--fit-text-tertiary);">Archived Apr 18 &middot; 5 sessions</div>
-          </div>
-          <button style="height:32px;padding:0 14px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;" onclick="showArchivedSnack('Julia restored')">Restore</button>
-        </div>
-      </div>
-
-      <div class="set-card" style="margin:0 16px 8px;">
-        <div style="display:flex;align-items:center;gap:12px;width:100%;">
-          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;opacity:0.6;">SV</div>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:16px;font-weight:500;color:var(--fit-text-secondary);">Sofia Vega</div>
-            <div style="font-size:12px;color:var(--fit-text-tertiary);">Archived Feb 12 &middot; 2 sessions</div>
-          </div>
-          <button style="height:32px;padding:0 14px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;" onclick="showArchivedSnack('Sofia restored')">Restore</button>
-        </div>
-      </div>
-      </div><!-- /arch-content (archived) -->
-
-      <!-- Zero state: no archived clients -->
-      <div class="arch-empty-state">
-        <div class="fit-empty-state" style="padding-top:64px;">
-          <svg class="fes-illus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v12a1 1 0 01-1 1H4a1 1 0 01-1-1V8M2 4h20v4H2zM10 12h4"/></svg>
-          <div class="fit-empty-state-title">No archived clients</div>
-          <div class="fit-empty-state-sub">Clients you archive show up here.<br>They return automatically if they book again.</div>
-        </div>
-      </div>
-
+    <div class="cd-c-seg" style="padding-top:4px;">
+      <div class="fit-segmented" style="margin:0;"><button class="fit-segmented-tab selected" onclick="aPane('archived',this)">Archived <span class="cd-ab-n">2</span></button><button class="fit-segmented-tab" onclick="aPane('blocked',this)">Blocked <span class="cd-ab-n">3</span></button></div>
     </div>
 
-    <!-- BLOCKED TAB -->
-    <div id="arch-panel-blocked" style="display:none;">
-
-      <div class="arch-content">
-      <!-- Info note (outline card, no action — explains what Blocked means) -->
-      <div style="display:flex;align-items:flex-start;gap:10px;margin:0 16px 12px;padding:12px 14px;border:1px solid var(--fit-divider);border-radius:14px;" data-a11y-id="coach.blocked.info">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-text-tertiary);flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="8" r="0.5" fill="currentColor"/></svg>
-        <span style="font-size:13px;line-height:1.45;color:var(--fit-text-secondary);">Blocked clients can&rsquo;t find or book you, and you stay invisible in their search. Existing upcoming sessions aren&rsquo;t touched &mdash; unblock anytime.</span>
-      </div>
-
-      <div class="set-card" style="margin:0 16px 8px;">
-        <div style="display:flex;align-items:center;gap:12px;width:100%;">
-          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;opacity:0.6;">DM</div>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:16px;font-weight:500;color:var(--fit-text-secondary);">David Martin</div>
-            <div style="font-size:12px;color:var(--fit-text-tertiary);">Blocked Mar 22 &middot; repeated no-shows</div>
+    <div class="cd-ab-pane cd-ab-archived">
+      <div class="cd-in"><div class="cd-ab-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg><span>Archived clients are hidden from your list; a new booking brings them back on its own.</span></div></div>
+      <div class="cd-in">
+        <div class="cd-i-panel">
+          <div class="cd-g-row cd-ab-row">
+            <div class="cd-d-av cd-ab-muted">JD</div>
+            <div class="cd-g-rt"><div class="cd-g-r1">Julia Dent <span class="fit-badge fit-badge-danger">&euro;75 owed</span></div><div class="cd-g-r2">Archived Apr 18 &middot; 5 sessions</div></div>
+            <button class="cd-ab-pill cd-press" onclick="aRestore(this,'Julia restored')">Restore</button>
           </div>
-          <button style="height:32px;padding:0 14px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;" onclick="showArchivedSnack('David unblocked')">Unblock</button>
-        </div>
-      </div>
-
-      <div class="set-card" style="margin:0 16px 8px;">
-        <div style="display:flex;align-items:center;gap:12px;width:100%;">
-          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;opacity:0.6;">RV</div>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Roman Volkov</div>
-            <div style="font-size:12px;color:var(--fit-text-tertiary);">Blocked Jan 8</div>
+          <div class="cd-g-row cd-ab-row">
+            <div class="cd-d-av cd-ab-muted">SV</div>
+            <div class="cd-g-rt"><div class="cd-g-r1">Sofia Vega</div><div class="cd-g-r2">Archived Feb 12 &middot; 2 sessions</div></div>
+            <button class="cd-ab-pill cd-press" onclick="aRestore(this,'Sofia restored')">Restore</button>
           </div>
-          <button style="height:32px;padding:0 14px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;" onclick="showArchivedSnack('Roman unblocked')">Unblock</button>
+          <div class="cd-j-week-empty cd-ab-empty">No archived clients</div>
         </div>
       </div>
-
-      <!-- Deleted account — surfaces here (deleted ≈ blocked); terminal, no unblock action -->
-      <div class="set-card" style="margin:0 16px 8px;">
-        <div style="display:flex;align-items:center;gap:12px;width:100%;">
-          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;opacity:0.45;">KL</div>
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;align-items:center;gap:6px;">
-              <span style="font-size:16px;font-weight:500;color:var(--fit-text-secondary);">Karl Lindberg</span>
-              <span style="font-size:10px;font-weight:500;color:var(--fit-text-tertiary);background:transparent;border:1px solid var(--fit-divider);padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:0.3px;">Deleted</span>
-            </div>
-            <div style="font-size:12px;color:var(--fit-text-tertiary);">Account deleted Mar 30 &middot; 18 sessions</div>
-          </div>
-        </div>
-      </div>
-      </div><!-- /arch-content (blocked) -->
-
-      <!-- Zero state: no blocked clients -->
-      <div class="arch-empty-state">
-        <div class="fit-empty-state" style="padding-top:64px;">
-          <svg class="fes-illus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>
-          <div class="fit-empty-state-title">No blocked clients</div>
-          <div class="fit-empty-state-sub">Clients you block show up here,<br>hidden from you until you unblock them.</div>
-        </div>
-      </div>
-
     </div>
 
+    <div class="cd-ab-pane cd-ab-blocked">
+      <div class="cd-in"><div class="cd-ab-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.5 5.5l13 13"/></svg><span>Blocked clients can&rsquo;t find, book or message you; sessions already booked stay. Deleted accounts land here too.</span></div></div>
+      <div class="cd-in">
+        <div class="cd-i-panel">
+          <div class="cd-g-row cd-ab-row">
+            <div class="cd-d-av cd-ab-muted">DM</div>
+            <div class="cd-g-rt"><div class="cd-g-r1">David Martin</div><div class="cd-g-r2">Blocked Mar 22 &middot; repeated no-shows</div></div>
+            <button class="cd-ab-pill cd-press" onclick="aRestore(this,'David unblocked')">Unblock</button>
+          </div>
+          <div class="cd-g-row cd-ab-row">
+            <div class="cd-d-av cd-ab-muted">RV</div>
+            <div class="cd-g-rt"><div class="cd-g-r1">Roman Volkov</div><div class="cd-g-r2">Blocked Jan 8</div></div>
+            <button class="cd-ab-pill cd-press" onclick="aRestore(this,'Roman unblocked')">Unblock</button>
+          </div>
+          <div class="cd-g-row cd-ab-row">
+            <div class="cd-d-av cd-ab-muted">KL</div>
+            <div class="cd-g-rt"><div class="cd-g-r1 cd-ab-dim">Karl Lindberg <span class="fit-badge fit-badge-neutral">Deleted</span></div><div class="cd-g-r2">Account deleted Mar 30 &middot; 18 sessions</div></div>
+          </div>
+          <div class="cd-j-week-empty cd-ab-empty">No blocked clients</div>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <!-- Archived snackbar (reused for restore/unblock confirmation) -->
-  <div class="fit-snackbar" id="arch-snackbar">Restored</div>
+  <div class="fit-snackbar" id="cd-ab-snack">Restored</div>
 </div>
+
+
+<!-- ==================== SCREENS REACHED FROM HOME — copies of the canon screens; source named on each block. ==================== -->
+
 
 <!-- ==== from coach/clients.html #s-import-contacts ==== -->
 <div class="srcc-cl fit-phone fit-dark imp-granted" id="s-import-contacts" data-status="proposal">
@@ -1795,6 +1750,10 @@
     <div class="cost"><strong>What it costs:</strong> two lists of the same people (This week + Everyone) &mdash; a person can appear twice; sorting by next session needs the next-session field on the list endpoint (today the list carries lifetime counts only).</div>
     <p class="note">Every screen reached from here is copied into this file (source named on each). Client rows open the Client Detail rework (<code>client-detail-drafts.html</code>), Home in the tab bar opens the Home rework.</p>
   </div>
+  <div class="ann" id="ann-s-draft-archived"><span class="ann-role">Coach &middot; reached from Clients</span>
+    <h3>Archived &amp; Blocked &middot; redrawn</h3>
+    <p>Same content and rules as the canon screen (two segments, each with its own zero state; a deleted account is a terminal row under Blocked; Restore / Unblock are one tap with a snackbar) in the row-panel grammar: muted faces, one quiet pill per row, the info as an outlined note instead of a tinted banner.</p>
+  </div>
   <div class="ann" id="ann-s-group-smart"><span class="ann-role">Coach &middot; reached from Clients</span>
     <h3>Smart group</h3>
     <p>From a <em>Needs you</em> chip &mdash; the computed list (owes money / inactive / packs low / not in app / new). Unchanged.</p>
@@ -1809,11 +1768,6 @@
     <h3>Create group</h3>
     <p>Unchanged.</p>
     <p class="note">Copy of <code>client-groups.html#s-group-create</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy.</p>
-  </div>
-  <div class="ann" id="ann-s-archived"><span class="ann-role">Coach &middot; reached from Clients</span>
-    <h3>Archived &amp; Blocked</h3>
-    <p>From the row at the bottom. Unchanged.</p>
-    <p class="note">Copy of <code>clients.html#s-archived</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy.</p>
   </div>
   <div class="ann" id="ann-s-import-contacts"><span class="ann-role">Coach &middot; reached from Clients</span>
     <h3>Import contacts</h3>
@@ -1877,6 +1831,22 @@ function cPane(name, btn) {
   el.classList.toggle('c-pane-groups', name === 'groups');
   el.querySelectorAll('.cd-c-seg .fit-segmented-tab').forEach(function (t) { t.classList.remove('selected'); });
   if (btn) btn.classList.add('selected');
+}
+// Archived & Blocked: segments; Restore / Unblock is one tap + snackbar (canon)
+function aPane(name, btn) {
+  var el = document.getElementById('s-draft-archived');
+  el.classList.toggle('a-blocked', name === 'blocked');
+  el.querySelectorAll('.cd-c-seg .fit-segmented-tab').forEach(function (t) { t.classList.remove('selected'); });
+  if (btn) btn.classList.add('selected');
+}
+function aRestore(btn, msg) {
+  var row = btn.closest('.cd-ab-row'); row.classList.add('gone');
+  setTimeout(function () {
+    var panel = row.parentNode; row.remove();
+    if (!panel.querySelector('.cd-ab-row')) panel.querySelector('.cd-ab-empty').style.display = 'block';
+    var snack = document.getElementById('cd-ab-snack'); snack.textContent = msg; snack.classList.add('show');
+    setTimeout(function () { snack.classList.remove('show'); }, 2500);
+  }, 230);
 }
 // A chip opens the smart group's list, titled after the chip.
 function cOpenSmart(name) {
