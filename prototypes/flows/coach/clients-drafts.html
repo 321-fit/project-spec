@@ -687,6 +687,16 @@
   #s-draft-archived .cd-in { padding-top: 12px; }
   .cd-ab-empty { display: none; }
   .cd-ab-row.gone { opacity: 0; transform: translateX(-14px); transition: opacity 0.22s, transform 0.22s; }
+  /* group detail */
+  .cd-gr-faces { display: flex; justify-content: center; margin: 0 auto 12px; }
+  .cd-gr-faces .cd-j-face { width: 56px; height: 56px; font-size: 15px; box-shadow: 0 0 0 2px var(--fit-screen-bg); }
+  #s-draft-group .fit-action-circles { justify-content: center; gap: 36px; }
+  .cd-gr-faces .cd-j-face + .cd-j-face { margin-left: -14px; }
+  .fit-dark.k-alpha .cd-gr-faces .cd-j-face { box-shadow: 0 0 0 2px rgba(6,40,48,0.95); }
+  .cd-gr-edit { margin-left: auto; font-size: 13px; font-weight: 500; color: var(--fit-teal-500); }
+  #s-draft-group.g-none .cd-gr-sec-next .cd-i-next, #s-draft-group.g-none .cd-gr-sec-sched, #s-draft-group.g-none .cd-gr-need { display: none; }
+  #s-draft-group.g-none .cd-gr-sec-next .cd-i-empty { display: block; }
+  #s-draft-group.g-none .cd-j-next-panel { outline: none; }
   /* tab bar reservation */
   #s-draft-clients > .fit-phone-content { padding-bottom: 96px; }
   /* Groups pane inside the same screen: the segmented control swaps panes */
@@ -849,6 +859,9 @@
 .srcc-gr .cg-note--warn svg { color: var(--fit-yellow-400); }
 .srcc-gr .cg-pick-members .imp-row { padding-left: 40px; }
 
+  /* ==== copied from calendar.html (scoped .srcc-cal) ==== */
+
+
 </style>
 </head>
 <body>
@@ -863,7 +876,7 @@
   <div class="label">Clients flow</div>
   <button class="active" onclick="go('s-draft-clients',this)">Clients, placed</button>
   <button onclick="go('s-group-smart',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Smart group (from a chip)</button>
-  <button onclick="go('s-group-detail',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Group</button>
+  <button onclick="go('s-draft-group',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Group</button>
   <button onclick="go('s-group-create',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Create group</button>
   <button onclick="go('s-draft-archived',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Archived &amp; Blocked</button>
   <button onclick="go('s-import-contacts',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Import contacts</button>
@@ -983,16 +996,16 @@
       <div class="cd-in">
         <div class="cd-i-sec">Your groups<span>3</span></div>
         <div class="cd-i-panel">
-          <div class="cd-g-row cd-press" onclick="go('s-group-detail',document.querySelector('.sidebar button[onclick*=s-group-detail]'))">
+          <div class="cd-g-row cd-press" onclick="go('s-draft-group',document.querySelector('.sidebar button[onclick*=s-draft-group]'))">
             <div class="cd-j-faces"><span class="cd-j-face">AK</span><span class="cd-j-face">MS</span><span class="cd-j-face">+6</span></div>
             <div class="cd-g-rt"><div class="cd-g-r1">Morning</div><div class="cd-g-r2">8 members &middot; Tue &amp; Thu 18:00</div></div>
             <span class="cd-j-badge-n cd-c-unread">2</span>
           </div>
-          <div class="cd-g-row cd-press" onclick="go('s-group-detail',document.querySelector('.sidebar button[onclick*=s-group-detail]'))">
+          <div class="cd-g-row cd-press" onclick="go('s-draft-group',document.querySelector('.sidebar button[onclick*=s-draft-group]'))">
             <div class="cd-j-faces"><span class="cd-j-face">PW</span><span class="cd-j-face">TN</span><span class="cd-j-face">+10</span></div>
             <div class="cd-g-rt"><div class="cd-g-r1">Beginners</div><div class="cd-g-r2">12 members</div></div>
           </div>
-          <div class="cd-g-row cd-press" onclick="go('s-group-detail',document.querySelector('.sidebar button[onclick*=s-group-detail]'))">
+          <div class="cd-g-row cd-press" onclick="go('s-draft-group',document.querySelector('.sidebar button[onclick*=s-draft-group]'))">
             <div class="cd-j-faces"><span class="cd-j-face">MV</span><span class="cd-j-face">JS</span><span class="cd-j-face">+12</span></div>
             <div class="cd-g-rt"><div class="cd-g-r1">Zumba Thursday</div><div class="cd-g-r2">14 members &middot; Thu 19:00</div></div>
           </div>
@@ -1136,6 +1149,173 @@
     </div>
   </div>
   <div class="fit-snackbar" id="cd-ab-snack">Restored</div>
+</div>
+
+<!-- ==================== GROUP · in J's grammar ==================== -->
+<!-- A group is people, so the identity block is the faces. Then what you do with the
+     group (circles), what is next, the schedule, and the members — never truncated. -->
+<div class="fit-phone fit-dark cd-media" id="s-draft-group" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="cd-g-top">
+      <button class="cd-g-circ" onclick="go('s-draft-clients',document.querySelector('.sidebar button[onclick*=s-draft-clients]'));cPane('groups',document.querySelectorAll('.cd-c-seg .fit-segmented-tab')[1])"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span style="flex:1;"></span>
+      <button class="cd-g-circ" onclick="gMenu(true)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="cd-i-id cd-in">
+      <div class="cd-gr-faces"><span class="cd-j-face">AK</span><span class="cd-j-face">MS</span><span class="cd-j-face">JD</span><span class="cd-j-face">+5</span></div>
+      <div class="cd-i-name">Morning</div>
+      <div class="cd-i-sub">8 members &middot; Tue &amp; Thu 18:00 &middot; since Jan</div>
+    </div>
+
+    <!-- Three things you do WITH a group. -->
+    <div class="cd-j-acts">
+      <div class="fit-action-circles fit-action-circles--sm">
+        <button class="fit-action-circle fit-action-circle--primary cd-press" onclick="location.href='invite.html?mode=schedule#s-invite-select'"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></i><span>Schedule</span></button>
+        <button class="fit-action-circle cd-press" onclick="location.href='client-groups.html#s-group-chat'"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></i><span>Message</span><span class="cd-j-badge-n">2</span></button>
+        <button class="fit-action-circle cd-press" onclick="location.href='client-groups.html#s-group-add'"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg></i><span>Add</span></button>
+      </div>
+    </div>
+
+    <!-- Needs you: what this group owes an answer to -->
+    <div class="cd-in cd-gr-need">
+      <div class="cd-i-sec">Needs you</div>
+      <div class="cd-j-need"><div class="cd-j-chips">
+        <span class="cd-j-chip due cd-press" onclick="location.href='client-detail-drafts.html#s-draft-owed'"><i></i>&euro;50 owed &middot; Mark</span>
+        <span class="cd-j-chip calm cd-press" onclick="location.href='client-groups.html#s-group-chat'"><i></i>2 unread in chat</span>
+      </div></div>
+    </div>
+
+    <!-- Next session of the group: the card, no buttons → the group drawer -->
+    <div class="cd-in cd-gr-sec-next">
+      <div class="cd-i-sec">Next session</div>
+      <div class="cd-i-panel cd-j-next-panel">
+        <div class="cd-i-next cd-press" onclick="openGroupSheet('planned')">
+          <div class="cd-i-nrow">
+            <div class="cd-m-tile t-group" style="width:46px;height:46px;"></div>
+            <div style="flex:1;min-width:0;">
+              <div class="cd-j-when-row"><div class="cd-i-when">Tue, Apr 15 &middot; 18:00</div></div>
+              <div class="cd-i-what">HIIT Group Session &middot; 6 of 10 &middot; TNT Studio</div>
+            </div>
+          </div>
+        </div>
+        <div class="cd-i-empty">
+          <p>Not scheduled yet. Schedule a session, or attach the group to a series you already run.</p>
+          <button class="fit-btn fit-btn-secondary cd-press" onclick="location.href='invite.html?mode=schedule#s-invite-select'">Schedule a session</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Schedule: the series the group is attached to and the one-offs; the full date list is one tap behind -->
+    <div class="cd-in cd-gr-sec-sched">
+      <div class="cd-i-sec">Schedule<span>12 dates</span></div>
+      <div class="cd-i-panel">
+        <div class="cd-g-row cd-press" onclick="location.href='sessions.html#s-series'">
+          <div class="cd-j-plate" style="width:40px;height:40px;border-radius:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">HIIT Group Session</div><div class="cd-g-r2">Series &middot; Tue &amp; Thu 18:00 &middot; next Apr 15</div></div>
+        </div>
+        <div class="cd-g-row cd-press" onclick="openGroupSheet('planned')">
+          <div class="cd-j-plate" style="width:40px;height:40px;border-radius:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Yoga Morning Flow</div><div class="cd-g-r2">One-off &middot; Sat, Apr 19 &middot; 10:00</div></div>
+        </div>
+        <div class="cd-g-row cd-press" onclick="location.href='client-groups.html#s-group-schedule'">
+          <div class="cd-g-rt"><div class="cd-g-r1" style="color:var(--fit-teal-500);font-size:15px;">See all 12 dates</div></div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-text-tertiary);flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Members: the point of the screen, never truncated. Rows = the Clients list row. -->
+    <div class="cd-in" style="padding-bottom:22px;">
+      <div class="cd-i-sec">Members<span class="cd-gr-edit cd-press" onclick="location.href='client-groups.html#s-group-detail'">Edit</span></div>
+      <div class="cd-i-panel">
+        <div class="cd-g-row cd-press" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">AK</div><div class="cd-g-rt"><div class="cd-g-r1">Anna Kowalski</div><div class="cd-g-r2 cd-c-next">Next &middot; Thu 10:00 &middot; Tennis</div></div></div>
+        <div class="cd-g-row cd-press" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">MS</div><div class="cd-g-rt"><div class="cd-g-r1">Mark Schmidt <span class="fit-badge fit-badge-danger">&euro;50 owed</span></div><div class="cd-g-r2">Last &middot; Apr 19 &middot; 8 sessions</div></div></div>
+        <div class="cd-g-row cd-press" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">LR</div><div class="cd-g-rt"><div class="cd-g-r1">Lena Roth <span class="fit-badge fit-badge-neutral">CRM</span></div><div class="cd-g-r2">Last &middot; Apr 10 &middot; 3 sessions</div></div></div>
+        <div class="cd-g-row cd-press" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">JD</div><div class="cd-g-rt"><div class="cd-g-r1">Julia Dent</div><div class="cd-g-r2">Last &middot; Apr 2 &middot; 5 sessions</div></div></div>
+        <div class="cd-g-row cd-press" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">SK</div><div class="cd-g-rt"><div class="cd-g-r1">Sara Kim</div><div class="cd-g-r2">Last &middot; Apr 17 &middot; 9 sessions</div></div></div>
+        <div class="cd-g-row cd-press" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">MV</div><div class="cd-g-rt"><div class="cd-g-r1">Marta Vega <span class="fit-badge fit-badge-neutral">CRM</span></div><div class="cd-g-r2">Last &middot; Mar 30 &middot; 4 sessions</div></div></div>
+        <div class="cd-g-row cd-press" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">TN</div><div class="cd-g-rt"><div class="cd-g-r1">Tom Novak</div><div class="cd-g-r2">Last &middot; Apr 18 &middot; 2 sessions</div></div></div>
+        <div class="cd-g-row cd-press" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av cd-ab-muted">PW</div><div class="cd-g-rt"><div class="cd-g-r1 cd-ab-dim">Paul Weber <span class="fit-badge fit-badge-neutral">Archived</span></div><div class="cd-g-r2">Skipped in group actions</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fit-context-menu-backdrop" id="cd-gr-menu-backdrop" onclick="gMenu(false)"></div>
+  <div class="fit-context-menu" id="cd-gr-menu" style="top:56px;right:12px;">
+    <div class="fit-context-menu-item" onclick="gMenu(false);location.href='client-groups.html#s-group-detail'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Edit members</div>
+    <div class="fit-context-menu-item" onclick="gMenu(false);location.href='client-groups.html#s-group-rename'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Rename group</div>
+    <div class="fit-context-menu-divider"></div>
+    <div class="fit-context-menu-item destructive" onclick="gMenu(false)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4h8v2"/></svg>Delete group</div>
+  </div>
+<div class="srcc-cal fit-sheet-overlay" id="cal-group-sheet">
+    <div class="fit-sheet" id="cal-group-sheet-body" data-event-state="planned" >
+      <div class="fit-sheet-handle"></div>
+      <!-- Status header: descriptor + optional pill -->
+      <div class="fit-sheet-status-header">
+        <div class="fit-sheet-descriptor" id="cal-group-descriptor">Confirmed group session</div>
+        <span class="fit-cal-event-pill" id="cal-group-pill" style="display:none;"></span>
+        <button class="fit-sheet-menu-btn" data-a11y-id="coach.calendar.group.overflow" aria-label="More options" onclick="event.stopPropagation();toggleSheetMenu('cal-group-menu')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+        </button>
+      </div>
+      <!-- ⋯ menu (action hub) — group: Edit + Invite (Reschedule/Cancel in footer) -->
+      <div class="fit-context-menu" id="cal-group-menu" style="top:44px;right:8px;">
+        <div class="fit-context-menu-item" data-a11y-id="coach.calendar.group.menu.edit" onclick="closeSheetMenu('cal-group-menu');calEditEvent()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit details
+        </div>
+        <div class="fit-context-menu-item" data-a11y-id="coach.calendar.group.menu.invite" onclick="closeSheetMenu('cal-group-menu');document.getElementById('cal-group-sheet').classList.remove('visible');location.href='calendar.html#s-invite'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
+          Invite athletes
+        </div>
+      </div>
+      <!-- Sport icon + session name (tap → Event Detail) -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;cursor:pointer;" onclick="document.getElementById('cal-group-sheet').classList.remove('visible');location.href='calendar.html#s-event';">
+        <div style="width:44px;height:44px;border-radius:50%;background:rgba(3,178,226,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M4.5 12H2M22 12h-2.5M12 4.5V2M12 22v-2.5"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">HIIT Group Session</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <!-- Event info -->
+      <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-text-secondary);margin-bottom:12px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        10:00 – 11:00
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--fit-brand-primary);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          TNT Studio
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:14px;font-weight:500;color:var(--fit-teal-500);">&euro;25/person</span>
+          <span class="fit-badge fit-badge-neutral">7/10</span>
+        </div>
+      </div>
+      <!-- Footer variants — one visible per data-event-state -->
+      <!-- planned: Cancel + Reschedule (Edit + Invite live in the ⋯ menu) -->
+      <div class="fit-sheet-footer-variant ev-planned">
+<div class="fit-action-circles fit-action-circles--sm">
+          <button class="fit-action-circle fit-action-circle--danger" data-a11y-id="coach.calendar.group.cancel" onclick="document.getElementById('cal-group-sheet').classList.remove('visible');document.getElementById('cal-cancel-sheet').classList.add('visible');" aria-label="Cancel"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></i><span>Cancel</span></button>
+          <button class="fit-action-circle" data-a11y-id="coach.calendar.group.reschedule" onclick="document.getElementById('cal-group-sheet').classList.remove('visible');document.getElementById('cal-reschedule-sheet').classList.add('visible');" aria-label="Reschedule"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></i><span>Reschedule</span></button>
+        </div>
+      </div>
+      <div class="fit-sheet-footer-variant ev-review">
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-group-sheet').classList.remove('visible');location.href='calendar.html#s-cash';">Complete training</button>
+      </div>
+      <div class="fit-sheet-footer-variant ev-missed">
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-group-sheet').classList.remove('visible');document.getElementById('cal-reschedule-sheet').classList.add('visible');">Reschedule</button>
+      </div>
+      <div class="fit-sheet-footer-variant ev-finished">
+        <button style="flex:1;height:50px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('cal-group-sheet').classList.remove('visible');">View history</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 
@@ -1394,262 +1574,7 @@
   <div class="fit-snackbar" id="paid-snack"><span class="snack-dot" style="background:var(--fit-green-500);"></span>Payment recorded</div>
 </div>
 
-<!-- ==== from coach/client-groups.html #s-group-detail ==== -->
-<div class="srcc-gr fit-phone fit-dark sched-attached" id="s-group-detail" data-status="proposal">
-  <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header">
-      <button class="fit-header-back" onclick="location.href='client-groups.html#s-groups'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title cg-group-name">Morning</span>
-      <div style="position:absolute;right:12px;display:flex;align-items:center;gap:6px;">
-        <button class="fit-icon-btn" data-a11y-id="coach.group.message" onclick="location.href='client-groups.html#s-group-chat'" style="position:relative;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 01-11.6 7.2L3 21l1.8-6.4A8 8 0 1121 12z"/></svg>
-          <span class="cg-badge-dot">2</span>
-        </button>
-        <button class="fit-icon-btn" onclick="cgMenu('menu-group',event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
-      </div>
-    </div>
-  </div>
 
-  <div class="fit-phone-content">
-    <!-- ===== SCHEDULE — rules first, then dates. One line each, capped. ===== -->
-    <div class="cg-sec"><span class="cg-sec-title">Schedule</span></div>
-
-    <div data-sched-state="attached">
-      <div class="cg-card-list">
-        <!-- A RULE: repeats, never ends, feeds the roster automatically -->
-        <div class="cg-row" onclick="window.location.href='./sessions.html#s-series'">
-          <span class="cg-row-ic cg-row-ic--rec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></span>
-          <span class="cg-row-body"><span class="cg-row-title">HIIT Group Session</span><span class="cg-row-sub">Tue &amp; Thu &middot; 18:00</span><span class="cg-row-sub">Next: Tue, Apr 15</span></span>
-          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <!-- A DATE: one-off -->
-        <div class="cg-row" onclick="window.location.href='./calendar.html'">
-          <span class="cg-row-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
-          <span class="cg-row-body"><span class="cg-row-title">Yoga Morning Flow</span><span class="cg-row-sub">Apr 19 &middot; 10:00</span></span>
-          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div class="cg-row cg-row--link" data-a11y-id="coach.group.see-all-dates" onclick="location.href='client-groups.html#s-group-schedule'">
-          <span class="cg-row-body"><span class="cg-row-title" style="color:var(--fit-brand-primary);">See all 12 dates</span></span>
-          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-      </div>
-    </div>
-
-    <!-- BUSY GROUP: 2 recurring + 2 one-off — rules always shown, dates capped -->
-    <div data-sched-state="many">
-      <div class="cg-card-list">
-        <div class="cg-row" onclick="window.location.href='./sessions.html#s-series'">
-          <span class="cg-row-ic cg-row-ic--rec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></span>
-          <span class="cg-row-body"><span class="cg-row-title">HIIT Group Session</span><span class="cg-row-sub">Tue &amp; Thu &middot; 18:00</span><span class="cg-row-sub">Next: Tue, Apr 15</span></span>
-          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div class="cg-row" onclick="window.location.href='./sessions.html#s-series'">
-          <span class="cg-row-ic cg-row-ic--rec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></span>
-          <span class="cg-row-body"><span class="cg-row-title">Yoga Morning Flow</span><span class="cg-row-sub">Sat &middot; 10:00</span><span class="cg-row-sub">Next: Sat, Apr 19</span></span>
-          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div class="cg-row" onclick="window.location.href='./calendar.html'">
-          <span class="cg-row-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
-          <span class="cg-row-body"><span class="cg-row-title">Beach run</span><span class="cg-row-sub">Apr 20 &middot; 09:00</span></span>
-          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div class="cg-row" onclick="window.location.href='./calendar.html'">
-          <span class="cg-row-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
-          <span class="cg-row-body"><span class="cg-row-title">Charity class</span><span class="cg-row-sub">May 3 &middot; 11:00</span></span>
-          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div class="cg-row cg-row--link" onclick="location.href='client-groups.html#s-group-schedule'">
-          <span class="cg-row-body"><span class="cg-row-title" style="color:var(--fit-brand-primary);">See all 26 dates</span></span>
-          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-      </div>
-    </div>
-
-    <div data-sched-state="none">
-      <div class="cg-card-list"><div class="cg-row" style="cursor:default;">
-        <span class="cg-row-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
-        <span class="cg-row-body">
-          <span class="cg-row-title" style="color:var(--fit-text-secondary);font-weight:400;">Not scheduled yet</span>
-          <span class="cg-row-sub">Schedule a session, or attach the group to a series you already run</span>
-        </span>
-      </div></div>
-    </div>
-
-    <!-- ===== MEMBERS — everyone, no truncation ===== -->
-    <div class="cg-sec">
-      <span class="cg-sec-title">Members <span id="cg-member-count" style="color:var(--fit-text-tertiary);">8</span></span>
-      <span class="cg-sec-action" id="cg-edit-link" data-a11y-id="coach.group.edit-members" onclick="cgEdit(this)">Edit</span>
-    </div>
-
-    <!-- Members stay bare on the canvas: a people list reads as a list, not a block.
-         Only things that group (a rule and its dates) get an outline. -->
-    <div class="cg-row cg-member--add" data-a11y-id="coach.group.add-clients" onclick="location.href='client-groups.html#s-group-add'">
-      <span class="cg-row-ic cg-row-ic--add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
-      <span class="cg-row-body"><span class="cg-row-title" style="color:var(--fit-brand-primary);">Add clients</span></span>
-    </div>
-
-    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
-      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
-      <span class="imp-av">AK</span>
-      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Anna Kowalski</span><span class="cg-row-sub">12 sessions &middot; &euro;580</span></span>
-      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
-    </div>
-    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
-      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
-      <span class="imp-av">MS</span>
-      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Mark Schmidt</span><span class="cg-row-sub">8 sessions &middot; &euro;400</span></span>
-      <span class="cg-row-right"><span class="fit-badge fit-badge-danger">&euro;50 owed</span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
-    </div>
-    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
-      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
-      <span class="imp-av">LR</span>
-      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Lena Roth <span class="imp-tag crm">CRM</span></span><span class="cg-row-sub">3 sessions &middot; &euro;120</span></span>
-      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
-    </div>
-    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
-      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
-      <span class="imp-av">JD</span>
-      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Julia Dent</span><span class="cg-row-sub">5 sessions &middot; &euro;250</span></span>
-      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
-    </div>
-    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
-      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
-      <span class="imp-av">SK</span>
-      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Sara Kim</span><span class="cg-row-sub">9 sessions &middot; &euro;450</span></span>
-      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
-    </div>
-    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
-      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
-      <span class="imp-av">MV</span>
-      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Marta Vega <span class="imp-tag crm">CRM</span></span><span class="cg-row-sub">4 sessions &middot; &euro;160</span></span>
-      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
-    </div>
-    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
-      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
-      <span class="imp-av">TN</span>
-      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Tom Novak</span><span class="cg-row-sub">2 sessions &middot; &euro;100</span></span>
-      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
-    </div>
-    <div class="cg-row cg-member" style="opacity:0.55;" onclick="cgMemberTap(this)">
-      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
-      <span class="imp-av">PW</span>
-      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Paul Weber <span class="imp-tag client">Archived</span></span><span class="cg-row-sub">Skipped in group actions</span></span>
-      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
-    </div>
-
-    <div class="cg-note">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
-      <span>Groups are private &mdash; clients never see which groups they&rsquo;re in.</span>
-    </div>
-    <div style="height:20px;"></div>
-  </div>
-
-  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" data-a11y-id="coach.group.schedule" onclick="window.location.href='./invite.html?mode=schedule&amp;origin=s-group-detail&amp;filter=group&amp;group=morning'">Schedule a session</button></div>
-
-  <div class="fit-snackbar" id="cg-remove-snack"><span class="snack-dot" style="background:var(--fit-red-400);"></span><span id="cg-remove-text">Anna removed from Morning</span><span class="snack-action" onclick="cgUndo()">Undo</span></div>
-
-  <div class="fit-context-menu-backdrop" id="menu-group-backdrop" onclick="cgMenuClose('menu-group')"></div>
-  <div class="fit-context-menu" id="menu-group" style="top:56px;right:12px;">
-    <div class="fit-context-menu-item" data-a11y-id="coach.group.menu.add" onclick="cgMenuClose('menu-group');location.href='client-groups.html#s-group-add'">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2 21v-1a7 7 0 0112 0v1"/><path d="M19 8v6M22 11h-6"/></svg>
-      Add clients
-    </div>
-    <div class="fit-context-menu-item" data-a11y-id="coach.group.menu.edit" onclick="cgMenuClose('menu-group');cgEditState(true,null)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h9"/><circle cx="19" cy="18" r="2.5"/></svg>
-      Edit members
-    </div>
-    <div class="fit-context-menu-item" data-a11y-id="coach.group.menu.rename" onclick="cgMenuClose('menu-group');location.href='client-groups.html#s-group-rename';cgRenameFocus()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
-      Rename group
-    </div>
-    <div class="fit-context-menu-divider"></div>
-    <div class="fit-context-menu-item destructive" onclick="cgMenuClose('menu-group');document.getElementById('delete-group-sheet').classList.add('visible')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-      Delete group
-    </div>
-  </div>
-
-  <!-- ===== Post-drop confirm drawer (group flavour of invite.html#group-publish-sheet).
-       Reached after: Add to a session → pick a group session → drop it on the grid. ===== -->
-  <div class="fit-sheet-overlay" id="group-publish-sheet">
-    <div class="fit-sheet">
-      <div class="fit-sheet-handle"></div>
-      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Publish session</div>
-      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:20px;">Yoga Morning Flow &middot; Sat, Apr 19 &middot; 10:00 &middot; GYM Bro</div>
-
-      <div class="fit-input-group" style="padding:0;"><span class="fit-input-label">How often</span></div>
-      <!-- Canon pair, same as invite.html#group-publish-sheet -->
-      <div style="display:flex;flex-direction:column;gap:2px;margin:8px 0 12px;" id="gp-repeat">
-        <label class="cg-radio" onclick="cgRepeat('once',this)">
-          <input type="radio" name="gp-mode" checked style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;">
-          <span>Just this date</span>
-        </label>
-        <label class="cg-radio" onclick="cgRepeat('weekly',this)">
-          <input type="radio" name="gp-mode" style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;">
-          <span>Repeat weekly</span>
-        </label>
-      </div>
-
-      <!-- Fixed-height detail area — the sheet must not grow (frequency-picker canon) -->
-      <div style="min-height:96px;margin-bottom:16px;padding-left:32px;">
-        <div data-gp="once" style="font-size:13px;line-height:1.5;color:var(--fit-text-tertiary);">
-          A single event on Sat, Apr 19. Nothing repeats &mdash; add more dates any time.
-        </div>
-        <div data-gp="weekly" style="display:none;">
-          <div class="fit-selection-group" data-fit-selection="multi" style="margin:0 0 10px;padding:0;">
-            <div class="fit-selection-chip">Mon</div><div class="fit-selection-chip">Wed</div><div class="fit-selection-chip selected">Sat</div>
-          </div>
-          <div style="font-size:13px;color:var(--fit-text-tertiary);">Ends: <strong style="color:var(--fit-text-primary);font-weight:500;">Ongoing</strong> &middot; generated 60 days ahead.</div>
-        </div>
-      </div>
-
-      <div class="cg-note cg-note--warn" style="margin:0 0 20px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg>
-        <span><strong>All 8 of Morning</strong> go on the roster, auto-accepted &mdash; 3 of them are CRM contacts. Fees become owed and settle after the session. 15 spots, so everyone fits.</span>
-      </div>
-
-      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="document.getElementById('group-publish-sheet').classList.remove('visible');">Publish</button>
-    </div>
-  </div>
-
-  <!-- Attach to a series -->
-  <div class="fit-sheet-overlay" id="attach-series-sheet">
-    <div class="fit-sheet">
-      <div class="fit-sheet-handle"></div>
-      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Attach to a series</div>
-      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:20px;">Every date this series generates will come with these 8 people already on the roster.</div>
-
-      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
-        <label class="cal-select-row" style="display:flex;align-items:center;gap:12px;padding:14px 12px;border-radius:12px;cursor:pointer;">
-          <input type="radio" name="attach-series" checked style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;">
-          <span style="flex:1;"><span style="font-size:15px;color:var(--fit-text-primary);display:block;">HIIT &middot; Tue &amp; Thu 18:00</span><span style="font-size:12px;color:var(--fit-text-tertiary);">GYM Bro &middot; max 10</span></span>
-        </label>
-        <label class="cal-select-row" style="display:flex;align-items:center;gap:12px;padding:14px 12px;border-radius:12px;cursor:pointer;">
-          <input type="radio" name="attach-series" style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;">
-          <span style="flex:1;"><span style="font-size:15px;color:var(--fit-text-primary);display:block;">Yoga &middot; Sat 10:00</span><span style="font-size:12px;color:var(--fit-text-tertiary);">GYM Bro &middot; max 15</span></span>
-        </label>
-      </div>
-
-      <div class="cg-note cg-note--warn" style="margin:0 0 20px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
-        <span>This group has <strong>8 people</strong> and the session holds <strong>10</strong> &mdash; everyone fits. Add more later and the extras stay in the group, off the roster.</span>
-      </div>
-
-      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="document.getElementById('attach-series-sheet').classList.remove('visible');">Attach</button>
-    </div>
-  </div>
-
-  <!-- Delete group -->
-  <div class="fit-sheet-overlay" id="delete-group-sheet">
-    <div class="fit-sheet">
-      <div class="fit-sheet-handle"></div>
-      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Delete &ldquo;Morning&rdquo;?</div>
-      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:24px;">The 8 clients stay in your client list &mdash; only the grouping goes away. The group chat is kept and stops following this group.</div>
-      <button class="fit-btn fit-btn-destructive" style="border-radius:99px;" onclick="document.getElementById('delete-group-sheet').classList.remove('visible');">Delete group</button>
-    </div>
-  </div>
-</div>
 
 <!-- ==== from coach/client-groups.html #s-group-create ==== -->
 <div class="srcc-gr fit-phone fit-dark" id="s-group-create" data-status="proposal">
@@ -1712,8 +1637,11 @@
     </div>
     <div style="height:20px;"></div>
   </div>
-  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" onclick="go('s-group-detail',null)"><span>Create group &middot; <span id="cg-cta-count">3</span></span></button></div>
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" onclick="location.href='client-groups.html#s-group-detail'"><span>Create group &middot; <span id="cg-cta-count">3</span></span></button></div>
 </div>
+
+
+
 
 
 <!-- ==================== ANNOTATIONS ==================== -->
@@ -1750,6 +1678,22 @@
     <div class="cost"><strong>What it costs:</strong> two lists of the same people (This week + Everyone) &mdash; a person can appear twice; sorting by next session needs the next-session field on the list endpoint (today the list carries lifetime counts only).</div>
     <p class="note">Every screen reached from here is copied into this file (source named on each). Client rows open the Client Detail rework (<code>client-detail-drafts.html</code>), Home in the tab bar opens the Home rework.</p>
   </div>
+  <div class="ann" id="ann-s-draft-group"><span class="ann-role">Coach &middot; draft &middot; group, placed</span>
+    <h3>Group &middot; people first</h3>
+    <div class="state-toggle" style="margin-bottom:6px;">
+      <button class="active" onclick="gSet('scheduled',this)">Scheduled</button>
+      <button onclick="gSet('none',this)">Not scheduled yet</button>
+    </div>
+    <div class="bet"><strong>Bet:</strong> the canon group screen (<a href="client-groups.html#s-group-detail">client-groups.html</a>) opens on a <em>Schedule</em> block with three list styles and a footer CTA, and the members &mdash; the point of the screen &mdash; come last. A group is people: the identity block is <strong>the faces</strong>, then what you do with the group, then what is next, then the members.</div>
+    <ul>
+      <li><strong>Identity = stacked faces + name + one line</strong> (members &middot; rhythm &middot; since), exactly Client Detail's grammar with faces where the avatar was.</li>
+      <li><strong>Three circles: Schedule &middot; Message &middot; Add.</strong> The footer <em>Schedule a session</em> and the header chat icon fold into them (no item in both). ⋯ administers: Edit members &middot; Rename &middot; Delete.</li>
+      <li><strong>Needs you</strong> chips: money owed by a member, unread in the group chat. Gone when empty.</li>
+      <li><strong>Next session</strong> = the same card, teal perimeter, tap &rarr; the group drawer. <strong>Schedule</strong> = the series the group is attached to + one-offs, <em>See all N dates</em> one tap behind. <em>Not scheduled yet</em> &rarr; the empty card takes the slot with a secondary button.</li>
+      <li><strong>Members never truncated</strong> (owner's rule), rows = the Clients-list row (time, not lifetime money; owed / CRM / Archived badges), <em>Edit</em> in the section title opens the canon edit mode.</li>
+      <li>Back returns to the Clients screen on its Groups pane.</li>
+    </ul>
+  </div>
   <div class="ann" id="ann-s-draft-archived"><span class="ann-role">Coach &middot; reached from Clients</span>
     <h3>Archived &amp; Blocked &middot; redrawn</h3>
     <p>Same content and rules as the canon screen (two segments, each with its own zero state; a deleted account is a terminal row under Blocked; Restore / Unblock are one tap with a snackbar) in the row-panel grammar: muted faces, one quiet pill per row, the info as an outlined note instead of a tinted banner.</p>
@@ -1758,11 +1702,6 @@
     <h3>Smart group</h3>
     <p>From a <em>Needs you</em> chip &mdash; the computed list (owes money / inactive / packs low / not in app / new). Unchanged.</p>
     <p class="note">Copy of <code>client-groups.html#s-group-smart</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy.</p>
-  </div>
-  <div class="ann" id="ann-s-group-detail"><span class="ann-role">Coach &middot; reached from Clients</span>
-    <h3>Group</h3>
-    <p>Unchanged.</p>
-    <p class="note">Copy of <code>client-groups.html#s-group-detail</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy.</p>
   </div>
   <div class="ann" id="ann-s-group-create"><span class="ann-role">Coach &middot; reached from Clients</span>
     <h3>Create group</h3>
@@ -1831,6 +1770,12 @@ function cPane(name, btn) {
   el.classList.toggle('c-pane-groups', name === 'groups');
   el.querySelectorAll('.cd-c-seg .fit-segmented-tab').forEach(function (t) { t.classList.remove('selected'); });
   if (btn) btn.classList.add('selected');
+}
+// Group: ⋯ menu + states
+function gMenu(open) { document.getElementById('cd-gr-menu').classList.toggle('visible', !!open); document.getElementById('cd-gr-menu-backdrop').classList.toggle('visible', !!open); }
+function gSet(name, btn) {
+  var el = document.getElementById('s-draft-group'); el.classList.toggle('g-none', name === 'none');
+  if (btn) { btn.parentNode.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); }); btn.classList.add('active'); }
 }
 // Archived & Blocked: segments; Restore / Unblock is one tap + snackbar (canon)
 function aPane(name, btn) {
@@ -2119,6 +2064,46 @@ function cgMenu(id, e) {
 function cgMenuClose(id) {
   document.getElementById(id).classList.remove('visible');
   document.getElementById(id + '-backdrop').classList.remove('visible');
+}
+
+// ==== copied from calendar.html ====
+var GROUP_SHEET_STATES = {
+  planned:  { descriptor: 'Confirmed group session',     pill: null },
+  review:   { descriptor: 'Session ended — complete it', pill: { text: 'Review', mod: 'review' } },
+  missed:   { descriptor: 'Marked as missed',            pill: { text: 'Missed', mod: 'missed' } },
+  finished: { descriptor: 'Completed on Apr 21',         pill: null }
+};
+function closeSheetMenu(id) {
+  var m = document.getElementById(id);
+  if (m) m.classList.remove('visible');
+}
+function openSheet(sheetId) {
+  var sheet = document.getElementById(sheetId);
+  if (!sheet) return;
+  var activeScreen = document.querySelector('.fit-phone.active');
+  if (activeScreen && sheet.parentElement !== activeScreen) {
+    activeScreen.appendChild(sheet);
+  }
+  sheet.classList.add('visible');
+}
+function setGroupSheetState(state) {
+  var body = document.getElementById('cal-group-sheet-body');
+  if (!body) return;
+  body.dataset.eventState = state;
+  var s = GROUP_SHEET_STATES[state];
+  document.getElementById('cal-group-descriptor').textContent = s.descriptor;
+  var pill = document.getElementById('cal-group-pill');
+  if (s.pill) {
+    pill.textContent = s.pill.text;
+    pill.className = 'fit-cal-event-pill fit-cal-event-pill--' + s.pill.mod;
+    pill.style.display = '';
+  } else {
+    pill.style.display = 'none';
+  }
+}
+function openGroupSheet(state) {
+  setGroupSheetState(state);
+  openSheet('cal-group-sheet');
 }
 
 // ==== flow glue ====

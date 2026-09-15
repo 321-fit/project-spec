@@ -48,7 +48,7 @@ States: 23 clients · Fresh coach · Loading (title + segmented + search instant
 | From | Screen | Source |
 |---|---|---|
 | a chip | Smart group list (titled after the chip) | `client-groups.html#s-group-smart` |
-| segmented → Groups | Groups pane (built in the draft) → group / create | `client-groups.html#s-group-detail`, `#s-group-create` |
+| segmented → Groups | Groups pane (built in the draft) → **Group** (redrawn: faces identity → Schedule · Message · Add circles → Needs you → Next session → Schedule → Members never truncated; ⋯ Edit members / Rename / Delete) → create | new (`#s-draft-group`); canon `client-groups.html#s-group-detail`, `#s-group-create` |
 | + | canon add sheet → Create client / Import contacts (→ done) / Invite share sheet | `clients.html` |
 | a row | Client Detail rework | `client-detail-drafts.html#s-draft-client` |
 | bottom row | Archived & Blocked — redrawn in the row-panel grammar (same content and rules) | new (`#s-draft-archived`); canon `clients.html#s-archived` |
@@ -70,4 +70,4 @@ States: 23 clients · Fresh coach · Loading (title + segmented + search instant
 
 ## Change log
 
-- 2026-09-15 — first cut, built after the Clients discussion (chips as doors, rows by time, A–Z + rail, search, fresh card); review: segmented inset fixed, letters + rail dropped, Groups pane rebuilt inside the draft, Archived & Blocked redrawn, fresh card fixed.
+- 2026-09-15 — first cut, built after the Clients discussion (chips as doors, rows by time, A–Z + rail, search, fresh card); review: segmented inset fixed, letters + rail dropped, Groups pane rebuilt inside the draft, Archived & Blocked redrawn, fresh card fixed, Group detail redrawn (people first).
