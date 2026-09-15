@@ -98,7 +98,10 @@ for (const mod of discover()) {
       await page.goto("file://" + file, { waitUntil: "networkidle0" });
       await page.evaluate(activate, id);
       if (shot.run) {
-        await page.evaluate(shot.run);
+        // a state keyed by bare screen id may land on a copy of that screen in another
+        // file that lacks the helper — skip the state shot rather than kill the build
+        try { await page.evaluate(shot.run); }
+        catch (e) { console.warn(`  · ${shot.id} skipped on ${id}: ${e.message.split("\n")[0]}`); await page.close(); continue; }
         // a state change may re-activate another screen (e.g. cgPublish) — pin it back
         await page.evaluate(activate, id);
         await new Promise((r) => setTimeout(r, shot.wait || 250));

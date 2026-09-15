@@ -74,6 +74,7 @@ export const ORDER = [
   "flows/coach/dashboard.html",
   "flows/coach/dashboard-drafts.html",
   "flows/coach/clients.html",
+  "flows/coach/clients-drafts.html",
   "flows/coach/client-groups.html",
   "flows/coach/client-detail-drafts.html",
   "flows/coach/sessions.html",
@@ -129,6 +130,10 @@ export const STATES = {
   "flows/coach/client-detail-drafts.html#s-draft-selfpaced": [
     { id: "busy", label: "3 to set up · 5 to review", run: "spSet('busy')" },
     { id: "fresh", label: "Nothing assigned yet", run: "spSet('empty')" },
+  ],
+  "flows/coach/clients-drafts.html#s-draft-clients": [
+    { id: "fresh", label: "Fresh coach → one card, two doors", run: "dSet('fresh')" },
+    { id: "search", label: "Searching → chips and This week hide", run: "cSearch('ma')" },
   ],
   "flows/coach/dashboard-drafts.html#s-draft-dash": [
     { id: "zero", label: "All caught up", run: "dSet('zero')" },

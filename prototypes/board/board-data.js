@@ -1154,6 +1154,11 @@ window.FIT_BOARD = {
               "id": "s-draft-dash"
             },
             {
+              "file": "flows/coach/clients-drafts.html",
+              "label": "Coach Clients drafts (WIP)",
+              "id": "s-draft-clients"
+            },
+            {
               "file": "flows/athlete/dashboard.html",
               "label": "Athlete Dashboard",
               "id": "s-dashboard"
@@ -3266,6 +3271,284 @@ window.FIT_BOARD = {
       ]
     },
     {
+      "file": "flows/coach/clients-drafts.html",
+      "label": "Coach Clients drafts (WIP)",
+      "role": "coach",
+      "slug": "coach-clients-drafts",
+      "screens": [
+        {
+          "id": "s-draft-clients",
+          "hash": "d1ca9179e3af",
+          "title": "Clients, placed",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": true,
+          "note": "Every screen reached from here is copied into this file (source named on each). Client rows open the Client Detail rework (client-detail-drafts.html), Home in the tab bar opens the Home rework.",
+          "external": [
+            "../shared/messages.html?role=coach#s-messages",
+            "../coach/invite.html?mode=invite&origin=s-clients#s-invite-select"
+          ],
+          "shots": [
+            {
+              "file": "coach-clients-drafts__s-draft-clients.webp",
+              "label": ""
+            },
+            {
+              "file": "coach-clients-drafts__s-draft-clients__fresh.webp",
+              "label": "Fresh coach → one card, two doors"
+            },
+            {
+              "file": "coach-clients-drafts__s-draft-clients__search.webp",
+              "label": "Searching → chips and This week hide"
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-archived",
+          "hash": "1570c36f1497",
+          "title": "↳ Archived & Blocked",
+          "inApp": "Archived & Blocked",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From the row at the bottom. Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients-drafts__s-archived.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-import-contacts",
+          "hash": "6362325738d2",
+          "title": "↳ Import contacts",
+          "inApp": "Import contacts",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From + and from the fresh-coach card. Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients-drafts__s-import-contacts.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-import-done",
+          "hash": "6e818ffe6875",
+          "title": "↳ Import done",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients-drafts__s-import-done.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 3,
+          "order": 0
+        },
+        {
+          "id": "s-create-client",
+          "hash": "bb70e03f7eca",
+          "title": "↳ Create client",
+          "inApp": "New client",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From + &rarr; Create profile. Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients-drafts__s-create-client.webp",
+              "label": ""
+            }
+          ],
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-groups",
+          "hash": "2b71db898ac3",
+          "title": "↳ Groups pane",
+          "inApp": "Clients",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "The other segment. Manual groups only — smart groups moved to the chips on the Clients pane.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients-drafts__s-groups.webp",
+              "label": ""
+            },
+            {
+              "file": "coach-clients-drafts__s-groups__empty.webp",
+              "label": "No groups yet"
+            }
+          ],
+          "level": 1,
+          "order": 3
+        },
+        {
+          "id": "s-group-smart",
+          "hash": "01cb8fda38b2",
+          "title": "↳ Smart group (from a chip)",
+          "inApp": "Owes money",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From a Needs you chip — the computed list (owes money / inactive / packs low / not in app / new). Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients-drafts__s-group-smart.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 0
+        },
+        {
+          "id": "s-group-detail",
+          "hash": "f1c1136c819b",
+          "title": "↳ Group",
+          "inApp": "Morning",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [
+            "./sessions.html#s-series",
+            "./calendar.html",
+            "./invite.html?mode=schedule&origin=s-group-detail&filter=group&group=morning"
+          ],
+          "shots": [
+            {
+              "file": "coach-clients-drafts__s-group-detail.webp",
+              "label": ""
+            },
+            {
+              "file": "coach-clients-drafts__s-group-detail__editing.webp",
+              "label": "Edit mode — tap a row to remove"
+            },
+            {
+              "file": "coach-clients-drafts__s-group-detail__no-schedule.webp",
+              "label": "Not on any session"
+            },
+            {
+              "file": "coach-clients-drafts__s-group-detail__drawer.webp",
+              "label": "Schedule drawer — one-off or weekly"
+            }
+          ],
+          "level": 2,
+          "order": 1
+        },
+        {
+          "id": "s-group-create",
+          "hash": "add9e8ef65a6",
+          "title": "↳ Create group",
+          "inApp": "New group",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients-drafts__s-group-create.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 2
+        }
+      ],
+      "edges": [
+        {
+          "from": "s-draft-clients",
+          "to": "s-groups",
+          "back": false
+        },
+        {
+          "from": "s-draft-clients",
+          "to": "s-archived",
+          "back": false
+        },
+        {
+          "from": "s-draft-clients",
+          "to": "s-import-contacts",
+          "back": false
+        },
+        {
+          "from": "s-draft-clients",
+          "to": "s-create-client",
+          "back": false
+        },
+        {
+          "from": "s-import-contacts",
+          "to": "s-draft-clients",
+          "back": true
+        },
+        {
+          "from": "s-import-done",
+          "to": "s-draft-clients",
+          "back": true
+        },
+        {
+          "from": "s-groups",
+          "to": "s-group-detail",
+          "back": false
+        },
+        {
+          "from": "s-groups",
+          "to": "s-group-smart",
+          "back": false
+        },
+        {
+          "from": "s-groups",
+          "to": "s-group-create",
+          "back": false
+        },
+        {
+          "from": "s-group-smart",
+          "to": "s-groups",
+          "back": true
+        },
+        {
+          "from": "s-group-detail",
+          "to": "s-groups",
+          "back": true
+        },
+        {
+          "from": "s-group-create",
+          "to": "s-groups",
+          "back": true
+        },
+        {
+          "from": "s-group-create",
+          "to": "s-group-detail",
+          "back": true
+        }
+      ]
+    },
+    {
       "file": "flows/coach/client-groups.html",
       "label": "Client Groups",
       "role": "coach",
@@ -4337,6 +4620,11 @@ window.FIT_BOARD = {
           "order": 4,
           "inFrom": [
             {
+              "file": "flows/coach/clients-drafts.html",
+              "label": "Coach Clients drafts (WIP)",
+              "id": "s-group-detail"
+            },
+            {
               "file": "flows/coach/client-groups.html",
               "label": "Client Groups",
               "id": "s-group-schedule"
@@ -4535,6 +4823,11 @@ window.FIT_BOARD = {
           "level": 0,
           "order": 0,
           "inFrom": [
+            {
+              "file": "flows/coach/clients-drafts.html",
+              "label": "Coach Clients drafts (WIP)",
+              "id": "s-group-detail"
+            },
             {
               "file": "flows/coach/client-groups.html",
               "label": "Client Groups",
@@ -4764,6 +5057,11 @@ window.FIT_BOARD = {
               "file": "flows/coach/clients.html",
               "label": "Coach Clients",
               "id": "s-client-detail"
+            },
+            {
+              "file": "flows/coach/clients-drafts.html",
+              "label": "Coach Clients drafts (WIP)",
+              "id": "s-group-detail"
             },
             {
               "file": "flows/coach/client-groups.html",

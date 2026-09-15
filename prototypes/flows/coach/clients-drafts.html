@@ -1,0 +1,2302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>321Fit — Coach Clients drafts (WIP)</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/fit-ui.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: var(--fit-font); background: #0a0a0a; display: flex; justify-content: center; align-items: flex-start; padding: 24px; min-height: 100vh; min-width: 900px; }
+  .sidebar { position: fixed; left: 24px; top: 24px; bottom: 24px; width: 200px; display: flex; flex-direction: column; }
+  .sidebar-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .sidebar .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--fit-gray-600); padding: 0 8px; margin: 16px 0 8px; }
+  .sidebar .label:first-child { margin-top: 0; }
+  .sidebar button { font-family: var(--fit-font); font-size: 14px; font-weight: 400; padding: 10px 12px; border-radius: 10px; border: none; background: transparent; color: var(--fit-gray-400); cursor: pointer; text-align: left; width: 100%; transition: all 0.15s; }
+  .sidebar button:hover { background: var(--fit-gray-900); color: var(--fit-white); }
+  .sidebar button.active { background: var(--fit-selection-gradient); color: var(--fit-white); font-weight: 500; }
+  .ann-container { position: fixed; left: calc(50% + 195px + 48px); right: 24px; top: 24px; bottom: 24px; width: auto; overflow-y: auto; }
+  .ann-container::-webkit-scrollbar { width: 4px; }
+  .ann-container::-webkit-scrollbar-thumb { background: var(--fit-gray-700); border-radius: 2px; }
+  .ann { display: none; } .ann.active { display: block; }
+  .ann-role { display: inline-block; font-size: 14px; font-weight: 500; padding: 4px 12px; border-radius: 8px; margin-bottom: 16px; background: rgba(5,224,166,0.15); color: var(--fit-teal-500); }
+  .ann h3 { font-size: 22px; font-weight: 600; color: var(--fit-white); margin-bottom: 12px; line-height: 1.3; }
+  .ann p { font-size: 15px; line-height: 1.6; color: var(--fit-gray-400); margin-bottom: 10px; }
+  .ann p strong { color: var(--fit-gray-300); font-weight: 500; }
+  .ann ul { margin-top: 6px; padding-left: 18px; font-size: 14px; line-height: 1.7; color: var(--fit-gray-400); }
+  .ann li { margin-bottom: 6px; }
+  .ann li strong { color: var(--fit-gray-200); font-weight: 500; }
+  .ann hr { border: none; border-top: 1px solid var(--fit-gray-800); margin: 16px 0; }
+  .ann .note { font-size: 13px; color: var(--fit-gray-500); }
+  .ann code { font-family: ui-monospace, monospace; font-size: 12px; background: var(--fit-gray-900); padding: 1px 5px; border-radius: 4px; color: var(--fit-gray-300); }
+  .ann .bet { border-left: 3px solid var(--fit-teal-500); padding: 8px 0 8px 12px; margin-bottom: 14px; font-size: 15px; color: var(--fit-gray-300); }
+  .ann .cost { border-left: 3px solid var(--fit-red-400); padding: 8px 0 8px 12px; margin: 14px 0; font-size: 14px; color: var(--fit-gray-400); }
+  .state-toggle { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .state-toggle button { font-family: var(--fit-font); font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 99px; border: 1px solid var(--fit-gray-700); background: transparent; color: var(--fit-gray-400); cursor: pointer; }
+  .state-toggle button.active { background: var(--fit-gray-700); color: var(--fit-white); }
+  /* Cloned the shell from calendar-legend.html, which has exactly one phone and so never needed
+     these two lines. With three, every screen rendered at once and the annotation column —
+     positioned for a single centred phone — landed on top of the third. */
+  .fit-phone { display: none; }
+  .fit-phone.active { display: flex; }
+
+  /* ===========================================================================
+     DRAFT-LOCAL STYLES — prefix cd-*. These are exploration, deliberately not
+     bound by the shipped rules: the brief was "ignore the rulebook, find the
+     shape". Nothing here is promoted to fit-ui.css until a direction wins.
+     =========================================================================== */
+
+  /* --- liveliness kit, shared by all three drafts --- */
+  /* Entry stagger. The difference between "a screen appeared" and "a screen
+     assembled itself" is almost entirely this. */
+  @keyframes cd-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .fit-phone.active .cd-in { animation: cd-rise 0.44s cubic-bezier(0.22,1,0.36,1) backwards; }
+  .fit-phone.active .cd-in:nth-child(1) { animation-delay: 0.02s; }
+  .fit-phone.active .cd-in:nth-child(2) { animation-delay: 0.07s; }
+  .fit-phone.active .cd-in:nth-child(3) { animation-delay: 0.12s; }
+  .fit-phone.active .cd-in:nth-child(4) { animation-delay: 0.17s; }
+  .fit-phone.active .cd-in:nth-child(5) { animation-delay: 0.22s; }
+  .fit-phone.active .cd-in:nth-child(6) { animation-delay: 0.27s; }
+  .fit-phone.active .cd-in:nth-child(7) { animation-delay: 0.32s; }
+  .fit-phone.active .cd-in:nth-child(8) { animation-delay: 0.37s; }
+  /* Press spring — the cheapest signal that a surface is a control. */
+  .cd-press { transition: transform 0.14s cubic-bezier(0.34,1.56,0.64,1), background 0.14s; cursor: pointer; }
+  .cd-press:active { transform: scale(0.975); }
+
+  /* --- A: FOCUS ------------------------------------------------------------ */
+  .cd-a-hero { margin: 4px 16px 14px; border-radius: 22px; overflow: hidden; background: var(--fit-surface-high); }
+  .fit-light .cd-a-hero { background: var(--fit-white); box-shadow: 0 6px 22px rgba(0,0,0,0.08); }
+  .cd-a-who { display: flex; align-items: center; gap: 12px; padding: 16px 16px 14px; }
+  .cd-a-av { width: 48px; height: 48px; border-radius: 50%; background: var(--fit-brand-gradient); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 600; flex-shrink: 0; }
+  .cd-a-name { font-size: 19px; font-weight: 600; color: var(--fit-text-primary); }
+  .cd-a-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .cd-a-next { padding: 16px; background: var(--fit-brand-gradient); color: #fff; }
+  .cd-a-label { font-size: 11px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; opacity: 0.75; }
+  .cd-a-when { font-size: 22px; font-weight: 600; margin-top: 4px; }
+  .cd-a-where { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+  .cd-a-acts { display: flex; gap: 8px; margin-top: 14px; }
+  .cd-a-acts button { flex: 1; height: 42px; border: none; border-radius: 99px; font-family: var(--fit-font); font-size: 15px; font-weight: 500; cursor: pointer; background: rgba(255,255,255,0.22); color: #fff; backdrop-filter: blur(4px); }
+  .cd-a-acts button.ghost { background: transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.45); }
+  /* The live row: everything with a state, on one line, in one glance. */
+  .cd-a-live { display: flex; gap: 8px; overflow-x: auto; padding: 0 16px 16px; scrollbar-width: none; }
+  .cd-a-live::-webkit-scrollbar { display: none; }
+  .cd-a-chip { flex-shrink: 0; display: flex; align-items: center; gap: 7px; padding: 9px 14px; border-radius: 99px; font-size: 13px; font-weight: 500; background: var(--fit-surface-high); color: var(--fit-text-primary); }
+  .fit-light .cd-a-chip { background: var(--fit-white); box-shadow: 0 0 10px rgba(0,0,0,0.06); }
+  .cd-a-chip i { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .cd-a-chip.warn i { background: var(--fit-yellow-400); }
+  .cd-a-chip.due i  { background: var(--fit-red-400); }
+  .cd-a-chip.ok i   { background: var(--fit-teal-500); }
+  /* Everything that is merely a record: flat rows, one tap deep. */
+  .cd-a-row { display: flex; align-items: center; gap: 12px; padding: 15px 16px; cursor: pointer; }
+  .cd-a-row + .cd-a-row { border-top: 1px solid var(--fit-divider); }
+  .cd-a-rows { margin: 0 16px 20px; border-radius: 18px; overflow: hidden; background: var(--fit-surface-high); }
+  .fit-light .cd-a-rows { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.06); }
+  .cd-a-rt { flex: 1; font-size: 16px; color: var(--fit-text-primary); }
+  .cd-a-rv { font-size: 15px; color: var(--fit-text-tertiary); }
+  .cd-a-ic { width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--fit-divider); color: var(--fit-text-secondary); }
+  .cd-a-ic svg { width: 16px; height: 16px; }
+
+  /* --- B: TIMELINE --------------------------------------------------------- */
+  .cd-b-head { display: flex; align-items: center; gap: 12px; padding: 6px 16px 12px; }
+  .cd-b-live { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 16px 16px; }
+  .cd-b-pill { font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 99px; }
+  .cd-b-pill.due { background: rgba(240,92,91,0.14); color: var(--fit-red-400); }
+  .cd-b-pill.warn { background: rgba(245,158,11,0.14); color: var(--fit-yellow-600); }
+  .cd-b-pill.ok { background: rgba(5,224,166,0.12); color: var(--fit-teal-600); }
+  .cd-b-day { font-size: 11px; font-weight: 600; letter-spacing: 1.3px; text-transform: uppercase; color: var(--fit-text-tertiary); padding: 18px 16px 8px; display: flex; align-items: center; gap: 10px; }
+  .cd-b-day::after { content: ""; flex: 1; height: 1px; background: var(--fit-divider); }
+  /* The spine. One vertical line makes a list of cards read as a chronology. */
+  .cd-b-item { position: relative; margin: 0 16px 8px 42px; padding: 13px 14px; border-radius: 15px; background: var(--fit-surface-high); }
+  .fit-light .cd-b-item { background: var(--fit-white); box-shadow: 0 0 10px rgba(0,0,0,0.055); }
+  .cd-b-item::before { content: ""; position: absolute; left: -26px; top: 20px; width: 11px; height: 11px; border-radius: 50%; background: var(--fit-gray-600); box-shadow: 0 0 0 4px var(--fit-screen-bg); }
+  .cd-b-item::after { content: ""; position: absolute; left: -21px; top: 31px; bottom: -20px; width: 1px; background: var(--fit-divider); }
+  .cd-b-item:last-of-type::after { display: none; }
+  .cd-b-item.up::before { background: var(--fit-brand-primary); }
+  .cd-b-item.money::before { background: var(--fit-yellow-400); }
+  .cd-b-item.warn::before { background: var(--fit-yellow-400); box-shadow: 0 0 0 4px var(--fit-screen-bg), 0 0 0 7px rgba(245,158,11,0.22); }
+  .cd-b-item.good::before { background: var(--fit-teal-500); }
+  .cd-b-item.bad::before { background: var(--fit-red-400); }
+  .cd-b-t { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .cd-b-m { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; }
+  .cd-b-cta { margin-top: 11px; display: flex; gap: 8px; }
+  .cd-b-cta button { height: 34px; padding: 0 16px; border: none; border-radius: 99px; font-family: var(--fit-font); font-size: 13px; font-weight: 500; cursor: pointer; background: var(--fit-brand-gradient); color: #fff; }
+  .cd-b-cta button.ghost { background: transparent; box-shadow: inset 0 0 0 1px var(--fit-divider); color: var(--fit-text-primary); }
+  .cd-b-up { margin: 0 16px 8px 42px; padding: 15px 16px; border-radius: 15px; background: var(--fit-brand-gradient); color: #fff; position: relative; }
+  .cd-b-up::before { content: ""; position: absolute; left: -26px; top: 22px; width: 11px; height: 11px; border-radius: 50%; background: var(--fit-brand-primary); box-shadow: 0 0 0 4px var(--fit-screen-bg); }
+  .cd-b-up::after { content: ""; position: absolute; left: -21px; top: 33px; bottom: -16px; width: 1px; background: var(--fit-divider); }
+
+  /* --- C: SEGMENTS --------------------------------------------------------- */
+  .cd-c-hero { position: relative; padding: 18px 16px 20px; text-align: center; overflow: hidden; }
+  .cd-c-glow { position: absolute; left: 50%; top: -110px; width: 300px; height: 300px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(circle, rgba(0,167,208,0.30), transparent 68%); pointer-events: none; }
+  .cd-c-ring { position: relative; width: 104px; height: 104px; margin: 0 auto 12px; }
+  .cd-c-ring svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+  .cd-c-ring circle { fill: none; stroke-width: 4; stroke-linecap: round; }
+  .cd-c-ring .bg { stroke: var(--fit-divider); }
+  .cd-c-ring .fg { stroke: url(#cdgrad); stroke-dasharray: 302; stroke-dashoffset: 302; transition: stroke-dashoffset 1.15s cubic-bezier(0.22,1,0.36,1); }
+  .fit-phone.active .cd-c-ring .fg { stroke-dashoffset: 64; }
+  .cd-c-av { position: absolute; inset: 11px; border-radius: 50%; background: var(--fit-brand-gradient); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 600; }
+  .cd-c-name { font-size: 22px; font-weight: 600; color: var(--fit-text-primary); }
+  .cd-c-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; }
+  .cd-c-stats { display: flex; margin-top: 16px; }
+  .cd-c-stat { flex: 1; }
+  .cd-c-sv { font-size: 24px; font-weight: 700; color: var(--fit-text-primary); font-variant-numeric: tabular-nums; }
+  .cd-c-sl { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .cd-c-sep { width: 1px; background: var(--fit-divider); margin: 4px 0; }
+  .cd-c-tabs { display: flex; gap: 6px; padding: 4px; margin: 0 16px 16px; border-radius: 99px; background: var(--fit-surface-high); }
+  .fit-light .cd-c-tabs { background: var(--fit-gray-100); }
+  .cd-c-tab { flex: 1; height: 38px; border: none; border-radius: 99px; background: transparent; font-family: var(--fit-font); font-size: 14px; font-weight: 500; color: var(--fit-text-tertiary); cursor: pointer; transition: all 0.2s; }
+  .cd-c-tab.on { background: var(--fit-brand-gradient); color: #fff; }
+  .cd-c-card { margin: 0 16px 10px; padding: 15px 16px; border-radius: 16px; background: var(--fit-surface-high); }
+  .fit-light .cd-c-card { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.06); }
+  .cd-c-ct { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .cd-c-cm { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; }
+  /* --- D/E/F: ACCENT BUDGET + MEDIA GRAMMAR -------------------------------- */
+  /* Controlled imagery only. These four covers stand in for the curated library
+     (sport per taxonomy slug, static map per coordinates, group collage) — the
+     grammar is what is under test, not the photography. */
+  .cd-media {
+    --cd-img-tennis: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%230d3b46'/><stop offset='1' stop-color='%230a6f6a'/></linearGradient><filter id='b' x='-30%' y='-30%' width='160%' height='160%'><feGaussianBlur stdDeviation='16'/></filter><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter></defs><rect width='320' height='180' fill='url(%23g)'/><g filter='url(%23b)' opacity='0.9'><ellipse cx='70' cy='40' rx='70' ry='50' fill='%2318c9a3' opacity='0.55'/><circle cx='250' cy='140' r='80' fill='%230a3550'/><ellipse cx='190' cy='55' rx='95' ry='38' fill='%23a8f0dd' opacity='0.28'/><circle cx='120' cy='150' r='45' fill='%23063b3f' opacity='0.8'/></g><rect width='320' height='180' filter='url(%23n)' opacity='0.1'/></svg>");
+    --cd-img-gym: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%232a1a24'/><stop offset='1' stop-color='%235c2b25'/></linearGradient><filter id='b' x='-30%' y='-30%' width='160%' height='160%'><feGaussianBlur stdDeviation='16'/></filter><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter></defs><rect width='320' height='180' fill='url(%23g)'/><g filter='url(%23b)' opacity='0.9'><circle cx='80' cy='60' r='70' fill='%23b1503a' opacity='0.75'/><ellipse cx='250' cy='120' rx='90' ry='60' fill='%23301a20'/><ellipse cx='170' cy='40' rx='80' ry='30' fill='%23f0b39a' opacity='0.30'/></g><rect width='320' height='180' filter='url(%23n)' opacity='0.1'/></svg>");
+    --cd-img-map: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'><defs><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter></defs><rect width='320' height='180' fill='%23e9ecef'/><path d='M0 118 H320' stroke='%23ffffff' stroke-width='22'/><path d='M118 0 V180' stroke='%23ffffff' stroke-width='16'/><path d='M0 52 H320' stroke='%23ffffff' stroke-width='9'/><path d='M236 0 V180' stroke='%23ffffff' stroke-width='7'/><rect x='140' y='66' width='78' height='40' fill='%23dfe4e8'/><rect x='250' y='66' width='60' height='40' fill='%23dfe4e8'/><rect x='10' y='66' width='90' height='40' fill='%23dfe4e8'/><rect x='0' y='134' width='100' height='46' fill='%23cfe3d3'/><rect x='250' y='134' width='70' height='46' fill='%23cfe3d3'/><circle cx='160' cy='90' r='16' fill='%2305e0a6' opacity='0.28'/><circle cx='160' cy='90' r='7' fill='%230a93bd'/><rect width='320' height='180' filter='url(%23n)' opacity='0.07'/></svg>");
+    --cd-img-group: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%231c2b45'/><stop offset='1' stop-color='%233b3560'/></linearGradient><filter id='b' x='-30%' y='-30%' width='160%' height='160%'><feGaussianBlur stdDeviation='16'/></filter><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter></defs><rect width='320' height='180' fill='url(%23g)'/><g filter='url(%23b)' opacity='0.9'><circle cx='90' cy='70' r='60' fill='%234f7bd6' opacity='0.7'/><circle cx='220' cy='120' r='75' fill='%237a5cc4' opacity='0.65'/><ellipse cx='160' cy='30' rx='90' ry='30' fill='%23cfd8ff' opacity='0.25'/></g><rect width='320' height='180' filter='url(%23n)' opacity='0.1'/></svg>");
+  }
+  .cd-m-cover { position: relative; margin: 4px 16px 14px; height: 178px; border-radius: 22px; overflow: hidden; background: var(--cd-img-tennis) center/cover no-repeat; }
+  .cd-m-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.05) 22%, rgba(0,0,0,0.78) 100%); }
+  .cd-m-body { position: absolute; left: 16px; right: 16px; bottom: 14px; color: #fff; }
+  .cd-m-kicker { font-size: 11px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; opacity: 0.9; }
+  .cd-m-title { font-size: 21px; font-weight: 600; margin-top: 3px; }
+  .cd-m-sub { font-size: 13px; opacity: 0.86; margin-top: 2px; }
+  .cd-m-acts { display: flex; gap: 8px; margin-top: 12px; }
+  .cd-m-acts button { flex: 1; height: 40px; border: none; border-radius: 99px; font-family: var(--fit-font); font-size: 15px; font-weight: 500; cursor: pointer; background: rgba(255,255,255,0.24); color: #fff; backdrop-filter: blur(6px); }
+  .cd-m-acts button.solid { background: #fff; color: #12161a; }
+  /* A thing gets a picture; a concept keeps its plate; a person stays an avatar. */
+  .cd-m-tile { width: 46px; height: 46px; border-radius: 13px; flex-shrink: 0; background-size: cover; background-position: center; }
+  .cd-m-tile.t-tennis { background-image: var(--cd-img-tennis); }
+  .cd-m-tile.t-map { background-image: var(--cd-img-map); }
+  .cd-m-tile.t-group { background-image: var(--cd-img-group); }
+  .cd-m-tile.t-gym { background-image: var(--cd-img-gym); }
+  .cd-m-row { display: flex; align-items: center; gap: 12px; padding: 11px 16px; cursor: pointer; }
+  .cd-m-row + .cd-m-row { border-top: 1px solid var(--fit-divider); }
+  .cd-m-who { display: flex; align-items: center; gap: 12px; padding: 2px 16px 14px; }
+  .cd-m-av { width: 44px; height: 44px; border-radius: 50%; background: var(--fit-surface-higher); color: var(--fit-text-secondary); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600; flex-shrink: 0; }
+
+  /* D — the accent contract. Exactly one brand-filled surface per screen, and it
+     is the primary action. Everything that used to borrow the brand for emphasis
+     borrows type weight or a semantic dot instead. */
+  .cd-d-hero { margin: 4px 16px 14px; padding: 16px; border-radius: 22px; background: var(--fit-surface-high); }
+  .fit-light .cd-d-hero { background: var(--fit-white); box-shadow: 0 6px 22px rgba(0,0,0,0.08); }
+  .cd-d-next { margin-top: 14px; padding-left: 12px; border-left: 3px solid var(--fit-brand-secondary); }
+  .cd-d-label { font-size: 11px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; color: var(--fit-text-tertiary); }
+  .cd-d-when { font-size: 22px; font-weight: 600; color: var(--fit-text-primary); margin-top: 3px; }
+  .cd-d-where { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .cd-d-acts { display: flex; gap: 8px; margin-top: 14px; }
+  .cd-d-acts button { flex: 1; height: 42px; border: none; border-radius: 99px; font-family: var(--fit-font); font-size: 15px; font-weight: 500; cursor: pointer; background: var(--fit-surface-higher); color: var(--fit-text-primary); }
+  .fit-light .cd-d-acts button { background: var(--fit-gray-100); }
+  .cd-d-acts button.ghost { background: transparent; box-shadow: inset 0 0 0 1px var(--fit-divider); }
+  .cd-d-av { width: 48px; height: 48px; border-radius: 50%; background: var(--fit-surface-higher); color: var(--fit-text-secondary); display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 600; flex-shrink: 0; }
+  .fit-light .cd-d-av { background: var(--fit-gray-100); }
+
+  /* --- G: FLOATING PANELS (Revolut-ward) ----------------------------------- */
+  /* Colour as atmosphere, not as a button: the brand lives in a wash behind the
+     top of the screen and never appears as a filled rectangle again. */
+  .cd-g-wash { position: absolute; left: 0; right: 0; top: 0; height: 340px; pointer-events: none;
+    background: radial-gradient(120% 80% at 50% 0%, rgba(0,167,208,0.38), rgba(5,224,166,0.10) 45%, transparent 72%); }
+  .fit-light .cd-g-wash { background: radial-gradient(120% 80% at 50% 0%, rgba(0,167,208,0.22), rgba(5,224,166,0.07) 45%, transparent 72%); }
+  .cd-g-top { display: flex; align-items: center; gap: 8px; padding: 2px 16px 6px; position: relative; }
+  .cd-g-circ { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--fit-divider); background: rgba(255,255,255,0.06); color: var(--fit-text-primary); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+  .fit-light .cd-g-circ { background: rgba(255,255,255,0.7); }
+  .cd-g-circ svg { width: 18px; height: 18px; }
+  .cd-g-id { position: relative; text-align: center; padding: 10px 16px 2px; }
+  .cd-g-av { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 10px; background: var(--fit-surface-higher); color: var(--fit-text-secondary); display: flex; align-items: center; justify-content: center; font-size: 21px; font-weight: 600; }
+  .cd-g-name { font-size: 15px; font-weight: 500; color: var(--fit-text-secondary); }
+  .cd-g-hero { font-size: 34px; font-weight: 700; color: var(--fit-text-primary); letter-spacing: -0.5px; margin-top: 4px; }
+  .cd-g-where { font-size: 14px; color: var(--fit-text-tertiary); margin-top: 4px; }
+  .cd-g-acts { position: relative; padding: 18px 12px 6px; }
+  /* Panels. No hairlines anywhere: rows are separated by air and by left rhythm,
+     which is the whole of Revolut's "floating" feel. */
+  .cd-g-panel { position: relative; margin: 12px 16px 0; padding: 6px; border-radius: 22px; background: var(--fit-surface-high); }
+  .fit-light .cd-g-panel { background: var(--fit-white); box-shadow: 0 8px 26px rgba(0,0,0,0.07); }
+  .cd-g-ph { display: flex; align-items: center; gap: 6px; padding: 10px 12px 6px; font-size: 13px; font-weight: 500; color: var(--fit-text-tertiary); cursor: pointer; }
+  .cd-g-ph svg { width: 14px; height: 14px; }
+  .cd-g-row { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 16px; cursor: pointer; }
+  .cd-g-row:active { background: var(--fit-surface-higher); }
+  .cd-g-rt { flex: 1; min-width: 0; }
+  .cd-g-r1 { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
+  .cd-g-r2 { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .cd-g-rv { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); text-align: right; }
+  .cd-g-rv small { display: block; font-size: 12px; font-weight: 400; color: var(--fit-text-tertiary); margin-top: 2px; }
+
+  /* --- H: BIG TITLE + TILES (Uber-ward) ------------------------------------ */
+  .cd-h-head { display: flex; align-items: flex-start; gap: 12px; padding: 8px 16px 14px; }
+  .cd-h-title { flex: 1; font-size: 32px; font-weight: 700; line-height: 1.08; letter-spacing: -0.6px; color: var(--fit-text-primary); }
+  .cd-h-meta { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; padding: 4px 10px; border-radius: 8px; background: var(--fit-surface-higher); font-size: 13px; font-weight: 500; color: var(--fit-text-secondary); }
+  .fit-light .cd-h-meta { background: var(--fit-gray-100); }
+  .cd-h-meta svg { width: 15px; height: 15px; flex-shrink: 0; }
+  .cd-h-av { width: 58px; height: 58px; border-radius: 50%; background: var(--fit-surface-higher); color: var(--fit-text-secondary); display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 600; flex-shrink: 0; }
+  /* Two-up destination tiles: peers of equal weight, side by side, instead of
+     five rows of a table that all look the same. */
+  .cd-h-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px 14px; }
+  .cd-h-tile { padding: 14px; border-radius: 16px; background: var(--fit-surface-high); cursor: pointer; }
+  .fit-light .cd-h-tile { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.06); }
+  .cd-h-tile svg { width: 20px; height: 20px; color: var(--fit-text-secondary); }
+  .cd-h-tl { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); margin-top: 10px; }
+  .cd-h-ts { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .cd-h-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--fit-red-400); display: inline-block; margin-left: 6px; vertical-align: middle; }
+  .cd-h-sec { display: flex; align-items: center; gap: 6px; padding: 6px 16px 8px; font-size: 19px; font-weight: 600; color: var(--fit-text-primary); }
+  .cd-h-sec svg { width: 16px; height: 16px; color: var(--fit-text-tertiary); }
+  .cd-h-card { margin: 0 16px 12px; border-radius: 18px; overflow: hidden; background: var(--fit-surface-high); }
+  .fit-light .cd-h-card { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.06); }
+  .cd-h-map { height: 108px; background: var(--cd-img-map) center/cover no-repeat; }
+  .cd-h-cbody { padding: 12px 14px 14px; }
+  .cd-h-ct { font-size: 17px; font-weight: 600; color: var(--fit-text-primary); }
+  .cd-h-cm { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; }
+  /* The action rides the row instead of a chevron — Uber's "Rebook". */
+  .cd-h-pill { margin-top: 12px; height: 36px; padding: 0 16px; border: 1px solid var(--fit-divider); border-radius: 99px; background: transparent; font-family: var(--fit-font); font-size: 14px; font-weight: 500; color: var(--fit-text-primary); cursor: pointer; }
+  .cd-h-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; }
+  .cd-h-thumb { width: 44px; height: 44px; border-radius: 12px; background-size: cover; background-position: center; flex-shrink: 0; }
+
+  /* --- I: FLOATING, FILLED -------------------------------------------------
+     G with the notes from review: the wash now starts above the status bar (the
+     black band under a phone chrome is not a design, it is a leak), the header
+     is only chrome, identity is bigger, and the next session moved OUT of the
+     header into the first section under the action circles. Density is deliberate
+     — a bare screen proves nothing about how the language behaves at scale. */
+  #s-draft-full { position: relative; }
+  #s-draft-full::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 430px; z-index: 0; pointer-events: none;
+    background: radial-gradient(125% 78% at 50% -6%, rgba(0,167,208,0.42), rgba(5,224,166,0.12) 46%, transparent 74%);
+  }
+  #s-draft-full.fit-light::before {
+    background: radial-gradient(125% 78% at 50% -6%, rgba(0,167,208,0.26), rgba(5,224,166,0.09) 46%, transparent 74%);
+  }
+  #s-draft-full .fit-phone-header, #s-draft-full .fit-phone-content { position: relative; z-index: 1; background: transparent; }
+  .cd-i-id { text-align: center; padding: 6px 16px 2px; }
+  .cd-i-av { width: 84px; height: 84px; border-radius: 50%; margin: 0 auto 12px; background: var(--fit-surface-higher); color: var(--fit-text-primary); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 600; }
+  .fit-light .cd-i-av { background: rgba(255,255,255,0.75); }
+  .cd-i-name { font-size: 28px; font-weight: 700; letter-spacing: -0.4px; color: var(--fit-text-primary); }
+  .cd-i-sub { font-size: 14px; color: var(--fit-text-secondary); margin-top: 5px; }
+  /* Section titles live outside the panel here — the panel is the answer, the
+     title is the question, and Revolut keeps them on different planes. */
+  .cd-i-sec { display: flex; align-items: center; gap: 6px; padding: 20px 20px 8px 20px; font-size: 15px; font-weight: 600; color: var(--fit-text-secondary); }
+  .cd-i-sec svg { width: 14px; height: 14px; color: var(--fit-text-tertiary); }
+  .cd-i-sec span { margin-left: auto; font-size: 13px; font-weight: 500; color: var(--fit-text-tertiary); }
+  .cd-i-panel { margin: 0 16px; padding: 6px; border-radius: 22px; background: var(--fit-surface-high); }
+  .fit-light .cd-i-panel { background: var(--fit-white); box-shadow: 0 8px 26px rgba(0,0,0,0.07); }
+  .cd-i-next { padding: 14px; }
+  .cd-i-nrow { display: flex; align-items: center; gap: 12px; }
+  .cd-i-when { font-size: 17px; font-weight: 600; color: var(--fit-text-primary); }
+  .cd-i-what { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; }
+  .cd-i-nacts { display: flex; gap: 8px; margin-top: 12px; }
+  .cd-i-nacts button { flex: 1; height: 40px; border: none; border-radius: 99px; font-family: var(--fit-font); font-size: 15px; font-weight: 500; cursor: pointer; background: var(--fit-surface-higher); color: var(--fit-text-primary); }
+  .fit-light .cd-i-nacts button { background: var(--fit-gray-100); }
+  /* Empty next-session → the CTA takes the same slot, and is then the one filled
+     brand surface on the screen. Never both. */
+  .cd-i-empty { display: none; padding: 16px; text-align: center; }
+  .cd-i-empty p { font-size: 14px; color: var(--fit-text-tertiary); margin-bottom: 12px; }
+  #s-draft-full.no-next .cd-i-next { display: none; }
+  #s-draft-full.no-next .cd-i-empty { display: block; }
+  /* One section as tiles instead of a list — same data, different grammar, so the
+     scroll stops being one long column of identical rows. */
+  .cd-i-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 16px; }
+  .cd-i-tile { padding: 14px; border-radius: 18px; background: var(--fit-surface-high); cursor: pointer; }
+  .fit-light .cd-i-tile { background: var(--fit-white); box-shadow: 0 8px 26px rgba(0,0,0,0.07); }
+  .cd-i-tv { font-size: 22px; font-weight: 700; color: var(--fit-text-primary); letter-spacing: -0.3px; }
+  .cd-i-tv.due { color: var(--fit-red-400); }
+  .cd-i-tl { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; }
+  .cd-i-tbar { height: 4px; border-radius: 99px; background: var(--fit-divider); margin-top: 10px; overflow: hidden; }
+  .cd-i-tbar i { display: block; height: 100%; width: 80%; border-radius: 99px; background: var(--fit-brand-secondary); }
+
+  /* --- J: THE LAYOUT ARGUMENT ---------------------------------------------
+     I's language, but every block placed by what it is FOR: identity, then what
+     the coach owes an answer to, then what is next, then the assets, then the
+     archive. Header carries chrome only; the circles are the four things you do
+     TO a person and never repeat what lives in the menu. */
+  #s-draft-clients { position: relative; }
+  /* The wash now runs past the action circles and dissolves over ~180px instead
+     of ending on a visible edge: two layers, a radial for the colour and a linear
+     for the landing. */
+  /* The original wash, only taller: it has to run under the action pills, not
+     stop above them. Same stops, same softness — just more room. */
+  #s-draft-clients::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 640px; z-index: -1; pointer-events: none;
+    background: radial-gradient(125% 78% at 50% -6%, rgba(0,167,208,0.42), rgba(5,224,166,0.12) 46%, transparent 74%);
+  }
+  #s-draft-clients.fit-light::before { background: radial-gradient(125% 78% at 50% -6%, rgba(0,167,208,0.26), rgba(5,224,166,0.09) 46%, transparent 74%); }
+  #s-draft-clients { isolation: isolate; }
+  #s-draft-clients::before { z-index: -1; }
+  #s-draft-clients .fit-phone-header, #s-draft-clients .fit-phone-content { background: transparent; }
+  .cd-j-badge { display: none; margin-top: 8px; }
+  #s-draft-clients.j-crm .cd-j-badge { display: inline-block; padding: 3px 10px; border-radius: 7px; background: var(--fit-surface-higher); font-size: 12px; font-weight: 600; letter-spacing: 0.4px; color: var(--fit-text-secondary); }
+  .cd-j-sub-fresh { display: none; }
+  #s-draft-clients.j-fresh .cd-j-sub-full { display: none; }
+  #s-draft-clients.j-fresh .cd-j-sub-fresh { display: block; }
+  /* State banners sit ABOVE the actions because they decide which are legal.
+     Archive is soft (nothing below changes). Block kills Book + Message but
+     keeps what is booked (spec: upcoming preserved, coach cancels by hand).
+     Deleted kills Book + Message and has nothing upcoming. Cash stays
+     settleable through all three (spec §Flow 7). */
+  .cd-j-banner { display: none; align-items: center; gap: 10px; margin: 14px 16px 0; padding: 12px 14px; border-radius: 16px; font-size: 13px; line-height: 1.4; }
+  #s-draft-clients.j-blocked .cd-j-banner-blocked { display: flex; background: rgba(240,92,91,0.13); color: var(--fit-red-400); }
+  #s-draft-clients.j-archived .cd-j-banner-archived,
+  #s-draft-clients.j-deleted .cd-j-banner-deleted { display: flex; border: 1px solid var(--fit-divider); color: var(--fit-text-secondary); }
+  .cd-j-banner svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .cd-j-banner button { margin-left: auto; flex-shrink: 0; height: 32px; padding: 0 14px; border: 1px solid currentColor; border-radius: 99px; background: transparent; font-family: var(--fit-font); font-size: 13px; font-weight: 500; color: inherit; cursor: pointer; }
+  .cd-j-acts { padding: 14px 12px 4px; }
+  .cd-j-c-invite { display: none; }
+  /* Count badge on a circle — kept inside the circle's box so four still fit. */
+  .fit-action-circle { position: relative; }
+  .cd-j-badge-n { position: absolute; top: -2px; right: 8px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 99px; background: var(--fit-red-400); color: #fff; font-size: 12px; font-weight: 600; line-height: 20px; text-align: center; }
+  .cd-j-badge-n.calm { background: var(--fit-surface-higher); color: var(--fit-text-secondary); }
+  #s-draft-clients.j-crm .cd-j-c-msg { display: none; }
+  #s-draft-clients.j-crm .cd-j-c-invite { display: flex; }
+  #s-draft-clients.j-fresh .cd-j-badge-n { display: none; }
+  /* Disabled = lost definition + depth; the slot stays so the row does not shift. */
+  #s-draft-clients.j-blocked .cd-j-c-book, #s-draft-clients.j-blocked .cd-j-c-msg,
+  #s-draft-clients.j-deleted .cd-j-c-book, #s-draft-clients.j-deleted .cd-j-c-msg { opacity: 0.32; pointer-events: none; }
+  #s-draft-clients.j-blocked .cd-j-chip:not(.due), #s-draft-clients.j-deleted .cd-j-chip:not(.due) { display: none; }
+  #s-draft-clients.j-deleted .cd-j-sec-next, #s-draft-clients.j-deleted .cd-j-sec-week { display: none; }
+  /* Loading: identity + circles are instant, everything under them is skeleton. */
+  .cd-j-skel { display: none; padding-top: 18px; }
+  #s-draft-clients.j-loading .cd-j-skel { display: block; }
+  #s-draft-clients.j-loading .cd-j-body { display: none; }
+  #s-draft-clients.j-loading .cd-j-badge-n { display: none; }
+  /* Needs you: gone entirely when there is nothing to answer. */
+  #s-draft-clients.j-clean .cd-j-need-sec, #s-draft-clients.j-fresh .cd-j-need-sec { display: none; }
+  /* Next session: state in the calendar's language. Request = yellow perimeter
+     (act on it), awaiting = dashed (tentative, nothing to do). Planned = plain. */
+  .cd-j-when-row { display: flex; align-items: center; gap: 8px; }
+  .cd-j-when-row .cd-i-when { flex: 1; min-width: 0; }
+  .cd-j-nb { display: none; flex-shrink: 0; }
+  #s-draft-clients.j-next-request .cd-j-nb-request { display: inline-block; }
+  /* Planned = a solid teal perimeter: "this is your next one" — the eye lands here first.
+     Request/awaiting keep the calendar's yellow (solid / dashed) and override it. */
+  .cd-j-next-panel { outline: 1px solid var(--fit-teal-500); outline-offset: -1px; }
+  .fit-dark.k-alpha .cd-j-next-panel { outline-color: rgba(5,224,166,0.75); }
+  #s-draft-clients.j-next-request .cd-j-next-panel { outline: 1px solid var(--fit-yellow-600); outline-offset: -1px; background: rgba(222,145,29,0.10); }
+  #s-draft-clients.fit-light.j-next-request .cd-j-next-panel { background: rgba(222,145,29,0.20); }
+  #s-draft-clients.j-next-awaiting .cd-j-nb-awaiting { display: inline-block; }
+  #s-draft-clients.j-next-awaiting .cd-j-next-panel { outline: 1px dashed var(--fit-yellow-600); outline-offset: -1px; background: transparent; }
+  #s-draft-clients.fit-light.j-next-awaiting .cd-j-next-panel { background: rgba(255,255,255,0.70); }
+  #s-draft-clients.j-next-none .cd-i-next, #s-draft-clients.j-fresh .cd-i-next { display: none; }
+  #s-draft-clients.j-next-none .cd-i-empty, #s-draft-clients.j-fresh .cd-i-empty { display: block; }
+  .cd-j-empty-fresh { display: none; }
+  #s-draft-clients.j-fresh .cd-j-empty-full { display: none; }
+  #s-draft-clients.j-fresh .cd-j-empty-fresh { display: block; }
+  /* Money: owed headline is a row that leads to the Owed list; clear headline
+     is a fact, not a destination. Fresh client → no money picture at all. */
+  .cd-j-money-top.cd-j-money-clearv { display: none; }
+  #s-draft-clients.j-money-clear .cd-j-money-owed { display: none; }
+  #s-draft-clients.j-money-clear .cd-j-chip.due { display: none; }
+  #s-draft-clients.j-money-clear .cd-j-money-clearv { display: flex; }
+  #s-draft-clients.j-money-clear .cd-j-money-month { display: none; }
+  #s-draft-clients.j-money-clear .cd-j-money-grid { grid-template-columns: 1fr; }
+  #s-draft-clients.j-fresh .cd-j-sec-money { display: none; }
+  /* This week: empty is a quiet row, never a hidden section. */
+  .cd-j-week-empty { display: none; padding: 14px; font-size: 14px; color: var(--fit-text-tertiary); text-align: center; }
+  #s-draft-clients.j-fresh .cd-j-week-rows { display: none; }
+  #s-draft-clients.j-fresh .cd-j-week-empty { display: block; }
+  #s-draft-clients.j-fresh .cd-j-week-n { display: none; }
+  /* Assets, fresh: groups → an invitation tile, addresses/history gone, note → dashed add-zone. */
+  .cd-j-t-groups-empty, .cd-j-t-note-empty { display: none; }
+  #s-draft-clients.j-fresh .cd-j-t-groups, #s-draft-clients.j-fresh .cd-j-t-addr,
+  #s-draft-clients.j-fresh .cd-j-t-note, #s-draft-clients.j-fresh .cd-j-t-history { display: none; }
+  #s-draft-clients.j-fresh .cd-j-t-groups-empty { display: block; grid-column: 1 / -1; }
+  #s-draft-clients.j-fresh .cd-j-t-note-empty { display: block; }
+  .cd-j-tile-empty { background: transparent; border: 1px dashed var(--fit-gray-600); }
+  .fit-light .cd-j-tile-empty { background: transparent; box-shadow: none; border-color: var(--fit-gray-300); }
+  /* ⋯ scope by status: CRM gets Invite to app and no Block (nothing to shadow-ban);
+     deleted keeps only Archive (nothing else applies). */
+  .cd-j-mi-invite-app { display: none; }
+  #s-draft-clients.j-crm .cd-j-mi-invite-app { display: flex; }
+  #s-draft-clients.j-crm .cd-j-mi-block { display: none; }
+  #s-draft-clients.j-deleted .cd-j-mi-group, #s-draft-clients.j-deleted .cd-j-mi-edit,
+  #s-draft-clients.j-deleted .cd-j-mi-block, #s-draft-clients.j-deleted .cd-j-mi-div { display: none; }
+  .cd-j-need { padding: 4px 16px 0; }
+  #s-draft-clients.j-clean .cd-j-need, #s-draft-clients.j-clean .cd-j-need-sec { display: none; }
+  .cd-j-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+  .cd-j-chips::-webkit-scrollbar { display: none; }
+  .cd-j-chip { flex-shrink: 0; display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 14px; font-size: 14px; font-weight: 500; background: var(--fit-surface-high); color: var(--fit-text-primary); cursor: pointer; }
+  .fit-light .cd-j-chip { background: var(--fit-white); box-shadow: 0 6px 18px rgba(0,0,0,0.07); }
+  .cd-j-chip i { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .cd-j-chip.due i { background: var(--fit-red-400); }
+  .cd-j-chip.warn i { background: var(--fit-yellow-400); }
+  .cd-j-chip.ask i { background: var(--fit-brand-primary); }
+  .cd-j-thead { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .cd-j-thumb { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; background-size: cover; background-position: center; }
+  .cd-j-plate { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--fit-surface-higher); color: var(--fit-text-secondary); }
+  .fit-light .cd-j-plate { background: var(--fit-gray-100); }
+  .cd-j-plate svg { width: 17px; height: 17px; }
+  .cd-j-faces { display: flex; flex-shrink: 0; }
+  .cd-j-face { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; background: var(--fit-surface-higher); color: var(--fit-text-secondary); box-shadow: 0 0 0 2px var(--fit-surface-high); }
+  .fit-light .cd-j-face { background: var(--fit-gray-100); box-shadow: 0 0 0 2px var(--fit-white); }
+  .cd-j-face + .cd-j-face { margin-left: -9px; }
+  .cd-j-tt { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+  .cd-j-note { font-size: 13px; line-height: 1.45; color: var(--fit-text-secondary); margin-top: 6px; }
+
+  /* --- K: TINTED CANVAS ----------------------------------------------------
+     The gradient is not a wash at the top any more — it IS the screen, top to
+     bottom. Nothing below it carries its own colour: panels, tiles and chips are
+     the same canvas seen through a flat darkening (an alpha scrim, no blur).
+     All of it is token overrides on one id; the markup is J's, untouched. */
+  /* --- Tinted look (was draft K) — a switch, not a screen ------------------
+     Any dark phone with .k-alpha: the gradient owns the canvas and every
+     surface becomes a translucent darkening of it. Token overrides do most
+     of it (surface-high → alpha black), the rest repaints J's own classes.
+     Dark-only by design: in light the switch is a no-op. */
+  .fit-phone.fit-dark.k-alpha {
+    --fit-text-primary: #ffffff;
+    --fit-text-secondary: rgba(255,255,255,0.74);
+    --fit-text-tertiary: rgba(255,255,255,0.52);
+    --fit-divider: rgba(255,255,255,0.10);
+    --fit-surface-high: rgba(0,0,0,0.28);
+    --fit-surface-higher: rgba(255,255,255,0.13);
+    position: relative;
+  }
+  .fit-phone.fit-dark.k-alpha::before {
+    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(120% 48% at 50% -8%, rgba(0,190,215,0.60), rgba(5,224,166,0.10) 55%, transparent 78%),
+      linear-gradient(180deg, #0a5f68 0%, #084653 22%, #062e3b 48%, #05202a 72%, #04161d 100%);
+  }
+  /* J paints its own wash with an id selector; the tinted canvas must win over it. */
+  #s-draft-clients.fit-dark.k-alpha::before {
+    height: auto; bottom: 0;
+    background:
+      radial-gradient(120% 48% at 50% -8%, rgba(0,190,215,0.60), rgba(5,224,166,0.10) 55%, transparent 78%),
+      linear-gradient(180deg, #0a5f68 0%, #084653 22%, #062e3b 48%, #05202a 72%, #04161d 100%);
+  }
+  /* The canvas paints under every child without touching their layout: the phone isolates a
+     stacking context and the pseudo sits at z-index -1 (above the phone's own background,
+     below all content). Re-positioning children broke screens whose footer is absolute. */
+  .fit-phone.fit-dark.k-alpha { isolation: isolate; }
+  .fit-phone.fit-dark.k-alpha::before { z-index: -1; }
+  .fit-phone.fit-dark.k-alpha > .fit-phone-header, .fit-phone.fit-dark.k-alpha > .fit-phone-content,
+  .fit-phone.fit-dark.k-alpha > .fit-phone-footer { background: transparent; }
+  .fit-phone.fit-dark.k-alpha .fit-header { background: transparent; }
+  .fit-dark.k-alpha .cd-i-panel, .fit-dark.k-alpha .cd-i-tile, .fit-dark.k-alpha .cd-j-chip,
+  .fit-dark.k-alpha .fit-card, .fit-dark.k-alpha .fit-list-group, .fit-dark.k-alpha .fit-txn-group,
+  .fit-dark.k-alpha .fit-detail-hero, .fit-dark.k-alpha .sk-card, .fit-dark.k-alpha .fit-participants-card,
+  .fit-dark.k-alpha .fit-note, .fit-dark.k-alpha .fit-input, .fit-dark.k-alpha .fit-segmented {
+    background: rgba(0,0,0,0.28);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+  }
+  .fit-dark.k-alpha .fit-txn { background: transparent; }
+  .fit-dark.k-alpha .cd-g-row:active { background: rgba(255,255,255,0.06); }
+  .fit-dark.k-alpha .cd-i-av, .fit-dark.k-alpha .cd-j-plate, .fit-dark.k-alpha .cd-j-face { background: rgba(255,255,255,0.14); color: #fff; }
+  .fit-dark.k-alpha .cd-j-face { box-shadow: 0 0 0 2px rgba(0,0,0,0.30); }
+  .fit-dark.k-alpha .cd-g-circ { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.18); color: #fff; }
+  .fit-dark.k-alpha .fit-action-circle i { border-color: rgba(255,255,255,0.30); color: #fff; }
+  .fit-dark.k-alpha .fit-action-circle span { color: #fff; }
+  .fit-dark.k-alpha .fit-action-circle--primary span { color: var(--fit-teal-500); }
+  .fit-dark.k-alpha .cd-j-badge-n.calm { background: rgba(255,255,255,0.18); color: #fff; }
+  .fit-dark.k-alpha .cd-j-tile-empty { background: transparent; box-shadow: none; border-color: rgba(255,255,255,0.22); }
+  /* Sheets, menus, snackbars on the tinted canvas are a MATERIAL, not a paint: a dark
+     translucent body that blurs the gradient behind it, a hairline light on the top
+     edge, and a faint teal breath at the top so it belongs to the canvas. Blur is right
+     here where it was wrong on cards — a sheet is a layer above the screen, and the
+     screen showing through is what says so. */
+  .fit-dark.k-alpha .fit-sheet {
+    background: linear-gradient(180deg, rgba(0,190,215,0.10), rgba(0,190,215,0) 120px), rgba(5,24,31,0.80);
+    -webkit-backdrop-filter: blur(28px) saturate(1.5); backdrop-filter: blur(28px) saturate(1.5);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.14) inset, 0 -18px 50px rgba(0,0,0,0.35);
+  }
+  .fit-dark.k-alpha .fit-sheet-overlay { background: rgba(2,12,16,0.45); }
+  .fit-dark.k-alpha .fit-sheet-handle { background: rgba(255,255,255,0.28); }
+  .fit-dark.k-alpha .fit-sheet-action-row, .fit-dark.k-alpha .fit-participants-card { background: rgba(255,255,255,0.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }
+  .fit-dark.k-alpha .fit-context-menu {
+    background: rgba(8,36,45,0.86); -webkit-backdrop-filter: blur(24px) saturate(1.4); backdrop-filter: blur(24px) saturate(1.4);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.12) inset, 0 14px 40px rgba(0,0,0,0.45);
+  }
+  .fit-dark.k-alpha .fit-snackbar { background: rgba(4,22,29,0.88); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-color: rgba(255,255,255,0.14); }
+  /* CTA colour on the tinted canvas — the brand gradient is already the canvas, so a gradient
+     button has nothing to stand out against. Two candidates: white (Revolut's answer: the one
+     solid object on a coloured screen). Flat teal was tried and rejected 2026-09-14. Applies
+     only with the tinted look. */
+  /* White is right but a flat white plate has no depth next to alpha surfaces that do. Give it
+     the same physics as the rest of the canvas: a faint top-to-bottom fall-off (paper, not
+     plastic), a hairline highlight on the top edge, and a soft drop shadow that lifts it off
+     the scrim. Same recipe on the Book circle. */
+  .fit-dark.k-alpha.k-cta-white .fit-btn-primary {
+    background: linear-gradient(180deg, #ffffff 0%, #f3f7f8 45%, #e2ebee 100%); color: #12161a;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.95) inset, 0 -2px 0 rgba(0,0,0,0.08) inset, 0 0 0 1px rgba(255,255,255,0.22),
+                0 16px 34px rgba(0,0,0,0.45), 0 3px 8px rgba(0,0,0,0.28), 0 0 40px rgba(5,224,166,0.10);
+  }
+  .fit-dark.k-alpha.k-cta-white .fit-btn-primary:active { background: linear-gradient(180deg, #f2f6f7 0%, #e3eaec 100%); box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 4px 12px rgba(0,0,0,0.3); }
+  .fit-dark.k-alpha.k-cta-white .fit-action-circle--primary i {
+    background: linear-gradient(180deg, #ffffff 0%, #f3f7f8 45%, #e2ebee 100%); color: #12161a;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.95) inset, 0 -2px 0 rgba(0,0,0,0.08) inset, 0 0 0 1px rgba(255,255,255,0.22),
+                0 12px 28px rgba(0,0,0,0.45), 0 3px 7px rgba(0,0,0,0.28), 0 0 30px rgba(5,224,166,0.12);
+  }
+  .fit-dark.k-alpha.k-cta-white .fit-action-circle--primary span { color: #fff; }
+  .fit-dark.k-alpha.k-cta-white .cd-s-hero-empty .cd-s-go-corner { color: #fff; }
+  /* look switch — sits above the annotation column, applies to every phone on the board */
+  .look-switch { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; font-size: 12px; color: var(--fit-gray-500); }
+  .look-switch .state-toggle { margin-bottom: 0; }
+  /* --- J/K shared refinements ---------------------------------------------
+     The shipped .fit-action-circle is 64px with a 30px glyph. On a row of four
+     that is most of the width above the fold; Revolut's sit around 52. Local
+     override, not a token change — if the smaller size wins on both screens it
+     goes into fit-ui.css as a size variant, not as a redefinition. */
+  /* size now comes from .fit-action-circles--sm in fit-ui.css */
+  #s-draft-clients .cd-j-badge-n { top: -1px; right: 16px; min-width: 18px; height: 18px; line-height: 18px; font-size: 11px; }
+  /* Money as one widget: the debt is the headline and is a row that leads to
+     the Owed list; the rest of the money picture reads underneath it. */
+  /* same inset as the row panels (20px to the text), not the tile inset (14) */
+  .cd-j-money { padding: 20px 20px 20px; }
+  .cd-j-money-top { display: flex; align-items: flex-start; gap: 12px; }
+  .cd-j-money-top > svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 8px; color: var(--fit-text-tertiary); }
+  /* 24px, the top of the type scale (10–24): the headline of a widget, not a rival to the identity above it */
+  .cd-j-money-v { font-size: 24px; font-weight: 700; letter-spacing: -0.4px; color: var(--fit-text-primary); }
+  .cd-j-money-v.due { color: var(--fit-red-400); }
+  .cd-j-money-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .cd-j-money-rule { height: 1px; background: var(--fit-divider); margin: 14px 0 12px; }
+  .cd-j-money-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .cd-j-money-s { font-size: 17px; font-weight: 600; color: var(--fit-text-primary); }
+
+  /* Owed — the debt list behind J's money row. Rows are canon .fit-txn; only
+     the group label, the done state and the settle animation are local. */
+  #s-draft-owed { position: relative; }
+  .cd-o-total { color: var(--fit-red-400); }
+  .cd-o-total.clear { color: var(--fit-text-primary); }
+  .cd-o-label { padding: 0 16px 8px; font-size: 13px; font-weight: 500; color: var(--fit-text-secondary); text-transform: uppercase; letter-spacing: 0.4px; }
+  .cd-o-list + .cd-o-list { margin-top: 20px; }
+  .cd-o-age { color: var(--fit-red-400); }
+  .cd-o-row { transition: opacity 0.22s, transform 0.22s; }
+  .cd-o-row.gone { opacity: 0; transform: translateX(-14px); }
+  #s-draft-owed.o-clear #cd-o-open { display: none; }
+  #s-draft-owed.o-clear #cd-o-settled { margin-top: 0; }
+  .cd-o-total.clear + .fit-detail-hero-sub { color: var(--fit-teal-500); }
+  .fit-txn.static { cursor: default; }
+
+  .fit-phone[class*="src-"] [data-review-state] { display: none; }
+  .fit-phone[class*="src-"].rs-default [data-review-state="default"],
+  .fit-phone[class*="src-"].rs-sending [data-review-state="sending"],
+  .fit-phone[class*="src-"].rs-error [data-review-state="error"] { display: block; }
+
+  /* --- Clients in J's grammar (cd-c-*) --- */
+  #s-draft-clients:not(.k-alpha)::before { display: none; }   /* no wash: no identity block here */
+  .cd-c-title { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; color: var(--fit-text-primary); padding-left: 4px; }
+  .cd-d-av { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; background: var(--fit-surface-higher); color: var(--fit-text-primary); flex-shrink: 0; }
+  .fit-dark.k-alpha .cd-d-av { background: rgba(255,255,255,0.14); color: #fff; }
+  .cd-c-seg { padding: 2px 16px 10px; }
+  .cd-c-search { display: flex; align-items: center; gap: 8px; margin: 0 16px 6px; padding: 10px 12px; border-radius: 14px; background: var(--fit-surface-high); }
+  .cd-c-search svg { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+  .cd-c-search input { flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-family: var(--fit-font); font-size: 15px; color: var(--fit-text-primary); }
+  .cd-c-search input::placeholder { color: var(--fit-text-placeholder); }
+  .fit-dark.k-alpha .cd-c-search { background: rgba(0,0,0,0.28); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }
+  .cd-g-r1 .fit-badge { vertical-align: middle; margin-left: 6px; }
+  .cd-c-next { color: var(--fit-teal-500); }
+  .cd-j-chip.calm i { background: var(--fit-gray-500); }
+  /* A–Z list with letter dividers + index rail */
+  .cd-c-all { position: relative; }
+  .cd-c-list { padding-right: 6px; }
+  .cd-c-letter { padding: 10px 12px 2px; font-size: 12px; font-weight: 600; letter-spacing: 0.6px; color: var(--fit-text-tertiary); }
+  .cd-c-letter:first-child { padding-top: 6px; }
+  .cd-c-index { position: absolute; right: 2px; top: 8px; bottom: 8px; display: flex; flex-direction: column; justify-content: center; gap: 3px; font-size: 10px; font-weight: 600; color: var(--fit-text-tertiary); }
+  .cd-c-index span { width: 12px; text-align: center; }
+  .cd-c-nohit { display: none; padding: 16px; text-align: center; font-size: 14px; color: var(--fit-text-tertiary); }
+  .cd-c-arch { margin-top: 10px; }
+  .cd-c-arch .cd-g-row { cursor: pointer; }
+  /* search: rows that do not match hide; letters follow */
+  .cd-c-row.hide, .cd-c-letter.hide { display: none; }
+  #s-draft-clients.c-searching .cd-c-need-sec, #s-draft-clients.c-searching .cd-c-sec-week, #s-draft-clients.c-searching .cd-c-index, #s-draft-clients.c-searching .cd-c-arch { display: none; }
+  #s-draft-clients.c-searching .cd-c-sec-all .cd-i-sec { padding-top: 6px; }
+  /* fresh */
+  .cd-c-empty { display: none; margin-top: 8px; height: 176px; }
+  .cd-c-empty-acts { position: absolute; left: 16px; right: 16px; bottom: 14px; display: flex; gap: 8px; }
+  .cd-c-empty-acts .fit-btn { flex: 1; height: 40px; font-size: 14px; }
+  #s-draft-clients.c-fresh .cd-c-need-sec, #s-draft-clients.c-fresh .cd-c-sec-week, #s-draft-clients.c-fresh .cd-c-sec-all, #s-draft-clients.c-fresh .cd-c-search { display: none; }
+  #s-draft-clients.c-fresh .cd-c-empty { display: block; }
+  /* loading */
+  #s-draft-clients.c-loading .cd-j-skel { display: block; padding-top: 6px; }
+  #s-draft-clients.c-loading .cd-j-body { display: none; }
+  /* tab bar reservation */
+  #s-draft-clients > .fit-phone-content { padding-bottom: 96px; }
+  .fit-dark.k-alpha .fit-navbar { background: rgba(0,0,0,0.30); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08), 0 0 24px rgba(0,0,0,0.4); }
+  /* the copied Groups pane: smart groups moved to the chips on the Clients pane */
+  #s-groups .cg-sec, #s-groups .cg-smart { display: none; }
+  /* phone-level state gating from the source files */
+  .fit-phone[class*="srcc-"] [data-list-state] { display: none; }
+  .fit-phone[class*="srcc-"].ls-default [data-list-state="default"], .fit-phone[class*="srcc-"].ls-empty [data-list-state="empty"],
+  .fit-phone[class*="srcc-"].ls-loading [data-list-state="loading"] { display: block; }
+  /* ==== copied from clients.html (scoped .srcc-cl) ==== */
+.srcc-cl svg.i { width: 16px; height: 16px; vertical-align: middle; }
+.srcc-cl.fit-dark .fit-phone-header, .fit-dark .srcc-cl .fit-phone-header { background: var(--fit-screen-bg); }
+.srcc-cl.fit-dark .fit-phone-footer, .fit-dark .srcc-cl .fit-phone-footer { background: var(--fit-screen-bg); }
+.srcc-cl.fit-light .fit-phone-header, .fit-light .srcc-cl .fit-phone-header { background: var(--fit-screen-bg); }
+.srcc-cl.fit-light .fit-phone-footer, .fit-light .srcc-cl .fit-phone-footer { background: var(--fit-screen-bg); }
+.srcc-cl .fit-empty-state svg.fes-illus { width: 56px; height: 56px; margin-bottom: 16px; color: var(--fit-gray-600); }
+.srcc-cl .fit-empty-state-sub { font-size: 14px; color: var(--fit-text-tertiary); margin-bottom: 20px; line-height: 1.5; }
+.srcc-cl.fit-light .fit-empty-state svg.fes-illus, .fit-light .srcc-cl .fit-empty-state svg.fes-illus { color: var(--fit-gray-400); }
+.srcc-cl .arch-empty-state { display: none; }
+#s-archived.arch-empty #arch-panel-archived .arch-content { display: none; }
+#s-archived.arch-empty #arch-panel-archived .arch-empty-state { display: block; }
+#s-archived.blk-empty #arch-panel-blocked .arch-content { display: none; }
+#s-archived.blk-empty #arch-panel-blocked .arch-empty-state { display: block; }
+.srcc-cl.fit-light .set-card, .fit-light .srcc-cl .set-card { background: var(--fit-white); }
+.srcc-cl.fit-light .fit-input, .fit-light .srcc-cl .fit-input { background: var(--fit-gray-100); }
+.srcc-cl .add-client-row { display: flex; align-items: flex-start; gap: 14px; padding: 14px 4px; cursor: pointer; border-bottom: 1px solid var(--fit-divider); }
+.srcc-cl .add-client-row:last-child { border-bottom: none; }
+.srcc-cl .add-client-row svg.aci { width: 22px; height: 22px; flex-shrink: 0; margin-top: 2px; color: var(--fit-text-secondary); }
+.srcc-cl .add-client-row.accent svg.aci { color: var(--fit-teal-500); }
+.srcc-cl .add-client-title { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
+.srcc-cl .add-client-desc { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; line-height: 1.4; }
+.srcc-cl .imp-search { display: flex; align-items: center; gap: 8px; margin: 0 16px 8px; padding: 10px 12px; border-radius: 12px; background: var(--fit-surface-high); }
+.srcc-cl .imp-search svg { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+.srcc-cl .imp-search input { flex: 1; border: none; outline: none; background: transparent; font-family: var(--fit-font); font-size: 15px; color: var(--fit-text-primary); }
+.srcc-cl .imp-search input::placeholder { color: var(--fit-text-placeholder); }
+.srcc-cl .imp-selectall { display: flex; align-items: center; justify-content: space-between; padding: 6px 16px 10px; }
+.srcc-cl .imp-selectall-link { font-size: 14px; font-weight: 500; color: var(--fit-brand-primary); background: none; border: none; cursor: pointer; font-family: var(--fit-font); }
+.srcc-cl .imp-count { font-size: 13px; color: var(--fit-text-tertiary); }
+.srcc-cl .imp-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer; }
+.srcc-cl .imp-row[aria-disabled="true"] { opacity: 0.4; cursor: default; }
+.srcc-cl .imp-check { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--fit-text-tertiary); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.12s, border-color 0.12s; }
+.srcc-cl .imp-row.selected .imp-check { background: var(--fit-teal-500); border-color: var(--fit-teal-500); }
+.srcc-cl .imp-check svg { width: 13px; height: 13px; color: #fff; opacity: 0; }
+.srcc-cl .imp-row.selected .imp-check svg { opacity: 1; }
+.srcc-cl .imp-av { width: 40px; height: 40px; border-radius: 50%; background: var(--fit-gray-600); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; color: var(--fit-white); flex-shrink: 0; }
+.srcc-cl .imp-body { flex: 1; min-width: 0; }
+.srcc-cl .imp-name-row { display: flex; align-items: center; gap: 6px; }
+.srcc-cl .imp-name { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.srcc-cl .imp-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 1px; }
+.srcc-cl .imp-tag { font-size: 9px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+.srcc-cl .imp-tag.client { color: var(--fit-text-tertiary); background: var(--fit-surface-high); border: 1px solid var(--fit-divider); }
+.srcc-cl .imp-tag.app { color: var(--fit-teal-500); background: rgba(5,224,166,0.08); border: 1px solid rgba(5,224,166,0.3); }
+.srcc-cl .imp-tag.nophone { color: var(--fit-yellow-600); background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); }
+#s-import-contacts [data-imp-state] { display: none; }
+#s-import-contacts.imp-granted [data-imp-state="granted"] { display: block; }
+#s-import-contacts.imp-loading [data-imp-state="loading"] { display: block; }
+#s-import-contacts.imp-denied  [data-imp-state="denied"] { display: block; }
+#s-import-contacts.imp-loading .fit-phone-footer, #s-import-contacts.imp-denied .fit-phone-footer { display: none; }
+.srcc-cl .pkg-buy-tier.selected { border-color: var(--fit-teal-500); background: var(--fit-selection-gradient); }
+.srcc-cl .pkg-buy-tier.selected .pkg-buy-radio { border-color: var(--fit-teal-500); }
+.srcc-cl .pkg-buy-tier.selected .pkg-buy-radio:after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: var(--fit-teal-500); }
+
+  /* ==== copied from client-groups.html (scoped .srcc-gr) ==== */
+.srcc-gr.fit-dark .fit-phone-header, .fit-dark .srcc-gr .fit-phone-header { background: var(--fit-screen-bg); }
+.srcc-gr.fit-dark .fit-phone-footer, .fit-dark .srcc-gr .fit-phone-footer { background: var(--fit-screen-bg); }
+.srcc-gr.fit-light .fit-phone-header, .fit-light .srcc-gr .fit-phone-header { background: var(--fit-screen-bg); }
+.srcc-gr.fit-light .fit-phone-footer, .fit-light .srcc-gr .fit-phone-footer { background: var(--fit-screen-bg); }
+.srcc-gr .fit-empty-state { text-align: center; padding: 40px 24px; color: var(--fit-text-tertiary); font-size: 14px; line-height: 1.5; }
+.srcc-gr .fit-empty-state svg.fes-illus { width: 56px; height: 56px; margin-bottom: 16px; color: var(--fit-gray-600); }
+.srcc-gr .fit-empty-state-title { font-size: 17px; font-weight: 500; color: var(--fit-text-secondary); margin-bottom: 6px; }
+.srcc-gr .fit-empty-state-sub { font-size: 14px; color: var(--fit-text-tertiary); margin-bottom: 20px; line-height: 1.5; }
+.srcc-gr.fit-light .fit-empty-state svg.fes-illus, .fit-light .srcc-gr .fit-empty-state svg.fes-illus { color: var(--fit-gray-400); }
+.srcc-gr.fit-light .set-card, .fit-light .srcc-gr .set-card { background: var(--fit-white); }
+.srcc-gr.fit-light .fit-input, .fit-light .srcc-gr .fit-input { background: var(--fit-gray-100); }
+.srcc-gr .imp-search { display: flex; align-items: center; gap: 8px; margin: 0 16px 8px; padding: 10px 12px; border-radius: 12px; background: var(--fit-surface-high); }
+.srcc-gr .imp-search svg { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+.srcc-gr .imp-search input { flex: 1; border: none; outline: none; background: transparent; font-family: var(--fit-font); font-size: 15px; color: var(--fit-text-primary); }
+.srcc-gr .imp-search input::placeholder { color: var(--fit-text-placeholder); }
+.srcc-gr .imp-selectall { display: flex; align-items: center; justify-content: space-between; padding: 6px 16px 10px; }
+.srcc-gr .imp-selectall-link { font-size: 14px; font-weight: 500; color: var(--fit-brand-primary); background: none; border: none; cursor: pointer; font-family: var(--fit-font); }
+.srcc-gr .imp-count { font-size: 13px; color: var(--fit-text-tertiary); }
+.srcc-gr .imp-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer; min-height: 56px; }
+.srcc-gr .imp-row[aria-disabled="true"] { opacity: 0.4; cursor: default; }
+.srcc-gr .imp-check { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--fit-text-tertiary); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.12s, border-color 0.12s; }
+.srcc-gr .imp-row.selected .imp-check { background: var(--fit-teal-500); border-color: var(--fit-teal-500); }
+.srcc-gr .imp-check svg { width: 13px; height: 13px; color: #fff; opacity: 0; }
+.srcc-gr .imp-row.selected .imp-check svg { opacity: 1; }
+.srcc-gr .imp-av { width: 40px; height: 40px; border-radius: 50%; background: var(--fit-gray-600); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; color: var(--fit-white); flex-shrink: 0; }
+.srcc-gr .imp-body { flex: 1; min-width: 0; }
+.srcc-gr .imp-name-row { display: flex; align-items: center; gap: 6px; }
+.srcc-gr .imp-name { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.srcc-gr .imp-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 1px; }
+.srcc-gr .imp-tag { font-size: 9px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+.srcc-gr .imp-tag.crm { color: var(--fit-teal-500); background: rgba(5,224,166,0.08); border: 1px solid rgba(5,224,166,0.3); }
+.srcc-gr .imp-tag.client { color: var(--fit-text-tertiary); background: var(--fit-surface-high); border: 1px solid var(--fit-divider); }
+.srcc-gr .cg-card {
+    display: flex; align-items: center; gap: 12px;
+    margin: 0 16px 8px; padding: 14px 16px; min-height: 72px;
+    border-radius: var(--fit-radius-lg); cursor: pointer;
+    background: var(--fit-surface-high); }
+.srcc-gr.fit-light .cg-card, .fit-light .srcc-gr .cg-card { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+.srcc-gr .cg-card-icon {
+    width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(3,178,226,0.15); }
+.srcc-gr .cg-card-icon svg { width: 20px; height: 20px; color: var(--fit-blue-500); }
+.srcc-gr .cg-card-body { flex: 1; min-width: 0; }
+.srcc-gr .cg-card-name { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
+.srcc-gr .cg-card-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 2px; display: flex; align-items: center; gap: 5px; }
+.srcc-gr .cg-card-sub svg { width: 12px; height: 12px; flex-shrink: 0; }
+.srcc-gr .cg-card-right { flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+.srcc-gr .cg-stack { display: flex; align-items: center; }
+.srcc-gr .cg-av {
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+    background: var(--fit-gray-600); color: var(--fit-white);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 500;
+    border: 2px solid var(--fit-surface-high); margin-right: -8px; }
+.srcc-gr.fit-light .cg-av, .fit-light .srcc-gr .cg-av { border-color: var(--fit-white); }
+.srcc-gr .cg-av--more { background: var(--fit-gray-700); color: var(--fit-text-secondary); }
+.srcc-gr.fit-light .cg-av--more, .fit-light .srcc-gr .cg-av--more { background: var(--fit-gray-200); }
+.srcc-gr .cg-unread {
+    min-width: 20px; height: 20px; padding: 0 6px; border-radius: 99px;
+    background: var(--fit-brand-primary); color: var(--fit-white);
+    font-size: 11px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center; }
+.srcc-gr .cg-smart {
+    display: flex; align-items: center; gap: 12px;
+    margin: 0 16px 8px; padding: 12px 16px; min-height: 60px;
+    border: 1px solid var(--fit-divider); border-radius: var(--fit-radius-lg); cursor: pointer; }
+.srcc-gr.fit-light .cg-smart, .fit-light .srcc-gr .cg-smart { border-color: transparent; background: var(--fit-white); box-shadow: 0 0 10px rgba(0,0,0,0.06); }
+.srcc-gr .cg-smart svg.lead { width: 18px; height: 18px; flex-shrink: 0; color: var(--fit-text-secondary); }
+.srcc-gr .cg-smart-name { flex: 1; font-size: 15px; color: var(--fit-text-primary); }
+.srcc-gr .cg-smart-n { font-size: 14px; font-weight: 500; color: var(--fit-text-secondary); flex-shrink: 0; }
+.srcc-gr .cg-smart--warn svg.lead { color: var(--fit-yellow-400); }
+.srcc-gr .cg-sec { display: flex; align-items: center; justify-content: space-between; min-height: 24px; padding: 0 16px; margin: 20px 0 6px; }
+.srcc-gr .cg-sec-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--fit-text-secondary); }
+.srcc-gr .cg-sec-hint { font-size: 12px; color: var(--fit-text-tertiary); display: flex; align-items: center; gap: 4px; }
+.srcc-gr .cg-sec-hint svg { width: 12px; height: 12px; }
+.srcc-gr .cg-sec-action {
+    font-size: 14px; font-weight: 500; color: var(--fit-brand-primary);
+    cursor: pointer; position: relative; padding: 4px 0 4px 12px; }
+.srcc-gr .cg-sec-action::before { content: ""; position: absolute; top: -10px; right: -16px; bottom: -10px; left: 0; }
+.srcc-gr .cg-radio {
+    display: flex; align-items: center; gap: 12px;
+    min-height: 48px; padding: 10px 12px; border-radius: 8px; cursor: pointer; }
+.srcc-gr .cg-radio span { font-size: 16px; color: var(--fit-text-primary); line-height: 1.3; }
+.srcc-gr .cg-radio:active { background: rgba(255,255,255,0.04); }
+.srcc-gr.fit-light .cg-radio:active, .fit-light .srcc-gr .cg-radio:active { background: rgba(0,0,0,0.03); }
+.srcc-gr .cg-card-list {
+    margin: 0 16px 4px; border-radius: var(--fit-radius-lg); overflow: hidden;
+    border: 1px solid var(--fit-divider); background: transparent; }
+.srcc-gr.fit-light .cg-card-list, .fit-light .srcc-gr .cg-card-list { border-color: transparent; background: var(--fit-white); box-shadow: 0 0 10px rgba(0,0,0,0.06); }
+.srcc-gr .cg-card-list .cg-row + .cg-row::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 0;
+    height: 1px; background: var(--fit-divider); }
+.srcc-gr .cg-row {
+    display: flex; align-items: center; gap: 12px; position: relative;
+    padding: 10px 16px; min-height: 60px; cursor: pointer; }
+.srcc-gr .cg-row:active { background: rgba(255,255,255,0.04); }
+.srcc-gr.fit-light .cg-row:active, .fit-light .srcc-gr .cg-row:active { background: rgba(0,0,0,0.03); }
+.srcc-gr .cg-row-ic {
+    width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--fit-surface-high); }
+.srcc-gr.fit-light .cg-row-ic, .fit-light .srcc-gr .cg-row-ic { background: var(--fit-gray-100); }
+.srcc-gr .cg-row-ic svg { width: 18px; height: 18px; color: var(--fit-text-secondary); }
+.srcc-gr .cg-row-ic--rec { background: rgba(3,178,226,0.15); }
+.srcc-gr .cg-row-ic--rec svg { color: var(--fit-blue-500); }
+.srcc-gr .cg-row-ic--add { background: transparent; border: 1px dashed var(--fit-gray-600); }
+.srcc-gr .cg-row-ic--add svg { color: var(--fit-brand-primary); }
+.srcc-gr .cg-row-body { flex: 1; min-width: 0; }
+.srcc-gr .cg-row-title { display: block; font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+.srcc-gr .cg-row-sub { display: block; font-size: 12px; color: var(--fit-text-tertiary); margin-top: 2px; }
+.srcc-gr .cg-row-right { flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+.srcc-gr .cg-row .chev { flex-shrink: 0; }
+.srcc-gr .cg-row--link { min-height: 48px; }
+.srcc-gr .cg-row--link .cg-row-body { padding-left: 48px; }
+.srcc-gr .cg-badge-dot {
+    position: absolute; top: -4px; right: -4px;
+    min-width: 18px; height: 18px; padding: 0 5px; border-radius: 99px;
+    background: var(--fit-brand-primary); color: var(--fit-white);
+    font-size: 11px; font-weight: 600; line-height: 18px; text-align: center; }
+#s-group-detail.sched-attached [data-sched-state="attached"], #s-group-detail.sched-many [data-sched-state="many"], #s-group-detail.sched-none [data-sched-state="none"] { display: block; }
+.srcc-gr .cg-remove {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: none;
+    align-items: center; justify-content: center;
+    background: rgba(240,92,91,0.12); border: none; pointer-events: none; }
+.srcc-gr .cg-remove svg { width: 14px; height: 14px; color: var(--fit-red-400); }
+#s-group-detail.cg-editing .cg-remove { display: flex; }
+#s-group-detail.cg-editing .cg-member .chev { display: none; }
+#s-group-detail.cg-editing .cg-member { background: rgba(240,92,91,0.04); }
+#s-group-detail.cg-editing .cg-member:active { background: rgba(240,92,91,0.12); }
+#s-group-detail.cg-editing .cg-member--add { display: none; }
+.srcc-gr .cg-note {
+    display: flex; align-items: flex-start; gap: 10px;
+    margin: 20px 16px; padding: 14px;
+    border: 1px solid var(--fit-divider); border-radius: 14px; }
+.srcc-gr .cg-note svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; color: var(--fit-text-tertiary); }
+.srcc-gr .cg-note span { font-size: 13px; line-height: 1.45; color: var(--fit-text-secondary); }
+.srcc-gr .cg-note--warn { border-color: rgba(247,201,72,0.32); background: rgba(247,201,72,0.06); }
+.srcc-gr.fit-light .cg-note--warn, .fit-light .srcc-gr .cg-note--warn { background: rgba(222,145,29,0.10); border-color: rgba(222,145,29,0.28); }
+.srcc-gr .cg-note--warn svg { color: var(--fit-yellow-400); }
+.srcc-gr .cg-pick-head .cg-card-icon { width: 34px; height: 34px; border-radius: 10px; }
+.srcc-gr .cg-pick-head .cg-card-icon svg { width: 17px; height: 17px; }
+.srcc-gr .cg-pick-members .imp-row { padding-left: 40px; }
+
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-scroll">
+    <button onclick="window.location.href='../../modules.html'" style="display:flex;align-items:center;gap:8px;font-family:var(--fit-font);font-size:13px;font-weight:500;padding:10px 12px;border:1px solid var(--fit-gray-700);border-radius:10px;background:transparent;color:var(--fit-gray-300);cursor:pointer;margin-bottom:12px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      All modules
+    </button>
+  <div class="label">Clients flow</div>
+  <button class="active" onclick="go('s-draft-clients',this)">Clients, placed</button>
+  <button onclick="go('s-group-smart',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Smart group (from a chip)</button>
+  <button onclick="go('s-groups',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Groups pane</button>
+  <button onclick="go('s-group-detail',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Group</button>
+  <button onclick="go('s-group-create',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Create group</button>
+  <button onclick="go('s-archived',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Archived &amp; Blocked</button>
+  <button onclick="go('s-import-contacts',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Import contacts</button>
+  <button onclick="go('s-import-done',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Import done</button>
+  <button onclick="go('s-create-client',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Create client</button>
+  </div>
+  <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
+    <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:transparent;color:var(--fit-gray-400);" id="theme-light" onclick="switchTheme('light')">Light</button>
+  </div>
+</nav>
+
+<svg width="0" height="0" style="position:absolute;"><defs>
+  <linearGradient id="cdgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00a7d0"/><stop offset="100%" stop-color="#05e0a6"/></linearGradient>
+</defs></svg>
+
+<!-- ==================== CLIENTS · placed (J's grammar) ==================== -->
+<!-- The shipped list is one flat stack of identical rows carrying lifetime stats. Here:
+     the answers you owe first (smart groups as chips — each opens its list, as today),
+     then the people you see this week, then everyone A–Z with an index; rows speak of
+     time (next / last) rather than of lifetime money. -->
+<div class="fit-phone fit-dark cd-media active" id="s-draft-clients" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="cd-g-top">
+      <div class="cd-c-title">Clients</div>
+      <span style="flex:1;"></span>
+      <button class="cd-g-circ" onclick="document.getElementById('add-client-sheet').classList.add('visible')" aria-label="Add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <!-- Clients | Groups — the pane decision stands; smart groups leave the Groups pane for the chips here -->
+    <div class="cd-c-seg">
+      <div class="fit-segmented"><div class="fit-segmented-tab selected">Clients</div><div class="fit-segmented-tab" onclick="go('s-groups',document.querySelector('.sidebar button[onclick*=s-groups]'))">Groups</div></div>
+    </div>
+    <div class="cd-c-search cd-c-body">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input placeholder="Search clients" oninput="cSearch(this.value)">
+    </div>
+
+    <!-- Loading: title + segmented instant, skeleton below -->
+    <div class="cd-j-skel">
+      <div class="sk-card compact"><div class="sk-row"><div class="sk-circle sm sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:45%"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+      <div class="sk-card compact"><div class="sk-row"><div class="sk-circle sm sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:55%"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+      <div class="sk-card compact"><div class="sk-row"><div class="sk-circle sm sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:40%"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+    </div>
+
+    <div class="cd-j-body">
+    <!-- Needs you: the five smart groups as chips. Tap opens the smart group's list — the same
+         screen the Groups pane opened; they are not filters. -->
+    <div class="cd-in cd-c-need-sec">
+      <div class="cd-i-sec">Needs you</div>
+      <div class="cd-j-need">
+        <div class="cd-j-chips">
+          <span class="cd-j-chip due cd-press" onclick="cOpenSmart('Owes money')"><i></i>&euro;90 owed &middot; 3</span>
+          <span class="cd-j-chip warn cd-press" onclick="cOpenSmart('Inactive 30 days')"><i></i>7 inactive 30d</span>
+          <span class="cd-j-chip warn cd-press" onclick="cOpenSmart('Package running low')"><i></i>2 packs running low</span>
+          <span class="cd-j-chip calm cd-press" onclick="cOpenSmart('Not in the app')"><i></i>14 not in app</span>
+          <span class="cd-j-chip ask cd-press" onclick="cOpenSmart('New this month')"><i></i>5 new this month</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- This week: who you see, in order of when. -->
+    <div class="cd-in cd-c-sec-week">
+      <div class="cd-i-sec">This week<span>2</span></div>
+      <div class="cd-i-panel">
+        <div class="cd-g-row cd-press cd-c-row" data-name="Anna Kowalski" onclick="location.href='client-detail-drafts.html#s-draft-client'">
+          <div class="cd-d-av">AK</div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Anna Kowalski <span class="fit-badge fit-badge-danger">&euro;50 owed</span></div><div class="cd-g-r2 cd-c-next">Next &middot; Thu 10:00 &middot; Tennis</div></div>
+        </div>
+        <div class="cd-g-row cd-press cd-c-row" data-name="Mark Schmidt" onclick="location.href='client-detail-drafts.html#s-draft-client'">
+          <div class="cd-d-av">MS</div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Mark Schmidt</div><div class="cd-g-r2 cd-c-next">Next &middot; Sat 08:00 &middot; Morning crew</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Everyone: A–Z, index rail on the right once the list is long. -->
+    <div class="cd-in cd-c-sec-all" style="padding-bottom:22px;">
+      <div class="cd-i-sec">Everyone<span class="cd-c-all-n">23</span></div>
+      <div class="cd-c-all">
+        <div class="cd-i-panel cd-c-list">
+          <div class="cd-c-letter">D</div>
+          <div class="cd-g-row cd-press cd-c-row" data-name="Julia Dent" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">JD</div><div class="cd-g-rt"><div class="cd-g-r1">Julia Dent</div><div class="cd-g-r2">Last &middot; Apr 2 &middot; 5 sessions</div></div></div>
+          <div class="cd-c-letter">K</div>
+          <div class="cd-g-row cd-press cd-c-row" data-name="Alex Kim" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">AK</div><div class="cd-g-rt"><div class="cd-g-r1">Alex Kim</div><div class="cd-g-r2">Last &middot; Apr 21 &middot; 2 sessions</div></div></div>
+          <div class="cd-g-row cd-press cd-c-row" data-name="Anna Kowalski" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">AK</div><div class="cd-g-rt"><div class="cd-g-r1">Anna Kowalski <span class="fit-badge fit-badge-danger">&euro;50 owed</span></div><div class="cd-g-r2">Last &middot; Apr 9 &middot; 12 sessions</div></div></div>
+          <div class="cd-c-letter">N</div>
+          <div class="cd-g-row cd-press cd-c-row" data-name="Tom Novak" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">TN</div><div class="cd-g-rt"><div class="cd-g-r1">Tom Novak <span class="fit-badge fit-badge-danger">&euro;40 owed</span></div><div class="cd-g-r2">Last &middot; Apr 18 &middot; 8 sessions</div></div></div>
+          <div class="cd-c-letter">P</div>
+          <div class="cd-g-row cd-press cd-c-row" data-name="Mira Patel" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">MP</div><div class="cd-g-rt"><div class="cd-g-r1">Mira Patel <span class="fit-badge fit-badge-accent">New</span></div><div class="cd-g-r2">Joined 3 days ago &middot; no sessions yet</div></div></div>
+          <div class="cd-c-letter">S</div>
+          <div class="cd-g-row cd-press cd-c-row" data-name="Mark Schmidt" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">MS</div><div class="cd-g-rt"><div class="cd-g-r1">Mark Schmidt</div><div class="cd-g-r2">Last &middot; Apr 19 &middot; 8 sessions</div></div></div>
+          <div class="cd-c-letter">V</div>
+          <div class="cd-g-row cd-press cd-c-row" data-name="Marta Vega" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">MV</div><div class="cd-g-rt"><div class="cd-g-r1">Marta Vega <span class="fit-badge fit-badge-neutral">CRM</span></div><div class="cd-g-r2">Last &middot; Mar 30 &middot; 5 sessions</div></div></div>
+          <div class="cd-c-letter">W</div>
+          <div class="cd-g-row cd-press cd-c-row" data-name="Paul Walker" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">PW</div><div class="cd-g-rt"><div class="cd-g-r1">Paul Walker</div><div class="cd-g-r2">Last &middot; Feb 12 &middot; 3 sessions</div></div></div>
+          <div class="cd-c-nohit">No one matches</div>
+        </div>
+        <div class="cd-c-index"><span>A</span><span>D</span><span>K</span><span>N</span><span>P</span><span>S</span><span>V</span><span>W</span></div>
+      </div>
+      <div class="cd-i-panel cd-c-arch cd-press" onclick="go('s-archived',document.querySelector('.sidebar button[onclick*=s-archived]'))">
+        <div class="cd-g-row"><div class="cd-j-plate" style="width:40px;height:40px;border-radius:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg></div><div class="cd-g-rt"><div class="cd-g-r1">Archived &amp; Blocked</div></div><div class="cd-g-rv" style="color:var(--fit-text-tertiary);font-weight:400;">5</div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-text-tertiary);flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+    </div>
+
+    <!-- Fresh coach: one card, two doors. -->
+    <div class="cd-m-cover cd-s-hero-empty cd-c-empty">
+      <div class="cd-m-body cd-s-body-top">
+        <div class="cd-m-kicker">Clients</div>
+        <div class="cd-m-title">No clients yet</div>
+        <div class="cd-m-sub">Bring the people you already coach, or send a link to new ones.</div>
+      </div>
+      <div class="cd-c-empty-acts">
+        <button class="fit-btn fit-btn-secondary" onclick="go('s-import-contacts',document.querySelector('.sidebar button[onclick*=s-import-contacts]'))">Import contacts</button>
+        <button class="fit-btn fit-btn-secondary" onclick="openInviteShare('single')">Invite by link</button>
+      </div>
+    </div>
+    </div><!-- /cd-j-body -->
+  </div>
+  <div class="fit-phone-footer">
+    <div class="fit-navbar">
+      <div class="fit-navbar-item" onclick="location.href='dashboard-drafts.html#s-draft-dash'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></div>
+      <div class="fit-navbar-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <div class="fit-navbar-item" onclick="location.href='../shared/messages.html?role=coach#s-messages'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <div class="fit-navbar-item" onclick="location.href='calendar.html#s-calendar'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      <div class="fit-navbar-item" onclick="location.href='profile.html#s-profile'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+    </div>
+  </div>
+<div class="srcc-cl fit-sheet-overlay" id="add-client-sheet">
+    <div class="fit-sheet" >
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:600;margin-bottom:4px;">Add a client</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:18px;">How would you like to add them?</div>
+
+      <div class="add-client-row accent" data-a11y-id="coach.clients.add.import" onclick="document.getElementById('add-client-sheet').classList.remove('visible');impEnter();">
+        <svg class="aci" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18a4 4 0 00-8 0"/><circle cx="12" cy="9" r="3"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
+        <div><div class="add-client-title">Import from contacts</div><div class="add-client-desc">Bulk-add from your phone book, invite in a tap</div></div>
+      </div>
+
+      <div class="add-client-row" data-a11y-id="coach.clients.add.create" onclick="document.getElementById('add-client-sheet').classList.remove('visible');go('s-create-client',null);">
+        <svg class="aci" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/><path d="M20 8v6M23 11h-6"/></svg>
+        <div><div class="add-client-title">Create profile</div><div class="add-client-desc">Add manually — track sessions &amp; cash</div></div>
+      </div>
+
+      <div class="add-client-row" data-a11y-id="coach.clients.add.invite-app" onclick="document.getElementById('add-client-sheet').classList.remove('visible');openInviteShare('single');">
+        <svg class="aci" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        <div><div class="add-client-title">Invite to app</div><div class="add-client-desc">Share your link — they join &amp; auto-connect</div></div>
+      </div>
+
+      <div class="add-client-row" data-a11y-id="coach.clients.add.invite-training" onclick="document.getElementById('add-client-sheet').classList.remove('visible');location.href='../coach/invite.html?mode=invite&amp;origin=s-clients#s-invite-select'">
+        <svg class="aci" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v4M10 16h4"/></svg>
+        <div><div class="add-client-title">Invite to training</div><div class="add-client-desc">Send a link with a session attached</div></div>
+      </div>
+    </div>
+  </div>
+<div class="srcc-cl fit-sheet-overlay" id="invite-share-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:600;margin-bottom:4px;" id="invite-share-title">Invite to 321Fit</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:14px;" id="invite-share-sub">Share your personal link — anyone who joins through it connects to you automatically.</div>
+
+      <!-- Link preview -->
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--fit-surface-high);margin-bottom:16px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/><path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>
+        <span style="flex:1;min-width:0;font-size:13px;color:var(--fit-text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">321.fit/i/coach_mike?c=crm_import</span>
+      </div>
+
+      <!-- Channels (native share targets) -->
+      <div class="fit-sheet-item" data-a11y-id="coach.invite-share.whatsapp" onclick="finishShare('WhatsApp')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 01-12.6 7.4L3 21l2.1-5.4A8.5 8.5 0 1121 11.5z"/></svg>
+        WhatsApp
+      </div>
+      <div class="fit-sheet-item" data-a11y-id="coach.invite-share.messages" onclick="finishShare('Messages')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Messages
+      </div>
+      <div class="fit-sheet-item" data-a11y-id="coach.invite-share.copy" onclick="finishShare('copy')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        Copy link
+      </div>
+      <div class="fit-sheet-item" data-a11y-id="coach.invite-share.more" onclick="finishShare('share')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+        More…
+      </div>
+
+      <button style="width:100%;height:50px;margin-top:12px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" onclick="document.getElementById('invite-share-sheet').classList.remove('visible')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== SCREENS REACHED FROM HOME — copies of the canon screens; source named on each block. ==================== -->
+<!-- ==== from coach/clients.html #s-archived ==== -->
+<div class="srcc-cl fit-phone fit-dark" id="s-archived" data-tab="archived" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Archived &amp; Blocked</span>
+    </div>
+    <!-- Segmented tabs (pill toggle) -->
+    <div class="fit-segmented">
+      <button id="arch-tab-archived" class="fit-segmented-tab selected" onclick="switchArchivedTab('archived')">Archived (2)</button>
+      <button id="arch-tab-blocked" class="fit-segmented-tab" onclick="switchArchivedTab('blocked')">Blocked (3)</button>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <!-- ARCHIVED TAB -->
+    <div id="arch-panel-archived">
+
+      <div class="arch-content">
+      <!-- Info note (outline card, no action — explains what Archived means) -->
+      <div style="display:flex;align-items:flex-start;gap:10px;margin:0 16px 12px;padding:12px 14px;border:1px solid var(--fit-divider);border-radius:14px;" data-a11y-id="coach.archived.info">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-text-tertiary);flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="8" r="0.5" fill="currentColor"/></svg>
+        <span style="font-size:13px;line-height:1.45;color:var(--fit-text-secondary);">Archived clients are hidden from your active list. They&rsquo;re unaffected &mdash; if they book again, they come back automatically.</span>
+      </div>
+
+      <div class="set-card" style="margin:0 16px 8px;">
+        <div style="display:flex;align-items:center;gap:12px;width:100%;">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;opacity:0.6;">JD</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px;font-weight:500;color:var(--fit-text-secondary);">Julia Dent</span><span class="fit-badge fit-badge-danger">€75 owed</span></div>
+            <div style="font-size:12px;color:var(--fit-text-tertiary);">Archived Apr 18 &middot; 5 sessions</div>
+          </div>
+          <button style="height:32px;padding:0 14px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;" onclick="showArchivedSnack('Julia restored')">Restore</button>
+        </div>
+      </div>
+
+      <div class="set-card" style="margin:0 16px 8px;">
+        <div style="display:flex;align-items:center;gap:12px;width:100%;">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;opacity:0.6;">SV</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:16px;font-weight:500;color:var(--fit-text-secondary);">Sofia Vega</div>
+            <div style="font-size:12px;color:var(--fit-text-tertiary);">Archived Feb 12 &middot; 2 sessions</div>
+          </div>
+          <button style="height:32px;padding:0 14px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;" onclick="showArchivedSnack('Sofia restored')">Restore</button>
+        </div>
+      </div>
+      </div><!-- /arch-content (archived) -->
+
+      <!-- Zero state: no archived clients -->
+      <div class="arch-empty-state">
+        <div class="fit-empty-state" style="padding-top:64px;">
+          <svg class="fes-illus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v12a1 1 0 01-1 1H4a1 1 0 01-1-1V8M2 4h20v4H2zM10 12h4"/></svg>
+          <div class="fit-empty-state-title">No archived clients</div>
+          <div class="fit-empty-state-sub">Clients you archive show up here.<br>They return automatically if they book again.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BLOCKED TAB -->
+    <div id="arch-panel-blocked" style="display:none;">
+
+      <div class="arch-content">
+      <!-- Info note (outline card, no action — explains what Blocked means) -->
+      <div style="display:flex;align-items:flex-start;gap:10px;margin:0 16px 12px;padding:12px 14px;border:1px solid var(--fit-divider);border-radius:14px;" data-a11y-id="coach.blocked.info">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-text-tertiary);flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="8" r="0.5" fill="currentColor"/></svg>
+        <span style="font-size:13px;line-height:1.45;color:var(--fit-text-secondary);">Blocked clients can&rsquo;t find or book you, and you stay invisible in their search. Existing upcoming sessions aren&rsquo;t touched &mdash; unblock anytime.</span>
+      </div>
+
+      <div class="set-card" style="margin:0 16px 8px;">
+        <div style="display:flex;align-items:center;gap:12px;width:100%;">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;opacity:0.6;">DM</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:16px;font-weight:500;color:var(--fit-text-secondary);">David Martin</div>
+            <div style="font-size:12px;color:var(--fit-text-tertiary);">Blocked Mar 22 &middot; repeated no-shows</div>
+          </div>
+          <button style="height:32px;padding:0 14px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;" onclick="showArchivedSnack('David unblocked')">Unblock</button>
+        </div>
+      </div>
+
+      <div class="set-card" style="margin:0 16px 8px;">
+        <div style="display:flex;align-items:center;gap:12px;width:100%;">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;opacity:0.6;">RV</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Roman Volkov</div>
+            <div style="font-size:12px;color:var(--fit-text-tertiary);">Blocked Jan 8</div>
+          </div>
+          <button style="height:32px;padding:0 14px;border:none;border-radius:99px;background:var(--fit-surface-high);color:var(--fit-text-primary);font-family:var(--fit-font);font-size:13px;font-weight:500;cursor:pointer;" onclick="showArchivedSnack('Roman unblocked')">Unblock</button>
+        </div>
+      </div>
+
+      <!-- Deleted account — surfaces here (deleted ≈ blocked); terminal, no unblock action -->
+      <div class="set-card" style="margin:0 16px 8px;">
+        <div style="display:flex;align-items:center;gap:12px;width:100%;">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--fit-gray-600);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--fit-white);flex-shrink:0;opacity:0.45;">KL</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:16px;font-weight:500;color:var(--fit-text-secondary);">Karl Lindberg</span>
+              <span style="font-size:10px;font-weight:500;color:var(--fit-text-tertiary);background:transparent;border:1px solid var(--fit-divider);padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:0.3px;">Deleted</span>
+            </div>
+            <div style="font-size:12px;color:var(--fit-text-tertiary);">Account deleted Mar 30 &middot; 18 sessions</div>
+          </div>
+        </div>
+      </div>
+      </div><!-- /arch-content (blocked) -->
+
+      <!-- Zero state: no blocked clients -->
+      <div class="arch-empty-state">
+        <div class="fit-empty-state" style="padding-top:64px;">
+          <svg class="fes-illus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>
+          <div class="fit-empty-state-title">No blocked clients</div>
+          <div class="fit-empty-state-sub">Clients you block show up here,<br>hidden from you until you unblock them.</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Archived snackbar (reused for restore/unblock confirmation) -->
+  <div class="fit-snackbar" id="arch-snackbar">Restored</div>
+</div>
+
+<!-- ==== from coach/clients.html #s-import-contacts ==== -->
+<div class="srcc-cl fit-phone fit-dark imp-granted" id="s-import-contacts" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="coach.import.back" onclick="go('s-draft-clients',document.querySelector('.sidebar button[onclick*=s-draft-clients]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Import contacts</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+
+    <!-- GRANTED: contact list -->
+    <div data-imp-state="granted">
+      <div class="imp-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search contacts" oninput="impFilter(this.value)">
+      </div>
+      <div class="imp-selectall">
+        <button class="imp-selectall-link" data-a11y-id="coach.import.select-all" onclick="impSelectAll()">Select all</button>
+        <span class="imp-count" id="imp-avail-count">6 contacts</span>
+      </div>
+
+      <div id="imp-list">
+        <!-- selectable: phone -->
+        <div class="imp-row selected" data-imp="1" data-name="Marta Vega" onclick="impToggle(this)">
+          <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <span class="imp-av">MV</span>
+          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Marta Vega</span></span><span class="imp-sub">+49 170 555 0142</span></span>
+        </div>
+        <div class="imp-row selected" data-imp="1" data-name="Jon Schmidt" onclick="impToggle(this)">
+          <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <span class="imp-av">JS</span>
+          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Jon Schmidt</span></span><span class="imp-sub">+49 151 555 0188</span></span>
+        </div>
+        <div class="imp-row selected" data-imp="1" data-name="Tom Novak" onclick="impToggle(this)">
+          <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <span class="imp-av">TN</span>
+          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Tom Novak</span></span><span class="imp-sub">+49 160 555 0177</span></span>
+        </div>
+        <div class="imp-row selected" data-imp="1" data-name="Paul Weber" onclick="impToggle(this)">
+          <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <span class="imp-av">PW</span>
+          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Paul Weber</span></span><span class="imp-sub">+49 171 555 0103</span></span>
+        </div>
+        <!-- already a 321Fit user (phone matched) → selecting connects directly -->
+        <div class="imp-row" data-imp="1" data-app="1" data-name="Sara Kim" onclick="impToggle(this)">
+          <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <span class="imp-av">SK</span>
+          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Sara Kim</span><span class="imp-tag app">On 321Fit</span></span><span class="imp-sub">+1 415 555 0199 · connects instantly</span></span>
+        </div>
+        <!-- no phone/email-only → CRM only, can't invite -->
+        <div class="imp-row" data-imp="1" data-nophone="1" data-name="Lena Roth" onclick="impToggle(this)">
+          <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <span class="imp-av">LR</span>
+          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Lena Roth</span><span class="imp-tag nophone">No phone</span></span><span class="imp-sub">lena.roth@mail.com · CRM only, can't invite</span></span>
+        </div>
+        <!-- already a client → disabled -->
+        <div class="imp-row" data-imp="0" aria-disabled="true" data-name="Anna Kowalski">
+          <span class="imp-check"></span>
+          <span class="imp-av">AK</span>
+          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Anna Kowalski</span><span class="imp-tag client">Already a client</span></span><span class="imp-sub">+48 600 555 010</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADING: reading address book + dedup/match pass -->
+    <div data-imp-state="loading" style="padding-top:8px;">
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 16px 16px;color:var(--fit-text-tertiary);font-size:13px;">
+        <span class="cal-spinner" style="width:16px;height:16px;border-width:2px;"></span>
+        Reading your contacts…
+      </div>
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:46%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:58%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:40%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:52%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:62%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:44%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+    </div>
+
+    <!-- DENIED: permission explainer -->
+    <div data-imp-state="denied">
+      <div class="fit-empty-state" style="padding-top:64px;">
+        <svg class="fes-illus" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="12" y="6" width="40" height="52" rx="6"/><circle cx="32" cy="26" r="7"/><path d="M20 48a12 12 0 0124 0"/></svg>
+        <div class="fit-empty-state-title">Contacts access needed</div>
+        <div class="fit-empty-state-sub">Allow 321Fit to read your contacts to bulk-add<br>clients. We never message anyone without you.</div>
+        <button class="fit-btn fit-btn-primary" style="display:inline-flex;width:auto;height:44px;padding:0 24px;font-size:16px;" onclick="showClientSnack('Opening Settings…')">Open Settings</button>
+      </div>
+    </div>
+
+  </div>
+  <!-- Footer: import CTA -->
+  <div class="fit-phone-footer fit-footer-btn">
+    <button class="fit-btn fit-btn-primary" id="imp-cta" data-a11y-id="coach.import.confirm" onclick="importContacts()">Import 4 contacts</button>
+  </div>
+</div>
+
+<!-- ==== from coach/clients.html #s-import-done ==== -->
+<div class="srcc-cl fit-phone fit-dark" id="s-import-done" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div style="display:flex;justify-content:flex-end;padding:8px 16px;">
+      <button class="fit-icon-btn" data-a11y-id="coach.import.close" aria-label="Close" onclick="go('s-draft-clients',document.querySelector('.sidebar button[onclick*=s-draft-clients]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 32px;">
+    <div style="width:72px;height:72px;border-radius:50%;background:rgba(5,224,166,0.12);display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div style="font-size:22px;font-weight:600;color:var(--fit-text-primary);margin-bottom:8px;"><span id="imp-done-count">4</span> contacts added</div>
+    <div style="font-size:15px;color:var(--fit-text-secondary);line-height:1.5;margin-bottom:32px;">They're in your CRM now. Invite them to the app so sessions &amp; payments sync automatically.<br><span style="font-size:13px;color:var(--fit-text-tertiary);"><span id="imp-done-invitable">4</span> have a phone number to send your link to.</span></div>
+    <button style="width:100%;max-width:300px;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;margin-bottom:10px;" data-a11y-id="coach.import.invite-all" onclick="openInviteShare('bulk')">Invite all <span id="imp-done-invite-n">4</span></button>
+    <button style="width:100%;max-width:300px;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" data-a11y-id="coach.import.not-now" onclick="go('s-draft-clients',document.querySelector('.sidebar button[onclick*=s-draft-clients]'))">Not now</button>
+  </div>
+</div>
+
+<!-- ==== from coach/clients.html #s-create-client ==== -->
+<div class="srcc-cl fit-phone fit-dark" id="s-create-client" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">New client</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <!-- Optional avatar (same as Personal Data) -->
+    <div style="display:flex;justify-content:center;padding:0 0 20px;">
+      <div style="position:relative;cursor:pointer;">
+        <div style="width:80px;height:80px;border-radius:50%;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
+        </div>
+        <div style="position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;border:2px solid var(--fit-screen-bg);">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="fit-input-group" style="padding:0 16px;" data-required="fname">
+      <span class="fit-input-label">First name</span>
+      <div class="fit-input" contenteditable="true" data-placeholder="Enter first name" style="outline:none;cursor:text;"></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Last name <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <div class="fit-input" contenteditable="true" data-placeholder="Enter last name" style="outline:none;cursor:text;"></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;" data-optional-format="phone">
+      <span class="fit-input-label">Phone number <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <div class="fit-input" contenteditable="true" data-placeholder="+1 234 567 8900" style="outline:none;cursor:text;"></div>
+      <span class="fit-input-hint" style="font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;display:block;">Used to invite them &amp; auto-connect when they join.</span>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Sport</span>
+      <div class="fit-input" style="cursor:pointer;"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg></span> Basketball<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">City <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <div class="fit-input" contenteditable="true" data-placeholder="Enter city" style="outline:none;cursor:text;"></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Country <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <div class="fit-input" style="cursor:pointer;"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></svg></span> <span style="color:var(--fit-text-placeholder);">Select country</span><span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Home address <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <div class="fit-input" style="cursor:pointer;" data-a11y-id="coach.new-client.home-address" onclick="openCrmAddr('new')"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span> <span id="cc-home-addr" style="color:var(--fit-text-placeholder);">Add for home-visit sessions</span><span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div>
+      <span class="fit-input-hint" style="font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;display:block;">Where you&rsquo;d travel for a home visit. They can change it in-app once they join.</span>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Timezone <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <div class="fit-input" style="cursor:pointer;"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span> Europe/Berlin<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div>
+      <span class="fit-input-hint" style="font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;display:block;">Defaults to your timezone · updates to theirs when they join 321Fit.</span>
+    </div>
+    <div class="fit-input-group" style="padding:0 16px;">
+      <span class="fit-input-label">Notes <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
+      <div class="fit-input" style="min-height:80px;align-items:flex-start;padding-top:14px;cursor:pointer;">
+        <span style="color:var(--fit-text-placeholder);">Injuries, preferences, payment habits...</span>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-footer fit-footer-btn">
+    <button class="fit-btn fit-btn-primary" onclick="validateCreateClient()">Create Client</button>
+  </div>
+  <!-- Validation snackbar -->
+  <div class="fit-snackbar" id="cc-validation-snack"><span class="snack-dot" style="background:var(--fit-red-400);"></span>Please fill in required fields</div>
+</div>
+
+
+
+
+
+
+<!-- ==== from coach/client-groups.html #s-groups ==== -->
+<div class="srcc-gr fit-phone fit-dark ls-default" id="s-groups" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <span class="fit-header-title" style="flex:1;">Clients</span>
+      <button class="fit-icon-btn" data-a11y-id="coach.groups.add" onclick="cgAdd()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+    </div>
+  </div>
+
+  <div class="fit-phone-content">
+    <div class="fit-segmented" style="margin:8px 16px 4px;">
+      <button class="fit-segmented-tab" data-a11y-id="coach.clients.tab.clients" onclick="cgTab('clients',this)">Clients</button>
+      <button class="fit-segmented-tab selected" data-a11y-id="coach.clients.tab.groups" onclick="cgTab('groups',this)">Groups</button>
+    </div>
+
+    <!-- ============ PANE: CLIENTS (people) ============ -->
+    <div id="cg-pane-clients" style="display:none;">
+      <div class="imp-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search clients">
+      </div>
+      <div class="set-card" style="margin:0 16px 8px;cursor:pointer;" onclick="window.location.href='client-detail-drafts.html#s-draft-client'">
+        <div style="display:flex;align-items:center;gap:12px;width:100%;">
+          <div class="imp-av">AK</div>
+          <div style="flex:1;min-width:0;"><div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Anna Kowalski</div><div style="font-size:12px;color:var(--fit-text-tertiary);">12 sessions &middot; &euro;580</div></div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+      <div class="set-card" style="margin:0 16px 8px;cursor:pointer;" onclick="window.location.href='client-detail-drafts.html#s-draft-client'">
+        <div style="display:flex;align-items:center;gap:12px;width:100%;">
+          <div class="imp-av">MS</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Mark Schmidt</span><span class="fit-badge fit-badge-danger">&euro;50 owed</span></div>
+            <div style="font-size:12px;color:var(--fit-text-tertiary);">8 sessions &middot; &euro;400</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+      <div class="set-card" style="margin:0 16px 8px;cursor:pointer;" onclick="window.location.href='client-detail-drafts.html#s-draft-client'">
+        <div style="display:flex;align-items:center;gap:12px;width:100%;">
+          <div class="imp-av">LR</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Lena Roth</span><span class="imp-tag crm">CRM</span></div>
+            <div style="font-size:12px;color:var(--fit-text-tertiary);">3 sessions &middot; &euro;120</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+      <div style="padding:8px 16px 20px;font-size:13px;color:var(--fit-text-tertiary);text-align:center;">&mdash; Clients pane unchanged, see clients.html &mdash;</div>
+    </div>
+
+    <!-- ============ PANE: GROUPS ============ -->
+    <div id="cg-pane-groups">
+
+      <!-- === DEFAULT: has groups === -->
+      <div data-list-state="default">
+        <div class="cg-sec" style="margin-top:16px;"><span class="cg-sec-title">Your groups</span></div>
+
+        <!-- Morning: has a chat with unread -->
+        <div class="cg-card" data-a11y-id="coach.group.card" onclick="go('s-group-detail',null)">
+          <div class="cg-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg></div>
+          <div class="cg-card-body">
+            <div class="cg-card-name">Morning</div>
+            <div class="cg-card-sub">8 members</div>
+          </div>
+          <div class="cg-card-right">
+            <div class="cg-stack"><span class="cg-av">AK</span><span class="cg-av">MS</span><span class="cg-av">JD</span><span class="cg-av cg-av--more">+5</span></div>
+            <span class="cg-unread">2</span>
+          </div>
+        </div>
+
+        <!-- Beginners: attached to a recurring series -->
+        <div class="cg-card" onclick="go('s-group-detail',null)">
+          <div class="cg-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg></div>
+          <div class="cg-card-body">
+            <div class="cg-card-name">Beginners</div>
+            <div class="cg-card-sub">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+              Tue &amp; Thu &middot; 18:00
+            </div>
+          </div>
+          <div class="cg-card-right">
+            <div class="cg-stack"><span class="cg-av">PW</span><span class="cg-av">TN</span><span class="cg-av">SK</span><span class="cg-av cg-av--more">+9</span></div>
+          </div>
+        </div>
+
+        <!-- Zumba: CRM-heavy, no chat yet -->
+        <div class="cg-card" onclick="go('s-group-detail',null)">
+          <div class="cg-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg></div>
+          <div class="cg-card-body">
+            <div class="cg-card-name">Zumba Thursday</div>
+            <div class="cg-card-sub">14 members</div>
+          </div>
+          <div class="cg-card-right">
+            <div class="cg-stack"><span class="cg-av">MV</span><span class="cg-av">JS</span><span class="cg-av cg-av--more">+12</span></div>
+          </div>
+        </div>
+
+        <div class="cg-sec">
+          <span class="cg-sec-title">Smart groups</span>
+          <span class="cg-sec-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>auto-updated</span>
+        </div>
+
+        <div class="cg-smart cg-smart--warn" data-a11y-id="coach.group.smart" onclick="go('s-group-smart',null)">
+          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span class="cg-smart-name">Owes money</span>
+          <span class="cg-smart-n">3</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="cg-smart" onclick="go('s-group-smart',null)">
+          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 5.6L20 9.5l-4 3.9.9 5.6-4.9-2.7-4.9 2.7.9-5.6-4-3.9 5.8-.9z"/></svg>
+          <span class="cg-smart-name">New this month</span>
+          <span class="cg-smart-n">5</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="cg-smart" onclick="go('s-group-smart',null)">
+          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+          <span class="cg-smart-name">Package running low</span>
+          <span class="cg-smart-n">2</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="cg-smart" onclick="go('s-group-smart',null)">
+          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 7l8 6 8-6"/></svg>
+          <span class="cg-smart-name">Not in the app</span>
+          <span class="cg-smart-n">14</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="cg-smart" onclick="go('s-group-smart',null)">
+          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <span class="cg-smart-name">Inactive 30 days</span>
+          <span class="cg-smart-n">7</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div style="height:20px;"></div>
+      </div>
+
+      <!-- === EMPTY: no manual groups yet (smart groups still show) === -->
+      <div data-list-state="empty">
+        <div class="fit-empty-state" style="padding-top:40px;padding-bottom:24px;">
+          <svg class="fes-illus" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="24" cy="22" r="8"/><path d="M10 50v-2a14 14 0 0128 0v2"/><path d="M44 24a8 8 0 100-16M48 50v-2a14 14 0 00-6-11.5"/>
+          </svg>
+          <div class="fit-empty-state-title">No groups yet</div>
+          <div class="fit-empty-state-sub">Group clients you train together —<br>invite them to a session or message them at once.</div>
+          <button class="fit-btn fit-btn-primary" style="display:inline-flex;width:auto;height:44px;padding:0 24px;font-size:16px;" onclick="go('s-group-create',null)">Create a group</button>
+        </div>
+        <div class="cg-sec">
+          <span class="cg-sec-title">Smart groups</span>
+          <span class="cg-sec-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>auto-updated</span>
+        </div>
+        <div class="cg-smart cg-smart--warn" onclick="go('s-group-smart',null)">
+          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span class="cg-smart-name">Owes money</span><span class="cg-smart-n">3</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="cg-smart" onclick="go('s-group-smart',null)">
+          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 7l8 6 8-6"/></svg>
+          <span class="cg-smart-name">Not in the app</span><span class="cg-smart-n">14</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==== from coach/client-groups.html #s-group-smart ==== -->
+<div class="srcc-gr fit-phone fit-dark" id="s-group-smart" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-groups',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Owes money</span>
+    </div>
+  </div>
+
+  <div class="fit-phone-content">
+    <div class="cg-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
+      <span>Built automatically from unpaid cash sessions. People leave the moment you mark them paid &mdash; you can&rsquo;t add or remove anyone by hand.</span>
+    </div>
+
+    <div class="fit-stat-strip">
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">3</div><div class="fit-stat-strip-label">clients</div></div>
+      <div class="fit-stat-strip-divider"></div>
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value" style="color:var(--fit-red-400);">&euro;140</div><div class="fit-stat-strip-label">outstanding</div></div>
+      <div class="fit-stat-strip-divider"></div>
+      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">11d</div><div class="fit-stat-strip-label">oldest</div></div>
+    </div>
+
+    <div class="cg-sec"><span class="cg-sec-title">Clients</span></div>
+
+    <div class="cg-row" onclick="window.location.href='client-detail-drafts.html#s-draft-client'">
+      <span class="imp-av">MS</span>
+      <span class="cg-row-body"><span class="cg-row-title">Mark Schmidt</span><span class="cg-row-sub">HIIT &middot; Apr 2 &middot; 11d ago</span></span>
+      <span class="cg-row-right">
+        <span class="fit-badge fit-badge-danger">&euro;50</span>
+        <button class="fit-btn fit-btn-secondary" style="width:auto;height:36px;padding:0 12px;font-size:13px;" onclick="event.stopPropagation();cgPaid(this)">Mark paid</button>
+      </span>
+    </div>
+    <div class="cg-row" onclick="window.location.href='client-detail-drafts.html#s-draft-client'">
+      <span class="imp-av">TN</span>
+      <span class="cg-row-body"><span class="cg-row-title">Tom Novak</span><span class="cg-row-sub">Basketball &middot; Apr 8 &middot; 5d ago</span></span>
+      <span class="cg-row-right">
+        <span class="fit-badge fit-badge-danger">&euro;50</span>
+        <button class="fit-btn fit-btn-secondary" style="width:auto;height:36px;padding:0 12px;font-size:13px;" onclick="event.stopPropagation();cgPaid(this)">Mark paid</button>
+      </span>
+    </div>
+    <div class="cg-row" onclick="window.location.href='client-detail-drafts.html#s-draft-client'">
+      <span class="imp-av">LR</span>
+      <span class="cg-row-body"><span class="cg-row-title">Lena Roth <span class="imp-tag crm">CRM</span></span><span class="cg-row-sub">Zumba &middot; Apr 10 &middot; 3d ago</span></span>
+      <span class="cg-row-right">
+        <span class="fit-badge fit-badge-danger">&euro;40</span>
+        <button class="fit-btn fit-btn-secondary" style="width:auto;height:36px;padding:0 12px;font-size:13px;" onclick="event.stopPropagation();cgPaid(this)">Mark paid</button>
+      </span>
+    </div>
+
+    <div class="cg-note" style="margin-top:16px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 01-11.6 7.2L3 21l1.8-6.4A8 8 0 1121 12z"/></svg>
+      <span>No group chat here on purpose &mdash; a &ldquo;you owe me&rdquo; thread isn&rsquo;t a conversation. Nudge people one by one from their card.</span>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+
+  <div class="fit-snackbar" id="paid-snack"><span class="snack-dot" style="background:var(--fit-green-500);"></span>Payment recorded</div>
+</div>
+
+<!-- ==== from coach/client-groups.html #s-group-detail ==== -->
+<div class="srcc-gr fit-phone fit-dark sched-attached" id="s-group-detail" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-groups',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title cg-group-name">Morning</span>
+      <div style="position:absolute;right:12px;display:flex;align-items:center;gap:6px;">
+        <button class="fit-icon-btn" data-a11y-id="coach.group.message" onclick="location.href='client-groups.html#s-group-chat'" style="position:relative;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 01-11.6 7.2L3 21l1.8-6.4A8 8 0 1121 12z"/></svg>
+          <span class="cg-badge-dot">2</span>
+        </button>
+        <button class="fit-icon-btn" onclick="cgMenu('menu-group',event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="fit-phone-content">
+    <!-- ===== SCHEDULE — rules first, then dates. One line each, capped. ===== -->
+    <div class="cg-sec"><span class="cg-sec-title">Schedule</span></div>
+
+    <div data-sched-state="attached">
+      <div class="cg-card-list">
+        <!-- A RULE: repeats, never ends, feeds the roster automatically -->
+        <div class="cg-row" onclick="window.location.href='./sessions.html#s-series'">
+          <span class="cg-row-ic cg-row-ic--rec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></span>
+          <span class="cg-row-body"><span class="cg-row-title">HIIT Group Session</span><span class="cg-row-sub">Tue &amp; Thu &middot; 18:00</span><span class="cg-row-sub">Next: Tue, Apr 15</span></span>
+          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <!-- A DATE: one-off -->
+        <div class="cg-row" onclick="window.location.href='./calendar.html'">
+          <span class="cg-row-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+          <span class="cg-row-body"><span class="cg-row-title">Yoga Morning Flow</span><span class="cg-row-sub">Apr 19 &middot; 10:00</span></span>
+          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="cg-row cg-row--link" data-a11y-id="coach.group.see-all-dates" onclick="location.href='client-groups.html#s-group-schedule'">
+          <span class="cg-row-body"><span class="cg-row-title" style="color:var(--fit-brand-primary);">See all 12 dates</span></span>
+          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUSY GROUP: 2 recurring + 2 one-off — rules always shown, dates capped -->
+    <div data-sched-state="many">
+      <div class="cg-card-list">
+        <div class="cg-row" onclick="window.location.href='./sessions.html#s-series'">
+          <span class="cg-row-ic cg-row-ic--rec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></span>
+          <span class="cg-row-body"><span class="cg-row-title">HIIT Group Session</span><span class="cg-row-sub">Tue &amp; Thu &middot; 18:00</span><span class="cg-row-sub">Next: Tue, Apr 15</span></span>
+          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="cg-row" onclick="window.location.href='./sessions.html#s-series'">
+          <span class="cg-row-ic cg-row-ic--rec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></span>
+          <span class="cg-row-body"><span class="cg-row-title">Yoga Morning Flow</span><span class="cg-row-sub">Sat &middot; 10:00</span><span class="cg-row-sub">Next: Sat, Apr 19</span></span>
+          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="cg-row" onclick="window.location.href='./calendar.html'">
+          <span class="cg-row-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+          <span class="cg-row-body"><span class="cg-row-title">Beach run</span><span class="cg-row-sub">Apr 20 &middot; 09:00</span></span>
+          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="cg-row" onclick="window.location.href='./calendar.html'">
+          <span class="cg-row-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+          <span class="cg-row-body"><span class="cg-row-title">Charity class</span><span class="cg-row-sub">May 3 &middot; 11:00</span></span>
+          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="cg-row cg-row--link" onclick="location.href='client-groups.html#s-group-schedule'">
+          <span class="cg-row-body"><span class="cg-row-title" style="color:var(--fit-brand-primary);">See all 26 dates</span></span>
+          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div data-sched-state="none">
+      <div class="cg-card-list"><div class="cg-row" style="cursor:default;">
+        <span class="cg-row-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+        <span class="cg-row-body">
+          <span class="cg-row-title" style="color:var(--fit-text-secondary);font-weight:400;">Not scheduled yet</span>
+          <span class="cg-row-sub">Schedule a session, or attach the group to a series you already run</span>
+        </span>
+      </div></div>
+    </div>
+
+    <!-- ===== MEMBERS — everyone, no truncation ===== -->
+    <div class="cg-sec">
+      <span class="cg-sec-title">Members <span id="cg-member-count" style="color:var(--fit-text-tertiary);">8</span></span>
+      <span class="cg-sec-action" id="cg-edit-link" data-a11y-id="coach.group.edit-members" onclick="cgEdit(this)">Edit</span>
+    </div>
+
+    <!-- Members stay bare on the canvas: a people list reads as a list, not a block.
+         Only things that group (a rule and its dates) get an outline. -->
+    <div class="cg-row cg-member--add" data-a11y-id="coach.group.add-clients" onclick="location.href='client-groups.html#s-group-add'">
+      <span class="cg-row-ic cg-row-ic--add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
+      <span class="cg-row-body"><span class="cg-row-title" style="color:var(--fit-brand-primary);">Add clients</span></span>
+    </div>
+
+    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
+      <span class="imp-av">AK</span>
+      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Anna Kowalski</span><span class="cg-row-sub">12 sessions &middot; &euro;580</span></span>
+      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
+      <span class="imp-av">MS</span>
+      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Mark Schmidt</span><span class="cg-row-sub">8 sessions &middot; &euro;400</span></span>
+      <span class="cg-row-right"><span class="fit-badge fit-badge-danger">&euro;50 owed</span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
+      <span class="imp-av">LR</span>
+      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Lena Roth <span class="imp-tag crm">CRM</span></span><span class="cg-row-sub">3 sessions &middot; &euro;120</span></span>
+      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
+      <span class="imp-av">JD</span>
+      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Julia Dent</span><span class="cg-row-sub">5 sessions &middot; &euro;250</span></span>
+      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
+      <span class="imp-av">SK</span>
+      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Sara Kim</span><span class="cg-row-sub">9 sessions &middot; &euro;450</span></span>
+      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
+      <span class="imp-av">MV</span>
+      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Marta Vega <span class="imp-tag crm">CRM</span></span><span class="cg-row-sub">4 sessions &middot; &euro;160</span></span>
+      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+    <div class="cg-row cg-member" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
+      <span class="imp-av">TN</span>
+      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Tom Novak</span><span class="cg-row-sub">2 sessions &middot; &euro;100</span></span>
+      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+    <div class="cg-row cg-member" style="opacity:0.55;" onclick="cgMemberTap(this)">
+      <span class="cg-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
+      <span class="imp-av">PW</span>
+      <span class="cg-row-body"><span class="cg-row-title cg-member-name">Paul Weber <span class="imp-tag client">Archived</span></span><span class="cg-row-sub">Skipped in group actions</span></span>
+      <span class="cg-row-right"><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+
+    <div class="cg-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
+      <span>Groups are private &mdash; clients never see which groups they&rsquo;re in.</span>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" data-a11y-id="coach.group.schedule" onclick="window.location.href='./invite.html?mode=schedule&amp;origin=s-group-detail&amp;filter=group&amp;group=morning'">Schedule a session</button></div>
+
+  <div class="fit-snackbar" id="cg-remove-snack"><span class="snack-dot" style="background:var(--fit-red-400);"></span><span id="cg-remove-text">Anna removed from Morning</span><span class="snack-action" onclick="cgUndo()">Undo</span></div>
+
+  <div class="fit-context-menu-backdrop" id="menu-group-backdrop" onclick="cgMenuClose('menu-group')"></div>
+  <div class="fit-context-menu" id="menu-group" style="top:56px;right:12px;">
+    <div class="fit-context-menu-item" data-a11y-id="coach.group.menu.add" onclick="cgMenuClose('menu-group');location.href='client-groups.html#s-group-add'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2 21v-1a7 7 0 0112 0v1"/><path d="M19 8v6M22 11h-6"/></svg>
+      Add clients
+    </div>
+    <div class="fit-context-menu-item" data-a11y-id="coach.group.menu.edit" onclick="cgMenuClose('menu-group');cgEditState(true,null)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h9"/><circle cx="19" cy="18" r="2.5"/></svg>
+      Edit members
+    </div>
+    <div class="fit-context-menu-item" data-a11y-id="coach.group.menu.rename" onclick="cgMenuClose('menu-group');location.href='client-groups.html#s-group-rename';cgRenameFocus()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
+      Rename group
+    </div>
+    <div class="fit-context-menu-divider"></div>
+    <div class="fit-context-menu-item destructive" onclick="cgMenuClose('menu-group');document.getElementById('delete-group-sheet').classList.add('visible')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+      Delete group
+    </div>
+  </div>
+
+  <!-- ===== Post-drop confirm drawer (group flavour of invite.html#group-publish-sheet).
+       Reached after: Add to a session → pick a group session → drop it on the grid. ===== -->
+  <div class="fit-sheet-overlay" id="group-publish-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Publish session</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:20px;">Yoga Morning Flow &middot; Sat, Apr 19 &middot; 10:00 &middot; GYM Bro</div>
+
+      <div class="fit-input-group" style="padding:0;"><span class="fit-input-label">How often</span></div>
+      <!-- Canon pair, same as invite.html#group-publish-sheet -->
+      <div style="display:flex;flex-direction:column;gap:2px;margin:8px 0 12px;" id="gp-repeat">
+        <label class="cg-radio" onclick="cgRepeat('once',this)">
+          <input type="radio" name="gp-mode" checked style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;">
+          <span>Just this date</span>
+        </label>
+        <label class="cg-radio" onclick="cgRepeat('weekly',this)">
+          <input type="radio" name="gp-mode" style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;">
+          <span>Repeat weekly</span>
+        </label>
+      </div>
+
+      <!-- Fixed-height detail area — the sheet must not grow (frequency-picker canon) -->
+      <div style="min-height:96px;margin-bottom:16px;padding-left:32px;">
+        <div data-gp="once" style="font-size:13px;line-height:1.5;color:var(--fit-text-tertiary);">
+          A single event on Sat, Apr 19. Nothing repeats &mdash; add more dates any time.
+        </div>
+        <div data-gp="weekly" style="display:none;">
+          <div class="fit-selection-group" data-fit-selection="multi" style="margin:0 0 10px;padding:0;">
+            <div class="fit-selection-chip">Mon</div><div class="fit-selection-chip">Wed</div><div class="fit-selection-chip selected">Sat</div>
+          </div>
+          <div style="font-size:13px;color:var(--fit-text-tertiary);">Ends: <strong style="color:var(--fit-text-primary);font-weight:500;">Ongoing</strong> &middot; generated 60 days ahead.</div>
+        </div>
+      </div>
+
+      <div class="cg-note cg-note--warn" style="margin:0 0 20px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg>
+        <span><strong>All 8 of Morning</strong> go on the roster, auto-accepted &mdash; 3 of them are CRM contacts. Fees become owed and settle after the session. 15 spots, so everyone fits.</span>
+      </div>
+
+      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="document.getElementById('group-publish-sheet').classList.remove('visible');">Publish</button>
+    </div>
+  </div>
+
+  <!-- Attach to a series -->
+  <div class="fit-sheet-overlay" id="attach-series-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Attach to a series</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:20px;">Every date this series generates will come with these 8 people already on the roster.</div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+        <label class="cal-select-row" style="display:flex;align-items:center;gap:12px;padding:14px 12px;border-radius:12px;cursor:pointer;">
+          <input type="radio" name="attach-series" checked style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;">
+          <span style="flex:1;"><span style="font-size:15px;color:var(--fit-text-primary);display:block;">HIIT &middot; Tue &amp; Thu 18:00</span><span style="font-size:12px;color:var(--fit-text-tertiary);">GYM Bro &middot; max 10</span></span>
+        </label>
+        <label class="cal-select-row" style="display:flex;align-items:center;gap:12px;padding:14px 12px;border-radius:12px;cursor:pointer;">
+          <input type="radio" name="attach-series" style="accent-color:var(--fit-teal-600);width:20px;height:20px;flex-shrink:0;">
+          <span style="flex:1;"><span style="font-size:15px;color:var(--fit-text-primary);display:block;">Yoga &middot; Sat 10:00</span><span style="font-size:12px;color:var(--fit-text-tertiary);">GYM Bro &middot; max 15</span></span>
+        </label>
+      </div>
+
+      <div class="cg-note cg-note--warn" style="margin:0 0 20px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>This group has <strong>8 people</strong> and the session holds <strong>10</strong> &mdash; everyone fits. Add more later and the extras stay in the group, off the roster.</span>
+      </div>
+
+      <button class="fit-btn fit-btn-primary" style="border-radius:99px;" onclick="document.getElementById('attach-series-sheet').classList.remove('visible');">Attach</button>
+    </div>
+  </div>
+
+  <!-- Delete group -->
+  <div class="fit-sheet-overlay" id="delete-group-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:4px;">Delete &ldquo;Morning&rdquo;?</div>
+      <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:24px;">The 8 clients stay in your client list &mdash; only the grouping goes away. The group chat is kept and stops following this group.</div>
+      <button class="fit-btn fit-btn-destructive" style="border-radius:99px;" onclick="document.getElementById('delete-group-sheet').classList.remove('visible');">Delete group</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==== from coach/client-groups.html #s-group-create ==== -->
+<div class="srcc-gr fit-phone fit-dark" id="s-group-create" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-groups',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">New group</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="fit-input-group"><span class="fit-input-label">Group name</span><div class="fit-input" contenteditable="true" data-placeholder="e.g. Morning" style="outline:none;cursor:text;"></div></div>
+
+    <div class="cg-sec" style="margin-top:8px;"><span class="cg-sec-title">Who&rsquo;s in it</span></div>
+    <div class="imp-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" placeholder="Search clients" oninput="cgFilter(this.value)">
+    </div>
+    <div class="imp-selectall">
+      <button class="imp-selectall-link" onclick="cgSelectAll()">Select all</button>
+      <span class="imp-count" id="cg-count">3 selected</span>
+    </div>
+
+    <div id="cg-pick-list">
+      <div class="imp-row selected" onclick="cgToggle(this)" data-name="Anna Kowalski">
+        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+        <span class="imp-av">AK</span>
+        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Anna Kowalski</span></span><span class="imp-sub">12 sessions &middot; &euro;580</span></span>
+      </div>
+      <div class="imp-row selected" onclick="cgToggle(this)" data-name="Mark Schmidt">
+        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+        <span class="imp-av">MS</span>
+        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Mark Schmidt</span></span><span class="imp-sub">8 sessions &middot; &euro;400</span></span>
+      </div>
+      <div class="imp-row selected" onclick="cgToggle(this)" data-name="Lena Roth">
+        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+        <span class="imp-av">LR</span>
+        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Lena Roth</span><span class="imp-tag crm">CRM</span></span><span class="imp-sub">Not in the app</span></span>
+      </div>
+      <div class="imp-row" onclick="cgToggle(this)" data-name="Julia Dent">
+        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+        <span class="imp-av">JD</span>
+        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Julia Dent</span></span><span class="imp-sub">5 sessions &middot; &euro;250</span></span>
+      </div>
+      <div class="imp-row" onclick="cgToggle(this)" data-name="Tom Novak">
+        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+        <span class="imp-av">TN</span>
+        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Tom Novak</span></span><span class="imp-sub">2 sessions &middot; &euro;100</span></span>
+      </div>
+      <div class="imp-row" onclick="cgToggle(this)" data-name="Sara Kim">
+        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+        <span class="imp-av">SK</span>
+        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Sara Kim</span></span><span class="imp-sub">9 sessions &middot; &euro;450</span></span>
+      </div>
+      <div class="imp-row" aria-disabled="true" data-name="Paul Weber">
+        <span class="imp-check"></span>
+        <span class="imp-av">PW</span>
+        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Paul Weber</span><span class="imp-tag client">Blocked</span></span><span class="imp-sub">Can&rsquo;t be added to a group</span></span>
+      </div>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" onclick="go('s-group-detail',null)"><span>Create group &middot; <span id="cg-cta-count">3</span></span></button></div>
+</div>
+
+
+<!-- ==================== ANNOTATIONS ==================== -->
+<div class="ann-container">
+  <div class="look-switch">Look
+    <div class="state-toggle"><button data-v="plain" onclick="setLook('plain',this)">Plain</button><button class="active" data-v="tinted" onclick="setLook('tinted',this)">Tinted canvas</button></div>
+    <span>&middot; dark only</span>
+    <span style="margin-left:10px;">CTA</span>
+    <div class="state-toggle"><button data-c="gradient" onclick="setCta('gradient',this)">Gradient</button><button class="active" data-c="white" onclick="setCta('white',this)">White</button></div>
+    <span>&middot; tinted only</span>
+  </div>
+  <div class="ann active" id="ann-s-draft-clients"><span class="ann-role">Coach &middot; draft &middot; Clients, placed</span>
+    <h3>Clients &middot; ordered by weight</h3>
+    <div class="state-toggle" data-d="state" style="margin-bottom:6px;">
+      <button class="active" data-v="none" onclick="dSet('none',this)">23 clients</button>
+      <button data-v="fresh" onclick="dSet('fresh',this)">Fresh coach</button>
+      <button data-v="loading" onclick="dSet('loading',this)">Loading</button>
+    </div>
+    <div class="bet"><strong>Bet:</strong> the shipped list (<a href="clients.html#s-clients">clients.html</a>) is one flat stack of identical rows carrying lifetime stats (<em>12 sessions &middot; &euro;580</em>); the things a coach opens the tab for &mdash; who owes, who went quiet, who is on this week &mdash; sit in badges or on the other pane. Same content, ordered: <strong>what you owe an answer to &rarr; who you see this week &rarr; everyone</strong>.</div>
+    <ul>
+      <li><strong>Needs you = the five smart groups as chips</strong> (&euro; owed &middot; inactive 30d &middot; packs running low &middot; not in app &middot; new this month). <strong>Tap opens the smart group's list</strong>, exactly as the Groups pane did &mdash; they are doors, not filters (decision 2026-09-15). The Groups pane keeps only the manual groups.</li>
+      <li><strong>Rows speak of time, not lifetime money.</strong> <em>Next &middot; Thu 10:00 &middot; Tennis</em> (teal) or <em>Last &middot; Apr 2 &middot; 5 sessions</em>; the badge stays for owed / CRM / new. Lifetime revenue lives on the client's screen.</li>
+      <li><strong>This week</strong> = the people you see, in order of when; <strong>Everyone</strong> = A&ndash;Z with letter dividers and an index rail once the list is long.</li>
+      <li><strong>Search</strong> under the segmented control (type to try); while searching the chips, This week and the rail hide and the A&ndash;Z list filters.</li>
+      <li><strong>+ stays the one action</strong> (create &middot; import &middot; invite to app &middot; invite to training &mdash; the canon sheet). A list is not an object, so no circles.</li>
+      <li><strong>Archived &amp; Blocked</strong> stays a row at the bottom (Mail Trash pattern). <strong>Fresh coach</strong> = one card with two doors: Import contacts / Invite by link.</li>
+      <li>No wash in the plain look (no identity block here); tinted canvas as everywhere.</li>
+    </ul>
+    <div class="cost"><strong>What it costs:</strong> two lists of the same people (This week + Everyone) &mdash; a person can appear twice; the rail needs a real A&ndash;Z scroll on native; sorting by next session needs the next-session field on the list endpoint (today the list carries lifetime counts only).</div>
+    <p class="note">Every screen reached from here is copied into this file (source named on each). Client rows open the Client Detail rework (<code>client-detail-drafts.html</code>), Home in the tab bar opens the Home rework.</p>
+  </div>
+  <div class="ann" id="ann-s-group-smart"><span class="ann-role">Coach &middot; reached from Clients</span>
+    <h3>Smart group</h3>
+    <p>From a <em>Needs you</em> chip &mdash; the computed list (owes money / inactive / packs low / not in app / new). Unchanged.</p>
+    <p class="note">Copy of <code>client-groups.html#s-group-smart</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-groups"><span class="ann-role">Coach &middot; reached from Clients</span>
+    <h3>Groups pane</h3>
+    <p>The other segment. Manual groups only &mdash; smart groups moved to the chips on the Clients pane.</p>
+    <p class="note">Copy of <code>client-groups.html#s-groups</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-group-detail"><span class="ann-role">Coach &middot; reached from Clients</span>
+    <h3>Group</h3>
+    <p>Unchanged.</p>
+    <p class="note">Copy of <code>client-groups.html#s-group-detail</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-group-create"><span class="ann-role">Coach &middot; reached from Clients</span>
+    <h3>Create group</h3>
+    <p>Unchanged.</p>
+    <p class="note">Copy of <code>client-groups.html#s-group-create</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-archived"><span class="ann-role">Coach &middot; reached from Clients</span>
+    <h3>Archived &amp; Blocked</h3>
+    <p>From the row at the bottom. Unchanged.</p>
+    <p class="note">Copy of <code>clients.html#s-archived</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-import-contacts"><span class="ann-role">Coach &middot; reached from Clients</span>
+    <h3>Import contacts</h3>
+    <p>From <strong>+</strong> and from the fresh-coach card. Unchanged.</p>
+    <p class="note">Copy of <code>clients.html#s-import-contacts</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-import-done"><span class="ann-role">Coach &middot; reached from Clients</span>
+    <h3>Import done</h3>
+    <p>Unchanged.</p>
+    <p class="note">Copy of <code>clients.html#s-import-done</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-create-client"><span class="ann-role">Coach &middot; reached from Clients</span>
+    <h3>Create client</h3>
+    <p>From <strong>+ &rarr; Create profile</strong>. Unchanged.</p>
+    <p class="note">Copy of <code>clients.html#s-create-client</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+</div>
+
+<script src="../../lib/fit-ui.js"></script>
+<script>
+function go(id, btn) {
+  if (!document.getElementById(id)) { console.warn('go: no screen ' + id); return; }
+  document.querySelectorAll('.fit-phone').forEach(function (s) { s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar button').forEach(function (b) { b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.ann').forEach(function (a) { a.classList.remove('active'); });
+  var ann = document.getElementById('ann-' + id);
+  if (ann) ann.classList.add('active');
+  if (window.FitUI) FitUI.initAll(document.getElementById(id));
+}
+function switchTheme(theme) {
+  document.querySelectorAll('.fit-phone').forEach(function (p) { p.classList.remove('fit-dark', 'fit-light'); p.classList.add('fit-' + theme); });
+  var d = document.getElementById('theme-dark'), l = document.getElementById('theme-light');
+  d.style.background = theme === 'dark' ? 'var(--fit-gray-700)' : 'transparent'; d.style.color = theme === 'dark' ? 'var(--fit-white)' : 'var(--fit-gray-400)';
+  l.style.background = theme === 'light' ? 'var(--fit-gray-700)' : 'transparent'; l.style.color = theme === 'light' ? 'var(--fit-white)' : 'var(--fit-gray-400)';
+}
+function showSnack(msg) {
+  var ph = document.querySelector('.fit-phone.active'); if (!ph) return;
+  var snack = ph.querySelector('.fit-snackbar');
+  if (!snack) { snack = document.createElement('div'); snack.className = 'fit-snackbar'; ph.appendChild(snack); }
+  snack.textContent = msg; snack.classList.add('show');
+  setTimeout(function () { snack.classList.remove('show'); }, 2500);
+}
+function showClientSnack(m) { showSnack(m); }
+function toastStub(m) { showSnack(m); }
+// Clients states — annotation toggles
+var D_STATES = ['fresh', 'loading'];
+function dSet(name, btn) {
+  var el = document.getElementById('s-draft-clients');
+  if (!el.classList.contains('active')) go('s-draft-clients', document.querySelector('.sidebar button[onclick*="s-draft-clients"]'));
+  D_STATES.forEach(function (n) { el.classList.remove('c-' + n); });
+  if (name !== 'none') el.classList.add('c-' + name);
+  var host = document.querySelector('.state-toggle[data-d="state"]');
+  host.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); });
+  var hit = btn || host.querySelector('button[data-v="' + name + '"]'); if (hit) hit.classList.add('active');
+}
+// A chip opens the smart group's list, titled after the chip.
+function cOpenSmart(name) {
+  var t = document.querySelector('#s-group-smart .fit-header-title'); if (t) t.textContent = name;
+  go('s-group-smart', document.querySelector('.sidebar button[onclick*="s-group-smart"]'));
+}
+// Search: filter the A–Z list; letters hide when none of their rows match.
+function cSearch(q) {
+  var el = document.getElementById('s-draft-clients'); q = (q || '').trim().toLowerCase();
+  el.classList.toggle('c-searching', !!q);
+  var list = el.querySelector('.cd-c-list'); var any = false;
+  list.querySelectorAll('.cd-c-row').forEach(function (r) { var hit = !q || r.dataset.name.toLowerCase().indexOf(q) >= 0; r.classList.toggle('hide', !hit); any = any || hit; });
+  list.querySelectorAll('.cd-c-letter').forEach(function (l) { var n = l.nextElementSibling, has = false; while (n && n.classList.contains('cd-c-row')) { if (!n.classList.contains('hide')) has = true; n = n.nextElementSibling; } l.classList.toggle('hide', !has); });
+  list.querySelector('.cd-c-nohit').style.display = any ? 'none' : 'block';
+}
+// Look + CTA switches (same as client-detail-drafts)
+function setLook(name, btn) {
+  document.querySelectorAll('.fit-phone').forEach(function (p) { p.classList.toggle('k-alpha', name === 'tinted'); });
+  document.querySelectorAll('.look-switch button[data-v]').forEach(function (b) { b.classList.remove('active'); });
+  var hit = btn || document.querySelector('.look-switch button[data-v="' + name + '"]'); if (hit) hit.classList.add('active');
+  try { localStorage.setItem('cd-look', name); } catch (e) {}
+}
+function setCta(name, btn) {
+  document.querySelectorAll('.fit-phone').forEach(function (p) { p.classList.remove('k-cta-white'); if (name === 'white') p.classList.add('k-cta-white'); });
+  document.querySelectorAll('.look-switch button[data-c]').forEach(function (b) { b.classList.remove('active'); });
+  var hit = btn || document.querySelector('.look-switch button[data-c="' + name + '"]'); if (hit) hit.classList.add('active');
+  try { localStorage.setItem('cd-cta', name); } catch (e) {}
+}
+// ==== copied from clients.html ====
+var _shareMode = 'single';
+var _crmReturn='new';
+function validateCreateClient() {
+  var screen = document.getElementById('s-create-client');
+  var content = screen.querySelector('.fit-phone-content');
+
+  // Clear previous errors
+  screen.querySelectorAll('.fit-input-group.error').forEach(g => g.classList.remove('error'));
+
+  var firstError = null;
+
+  // First name required
+  var fnameGroup = screen.querySelector('[data-required="fname"]');
+  var fnameEl = fnameGroup && fnameGroup.querySelector('.fit-input');
+  if (!fnameEl || !fnameEl.textContent.trim()) {
+    fnameGroup && fnameGroup.classList.add('error');
+    if (!firstError) firstError = fnameGroup;
+  }
+
+  // Last name is optional (a CRM contact / import may be first-name-only)
+
+  // Phone format (optional, only when filled — email removed from CRM, phone is the match key)
+  var contactGroup = screen.querySelector('[data-optional-format="phone"]');
+  var contactEl = contactGroup && contactGroup.querySelector('.fit-input');
+  var contact = contactEl && contactEl.textContent.trim();
+  if (contact) {
+    var isPhone = /^[+\d][\d\s-]{6,}$/.test(contact);
+    if (!isPhone) {
+      contactGroup && contactGroup.classList.add('error');
+      if (!firstError) firstError = contactGroup;
+    }
+  }
+
+  if (firstError) {
+    setTimeout(function(){
+      var rect = firstError.getBoundingClientRect();
+      var contentRect = content.getBoundingClientRect();
+      var offset = rect.top - contentRect.top + content.scrollTop - 10;
+      content.scrollTo({ top: offset, behavior: 'smooth' });
+    }, 50);
+
+    var snack = document.getElementById('cc-validation-snack');
+    if (snack) {
+      snack.classList.add('show');
+      setTimeout(function(){ snack.classList.remove('show'); }, 2500);
+    }
+
+    // Auto-clear errors after 3s (user can focus + retype)
+    setTimeout(function(){
+      screen.querySelectorAll('.fit-input-group.error').forEach(g => g.classList.remove('error'));
+    }, 3000);
+    return false;
+  }
+
+  // Success case — in prototype just navigate back (no backend)
+  showClientSnack('Client created');
+  setTimeout(function(){
+    var btn = document.querySelector('.sidebar button[onclick*="s-clients"]');
+    if (btn) go('s-draft-clients', document.querySelector('.sidebar button[onclick*=s-draft-clients]'));
+  }, 800);
+  return true;
+}
+function switchArchivedTab(tab) {
+  var screen = document.getElementById('s-archived');
+  screen.dataset.tab = tab;
+  var other = tab === 'archived' ? 'blocked' : 'archived';
+  document.getElementById('arch-panel-' + tab).style.display = '';
+  document.getElementById('arch-panel-' + other).style.display = 'none';
+  document.getElementById('arch-tab-' + tab).classList.add('selected');
+  document.getElementById('arch-tab-' + other).classList.remove('selected');
+}
+function showArchivedSnack(msg) {
+  var snack = document.getElementById('arch-snackbar');
+  if (!snack) return;
+  snack.textContent = msg;
+  snack.classList.add('show');
+  setTimeout(function(){ snack.classList.remove('show'); }, 2500);
+}
+function showClientSnack(msg) {
+  var snack = document.getElementById('cd-paid-snackbar');
+  if (!snack) return;
+  snack.textContent = msg;
+  snack.classList.add('show');
+  setTimeout(function(){ snack.classList.remove('show'); }, 2500);
+}
+function impSelectedRows() {
+  return Array.prototype.slice.call(document.querySelectorAll('#imp-list .imp-row.selected'));
+}
+function impRefreshCount() {
+  var sel = impSelectedRows();
+  var n = sel.length;
+  var cta = document.getElementById('imp-cta');
+  if (cta) {
+    cta.textContent = n ? ('Import ' + n + ' contact' + (n === 1 ? '' : 's')) : 'Select contacts';
+    cta.style.opacity = n ? '1' : '0.5';
+    cta.style.pointerEvents = n ? 'auto' : 'none';
+  }
+}
+function impToggle(row) {
+  if (row.getAttribute('aria-disabled') === 'true') return;
+  row.classList.toggle('selected');
+  impRefreshCount();
+}
+function impSelectAll() {
+  var rows = Array.prototype.slice.call(document.querySelectorAll('#imp-list .imp-row:not([aria-disabled="true"])'));
+  var allOn = rows.every(function(r){ return r.classList.contains('selected'); });
+  rows.forEach(function(r){ r.classList.toggle('selected', !allOn); });
+  var link = document.querySelector('.imp-selectall-link');
+  if (link) link.textContent = allOn ? 'Select all' : 'Deselect all';
+  impRefreshCount();
+}
+function impFilter(q) {
+  q = (q || '').toLowerCase();
+  document.querySelectorAll('#imp-list .imp-row').forEach(function(r){
+    var name = (r.dataset.name || '').toLowerCase();
+    r.style.display = name.indexOf(q) === -1 ? 'none' : 'flex';
+  });
+}
+function importContacts() {
+  var sel = impSelectedRows();
+  var total = sel.length;
+  if (!total) return;
+  // invitable = selected rows that have a phone (everything except no-phone rows)
+  var invitable = sel.filter(function(r){ return r.dataset.nophone !== '1'; }).length;
+  document.getElementById('imp-done-count').textContent = String(total);
+  document.getElementById('imp-done-invitable').textContent = String(invitable);
+  document.getElementById('imp-done-invite-n').textContent = String(invitable);
+  go('s-import-done', null);
+}
+function openInviteShare(mode) {
+  _shareMode = mode || 'single';
+  var title = document.getElementById('invite-share-title');
+  var sub = document.getElementById('invite-share-sub');
+  if (_shareMode === 'bulk') {
+    var n = document.getElementById('imp-done-invite-n');
+    var count = n ? n.textContent : '';
+    if (title) title.textContent = 'Invite ' + count + ' to 321Fit';
+    if (sub) sub.textContent = 'Pick a channel — send your link to everyone at once. Whoever joins through it connects to you automatically.';
+  } else {
+    if (title) title.textContent = 'Invite to 321Fit';
+    if (sub) sub.textContent = 'Share your personal link — anyone who joins through it connects to you automatically.';
+  }
+  // The drawer is called from 3 different screens; move it into the active phone so the
+  // absolute overlay covers the visible screen (a hidden parent = display:none = no overlay).
+  var sheet = document.getElementById('invite-share-sheet');
+  var active = document.querySelector('.fit-phone.active');
+  if (active && sheet.parentElement !== active) active.appendChild(sheet);
+  sheet.classList.add('visible');
+}
+function finishShare(channel) {
+  document.getElementById('invite-share-sheet').classList.remove('visible');
+  var msg = channel === 'copy' ? 'Link copied' : 'Opening ' + (channel === 'share' ? 'share sheet' : channel) + '…';
+  if (_shareMode === 'bulk') {
+    // After bulk invite → back to Clients (contacts now imported + invited)
+    showClientSnack(msg);
+    setTimeout(function(){ go('s-draft-clients',document.querySelector('.sidebar button[onclick*=s-draft-clients]')); }, 700);
+  } else {
+    showClientSnack(msg);
+  }
+}
+function openCrmAddr(ctx){ _crmReturn=ctx||'new'; location.href='clients.html#s-crm-addr-pick'; }
+
+// ==== copied from client-groups.html ====
+let cgLastRemoved = null;
+function cgTab(pane, btn) {
+  const ph = document.getElementById('s-groups');
+  ph.querySelectorAll('.fit-segmented-tab').forEach(t => t.classList.remove('selected'));
+  if (btn) btn.classList.add('selected');
+  document.getElementById('cg-pane-clients').style.display = pane === 'clients' ? 'block' : 'none';
+  document.getElementById('cg-pane-groups').style.display = pane === 'lists' ? 'block' : 'none';
+}
+function cgAdd() {
+  const onLists = document.getElementById('cg-pane-groups').style.display !== 'none';
+  if (onLists) go('s-group-create', null);
+  else window.location.href = './clients.html#s-create-client';
+}
+function cgToggle(row) {
+  if (row.getAttribute('aria-disabled') === 'true') return;
+  row.classList.toggle('selected');
+  cgRecount();
+}
+function cgSelectAll(listId) {
+  const rows = document.querySelectorAll('#' + (listId || 'cg-pick-list') + ' .imp-row:not([aria-disabled="true"])');
+  const allOn = Array.from(rows).every(r => r.classList.contains('selected'));
+  rows.forEach(r => r.classList.toggle('selected', !allOn));
+  cgRecount();
+}
+function cgFilter(q, listId) {
+  q = (q || '').toLowerCase();
+  document.querySelectorAll('#' + (listId || 'cg-pick-list') + ' .imp-row').forEach(function (r) {
+    r.style.display = (r.dataset.name || '').toLowerCase().indexOf(q) > -1 ? 'flex' : 'none';
+  });
+}
+function cgRecount() {
+  const pairs = [
+    ['cg-pick-list', 'cg-count', 'cg-cta-count'],
+    ['cg-add-list', 'cg-add-count', 'cg-add-cta-count']
+  ];
+  pairs.forEach(function (p) {
+    const root = document.getElementById(p[0]);
+    if (!root) return;
+    const n = root.querySelectorAll('.imp-row.selected').length;
+    const c = document.getElementById(p[1]);
+    const cta = document.getElementById(p[2]);
+    if (c) c.textContent = n + ' selected';
+    if (cta) cta.textContent = n;
+  });
+}
+function cgEdit(link) {
+  const ph = document.getElementById('s-group-detail');
+  const on = ph.classList.toggle('cg-editing');
+  link.textContent = on ? 'Done' : 'Edit';
+}
+function cgMemberTap(row) {
+  const editing = document.getElementById('s-group-detail').classList.contains('cg-editing');
+  if (!editing) { window.location.href = './clients.html#s-client-detail'; return; }
+  cgRemoveRow(row);
+}
+function cgRemoveRow(row) {
+  const name = (row.querySelector('.cg-member-name') || {}).textContent || 'Client';
+  cgLastRemoved = row;
+  row.style.transition = 'opacity 0.2s'; row.style.opacity = '0';
+  setTimeout(function () { row.style.display = 'none'; cgBumpCount(-1); }, 200);
+  const snack = document.getElementById('cg-remove-snack');
+  document.getElementById('cg-remove-text').textContent = name + ' removed from Morning';
+  snack.classList.add('show');
+  clearTimeout(window._cgSnackT);
+  window._cgSnackT = setTimeout(function () { snack.classList.remove('show'); cgLastRemoved = null; }, 4000);
+}
+function cgUndo() {
+  if (cgLastRemoved) {
+    cgLastRemoved.style.display = 'flex';
+    requestAnimationFrame(function () { cgLastRemoved.style.opacity = ''; cgBumpCount(1); cgLastRemoved = null; });
+  }
+  document.getElementById('cg-remove-snack').classList.remove('show');
+}
+function cgBumpCount(delta) {
+  const el = document.getElementById('cg-member-count');
+  if (!el) return;
+  el.textContent = Math.max(0, parseInt(el.textContent || '0', 10) + delta);
+}
+function cgRepeat(mode, row) {
+  if (row) { const r = row.querySelector('input'); if (r) r.checked = true; }
+  document.querySelectorAll('[data-gp]').forEach(function (d) {
+    d.style.display = d.dataset.gp === mode ? 'block' : 'none';
+  });
+}
+function cgMenu(id, e) {
+  if (e) e.stopPropagation();
+  document.getElementById(id).classList.add('visible');
+  document.getElementById(id + '-backdrop').classList.add('visible');
+}
+function cgMenuClose(id) {
+  document.getElementById(id).classList.remove('visible');
+  document.getElementById(id + '-backdrop').classList.remove('visible');
+}
+
+// ==== flow glue ====
+try { setLook(localStorage.getItem('cd-look') || 'tinted'); setCta(localStorage.getItem('cd-cta') || 'white'); } catch (e) { setLook('tinted'); setCta('white'); }
+(function(){
+  var h = (location.hash || '').replace('#','');
+  if (!h) return;
+  var t = document.getElementById(h);
+  if (t && t.classList.contains('fit-phone')) go(h, document.querySelector('.sidebar button[onclick*="' + h + '"]'));
+})();
+</script>
+</body>
+</html>
