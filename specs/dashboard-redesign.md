@@ -24,9 +24,6 @@ Order (2026-09-15): **the day → what is next → what you can do → what you 
  Book     Invite   Time off   Ask AI          ← fixed slots ⏳
  Needs you
  [● €40 cash · 2 clients] [● 3 requests] [● 3 to review] [● Self-paced · 3] [● 2 invites waiting]
- Next session
- ┌ (SM) In 45 min · 10:30                 ┐  ← card, no buttons → event drawer
- └      Sarah Mitchell · Tennis · Court A ┘
  Money                            Mon–Sun
  ┌ €480 [↑ €80]                        › ┐  → Earnings
  │ This week · +€120 planned · 6 booked  │
