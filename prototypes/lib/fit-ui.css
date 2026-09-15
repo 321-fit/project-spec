@@ -1421,20 +1421,15 @@
 .fit-cal-event.dragging.invalid .fit-cal-event-title,
 .fit-cal-event.dragging.invalid .fit-cal-event-meta { color: var(--fit-red-400); }
 
+/* Busy inside working hours (external / time off): a flat, slightly darker
+   fill — the hatch was retired 2026-09-15; "taken" reads as a recessed slot,
+   the same physics as off-hours, just inset and rounded. */
 .fit-cal-blocked {
   position: absolute; left: 48px; right: 8px;
-  background: repeating-linear-gradient(
-    -45deg, transparent, transparent 3px,
-    var(--fit-gray-700) 3px, var(--fit-gray-700) 4px
-  );
-  opacity: 0.3; border-radius: 6px; pointer-events: none;
+  background: rgba(0,0,0,0.28);
+  border-radius: 6px; pointer-events: none;
 }
-.fit-light .fit-cal-blocked {
-  background: repeating-linear-gradient(
-    -45deg, transparent, transparent 3px,
-    var(--fit-gray-300) 3px, var(--fit-gray-300) 4px
-  );
-}
+.fit-light .fit-cal-blocked { background: rgba(60,60,67,0.10); }
 
 /* External calendar event (side-by-side).
    Visual card moved to ::before so the 3px gap at the bottom is just
@@ -1482,14 +1477,15 @@
   content: "";
   position: absolute;
   inset: 0 0 3px 0;
-  background: var(--fit-surface-high);
-  border-left: 3px dashed var(--fit-text-tertiary);
+  /* your own booking as an athlete: a quiet translucent lift, no stripe — the
+     role tag says whose it is; a dashed edge read as "awaiting" (2026-09-15) */
+  background: rgba(255,255,255,0.07);
   border-radius: var(--fit-radius-sm);
   z-index: -1;
   pointer-events: none;
 }
 .fit-cal-event-cross-role:hover { opacity: 0.95; }
-.fit-light .fit-cal-event-cross-role::before { background: var(--fit-gray-100); }
+.fit-light .fit-cal-event-cross-role::before { background: rgba(60,60,67,0.07); }
 
 /* Role-tag badge — fixed in the bottom-right corner of any cross-role tile.
    Matches the slot where group ratio lives on group events (visual rhyme). */
