@@ -628,11 +628,6 @@ window.FIT_BOARD = {
           "order": 0,
           "inFrom": [
             {
-              "file": "flows/coach/profile-drafts.html",
-              "label": "Coach Profile & Settings (rework)",
-              "id": "s-draft-settings"
-            },
-            {
               "file": "flows/coach/settings.html",
               "label": "Settings",
               "id": "s-settings"
@@ -6634,16 +6629,14 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-settings",
-          "hash": "31c25c4da558",
+          "hash": "b30db3c2802f",
           "title": "↳ Settings, placed",
           "inApp": "Settings",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
           "note": "Same items and groups as canon, in the row-panel grammar: section title outside, rows with a plate (or the avatar for Personal info), sub-line carries the current value (Google connected, €340.50 available) so the screen",
-          "external": [
-            "../shared/account-access.html?role=coach"
-          ],
+          "external": [],
           "shots": [
             {
               "file": "coach-profile-drafts__s-draft-settings.webp",
@@ -6655,13 +6648,13 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-availability",
-          "hash": "5fda9aeda88f",
+          "hash": "d99e7ea50d0a",
           "title": "↳ Availability, placed",
           "inApp": "Availability",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
-          "note": "The canon hub was three rows. Here the week is the hero: seven bars, open hours per day, one line of totals (open · booked) — the “open more hours” signal from Home lives here. Then the rows: hours, time off, booking rul",
+          "note": "The canon hub is three rows (Available hours · Time off · Time zone). The week chart is a proposal, not something that exists: seven bars of open hours per day and one line of totals (open · booked) — the “open more hour",
           "external": [],
           "shots": [
             {
@@ -6674,7 +6667,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-coach-profile",
-          "hash": "c904266f99ce",
+          "hash": "aab02d308e7e",
           "title": "Profile",
           "inApp": "",
           "status": "proposal",
@@ -6701,7 +6694,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-coach-reviews",
-          "hash": "78eade7b1a7e",
+          "hash": "4b4f69d079d7",
           "title": "↳ Reviews",
           "inApp": "Reviews",
           "status": "proposal",
@@ -6720,7 +6713,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-personal-data",
-          "hash": "ebeeb1e6d0fc",
+          "hash": "d3de00fcf64c",
           "title": "↳ Personal info",
           "inApp": "Personal data",
           "status": "proposal",
@@ -6739,7 +6732,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-notes-editor",
-          "hash": "e9b0a14106dc",
+          "hash": "a9f69d2de18d",
           "title": "↳ About me editor",
           "inApp": "",
           "status": "proposal",
@@ -6758,7 +6751,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-tz-select",
-          "hash": "bafaec965860",
+          "hash": "16b21c6c5672",
           "title": "↳ Time zone",
           "inApp": "Time zone",
           "status": "proposal",
@@ -6777,7 +6770,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-country-select",
-          "hash": "ff657f63e48f",
+          "hash": "91d6ee3a23da",
           "title": "Country",
           "inApp": "Home country",
           "status": "proposal",
@@ -6796,7 +6789,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-city-select",
-          "hash": "4be279ae1737",
+          "hash": "71c39a99e253",
           "title": "City",
           "inApp": "Home city",
           "status": "proposal",
@@ -6815,7 +6808,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-lang-select",
-          "hash": "d0e992411088",
+          "hash": "d7b19c5a83e8",
           "title": "Languages",
           "inApp": "Languages",
           "status": "proposal",
@@ -6834,7 +6827,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-currency-select",
-          "hash": "13f98010532e",
+          "hash": "be0e5ab974f6",
           "title": "Currency",
           "inApp": "Currency",
           "status": "proposal",
@@ -6853,7 +6846,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-sport-types",
-          "hash": "71fb24b5819d",
+          "hash": "7f02e4c24a5b",
           "title": "↳ Sports",
           "inApp": "Sport types",
           "status": "proposal",
@@ -6873,7 +6866,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-availability",
-          "hash": "ab43bcc6ee56",
+          "hash": "c75a64dd19c9",
           "title": "↳ Available hours",
           "inApp": "Available hours",
           "status": "proposal",
@@ -6892,7 +6885,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-vacation-start",
-          "hash": "3e0562541e18",
+          "hash": "a6e4db0a1f66",
           "title": "↳ Time off · start",
           "inApp": "Time off",
           "status": "proposal",
@@ -6911,7 +6904,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-time-off",
-          "hash": "47edcfa05cd3",
+          "hash": "c0728808f71b",
           "title": "↳ Time off",
           "inApp": "Time off",
           "status": "proposal",
@@ -6930,7 +6923,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-time-off-history",
-          "hash": "2bcd4bb0f108",
+          "hash": "5f5b7d02f02a",
           "title": "↳ Time off · history",
           "inApp": "Past time off",
           "status": "proposal",
@@ -6949,7 +6942,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-booking-rules",
-          "hash": "665d8e110ee1",
+          "hash": "5158b578789b",
           "title": "↳ Booking rules",
           "inApp": "Booking rules",
           "status": "proposal",
@@ -6963,12 +6956,13 @@ window.FIT_BOARD = {
               "label": ""
             }
           ],
-          "level": 3,
+          "orphan": true,
+          "level": 5,
           "order": 1
         },
         {
           "id": "s-locations",
-          "hash": "61761f34b293",
+          "hash": "87db72262cf5",
           "title": "↳ Locations",
           "inApp": "Training locations",
           "status": "proposal",
@@ -6987,7 +6981,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-loc-map",
-          "hash": "b302d95fac7a",
+          "hash": "a19abd8bf28b",
           "title": "↳ Map",
           "inApp": "Add location",
           "status": "proposal",
@@ -7006,7 +7000,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-loc-pick",
-          "hash": "30c977d872ca",
+          "hash": "17d0eeb34987",
           "title": "↳ Pick",
           "inApp": "",
           "status": "proposal",
@@ -7022,11 +7016,11 @@ window.FIT_BOARD = {
           ],
           "orphan": true,
           "level": 5,
-          "order": 1
+          "order": 2
         },
         {
           "id": "s-loc-form",
-          "hash": "5656a0f83269",
+          "hash": "cd6bb1086200",
           "title": "↳ Form",
           "inApp": "Location details",
           "status": "proposal",
@@ -7041,11 +7035,11 @@ window.FIT_BOARD = {
             }
           ],
           "level": 3,
-          "order": 2
+          "order": 1
         },
         {
           "id": "s-loc-homevisit",
-          "hash": "25f0da124e62",
+          "hash": "5c7bd1ea43e2",
           "title": "↳ Home visit",
           "inApp": "Home visit",
           "status": "proposal",
@@ -7064,7 +7058,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-loc-online",
-          "hash": "42759e57954b",
+          "hash": "b56218acb4fa",
           "title": "↳ Online",
           "inApp": "Add online location",
           "status": "proposal",
@@ -7083,7 +7077,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-calsync",
-          "hash": "60c53885ad59",
+          "hash": "f0c51f7dc8f1",
           "title": "↳ Calendar sync",
           "inApp": "Calendar sync",
           "status": "proposal",
@@ -7102,7 +7096,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-cal-detail",
-          "hash": "7c219111d444",
+          "hash": "f5d1daa6ae9b",
           "title": "↳ Google detail",
           "inApp": "Google Calendar",
           "status": "proposal",
@@ -7117,11 +7111,11 @@ window.FIT_BOARD = {
             }
           ],
           "level": 3,
-          "order": 3
+          "order": 2
         },
         {
           "id": "s-write-target-picker",
-          "hash": "49062ce55bf0",
+          "hash": "b55f6485a09e",
           "title": "↳ Write target",
           "inApp": "Calendar to add events to",
           "status": "proposal",
@@ -7136,11 +7130,11 @@ window.FIT_BOARD = {
             }
           ],
           "level": 3,
-          "order": 4
+          "order": 3
         },
         {
           "id": "s-apple-connect",
-          "hash": "1b8c26527b5e",
+          "hash": "1b2d7a96d2c5",
           "title": "↳ Apple connect",
           "inApp": "Apple Calendar",
           "status": "proposal",
@@ -7155,11 +7149,11 @@ window.FIT_BOARD = {
             }
           ],
           "level": 3,
-          "order": 5
+          "order": 4
         },
         {
           "id": "s-apple-detail",
-          "hash": "3e5028932d52",
+          "hash": "d627f434f72c",
           "title": "↳ Apple detail",
           "inApp": "Apple Calendar",
           "status": "proposal",
@@ -7175,11 +7169,11 @@ window.FIT_BOARD = {
           ],
           "orphan": true,
           "level": 5,
-          "order": 2
+          "order": 3
         },
         {
           "id": "s-stripe",
-          "hash": "1521780ecc21",
+          "hash": "d88ce0c3b82f",
           "title": "↳ Stripe",
           "inApp": "Stripe",
           "status": "proposal",
@@ -7198,7 +7192,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-confirm",
-          "hash": "406965c3e41b",
+          "hash": "5f1dd171c9c3",
           "title": "↳ Onboarding · confirm",
           "inApp": "Your info",
           "status": "proposal",
@@ -7213,11 +7207,11 @@ window.FIT_BOARD = {
             }
           ],
           "level": 3,
-          "order": 6
+          "order": 5
         },
         {
           "id": "s-stripe-onb-edit-name",
-          "hash": "84995238254c",
+          "hash": "10a812323fcd",
           "title": "Edit name",
           "inApp": "",
           "status": "proposal",
@@ -7236,7 +7230,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-edit-email",
-          "hash": "90037cc5030d",
+          "hash": "528b79a2f0df",
           "title": "Edit email",
           "inApp": "",
           "status": "proposal",
@@ -7255,7 +7249,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-edit-phone",
-          "hash": "f638303d6e9e",
+          "hash": "d9f47662de3e",
           "title": "Edit phone",
           "inApp": "",
           "status": "proposal",
@@ -7274,7 +7268,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-edit-country",
-          "hash": "cc86f0aa4ee8",
+          "hash": "43d0bd143063",
           "title": "Edit country",
           "inApp": "Country",
           "status": "proposal",
@@ -7293,7 +7287,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-edit-address",
-          "hash": "e9fbaf5187e4",
+          "hash": "439e74cf5a1d",
           "title": "Edit address",
           "inApp": "",
           "status": "proposal",
@@ -7312,7 +7306,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-id",
-          "hash": "1a5f1fa398a5",
+          "hash": "b8a3d4f014e2",
           "title": "↳ Onboarding · ID",
           "inApp": "Verification",
           "status": "proposal",
@@ -7327,11 +7321,11 @@ window.FIT_BOARD = {
             }
           ],
           "level": 3,
-          "order": 7
+          "order": 6
         },
         {
           "id": "s-stripe-onb-bank",
-          "hash": "0c8f3e40602c",
+          "hash": "b2c171c11a46",
           "title": "↳ Onboarding · bank",
           "inApp": "Payout destination",
           "status": "proposal",
@@ -7347,11 +7341,11 @@ window.FIT_BOARD = {
           ],
           "orphan": true,
           "level": 5,
-          "order": 3
+          "order": 4
         },
         {
           "id": "s-stripe-bank-add",
-          "hash": "491ca5c50300",
+          "hash": "82e78c48e902",
           "title": "↳ Add bank",
           "inApp": "Add payout method",
           "status": "proposal",
@@ -7366,11 +7360,11 @@ window.FIT_BOARD = {
             }
           ],
           "level": 3,
-          "order": 8
+          "order": 7
         },
         {
           "id": "s-stripe-bank-detail",
-          "hash": "78336de24dd6",
+          "hash": "244a9264fa3b",
           "title": "↳ Bank detail",
           "inApp": "Payout method",
           "status": "proposal",
@@ -7385,11 +7379,11 @@ window.FIT_BOARD = {
             }
           ],
           "level": 3,
-          "order": 9
+          "order": 8
         },
         {
           "id": "s-stripe-withdraw",
-          "hash": "09b5d2f617bb",
+          "hash": "bb7e5cdd70d1",
           "title": "↳ Withdraw",
           "inApp": "Withdraw",
           "status": "proposal",
@@ -7404,11 +7398,11 @@ window.FIT_BOARD = {
             }
           ],
           "level": 3,
-          "order": 10
+          "order": 9
         },
         {
           "id": "s-stripe-payouts",
-          "hash": "d201b583ea38",
+          "hash": "13926514b5ca",
           "title": "↳ Payouts",
           "inApp": "Payouts",
           "status": "proposal",
@@ -7423,11 +7417,11 @@ window.FIT_BOARD = {
             }
           ],
           "level": 3,
-          "order": 11
+          "order": 10
         },
         {
           "id": "s-referral",
-          "hash": "32e970f0db89",
+          "hash": "fefc9032dd7d",
           "title": "↳ Refer a coach",
           "inApp": "Refer a coach",
           "status": "proposal",
@@ -7446,7 +7440,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-referral-list",
-          "hash": "ba68024f7552",
+          "hash": "a97b20ec5dc8",
           "title": "↳ Referral list",
           "inApp": "Your invites",
           "status": "proposal",
@@ -7461,7 +7455,341 @@ window.FIT_BOARD = {
             }
           ],
           "level": 3,
+          "order": 11
+        },
+        {
+          "id": "s-hub",
+          "hash": "34ecbeec7691",
+          "title": "↳ Account access",
+          "inApp": "Account access",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged (shared with the athlete side; shown as the coach).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-hub.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 13
+        },
+        {
+          "id": "s-reauth",
+          "hash": "60fec068227b",
+          "title": "↳ Re-auth",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged (shared with the athlete side; shown as the coach).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-reauth.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 5,
+          "order": 5
+        },
+        {
+          "id": "s-phone-new",
+          "hash": "6561cd58235f",
+          "title": "↳ Phone · new",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged (shared with the athlete side; shown as the coach).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-phone-new.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 5,
+          "order": 6
+        },
+        {
+          "id": "s-phone-otp",
+          "hash": "66f63b14b775",
+          "title": "↳ Phone · code",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged (shared with the athlete side; shown as the coach).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-phone-otp.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 5,
+          "order": 7
+        },
+        {
+          "id": "s-country-picker",
+          "hash": "2c68ea72ba8a",
+          "title": "↳ Country",
+          "inApp": "Country or region",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged (shared with the athlete side; shown as the coach).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-country-picker.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 5,
+          "order": 8
+        },
+        {
+          "id": "s-email-subhub",
+          "hash": "d3ef337f3d7b",
+          "title": "↳ Email",
+          "inApp": "Email & password",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged (shared with the athlete side; shown as the coach).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-email-subhub.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
           "order": 12
+        },
+        {
+          "id": "s-email-new",
+          "hash": "d1c14d61e920",
+          "title": "↳ Email · new",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged (shared with the athlete side; shown as the coach).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-email-new.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 5,
+          "order": 9
+        },
+        {
+          "id": "s-email-check",
+          "hash": "437436d2d21e",
+          "title": "↳ Email · check",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged (shared with the athlete side; shown as the coach).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-email-check.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 5,
+          "order": 10
+        },
+        {
+          "id": "s-email-loading",
+          "hash": "38b0d9595bae",
+          "title": "↳ Email · loading",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged (shared with the athlete side; shown as the coach).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-email-loading.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 5,
+          "order": 11
+        },
+        {
+          "id": "s-email-expired",
+          "hash": "35ececc96056",
+          "title": "↳ Email · expired",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged (shared with the athlete side; shown as the coach).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-email-expired.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 5,
+          "order": 12
+        },
+        {
+          "id": "s-password-new",
+          "hash": "db3bc6c40315",
+          "title": "↳ Password",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged (shared with the athlete side; shown as the coach).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-password-new.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 5,
+          "order": 13
+        },
+        {
+          "id": "s-delete-info",
+          "hash": "69813907e435",
+          "title": "↳ Delete · info",
+          "inApp": "Delete account",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged (shared with the athlete side; shown as the coach).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-delete-info.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 13
+        },
+        {
+          "id": "s-delete-blockers",
+          "hash": "8d2de8ef4308",
+          "title": "↳ Delete · blockers",
+          "inApp": "Delete account",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged (shared with the athlete side; shown as the coach).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-delete-blockers.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 5,
+          "order": 14
+        },
+        {
+          "id": "s-delete-loading",
+          "hash": "cfdd7cd06a60",
+          "title": "↳ Delete · loading",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged (shared with the athlete side; shown as the coach).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-delete-loading.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 14
+        },
+        {
+          "id": "s-delete-done",
+          "hash": "648f7f087f4a",
+          "title": "↳ Delete · done",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged (shared with the athlete side; shown as the coach).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-delete-done.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 15
+        },
+        {
+          "id": "s-role-remove",
+          "hash": "e93d8359d219",
+          "title": "↳ Remove role",
+          "inApp": "Coach role",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged (shared with the athlete side; shown as the coach).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-role-remove.webp",
+              "label": ""
+            }
+          ],
+          "level": 3,
+          "order": 16
+        },
+        {
+          "id": "s-contact-support",
+          "hash": "eed17c2a1a05",
+          "title": "↳ Contact support",
+          "inApp": "Contact support",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "Unchanged (shared with the athlete side; shown as the coach).",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-profile-drafts__s-contact-support.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 5,
+          "order": 15
         }
       ],
       "edges": [
@@ -7501,6 +7829,11 @@ window.FIT_BOARD = {
           "back": false
         },
         {
+          "from": "s-draft-settings",
+          "to": "s-hub",
+          "back": false
+        },
+        {
           "from": "s-draft-availability",
           "to": "s-draft-settings",
           "back": true
@@ -7513,11 +7846,6 @@ window.FIT_BOARD = {
         {
           "from": "s-draft-availability",
           "to": "s-time-off",
-          "back": false
-        },
-        {
-          "from": "s-draft-availability",
-          "to": "s-booking-rules",
           "back": false
         },
         {
@@ -7833,6 +8161,126 @@ window.FIT_BOARD = {
         {
           "from": "s-referral-list",
           "to": "s-referral",
+          "back": true
+        },
+        {
+          "from": "s-hub",
+          "to": "s-draft-settings",
+          "back": true
+        },
+        {
+          "from": "s-hub",
+          "to": "s-email-subhub",
+          "back": false
+        },
+        {
+          "from": "s-hub",
+          "to": "s-role-remove",
+          "back": false
+        },
+        {
+          "from": "s-hub",
+          "to": "s-delete-info",
+          "back": false
+        },
+        {
+          "from": "s-hub",
+          "to": "s-delete-loading",
+          "back": false
+        },
+        {
+          "from": "s-hub",
+          "to": "s-delete-done",
+          "back": false
+        },
+        {
+          "from": "s-reauth",
+          "to": "s-hub",
+          "back": true
+        },
+        {
+          "from": "s-reauth",
+          "to": "s-contact-support",
+          "back": true
+        },
+        {
+          "from": "s-phone-new",
+          "to": "s-hub",
+          "back": true
+        },
+        {
+          "from": "s-phone-new",
+          "to": "s-country-picker",
+          "back": true
+        },
+        {
+          "from": "s-phone-otp",
+          "to": "s-hub",
+          "back": true
+        },
+        {
+          "from": "s-email-subhub",
+          "to": "s-hub",
+          "back": true
+        },
+        {
+          "from": "s-email-new",
+          "to": "s-email-subhub",
+          "back": true
+        },
+        {
+          "from": "s-email-new",
+          "to": "s-email-check",
+          "back": true
+        },
+        {
+          "from": "s-email-expired",
+          "to": "s-hub",
+          "back": true
+        },
+        {
+          "from": "s-email-expired",
+          "to": "s-email-check",
+          "back": true
+        },
+        {
+          "from": "s-password-new",
+          "to": "s-email-subhub",
+          "back": true
+        },
+        {
+          "from": "s-password-new",
+          "to": "s-hub",
+          "back": true
+        },
+        {
+          "from": "s-delete-info",
+          "to": "s-hub",
+          "back": true
+        },
+        {
+          "from": "s-delete-blockers",
+          "to": "s-delete-info",
+          "back": true
+        },
+        {
+          "from": "s-delete-blockers",
+          "to": "s-hub",
+          "back": true
+        },
+        {
+          "from": "s-delete-done",
+          "to": "s-hub",
+          "back": true
+        },
+        {
+          "from": "s-role-remove",
+          "to": "s-hub",
+          "back": true
+        },
+        {
+          "from": "s-contact-support",
+          "to": "s-hub",
           "back": true
         }
       ]

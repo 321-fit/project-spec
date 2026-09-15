@@ -674,6 +674,17 @@
   .cd-d-av { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; background: var(--fit-surface-higher); color: var(--fit-text-primary); flex-shrink: 0; }
   .fit-dark.k-alpha .cd-d-av { background: rgba(255,255,255,0.14); color: #fff; }
   .cd-c-next { color: var(--fit-teal-500); }
+  #s-hub [data-vr] { display: none; } #s-hub.vr-athlete [data-vr="athlete"] { display: block; } #s-hub.vr-coach [data-vr="coach"] { display: block; }
+  #s-hub [data-rs] { display: none; } #s-hub.rs-dual [data-rs="dual"], #s-hub.rs-single [data-rs="single"], #s-hub.rs-off [data-rs="off"] { display: flex; }
+  #s-hub [data-hub-state] { display: none; } #s-hub.hs-full [data-hub-state="full"], #s-hub.hs-creds [data-hub-state="creds"], #s-hub.hs-social [data-hub-state="social"], #s-hub.hs-one [data-hub-state="one"] { display: block; }
+  /* canon settings cards (.set-card) on copied screens read as our row panels: consecutive cards fuse into one panel with dividers */
+  [class*="srcx-"] .set-card { border-radius: 22px !important; background: var(--fit-surface-high) !important; box-shadow: none !important; border: none !important; margin-bottom: 10px !important; }
+  [class*="srcx-"] .set-card:has(+ .set-card) { border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; margin-bottom: 0 !important; }
+  [class*="srcx-"] .set-card + .set-card { border-top-left-radius: 0 !important; border-top-right-radius: 0 !important; border-top: 1px solid var(--fit-divider) !important; }
+  .fit-dark.k-alpha[class*="srcx-"] .set-card { background: rgba(0,0,0,0.28) !important; }
+  [class*="srcx-"] .set-card img[src*="design-tokens"] { display: none; }
+  /* availability hub: the week chart is a bet — toggle in the annotation */
+  #s-draft-availability.no-chart .cd-av-week { display: none; }
 
   /* no wash on screens without an identity block, in the plain look */
   .fit-phone.cd-nowash:not(.k-alpha)::before { display: none; }
@@ -1621,6 +1632,476 @@
 #s-referral.ls-empty .rf-funnel, #s-referral.ls-empty #rf-count { display: none; }
 #s-referral-list .rf-row { margin: 0 16px 8px; }
 
+  /* ==== copied from ../shared/account-access.html (scoped .srcx-aa) ==== */
+.srcx-aa.fit-dark .fit-phone-header, .fit-dark .srcx-aa .fit-phone-header { background: var(--fit-screen-bg); }
+.srcx-aa.fit-light .fit-phone-header, .fit-light .srcx-aa .fit-phone-header { background: var(--fit-screen-bg); }
+.srcx-aa .aa-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    background: var(--fit-surface-high);
+    cursor: pointer; min-height: 64px; }
+.srcx-aa.fit-light .aa-row, .fit-light .srcx-aa .aa-row { background: var(--fit-white); }
+.srcx-aa .aa-row + .aa-row { border-top: 1px solid var(--fit-divider); }
+.srcx-aa .aa-group { }
+.srcx-aa.fit-light .aa-group, .fit-light .srcx-aa .aa-group { box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+.srcx-aa .aa-row.disabled { cursor: default; opacity: 0.6; }
+.srcx-aa .aa-row-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--fit-surface-higher);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; color: var(--fit-text-primary); }
+.srcx-aa .aa-row-icon svg { width: 18px; height: 18px; }
+.srcx-aa.fit-light .aa-row-icon, .fit-light .srcx-aa .aa-row-icon { background: var(--fit-gray-100); }
+.srcx-aa .aa-row-body { flex: 1; min-width: 0; }
+.srcx-aa .aa-row-title {
+    font-size: 15px; font-weight: 500; color: var(--fit-text-primary);
+    line-height: 1.2; }
+.srcx-aa .aa-row-sub {
+    font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.srcx-aa .aa-row-sub.connected { color: var(--fit-teal-500); display: inline-flex; align-items: center; gap: 4px; }
+.srcx-aa .aa-row-sub.muted { color: var(--fit-text-tertiary); }
+.srcx-aa .aa-success-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--fit-teal-500);
+    display: inline-block; }
+.srcx-aa .aa-edit {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-text-tertiary);
+    flex-shrink: 0; }
+.srcx-aa .aa-edit svg { width: 16px; height: 16px; }
+.srcx-aa .aa-connect {
+    font-size: 12px; font-weight: 500;
+    padding: 0 16px; height: 32px;
+    border-radius: 99px;
+    background: var(--fit-brand-gradient-h);
+    color: var(--fit-white);
+    flex-shrink: 0; border: none; cursor: pointer;
+    font-family: var(--fit-font);
+    display: inline-flex; align-items: center; justify-content: center; }
+.srcx-aa .aa-soon {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.4px;
+    padding: 3px 8px; border-radius: 6px;
+    background: var(--fit-surface-higher);
+    color: var(--fit-text-tertiary);
+    text-transform: uppercase; flex-shrink: 0; }
+.srcx-aa.fit-light .aa-soon, .fit-light .srcx-aa .aa-soon { background: var(--fit-gray-100); }
+.srcx-aa .aa-chev {
+    color: var(--fit-text-tertiary); flex-shrink: 0;
+    opacity: 0.6; }
+.srcx-aa .aa-chev svg { width: 16px; height: 16px; }
+.srcx-aa .aa-section-label {
+    font-size: 12px; font-weight: 500;
+    color: var(--fit-text-tertiary);
+    letter-spacing: 0.3px;
+    padding: 20px 20px 8px;
+    text-transform: uppercase; }
+.srcx-aa .aa-row.destructive .aa-row-title { color: var(--fit-red-400); }
+.srcx-aa .aa-row.destructive .aa-row-icon { color: var(--fit-red-400); background: rgba(240,92,91,0.10); }
+.srcx-aa.fit-light .aa-row.destructive .aa-row-icon, .fit-light .srcx-aa .aa-row.destructive .aa-row-icon { background: rgba(240,92,91,0.12); }
+#s-hub [data-vr] { display: none; }
+#s-hub.vr-athlete [data-vr="athlete"] { display: block; }
+#s-hub.vr-coach [data-vr="coach"] { display: block; }
+.srcx-aa .rr-active-tag { margin-left: auto; font-size: 12px; font-weight: 500; color: var(--fit-teal-500); }
+.srcx-aa .rr-off-tag { margin-left: auto; font-size: 12px; font-weight: 500; color: var(--fit-text-tertiary); }
+#s-hub [data-rs] { display: none; }
+#s-hub.rs-dual   [data-rs="dual"] { display: flex; }
+#s-hub.rs-single [data-rs="single"] { display: flex; }
+#s-hub.rs-off    [data-rs="off"] { display: flex; }
+.srcx-aa .aa-row-icon.add { color: var(--fit-teal-500); background: rgba(5,224,166,0.12); }
+.srcx-aa.fit-light .aa-row-icon.add, .fit-light .srcx-aa .aa-row-icon.add { background: rgba(5,224,166,0.12); }
+#s-role-remove [data-tr] { display: none; }
+#s-role-remove.tr-coach [data-tr="coach"] { display: block; }
+#s-role-remove.tr-athlete [data-tr="athlete"] { display: block; }
+#s-role-remove [data-trlabel] { display: none; }
+#s-role-remove.tr-coach [data-trlabel="coach"] { display: inline; }
+#s-role-remove.tr-athlete [data-trlabel="athlete"] { display: inline; }
+#s-role-remove [data-rr] { display: none; }
+#s-role-remove.rr-clean [data-rr="clean"] { display: block; }
+#s-role-remove.rr-blocked [data-rr="blocked"] { display: block; }
+.srcx-aa .del-consequence.kept .del-consequence-icon { color: var(--fit-teal-500); }
+.srcx-aa .aa-foot-note {
+    margin: 24px 20px 16px;
+    font-size: 13px; color: var(--fit-text-tertiary);
+    line-height: 1.5; text-align: center; }
+#s-hub [data-hub-state] { display: none; }
+#s-hub.hs-full       [data-hub-state="full"] { display: block; }
+#s-hub.hs-creds      [data-hub-state="creds"] { display: block; }
+#s-hub.hs-social     [data-hub-state="social"] { display: block; }
+#s-hub.hs-one        [data-hub-state="one"] { display: block; }
+.srcx-aa .reauth-head {
+    text-align: center;
+    padding: 8px 24px 24px; }
+.srcx-aa .reauth-icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: var(--fit-selection-gradient);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--fit-text-primary);
+    margin: 16px auto 16px; }
+.srcx-aa .reauth-icon svg { width: 28px; height: 28px; }
+.srcx-aa .reauth-title {
+    font-size: 20px; font-weight: 600; color: var(--fit-text-primary);
+    margin-bottom: 6px; line-height: 1.3; }
+.srcx-aa .reauth-sub {
+    font-size: 14px; color: var(--fit-text-tertiary);
+    line-height: 1.5; }
+.srcx-aa .reauth-method {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    background: var(--fit-surface-high);
+    cursor: pointer; }
+.srcx-aa.fit-light .reauth-method, .fit-light .srcx-aa .reauth-method { background: var(--fit-white); }
+.srcx-aa .reauth-method + .reauth-method { border-top: 1px solid var(--fit-divider); }
+.srcx-aa .reauth-method-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--fit-surface-higher);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-text-primary); flex-shrink: 0; }
+.srcx-aa .reauth-method-icon svg { width: 18px; height: 18px; }
+.srcx-aa.fit-light .reauth-method-icon, .fit-light .srcx-aa .reauth-method-icon { background: var(--fit-gray-100); }
+.srcx-aa .reauth-method-body { flex: 1; min-width: 0; }
+.srcx-aa .reauth-method-title { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+.srcx-aa .reauth-method-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.srcx-aa .reauth-footer {
+    padding: 20px 20px 8px; text-align: center; }
+.srcx-aa .reauth-help {
+    font-size: 13px; color: var(--fit-blue-500);
+    cursor: pointer; font-weight: 500; }
+.srcx-aa .pf-head {
+    padding: 24px 20px 20px; text-align: center; }
+.srcx-aa .pf-icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: var(--fit-selection-gradient);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--fit-text-primary);
+    margin: 0 auto 16px; }
+.srcx-aa .pf-icon svg { width: 28px; height: 28px; }
+.srcx-aa .pf-title {
+    font-size: 20px; font-weight: 600; color: var(--fit-text-primary);
+    margin-bottom: 6px; line-height: 1.3; }
+.srcx-aa .pf-sub {
+    font-size: 14px; color: var(--fit-text-tertiary);
+    line-height: 1.5; }
+.srcx-aa .pf-field {
+    margin: 0 16px 12px;
+    display: flex; align-items: stretch;
+    background: var(--fit-surface-high);
+    border-radius: 14px;
+    overflow: hidden; }
+.srcx-aa.fit-light .pf-field, .fit-light .srcx-aa .pf-field { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+.srcx-aa .pf-field.error { border: 1px solid var(--fit-red-400); }
+.srcx-aa .pf-country {
+    display: flex; align-items: center; gap: 6px;
+    padding: 14px 12px 14px 16px;
+    border-right: 1px solid var(--fit-divider);
+    font-size: 15px; color: var(--fit-text-primary);
+    cursor: pointer; flex-shrink: 0; }
+.srcx-aa .pf-country svg { width: 14px; height: 14px; color: var(--fit-text-tertiary); }
+.srcx-aa .pf-input {
+    flex: 1; background: transparent; border: none; outline: none;
+    font-family: var(--fit-font); font-size: 16px;
+    color: var(--fit-text-primary);
+    padding: 0 16px; }
+.srcx-aa .pf-input::placeholder { color: var(--fit-text-tertiary); }
+.srcx-aa .pf-field.error .pf-input { color: var(--fit-red-400); }
+.srcx-aa .pf-err-msg {
+    margin: 0 20px 16px;
+    font-size: 13px; color: var(--fit-red-400);
+    display: flex; align-items: center; gap: 6px;
+    line-height: 1.4; }
+.srcx-aa .pf-err-msg svg { width: 14px; height: 14px; flex-shrink: 0; }
+.srcx-aa .otp-boxes {
+    display: flex; gap: 8px; justify-content: center;
+    padding: 12px 20px 4px; }
+.srcx-aa .otp-box {
+    width: 44px; height: 54px;
+    border-radius: 12px;
+    background: var(--fit-surface-high);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 500; color: var(--fit-text-primary); }
+.srcx-aa.fit-light .otp-box, .fit-light .srcx-aa .otp-box { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+.srcx-aa .otp-box.focused {
+    border: 2px solid var(--fit-brand-primary); }
+.srcx-aa .otp-box.filled { background: var(--fit-surface-higher); }
+.srcx-aa.fit-light .otp-box.filled, .fit-light .srcx-aa .otp-box.filled { background: var(--fit-gray-100); border-color: var(--fit-gray-200); }
+.srcx-aa .otp-boxes.error .otp-box { border: 1px solid var(--fit-red-400); color: var(--fit-red-400); }
+.srcx-aa .otp-resend {
+    text-align: center; padding: 16px 20px;
+    font-size: 13px; color: var(--fit-text-tertiary); }
+.srcx-aa .otp-resend a { color: var(--fit-brand-primary); cursor: pointer; font-weight: 500; }
+.srcx-aa .aa-toast {
+    position: absolute; left: 16px; right: 16px; bottom: 24px;
+    padding: 14px 16px; border-radius: 12px;
+    background: rgba(5,224,166,0.15);
+    border: 1px solid rgba(5,224,166,0.3);
+    display: none; align-items: flex-start; gap: 10px;
+    color: var(--fit-text-primary); font-size: 14px; line-height: 1.4;
+    z-index: 20;
+    animation: fitToastUp 0.25s ease; }
+.srcx-aa .aa-toast.visible { display: flex; }
+.srcx-aa .aa-toast svg { width: 18px; height: 18px; color: var(--fit-teal-500); flex-shrink: 0; margin-top: 1px; }
+.srcx-aa .aa-toast-title { font-weight: 500; margin-bottom: 2px; }
+.srcx-aa .aa-sheet-head {
+    text-align: center; padding: 8px 20px 20px; }
+.srcx-aa .aa-sheet-icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    display: inline-flex; align-items: center; justify-content: center;
+    margin: 4px auto 16px; }
+.srcx-aa .aa-sheet-icon svg { width: 28px; height: 28px; }
+.srcx-aa .aa-sheet-icon.warn { background: rgba(247,201,72,0.15); color: #F7C948; }
+.srcx-aa .aa-sheet-icon.destructive { background: rgba(240,92,91,0.12); color: var(--fit-red-400); }
+.srcx-aa .aa-sheet-title { font-size: 18px; font-weight: 600; color: var(--fit-text-primary); margin-bottom: 6px; line-height: 1.3; }
+.srcx-aa .aa-sheet-body { font-size: 14px; color: var(--fit-text-secondary); line-height: 1.5; }
+#s-phone-new [data-pf-state] { display: none; }
+#s-phone-new.pn-add    [data-pf-state="add"] { display: block; }
+#s-phone-new.pn-change [data-pf-state="change"] { display: block; }
+#s-phone-new.pn-invalid [data-pf-state="invalid"] { display: block; }
+#s-phone-otp [data-otp-state] { display: none; }
+#s-phone-otp.ot-idle    [data-otp-state="idle"] { display: block; }
+#s-phone-otp.ot-error   [data-otp-state="error"] { display: block; }
+#s-phone-otp.ot-expired [data-otp-state="expired"] { display: block; }
+.srcx-aa .em-headcard {
+    margin: 16px;
+    padding: 18px 16px;
+    border-radius: 16px;
+    background: var(--fit-surface-high);
+    display: flex; align-items: center; gap: 14px; }
+.srcx-aa.fit-light .em-headcard, .fit-light .srcx-aa .em-headcard { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+.srcx-aa .em-headcard-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: var(--fit-surface-higher);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-text-primary); flex-shrink: 0; }
+.srcx-aa .em-headcard-icon svg { width: 24px; height: 24px; }
+.srcx-aa.fit-light .em-headcard-icon, .fit-light .srcx-aa .em-headcard-icon { background: var(--fit-gray-100); }
+.srcx-aa .em-headcard-label {
+    font-size: 12px; color: var(--fit-text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.4px;
+    margin-bottom: 2px; }
+.srcx-aa .em-headcard-value {
+    font-size: 16px; font-weight: 500; color: var(--fit-text-primary);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.srcx-aa .aa-center-loader {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; min-height: 420px;
+    padding: 20px; }
+.srcx-aa .aa-spinner {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 3px solid var(--fit-surface-higher);
+    border-top-color: var(--fit-brand-primary);
+    animation: aaSpin 0.8s linear infinite; }
+.srcx-aa .aa-loader-label {
+    font-size: 15px; color: var(--fit-text-secondary); }
+.srcx-aa .em-resend {
+    text-align: center; padding: 16px 20px;
+    font-size: 13px; color: var(--fit-text-tertiary); }
+.srcx-aa .em-resend a { color: var(--fit-brand-primary); cursor: pointer; font-weight: 500; }
+#s-email-new [data-em-state] { display: none; }
+#s-email-new.em-change  [data-em-state="change"] { display: block; }
+#s-email-new.em-add     [data-em-state="add"] { display: block; }
+#s-email-new.em-taken   [data-em-state="taken"] { display: block; }
+#s-email-new.em-invalid [data-em-state="invalid"] { display: block; }
+.srcx-aa .cp-search {
+    padding: 8px 16px 12px;
+    position: sticky; top: 0; z-index: 2;
+    background: var(--fit-screen-bg); }
+.srcx-aa .cp-search-field {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: var(--fit-surface-high);
+    border-radius: 12px;
+    font-size: 15px; }
+.srcx-aa.fit-light .cp-search-field, .fit-light .srcx-aa .cp-search-field { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+.srcx-aa .cp-search-field svg { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
+.srcx-aa .cp-search-field input {
+    flex: 1; border: none; background: transparent; outline: none;
+    font-family: var(--fit-font); font-size: 15px;
+    color: var(--fit-text-primary); }
+.srcx-aa .cp-search-field input::placeholder { color: var(--fit-text-tertiary); }
+.srcx-aa .cp-section-label {
+    padding: 12px 20px 6px;
+    font-size: 12px; font-weight: 500;
+    color: var(--fit-text-tertiary);
+    letter-spacing: 0.3px;
+    text-transform: uppercase; }
+.srcx-aa .cp-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px;
+    background: var(--fit-surface-high);
+    cursor: pointer; }
+.srcx-aa.fit-light .cp-row, .fit-light .srcx-aa .cp-row { background: var(--fit-white); }
+.srcx-aa .cp-row + .cp-row { border-top: 1px solid var(--fit-divider); }
+.srcx-aa .cp-group { }
+.srcx-aa.fit-light .cp-group, .fit-light .srcx-aa .cp-group { box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+.srcx-aa .cp-flag { font-size: 22px; line-height: 1; flex-shrink: 0; width: 28px; text-align: center; }
+.srcx-aa .cp-name {
+    flex: 1; font-size: 15px; color: var(--fit-text-primary);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.srcx-aa .cp-code {
+    font-size: 14px; color: var(--fit-text-tertiary);
+    font-variant-numeric: tabular-nums; }
+.srcx-aa .cp-row.selected .cp-code { color: var(--fit-brand-primary); font-weight: 500; }
+.srcx-aa .cp-row.selected::after {
+    content: "";
+    position: absolute; left: 0; right: 0; }
+.srcx-aa .cp-check {
+    color: var(--fit-brand-primary);
+    display: none;
+    flex-shrink: 0; }
+.srcx-aa .cp-row.selected .cp-check { display: block; }
+.srcx-aa .cp-check svg { width: 18px; height: 18px; }
+.srcx-aa .pw-rules {
+    margin: 8px 16px 0;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--fit-surface-low); }
+.srcx-aa.fit-light .pw-rules, .fit-light .srcx-aa .pw-rules { background: var(--fit-gray-50); }
+.srcx-aa .pw-rule {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--fit-text-tertiary);
+    padding: 2px 0; }
+.srcx-aa .pw-rule svg { width: 14px; height: 14px; flex-shrink: 0; }
+.srcx-aa .pw-rule.ok { color: var(--fit-teal-500); }
+.srcx-aa .pw-rule.fail { color: var(--fit-red-400); }
+.srcx-aa .pw-rule.pending { color: var(--fit-text-tertiary); }
+#s-password-new [data-pw-state] { display: none; }
+#s-password-new.pw-idle     [data-pw-state="idle"] { display: block; }
+#s-password-new.pw-typing   [data-pw-state="typing"] { display: block; }
+#s-password-new.pw-weak     [data-pw-state="weak"] { display: block; }
+#s-password-new.pw-mismatch [data-pw-state="mismatch"] { display: block; }
+#s-password-new.pw-same     [data-pw-state="same"] { display: block; }
+.srcx-aa .pw-field {
+    margin: 0 16px 10px;
+    display: flex; align-items: center;
+    background: var(--fit-surface-high);
+    border-radius: 14px;
+    overflow: hidden;
+    padding: 0 14px 0 16px; }
+.srcx-aa.fit-light .pw-field, .fit-light .srcx-aa .pw-field { background: var(--fit-white); border: 1px solid var(--fit-gray-100); }
+.srcx-aa .pw-field.error { border: 1px solid var(--fit-red-400); }
+.srcx-aa .pw-field input {
+    flex: 1; background: transparent; border: none; outline: none;
+    font-family: var(--fit-font); font-size: 16px;
+    color: var(--fit-text-primary);
+    padding: 16px 0; }
+.srcx-aa .pw-field input::placeholder { color: var(--fit-text-tertiary); }
+.srcx-aa .pw-eye {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-text-tertiary); cursor: pointer;
+    flex-shrink: 0; }
+.srcx-aa .pw-eye svg { width: 18px; height: 18px; }
+.srcx-aa .pw-label {
+    font-size: 13px; color: var(--fit-text-tertiary);
+    padding: 0 20px 6px; }
+.srcx-aa .del-head {
+    padding: 24px 20px 8px; text-align: center; }
+.srcx-aa .del-icon {
+    width: 64px; height: 64px; border-radius: 18px;
+    background: rgba(240,92,91,0.12);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--fit-red-400);
+    margin: 0 auto 16px; }
+.srcx-aa .del-icon svg { width: 32px; height: 32px; }
+.srcx-aa .del-title {
+    font-size: 22px; font-weight: 600; color: var(--fit-text-primary);
+    margin-bottom: 6px; line-height: 1.3; }
+.srcx-aa .del-sub {
+    font-size: 14px; color: var(--fit-text-secondary);
+    line-height: 1.5; max-width: 320px; margin: 0 auto; }
+.srcx-aa .del-consequences {
+    margin: 8px 16px 16px;
+    padding: 4px 0;
+    background: var(--fit-surface-high);
+    border-radius: 14px; }
+.srcx-aa.fit-light .del-consequences, .fit-light .srcx-aa .del-consequences { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+.srcx-aa .del-consequence {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px;
+    font-size: 14px; color: var(--fit-text-secondary); }
+.srcx-aa .del-consequence + .del-consequence { border-top: 1px solid var(--fit-divider); }
+.srcx-aa .del-consequence-icon {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: rgba(240,92,91,0.1);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-red-400); flex-shrink: 0; }
+.srcx-aa .del-consequence-icon svg { width: 14px; height: 14px; }
+.srcx-aa .del-note {
+    padding: 8px 20px; text-align: center;
+    font-size: 12px; color: var(--fit-text-tertiary);
+    line-height: 1.5; }
+.srcx-aa .del-note a { color: var(--fit-brand-primary); cursor: pointer; }
+.srcx-aa .del-blocker-icon {
+    background: rgba(247,201,72,0.15); color: #F7C948; }
+.srcx-aa .del-blocker-list {
+    margin: 8px 16px 16px;
+    padding: 4px 0;
+    background: var(--fit-surface-high);
+    border-radius: 14px; }
+.srcx-aa.fit-light .del-blocker-list, .fit-light .srcx-aa .del-blocker-list { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+.srcx-aa .del-blocker-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; }
+.srcx-aa .del-blocker-item + .del-blocker-item { border-top: 1px solid var(--fit-divider); }
+.srcx-aa .del-blocker-item-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--fit-surface-higher);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fit-text-primary); flex-shrink: 0; }
+.srcx-aa.fit-light .del-blocker-item-icon, .fit-light .srcx-aa .del-blocker-item-icon { background: var(--fit-gray-100); }
+.srcx-aa .del-blocker-item-icon svg { width: 16px; height: 16px; }
+.srcx-aa .del-blocker-item-body { flex: 1; min-width: 0; }
+.srcx-aa .del-blocker-item-title {
+    font-size: 14px; font-weight: 500; color: var(--fit-text-primary);
+    line-height: 1.3; }
+.srcx-aa .del-blocker-item-sub {
+    font-size: 12px; color: var(--fit-text-tertiary); margin-top: 2px; }
+#s-delete-blockers [data-blocker] { display: none; }
+#s-delete-blockers.bl-sessions  [data-blocker="sessions"] { display: block; }
+#s-delete-blockers.bl-payout    [data-blocker="payout"] { display: block; }
+#s-delete-blockers.bl-bookings  [data-blocker="bookings"] { display: block; }
+.srcx-aa .sup-email-card {
+    margin: 0 16px 12px;
+    padding: 16px;
+    background: var(--fit-surface-high);
+    border-radius: 14px; }
+.srcx-aa.fit-light .sup-email-card, .fit-light .srcx-aa .sup-email-card { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
+.srcx-aa .sup-email-label {
+    font-size: 11px; font-weight: 500;
+    color: var(--fit-text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.4px;
+    margin-bottom: 6px; }
+.srcx-aa .sup-email-value {
+    font-family: 'SF Mono', 'Menlo', monospace;
+    font-size: 15px; color: var(--fit-text-primary);
+    word-break: break-all; }
+.srcx-aa .sup-meta-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px;
+    font-size: 12px; color: var(--fit-text-tertiary); }
+.srcx-aa .sup-meta-row + .sup-meta-row { border-top: 1px solid var(--fit-divider); }
+.srcx-aa .sup-meta-value {
+    font-family: 'SF Mono', 'Menlo', monospace;
+    color: var(--fit-text-secondary); }
+.srcx-aa .sup-snackbar {
+    position: absolute; left: 16px; right: 16px; bottom: 24px;
+    padding: 12px 14px; border-radius: 10px;
+    background: var(--fit-gray-800);
+    color: var(--fit-white);
+    font-size: 13px;
+    display: none; align-items: center; gap: 8px;
+    z-index: 30;
+    animation: fitToastUp 0.25s ease; }
+.srcx-aa .sup-snackbar.visible { display: flex; }
+.srcx-aa .sup-snackbar svg { width: 16px; height: 16px; color: var(--fit-teal-500); flex-shrink: 0; }
+@keyframes fitToastUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+@keyframes aaSpin { to { transform: rotate(360deg); } }
+
 </style>
 </head>
 <body>
@@ -1672,6 +2153,24 @@
   <button onclick="go('s-stripe-bank-detail',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Bank detail</button>
   <button onclick="go('s-stripe-withdraw',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Withdraw</button>
   <button onclick="go('s-stripe-payouts',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Payouts</button>
+  <div class="label">Account access</div>
+  <button onclick="go('s-hub',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Account access</button>
+  <button onclick="go('s-reauth',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Re-auth</button>
+  <button onclick="go('s-phone-new',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Phone · new</button>
+  <button onclick="go('s-phone-otp',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Phone · code</button>
+  <button onclick="go('s-country-picker',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Country</button>
+  <button onclick="go('s-email-subhub',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Email</button>
+  <button onclick="go('s-email-new',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Email · new</button>
+  <button onclick="go('s-email-check',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Email · check</button>
+  <button onclick="go('s-email-loading',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Email · loading</button>
+  <button onclick="go('s-email-expired',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Email · expired</button>
+  <button onclick="go('s-password-new',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Password</button>
+  <button onclick="go('s-delete-info',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Delete · info</button>
+  <button onclick="go('s-delete-blockers',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Delete · blockers</button>
+  <button onclick="go('s-delete-loading',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Delete · loading</button>
+  <button onclick="go('s-delete-done',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Delete · done</button>
+  <button onclick="go('s-role-remove',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Remove role</button>
+  <button onclick="go('s-contact-support',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Contact support</button>
   </div>
   <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
     <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
@@ -1724,7 +2223,7 @@
     <div class="cd-in" style="padding-bottom:22px;">
       <div class="cd-i-sec">Account</div>
       <div class="cd-i-panel">
-        <div class="cd-g-row cd-press" onclick="location.href='../shared/account-access.html?role=coach'"><div class="cd-j-plate cd-st-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="cd-g-rt"><div class="cd-g-r1">Account access</div><div class="cd-g-r2">Sign-in, password, delete</div></div><span class="cd-st-chev"></span></div>
+        <div class="cd-g-row cd-press" onclick="go('s-hub',document.querySelector('.sidebar button[onclick*=s-hub]'))"><div class="cd-j-plate cd-st-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="cd-g-rt"><div class="cd-g-r1">Account access</div><div class="cd-g-r2">Sign-in, password, delete</div></div><span class="cd-st-chev"></span></div>
         <div class="cd-g-row cd-press" onclick="showSnack('Signed out')"><div class="cd-j-plate cd-st-plate" style="color:var(--fit-red-400);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></div><div class="cd-g-rt"><div class="cd-g-r1" style="color:var(--fit-red-400);">Log out</div></div></div>
       </div>
       <div class="cd-i-tl" style="padding:14px 20px 0;text-align:center;">321Fit 2.4.1 &middot; Robert H.</div>
@@ -1761,7 +2260,6 @@
       <div class="cd-i-panel">
         <div class="cd-g-row cd-press" onclick="go('s-availability',document.querySelector('.sidebar button[onclick*=s-availability]'))"><div class="cd-j-plate cd-st-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div class="cd-g-rt"><div class="cd-g-r1">Available hours</div><div class="cd-g-r2">Mon&ndash;Sat &middot; 9:00&ndash;18:00</div></div><span class="cd-st-chev"></span></div>
         <div class="cd-g-row cd-press" onclick="go('s-time-off',document.querySelector('.sidebar button[onclick*=s-time-off]'))"><div class="cd-j-plate cd-st-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><div class="cd-g-rt"><div class="cd-g-r1">Time off</div><div class="cd-g-r2 cd-c-next">Scheduled &middot; Aug 12&ndash;19</div></div><span class="cd-st-chev"></span></div>
-        <div class="cd-g-row cd-press" onclick="go('s-booking-rules',document.querySelector('.sidebar button[onclick*=s-booking-rules]'))"><div class="cd-j-plate cd-st-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><div class="cd-g-rt"><div class="cd-g-r1">Booking rules</div><div class="cd-g-r2">Book up to 24h before &middot; 2 weeks ahead</div></div><span class="cd-st-chev"></span></div>
         <div class="cd-g-row cd-press" onclick="go('s-tz-select',document.querySelector('.sidebar button[onclick*=s-tz-select]'))"><div class="cd-j-plate cd-st-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></div><div class="cd-g-rt"><div class="cd-g-r1">Time zone</div><div class="cd-g-r2">Warsaw &middot; Europe (GMT+1)</div></div><span class="cd-st-chev"></span></div>
       </div>
     </div>
@@ -5577,6 +6075,1434 @@
 </div>
 
 
+<!-- ==== from shared/account-access.html #s-hub ==== -->
+<div class="srcx-aa fit-phone fit-dark hs-full vr-athlete rs-dual cd-nowash" id="s-hub" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-draft-settings',document.querySelector('.sidebar button[onclick*=s-draft-settings]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Account access</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- SECTION: Sign-in methods -->
+    <div class="aa-section-label">Sign-in methods</div>
+
+    <!-- ===== STATE: FULL (all 4 methods active) ===== -->
+    <div data-hub-state="full">
+      <div class="aa-group">
+        <!-- Phone (Contact section — direct edit, no re-auth picker; OTP on save only) -->
+        <div class="aa-row" onclick="setPhoneMode('change', null)">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Phone number</div>
+            <div class="aa-row-sub">+995 511 100 000</div>
+          </div>
+          <div class="aa-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+        </div>
+
+        <!-- Email & password (one row) -->
+        <div class="aa-row" onclick="go('s-email-subhub',null)">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Email &amp; password</div>
+            <div class="aa-row-sub">jdoe@mail.com</div>
+          </div>
+          <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+
+        <!-- Apple -->
+        <div class="aa-row" onclick="openDisconnectSheet('apple')">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Apple</div>
+            <div class="aa-row-sub connected"><span class="aa-success-dot"></span>Connected</div>
+          </div>
+          <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+
+        <!-- Google -->
+        <div class="aa-row" onclick="openDisconnectSheet('google')">
+          <div class="aa-row-icon" style="background:#fff;">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          </div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Google</div>
+            <div class="aa-row-sub connected"><span class="aa-success-dot"></span>Connected</div>
+          </div>
+          <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STATE: CREDENTIALS ONLY (phone + email, no social) ===== -->
+    <div data-hub-state="creds">
+      <div class="aa-group">
+        <div class="aa-row">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Phone number</div>
+            <div class="aa-row-sub">+995 511 100 000</div>
+          </div>
+          <div class="aa-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+        </div>
+        <div class="aa-row">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Email &amp; password</div>
+            <div class="aa-row-sub">jdoe@mail.com</div>
+          </div>
+          <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+        <div class="aa-row">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Apple</div>
+            <div class="aa-row-sub muted">Not connected</div>
+          </div>
+          <button class="aa-connect" onclick="simulateConnect('apple')">Connect</button>
+        </div>
+        <div class="aa-row">
+          <div class="aa-row-icon" style="background:#fff;">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          </div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Google</div>
+            <div class="aa-row-sub muted">Not connected</div>
+          </div>
+          <button class="aa-connect" onclick="simulateConnect('google')">Connect</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STATE: SOCIAL ONLY (Apple + Google, no phone/email) ===== -->
+    <div data-hub-state="social">
+      <div class="aa-group">
+        <div class="aa-row">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Phone number</div>
+            <div class="aa-row-sub muted">Not set up</div>
+          </div>
+          <button class="aa-connect">Add</button>
+        </div>
+        <div class="aa-row">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Email &amp; password</div>
+            <div class="aa-row-sub muted">Not set up</div>
+          </div>
+          <button class="aa-connect">Add</button>
+        </div>
+        <div class="aa-row" onclick="openDisconnectSheet('apple')">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Apple</div>
+            <div class="aa-row-sub connected"><span class="aa-success-dot"></span>Connected</div>
+          </div>
+          <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+        <div class="aa-row" onclick="openDisconnectSheet('google')">
+          <div class="aa-row-icon" style="background:#fff;">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          </div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Google</div>
+            <div class="aa-row-sub connected"><span class="aa-success-dot"></span>Connected</div>
+          </div>
+          <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STATE: ONE METHOD (just phone, nothing else) ===== -->
+    <div data-hub-state="one">
+      <div class="aa-group">
+        <div class="aa-row">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Phone number</div>
+            <div class="aa-row-sub">+995 511 100 000</div>
+          </div>
+          <div class="aa-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+        </div>
+        <div class="aa-row">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Email &amp; password</div>
+            <div class="aa-row-sub muted">Not set up</div>
+          </div>
+          <button class="aa-connect">Add</button>
+        </div>
+        <div class="aa-row">
+          <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg></div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Apple</div>
+            <div class="aa-row-sub muted">Not connected</div>
+          </div>
+          <button class="aa-connect" onclick="simulateConnect('apple')">Connect</button>
+        </div>
+        <div class="aa-row">
+          <div class="aa-row-icon" style="background:#fff;">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          </div>
+          <div class="aa-row-body">
+            <div class="aa-row-title">Google</div>
+            <div class="aa-row-sub muted">Not connected</div>
+          </div>
+          <button class="aa-connect" onclick="simulateConnect('google')">Connect</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: Security (V2 placeholders) -->
+    <div class="aa-section-label">Security</div>
+    <div class="aa-group">
+      <div class="aa-row disabled">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <div class="aa-row-body">
+          <div class="aa-row-title">Active sessions</div>
+          <div class="aa-row-sub muted">Manage where you're signed in</div>
+        </div>
+        <span class="aa-soon">Soon</span>
+      </div>
+      <div class="aa-row disabled">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <div class="aa-row-body">
+          <div class="aa-row-title">Two-factor authentication</div>
+          <div class="aa-row-sub muted">Extra layer of security</div>
+        </div>
+        <span class="aa-soon">Soon</span>
+      </div>
+    </div>
+
+    <!-- SECTION: Your roles — active role depends on which role you're currently in -->
+    <div class="aa-section-label">Your roles</div>
+    <!-- Viewer = ATHLETE: athlete active; the Coach (second) row changes by status -->
+    <div class="aa-group" data-vr="athlete">
+      <div class="aa-row">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div class="aa-row-body"><div class="aa-row-title">Athlete</div><div class="aa-row-sub muted">Book &amp; train with coaches</div></div>
+        <span class="rr-active-tag">Active</span>
+      </div>
+      <!-- dual: coach exists & on → manage/stop -->
+      <div class="aa-row" data-rs="dual" data-a11y-id="account.roles.coach" onclick="go('s-role-remove',null);setRrTarget('coach','clean')">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg></div>
+        <div class="aa-row-body"><div class="aa-row-title">Coach</div><div class="aa-row-sub muted">Offering sessions &middot; manage or stop</div></div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <!-- single: never added → add CTA (→ role switch + coach onboarding) -->
+      <div class="aa-row" data-rs="single" data-a11y-id="account.roles.add-coach" onclick="alert('Become a coach → role switch + coach onboarding (sports / sessions / location / hours)')">
+        <div class="aa-row-icon add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="aa-row-body"><div class="aa-row-title">Become a coach</div><div class="aa-row-sub muted">Start offering your own sessions</div></div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <!-- off: deactivated → turn back on (instant, profile retained) -->
+      <div class="aa-row" data-rs="off" data-a11y-id="account.roles.resume-coach" onclick="alert('Turn coaching back on → re-listed instantly (profile kept), switch to coach')">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg></div>
+        <div class="aa-row-body"><div class="aa-row-title">Coach</div><div class="aa-row-sub muted">Turned off &middot; tap to turn back on</div></div>
+        <span class="rr-off-tag">Off</span>
+      </div>
+    </div>
+    <!-- Viewer = COACH: coach active; the Athlete (second) row changes by status -->
+    <div class="aa-group" data-vr="coach">
+      <div class="aa-row">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/></svg></div>
+        <div class="aa-row-body"><div class="aa-row-title">Coach</div><div class="aa-row-sub muted">Offering sessions</div></div>
+        <span class="rr-active-tag">Active</span>
+      </div>
+      <!-- dual -->
+      <div class="aa-row" data-rs="dual" data-a11y-id="account.roles.athlete" onclick="go('s-role-remove',null);setRrTarget('athlete','clean')">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div class="aa-row-body"><div class="aa-row-title">Athlete</div><div class="aa-row-sub muted">Booking &amp; training &middot; manage or stop</div></div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <!-- single: never added → add athlete side (instant) -->
+      <div class="aa-row" data-rs="single" data-a11y-id="account.roles.add-athlete" onclick="alert('Train as an athlete → creates athlete profile instantly, no setup')">
+        <div class="aa-row-icon add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="aa-row-body"><div class="aa-row-title">Train as an athlete</div><div class="aa-row-sub muted">Book &amp; train with other coaches</div></div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <!-- off -->
+      <div class="aa-row" data-rs="off" data-a11y-id="account.roles.resume-athlete" onclick="alert('Turn athlete side back on → instant (profile kept), switch to athlete')">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div class="aa-row-body"><div class="aa-row-title">Athlete</div><div class="aa-row-sub muted">Turned off &middot; tap to turn back on</div></div>
+        <span class="rr-off-tag">Off</span>
+      </div>
+    </div>
+
+    <!-- SECTION: Danger zone -->
+    <div class="aa-section-label">Danger zone</div>
+    <div class="aa-group">
+      <div class="aa-row destructive" onclick="go('s-delete-info',null)">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></div>
+        <div class="aa-row-body">
+          <div class="aa-row-title">Delete account</div>
+          <div class="aa-row-sub muted">Permanently remove your data</div>
+        </div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+    </div>
+
+    <div class="aa-foot-note">
+      Changes to your sign-in methods require verification for security.
+    </div>
+  </div>
+
+  <!-- ===== SHEET: LAST-METHOD WARNING ===== -->
+  <div class="fit-sheet-overlay" id="last-method-sheet" onclick="if(event.target===this)closeLastMethodSheet()">
+    <div class="fit-sheet compact">
+      <div class="fit-sheet-handle"></div>
+      <div class="aa-sheet-head">
+        <div class="aa-sheet-icon warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+        <div class="aa-sheet-title">This is your only sign-in method</div>
+        <div class="aa-sheet-body">Changing your phone number without a backup means if something goes wrong &mdash; wrong code, lost SIM &mdash; you could lose access. We recommend adding another method first.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-primary" onclick="closeLastMethodSheet();alert('Opens: Add method picker\\n(sheet with phone/email/Apple/Google options)');">Add a backup method first</button>
+        <button class="fit-btn fit-btn-secondary" onclick="closeLastMethodSheet();setPhoneMode('change',document.querySelector('[onclick*=change]'));" style="color:#F7C948;">Continue anyway</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SHEET: DISCONNECT CONFIRM (not last) ===== -->
+  <div class="fit-sheet-overlay" id="disconnect-sheet" onclick="if(event.target===this)closeDisconnectSheet()">
+    <div class="fit-sheet compact">
+      <div class="fit-sheet-handle"></div>
+      <div class="aa-sheet-head">
+        <div class="aa-sheet-icon destructive">
+          <svg id="dc-icon-apple" style="display:none;" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+          <svg id="dc-icon-google" viewBox="0 0 24 24" width="28" height="28"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        </div>
+        <div class="aa-sheet-title">Disconnect <span id="dc-provider">Google</span>?</div>
+        <div class="aa-sheet-body">You'll no longer be able to sign in with <span class="dc-provider-txt">Google</span>. You can reconnect it later at any time.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-destructive" onclick="confirmDisconnect()">Disconnect</button>
+        <button class="fit-btn fit-btn-secondary" onclick="closeDisconnectSheet()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SHEET: DISCONNECT BLOCK (last method, hard block) ===== -->
+  <div class="fit-sheet-overlay" id="disconnect-block-sheet" onclick="if(event.target===this)closeDisconnectBlock()">
+    <div class="fit-sheet compact">
+      <div class="fit-sheet-handle"></div>
+      <div class="aa-sheet-head">
+        <div class="aa-sheet-icon warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+        <div class="aa-sheet-title">Can't disconnect <span id="dcb-provider">Apple</span></div>
+        <div class="aa-sheet-body">This is your only sign-in method. Add a phone number, email, or another provider first &mdash; then you can disconnect <span class="dcb-provider-txt">Apple</span>.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-primary" onclick="closeDisconnectBlock();alert('Opens: Add method picker\\n(phone / email / other provider)');">Add another method</button>
+        <button class="fit-btn fit-btn-secondary" onclick="closeDisconnectBlock()">Not now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SHEET: DELETE FINAL CONFIRM ===== -->
+  <div class="fit-sheet-overlay" id="delete-confirm-sheet" onclick="if(event.target===this)closeDeleteConfirm()">
+    <div class="fit-sheet compact">
+      <div class="fit-sheet-handle"></div>
+      <div class="aa-sheet-head">
+        <div class="aa-sheet-icon destructive"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></div>
+        <div class="aa-sheet-title">Delete your account forever?</div>
+        <div class="aa-sheet-body">This can't be undone. You'll be signed out and your data will be permanently removed.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-destructive" onclick="closeDeleteConfirm();go('s-delete-loading',null);setTimeout(()=>go('s-delete-done',null),1400);">Delete forever</button>
+        <button class="fit-btn fit-btn-secondary" onclick="closeDeleteConfirm()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SUCCESS TOAST ===== -->
+  <div class="aa-toast" id="aa-toast">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <div style="flex:1;">
+      <div class="aa-toast-title" id="aa-toast-title">Phone updated</div>
+      <div id="aa-toast-body" style="font-size:13px;color:var(--fit-text-secondary);">Your new number is +995 511 100 000.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==== from shared/account-access.html #s-reauth ==== -->
+<div class="srcx-aa fit-phone fit-dark cd-nowash" id="s-reauth" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M6 18L18 6"/></svg></button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div class="reauth-head">
+      <div class="reauth-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      <div class="reauth-title">Verify it's you</div>
+      <div class="reauth-sub">To change your email, confirm with one of your active sign-in methods.</div>
+    </div>
+
+    <div class="aa-group">
+      <div class="reauth-method" onclick="reauthProceed()">
+        <div class="reauth-method-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+        <div class="reauth-method-body">
+          <div class="reauth-method-title">Use password</div>
+          <div class="reauth-method-sub">Enter your current password</div>
+        </div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <div class="reauth-method" onclick="reauthProceed()">
+        <div class="reauth-method-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+        <div class="reauth-method-body">
+          <div class="reauth-method-title">Email a link</div>
+          <div class="reauth-method-sub">jdoe@mail.com</div>
+        </div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <div class="reauth-method" onclick="reauthProceed()">
+        <div class="reauth-method-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg></div>
+        <div class="reauth-method-body">
+          <div class="reauth-method-title">Continue with Apple</div>
+          <div class="reauth-method-sub">Re-sign in to confirm</div>
+        </div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <div class="reauth-method" onclick="reauthProceed()">
+        <div class="reauth-method-icon" style="background:#fff;">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        </div>
+        <div class="reauth-method-body">
+          <div class="reauth-method-title">Continue with Google</div>
+          <div class="reauth-method-sub">Re-sign in to confirm</div>
+        </div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+    </div>
+
+    <div class="reauth-footer">
+      <span class="reauth-help" onclick="go('s-contact-support',null)">Can't access any of these?</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==== from shared/account-access.html #s-phone-new ==== -->
+<div class="srcx-aa fit-phone fit-dark pn-change cd-nowash" id="s-phone-new" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- ===== HEAD variants ===== -->
+    <div data-pf-state="change">
+      <div class="pf-head">
+        <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+        <div class="pf-title">New phone number</div>
+        <div class="pf-sub">Current: <strong style="color:var(--fit-text-secondary);">+995 511 100 000</strong></div>
+      </div>
+    </div>
+    <div data-pf-state="add">
+      <div class="pf-head">
+        <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+        <div class="pf-title">Add phone number</div>
+        <div class="pf-sub">So your coach can reach you and we can send training reminders.</div>
+      </div>
+    </div>
+    <div data-pf-state="invalid">
+      <div class="pf-head">
+        <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+        <div class="pf-title">New phone number</div>
+        <div class="pf-sub">Current: <strong style="color:var(--fit-text-secondary);">+995 511 100 000</strong></div>
+      </div>
+    </div>
+
+    <!-- ===== INPUT ===== -->
+    <div data-pf-state="change">
+      <div class="pf-field">
+        <div class="pf-country" onclick="go('s-country-picker',null)"><span class="pf-country-flag">&#127468;&#127466;</span> <span class="pf-country-code">+995</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+        <input class="pf-input" type="tel" placeholder="511 200 300" value="511 200 300">
+      </div>
+    </div>
+    <div data-pf-state="add">
+      <div class="pf-field">
+        <div class="pf-country" onclick="go('s-country-picker',null)"><span class="pf-country-flag">&#127468;&#127466;</span> <span class="pf-country-code">+995</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+        <input class="pf-input" type="tel" placeholder="511 200 300">
+      </div>
+    </div>
+    <div data-pf-state="invalid">
+      <div class="pf-field error">
+        <div class="pf-country" onclick="go('s-country-picker',null)"><span class="pf-country-flag">&#127468;&#127466;</span> <span class="pf-country-code">+995</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+        <input class="pf-input" type="tel" value="511 abc">
+      </div>
+      <div class="pf-err-msg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        Enter a valid phone number.
+      </div>
+    </div>
+
+    <!-- ===== CTA ===== -->
+    <div style="padding:8px 16px 0;">
+      <button class="fit-btn fit-btn-primary" onclick="setOtpMode('idle',document.querySelector('[onclick*=ot-idle]'));">Send code</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==== from shared/account-access.html #s-phone-otp ==== -->
+<div class="srcx-aa fit-phone fit-dark ot-idle cd-nowash" id="s-phone-otp" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="setPhoneMode('change',document.querySelector('[onclick*=setPhoneMode]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div class="pf-head">
+      <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M7 8V5a5 5 0 0110 0v3"/></svg></div>
+      <div class="pf-title">Enter the code</div>
+      <div class="pf-sub">We texted a 6-digit code to <strong style="color:var(--fit-text-secondary);">+995 511 200 300</strong>.</div>
+    </div>
+
+    <!-- Idle -->
+    <div data-otp-state="idle">
+      <div class="otp-boxes">
+        <div class="otp-box filled">4</div>
+        <div class="otp-box filled">8</div>
+        <div class="otp-box filled">2</div>
+        <div class="otp-box focused"></div>
+        <div class="otp-box"></div>
+        <div class="otp-box"></div>
+      </div>
+    </div>
+
+    <!-- Error (wrong code) -->
+    <div data-otp-state="error">
+      <div class="otp-boxes error">
+        <div class="otp-box">1</div>
+        <div class="otp-box">1</div>
+        <div class="otp-box">1</div>
+        <div class="otp-box">1</div>
+        <div class="otp-box">1</div>
+        <div class="otp-box">1</div>
+      </div>
+      <div class="pf-err-msg" style="justify-content:center;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        Code is incorrect. Try again.
+      </div>
+    </div>
+
+    <!-- Expired -->
+    <div data-otp-state="expired">
+      <div class="otp-boxes error">
+        <div class="otp-box">4</div>
+        <div class="otp-box">8</div>
+        <div class="otp-box">2</div>
+        <div class="otp-box">9</div>
+        <div class="otp-box">1</div>
+        <div class="otp-box">5</div>
+      </div>
+      <div class="pf-err-msg" style="justify-content:center;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        Code expired. Request a new one.
+      </div>
+    </div>
+
+    <!-- Resend link -->
+    <div class="otp-resend">
+      <span data-otp-state="idle">Resend in 0:27</span>
+      <span data-otp-state="error"><a>Resend code</a></span>
+      <span data-otp-state="expired"><a>Resend code</a></span>
+    </div>
+
+    <!-- CTA -->
+    <div style="padding:8px 16px 0;">
+      <button class="fit-btn fit-btn-primary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'));setHubState('full',null);showToast('phone');">Verify</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==== from shared/account-access.html #s-country-picker ==== -->
+<div class="srcx-aa fit-phone fit-dark cd-nowash" id="s-country-picker" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="setPhoneMode('change',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M6 18L18 6"/></svg></button>
+      <span class="fit-header-title">Country or region</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- Sticky search -->
+    <div class="cp-search">
+      <div class="cp-search-field">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search country or code">
+      </div>
+    </div>
+
+    <!-- Popular -->
+    <div class="cp-section-label">Popular</div>
+    <div class="cp-group">
+      <div class="cp-row selected" onclick="pickCountry(this, '&#127468;&#127466;', 'Georgia', '+995')">
+        <span class="cp-flag">&#127468;&#127466;</span>
+        <span class="cp-name">Georgia</span>
+        <span class="cp-code">+995</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127482;&#127480;', 'United States', '+1')">
+        <span class="cp-flag">&#127482;&#127480;</span>
+        <span class="cp-name">United States</span>
+        <span class="cp-code">+1</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127468;&#127463;', 'United Kingdom', '+44')">
+        <span class="cp-flag">&#127468;&#127463;</span>
+        <span class="cp-name">United Kingdom</span>
+        <span class="cp-code">+44</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127465;&#127466;', 'Germany', '+49')">
+        <span class="cp-flag">&#127465;&#127466;</span>
+        <span class="cp-name">Germany</span>
+        <span class="cp-code">+49</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+    </div>
+
+    <!-- All countries (abbreviated A-Z for prototype) -->
+    <div class="cp-section-label">All countries</div>
+    <div class="cp-group">
+      <div class="cp-row" onclick="pickCountry(this, '&#127462;&#127458;', 'Armenia', '+374')">
+        <span class="cp-flag">&#127462;&#127458;</span>
+        <span class="cp-name">Armenia</span>
+        <span class="cp-code">+374</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127462;&#127487;', 'Azerbaijan', '+994')">
+        <span class="cp-flag">&#127462;&#127487;</span>
+        <span class="cp-name">Azerbaijan</span>
+        <span class="cp-code">+994</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127467;&#127479;', 'France', '+33')">
+        <span class="cp-flag">&#127467;&#127479;</span>
+        <span class="cp-name">France</span>
+        <span class="cp-code">+33</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127470;&#127481;', 'Italy', '+39')">
+        <span class="cp-flag">&#127470;&#127481;</span>
+        <span class="cp-name">Italy</span>
+        <span class="cp-code">+39</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127472;&#127487;', 'Kazakhstan', '+7')">
+        <span class="cp-flag">&#127472;&#127487;</span>
+        <span class="cp-name">Kazakhstan</span>
+        <span class="cp-code">+7</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127475;&#127473;', 'Netherlands', '+31')">
+        <span class="cp-flag">&#127475;&#127473;</span>
+        <span class="cp-name">Netherlands</span>
+        <span class="cp-code">+31</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127477;&#127473;', 'Poland', '+48')">
+        <span class="cp-flag">&#127477;&#127473;</span>
+        <span class="cp-name">Poland</span>
+        <span class="cp-code">+48</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127479;&#127482;', 'Russia', '+7')">
+        <span class="cp-flag">&#127479;&#127482;</span>
+        <span class="cp-name">Russia</span>
+        <span class="cp-code">+7</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127466;&#127480;', 'Spain', '+34')">
+        <span class="cp-flag">&#127466;&#127480;</span>
+        <span class="cp-name">Spain</span>
+        <span class="cp-code">+34</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127481;&#127479;', 'Turkey', '+90')">
+        <span class="cp-flag">&#127481;&#127479;</span>
+        <span class="cp-name">Turkey</span>
+        <span class="cp-code">+90</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+      <div class="cp-row" onclick="pickCountry(this, '&#127482;&#127462;', 'Ukraine', '+380')">
+        <span class="cp-flag">&#127482;&#127462;</span>
+        <span class="cp-name">Ukraine</span>
+        <span class="cp-code">+380</span>
+        <span class="cp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </div>
+    </div>
+
+    <div class="aa-foot-note">
+      Don't see your country? <a style="color:var(--fit-brand-primary);cursor:pointer;">Contact support</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==== from shared/account-access.html #s-email-subhub ==== -->
+<div class="srcx-aa fit-phone fit-dark cd-nowash" id="s-email-subhub" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Email &amp; password</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- Email card -->
+    <div class="em-headcard">
+      <div class="em-headcard-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+      <div style="flex:1;min-width:0;">
+        <div class="em-headcard-label">Email</div>
+        <div class="em-headcard-value">jdoe@mail.com</div>
+      </div>
+    </div>
+
+    <!-- Action rows -->
+    <div class="aa-group">
+      <div class="aa-row" onclick="openReauthFor('email')">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/><path d="M16 17l2 2 4-4"/></svg></div>
+        <div class="aa-row-body">
+          <div class="aa-row-title">Change email</div>
+          <div class="aa-row-sub muted">Verify + replace current email</div>
+        </div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <div class="aa-row" onclick="openReauthFor('password')">
+        <div class="aa-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+        <div class="aa-row-body">
+          <div class="aa-row-title">Change password</div>
+          <div class="aa-row-sub muted">Last changed 2 months ago</div>
+        </div>
+        <div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+    </div>
+
+    <div class="aa-foot-note">
+      A verification link will be sent for any change.
+    </div>
+  </div>
+</div>
+
+<!-- ==== from shared/account-access.html #s-email-new ==== -->
+<div class="srcx-aa fit-phone fit-dark em-change cd-nowash" id="s-email-new" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-email-subhub',document.querySelector('[onclick*=s-email-subhub]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- ===== HEAD variants ===== -->
+    <div data-em-state="change">
+      <div class="pf-head">
+        <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+        <div class="pf-title">New email</div>
+        <div class="pf-sub">Current: <strong style="color:var(--fit-text-secondary);">jdoe@mail.com</strong></div>
+      </div>
+    </div>
+    <div data-em-state="add">
+      <div class="pf-head">
+        <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+        <div class="pf-title">Add email &amp; password</div>
+        <div class="pf-sub">Use it to sign in and recover your account.</div>
+      </div>
+    </div>
+    <div data-em-state="taken">
+      <div class="pf-head">
+        <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+        <div class="pf-title">New email</div>
+        <div class="pf-sub">Current: <strong style="color:var(--fit-text-secondary);">jdoe@mail.com</strong></div>
+      </div>
+    </div>
+    <div data-em-state="invalid">
+      <div class="pf-head">
+        <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+        <div class="pf-title">New email</div>
+        <div class="pf-sub">Current: <strong style="color:var(--fit-text-secondary);">jdoe@mail.com</strong></div>
+      </div>
+    </div>
+
+    <!-- ===== INPUT(s) ===== -->
+    <div data-em-state="change">
+      <div class="pf-field">
+        <input class="pf-input" type="email" placeholder="new@mail.com" value="new.email@gmail.com" style="padding:16px;">
+      </div>
+    </div>
+    <div data-em-state="add">
+      <div class="pf-field">
+        <input class="pf-input" type="email" placeholder="you@mail.com" style="padding:16px;">
+      </div>
+      <div class="pf-field">
+        <input class="pf-input" type="password" placeholder="Password" style="padding:16px;">
+      </div>
+      <div class="pw-rules">
+        <div class="pw-rule pending">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+          At least 8 characters
+        </div>
+        <div class="pw-rule pending">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+          Not a common password
+        </div>
+        <div class="pw-rule pending">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+          Not all numbers
+        </div>
+      </div>
+    </div>
+    <div data-em-state="taken">
+      <div class="pf-field error">
+        <input class="pf-input" type="email" value="taken@mail.com" style="padding:16px;">
+      </div>
+      <div class="pf-err-msg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        This email is already in use by another account.
+      </div>
+    </div>
+    <div data-em-state="invalid">
+      <div class="pf-field error">
+        <input class="pf-input" type="email" value="not-an-email" style="padding:16px;">
+      </div>
+      <div class="pf-err-msg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        Enter a valid email address.
+      </div>
+    </div>
+
+    <!-- ===== CTA ===== -->
+    <div style="padding:16px 16px 0;">
+      <button class="fit-btn fit-btn-primary" onclick="go('s-email-check',document.querySelector('[onclick*=s-email-check]'));">Send verification link</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==== from shared/account-access.html #s-email-check ==== -->
+<div class="srcx-aa fit-phone fit-dark cd-nowash" id="s-email-check" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="setEmailMode('change',document.querySelector('[onclick*=setEmailMode]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div class="pf-head" style="padding-top:40px;">
+      <div class="pf-icon" style="background:rgba(3,178,226,0.15);color:var(--fit-blue-500);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+      <div class="pf-title">Check your email</div>
+      <div class="pf-sub" style="max-width:300px;margin:0 auto;">We sent a verification link to <strong style="color:var(--fit-text-secondary);">new.email@gmail.com</strong>. Tap it to confirm.</div>
+    </div>
+
+    <div style="padding:16px 16px 0;">
+      <button class="fit-btn fit-btn-primary" onclick="alert('Opens native mail app\\n(iOS: mailto: / Android: ACTION_MAIN category email)');">Open Mail</button>
+    </div>
+
+    <div class="em-resend">Resend link in 0:27</div>
+    <div class="em-resend" style="padding-top:0;">Wrong address? <a onclick="setEmailMode('change',null);">Edit email</a></div>
+
+  </div>
+</div>
+
+<!-- ==== from shared/account-access.html #s-email-loading ==== -->
+<div class="srcx-aa fit-phone fit-dark cd-nowash" id="s-email-loading" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="aa-center-loader">
+      <div class="aa-spinner"></div>
+      <div class="aa-loader-label">Verifying your link&hellip;</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==== from shared/account-access.html #s-email-expired ==== -->
+<div class="srcx-aa fit-phone fit-dark cd-nowash" id="s-email-expired" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M6 18L18 6"/></svg></button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div class="pf-head" style="padding-top:40px;">
+      <div class="pf-icon" style="background:rgba(247,201,72,0.15);color:#F7C948;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+      <div class="pf-title">This link has expired</div>
+      <div class="pf-sub" style="max-width:300px;margin:0 auto;">Verification links expire after 30 minutes. Request a new one to try again.</div>
+    </div>
+
+    <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+      <button class="fit-btn fit-btn-primary" onclick="go('s-email-check',document.querySelector('[onclick*=s-email-check]'));">Send a new link</button>
+      <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'));">Back to Account Access</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==== from shared/account-access.html #s-password-new ==== -->
+<div class="srcx-aa fit-phone fit-dark pw-idle cd-nowash" id="s-password-new" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-email-subhub',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div class="pf-head">
+      <div class="pf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      <div class="pf-title">Set a new password</div>
+      <div class="pf-sub" style="max-width:290px;margin:0 auto;">Choose something you'll remember. You'll use it to sign in.</div>
+    </div>
+
+    <!-- ===== IDLE ===== -->
+    <div data-pw-state="idle">
+      <div class="pw-label">New password</div>
+      <div class="pw-field">
+        <input type="password" placeholder="At least 8 characters">
+        <span class="pw-eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+      <div class="pw-label" style="margin-top:8px;">Confirm new password</div>
+      <div class="pw-field">
+        <input type="password" placeholder="Re-enter password">
+        <span class="pw-eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+
+      <div class="pw-rules">
+        <div class="pw-rule pending">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+          At least 8 characters
+        </div>
+        <div class="pw-rule pending">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+          Not a common password
+        </div>
+        <div class="pw-rule pending">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+          Not all numbers
+        </div>
+      </div>
+
+      <div style="padding:16px 16px 0;">
+        <button class="fit-btn fit-btn-disabled" style="background:var(--fit-surface-low);color:var(--fit-text-tertiary);cursor:not-allowed;">Update password</button>
+      </div>
+    </div>
+
+    <!-- ===== TYPING (rules live) ===== -->
+    <div data-pw-state="typing">
+      <div class="pw-label">New password</div>
+      <div class="pw-field">
+        <input type="text" value="mysecret1">
+        <span class="pw-eye" style="color:var(--fit-brand-primary);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+      <div class="pw-label" style="margin-top:8px;">Confirm new password</div>
+      <div class="pw-field">
+        <input type="password" value="mysecret1">
+        <span class="pw-eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+
+      <div class="pw-rules">
+        <div class="pw-rule ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          At least 8 characters
+        </div>
+        <div class="pw-rule ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Not a common password
+        </div>
+        <div class="pw-rule ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Not all numbers
+        </div>
+      </div>
+
+      <div style="padding:16px 16px 0;">
+        <button class="fit-btn fit-btn-primary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'));showToast('password');">Update password</button>
+      </div>
+    </div>
+
+    <!-- ===== WEAK (blocked) ===== -->
+    <div data-pw-state="weak">
+      <div class="pw-label">New password</div>
+      <div class="pw-field error">
+        <input type="text" value="12345678">
+        <span class="pw-eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+      <div class="pw-label" style="margin-top:8px;">Confirm new password</div>
+      <div class="pw-field">
+        <input type="password" value="12345678">
+        <span class="pw-eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+
+      <div class="pw-rules">
+        <div class="pw-rule ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          At least 8 characters
+        </div>
+        <div class="pw-rule fail">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+          Not a common password
+        </div>
+        <div class="pw-rule fail">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+          Not all numbers
+        </div>
+      </div>
+
+      <div style="padding:16px 16px 0;">
+        <button class="fit-btn fit-btn-disabled" style="background:var(--fit-surface-low);color:var(--fit-text-tertiary);cursor:not-allowed;">Update password</button>
+      </div>
+    </div>
+
+    <!-- ===== MISMATCH ===== -->
+    <div data-pw-state="mismatch">
+      <div class="pw-label">New password</div>
+      <div class="pw-field">
+        <input type="password" value="StrongPass2025">
+        <span class="pw-eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+      <div class="pw-label" style="margin-top:8px;">Confirm new password</div>
+      <div class="pw-field error">
+        <input type="password" value="StrongPass2026">
+        <span class="pw-eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+      <div class="pf-err-msg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        Passwords don't match.
+      </div>
+
+      <div class="pw-rules">
+        <div class="pw-rule ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          At least 8 characters
+        </div>
+        <div class="pw-rule ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Not a common password
+        </div>
+        <div class="pw-rule ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Not all numbers
+        </div>
+      </div>
+
+      <div style="padding:16px 16px 0;">
+        <button class="fit-btn fit-btn-disabled" style="background:var(--fit-surface-low);color:var(--fit-text-tertiary);cursor:not-allowed;">Update password</button>
+      </div>
+    </div>
+
+    <!-- ===== SAME AS CURRENT ===== -->
+    <div data-pw-state="same">
+      <div class="pw-label">New password</div>
+      <div class="pw-field error">
+        <input type="password" value="OldPassword1">
+        <span class="pw-eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+      <div class="pw-label" style="margin-top:8px;">Confirm new password</div>
+      <div class="pw-field">
+        <input type="password" value="OldPassword1">
+        <span class="pw-eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+      <div class="pf-err-msg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        Pick something different from your current password.
+      </div>
+
+      <div style="padding:16px 16px 0;">
+        <button class="fit-btn fit-btn-disabled" style="background:var(--fit-surface-low);color:var(--fit-text-tertiary);cursor:not-allowed;">Update password</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==== from shared/account-access.html #s-delete-info ==== -->
+<div class="srcx-aa fit-phone fit-dark cd-nowash" id="s-delete-info" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Delete account</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div class="del-head">
+      <div class="del-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></div>
+      <div class="del-title">Delete your account?</div>
+      <div class="del-sub">This can't be undone. We'll permanently remove the following:</div>
+    </div>
+
+    <div class="del-consequences">
+      <div class="del-consequence">
+        <span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></span>
+        <span>Your profile, photo, and personal info</span>
+      </div>
+      <div class="del-consequence">
+        <span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+        <span>Your training history and reviews</span>
+      </div>
+      <div class="del-consequence">
+        <span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>
+        <span>Your messages and chat history</span>
+      </div>
+      <div class="del-consequence">
+        <span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg></span>
+        <span>Your saved payment methods</span>
+      </div>
+    </div>
+
+    <div class="del-note">
+      Some data may be retained for legal or financial reasons. See our <a>Privacy Policy</a>.
+    </div>
+
+    <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+      <button class="fit-btn fit-btn-destructive" onclick="openReauthFor('delete')">Continue to delete</button>
+      <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==== from shared/account-access.html #s-delete-blockers ==== -->
+<div class="srcx-aa fit-phone fit-dark bl-sessions cd-nowash" id="s-delete-blockers" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-delete-info',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Delete account</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- Coach · Upcoming sessions -->
+    <div data-blocker="sessions">
+      <div class="del-head">
+        <div class="del-icon del-blocker-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14h.01"/></svg></div>
+        <div class="del-title">Cancel your upcoming sessions first</div>
+        <div class="del-sub">You have <strong style="color:var(--fit-text-primary);">3 upcoming sessions</strong> with athletes. Cancel them before deleting your account so your athletes aren't left hanging.</div>
+      </div>
+
+      <div class="del-blocker-list">
+        <div class="del-blocker-item">
+          <div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+          <div class="del-blocker-item-body">
+            <div class="del-blocker-item-title">Mon, Apr 28 &middot; 10:00</div>
+            <div class="del-blocker-item-sub">Padel with Anna M.</div>
+          </div>
+        </div>
+        <div class="del-blocker-item">
+          <div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+          <div class="del-blocker-item-body">
+            <div class="del-blocker-item-title">Tue, Apr 29 &middot; 18:30</div>
+            <div class="del-blocker-item-sub">Group &middot; Tennis (4 athletes)</div>
+          </div>
+        </div>
+        <div class="del-blocker-item">
+          <div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+          <div class="del-blocker-item-body">
+            <div class="del-blocker-item-title">Thu, May 1 &middot; 09:00</div>
+            <div class="del-blocker-item-sub">Padel with John D.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-primary" onclick="alert('Opens Calendar to cancel sessions')">Go to Calendar</button>
+        <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Coach · Pending payout -->
+    <div data-blocker="payout">
+      <div class="del-head">
+        <div class="del-icon del-blocker-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <div class="del-title">Withdraw your pending balance first</div>
+        <div class="del-sub">You have <strong style="color:var(--fit-text-primary);">&euro;320.50 pending payout</strong>. Withdraw it, or wait for Monday's automatic payout, before deleting your account.</div>
+      </div>
+
+      <div class="del-blocker-list">
+        <div class="del-blocker-item">
+          <div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+          <div class="del-blocker-item-body">
+            <div class="del-blocker-item-title">Available balance</div>
+            <div class="del-blocker-item-sub">&euro;245.50 &middot; can withdraw now</div>
+          </div>
+        </div>
+        <div class="del-blocker-item">
+          <div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="del-blocker-item-body">
+            <div class="del-blocker-item-title">Pending (24h hold)</div>
+            <div class="del-blocker-item-sub">&euro;75.00 &middot; releases in 18h</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-primary" onclick="alert('Opens Earnings screen')">Go to Earnings</button>
+        <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Athlete · Upcoming bookings -->
+    <div data-blocker="bookings">
+      <div class="del-head">
+        <div class="del-icon del-blocker-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+        <div class="del-title">Cancel your upcoming bookings first</div>
+        <div class="del-sub">You have <strong style="color:var(--fit-text-primary);">2 upcoming bookings</strong> with coaches. Cancel them before deleting your account &mdash; refunds depend on each coach's policy.</div>
+      </div>
+
+      <div class="del-blocker-list">
+        <div class="del-blocker-item">
+          <div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+          <div class="del-blocker-item-body">
+            <div class="del-blocker-item-title">Mon, Apr 28 &middot; 10:00</div>
+            <div class="del-blocker-item-sub">Padel with Coach Maria</div>
+          </div>
+        </div>
+        <div class="del-blocker-item">
+          <div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></div>
+          <div class="del-blocker-item-body">
+            <div class="del-blocker-item-title">Sat, May 3 &middot; 14:00</div>
+            <div class="del-blocker-item-sub">Tennis with Coach Vik</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+        <button class="fit-btn fit-btn-primary" onclick="alert('Opens Schedule screen')">Go to My Schedule</button>
+        <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))">Cancel</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==== from shared/account-access.html #s-delete-loading ==== -->
+<div class="srcx-aa fit-phone fit-dark cd-nowash" id="s-delete-loading" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="aa-center-loader">
+      <div class="aa-spinner"></div>
+      <div class="aa-loader-label">Deleting your account&hellip;</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==== from shared/account-access.html #s-delete-done ==== -->
+<div class="srcx-aa fit-phone fit-dark cd-nowash" id="s-delete-done" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <span class="fit-header-title"></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div class="del-head" style="padding-top:48px;">
+      <div class="del-icon" style="background:rgba(5,224,166,0.12);color:var(--fit-teal-500);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+      <div class="del-title">Your account has been deleted</div>
+      <div class="del-sub">Thanks for trying 321Fit. You've been signed out on all devices. Your data will be removed within 30 days per our Privacy Policy.</div>
+    </div>
+
+    <div style="padding:32px 16px 0;">
+      <button class="fit-btn fit-btn-primary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'));">Back to start</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==== from shared/account-access.html #s-role-remove ==== -->
+<div class="srcx-aa fit-phone fit-dark tr-coach rr-clean cd-nowash" id="s-role-remove" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" data-a11y-id="account.role-remove.back" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title"><span data-trlabel="coach">Coach role</span><span data-trlabel="athlete">Athlete role</span></span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <!-- ============ TARGET: COACH (you're on athlete, removing coach) ============ -->
+    <div data-tr="coach">
+      <div class="del-head">
+        <div class="del-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2 21v-1a5 5 0 015-5h4a5 5 0 015 5v1"/><circle cx="18" cy="8.5" r="2.5"/><path d="M2 2l20 20"/></svg></div>
+        <div class="del-title">Stop being a coach?</div>
+        <div class="del-sub">Your account and athlete side stay — only your coaching is turned off.</div>
+      </div>
+
+      <div data-rr="clean">
+        <div class="aa-section-label">What happens</div>
+        <div class="del-consequences">
+          <div class="del-consequence kept"><span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span>Your earnings history &amp; past reviews are kept</span></div>
+          <div class="del-consequence kept"><span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span>You can turn coaching back on anytime &mdash; setup stays</span></div>
+          <div class="del-consequence"><span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20C5 20 1 12 1 12a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M1 1l22 22"/></svg></span><span>You disappear from search &mdash; no new bookings</span></div>
+          <div class="del-consequence"><span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20C5 20 1 12 1 12a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M1 1l22 22"/></svg></span><span>Your sessions, availability &amp; locations are hidden</span></div>
+        </div>
+        <div class="del-note">Payout details stay so any final payouts still land. Some data may be retained for legal / financial reasons.</div>
+        <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+          <button class="fit-btn fit-btn-destructive" data-a11y-id="account.role-remove.stop" onclick="document.getElementById('rr-confirm-sheet').classList.add('visible')">Stop coaching</button>
+          <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))">Keep coaching</button>
+        </div>
+      </div>
+
+      <div data-rr="blocked">
+        <div class="aa-section-label">Resolve these first</div>
+        <div class="del-blocker-list">
+          <div class="del-blocker-item"><div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg></div><div class="del-blocker-item-body"><div class="del-blocker-item-title">&euro;120.00 pending payout</div><div class="del-blocker-item-sub">Withdraw, or wait for Monday's payout &middot; Earnings</div></div><div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div></div>
+          <div class="del-blocker-item"><div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><div class="del-blocker-item-body"><div class="del-blocker-item-title">2 upcoming sessions</div><div class="del-blocker-item-sub">Cancel or finish them &middot; Calendar</div></div><div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div></div>
+          <div class="del-blocker-item"><div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="del-blocker-item-body"><div class="del-blocker-item-title">&euro;40 cash owed by 2 athletes</div><div class="del-blocker-item-sub">Mark paid or waive &middot; Clients</div></div><div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div></div>
+        </div>
+        <div class="del-note">Once these are settled, you can stop coaching. This keeps your athletes and your books clean.</div>
+        <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+          <button class="fit-btn fit-btn-destructive" disabled style="opacity:0.5;pointer-events:none;">Stop coaching</button>
+          <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))">Keep coaching</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TARGET: ATHLETE (you're on coach, removing athlete) — mirror ============ -->
+    <div data-tr="athlete">
+      <div class="del-head">
+        <div class="del-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/><path d="M2 2l20 20"/></svg></div>
+        <div class="del-title">Stop training as an athlete?</div>
+        <div class="del-sub">Your account and coaching side stay — only your athlete side is turned off.</div>
+      </div>
+
+      <div data-rr="clean">
+        <div class="aa-section-label">What happens</div>
+        <div class="del-consequences">
+          <div class="del-consequence kept"><span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span>Your training history &amp; reviews you left are kept</span></div>
+          <div class="del-consequence kept"><span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span>You can turn it back on anytime &mdash; nothing to set up</span></div>
+          <div class="del-consequence"><span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20C5 20 1 12 1 12a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M1 1l22 22"/></svg></span><span>You can't book or join sessions</span></div>
+          <div class="del-consequence"><span class="del-consequence-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20C5 20 1 12 1 12a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M1 1l22 22"/></svg></span><span>You're removed from your coaches' active client lists</span></div>
+        </div>
+        <div class="del-note">Any remaining balance stays on your account for when you return. Some data may be retained for legal / financial reasons.</div>
+        <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+          <button class="fit-btn fit-btn-destructive" onclick="document.getElementById('rr-confirm-sheet').classList.add('visible')">Stop training as an athlete</button>
+          <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))">Keep my athlete side</button>
+        </div>
+      </div>
+
+      <div data-rr="blocked">
+        <div class="aa-section-label">Resolve these first</div>
+        <div class="del-blocker-list">
+          <div class="del-blocker-item"><div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/></svg></div><div class="del-blocker-item-body"><div class="del-blocker-item-title">&euro;240.00 balance</div><div class="del-blocker-item-sub">Use it on a session or request a refund &middot; Balance</div></div><div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div></div>
+          <div class="del-blocker-item"><div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><div class="del-blocker-item-body"><div class="del-blocker-item-title">2 upcoming bookings</div><div class="del-blocker-item-sub">Cancel them &middot; My schedule</div></div><div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div></div>
+          <div class="del-blocker-item"><div class="del-blocker-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="del-blocker-item-body"><div class="del-blocker-item-title">&euro;30 cash owed to a coach</div><div class="del-blocker-item-sub">Settle it with your coach &middot; My coaches</div></div><div class="aa-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div></div>
+        </div>
+        <div class="del-note">Once these are settled, you can stop training as an athlete.</div>
+        <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+          <button class="fit-btn fit-btn-destructive" disabled style="opacity:0.5;pointer-events:none;">Stop training as an athlete</button>
+          <button class="fit-btn fit-btn-secondary" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))">Keep my athlete side</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Confirm sheet (reversible → single confirm, no re-auth) — role-agnostic copy -->
+  <div class="fit-sheet-overlay" id="rr-confirm-sheet">
+    <div class="fit-sheet">
+      <div class="fit-sheet-handle"></div>
+      <div class="fit-sheet-title">Turn this role off?</div>
+      <div class="fit-sheet-subtitle">You'll switch to your other role. Turn it back on anytime from your profile.</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+        <button class="fit-btn fit-btn-destructive" data-a11y-id="account.role-remove.confirm" onclick="document.getElementById('rr-confirm-sheet').classList.remove('visible');go('s-hub',document.querySelector('[onclick*=s-hub]'));">Turn off</button>
+        <button class="fit-btn fit-btn-secondary" onclick="document.getElementById('rr-confirm-sheet').classList.remove('visible')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==== from shared/account-access.html #s-contact-support ==== -->
+<div class="srcx-aa fit-phone fit-dark cd-nowash" id="s-contact-support" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-hub',document.querySelector('[onclick*=s-hub]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M6 18L18 6"/></svg></button>
+      <span class="fit-header-title">Contact support</span>
+    </div>
+  </div>
+  <div class="fit-phone-content" style="padding-bottom:24px;">
+
+    <div class="pf-head">
+      <div class="pf-icon" style="background:rgba(3,178,226,0.15);color:var(--fit-blue-500);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1v-6h3v4zM3 19a2 2 0 002 2h1v-6H3v4z"/></svg></div>
+      <div class="pf-title">We're here to help</div>
+      <div class="pf-sub" style="max-width:300px;margin:0 auto;">We typically reply within 24 hours. Include your user ID and what you were trying to do.</div>
+    </div>
+
+    <!-- Email address card -->
+    <div class="sup-email-card">
+      <div class="sup-email-label">Email us at</div>
+      <div class="sup-email-value">support@321.fit</div>
+    </div>
+
+    <!-- Helpful meta (prefilled in Open Mail) -->
+    <div class="aa-section-label" style="padding-top:8px;">We'll prefill</div>
+    <div class="aa-group">
+      <div class="sup-meta-row">
+        <span>User ID</span>
+        <span class="sup-meta-value">usr_7G8H9K2L</span>
+      </div>
+      <div class="sup-meta-row">
+        <span>App version</span>
+        <span class="sup-meta-value">1.0.0 (build 42)</span>
+      </div>
+      <div class="sup-meta-row">
+        <span>Device</span>
+        <span class="sup-meta-value">iOS 17.4 &middot; iPhone 15</span>
+      </div>
+    </div>
+
+    <!-- CTAs -->
+    <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:8px;">
+      <button class="fit-btn fit-btn-primary" onclick="alert('Opens native mail composer\\nmailto:support@321.fit?subject=Help%20%5Busr_7G8H9K2L%5D&body=%0A%0A--%0Ausr_7G8H9K2L%0AApp%201.0.0%20(42)%0AiOS%2017.4%20%C2%B7%20iPhone%2015');">Open Mail</button>
+      <button class="fit-btn fit-btn-secondary" onclick="copySupportEmail()">Copy email address</button>
+    </div>
+
+    <div class="del-note" style="padding-top:16px;">
+      In-app ticket form coming soon.
+    </div>
+
+    <div class="sup-snackbar" id="sup-snackbar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Copied <strong>support@321.fit</strong> to clipboard
+    </div>
+
+  </div>
+</div>
+
+
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
   <div class="look-switch">Look
@@ -5596,7 +7522,8 @@
   </div>
   <div class="ann" id="ann-s-draft-availability"><span class="ann-role">Coach &middot; draft &middot; availability, placed</span>
     <h3>Availability &middot; the week first</h3>
-    <p>The canon hub was three rows. Here the week is the hero: seven bars, open hours per day, one line of totals (open &middot; booked) &mdash; the &ldquo;open more hours&rdquo; signal from Home lives here. Then the rows: hours, time off, booking rules, time zone.</p>
+    <div class="state-toggle" style="margin-bottom:6px;"><button class="active" onclick="document.getElementById('s-draft-availability').classList.remove('no-chart');this.parentNode.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Week chart</button><button onclick="document.getElementById('s-draft-availability').classList.add('no-chart');this.parentNode.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Rows only (canon)</button></div>
+    <p>The canon hub is three rows (Available hours &middot; Time off &middot; Time zone). <strong>The week chart is a proposal, not something that exists</strong>: seven bars of open hours per day and one line of totals (open &middot; booked) &mdash; the &ldquo;open more hours&rdquo; signal from Home would live here. Toggle it off to see the canon set. <em>Booking rules</em> is not on the hub: it was dropped from canon 2026-06-26 and is not in the prod app.</p>
   </div>
   <div class="ann" id="ann-s-coach-reviews"><span class="ann-role">Coach &middot; Profile &amp; Settings</span>
     <h3>Reviews</h3>
@@ -5797,6 +7724,91 @@
     <h3>Referral list</h3>
     <p>Unchanged.</p>
     <p class="note">Copy of <code>referral.html#s-referral-list</code> under the rework look. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-hub"><span class="ann-role">Coach &middot; Profile &amp; Settings</span>
+    <h3>Account access</h3>
+    <p>Unchanged (shared with the athlete side; shown as the coach).</p>
+    <p class="note">Copy of <code>shared/account-access.html#s-hub</code> under the rework look. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-reauth"><span class="ann-role">Coach &middot; Profile &amp; Settings</span>
+    <h3>Re-auth</h3>
+    <p>Unchanged (shared with the athlete side; shown as the coach).</p>
+    <p class="note">Copy of <code>shared/account-access.html#s-reauth</code> under the rework look. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-phone-new"><span class="ann-role">Coach &middot; Profile &amp; Settings</span>
+    <h3>Phone · new</h3>
+    <p>Unchanged (shared with the athlete side; shown as the coach).</p>
+    <p class="note">Copy of <code>shared/account-access.html#s-phone-new</code> under the rework look. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-phone-otp"><span class="ann-role">Coach &middot; Profile &amp; Settings</span>
+    <h3>Phone · code</h3>
+    <p>Unchanged (shared with the athlete side; shown as the coach).</p>
+    <p class="note">Copy of <code>shared/account-access.html#s-phone-otp</code> under the rework look. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-country-picker"><span class="ann-role">Coach &middot; Profile &amp; Settings</span>
+    <h3>Country</h3>
+    <p>Unchanged (shared with the athlete side; shown as the coach).</p>
+    <p class="note">Copy of <code>shared/account-access.html#s-country-picker</code> under the rework look. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-email-subhub"><span class="ann-role">Coach &middot; Profile &amp; Settings</span>
+    <h3>Email</h3>
+    <p>Unchanged (shared with the athlete side; shown as the coach).</p>
+    <p class="note">Copy of <code>shared/account-access.html#s-email-subhub</code> under the rework look. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-email-new"><span class="ann-role">Coach &middot; Profile &amp; Settings</span>
+    <h3>Email · new</h3>
+    <p>Unchanged (shared with the athlete side; shown as the coach).</p>
+    <p class="note">Copy of <code>shared/account-access.html#s-email-new</code> under the rework look. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-email-check"><span class="ann-role">Coach &middot; Profile &amp; Settings</span>
+    <h3>Email · check</h3>
+    <p>Unchanged (shared with the athlete side; shown as the coach).</p>
+    <p class="note">Copy of <code>shared/account-access.html#s-email-check</code> under the rework look. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-email-loading"><span class="ann-role">Coach &middot; Profile &amp; Settings</span>
+    <h3>Email · loading</h3>
+    <p>Unchanged (shared with the athlete side; shown as the coach).</p>
+    <p class="note">Copy of <code>shared/account-access.html#s-email-loading</code> under the rework look. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-email-expired"><span class="ann-role">Coach &middot; Profile &amp; Settings</span>
+    <h3>Email · expired</h3>
+    <p>Unchanged (shared with the athlete side; shown as the coach).</p>
+    <p class="note">Copy of <code>shared/account-access.html#s-email-expired</code> under the rework look. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-password-new"><span class="ann-role">Coach &middot; Profile &amp; Settings</span>
+    <h3>Password</h3>
+    <p>Unchanged (shared with the athlete side; shown as the coach).</p>
+    <p class="note">Copy of <code>shared/account-access.html#s-password-new</code> under the rework look. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-delete-info"><span class="ann-role">Coach &middot; Profile &amp; Settings</span>
+    <h3>Delete · info</h3>
+    <p>Unchanged (shared with the athlete side; shown as the coach).</p>
+    <p class="note">Copy of <code>shared/account-access.html#s-delete-info</code> under the rework look. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-delete-blockers"><span class="ann-role">Coach &middot; Profile &amp; Settings</span>
+    <h3>Delete · blockers</h3>
+    <p>Unchanged (shared with the athlete side; shown as the coach).</p>
+    <p class="note">Copy of <code>shared/account-access.html#s-delete-blockers</code> under the rework look. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-delete-loading"><span class="ann-role">Coach &middot; Profile &amp; Settings</span>
+    <h3>Delete · loading</h3>
+    <p>Unchanged (shared with the athlete side; shown as the coach).</p>
+    <p class="note">Copy of <code>shared/account-access.html#s-delete-loading</code> under the rework look. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-delete-done"><span class="ann-role">Coach &middot; Profile &amp; Settings</span>
+    <h3>Delete · done</h3>
+    <p>Unchanged (shared with the athlete side; shown as the coach).</p>
+    <p class="note">Copy of <code>shared/account-access.html#s-delete-done</code> under the rework look. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-role-remove"><span class="ann-role">Coach &middot; Profile &amp; Settings</span>
+    <h3>Remove role</h3>
+    <p>Unchanged (shared with the athlete side; shown as the coach).</p>
+    <p class="note">Copy of <code>shared/account-access.html#s-role-remove</code> under the rework look. The source stays canon &mdash; change it there, then re-copy.</p>
+  </div>
+  <div class="ann" id="ann-s-contact-support"><span class="ann-role">Coach &middot; Profile &amp; Settings</span>
+    <h3>Contact support</h3>
+    <p>Unchanged (shared with the athlete side; shown as the coach).</p>
+    <p class="note">Copy of <code>shared/account-access.html#s-contact-support</code> under the rework look. The source stays canon &mdash; change it there, then re-copy.</p>
   </div>
 </div>
 
@@ -7381,6 +9393,169 @@ function validateAppleConnect() {
     var sn = document.getElementById('rf-snackbar'), t = document.getElementById('rf-snack-text');
     t.textContent = msg; sn.classList.add('show');
     clearTimeout(_rfSnackTimer); _rfSnackTimer = setTimeout(function () { sn.classList.remove('show'); }, 1600);
+  }
+
+// ==== copied from ../shared/account-access.html ====
+  let disconnectProvider = 'google';
+  let reauthContext = 'email';
+  function setPhoneMode(mode, btn) {
+    go('s-phone-new', null);
+    const p = document.getElementById('s-phone-new');
+    p.classList.remove('pn-change', 'pn-add', 'pn-invalid');
+    p.classList.add('pn-' + mode);
+    // Sync annotation state-toggle buttons. `taken` removed 2026-05-11 — phone is non-unique.
+    document.querySelectorAll('#ann-s-phone-new .state-toggle button').forEach(b => b.classList.remove('active'));
+    const mapAnn = { change: 0, add: 1, invalid: 2 };
+    const annBtns = document.querySelectorAll('#ann-s-phone-new .state-toggle button');
+    if (annBtns[mapAnn[mode]]) annBtns[mapAnn[mode]].classList.add('active');
+    // Sidebar button
+    if (btn) {
+      document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  }
+  function setOtpMode(mode, btn) {
+    go('s-phone-otp', null);
+    const p = document.getElementById('s-phone-otp');
+    p.classList.remove('ot-idle', 'ot-error', 'ot-expired');
+    p.classList.add('ot-' + mode);
+    document.querySelectorAll('#ann-s-phone-otp .state-toggle button').forEach(b => b.classList.remove('active'));
+    const mapAnn = { idle: 0, error: 1, expired: 2 };
+    const annBtns = document.querySelectorAll('#ann-s-phone-otp .state-toggle button');
+    if (annBtns[mapAnn[mode]]) annBtns[mapAnn[mode]].classList.add('active');
+    if (btn) {
+      document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  }
+  function closeLastMethodSheet() {
+    document.getElementById('last-method-sheet').classList.remove('visible');
+    document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+    const hubAnn = document.getElementById('ann-s-hub');
+    if (hubAnn) hubAnn.classList.add('active');
+  }
+  function showToast(kind) {
+    const t = document.getElementById('aa-toast');
+    const title = document.getElementById('aa-toast-title');
+    const body = document.getElementById('aa-toast-body');
+    if (kind === 'phone') {
+      title.textContent = 'Phone updated';
+      body.textContent = 'Your new number is +995 511 200 300.';
+    } else if (kind === 'email') {
+      title.textContent = 'Email updated';
+      body.textContent = 'Your new email is new.email@gmail.com.';
+    } else if (kind === 'password') {
+      title.textContent = 'Password updated';
+      body.textContent = "You're signed out on other devices.";
+    } else if (kind === 'connect-apple') {
+      title.textContent = 'Apple connected';
+      body.textContent = 'You can now sign in with Apple.';
+    } else if (kind === 'connect-google') {
+      title.textContent = 'Google connected';
+      body.textContent = 'You can now sign in with Google.';
+    } else if (kind === 'disconnect-apple') {
+      title.textContent = 'Apple disconnected';
+      body.textContent = 'You can reconnect it any time.';
+    } else if (kind === 'disconnect-google') {
+      title.textContent = 'Google disconnected';
+      body.textContent = 'You can reconnect it any time.';
+    }
+    t.classList.add('visible');
+    setTimeout(() => t.classList.remove('visible'), 3500);
+  }
+  function simulateConnect(provider) {
+    // In real app: triggers native Apple/Google Sign-In sheet
+    // Prototype: straight to toast
+    showToast('connect-' + provider);
+  }
+  function openDisconnectSheet(provider) {
+    disconnectProvider = provider;
+    const name = provider === 'apple' ? 'Apple' : 'Google';
+    document.getElementById('dc-provider').textContent = name;
+    document.querySelectorAll('.dc-provider-txt').forEach(el => el.textContent = name);
+    document.getElementById('dc-icon-apple').style.display = provider === 'apple' ? 'block' : 'none';
+    document.getElementById('dc-icon-google').style.display = provider === 'google' ? 'block' : 'none';
+    document.getElementById('disconnect-sheet').classList.add('visible');
+  }
+  function closeDisconnectSheet() {
+    document.getElementById('disconnect-sheet').classList.remove('visible');
+  }
+  function confirmDisconnect() {
+    closeDisconnectSheet();
+    // Real app: here would re-auth if not last method, then API call
+    showToast('disconnect-' + disconnectProvider);
+  }
+  function copySupportEmail() {
+    try { navigator.clipboard && navigator.clipboard.writeText('support@321.fit'); } catch(e) {}
+    const sn = document.getElementById('sup-snackbar');
+    sn.classList.add('visible');
+    setTimeout(() => sn.classList.remove('visible'), 2200);
+  }
+  function openDeleteConfirm() {
+    document.getElementById('delete-confirm-sheet').classList.add('visible');
+    document.querySelectorAll('.ann').forEach(a => a.classList.remove('active'));
+    const ann = document.getElementById('ann-delete-confirm-sheet');
+    if (ann) ann.classList.add('active');
+  }
+  function closeDeleteConfirm() {
+    document.getElementById('delete-confirm-sheet').classList.remove('visible');
+  }
+  function closeDisconnectBlock() {
+    document.getElementById('disconnect-block-sheet').classList.remove('visible');
+  }
+  function setPwMode(mode, btn) {
+    go('s-password-new', null);
+    const p = document.getElementById('s-password-new');
+    p.classList.remove('pw-idle', 'pw-typing', 'pw-weak', 'pw-mismatch', 'pw-same');
+    p.classList.add('pw-' + mode);
+    document.querySelectorAll('#ann-s-password-new .state-toggle button').forEach(b => b.classList.remove('active'));
+    const mapAnn = { idle: 0, typing: 1, weak: 2, mismatch: 3, same: 4 };
+    const annBtns = document.querySelectorAll('#ann-s-password-new .state-toggle button');
+    if (annBtns[mapAnn[mode]]) annBtns[mapAnn[mode]].classList.add('active');
+    if (btn) {
+      document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  }
+  function openReauthFor(ctx) {
+    reauthContext = ctx;
+    go('s-reauth', null);
+    // sync annotation subtitle. Phone removed 2026-05-11 — phone is no longer a re-auth context.
+    const subEl = document.querySelector('#s-reauth .reauth-sub');
+    if (subEl) {
+      if (ctx === 'email') subEl.innerHTML = "To change your email, confirm with one of your active sign-in methods.";
+      else if (ctx === 'password') subEl.innerHTML = "To change your password, confirm with one of your active sign-in methods.";
+      else if (ctx === 'delete') subEl.innerHTML = "To delete your account, confirm with one of your active sign-in methods.";
+    }
+  }
+  function reauthProceed() {
+    if (reauthContext === 'email') setEmailMode('change', null);
+    else if (reauthContext === 'password') setPwMode('idle', null);
+    else if (reauthContext === 'delete') openDeleteConfirm();
+  }
+  function pickCountry(rowEl, flag, name, code) {
+    // Update selected state in picker
+    document.querySelectorAll('#s-country-picker .cp-row').forEach(r => r.classList.remove('selected'));
+    rowEl.classList.add('selected');
+    // Update all phone-field country displays
+    document.querySelectorAll('.pf-country-flag').forEach(el => el.innerHTML = flag);
+    document.querySelectorAll('.pf-country-code').forEach(el => el.textContent = code);
+    // Go back to phone entry
+    setPhoneMode('change', null);
+  }
+  function setEmailMode(mode, btn) {
+    go('s-email-new', null);
+    const p = document.getElementById('s-email-new');
+    p.classList.remove('em-change', 'em-add', 'em-taken', 'em-invalid');
+    p.classList.add('em-' + mode);
+    document.querySelectorAll('#ann-s-email-new .state-toggle button').forEach(b => b.classList.remove('active'));
+    const mapAnn = { change: 0, add: 1, taken: 2, invalid: 3 };
+    const annBtns = document.querySelectorAll('#ann-s-email-new .state-toggle button');
+    if (annBtns[mapAnn[mode]]) annBtns[mapAnn[mode]].classList.add('active');
+    if (btn) {
+      document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
   }
 
 try { setLook(localStorage.getItem('cd-look') || 'tinted'); setCta(localStorage.getItem('cd-cta') || 'white'); } catch (e) { setLook('tinted'); setCta('white'); }
