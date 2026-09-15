@@ -632,6 +632,25 @@
   /* anchor widget: the date row sits above the ring, so the ring needs the same air below it —
      top = date row (≈20px) + its 10px gap; bottom matches that, not the panel's default 8px */
   .cd-w--anchor { margin-top: 6px; padding: 12px 14px 12px; }
+  /* next session inside the widget: a teal-tinted row, hairline, same avatar grammar */
+  .cd-w-next { display: none; align-items: center; gap: 12px; margin-top: 8px; padding: 12px 12px 12px 12px; border-radius: 16px; background: rgba(5,224,166,0.10); box-shadow: inset 0 0 0 1px rgba(5,224,166,0.35); color: var(--fit-text-primary); }
+  .cd-w-next svg { color: var(--fit-teal-500); }
+  .cd-w-next-when { font-size: 15px; font-weight: 600; color: var(--fit-teal-500); }
+  .cd-w-next-what { font-size: 13px; color: var(--fit-text-secondary); margin-top: 2px; }
+  #s-draft-dash.d-quiet .cd-w-next { background: rgba(255,255,255,0.05); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.10); }
+  #s-draft-dash.d-quiet .cd-w-next-when, #s-draft-dash.d-quiet .cd-w-next svg { color: var(--fit-text-secondary); }
+  #s-draft-dash.d-anchor-widgetnext:not(.d-idle):not(.d-ready):not(.d-loading) .cd-d-anchor-widget { display: block; padding: 4px 0 2px; }
+  #s-draft-dash.d-anchor-widgetnext .cd-w--anchor .cd-w-next { display: flex; }
+  #s-draft-dash.d-anchor-widgetnext .cd-w--anchor .cd-w-top { padding-bottom: 10px; }
+  #s-draft-dash.d-anchor-widgetnext .cd-w--anchor { padding-bottom: 12px; }
+  #s-draft-dash.d-anchor-widgetnext .cd-d-sec-ring, #s-draft-dash.d-anchor-widgetnext .cd-d-sec-next { display: none; }
+  #s-draft-dash.d-anchor-widgetnext.d-idle .cd-d-sec-next, #s-draft-dash.d-anchor-widgetnext.d-ready .cd-d-sec-next { display: block; }
+  #s-draft-dash.d-anchor-widgetnext .cd-w--anchor .cd-w-bars, #s-draft-dash.d-anchor-widgetnext .cd-w--anchor .cd-w-line, #s-draft-dash.d-anchor-widgetnext .cd-w--anchor .cd-w-link { display: none; }
+  #s-draft-dash.d-anchor-widgetnext:not(.d-idle):not(.d-ready) .cd-d-hello { display: none; }
+  #s-draft-dash.d-anchor-widgetnext .cd-j-acts { padding-top: 18px; }
+  #s-draft-dash.d-widget-ring.d-anchor-widgetnext:not(.d-ready) .cd-d-sec-money { display: block; }
+  /* the date anchor: no greeting either */
+  #s-draft-dash.d-anchor-day:not(.d-idle):not(.d-ready) .cd-d-hello { display: none; }
   .cd-w--anchor .cd-w-top { padding: 4px 0 30px; }
   /* no greeting in this mode — the widget is the first thing; the day sits in its corner */
   #s-draft-dash.d-anchor-widget:not(.d-idle):not(.d-ready) .cd-d-hello { display: none; }
@@ -1261,12 +1280,6 @@
          name, one line — and Home had nothing of that weight. Option "person": the anchor
          is the person you are about to meet, in exactly the identity grammar of Client
          Detail. Option "day": the anchor is today, calendar-style. -->
-    <div class="cd-i-id cd-in cd-d-anchor cd-d-anchor-person cd-press" onclick="dOpenEvent()">
-      <div class="cd-i-av">SM</div>
-      <div class="cd-d-anchor-when"><span class="cd-d-when-day">In 45 min &middot; 10:30</span><span class="cd-d-when-quiet">Tomorrow &middot; 10:30</span></div>
-      <div class="cd-i-name">Sarah Mitchell</div>
-      <div class="cd-i-sub">Tennis &middot; 60 min &middot; Court A</div>
-    </div>
     <div class="cd-i-id cd-in cd-d-anchor cd-d-anchor-day">
       <div class="cd-d-day-num">23</div>
       <div class="cd-i-name">Wednesday</div>
@@ -1293,6 +1306,16 @@
         </div>
         <div class="cd-w-line">Two bookings ahead of last week &mdash; 3 open requests could fill Thursday.</div>
         <div class="cd-w-link">See earnings <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        <!-- Option: the next session lives INSIDE the widget as a tinted row — the day and its
+             next thing are one object. Stops the tap from bubbling to the earnings link. -->
+        <div class="cd-w-next cd-press" onclick="event.stopPropagation();dOpenEvent()">
+          <div class="cd-d-av">SM</div>
+          <div style="flex:1;min-width:0;">
+            <div class="cd-w-next-when"><span class="cd-d-when-day">Next in 45 min &middot; 10:30</span><span class="cd-d-when-quiet">Next tomorrow &middot; 10:30</span></div>
+            <div class="cd-w-next-what">Sarah Mitchell &middot; Tennis &middot; Court A</div>
+          </div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
       </div>
     </div>
     <div class="cd-in cd-d-anchor cd-d-anchor-next">
@@ -3577,15 +3600,9 @@
     </div>
     <div class="state-toggle" data-d="anchor" style="margin-bottom:6px;">
       <span style="font-size:12px;color:var(--fit-gray-500);padding:4px 8px 4px 10px;">Anchor</span>
-      <button data-v="person" onclick="dAnchor('person',this)">The next person</button>
       <button class="active" data-v="widget" onclick="dAnchor('widget',this)">The day widget</button>
+      <button data-v="widgetnext" onclick="dAnchor('widgetnext',this)">Widget + next inside</button>
       <button data-v="day" onclick="dAnchor('day',this)">The date</button>
-      <button data-v="none" onclick="dAnchor('none',this)">None (card only)</button>
-    </div>
-    <div class="state-toggle" data-d="widget" style="margin-bottom:6px;">
-      <span style="font-size:12px;color:var(--fit-gray-500);padding:4px 8px 4px 10px;">Widget</span>
-      <button class="active" data-v="ring" onclick="dWidget('ring',this)">Your day (ring)</button>
-      <button data-v="money" onclick="dWidget('money',this)">Money only</button>
     </div>
     <div class="bet"><strong>Bet:</strong> the shipped Home (<a href="dashboard.html#s-dashboard">dashboard.html</a>) already knows everything it needs to say; it says it as six labelled sections in the spec's order, five of them identical cards. Ordered by the coach's morning &mdash; <strong>who you are today &rarr; what you owe an answer to &rarr; what is next &rarr; the money &rarr; the day &rarr; the signals</strong> &mdash; and with each block in its own grammar, the same content is one screen instead of two.</div>
     <h3 style="font-size:16px;margin-top:18px;">What changed and why</h3>
@@ -3678,16 +3695,10 @@ function showClientSnack(m) { showSnack(m); }
 function toastStub(m) { showSnack(m); }
 // Home states — annotation toggles
 var D_STATES = ['zero', 'quiet', 'idle', 'ready', 'hidden', 'loading'];
-function dWidget(name, btn) {
-  var el = document.getElementById('s-draft-dash');
-  el.classList.remove('d-widget-ring'); if (name === 'ring') el.classList.add('d-widget-ring');
-  var host = document.querySelector('.state-toggle[data-d="widget"]');
-  host.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); });
-  var hit = btn || host.querySelector('button[data-v="' + name + '"]'); if (hit) hit.classList.add('active');
-}
+function dWidget(name) { document.getElementById('s-draft-dash').classList.toggle('d-widget-ring', name === 'ring'); }
 function dAnchor(name, btn) {
   var el = document.getElementById('s-draft-dash');
-  el.classList.remove('d-anchor-person', 'd-anchor-day', 'd-anchor-widget'); if (name !== 'none') el.classList.add('d-anchor-' + name);
+  el.classList.remove('d-anchor-day', 'd-anchor-widget', 'd-anchor-widgetnext'); if (name !== 'none') el.classList.add('d-anchor-' + name);
   var host = document.querySelector('.state-toggle[data-d="anchor"]');
   host.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); });
   var hit = btn || host.querySelector('button[data-v="' + name + '"]'); if (hit) hit.classList.add('active');
