@@ -3278,7 +3278,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-clients",
-          "hash": "971806f0c187",
+          "hash": "f19ec58a4079",
           "title": "Clients, placed",
           "inApp": "",
           "status": "proposal",
@@ -3308,7 +3308,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-archived",
-          "hash": "227283815208",
+          "hash": "0b7b7043d78f",
           "title": "↳ Archived & Blocked",
           "inApp": "Archived & Blocked",
           "status": "proposal",
@@ -3327,7 +3327,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-group",
-          "hash": "4577e031eb5e",
+          "hash": "b9e05b420fad",
           "title": "↳ Group",
           "inApp": "",
           "status": "proposal",
@@ -3345,18 +3345,75 @@ window.FIT_BOARD = {
           "order": 1
         },
         {
-          "id": "s-import-contacts",
-          "hash": "22be1edda20c",
-          "title": "↳ Import contacts",
-          "inApp": "Import contacts",
+          "id": "s-draft-group-schedule",
+          "hash": "d644e0d684ef",
+          "title": "↳ Group · all dates",
+          "inApp": "Morning · schedule",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
-          "note": "From + and from the fresh-coach card. Unchanged.",
+          "note": "From See all N dates. Series first, then upcoming by month with a date tile per row and occupancy on the right; chips filter by series (the one place chips filter — they are facets of one list, not doors).",
           "external": [],
           "shots": [
             {
-              "file": "coach-clients-drafts__s-import-contacts.webp",
+              "file": "coach-clients-drafts__s-draft-group-schedule.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 0
+        },
+        {
+          "id": "s-draft-group-add",
+          "hash": "90cffc738a0c",
+          "title": "↳ Group · add clients",
+          "inApp": "Add to Morning",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From the Add circle. Picker rows = the Clients-list row with a check; members already in the group are shown, muted, not hidden. Footer counts the selection.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients-drafts__s-draft-group-add.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 1
+        },
+        {
+          "id": "s-draft-group-rename",
+          "hash": "98c1b08cfc75",
+          "title": "↳ Group · rename",
+          "inApp": "Group name",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From ⋯. Cancel / Save header, one field, counter in the hint.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients-drafts__s-draft-group-rename.webp",
+              "label": ""
+            }
+          ],
+          "level": 2,
+          "order": 2
+        },
+        {
+          "id": "s-draft-group-create",
+          "hash": "6cf572ab3b65",
+          "title": "↳ Create group",
+          "inApp": "New group",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "From the dashed row on the Groups pane. Name field + the same picker; blocked clients shown muted with the reason.",
+          "external": [],
+          "shots": [
+            {
+              "file": "coach-clients-drafts__s-draft-group-create.webp",
               "label": ""
             }
           ],
@@ -3364,38 +3421,38 @@ window.FIT_BOARD = {
           "order": 2
         },
         {
-          "id": "s-import-done",
-          "hash": "e9832286f815",
-          "title": "↳ Import done",
-          "inApp": "",
+          "id": "s-draft-smart",
+          "hash": "0c08c5b62bee",
+          "title": "↳ Smart group (from a chip)",
+          "inApp": "Owes money",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
-          "note": "Unchanged.",
+          "note": "From a Needs you chip. Money-widget hero (owed · by whom · oldest), rows &rarr; the client’s Owed screen. No Mark paid per row — a settle is per entity, it lives in the cash drawer behind Owed. No chat here on purpose (c",
           "external": [],
           "shots": [
             {
-              "file": "coach-clients-drafts__s-import-done.webp",
+              "file": "coach-clients-drafts__s-draft-smart.webp",
               "label": ""
             }
           ],
           "orphan": true,
-          "level": 2,
+          "level": 3,
           "order": 0
         },
         {
-          "id": "s-create-client",
-          "hash": "208dedf70590",
-          "title": "↳ Create client",
-          "inApp": "New client",
+          "id": "s-draft-import",
+          "hash": "79e763e95d01",
+          "title": "↳ Import contacts",
+          "inApp": "Import contacts",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
-          "note": "From + &rarr; Create profile. Unchanged.",
+          "note": "From + and the fresh-coach card. Same picker grammar; badges say what happens (On 321Fit connects instantly, No phone = CRM only), already-clients muted.",
           "external": [],
           "shots": [
             {
-              "file": "coach-clients-drafts__s-create-client.webp",
+              "file": "coach-clients-drafts__s-draft-import.webp",
               "label": ""
             }
           ],
@@ -3403,38 +3460,18 @@ window.FIT_BOARD = {
           "order": 3
         },
         {
-          "id": "s-group-smart",
-          "hash": "f07a2b34b4d8",
-          "title": "↳ Smart group (from a chip)",
-          "inApp": "Owes money",
+          "id": "s-draft-create-client",
+          "hash": "3e0baa9e5025",
+          "title": "↳ Create client",
+          "inApp": "New client",
           "status": "proposal",
           "theme": "dark",
           "entry": false,
-          "note": "From a Needs you chip — the computed list (owes money / inactive / packs low / not in app / new). Unchanged.",
+          "note": "From + &rarr; Create profile. The form grammar for the tinted canvas: sentence-case label, optional as a quiet suffix, alpha input panel, hint under the field, selector rows carry a plate + chevron.",
           "external": [],
           "shots": [
             {
-              "file": "coach-clients-drafts__s-group-smart.webp",
-              "label": ""
-            }
-          ],
-          "orphan": true,
-          "level": 2,
-          "order": 1
-        },
-        {
-          "id": "s-group-create",
-          "hash": "24bcc37bb494",
-          "title": "↳ Create group",
-          "inApp": "New group",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "Unchanged.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-clients-drafts__s-group-create.webp",
+              "file": "coach-clients-drafts__s-draft-create-client.webp",
               "label": ""
             }
           ],
@@ -3450,7 +3487,7 @@ window.FIT_BOARD = {
         },
         {
           "from": "s-draft-clients",
-          "to": "s-import-contacts",
+          "to": "s-draft-import",
           "back": false
         },
         {
@@ -3460,12 +3497,12 @@ window.FIT_BOARD = {
         },
         {
           "from": "s-draft-clients",
-          "to": "s-group-create",
+          "to": "s-draft-group-create",
           "back": false
         },
         {
           "from": "s-draft-clients",
-          "to": "s-create-client",
+          "to": "s-draft-create-client",
           "back": false
         },
         {
@@ -3479,12 +3516,52 @@ window.FIT_BOARD = {
           "back": true
         },
         {
-          "from": "s-import-contacts",
+          "from": "s-draft-group",
+          "to": "s-draft-group-add",
+          "back": false
+        },
+        {
+          "from": "s-draft-group",
+          "to": "s-draft-group-schedule",
+          "back": false
+        },
+        {
+          "from": "s-draft-group",
+          "to": "s-draft-group-rename",
+          "back": false
+        },
+        {
+          "from": "s-draft-group-schedule",
+          "to": "s-draft-group",
+          "back": true
+        },
+        {
+          "from": "s-draft-group-add",
+          "to": "s-draft-group",
+          "back": true
+        },
+        {
+          "from": "s-draft-group-rename",
+          "to": "s-draft-group",
+          "back": true
+        },
+        {
+          "from": "s-draft-group-create",
           "to": "s-draft-clients",
           "back": true
         },
         {
-          "from": "s-import-done",
+          "from": "s-draft-smart",
+          "to": "s-draft-clients",
+          "back": true
+        },
+        {
+          "from": "s-draft-import",
+          "to": "s-draft-clients",
+          "back": true
+        },
+        {
+          "from": "s-draft-create-client",
           "to": "s-draft-clients",
           "back": true
         }

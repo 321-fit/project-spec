@@ -610,7 +610,8 @@
   .cd-s-play { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.92); color: #12161a; display: flex; align-items: center; justify-content: center; z-index: 1; }
   .cd-s-play svg { width: 18px; height: 18px; margin-left: 2px; }
   .cd-s-dur { position: absolute; right: 10px; bottom: 8px; z-index: 1; font-size: 12px; font-weight: 600; color: #fff; }
-  .cd-s-poster--none { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--fit-text-tertiary); font-size: 12px; box-shadow: inset 0 0 0 1px var(--fit-divider); }
+  .cd-s-poster--none { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--fit-text-tertiary); font-size: 12px; background: transparent; box-shadow: inset 0 0 0 1px var(--fit-divider); }
+  .fit-dark.k-alpha .cd-s-poster--none { background: transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14); }
   .cd-s-poster--none::after { display: none; }
   .cd-s-poster--none svg { width: 22px; height: 22px; }
   .fit-light .cd-s-poster { box-shadow: 0 8px 26px rgba(0,0,0,0.07); background-color: var(--fit-white); }
@@ -697,6 +698,44 @@
   #s-draft-group.g-none .cd-gr-sec-next .cd-i-next, #s-draft-group.g-none .cd-gr-sec-sched, #s-draft-group.g-none .cd-gr-need { display: none; }
   #s-draft-group.g-none .cd-gr-sec-next .cd-i-empty { display: block; }
   #s-draft-group.g-none .cd-j-next-panel { outline: none; }
+  /* --- forms on the tinted canvas (cd-f-*) --- */
+  .cd-f { padding: 8px 16px 22px; }
+  .cd-f-field { margin-bottom: 16px; }
+  .cd-f-label { font-size: 13px; font-weight: 600; color: var(--fit-text-secondary); margin-bottom: 8px; }
+  .cd-f-label span { font-weight: 400; color: var(--fit-text-tertiary); margin-left: 4px; }
+  .cd-f-input { display: flex; align-items: center; gap: 10px; min-height: 50px; padding: 0 16px; border-radius: 14px; background: var(--fit-surface-high); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); font-size: 16px; color: var(--fit-text-primary); }
+  .cd-f-input:focus-within { box-shadow: inset 0 0 0 1px var(--fit-teal-500); }
+  .cd-f-input input, .cd-f-input textarea { flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-family: var(--fit-font); font-size: 16px; color: var(--fit-text-primary); }
+  .cd-f-input input::placeholder, .cd-f-input textarea::placeholder { color: var(--fit-text-placeholder); }
+  .cd-f-area { padding: 12px 16px; align-items: flex-start; }
+  .cd-f-area textarea { resize: none; line-height: 1.4; }
+  .cd-f-hint { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; line-height: 1.45; color: var(--fit-text-tertiary); margin-top: 6px; }
+  .cd-f-count { flex-shrink: 0; }
+  .cd-f-link { font-family: var(--fit-font); font-size: 15px; font-weight: 500; color: var(--fit-teal-500); background: transparent; border: none; cursor: pointer; padding: 0; }
+  .cd-f-av { position: relative; width: 84px; height: 84px; }
+  .cd-f-av > svg { width: 34px; height: 34px; color: var(--fit-text-tertiary); }
+  .cd-f-av-edit { position: absolute; right: -2px; bottom: -2px; width: 28px; height: 28px; border-radius: 50%; background: var(--fit-gray-800); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px var(--fit-screen-bg); }
+  .cd-f-av-edit svg { width: 13px; height: 13px; color: var(--fit-text-primary); }
+  .fit-dark.k-alpha .cd-f-input { background: rgba(0,0,0,0.28); }
+  .fit-light .cd-f-input { background: var(--fit-white); box-shadow: 0 8px 26px rgba(0,0,0,0.07); }
+  /* pickers: a check circle on the row; off = cannot be picked, shown muted with the reason */
+  .cd-pick-box { width: 22px; height: 22px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--fit-gray-500); flex-shrink: 0; position: relative; }
+  .cd-pick-row.on .cd-pick-box { background: var(--fit-teal-500); box-shadow: none; }
+  .cd-pick-row.on .cd-pick-box::after { content: ""; position: absolute; left: 7px; top: 3px; width: 6px; height: 11px; border: solid #06251f; border-width: 0 2.2px 2.2px 0; transform: rotate(45deg); }
+  .cd-pick-row.off { cursor: default; } .cd-pick-row.off .cd-pick-box { opacity: 0.35; }
+  .cd-pick-row.hide { display: none; }
+  /* group schedule */
+  .cd-gs-date { width: 40px; text-align: center; flex-shrink: 0; }
+  .cd-gs-date b { display: block; font-size: 18px; font-weight: 700; line-height: 1; color: var(--fit-text-primary); }
+  .cd-gs-date span { display: block; font-size: 11px; color: var(--fit-text-tertiary); margin-top: 2px; }
+  .cd-gs-row .cd-g-rv small { display: inline; font-size: 12px; color: var(--fit-text-tertiary); margin-left: 3px; }
+  .cd-gs-row.hide { display: none; }
+  .cd-j-chip.selected { background: var(--fit-text-primary); color: var(--fit-screen-bg); }
+  .fit-dark.k-alpha .cd-j-chip.selected { background: #fff; color: #12161a; box-shadow: none; }
+  /* group edit mode: tap a row to remove it (whole row, tints red), Undo in the snackbar */
+  #s-draft-group.g-edit .cd-gr-member::after { content: "Remove"; margin-left: auto; font-size: 13px; font-weight: 500; color: var(--fit-red-400); flex-shrink: 0; }
+  #s-draft-group.g-edit .cd-gr-member.armed { background: rgba(240,92,91,0.12); }
+  .cd-gr-member.gone { opacity: 0; transform: translateX(-14px); transition: opacity 0.22s, transform 0.22s; }
   /* tab bar reservation */
   #s-draft-clients > .fit-phone-content { padding-bottom: 96px; }
   /* Groups pane inside the same screen: the segmented control swaps panes */
@@ -875,13 +914,15 @@
     </button>
   <div class="label">Clients flow</div>
   <button class="active" onclick="go('s-draft-clients',this)">Clients, placed</button>
-  <button onclick="go('s-group-smart',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Smart group (from a chip)</button>
+  <button onclick="go('s-draft-smart',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Smart group (from a chip)</button>
   <button onclick="go('s-draft-group',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Group</button>
-  <button onclick="go('s-group-create',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Create group</button>
+  <button onclick="go('s-draft-group-schedule',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Group &middot; all dates</button>
+  <button onclick="go('s-draft-group-add',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Group &middot; add clients</button>
+  <button onclick="go('s-draft-group-rename',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Group &middot; rename</button>
+  <button onclick="go('s-draft-group-create',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Create group</button>
   <button onclick="go('s-draft-archived',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Archived &amp; Blocked</button>
-  <button onclick="go('s-import-contacts',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Import contacts</button>
-  <button onclick="go('s-import-done',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Import done</button>
-  <button onclick="go('s-create-client',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Create client</button>
+  <button onclick="go('s-draft-import',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Import contacts</button>
+  <button onclick="go('s-draft-create-client',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Create client</button>
   </div>
   <div style="margin-top:auto;padding-top:12px;display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--fit-gray-700);flex-shrink:0;">
     <button style="flex:1;font-family:var(--fit-font);font-size:12px;font-weight:500;padding:8px 0;border:none;cursor:pointer;background:var(--fit-gray-700);color:var(--fit-white);" id="theme-dark" onclick="switchTheme('dark')">Dark</button>
@@ -984,7 +1025,7 @@
         <div class="cd-m-sub">Bring the people you already coach, or send a link to new ones.</div>
       </div>
       <div class="cd-c-empty-acts">
-        <button class="fit-btn fit-btn-secondary" onclick="go('s-import-contacts',document.querySelector('.sidebar button[onclick*=s-import-contacts]'))">Import contacts</button>
+        <button class="fit-btn fit-btn-secondary" onclick="go('s-draft-import',document.querySelector('.sidebar button[onclick*=s-draft-import]'))">Import contacts</button>
         <button class="fit-btn fit-btn-secondary" onclick="openInviteShare('single')">Invite by link</button>
       </div>
     </div>
@@ -1012,7 +1053,7 @@
         </div>
       </div>
       <div class="cd-in" style="padding-bottom:22px;">
-        <div class="cd-i-panel cd-j-tile-empty cd-press" style="margin-top:14px;" onclick="go('s-group-create',document.querySelector('.sidebar button[onclick*=s-group-create]'))">
+        <div class="cd-i-panel cd-j-tile-empty cd-press" style="margin-top:14px;" onclick="go('s-draft-group-create',document.querySelector('.sidebar button[onclick*=s-draft-group-create]'))">
           <div class="cd-g-row"><div class="cd-j-plate" style="width:40px;height:40px;border-radius:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div><div class="cd-g-rt"><div class="cd-g-r1">Create a group</div><div class="cd-g-r2">Pick people, name it &mdash; chat comes with it</div></div></div>
         </div>
       </div>
@@ -1033,12 +1074,12 @@
       <div style="font-size:18px;font-weight:600;margin-bottom:4px;">Add a client</div>
       <div style="font-size:14px;color:var(--fit-text-secondary);margin-bottom:18px;">How would you like to add them?</div>
 
-      <div class="add-client-row accent" data-a11y-id="coach.clients.add.import" onclick="document.getElementById('add-client-sheet').classList.remove('visible');impEnter();">
+      <div class="add-client-row accent" data-a11y-id="coach.clients.add.import" onclick="document.getElementById('add-client-sheet').classList.remove('visible');go('s-draft-import',document.querySelector('.sidebar button[onclick*=s-draft-import]'));">
         <svg class="aci" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18a4 4 0 00-8 0"/><circle cx="12" cy="9" r="3"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
         <div><div class="add-client-title">Import from contacts</div><div class="add-client-desc">Bulk-add from your phone book, invite in a tap</div></div>
       </div>
 
-      <div class="add-client-row" data-a11y-id="coach.clients.add.create" onclick="document.getElementById('add-client-sheet').classList.remove('visible');go('s-create-client',null);">
+      <div class="add-client-row" data-a11y-id="coach.clients.add.create" onclick="document.getElementById('add-client-sheet').classList.remove('visible');go('s-draft-create-client',document.querySelector('.sidebar button[onclick*=s-draft-create-client]'));">
         <svg class="aci" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/><path d="M20 8v6M23 11h-6"/></svg>
         <div><div class="add-client-title">Create profile</div><div class="add-client-desc">Add manually — track sessions &amp; cash</div></div>
       </div>
@@ -1175,7 +1216,7 @@
       <div class="fit-action-circles fit-action-circles--sm">
         <button class="fit-action-circle fit-action-circle--primary cd-press" onclick="location.href='invite.html?mode=schedule#s-invite-select'"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></i><span>Schedule</span></button>
         <button class="fit-action-circle cd-press" onclick="location.href='client-groups.html#s-group-chat'"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></i><span>Message</span><span class="cd-j-badge-n">2</span></button>
-        <button class="fit-action-circle cd-press" onclick="location.href='client-groups.html#s-group-add'"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg></i><span>Add</span></button>
+        <button class="fit-action-circle cd-press" onclick="go('s-draft-group-add',document.querySelector('.sidebar button[onclick*=s-draft-group-add]'))"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg></i><span>Add</span></button>
       </div>
     </div>
 
@@ -1220,7 +1261,7 @@
           <div class="cd-j-plate" style="width:40px;height:40px;border-radius:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
           <div class="cd-g-rt"><div class="cd-g-r1">Yoga Morning Flow</div><div class="cd-g-r2">One-off &middot; Sat, Apr 19 &middot; 10:00</div></div>
         </div>
-        <div class="cd-g-row cd-press" onclick="location.href='client-groups.html#s-group-schedule'">
+        <div class="cd-g-row cd-press" onclick="go('s-draft-group-schedule',document.querySelector('.sidebar button[onclick*=s-draft-group-schedule]'))">
           <div class="cd-g-rt"><div class="cd-g-r1" style="color:var(--fit-teal-500);font-size:15px;">See all 12 dates</div></div>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-text-tertiary);flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
         </div>
@@ -1229,27 +1270,28 @@
 
     <!-- Members: the point of the screen, never truncated. Rows = the Clients list row. -->
     <div class="cd-in" style="padding-bottom:22px;">
-      <div class="cd-i-sec">Members<span class="cd-gr-edit cd-press" onclick="location.href='client-groups.html#s-group-detail'">Edit</span></div>
+      <div class="cd-i-sec">Members<span class="cd-gr-edit cd-press" onclick="gEdit(this)">Edit</span></div>
       <div class="cd-i-panel">
-        <div class="cd-g-row cd-press" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">AK</div><div class="cd-g-rt"><div class="cd-g-r1">Anna Kowalski</div><div class="cd-g-r2 cd-c-next">Next &middot; Thu 10:00 &middot; Tennis</div></div></div>
-        <div class="cd-g-row cd-press" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">MS</div><div class="cd-g-rt"><div class="cd-g-r1">Mark Schmidt <span class="fit-badge fit-badge-danger">&euro;50 owed</span></div><div class="cd-g-r2">Last &middot; Apr 19 &middot; 8 sessions</div></div></div>
-        <div class="cd-g-row cd-press" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">LR</div><div class="cd-g-rt"><div class="cd-g-r1">Lena Roth <span class="fit-badge fit-badge-neutral">CRM</span></div><div class="cd-g-r2">Last &middot; Apr 10 &middot; 3 sessions</div></div></div>
-        <div class="cd-g-row cd-press" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">JD</div><div class="cd-g-rt"><div class="cd-g-r1">Julia Dent</div><div class="cd-g-r2">Last &middot; Apr 2 &middot; 5 sessions</div></div></div>
-        <div class="cd-g-row cd-press" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">SK</div><div class="cd-g-rt"><div class="cd-g-r1">Sara Kim</div><div class="cd-g-r2">Last &middot; Apr 17 &middot; 9 sessions</div></div></div>
-        <div class="cd-g-row cd-press" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">MV</div><div class="cd-g-rt"><div class="cd-g-r1">Marta Vega <span class="fit-badge fit-badge-neutral">CRM</span></div><div class="cd-g-r2">Last &middot; Mar 30 &middot; 4 sessions</div></div></div>
-        <div class="cd-g-row cd-press" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">TN</div><div class="cd-g-rt"><div class="cd-g-r1">Tom Novak</div><div class="cd-g-r2">Last &middot; Apr 18 &middot; 2 sessions</div></div></div>
-        <div class="cd-g-row cd-press" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av cd-ab-muted">PW</div><div class="cd-g-rt"><div class="cd-g-r1 cd-ab-dim">Paul Weber <span class="fit-badge fit-badge-neutral">Archived</span></div><div class="cd-g-r2">Skipped in group actions</div></div></div>
+        <div class="cd-g-row cd-press cd-gr-member" data-name="Anna Kowalski" onclick="gMemberTap(this)"><div class="cd-d-av">AK</div><div class="cd-g-rt"><div class="cd-g-r1">Anna Kowalski</div><div class="cd-g-r2 cd-c-next">Next &middot; Thu 10:00 &middot; Tennis</div></div></div>
+        <div class="cd-g-row cd-press cd-gr-member" data-name="Mark Schmidt" onclick="gMemberTap(this)"><div class="cd-d-av">MS</div><div class="cd-g-rt"><div class="cd-g-r1">Mark Schmidt <span class="fit-badge fit-badge-danger">&euro;50 owed</span></div><div class="cd-g-r2">Last &middot; Apr 19 &middot; 8 sessions</div></div></div>
+        <div class="cd-g-row cd-press cd-gr-member" data-name="Lena Roth" onclick="gMemberTap(this)"><div class="cd-d-av">LR</div><div class="cd-g-rt"><div class="cd-g-r1">Lena Roth <span class="fit-badge fit-badge-neutral">CRM</span></div><div class="cd-g-r2">Last &middot; Apr 10 &middot; 3 sessions</div></div></div>
+        <div class="cd-g-row cd-press cd-gr-member" data-name="Julia Dent" onclick="gMemberTap(this)"><div class="cd-d-av">JD</div><div class="cd-g-rt"><div class="cd-g-r1">Julia Dent</div><div class="cd-g-r2">Last &middot; Apr 2 &middot; 5 sessions</div></div></div>
+        <div class="cd-g-row cd-press cd-gr-member" data-name="Sara Kim" onclick="gMemberTap(this)"><div class="cd-d-av">SK</div><div class="cd-g-rt"><div class="cd-g-r1">Sara Kim</div><div class="cd-g-r2">Last &middot; Apr 17 &middot; 9 sessions</div></div></div>
+        <div class="cd-g-row cd-press cd-gr-member" data-name="Marta Vega" onclick="gMemberTap(this)"><div class="cd-d-av">MV</div><div class="cd-g-rt"><div class="cd-g-r1">Marta Vega <span class="fit-badge fit-badge-neutral">CRM</span></div><div class="cd-g-r2">Last &middot; Mar 30 &middot; 4 sessions</div></div></div>
+        <div class="cd-g-row cd-press cd-gr-member" data-name="Tom Novak" onclick="gMemberTap(this)"><div class="cd-d-av">TN</div><div class="cd-g-rt"><div class="cd-g-r1">Tom Novak</div><div class="cd-g-r2">Last &middot; Apr 18 &middot; 2 sessions</div></div></div>
+        <div class="cd-g-row cd-press cd-gr-member" data-name="Paul Weber" onclick="gMemberTap(this)"><div class="cd-d-av cd-ab-muted">PW</div><div class="cd-g-rt"><div class="cd-g-r1 cd-ab-dim">Paul Weber <span class="fit-badge fit-badge-neutral">Archived</span></div><div class="cd-g-r2">Skipped in group actions</div></div></div>
       </div>
     </div>
   </div>
 
   <div class="fit-context-menu-backdrop" id="cd-gr-menu-backdrop" onclick="gMenu(false)"></div>
   <div class="fit-context-menu" id="cd-gr-menu" style="top:56px;right:12px;">
-    <div class="fit-context-menu-item" onclick="gMenu(false);location.href='client-groups.html#s-group-detail'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Edit members</div>
-    <div class="fit-context-menu-item" onclick="gMenu(false);location.href='client-groups.html#s-group-rename'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Rename group</div>
+    <div class="fit-context-menu-item" onclick="gMenu(false);gEdit(document.querySelector('#s-draft-group .cd-gr-edit'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Edit members</div>
+    <div class="fit-context-menu-item" onclick="gMenu(false);go('s-draft-group-rename',document.querySelector('.sidebar button[onclick*=s-draft-group-rename]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Rename group</div>
     <div class="fit-context-menu-divider"></div>
     <div class="fit-context-menu-item destructive" onclick="gMenu(false)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4h8v2"/></svg>Delete group</div>
   </div>
+  <div class="fit-snackbar">Removed</div>
 <div class="srcc-cal fit-sheet-overlay" id="cal-group-sheet">
     <div class="fit-sheet" id="cal-group-sheet-body" data-event-state="planned" >
       <div class="fit-sheet-handle"></div>
@@ -1318,327 +1360,251 @@
   </div>
 </div>
 
-
-<!-- ==================== SCREENS REACHED FROM HOME — copies of the canon screens; source named on each block. ==================== -->
-
-
-<!-- ==== from coach/clients.html #s-import-contacts ==== -->
-<div class="srcc-cl fit-phone fit-dark imp-granted" id="s-import-contacts" data-status="proposal">
+<!-- ==================== GROUP · SCHEDULE (See all dates) ==================== -->
+<div class="fit-phone fit-dark cd-media" id="s-draft-group-schedule" data-status="proposal">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
-      <button class="fit-header-back" data-a11y-id="coach.import.back" onclick="go('s-draft-clients',document.querySelector('.sidebar button[onclick*=s-draft-clients]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Import contacts</span>
+      <button class="fit-header-back" onclick="go('s-draft-group',document.querySelector('.sidebar button[onclick*=s-draft-group]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Morning &middot; schedule</span>
     </div>
   </div>
   <div class="fit-phone-content">
-
-    <!-- GRANTED: contact list -->
-    <div data-imp-state="granted">
-      <div class="imp-search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        <input type="text" placeholder="Search contacts" oninput="impFilter(this.value)">
-      </div>
-      <div class="imp-selectall">
-        <button class="imp-selectall-link" data-a11y-id="coach.import.select-all" onclick="impSelectAll()">Select all</button>
-        <span class="imp-count" id="imp-avail-count">6 contacts</span>
-      </div>
-
-      <div id="imp-list">
-        <!-- selectable: phone -->
-        <div class="imp-row selected" data-imp="1" data-name="Marta Vega" onclick="impToggle(this)">
-          <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-          <span class="imp-av">MV</span>
-          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Marta Vega</span></span><span class="imp-sub">+49 170 555 0142</span></span>
+    <div class="cd-in" style="padding-top:4px;">
+      <div class="cd-i-sec">Repeats<span>2 series</span></div>
+      <div class="cd-i-panel">
+        <div class="cd-g-row cd-press" onclick="location.href='sessions.html#s-series'">
+          <div class="cd-j-plate" style="width:40px;height:40px;border-radius:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">HIIT Group Session</div><div class="cd-g-r2">Tue &amp; Thu &middot; 18:00 &middot; 17 dates in 60 days</div></div>
         </div>
-        <div class="imp-row selected" data-imp="1" data-name="Jon Schmidt" onclick="impToggle(this)">
-          <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-          <span class="imp-av">JS</span>
-          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Jon Schmidt</span></span><span class="imp-sub">+49 151 555 0188</span></span>
-        </div>
-        <div class="imp-row selected" data-imp="1" data-name="Tom Novak" onclick="impToggle(this)">
-          <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-          <span class="imp-av">TN</span>
-          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Tom Novak</span></span><span class="imp-sub">+49 160 555 0177</span></span>
-        </div>
-        <div class="imp-row selected" data-imp="1" data-name="Paul Weber" onclick="impToggle(this)">
-          <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-          <span class="imp-av">PW</span>
-          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Paul Weber</span></span><span class="imp-sub">+49 171 555 0103</span></span>
-        </div>
-        <!-- already a 321Fit user (phone matched) → selecting connects directly -->
-        <div class="imp-row" data-imp="1" data-app="1" data-name="Sara Kim" onclick="impToggle(this)">
-          <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-          <span class="imp-av">SK</span>
-          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Sara Kim</span><span class="imp-tag app">On 321Fit</span></span><span class="imp-sub">+1 415 555 0199 · connects instantly</span></span>
-        </div>
-        <!-- no phone/email-only → CRM only, can't invite -->
-        <div class="imp-row" data-imp="1" data-nophone="1" data-name="Lena Roth" onclick="impToggle(this)">
-          <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-          <span class="imp-av">LR</span>
-          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Lena Roth</span><span class="imp-tag nophone">No phone</span></span><span class="imp-sub">lena.roth@mail.com · CRM only, can't invite</span></span>
-        </div>
-        <!-- already a client → disabled -->
-        <div class="imp-row" data-imp="0" aria-disabled="true" data-name="Anna Kowalski">
-          <span class="imp-check"></span>
-          <span class="imp-av">AK</span>
-          <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Anna Kowalski</span><span class="imp-tag client">Already a client</span></span><span class="imp-sub">+48 600 555 010</span></span>
+        <div class="cd-g-row cd-press" onclick="location.href='sessions.html#s-series'">
+          <div class="cd-j-plate" style="width:40px;height:40px;border-radius:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
+          <div class="cd-g-rt"><div class="cd-g-r1">Yoga Morning Flow</div><div class="cd-g-r2">Sat &middot; 10:00 &middot; 9 dates in 60 days</div></div>
         </div>
       </div>
     </div>
-
-    <!-- LOADING: reading address book + dedup/match pass -->
-    <div data-imp-state="loading" style="padding-top:8px;">
-      <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 16px 16px;color:var(--fit-text-tertiary);font-size:13px;">
-        <span class="cal-spinner" style="width:16px;height:16px;border-width:2px;"></span>
-        Reading your contacts…
-      </div>
-      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:46%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
-      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:58%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
-      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:40%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
-      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:52%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
-      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:62%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
-      <div class="sk-card"><div class="sk-row"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:44%;"></div><div class="sk-line short sk-shimmer"></div></div></div></div>
+    <div class="cd-in">
+      <div class="cd-i-sec">Upcoming<span>26 dates</span></div>
+      <div class="cd-j-need"><div class="cd-j-chips cd-gs-filter">
+        <span class="cd-j-chip selected cd-press" onclick="gsFilter(this,'all')">All &middot; 26</span>
+        <span class="cd-j-chip cd-press" onclick="gsFilter(this,'hiit')">HIIT &middot; 17</span>
+        <span class="cd-j-chip cd-press" onclick="gsFilter(this,'yoga')">Yoga &middot; 9</span>
+        <span class="cd-j-chip cd-press" onclick="gsFilter(this,'one')">One-off &middot; 2</span>
+      </div></div>
     </div>
-
-    <!-- DENIED: permission explainer -->
-    <div data-imp-state="denied">
-      <div class="fit-empty-state" style="padding-top:64px;">
-        <svg class="fes-illus" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="12" y="6" width="40" height="52" rx="6"/><circle cx="32" cy="26" r="7"/><path d="M20 48a12 12 0 0124 0"/></svg>
-        <div class="fit-empty-state-title">Contacts access needed</div>
-        <div class="fit-empty-state-sub">Allow 321Fit to read your contacts to bulk-add<br>clients. We never message anyone without you.</div>
-        <button class="fit-btn fit-btn-primary" style="display:inline-flex;width:auto;height:44px;padding:0 24px;font-size:16px;" onclick="showClientSnack('Opening Settings…')">Open Settings</button>
+    <div class="cd-in" style="padding-bottom:22px;">
+      <div class="cd-i-sec" style="padding-top:8px;">April</div>
+      <div class="cd-i-panel">
+        <div class="cd-g-row cd-press cd-gs-row" data-k="hiit" onclick="openGroupSheet('planned')"><div class="cd-gs-date"><b>15</b><span>Tue</span></div><div class="cd-g-rt"><div class="cd-g-r1">HIIT Group Session</div><div class="cd-g-r2">18:00 &middot; GYM Bro</div></div><div class="cd-g-rv">3<small>of 10</small></div></div>
+        <div class="cd-g-row cd-press cd-gs-row" data-k="hiit" onclick="openGroupSheet('planned')"><div class="cd-gs-date"><b>17</b><span>Thu</span></div><div class="cd-g-rt"><div class="cd-g-r1">HIIT Group Session</div><div class="cd-g-r2">18:00 &middot; GYM Bro</div></div><div class="cd-g-rv">7<small>of 10</small></div></div>
+        <div class="cd-g-row cd-press cd-gs-row" data-k="yoga" onclick="openGroupSheet('planned')"><div class="cd-gs-date"><b>19</b><span>Sat</span></div><div class="cd-g-rt"><div class="cd-g-r1">Yoga Morning Flow</div><div class="cd-g-r2">10:00 &middot; GYM Bro</div></div><div class="cd-g-rv">8<small>of 15</small></div></div>
+        <div class="cd-g-row cd-press cd-gs-row" data-k="one" onclick="openGroupSheet('planned')"><div class="cd-gs-date"><b>20</b><span>Sun</span></div><div class="cd-g-rt"><div class="cd-g-r1">Beach run <span class="fit-badge fit-badge-neutral">One-off</span></div><div class="cd-g-r2">09:00 &middot; Vingis park</div></div><div class="cd-g-rv">6<small>of 20</small></div></div>
+        <div class="cd-g-row cd-press cd-gs-row" data-k="hiit" onclick="openGroupSheet('planned')"><div class="cd-gs-date"><b>22</b><span>Tue</span></div><div class="cd-g-rt"><div class="cd-g-r1">HIIT Group Session</div><div class="cd-g-r2">18:00 &middot; GYM Bro</div></div><div class="cd-g-rv">0<small>of 10</small></div></div>
       </div>
+      <div class="cd-i-sec">May</div>
+      <div class="cd-i-panel">
+        <div class="cd-g-row cd-press cd-gs-row" data-k="one" onclick="openGroupSheet('planned')"><div class="cd-gs-date"><b>3</b><span>Sat</span></div><div class="cd-g-rt"><div class="cd-g-r1">Charity class <span class="fit-badge fit-badge-neutral">One-off</span></div><div class="cd-g-r2">11:00 &middot; GYM Bro</div></div><div class="cd-g-rv">2<small>of 30</small></div></div>
+        <div class="cd-g-row cd-press cd-gs-row" data-k="yoga" onclick="openGroupSheet('planned')"><div class="cd-gs-date"><b>3</b><span>Sat</span></div><div class="cd-g-rt"><div class="cd-g-r1">Yoga Morning Flow</div><div class="cd-g-r2">10:00 &middot; GYM Bro</div></div><div class="cd-g-rv">0<small>of 15</small></div></div>
+      </div>
+      <div class="cd-i-tl" style="padding:12px 20px 0;">Recurring dates are generated 60 days ahead.</div>
     </div>
-
-  </div>
-  <!-- Footer: import CTA -->
-  <div class="fit-phone-footer fit-footer-btn">
-    <button class="fit-btn fit-btn-primary" id="imp-cta" data-a11y-id="coach.import.confirm" onclick="importContacts()">Import 4 contacts</button>
   </div>
 </div>
 
-<!-- ==== from coach/clients.html #s-import-done ==== -->
-<div class="srcc-cl fit-phone fit-dark" id="s-import-done" data-status="proposal">
-  <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div style="display:flex;justify-content:flex-end;padding:8px 16px;">
-      <button class="fit-icon-btn" data-a11y-id="coach.import.close" aria-label="Close" onclick="go('s-draft-clients',document.querySelector('.sidebar button[onclick*=s-draft-clients]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
-    </div>
-  </div>
-  <div class="fit-phone-content" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 32px;">
-    <div style="width:72px;height:72px;border-radius:50%;background:rgba(5,224,166,0.12);display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
-      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--fit-teal-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-    </div>
-    <div style="font-size:22px;font-weight:600;color:var(--fit-text-primary);margin-bottom:8px;"><span id="imp-done-count">4</span> contacts added</div>
-    <div style="font-size:15px;color:var(--fit-text-secondary);line-height:1.5;margin-bottom:32px;">They're in your CRM now. Invite them to the app so sessions &amp; payments sync automatically.<br><span style="font-size:13px;color:var(--fit-text-tertiary);"><span id="imp-done-invitable">4</span> have a phone number to send your link to.</span></div>
-    <button style="width:100%;max-width:300px;height:50px;border:none;border-radius:99px;background:var(--fit-brand-gradient);color:var(--fit-white);font-family:var(--fit-font);font-size:18px;font-weight:500;cursor:pointer;margin-bottom:10px;" data-a11y-id="coach.import.invite-all" onclick="openInviteShare('bulk')">Invite all <span id="imp-done-invite-n">4</span></button>
-    <button style="width:100%;max-width:300px;height:50px;border:none;border-radius:99px;background:transparent;color:var(--fit-text-secondary);font-family:var(--fit-font);font-size:16px;font-weight:500;cursor:pointer;" data-a11y-id="coach.import.not-now" onclick="go('s-draft-clients',document.querySelector('.sidebar button[onclick*=s-draft-clients]'))">Not now</button>
-  </div>
-</div>
-
-<!-- ==== from coach/clients.html #s-create-client ==== -->
-<div class="srcc-cl fit-phone fit-dark" id="s-create-client" data-status="proposal">
+<!-- ==================== GROUP · ADD CLIENTS ==================== -->
+<div class="fit-phone fit-dark cd-media" id="s-draft-group-add" data-status="proposal">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
-      <button class="fit-header-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">New client</span>
+      <button class="fit-header-back" onclick="go('s-draft-group',document.querySelector('.sidebar button[onclick*=s-draft-group]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Add to Morning</span>
     </div>
   </div>
   <div class="fit-phone-content">
-    <!-- Optional avatar (same as Personal Data) -->
-    <div style="display:flex;justify-content:center;padding:0 0 20px;">
-      <div style="position:relative;cursor:pointer;">
-        <div style="width:80px;height:80px;border-radius:50%;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
-        </div>
-        <div style="position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:var(--fit-surface-high);display:flex;align-items:center;justify-content:center;border:2px solid var(--fit-screen-bg);">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-        </div>
+    <div class="cd-c-search" style="margin-top:4px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input placeholder="Search clients" oninput="pickSearch(this)">
+    </div>
+    <div class="cd-in">
+      <div class="cd-i-sec"><span class="cd-f-link" style="margin-left:0;" onclick="pickAll(this)">Select all</span><span class="cd-pick-n">2 selected</span></div>
+      <div class="cd-i-panel cd-pick">
+        <div class="cd-g-row cd-press cd-pick-row on" data-name="Julia Dent" onclick="pickToggle(this)"><span class="cd-pick-box"></span><div class="cd-d-av">JD</div><div class="cd-g-rt"><div class="cd-g-r1">Julia Dent</div><div class="cd-g-r2">Last &middot; Apr 2 &middot; 5 sessions</div></div></div>
+        <div class="cd-g-row cd-press cd-pick-row on" data-name="Sara Kim" onclick="pickToggle(this)"><span class="cd-pick-box"></span><div class="cd-d-av">SK</div><div class="cd-g-rt"><div class="cd-g-r1">Sara Kim</div><div class="cd-g-r2">Last &middot; Apr 17 &middot; 9 sessions</div></div></div>
+        <div class="cd-g-row cd-press cd-pick-row" data-name="Marta Vega" onclick="pickToggle(this)"><span class="cd-pick-box"></span><div class="cd-d-av">MV</div><div class="cd-g-rt"><div class="cd-g-r1">Marta Vega <span class="fit-badge fit-badge-neutral">CRM</span></div><div class="cd-g-r2">Joins the chat once she accepts an invite</div></div></div>
+        <div class="cd-g-row cd-press cd-pick-row" data-name="Tom Novak" onclick="pickToggle(this)"><span class="cd-pick-box"></span><div class="cd-d-av">TN</div><div class="cd-g-rt"><div class="cd-g-r1">Tom Novak</div><div class="cd-g-r2">Last &middot; Apr 18 &middot; 2 sessions</div></div></div>
+        <div class="cd-g-row cd-pick-row off" data-name="Anna Kowalski"><span class="cd-pick-box"></span><div class="cd-d-av cd-ab-muted">AK</div><div class="cd-g-rt"><div class="cd-g-r1 cd-ab-dim">Anna Kowalski</div><div class="cd-g-r2">Already in this group</div></div></div>
+        <div class="cd-g-row cd-pick-row off" data-name="Mark Schmidt"><span class="cd-pick-box"></span><div class="cd-d-av cd-ab-muted">MS</div><div class="cd-g-rt"><div class="cd-g-r1 cd-ab-dim">Mark Schmidt</div><div class="cd-g-r2">Already in this group</div></div></div>
       </div>
-    </div>
-
-    <div class="fit-input-group" style="padding:0 16px;" data-required="fname">
-      <span class="fit-input-label">First name</span>
-      <div class="fit-input" contenteditable="true" data-placeholder="Enter first name" style="outline:none;cursor:text;"></div>
-    </div>
-    <div class="fit-input-group" style="padding:0 16px;">
-      <span class="fit-input-label">Last name <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
-      <div class="fit-input" contenteditable="true" data-placeholder="Enter last name" style="outline:none;cursor:text;"></div>
-    </div>
-    <div class="fit-input-group" style="padding:0 16px;" data-optional-format="phone">
-      <span class="fit-input-label">Phone number <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
-      <div class="fit-input" contenteditable="true" data-placeholder="+1 234 567 8900" style="outline:none;cursor:text;"></div>
-      <span class="fit-input-hint" style="font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;display:block;">Used to invite them &amp; auto-connect when they join.</span>
-    </div>
-    <div class="fit-input-group" style="padding:0 16px;">
-      <span class="fit-input-label">Sport</span>
-      <div class="fit-input" style="cursor:pointer;"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg></span> Basketball<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div>
-    </div>
-    <div class="fit-input-group" style="padding:0 16px;">
-      <span class="fit-input-label">City <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
-      <div class="fit-input" contenteditable="true" data-placeholder="Enter city" style="outline:none;cursor:text;"></div>
-    </div>
-    <div class="fit-input-group" style="padding:0 16px;">
-      <span class="fit-input-label">Country <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
-      <div class="fit-input" style="cursor:pointer;"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></svg></span> <span style="color:var(--fit-text-placeholder);">Select country</span><span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div>
-    </div>
-    <div class="fit-input-group" style="padding:0 16px;">
-      <span class="fit-input-label">Home address <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
-      <div class="fit-input" style="cursor:pointer;" data-a11y-id="coach.new-client.home-address" onclick="openCrmAddr('new')"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span> <span id="cc-home-addr" style="color:var(--fit-text-placeholder);">Add for home-visit sessions</span><span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div>
-      <span class="fit-input-hint" style="font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;display:block;">Where you&rsquo;d travel for a home visit. They can change it in-app once they join.</span>
-    </div>
-    <div class="fit-input-group" style="padding:0 16px;">
-      <span class="fit-input-label">Timezone <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
-      <div class="fit-input" style="cursor:pointer;"><span class="fit-input-icon"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span> Europe/Berlin<span class="fit-input-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div>
-      <span class="fit-input-hint" style="font-size:12px;color:var(--fit-text-tertiary);margin-top:6px;display:block;">Defaults to your timezone · updates to theirs when they join 321Fit.</span>
-    </div>
-    <div class="fit-input-group" style="padding:0 16px;">
-      <span class="fit-input-label">Notes <span style="font-weight:400;color:var(--fit-text-tertiary);">(optional)</span></span>
-      <div class="fit-input" style="min-height:80px;align-items:flex-start;padding-top:14px;cursor:pointer;">
-        <span style="color:var(--fit-text-placeholder);">Injuries, preferences, payment habits...</span>
-      </div>
+      <div class="cd-i-tl" style="padding:12px 20px 0;">App members join the group chat straight away.</div>
     </div>
   </div>
-  <div class="fit-phone-footer fit-footer-btn">
-    <button class="fit-btn fit-btn-primary" onclick="validateCreateClient()">Create Client</button>
-  </div>
-  <!-- Validation snackbar -->
-  <div class="fit-snackbar" id="cc-validation-snack"><span class="snack-dot" style="background:var(--fit-red-400);"></span>Please fill in required fields</div>
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" onclick="pickDone('added to Morning')"><span class="cd-pick-cta">Add 2 to the group</span></button></div>
+  <div class="fit-snackbar" id="cd-pick-snack-add">Added</div>
 </div>
 
-
-
-
-
-
-<!-- ==== from coach/client-groups.html #s-group-smart ==== -->
-<div class="srcc-gr fit-phone fit-dark" id="s-group-smart" data-status="proposal">
+<!-- ==================== GROUP · RENAME ==================== -->
+<div class="fit-phone fit-dark cd-media" id="s-draft-group-rename" data-status="proposal">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
-      <button class="fit-header-back" onclick="location.href='client-groups.html#s-groups'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <span class="fit-header-title">Owes money</span>
+      <button class="cd-f-link" style="position:static;" onclick="go('s-draft-group',document.querySelector('.sidebar button[onclick*=s-draft-group]'))">Cancel</button>
+      <span class="fit-header-title">Group name</span>
+      <button class="cd-f-link" style="margin-left:auto;font-weight:600;" onclick="go('s-draft-group',document.querySelector('.sidebar button[onclick*=s-draft-group]'));showSnack('Renamed')">Save</button>
     </div>
   </div>
-
   <div class="fit-phone-content">
-    <div class="cg-note">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
-      <span>Built automatically from unpaid cash sessions. People leave the moment you mark them paid &mdash; you can&rsquo;t add or remove anyone by hand.</span>
+    <div class="cd-f">
+      <div class="cd-f-field">
+        <div class="cd-f-label">Group name</div>
+        <div class="cd-f-input"><input value="Morning" maxlength="40" oninput="this.parentNode.nextElementSibling.querySelector('b').textContent=this.value.length"></div>
+        <div class="cd-f-hint">Only you see group names &mdash; the chat thread takes this name too. <span class="cd-f-count"><b>7</b>/40</span></div>
+      </div>
     </div>
-
-    <div class="fit-stat-strip">
-      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">3</div><div class="fit-stat-strip-label">clients</div></div>
-      <div class="fit-stat-strip-divider"></div>
-      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value" style="color:var(--fit-red-400);">&euro;140</div><div class="fit-stat-strip-label">outstanding</div></div>
-      <div class="fit-stat-strip-divider"></div>
-      <div class="fit-stat-strip-col"><div class="fit-stat-strip-value">11d</div><div class="fit-stat-strip-label">oldest</div></div>
-    </div>
-
-    <div class="cg-sec"><span class="cg-sec-title">Clients</span></div>
-
-    <div class="cg-row" onclick="window.location.href='client-detail-drafts.html#s-draft-client'">
-      <span class="imp-av">MS</span>
-      <span class="cg-row-body"><span class="cg-row-title">Mark Schmidt</span><span class="cg-row-sub">HIIT &middot; Apr 2 &middot; 11d ago</span></span>
-      <span class="cg-row-right">
-        <span class="fit-badge fit-badge-danger">&euro;50</span>
-        <button class="fit-btn fit-btn-secondary" style="width:auto;height:36px;padding:0 12px;font-size:13px;" onclick="event.stopPropagation();cgPaid(this)">Mark paid</button>
-      </span>
-    </div>
-    <div class="cg-row" onclick="window.location.href='client-detail-drafts.html#s-draft-client'">
-      <span class="imp-av">TN</span>
-      <span class="cg-row-body"><span class="cg-row-title">Tom Novak</span><span class="cg-row-sub">Basketball &middot; Apr 8 &middot; 5d ago</span></span>
-      <span class="cg-row-right">
-        <span class="fit-badge fit-badge-danger">&euro;50</span>
-        <button class="fit-btn fit-btn-secondary" style="width:auto;height:36px;padding:0 12px;font-size:13px;" onclick="event.stopPropagation();cgPaid(this)">Mark paid</button>
-      </span>
-    </div>
-    <div class="cg-row" onclick="window.location.href='client-detail-drafts.html#s-draft-client'">
-      <span class="imp-av">LR</span>
-      <span class="cg-row-body"><span class="cg-row-title">Lena Roth <span class="imp-tag crm">CRM</span></span><span class="cg-row-sub">Zumba &middot; Apr 10 &middot; 3d ago</span></span>
-      <span class="cg-row-right">
-        <span class="fit-badge fit-badge-danger">&euro;40</span>
-        <button class="fit-btn fit-btn-secondary" style="width:auto;height:36px;padding:0 12px;font-size:13px;" onclick="event.stopPropagation();cgPaid(this)">Mark paid</button>
-      </span>
-    </div>
-
-    <div class="cg-note" style="margin-top:16px;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 01-11.6 7.2L3 21l1.8-6.4A8 8 0 1121 12z"/></svg>
-      <span>No group chat here on purpose &mdash; a &ldquo;you owe me&rdquo; thread isn&rsquo;t a conversation. Nudge people one by one from their card.</span>
-    </div>
-    <div style="height:20px;"></div>
   </div>
-
-  <div class="fit-snackbar" id="paid-snack"><span class="snack-dot" style="background:var(--fit-green-500);"></span>Payment recorded</div>
 </div>
 
-
-
-<!-- ==== from coach/client-groups.html #s-group-create ==== -->
-<div class="srcc-gr fit-phone fit-dark" id="s-group-create" data-status="proposal">
+<!-- ==================== GROUP · CREATE ==================== -->
+<div class="fit-phone fit-dark cd-media" id="s-draft-group-create" data-status="proposal">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
-      <button class="fit-header-back" onclick="location.href='client-groups.html#s-groups'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="fit-header-back" onclick="go('s-draft-clients',document.querySelector('.sidebar button[onclick*=s-draft-clients]'));cPane('groups',document.querySelectorAll('.cd-c-seg .fit-segmented-tab')[1])"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
       <span class="fit-header-title">New group</span>
     </div>
   </div>
   <div class="fit-phone-content">
-    <div class="fit-input-group"><span class="fit-input-label">Group name</span><div class="fit-input" contenteditable="true" data-placeholder="e.g. Morning" style="outline:none;cursor:text;"></div></div>
-
-    <div class="cg-sec" style="margin-top:8px;"><span class="cg-sec-title">Who&rsquo;s in it</span></div>
-    <div class="imp-search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <input type="text" placeholder="Search clients" oninput="cgFilter(this.value)">
-    </div>
-    <div class="imp-selectall">
-      <button class="imp-selectall-link" onclick="cgSelectAll()">Select all</button>
-      <span class="imp-count" id="cg-count">3 selected</span>
-    </div>
-
-    <div id="cg-pick-list">
-      <div class="imp-row selected" onclick="cgToggle(this)" data-name="Anna Kowalski">
-        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-        <span class="imp-av">AK</span>
-        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Anna Kowalski</span></span><span class="imp-sub">12 sessions &middot; &euro;580</span></span>
-      </div>
-      <div class="imp-row selected" onclick="cgToggle(this)" data-name="Mark Schmidt">
-        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-        <span class="imp-av">MS</span>
-        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Mark Schmidt</span></span><span class="imp-sub">8 sessions &middot; &euro;400</span></span>
-      </div>
-      <div class="imp-row selected" onclick="cgToggle(this)" data-name="Lena Roth">
-        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-        <span class="imp-av">LR</span>
-        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Lena Roth</span><span class="imp-tag crm">CRM</span></span><span class="imp-sub">Not in the app</span></span>
-      </div>
-      <div class="imp-row" onclick="cgToggle(this)" data-name="Julia Dent">
-        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-        <span class="imp-av">JD</span>
-        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Julia Dent</span></span><span class="imp-sub">5 sessions &middot; &euro;250</span></span>
-      </div>
-      <div class="imp-row" onclick="cgToggle(this)" data-name="Tom Novak">
-        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-        <span class="imp-av">TN</span>
-        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Tom Novak</span></span><span class="imp-sub">2 sessions &middot; &euro;100</span></span>
-      </div>
-      <div class="imp-row" onclick="cgToggle(this)" data-name="Sara Kim">
-        <span class="imp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-        <span class="imp-av">SK</span>
-        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Sara Kim</span></span><span class="imp-sub">9 sessions &middot; &euro;450</span></span>
-      </div>
-      <div class="imp-row" aria-disabled="true" data-name="Paul Weber">
-        <span class="imp-check"></span>
-        <span class="imp-av">PW</span>
-        <span class="imp-body"><span class="imp-name-row"><span class="imp-name">Paul Weber</span><span class="imp-tag client">Blocked</span></span><span class="imp-sub">Can&rsquo;t be added to a group</span></span>
+    <div class="cd-f" style="padding-bottom:0;">
+      <div class="cd-f-field">
+        <div class="cd-f-label">Group name</div>
+        <div class="cd-f-input"><input placeholder="e.g. Morning crew"></div>
       </div>
     </div>
-    <div style="height:20px;"></div>
+    <div class="cd-in">
+      <div class="cd-i-sec">Who&rsquo;s in it<span class="cd-pick-n">3 selected</span></div>
+      <div class="cd-c-search" style="margin:0 16px 10px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input placeholder="Search clients" oninput="pickSearch(this)">
+      </div>
+      <div class="cd-i-panel cd-pick">
+        <div class="cd-g-row cd-press cd-pick-row on" data-name="Anna Kowalski" onclick="pickToggle(this)"><span class="cd-pick-box"></span><div class="cd-d-av">AK</div><div class="cd-g-rt"><div class="cd-g-r1">Anna Kowalski</div><div class="cd-g-r2">Next &middot; Thu 10:00 &middot; Tennis</div></div></div>
+        <div class="cd-g-row cd-press cd-pick-row on" data-name="Mark Schmidt" onclick="pickToggle(this)"><span class="cd-pick-box"></span><div class="cd-d-av">MS</div><div class="cd-g-rt"><div class="cd-g-r1">Mark Schmidt</div><div class="cd-g-r2">Last &middot; Apr 19 &middot; 8 sessions</div></div></div>
+        <div class="cd-g-row cd-press cd-pick-row on" data-name="Lena Roth" onclick="pickToggle(this)"><span class="cd-pick-box"></span><div class="cd-d-av">LR</div><div class="cd-g-rt"><div class="cd-g-r1">Lena Roth <span class="fit-badge fit-badge-neutral">CRM</span></div><div class="cd-g-r2">Not in the app</div></div></div>
+        <div class="cd-g-row cd-press cd-pick-row" data-name="Julia Dent" onclick="pickToggle(this)"><span class="cd-pick-box"></span><div class="cd-d-av">JD</div><div class="cd-g-rt"><div class="cd-g-r1">Julia Dent</div><div class="cd-g-r2">Last &middot; Apr 2 &middot; 5 sessions</div></div></div>
+        <div class="cd-g-row cd-press cd-pick-row" data-name="Tom Novak" onclick="pickToggle(this)"><span class="cd-pick-box"></span><div class="cd-d-av">TN</div><div class="cd-g-rt"><div class="cd-g-r1">Tom Novak</div><div class="cd-g-r2">Last &middot; Apr 18 &middot; 2 sessions</div></div></div>
+        <div class="cd-g-row cd-press cd-pick-row" data-name="Sara Kim" onclick="pickToggle(this)"><span class="cd-pick-box"></span><div class="cd-d-av">SK</div><div class="cd-g-rt"><div class="cd-g-r1">Sara Kim</div><div class="cd-g-r2">Last &middot; Apr 17 &middot; 9 sessions</div></div></div>
+        <div class="cd-g-row cd-pick-row off" data-name="Paul Weber"><span class="cd-pick-box"></span><div class="cd-d-av cd-ab-muted">PW</div><div class="cd-g-rt"><div class="cd-g-r1 cd-ab-dim">Paul Weber <span class="fit-badge fit-badge-neutral">Blocked</span></div><div class="cd-g-r2">Can&rsquo;t be added to a group</div></div></div>
+      </div>
+    </div>
   </div>
-  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" onclick="location.href='client-groups.html#s-group-detail'"><span>Create group &middot; <span id="cg-cta-count">3</span></span></button></div>
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" onclick="pickDone('Group created')"><span class="cd-pick-cta">Create group &middot; 3</span></button></div>
+  <div class="fit-snackbar" id="cd-pick-snack-create">Group created</div>
 </div>
+
+<!-- ==================== SMART GROUP (from a chip) ==================== -->
+<div class="fit-phone fit-dark cd-media" id="s-draft-smart" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-draft-clients',document.querySelector('.sidebar button[onclick*=s-draft-clients]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title cd-sm-title">Owes money</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="cd-in" style="padding-top:4px;">
+      <div class="cd-i-panel cd-j-money">
+        <div class="cd-j-money-top">
+          <div style="flex:1;min-width:0;"><div class="cd-j-money-v due">&euro;140</div><div class="cd-j-money-sub">Owed by 3 clients &middot; oldest 11 days</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="cd-in">
+      <div class="cd-i-sec">Clients<span>3</span></div>
+      <div class="cd-i-panel">
+        <div class="cd-g-row cd-press" onclick="location.href='client-detail-drafts.html#s-draft-owed'"><div class="cd-d-av">MS</div><div class="cd-g-rt"><div class="cd-g-r1">Mark Schmidt</div><div class="cd-g-r2">HIIT &middot; Apr 2 &middot; 11 days</div></div><div class="cd-g-rv cd-p-due">&euro;50</div></div>
+        <div class="cd-g-row cd-press" onclick="location.href='client-detail-drafts.html#s-draft-owed'"><div class="cd-d-av">TN</div><div class="cd-g-rt"><div class="cd-g-r1">Tom Novak</div><div class="cd-g-r2">Basketball &middot; Apr 8 &middot; 5 days</div></div><div class="cd-g-rv cd-p-due">&euro;50</div></div>
+        <div class="cd-g-row cd-press" onclick="location.href='client-detail-drafts.html#s-draft-owed'"><div class="cd-d-av">LR</div><div class="cd-g-rt"><div class="cd-g-r1">Lena Roth <span class="fit-badge fit-badge-neutral">CRM</span></div><div class="cd-g-r2">Zumba &middot; Apr 10 &middot; 3 days</div></div><div class="cd-g-rv cd-p-due">&euro;40</div></div>
+      </div>
+      <div class="cd-i-tl" style="padding:12px 20px 0;line-height:1.5;">Built from unpaid cash sessions &mdash; people leave the moment you mark them paid. Settle from a client&rsquo;s Owed screen; no group chat here on purpose.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== IMPORT CONTACTS ==================== -->
+<div class="fit-phone fit-dark cd-media" id="s-draft-import" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-draft-clients',document.querySelector('.sidebar button[onclick*=s-draft-clients]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">Import contacts</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="cd-c-search" style="margin-top:4px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input placeholder="Search contacts" oninput="pickSearch(this)">
+    </div>
+    <div class="cd-in">
+      <div class="cd-i-sec"><span class="cd-f-link" style="margin-left:0;" onclick="pickAll(this)">Select all</span><span class="cd-pick-n">4 selected</span></div>
+      <div class="cd-i-panel cd-pick">
+        <div class="cd-g-row cd-press cd-pick-row on" data-name="Marta Vega" onclick="pickToggle(this)"><span class="cd-pick-box"></span><div class="cd-d-av">MV</div><div class="cd-g-rt"><div class="cd-g-r1">Marta Vega</div><div class="cd-g-r2">+49 170 555 0142</div></div></div>
+        <div class="cd-g-row cd-press cd-pick-row on" data-name="Jon Schmidt" onclick="pickToggle(this)"><span class="cd-pick-box"></span><div class="cd-d-av">JS</div><div class="cd-g-rt"><div class="cd-g-r1">Jon Schmidt</div><div class="cd-g-r2">+49 151 555 0188</div></div></div>
+        <div class="cd-g-row cd-press cd-pick-row on" data-name="Tom Novak" onclick="pickToggle(this)"><span class="cd-pick-box"></span><div class="cd-d-av">TN</div><div class="cd-g-rt"><div class="cd-g-r1">Tom Novak</div><div class="cd-g-r2">+49 160 555 0177</div></div></div>
+        <div class="cd-g-row cd-press cd-pick-row on" data-name="Paul Weber" onclick="pickToggle(this)"><span class="cd-pick-box"></span><div class="cd-d-av">PW</div><div class="cd-g-rt"><div class="cd-g-r1">Paul Weber</div><div class="cd-g-r2">+49 171 555 0103</div></div></div>
+        <div class="cd-g-row cd-press cd-pick-row" data-name="Sara Kim" onclick="pickToggle(this)"><span class="cd-pick-box"></span><div class="cd-d-av">SK</div><div class="cd-g-rt"><div class="cd-g-r1">Sara Kim <span class="fit-badge fit-badge-accent">On 321Fit</span></div><div class="cd-g-r2">+1 415 555 0199 &middot; connects instantly</div></div></div>
+        <div class="cd-g-row cd-press cd-pick-row" data-name="Lena Roth" onclick="pickToggle(this)"><span class="cd-pick-box"></span><div class="cd-d-av">LR</div><div class="cd-g-rt"><div class="cd-g-r1">Lena Roth <span class="fit-badge fit-badge-warning">No phone</span></div><div class="cd-g-r2">lena.roth@mail.com &middot; CRM only, can&rsquo;t invite</div></div></div>
+        <div class="cd-g-row cd-pick-row off" data-name="Anna Kowalski"><span class="cd-pick-box"></span><div class="cd-d-av cd-ab-muted">AK</div><div class="cd-g-rt"><div class="cd-g-r1 cd-ab-dim">Anna Kowalski</div><div class="cd-g-r2">Already a client</div></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" onclick="pickDone('4 contacts imported')"><span class="cd-pick-cta">Import 4 contacts</span></button></div>
+  <div class="fit-snackbar" id="cd-pick-snack-import">Imported</div>
+</div>
+
+<!-- ==================== CREATE CLIENT (form) ==================== -->
+<div class="fit-phone fit-dark cd-media" id="s-draft-create-client" data-status="proposal">
+  <div class="fit-phone-header">
+    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
+    <div class="fit-header">
+      <button class="fit-header-back" onclick="go('s-draft-clients',document.querySelector('.sidebar button[onclick*=s-draft-clients]'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="fit-header-title">New client</span>
+    </div>
+  </div>
+  <div class="fit-phone-content">
+    <div class="cd-i-id cd-in" style="padding-top:2px;">
+      <div class="cd-i-av cd-f-av"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="cd-f-av-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span></div>
+    </div>
+    <div class="cd-f">
+      <div class="cd-f-field"><div class="cd-f-label">First name</div><div class="cd-f-input"><input placeholder="Anna"></div></div>
+      <div class="cd-f-field"><div class="cd-f-label">Last name <span>optional</span></div><div class="cd-f-input"><input placeholder="Kowalski"></div></div>
+      <div class="cd-f-field"><div class="cd-f-label">Phone number <span>optional</span></div><div class="cd-f-input"><input placeholder="+49 …" inputmode="tel"></div><div class="cd-f-hint">Used to invite them and auto-connect when they join.</div></div>
+      <div class="cd-f-field"><div class="cd-f-label">Sport</div><div class="cd-f-input cd-f-row cd-press" onclick="location.href='sport-types.html'"><span class="cd-j-plate" style="width:28px;height:28px;border-radius:8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg></span><span style="flex:1;">Basketball</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-text-tertiary);"><path d="M9 18l6-6-6-6"/></svg></div></div>
+      <div class="cd-f-field"><div class="cd-f-label">City <span>optional</span></div><div class="cd-f-input"><input placeholder="Limassol"></div></div>
+      <div class="cd-f-field"><div class="cd-f-label">Notes <span>optional</span></div><div class="cd-f-input cd-f-area"><textarea rows="3" placeholder="Injuries, preferences, how they pay"></textarea></div></div>
+    </div>
+  </div>
+  <div class="fit-phone-footer fit-footer-btn"><button class="fit-btn fit-btn-primary" onclick="go('s-draft-clients',document.querySelector('.sidebar button[onclick*=s-draft-clients]'));showSnack('Client created')">Create client</button></div>
+</div>
+
+
+<!-- ==================== SCREENS REACHED FROM HOME — copies of the canon screens; source named on each block. ==================== -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1698,30 +1664,40 @@
     <h3>Archived &amp; Blocked &middot; redrawn</h3>
     <p>Same content and rules as the canon screen (two segments, each with its own zero state; a deleted account is a terminal row under Blocked; Restore / Unblock are one tap with a snackbar) in the row-panel grammar: muted faces, one quiet pill per row, the info as an outlined note instead of a tinted banner.</p>
   </div>
-  <div class="ann" id="ann-s-group-smart"><span class="ann-role">Coach &middot; reached from Clients</span>
+  <div class="ann" id="ann-s-draft-smart"><span class="ann-role">Coach &middot; reached from Clients</span>
     <h3>Smart group</h3>
-    <p>From a <em>Needs you</em> chip &mdash; the computed list (owes money / inactive / packs low / not in app / new). Unchanged.</p>
-    <p class="note">Copy of <code>client-groups.html#s-group-smart</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy.</p>
+    <p>From a <em>Needs you</em> chip. Money-widget hero (owed &middot; by whom &middot; oldest), rows &rarr; the client&rsquo;s Owed screen. <strong>No <em>Mark paid</em> per row</strong> &mdash; a settle is per entity, it lives in the cash drawer behind Owed. No chat here on purpose (canon).</p>
+    <p class="note">Redrawn from <code>client-groups.html#s-group-smart</code> in the rework grammar; the canon file is unchanged until this is approved.</p>
   </div>
-  <div class="ann" id="ann-s-group-create"><span class="ann-role">Coach &middot; reached from Clients</span>
+  <div class="ann" id="ann-s-draft-group-schedule"><span class="ann-role">Coach &middot; reached from Clients</span>
+    <h3>Group &middot; all dates</h3>
+    <p>From <em>See all N dates</em>. Series first, then upcoming by month with a date tile per row and occupancy on the right; chips filter by series (the one place chips filter &mdash; they are facets of one list, not doors).</p>
+    <p class="note">Redrawn from <code>client-groups.html#s-group-schedule</code> in the rework grammar; the canon file is unchanged until this is approved.</p>
+  </div>
+  <div class="ann" id="ann-s-draft-group-add"><span class="ann-role">Coach &middot; reached from Clients</span>
+    <h3>Group &middot; add clients</h3>
+    <p>From the <strong>Add</strong> circle. Picker rows = the Clients-list row with a check; members already in the group are shown, muted, not hidden. Footer counts the selection.</p>
+    <p class="note">Redrawn from <code>client-groups.html#s-group-add</code> in the rework grammar; the canon file is unchanged until this is approved.</p>
+  </div>
+  <div class="ann" id="ann-s-draft-group-rename"><span class="ann-role">Coach &middot; reached from Clients</span>
+    <h3>Group &middot; rename</h3>
+    <p>From ⋯. Cancel / Save header, one field, counter in the hint.</p>
+    <p class="note">Redrawn from <code>client-groups.html#s-group-rename</code> in the rework grammar; the canon file is unchanged until this is approved.</p>
+  </div>
+  <div class="ann" id="ann-s-draft-group-create"><span class="ann-role">Coach &middot; reached from Clients</span>
     <h3>Create group</h3>
-    <p>Unchanged.</p>
-    <p class="note">Copy of <code>client-groups.html#s-group-create</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy.</p>
+    <p>From the dashed row on the Groups pane. Name field + the same picker; blocked clients shown muted with the reason.</p>
+    <p class="note">Redrawn from <code>client-groups.html#s-group-create</code> in the rework grammar; the canon file is unchanged until this is approved.</p>
   </div>
-  <div class="ann" id="ann-s-import-contacts"><span class="ann-role">Coach &middot; reached from Clients</span>
+  <div class="ann" id="ann-s-draft-import"><span class="ann-role">Coach &middot; reached from Clients</span>
     <h3>Import contacts</h3>
-    <p>From <strong>+</strong> and from the fresh-coach card. Unchanged.</p>
-    <p class="note">Copy of <code>clients.html#s-import-contacts</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy.</p>
+    <p>From <strong>+</strong> and the fresh-coach card. Same picker grammar; badges say what happens (<em>On 321Fit</em> connects instantly, <em>No phone</em> = CRM only), already-clients muted.</p>
+    <p class="note">Redrawn from <code>clients.html#s-import-contacts</code> in the rework grammar; the canon file is unchanged until this is approved.</p>
   </div>
-  <div class="ann" id="ann-s-import-done"><span class="ann-role">Coach &middot; reached from Clients</span>
-    <h3>Import done</h3>
-    <p>Unchanged.</p>
-    <p class="note">Copy of <code>clients.html#s-import-done</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy.</p>
-  </div>
-  <div class="ann" id="ann-s-create-client"><span class="ann-role">Coach &middot; reached from Clients</span>
+  <div class="ann" id="ann-s-draft-create-client"><span class="ann-role">Coach &middot; reached from Clients</span>
     <h3>Create client</h3>
-    <p>From <strong>+ &rarr; Create profile</strong>. Unchanged.</p>
-    <p class="note">Copy of <code>clients.html#s-create-client</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy.</p>
+    <p>From <strong>+ &rarr; Create profile</strong>. The form grammar for the tinted canvas: sentence-case label, <em>optional</em> as a quiet suffix, alpha input panel, hint under the field, selector rows carry a plate + chevron.</p>
+    <p class="note">Redrawn from <code>clients.html#s-create-client</code> in the rework grammar; the canon file is unchanged until this is approved.</p>
   </div>
 </div>
 
@@ -1771,6 +1747,46 @@ function cPane(name, btn) {
   el.querySelectorAll('.cd-c-seg .fit-segmented-tab').forEach(function (t) { t.classList.remove('selected'); });
   if (btn) btn.classList.add('selected');
 }
+// Pickers (add to group / create group / import): check on the row, count in the footer
+function pickToggle(row) { if (row.classList.contains('off')) return; row.classList.toggle('on'); pickCount(row.closest('.fit-phone')); }
+function pickAll(btn) {
+  var ph = btn.closest('.fit-phone'); var rows = ph.querySelectorAll('.cd-pick-row:not(.off):not(.hide)');
+  var allOn = Array.prototype.every.call(rows, function (r) { return r.classList.contains('on'); });
+  rows.forEach(function (r) { r.classList.toggle('on', !allOn); }); btn.textContent = allOn ? 'Select all' : 'Clear'; pickCount(ph);
+}
+function pickCount(ph) {
+  var n = ph.querySelectorAll('.cd-pick-row.on').length; var cta = ph.querySelector('.cd-pick-cta'); var lab = ph.querySelector('.cd-pick-n');
+  if (lab) lab.textContent = n + ' selected';
+  if (cta) cta.textContent = cta.textContent.replace(/\d+/, n);
+}
+function pickSearch(inp) {
+  var q = inp.value.trim().toLowerCase(); var ph = inp.closest('.fit-phone');
+  ph.querySelectorAll('.cd-pick-row').forEach(function (r) { r.classList.toggle('hide', !!q && r.dataset.name.toLowerCase().indexOf(q) < 0); });
+}
+function pickDone(msg) {
+  var ph = document.querySelector('.fit-phone.active'); var back = (ph.id === 's-draft-import' || ph.id === 's-draft-group-create') ? 's-draft-clients' : 's-draft-group';
+  go(back, document.querySelector('.sidebar button[onclick*="' + back + '"]')); showSnack(msg);
+  if (ph.id === 's-draft-group-create') cPane('groups', document.querySelectorAll('.cd-c-seg .fit-segmented-tab')[1]);
+}
+// Group schedule: chips are facets of one list here
+function gsFilter(chip, k) {
+  chip.parentNode.querySelectorAll('.cd-j-chip').forEach(function (c) { c.classList.remove('selected'); }); chip.classList.add('selected');
+  document.querySelectorAll('#s-draft-group-schedule .cd-gs-row').forEach(function (r) { r.classList.toggle('hide', k !== 'all' && r.dataset.k !== k); });
+}
+// Group edit mode: whole row removes, tinted while armed, Undo in the snackbar (canon rule)
+var _grUndo = null;
+function gEdit(btn) { var el = document.getElementById('s-draft-group'); var on = el.classList.toggle('g-edit'); btn.textContent = on ? 'Done' : 'Edit'; }
+function gMemberTap(row) {
+  var el = document.getElementById('s-draft-group');
+  if (!el.classList.contains('g-edit')) { location.href = 'client-detail-drafts.html#s-draft-client'; return; }
+  row.classList.add('armed');
+  setTimeout(function () { row.classList.add('gone'); setTimeout(function () {
+    row.style.display = 'none'; row.classList.remove('gone', 'armed');
+    var snack = el.querySelector('.fit-snackbar'); snack.innerHTML = row.dataset.name + ' removed <span class="snack-action" onclick="gUndo()">Undo</span>'; snack.classList.add('show');
+    clearTimeout(_grUndo && _grUndo.t); _grUndo = { row: row, t: setTimeout(function () { snack.classList.remove('show'); _grUndo = null; }, 5000) };
+  }, 230); }, 120);
+}
+function gUndo() { if (!_grUndo) return; clearTimeout(_grUndo.t); _grUndo.row.style.display = ''; document.querySelector('#s-draft-group .fit-snackbar').classList.remove('show'); _grUndo = null; }
 // Group: ⋯ menu + states
 function gMenu(open) { document.getElementById('cd-gr-menu').classList.toggle('visible', !!open); document.getElementById('cd-gr-menu-backdrop').classList.toggle('visible', !!open); }
 function gSet(name, btn) {
@@ -1795,8 +1811,8 @@ function aRestore(btn, msg) {
 }
 // A chip opens the smart group's list, titled after the chip.
 function cOpenSmart(name) {
-  var t = document.querySelector('#s-group-smart .fit-header-title'); if (t) t.textContent = name;
-  go('s-group-smart', document.querySelector('.sidebar button[onclick*="s-group-smart"]'));
+  var t = document.querySelector('#s-draft-smart .cd-sm-title'); if (t) t.textContent = name;
+  go('s-draft-smart', document.querySelector('.sidebar button[onclick*="s-draft-smart"]'));
 }
 // Search: filter the A–Z list; letters hide when none of their rows match.
 function cSearch(q) {
@@ -1879,7 +1895,7 @@ function validateCreateClient() {
   showClientSnack('Client created');
   setTimeout(function(){
     var btn = document.querySelector('.sidebar button[onclick*="s-clients"]');
-    if (btn) go('s-draft-clients', document.querySelector('.sidebar button[onclick*=s-draft-clients]'));
+    if (btn) go('s-draft-clients', btn);
   }, 800);
   return true;
 }
@@ -1948,7 +1964,7 @@ function importContacts() {
   document.getElementById('imp-done-count').textContent = String(total);
   document.getElementById('imp-done-invitable').textContent = String(invitable);
   document.getElementById('imp-done-invite-n').textContent = String(invitable);
-  go('s-import-done', null);
+  location.href='clients.html#s-import-done';
 }
 function openInviteShare(mode) {
   _shareMode = mode || 'single';

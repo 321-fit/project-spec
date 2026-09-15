@@ -47,9 +47,9 @@ States: 23 clients · Fresh coach · Loading (title + segmented + search instant
 
 | From | Screen | Source |
 |---|---|---|
-| a chip | Smart group list (titled after the chip) | `client-groups.html#s-group-smart` |
-| segmented → Groups | Groups pane (built in the draft) → **Group** (redrawn: faces identity → Schedule · Message · Add circles → Needs you → Next session → Schedule → Members never truncated; ⋯ Edit members / Rename / Delete) → create | new (`#s-draft-group`); canon `client-groups.html#s-group-detail`, `#s-group-create` |
-| + | canon add sheet → Create client / Import contacts (→ done) / Invite share sheet | `clients.html` |
+| a chip | Smart group list (titled after the chip) — money-widget hero, rows → the client's Owed; no per-row *Mark paid* | new (`#s-draft-smart`); canon `client-groups.html#s-group-smart` |
+| segmented → Groups | Groups pane (built in the draft) → **Group** (redrawn: faces identity → Schedule · Message · Add circles → Needs you → Next session → Schedule → Members never truncated; ⋯ Edit members / Rename / Delete) → **all dates** (series first, upcoming by month, date tile + occupancy, chips as facets) · **add clients** (picker) · **rename** (Cancel/Save form) · **edit members** in place (whole row removes, tinted while armed, Undo snackbar) · **create group** (name + picker) | new (`#s-draft-group*`); canon `client-groups.html` |
+| + | canon add sheet → **Create client** (form grammar for tinted: sentence-case label, *optional* suffix, alpha input, hint, selector rows) / **Import contacts** (picker grammar: check on the row, badges say what happens, already-clients muted) / Invite share sheet | new (`#s-draft-create-client`, `#s-draft-import`); canon `clients.html` |
 | a row | Client Detail rework | `client-detail-drafts.html#s-draft-client` |
 | bottom row | Archived & Blocked — redrawn in the row-panel grammar (same content and rules) | new (`#s-draft-archived`); canon `clients.html#s-archived` |
 
@@ -70,4 +70,4 @@ States: 23 clients · Fresh coach · Loading (title + segmented + search instant
 
 ## Change log
 
-- 2026-09-15 — first cut, built after the Clients discussion (chips as doors, rows by time, A–Z + rail, search, fresh card); review: segmented inset fixed, letters + rail dropped, Groups pane rebuilt inside the draft, Archived & Blocked redrawn, fresh card fixed, Group detail redrawn (people first).
+- 2026-09-15 — first cut, built after the Clients discussion (chips as doors, rows by time, A–Z + rail, search, fresh card); review: segmented inset fixed, letters + rail dropped, Groups pane rebuilt inside the draft, Archived & Blocked redrawn, fresh card fixed, Group detail redrawn (people first); later the same day: group all-dates / add / rename / create, smart group, import, create client redrawn — nothing in the flow leads to a canon copy any more except the group chat and the booking flow; **form grammar** (`cd-f-*`) and **picker grammar** (`cd-pick-*`) defined here.
