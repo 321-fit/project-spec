@@ -2603,7 +2603,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-dash",
-          "hash": "d4a899267d7f",
+          "hash": "83ccd620a1f0",
           "title": "Home, placed",
           "inApp": "",
           "status": "proposal",
@@ -2646,7 +2646,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-collect",
-          "hash": "6d8bf88756ed",
+          "hash": "bcfaac8cb386",
           "title": "↳ Cash to collect (push)",
           "inApp": "Cash to collect",
           "status": "proposal",
@@ -2665,7 +2665,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-notifications",
-          "hash": "ceee6504ef2e",
+          "hash": "9d17646bf06b",
           "title": "↳ Inbox",
           "inApp": "Inbox",
           "status": "proposal",
@@ -2684,7 +2684,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-review-queue",
-          "hash": "0f39c8965b50",
+          "hash": "82a7beb26667",
           "title": "↳ Sessions to review",
           "inApp": "Sessions to review",
           "status": "proposal",
@@ -2703,7 +2703,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-earnings",
-          "hash": "f42b22c55c3e",
+          "hash": "0e1375f4a8d2",
           "title": "↳ Earnings",
           "inApp": "Earnings",
           "status": "proposal",
@@ -2722,7 +2722,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-schedule-pick-athlete",
-          "hash": "ea3a611bd286",
+          "hash": "0c7a515a657d",
           "title": "↳ Book · athlete",
           "inApp": "Choose athlete",
           "status": "proposal",
@@ -2741,7 +2741,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-select",
-          "hash": "60030d0507b6",
+          "hash": "fa0b99a6e813",
           "title": "↳ Book · session",
           "inApp": "Select training",
           "status": "proposal",
@@ -2763,7 +2763,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-time",
-          "hash": "75a1ebcaca98",
+          "hash": "6f7caadb7b1f",
           "title": "↳ Book · time",
           "inApp": "",
           "status": "proposal",
@@ -2783,7 +2783,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-schedule-review",
-          "hash": "9d372785b3e6",
+          "hash": "bda37b42f058",
           "title": "↳ Book · review",
           "inApp": "Review request",
           "status": "proposal",
@@ -2803,7 +2803,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-block-time-off",
-          "hash": "0fbb0508f5a0",
+          "hash": "9fa06e5336b4",
           "title": "↳ Time off",
           "inApp": "Busy time",
           "status": "proposal",
@@ -3278,7 +3278,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-clients",
-          "hash": "59852081cb75",
+          "hash": "8bf97bf79476",
           "title": "Clients, placed",
           "inApp": "",
           "status": "proposal",
@@ -3308,7 +3308,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-archived",
-          "hash": "bbb7cea7964b",
+          "hash": "b8bcdc8770f4",
           "title": "↳ Archived & Blocked",
           "inApp": "Archived & Blocked",
           "status": "proposal",
@@ -3327,7 +3327,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-import-contacts",
-          "hash": "62742ae2d546",
+          "hash": "238b72fb9cce",
           "title": "↳ Import contacts",
           "inApp": "Import contacts",
           "status": "proposal",
@@ -3346,7 +3346,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-import-done",
-          "hash": "74153ab6d499",
+          "hash": "06048c4ed1e7",
           "title": "↳ Import done",
           "inApp": "",
           "status": "proposal",
@@ -3366,7 +3366,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-create-client",
-          "hash": "247fe7ba6109",
+          "hash": "be8fa88a984f",
           "title": "↳ Create client",
           "inApp": "New client",
           "status": "proposal",
@@ -3385,7 +3385,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-smart",
-          "hash": "8546b925caaa",
+          "hash": "7f851173e0ba",
           "title": "↳ Smart group (from a chip)",
           "inApp": "Owes money",
           "status": "proposal",
@@ -3405,7 +3405,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-detail",
-          "hash": "6f72072d978a",
+          "hash": "0f5a9290d4f4",
           "title": "↳ Group",
           "inApp": "Morning",
           "status": "proposal",
@@ -3440,7 +3440,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-create",
-          "hash": "6d4e9ebd6648",
+          "hash": "178a47969e03",
           "title": "↳ Create group",
           "inApp": "New group",
           "status": "proposal",
