@@ -22,9 +22,8 @@ Order: **what you owe an answer to → who you see this week → everyone.**
  │ (MS) Mark Schmidt                           │
  │      Next · Sat 08:00 · Morning crew        │
  Everyone                                    23
- ┌ D                                          A┐
- │ (JD) Julia Dent · Last · Apr 2 · 5 sessions D│ ← letter dividers + index rail
- │ K …                                        K│
+ ┌ (JD) Julia Dent · Last · Apr 2 · 5 sessions ┐  ← A–Z, plain rows
+ │ (AK) Alex Kim · Last · Apr 21 · 2 sessions  │
  [ 🗄 Archived & Blocked                  5  › ]
  ⌂  👥  💬  📅  👤
 ```
@@ -35,8 +34,9 @@ Order: **what you owe an answer to → who you see this week → everyone.**
 |---|---|
 | **Needs you = the five smart groups as chips**; **tap opens the smart group's list** (as the Groups pane did). They are doors, not filters ✅ (owner, 2026-09-15). The Groups pane keeps manual groups only. | The things a coach opens the tab for sat on the other pane. |
 | **Rows speak of time, not lifetime money**: `Next · Thu 10:00 · Tennis` (teal) or `Last · Apr 2 · 5 sessions`; badges stay for owed / CRM / new. | `12 sessions · €580` is a stat; it lives on the client's screen. |
-| **This week** = people you see, ordered by when; **Everyone** = A–Z with letter dividers and an index rail once long. | The shipped list had no order a coach could name. |
+| **This week** = people you see, ordered by when; **Everyone** = A–Z, plain rows. Letter dividers + an index rail were tried and dropped 2026-09-15 (noise at this size; native can show the platform index past ~50). | The shipped list had no order a coach could name. |
 | **Search** under the segmented control; while searching, chips / This week / rail hide and the A–Z list filters; "No one matches" when empty. | Mandatory from ~15 clients. |
+| **Groups pane lives inside the same screen** (the segmented control swaps panes): manual groups only, faces lead the row, unread count on the row, *Create a group* as a dashed row. | The copied canon pane looked like a different app next to the reworked list. |
 | **+ stays the one action** (canon sheet: create · import · invite to app · invite to training). No circles — a list is not an object. | |
 | **Archived & Blocked** stays a row at the bottom. **Fresh coach** = one card, two doors (Import contacts / Invite by link). | |
 | No wash in the plain look (no identity block). | |
@@ -48,7 +48,7 @@ States: 23 clients · Fresh coach · Loading (title + segmented + search instant
 | From | Screen | Source |
 |---|---|---|
 | a chip | Smart group list (titled after the chip) | `client-groups.html#s-group-smart` |
-| segmented → Groups | Groups pane (manual groups only) → group / create | `client-groups.html#s-groups`, `#s-group-detail`, `#s-group-create` |
+| segmented → Groups | Groups pane (built in the draft) → group / create | `client-groups.html#s-group-detail`, `#s-group-create` |
 | + | canon add sheet → Create client / Import contacts (→ done) / Invite share sheet | `clients.html` |
 | a row | Client Detail rework | `client-detail-drafts.html#s-draft-client` |
 | bottom row | Archived & Blocked | `clients.html#s-archived` |
@@ -65,10 +65,9 @@ States: 23 clients · Fresh coach · Loading (title + segmented + search instant
 ## 5. Open
 
 - A person can appear in both This week and Everyone — accepted for now; alternative is a "next" line on the A–Z row only and no This week section.
-- Index rail needs real A–Z scrubbing on native.
 - `nextSessionAt` on the clients list endpoint (additive).
 - Smart-group counts on the chips = the same counts the Groups pane computed.
 
 ## Change log
 
-- 2026-09-15 — first cut, built after the Clients discussion (chips as doors, rows by time, A–Z + rail, search, fresh card).
+- 2026-09-15 — first cut, built after the Clients discussion (chips as doors, rows by time, A–Z + rail, search, fresh card); review: segmented inset fixed, letters + rail dropped, Groups pane rebuilt inside the draft.

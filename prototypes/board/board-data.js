@@ -3278,7 +3278,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-clients",
-          "hash": "d1ca9179e3af",
+          "hash": "59852081cb75",
           "title": "Clients, placed",
           "inApp": "",
           "status": "proposal",
@@ -3308,7 +3308,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-archived",
-          "hash": "1570c36f1497",
+          "hash": "bbb7cea7964b",
           "title": "↳ Archived & Blocked",
           "inApp": "Archived & Blocked",
           "status": "proposal",
@@ -3327,7 +3327,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-import-contacts",
-          "hash": "6362325738d2",
+          "hash": "62742ae2d546",
           "title": "↳ Import contacts",
           "inApp": "Import contacts",
           "status": "proposal",
@@ -3346,7 +3346,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-import-done",
-          "hash": "6e818ffe6875",
+          "hash": "74153ab6d499",
           "title": "↳ Import done",
           "inApp": "",
           "status": "proposal",
@@ -3361,12 +3361,12 @@ window.FIT_BOARD = {
             }
           ],
           "orphan": true,
-          "level": 3,
+          "level": 2,
           "order": 0
         },
         {
           "id": "s-create-client",
-          "hash": "bb70e03f7eca",
+          "hash": "247fe7ba6109",
           "title": "↳ Create client",
           "inApp": "New client",
           "status": "proposal",
@@ -3384,31 +3384,8 @@ window.FIT_BOARD = {
           "order": 2
         },
         {
-          "id": "s-groups",
-          "hash": "2b71db898ac3",
-          "title": "↳ Groups pane",
-          "inApp": "Clients",
-          "status": "proposal",
-          "theme": "dark",
-          "entry": false,
-          "note": "The other segment. Manual groups only — smart groups moved to the chips on the Clients pane.",
-          "external": [],
-          "shots": [
-            {
-              "file": "coach-clients-drafts__s-groups.webp",
-              "label": ""
-            },
-            {
-              "file": "coach-clients-drafts__s-groups__empty.webp",
-              "label": "No groups yet"
-            }
-          ],
-          "level": 1,
-          "order": 3
-        },
-        {
           "id": "s-group-smart",
-          "hash": "01cb8fda38b2",
+          "hash": "8546b925caaa",
           "title": "↳ Smart group (from a chip)",
           "inApp": "Owes money",
           "status": "proposal",
@@ -3422,12 +3399,13 @@ window.FIT_BOARD = {
               "label": ""
             }
           ],
+          "orphan": true,
           "level": 2,
-          "order": 0
+          "order": 1
         },
         {
           "id": "s-group-detail",
-          "hash": "f1c1136c819b",
+          "hash": "6f72072d978a",
           "title": "↳ Group",
           "inApp": "Morning",
           "status": "proposal",
@@ -3457,12 +3435,12 @@ window.FIT_BOARD = {
               "label": "Schedule drawer — one-off or weekly"
             }
           ],
-          "level": 2,
-          "order": 1
+          "level": 1,
+          "order": 3
         },
         {
           "id": "s-group-create",
-          "hash": "add9e8ef65a6",
+          "hash": "6d4e9ebd6648",
           "title": "↳ Create group",
           "inApp": "New group",
           "status": "proposal",
@@ -3476,16 +3454,11 @@ window.FIT_BOARD = {
               "label": ""
             }
           ],
-          "level": 2,
-          "order": 2
+          "level": 1,
+          "order": 4
         }
       ],
       "edges": [
-        {
-          "from": "s-draft-clients",
-          "to": "s-groups",
-          "back": false
-        },
         {
           "from": "s-draft-clients",
           "to": "s-archived",
@@ -3494,6 +3467,16 @@ window.FIT_BOARD = {
         {
           "from": "s-draft-clients",
           "to": "s-import-contacts",
+          "back": false
+        },
+        {
+          "from": "s-draft-clients",
+          "to": "s-group-detail",
+          "back": false
+        },
+        {
+          "from": "s-draft-clients",
+          "to": "s-group-create",
           "back": false
         },
         {
@@ -3509,36 +3492,6 @@ window.FIT_BOARD = {
         {
           "from": "s-import-done",
           "to": "s-draft-clients",
-          "back": true
-        },
-        {
-          "from": "s-groups",
-          "to": "s-group-detail",
-          "back": false
-        },
-        {
-          "from": "s-groups",
-          "to": "s-group-smart",
-          "back": false
-        },
-        {
-          "from": "s-groups",
-          "to": "s-group-create",
-          "back": false
-        },
-        {
-          "from": "s-group-smart",
-          "to": "s-groups",
-          "back": true
-        },
-        {
-          "from": "s-group-detail",
-          "to": "s-groups",
-          "back": true
-        },
-        {
-          "from": "s-group-create",
-          "to": "s-groups",
           "back": true
         },
         {

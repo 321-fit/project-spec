@@ -581,7 +581,7 @@
   .cd-c-title { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; color: var(--fit-text-primary); padding-left: 4px; }
   .cd-d-av { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; background: var(--fit-surface-higher); color: var(--fit-text-primary); flex-shrink: 0; }
   .fit-dark.k-alpha .cd-d-av { background: rgba(255,255,255,0.14); color: #fff; }
-  .cd-c-seg { padding: 2px 16px 10px; }
+  .cd-c-seg { padding: 0 16px 10px; }
   .cd-c-search { display: flex; align-items: center; gap: 8px; margin: 0 16px 6px; padding: 10px 12px; border-radius: 14px; background: var(--fit-surface-high); }
   .cd-c-search svg { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
   .cd-c-search input { flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-family: var(--fit-font); font-size: 15px; color: var(--fit-text-primary); }
@@ -592,7 +592,7 @@
   .cd-j-chip.calm i { background: var(--fit-gray-500); }
   /* A–Z list with letter dividers + index rail */
   .cd-c-all { position: relative; }
-  .cd-c-list { padding-right: 6px; }
+
   .cd-c-letter { padding: 10px 12px 2px; font-size: 12px; font-weight: 600; letter-spacing: 0.6px; color: var(--fit-text-tertiary); }
   .cd-c-letter:first-child { padding-top: 6px; }
   .cd-c-index { position: absolute; right: 2px; top: 8px; bottom: 8px; display: flex; flex-direction: column; justify-content: center; gap: 3px; font-size: 10px; font-weight: 600; color: var(--fit-text-tertiary); }
@@ -615,9 +615,14 @@
   #s-draft-clients.c-loading .cd-j-body { display: none; }
   /* tab bar reservation */
   #s-draft-clients > .fit-phone-content { padding-bottom: 96px; }
+  /* Groups pane inside the same screen: the segmented control swaps panes */
+  .cd-c-groups { display: none; }
+  #s-draft-clients.c-pane-groups .cd-c-groups { display: block; }
+  #s-draft-clients.c-pane-groups .cd-j-body, #s-draft-clients.c-pane-groups .cd-c-search { display: none; }
+  .cd-c-groups .cd-j-faces { flex-shrink: 0; }
+  .cd-c-unread { position: static; margin-left: auto; background: var(--fit-blue-500); }
+  .cd-c-groups .cd-j-tile-empty { padding: 0; }
   .fit-dark.k-alpha .fit-navbar { background: rgba(0,0,0,0.30); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08), 0 0 24px rgba(0,0,0,0.4); }
-  /* the copied Groups pane: smart groups moved to the chips on the Clients pane */
-  #s-groups .cg-sec, #s-groups .cg-smart { display: none; }
   /* phone-level state gating from the source files */
   .fit-phone[class*="srcc-"] [data-list-state] { display: none; }
   .fit-phone[class*="srcc-"].ls-default [data-list-state="default"], .fit-phone[class*="srcc-"].ls-empty [data-list-state="empty"],
@@ -680,12 +685,6 @@
 .srcc-gr.fit-dark .fit-phone-footer, .fit-dark .srcc-gr .fit-phone-footer { background: var(--fit-screen-bg); }
 .srcc-gr.fit-light .fit-phone-header, .fit-light .srcc-gr .fit-phone-header { background: var(--fit-screen-bg); }
 .srcc-gr.fit-light .fit-phone-footer, .fit-light .srcc-gr .fit-phone-footer { background: var(--fit-screen-bg); }
-.srcc-gr .fit-empty-state { text-align: center; padding: 40px 24px; color: var(--fit-text-tertiary); font-size: 14px; line-height: 1.5; }
-.srcc-gr .fit-empty-state svg.fes-illus { width: 56px; height: 56px; margin-bottom: 16px; color: var(--fit-gray-600); }
-.srcc-gr .fit-empty-state-title { font-size: 17px; font-weight: 500; color: var(--fit-text-secondary); margin-bottom: 6px; }
-.srcc-gr .fit-empty-state-sub { font-size: 14px; color: var(--fit-text-tertiary); margin-bottom: 20px; line-height: 1.5; }
-.srcc-gr.fit-light .fit-empty-state svg.fes-illus, .fit-light .srcc-gr .fit-empty-state svg.fes-illus { color: var(--fit-gray-400); }
-.srcc-gr.fit-light .set-card, .fit-light .srcc-gr .set-card { background: var(--fit-white); }
 .srcc-gr.fit-light .fit-input, .fit-light .srcc-gr .fit-input { background: var(--fit-gray-100); }
 .srcc-gr .imp-search { display: flex; align-items: center; gap: 8px; margin: 0 16px 8px; padding: 10px 12px; border-radius: 12px; background: var(--fit-surface-high); }
 .srcc-gr .imp-search svg { width: 16px; height: 16px; color: var(--fit-text-tertiary); flex-shrink: 0; }
@@ -708,50 +707,8 @@
 .srcc-gr .imp-tag { font-size: 9px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
 .srcc-gr .imp-tag.crm { color: var(--fit-teal-500); background: rgba(5,224,166,0.08); border: 1px solid rgba(5,224,166,0.3); }
 .srcc-gr .imp-tag.client { color: var(--fit-text-tertiary); background: var(--fit-surface-high); border: 1px solid var(--fit-divider); }
-.srcc-gr .cg-card {
-    display: flex; align-items: center; gap: 12px;
-    margin: 0 16px 8px; padding: 14px 16px; min-height: 72px;
-    border-radius: var(--fit-radius-lg); cursor: pointer;
-    background: var(--fit-surface-high); }
-.srcc-gr.fit-light .cg-card, .fit-light .srcc-gr .cg-card { background: var(--fit-white); box-shadow: 0 0 12px rgba(0,0,0,0.07); }
-.srcc-gr .cg-card-icon {
-    width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    background: rgba(3,178,226,0.15); }
-.srcc-gr .cg-card-icon svg { width: 20px; height: 20px; color: var(--fit-blue-500); }
-.srcc-gr .cg-card-body { flex: 1; min-width: 0; }
-.srcc-gr .cg-card-name { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
-.srcc-gr .cg-card-sub { font-size: 12px; color: var(--fit-text-tertiary); margin-top: 2px; display: flex; align-items: center; gap: 5px; }
-.srcc-gr .cg-card-sub svg { width: 12px; height: 12px; flex-shrink: 0; }
-.srcc-gr .cg-card-right { flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
-.srcc-gr .cg-stack { display: flex; align-items: center; }
-.srcc-gr .cg-av {
-    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
-    background: var(--fit-gray-600); color: var(--fit-white);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 10px; font-weight: 500;
-    border: 2px solid var(--fit-surface-high); margin-right: -8px; }
-.srcc-gr.fit-light .cg-av, .fit-light .srcc-gr .cg-av { border-color: var(--fit-white); }
-.srcc-gr .cg-av--more { background: var(--fit-gray-700); color: var(--fit-text-secondary); }
-.srcc-gr.fit-light .cg-av--more, .fit-light .srcc-gr .cg-av--more { background: var(--fit-gray-200); }
-.srcc-gr .cg-unread {
-    min-width: 20px; height: 20px; padding: 0 6px; border-radius: 99px;
-    background: var(--fit-brand-primary); color: var(--fit-white);
-    font-size: 11px; font-weight: 600;
-    display: flex; align-items: center; justify-content: center; }
-.srcc-gr .cg-smart {
-    display: flex; align-items: center; gap: 12px;
-    margin: 0 16px 8px; padding: 12px 16px; min-height: 60px;
-    border: 1px solid var(--fit-divider); border-radius: var(--fit-radius-lg); cursor: pointer; }
-.srcc-gr.fit-light .cg-smart, .fit-light .srcc-gr .cg-smart { border-color: transparent; background: var(--fit-white); box-shadow: 0 0 10px rgba(0,0,0,0.06); }
-.srcc-gr .cg-smart svg.lead { width: 18px; height: 18px; flex-shrink: 0; color: var(--fit-text-secondary); }
-.srcc-gr .cg-smart-name { flex: 1; font-size: 15px; color: var(--fit-text-primary); }
-.srcc-gr .cg-smart-n { font-size: 14px; font-weight: 500; color: var(--fit-text-secondary); flex-shrink: 0; }
-.srcc-gr .cg-smart--warn svg.lead { color: var(--fit-yellow-400); }
 .srcc-gr .cg-sec { display: flex; align-items: center; justify-content: space-between; min-height: 24px; padding: 0 16px; margin: 20px 0 6px; }
 .srcc-gr .cg-sec-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--fit-text-secondary); }
-.srcc-gr .cg-sec-hint { font-size: 12px; color: var(--fit-text-tertiary); display: flex; align-items: center; gap: 4px; }
-.srcc-gr .cg-sec-hint svg { width: 12px; height: 12px; }
 .srcc-gr .cg-sec-action {
     font-size: 14px; font-weight: 500; color: var(--fit-brand-primary);
     cursor: pointer; position: relative; padding: 4px 0 4px 12px; }
@@ -816,8 +773,6 @@
 .srcc-gr .cg-note--warn { border-color: rgba(247,201,72,0.32); background: rgba(247,201,72,0.06); }
 .srcc-gr.fit-light .cg-note--warn, .fit-light .srcc-gr .cg-note--warn { background: rgba(222,145,29,0.10); border-color: rgba(222,145,29,0.28); }
 .srcc-gr .cg-note--warn svg { color: var(--fit-yellow-400); }
-.srcc-gr .cg-pick-head .cg-card-icon { width: 34px; height: 34px; border-radius: 10px; }
-.srcc-gr .cg-pick-head .cg-card-icon svg { width: 17px; height: 17px; }
 .srcc-gr .cg-pick-members .imp-row { padding-left: 40px; }
 
 </style>
@@ -834,7 +789,6 @@
   <div class="label">Clients flow</div>
   <button class="active" onclick="go('s-draft-clients',this)">Clients, placed</button>
   <button onclick="go('s-group-smart',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Smart group (from a chip)</button>
-  <button onclick="go('s-groups',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Groups pane</button>
   <button onclick="go('s-group-detail',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Group</button>
   <button onclick="go('s-group-create',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Create group</button>
   <button onclick="go('s-archived',this)" style="font-size:13px;">&nbsp;&nbsp;&#8627; Archived &amp; Blocked</button>
@@ -869,7 +823,7 @@
   <div class="fit-phone-content">
     <!-- Clients | Groups — the pane decision stands; smart groups leave the Groups pane for the chips here -->
     <div class="cd-c-seg">
-      <div class="fit-segmented"><div class="fit-segmented-tab selected">Clients</div><div class="fit-segmented-tab" onclick="go('s-groups',document.querySelector('.sidebar button[onclick*=s-groups]'))">Groups</div></div>
+      <div class="fit-segmented" style="margin:0;"><button class="fit-segmented-tab selected" onclick="cPane('clients',this)">Clients</button><button class="fit-segmented-tab" onclick="cPane('groups',this)">Groups</button></div>
     </div>
     <div class="cd-c-search cd-c-body">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
@@ -919,24 +873,16 @@
       <div class="cd-i-sec">Everyone<span class="cd-c-all-n">23</span></div>
       <div class="cd-c-all">
         <div class="cd-i-panel cd-c-list">
-          <div class="cd-c-letter">D</div>
           <div class="cd-g-row cd-press cd-c-row" data-name="Julia Dent" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">JD</div><div class="cd-g-rt"><div class="cd-g-r1">Julia Dent</div><div class="cd-g-r2">Last &middot; Apr 2 &middot; 5 sessions</div></div></div>
-          <div class="cd-c-letter">K</div>
           <div class="cd-g-row cd-press cd-c-row" data-name="Alex Kim" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">AK</div><div class="cd-g-rt"><div class="cd-g-r1">Alex Kim</div><div class="cd-g-r2">Last &middot; Apr 21 &middot; 2 sessions</div></div></div>
           <div class="cd-g-row cd-press cd-c-row" data-name="Anna Kowalski" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">AK</div><div class="cd-g-rt"><div class="cd-g-r1">Anna Kowalski <span class="fit-badge fit-badge-danger">&euro;50 owed</span></div><div class="cd-g-r2">Last &middot; Apr 9 &middot; 12 sessions</div></div></div>
-          <div class="cd-c-letter">N</div>
           <div class="cd-g-row cd-press cd-c-row" data-name="Tom Novak" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">TN</div><div class="cd-g-rt"><div class="cd-g-r1">Tom Novak <span class="fit-badge fit-badge-danger">&euro;40 owed</span></div><div class="cd-g-r2">Last &middot; Apr 18 &middot; 8 sessions</div></div></div>
-          <div class="cd-c-letter">P</div>
           <div class="cd-g-row cd-press cd-c-row" data-name="Mira Patel" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">MP</div><div class="cd-g-rt"><div class="cd-g-r1">Mira Patel <span class="fit-badge fit-badge-accent">New</span></div><div class="cd-g-r2">Joined 3 days ago &middot; no sessions yet</div></div></div>
-          <div class="cd-c-letter">S</div>
           <div class="cd-g-row cd-press cd-c-row" data-name="Mark Schmidt" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">MS</div><div class="cd-g-rt"><div class="cd-g-r1">Mark Schmidt</div><div class="cd-g-r2">Last &middot; Apr 19 &middot; 8 sessions</div></div></div>
-          <div class="cd-c-letter">V</div>
           <div class="cd-g-row cd-press cd-c-row" data-name="Marta Vega" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">MV</div><div class="cd-g-rt"><div class="cd-g-r1">Marta Vega <span class="fit-badge fit-badge-neutral">CRM</span></div><div class="cd-g-r2">Last &middot; Mar 30 &middot; 5 sessions</div></div></div>
-          <div class="cd-c-letter">W</div>
           <div class="cd-g-row cd-press cd-c-row" data-name="Paul Walker" onclick="location.href='client-detail-drafts.html#s-draft-client'"><div class="cd-d-av">PW</div><div class="cd-g-rt"><div class="cd-g-r1">Paul Walker</div><div class="cd-g-r2">Last &middot; Feb 12 &middot; 3 sessions</div></div></div>
           <div class="cd-c-nohit">No one matches</div>
         </div>
-        <div class="cd-c-index"><span>A</span><span>D</span><span>K</span><span>N</span><span>P</span><span>S</span><span>V</span><span>W</span></div>
       </div>
       <div class="cd-i-panel cd-c-arch cd-press" onclick="go('s-archived',document.querySelector('.sidebar button[onclick*=s-archived]'))">
         <div class="cd-g-row"><div class="cd-j-plate" style="width:40px;height:40px;border-radius:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg></div><div class="cd-g-rt"><div class="cd-g-r1">Archived &amp; Blocked</div></div><div class="cd-g-rv" style="color:var(--fit-text-tertiary);font-weight:400;">5</div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--fit-text-tertiary);flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg></div>
@@ -956,6 +902,34 @@
       </div>
     </div>
     </div><!-- /cd-j-body -->
+
+    <!-- GROUPS pane — manual groups only (smart groups are the chips on the Clients pane).
+         Same panel grammar: tile · name · meta · faces; a group is people, so the faces lead. -->
+    <div class="cd-c-groups">
+      <div class="cd-in">
+        <div class="cd-i-sec">Your groups<span>3</span></div>
+        <div class="cd-i-panel">
+          <div class="cd-g-row cd-press" onclick="go('s-group-detail',document.querySelector('.sidebar button[onclick*=s-group-detail]'))">
+            <div class="cd-j-faces"><span class="cd-j-face">AK</span><span class="cd-j-face">MS</span><span class="cd-j-face">+6</span></div>
+            <div class="cd-g-rt"><div class="cd-g-r1">Morning</div><div class="cd-g-r2">8 members &middot; Tue &amp; Thu 18:00</div></div>
+            <span class="cd-j-badge-n cd-c-unread">2</span>
+          </div>
+          <div class="cd-g-row cd-press" onclick="go('s-group-detail',document.querySelector('.sidebar button[onclick*=s-group-detail]'))">
+            <div class="cd-j-faces"><span class="cd-j-face">PW</span><span class="cd-j-face">TN</span><span class="cd-j-face">+10</span></div>
+            <div class="cd-g-rt"><div class="cd-g-r1">Beginners</div><div class="cd-g-r2">12 members</div></div>
+          </div>
+          <div class="cd-g-row cd-press" onclick="go('s-group-detail',document.querySelector('.sidebar button[onclick*=s-group-detail]'))">
+            <div class="cd-j-faces"><span class="cd-j-face">MV</span><span class="cd-j-face">JS</span><span class="cd-j-face">+12</span></div>
+            <div class="cd-g-rt"><div class="cd-g-r1">Zumba Thursday</div><div class="cd-g-r2">14 members &middot; Thu 19:00</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="cd-in" style="padding-bottom:22px;">
+        <div class="cd-i-panel cd-j-tile-empty cd-press" style="margin-top:14px;" onclick="go('s-group-create',document.querySelector('.sidebar button[onclick*=s-group-create]'))">
+          <div class="cd-g-row"><div class="cd-j-plate" style="width:40px;height:40px;border-radius:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div><div class="cd-g-rt"><div class="cd-g-r1">Create a group</div><div class="cd-g-r2">Pick people, name it &mdash; chat comes with it</div></div></div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="fit-phone-footer">
     <div class="fit-navbar">
@@ -1345,178 +1319,12 @@
 
 
 
-<!-- ==== from coach/client-groups.html #s-groups ==== -->
-<div class="srcc-gr fit-phone fit-dark ls-default" id="s-groups" data-status="proposal">
-  <div class="fit-phone-header">
-    <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
-    <div class="fit-header">
-      <span class="fit-header-title" style="flex:1;">Clients</span>
-      <button class="fit-icon-btn" data-a11y-id="coach.groups.add" onclick="cgAdd()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
-    </div>
-  </div>
-
-  <div class="fit-phone-content">
-    <div class="fit-segmented" style="margin:8px 16px 4px;">
-      <button class="fit-segmented-tab" data-a11y-id="coach.clients.tab.clients" onclick="cgTab('clients',this)">Clients</button>
-      <button class="fit-segmented-tab selected" data-a11y-id="coach.clients.tab.groups" onclick="cgTab('groups',this)">Groups</button>
-    </div>
-
-    <!-- ============ PANE: CLIENTS (people) ============ -->
-    <div id="cg-pane-clients" style="display:none;">
-      <div class="imp-search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        <input type="text" placeholder="Search clients">
-      </div>
-      <div class="set-card" style="margin:0 16px 8px;cursor:pointer;" onclick="window.location.href='client-detail-drafts.html#s-draft-client'">
-        <div style="display:flex;align-items:center;gap:12px;width:100%;">
-          <div class="imp-av">AK</div>
-          <div style="flex:1;min-width:0;"><div style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Anna Kowalski</div><div style="font-size:12px;color:var(--fit-text-tertiary);">12 sessions &middot; &euro;580</div></div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-      </div>
-      <div class="set-card" style="margin:0 16px 8px;cursor:pointer;" onclick="window.location.href='client-detail-drafts.html#s-draft-client'">
-        <div style="display:flex;align-items:center;gap:12px;width:100%;">
-          <div class="imp-av">MS</div>
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Mark Schmidt</span><span class="fit-badge fit-badge-danger">&euro;50 owed</span></div>
-            <div style="font-size:12px;color:var(--fit-text-tertiary);">8 sessions &middot; &euro;400</div>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-      </div>
-      <div class="set-card" style="margin:0 16px 8px;cursor:pointer;" onclick="window.location.href='client-detail-drafts.html#s-draft-client'">
-        <div style="display:flex;align-items:center;gap:12px;width:100%;">
-          <div class="imp-av">LR</div>
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px;font-weight:500;color:var(--fit-text-primary);">Lena Roth</span><span class="imp-tag crm">CRM</span></div>
-            <div style="font-size:12px;color:var(--fit-text-tertiary);">3 sessions &middot; &euro;120</div>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-      </div>
-      <div style="padding:8px 16px 20px;font-size:13px;color:var(--fit-text-tertiary);text-align:center;">&mdash; Clients pane unchanged, see clients.html &mdash;</div>
-    </div>
-
-    <!-- ============ PANE: GROUPS ============ -->
-    <div id="cg-pane-groups">
-
-      <!-- === DEFAULT: has groups === -->
-      <div data-list-state="default">
-        <div class="cg-sec" style="margin-top:16px;"><span class="cg-sec-title">Your groups</span></div>
-
-        <!-- Morning: has a chat with unread -->
-        <div class="cg-card" data-a11y-id="coach.group.card" onclick="go('s-group-detail',null)">
-          <div class="cg-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg></div>
-          <div class="cg-card-body">
-            <div class="cg-card-name">Morning</div>
-            <div class="cg-card-sub">8 members</div>
-          </div>
-          <div class="cg-card-right">
-            <div class="cg-stack"><span class="cg-av">AK</span><span class="cg-av">MS</span><span class="cg-av">JD</span><span class="cg-av cg-av--more">+5</span></div>
-            <span class="cg-unread">2</span>
-          </div>
-        </div>
-
-        <!-- Beginners: attached to a recurring series -->
-        <div class="cg-card" onclick="go('s-group-detail',null)">
-          <div class="cg-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg></div>
-          <div class="cg-card-body">
-            <div class="cg-card-name">Beginners</div>
-            <div class="cg-card-sub">
-              <svg viewBox="0 0 24 24" fill="none" stroke="var(--fit-blue-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
-              Tue &amp; Thu &middot; 18:00
-            </div>
-          </div>
-          <div class="cg-card-right">
-            <div class="cg-stack"><span class="cg-av">PW</span><span class="cg-av">TN</span><span class="cg-av">SK</span><span class="cg-av cg-av--more">+9</span></div>
-          </div>
-        </div>
-
-        <!-- Zumba: CRM-heavy, no chat yet -->
-        <div class="cg-card" onclick="go('s-group-detail',null)">
-          <div class="cg-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M17 11a3 3 0 100-6M18 20v-1a6 6 0 00-2-4.4"/></svg></div>
-          <div class="cg-card-body">
-            <div class="cg-card-name">Zumba Thursday</div>
-            <div class="cg-card-sub">14 members</div>
-          </div>
-          <div class="cg-card-right">
-            <div class="cg-stack"><span class="cg-av">MV</span><span class="cg-av">JS</span><span class="cg-av cg-av--more">+12</span></div>
-          </div>
-        </div>
-
-        <div class="cg-sec">
-          <span class="cg-sec-title">Smart groups</span>
-          <span class="cg-sec-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>auto-updated</span>
-        </div>
-
-        <div class="cg-smart cg-smart--warn" data-a11y-id="coach.group.smart" onclick="go('s-group-smart',null)">
-          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
-          <span class="cg-smart-name">Owes money</span>
-          <span class="cg-smart-n">3</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div class="cg-smart" onclick="go('s-group-smart',null)">
-          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 5.6L20 9.5l-4 3.9.9 5.6-4.9-2.7-4.9 2.7.9-5.6-4-3.9 5.8-.9z"/></svg>
-          <span class="cg-smart-name">New this month</span>
-          <span class="cg-smart-n">5</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div class="cg-smart" onclick="go('s-group-smart',null)">
-          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
-          <span class="cg-smart-name">Package running low</span>
-          <span class="cg-smart-n">2</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div class="cg-smart" onclick="go('s-group-smart',null)">
-          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 7l8 6 8-6"/></svg>
-          <span class="cg-smart-name">Not in the app</span>
-          <span class="cg-smart-n">14</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div class="cg-smart" onclick="go('s-group-smart',null)">
-          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-          <span class="cg-smart-name">Inactive 30 days</span>
-          <span class="cg-smart-n">7</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div style="height:20px;"></div>
-      </div>
-
-      <!-- === EMPTY: no manual groups yet (smart groups still show) === -->
-      <div data-list-state="empty">
-        <div class="fit-empty-state" style="padding-top:40px;padding-bottom:24px;">
-          <svg class="fes-illus" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="24" cy="22" r="8"/><path d="M10 50v-2a14 14 0 0128 0v2"/><path d="M44 24a8 8 0 100-16M48 50v-2a14 14 0 00-6-11.5"/>
-          </svg>
-          <div class="fit-empty-state-title">No groups yet</div>
-          <div class="fit-empty-state-sub">Group clients you train together —<br>invite them to a session or message them at once.</div>
-          <button class="fit-btn fit-btn-primary" style="display:inline-flex;width:auto;height:44px;padding:0 24px;font-size:16px;" onclick="go('s-group-create',null)">Create a group</button>
-        </div>
-        <div class="cg-sec">
-          <span class="cg-sec-title">Smart groups</span>
-          <span class="cg-sec-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>auto-updated</span>
-        </div>
-        <div class="cg-smart cg-smart--warn" onclick="go('s-group-smart',null)">
-          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
-          <span class="cg-smart-name">Owes money</span><span class="cg-smart-n">3</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div class="cg-smart" onclick="go('s-group-smart',null)">
-          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 7l8 6 8-6"/></svg>
-          <span class="cg-smart-name">Not in the app</span><span class="cg-smart-n">14</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fit-text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- ==== from coach/client-groups.html #s-group-smart ==== -->
 <div class="srcc-gr fit-phone fit-dark" id="s-group-smart" data-status="proposal">
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
-      <button class="fit-header-back" onclick="go('s-groups',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="fit-header-back" onclick="location.href='client-groups.html#s-groups'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
       <span class="fit-header-title">Owes money</span>
     </div>
   </div>
@@ -1577,7 +1385,7 @@
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
-      <button class="fit-header-back" onclick="go('s-groups',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="fit-header-back" onclick="location.href='client-groups.html#s-groups'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
       <span class="fit-header-title cg-group-name">Morning</span>
       <div style="position:absolute;right:12px;display:flex;align-items:center;gap:6px;">
         <button class="fit-icon-btn" data-a11y-id="coach.group.message" onclick="location.href='client-groups.html#s-group-chat'" style="position:relative;">
@@ -1834,7 +1642,7 @@
   <div class="fit-phone-header">
     <div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div>
     <div class="fit-header">
-      <button class="fit-header-back" onclick="go('s-groups',null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="fit-header-back" onclick="location.href='client-groups.html#s-groups'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
       <span class="fit-header-title">New group</span>
     </div>
   </div>
@@ -1910,28 +1718,28 @@
       <button data-v="fresh" onclick="dSet('fresh',this)">Fresh coach</button>
       <button data-v="loading" onclick="dSet('loading',this)">Loading</button>
     </div>
+    <div class="state-toggle" style="margin-bottom:6px;">
+      <span style="font-size:12px;color:var(--fit-gray-500);padding:4px 8px 4px 10px;">Pane</span>
+      <button class="active" onclick="cPane('clients',document.querySelector('.cd-c-seg .fit-segmented-tab'));this.parentNode.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Clients</button>
+      <button onclick="cPane('groups',document.querySelectorAll('.cd-c-seg .fit-segmented-tab')[1]);this.parentNode.querySelectorAll('button').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">Groups</button>
+    </div>
     <div class="bet"><strong>Bet:</strong> the shipped list (<a href="clients.html#s-clients">clients.html</a>) is one flat stack of identical rows carrying lifetime stats (<em>12 sessions &middot; &euro;580</em>); the things a coach opens the tab for &mdash; who owes, who went quiet, who is on this week &mdash; sit in badges or on the other pane. Same content, ordered: <strong>what you owe an answer to &rarr; who you see this week &rarr; everyone</strong>.</div>
     <ul>
-      <li><strong>Needs you = the five smart groups as chips</strong> (&euro; owed &middot; inactive 30d &middot; packs running low &middot; not in app &middot; new this month). <strong>Tap opens the smart group's list</strong>, exactly as the Groups pane did &mdash; they are doors, not filters (decision 2026-09-15). The Groups pane keeps only the manual groups.</li>
+      <li><strong>Needs you = the five smart groups as chips</strong> (&euro; owed &middot; inactive 30d &middot; packs running low &middot; not in app &middot; new this month). <strong>Tap opens the smart group's list</strong>, exactly as the Groups pane did &mdash; they are doors, not filters (decision 2026-09-15). The Groups pane (the other segment, same screen) keeps only the manual groups &mdash; faces lead, unread count on the row, <em>Create a group</em> as a dashed row.</li>
       <li><strong>Rows speak of time, not lifetime money.</strong> <em>Next &middot; Thu 10:00 &middot; Tennis</em> (teal) or <em>Last &middot; Apr 2 &middot; 5 sessions</em>; the badge stays for owed / CRM / new. Lifetime revenue lives on the client's screen.</li>
-      <li><strong>This week</strong> = the people you see, in order of when; <strong>Everyone</strong> = A&ndash;Z with letter dividers and an index rail once the list is long.</li>
+      <li><strong>This week</strong> = the people you see, in order of when; <strong>Everyone</strong> = A&ndash;Z, plain rows. Letter dividers and an index rail were tried and dropped (2026-09-15) &mdash; noise at this size; on native the platform index (UITableView / fast-scroller) can appear past ~50 clients without a design decision here.</li>
       <li><strong>Search</strong> under the segmented control (type to try); while searching the chips, This week and the rail hide and the A&ndash;Z list filters.</li>
       <li><strong>+ stays the one action</strong> (create &middot; import &middot; invite to app &middot; invite to training &mdash; the canon sheet). A list is not an object, so no circles.</li>
       <li><strong>Archived &amp; Blocked</strong> stays a row at the bottom (Mail Trash pattern). <strong>Fresh coach</strong> = one card with two doors: Import contacts / Invite by link.</li>
       <li>No wash in the plain look (no identity block here); tinted canvas as everywhere.</li>
     </ul>
-    <div class="cost"><strong>What it costs:</strong> two lists of the same people (This week + Everyone) &mdash; a person can appear twice; the rail needs a real A&ndash;Z scroll on native; sorting by next session needs the next-session field on the list endpoint (today the list carries lifetime counts only).</div>
+    <div class="cost"><strong>What it costs:</strong> two lists of the same people (This week + Everyone) &mdash; a person can appear twice; sorting by next session needs the next-session field on the list endpoint (today the list carries lifetime counts only).</div>
     <p class="note">Every screen reached from here is copied into this file (source named on each). Client rows open the Client Detail rework (<code>client-detail-drafts.html</code>), Home in the tab bar opens the Home rework.</p>
   </div>
   <div class="ann" id="ann-s-group-smart"><span class="ann-role">Coach &middot; reached from Clients</span>
     <h3>Smart group</h3>
     <p>From a <em>Needs you</em> chip &mdash; the computed list (owes money / inactive / packs low / not in app / new). Unchanged.</p>
     <p class="note">Copy of <code>client-groups.html#s-group-smart</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy.</p>
-  </div>
-  <div class="ann" id="ann-s-groups"><span class="ann-role">Coach &middot; reached from Clients</span>
-    <h3>Groups pane</h3>
-    <p>The other segment. Manual groups only &mdash; smart groups moved to the chips on the Clients pane.</p>
-    <p class="note">Copy of <code>client-groups.html#s-groups</code> so the flow walks inside one file. The source stays canon &mdash; change it there, then re-copy.</p>
   </div>
   <div class="ann" id="ann-s-group-detail"><span class="ann-role">Coach &middot; reached from Clients</span>
     <h3>Group</h3>
@@ -2003,6 +1811,13 @@ function dSet(name, btn) {
   var host = document.querySelector('.state-toggle[data-d="state"]');
   host.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); });
   var hit = btn || host.querySelector('button[data-v="' + name + '"]'); if (hit) hit.classList.add('active');
+}
+// Clients | Groups panes
+function cPane(name, btn) {
+  var el = document.getElementById('s-draft-clients');
+  el.classList.toggle('c-pane-groups', name === 'groups');
+  el.querySelectorAll('.cd-c-seg .fit-segmented-tab').forEach(function (t) { t.classList.remove('selected'); });
+  if (btn) btn.classList.add('selected');
 }
 // A chip opens the smart group's list, titled after the chip.
 function cOpenSmart(name) {
@@ -2196,18 +2011,6 @@ function openCrmAddr(ctx){ _crmReturn=ctx||'new'; location.href='clients.html#s-
 
 // ==== copied from client-groups.html ====
 let cgLastRemoved = null;
-function cgTab(pane, btn) {
-  const ph = document.getElementById('s-groups');
-  ph.querySelectorAll('.fit-segmented-tab').forEach(t => t.classList.remove('selected'));
-  if (btn) btn.classList.add('selected');
-  document.getElementById('cg-pane-clients').style.display = pane === 'clients' ? 'block' : 'none';
-  document.getElementById('cg-pane-groups').style.display = pane === 'lists' ? 'block' : 'none';
-}
-function cgAdd() {
-  const onLists = document.getElementById('cg-pane-groups').style.display !== 'none';
-  if (onLists) go('s-group-create', null);
-  else window.location.href = './clients.html#s-create-client';
-}
 function cgToggle(row) {
   if (row.getAttribute('aria-disabled') === 'true') return;
   row.classList.toggle('selected');
