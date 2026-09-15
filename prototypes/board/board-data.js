@@ -3278,7 +3278,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-clients",
-          "hash": "8bf97bf79476",
+          "hash": "1151adcb3983",
           "title": "Clients, placed",
           "inApp": "",
           "status": "proposal",
@@ -3308,7 +3308,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-archived",
-          "hash": "b8bcdc8770f4",
+          "hash": "c26262aed19d",
           "title": "↳ Archived & Blocked",
           "inApp": "Archived & Blocked",
           "status": "proposal",
@@ -3327,7 +3327,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-import-contacts",
-          "hash": "238b72fb9cce",
+          "hash": "00f179941ccf",
           "title": "↳ Import contacts",
           "inApp": "Import contacts",
           "status": "proposal",
@@ -3346,7 +3346,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-import-done",
-          "hash": "06048c4ed1e7",
+          "hash": "25834708c1ed",
           "title": "↳ Import done",
           "inApp": "",
           "status": "proposal",
@@ -3366,7 +3366,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-create-client",
-          "hash": "be8fa88a984f",
+          "hash": "510e282bbb4f",
           "title": "↳ Create client",
           "inApp": "New client",
           "status": "proposal",
@@ -3385,7 +3385,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-smart",
-          "hash": "7f851173e0ba",
+          "hash": "48243a17684b",
           "title": "↳ Smart group (from a chip)",
           "inApp": "Owes money",
           "status": "proposal",
@@ -3405,7 +3405,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-detail",
-          "hash": "0f5a9290d4f4",
+          "hash": "ddbf64c23bad",
           "title": "↳ Group",
           "inApp": "Morning",
           "status": "proposal",
@@ -3440,7 +3440,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-group-create",
-          "hash": "178a47969e03",
+          "hash": "6c2801728fd8",
           "title": "↳ Create group",
           "inApp": "New group",
           "status": "proposal",
