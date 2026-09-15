@@ -92,3 +92,4 @@ States on the prototype: Active day · All caught up · Quiet day · Idle · Rea
 - Whether the chips lose too much — the shipped cards carried a second line each.
 - Tinted canvas as the coach default (shared decision with Client Detail).
 - Port back to `dashboard.html` once confirmed; the copies are snapshots (re-copy with `~/.claude/scripts/proto-extract-screens.py`).
+- 2026-09-15 (later) — self-paced builder/review/thread copied into the flow; relinked. Index: [rework-index.md](./rework-index.md).

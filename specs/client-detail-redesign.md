@@ -177,3 +177,4 @@ Open: whether tinted becomes the coach default (then the athlete side needs its 
 - Money widget option **D — a swiper** (Debt → Pack → Payment history, like Coach Balance Cash/Card) stays parked, worth a later try.
 - Event drawer copied into the flow shows the calendar demo's price/method; the sheet has no id on the price to override.
 - Open from J's annotation: does a coach lose the actions on a long client now that nothing is pinned? *Book* is duplicated in the Next-session slot, which may be enough.
+- 2026-09-15 (later) — Owed / self-paced / packages / groups / history / archived reached from J all redrawn; drawers get reschedule/cancel sheets; every exit relinked to rework files. Index: [rework-index.md](./rework-index.md).

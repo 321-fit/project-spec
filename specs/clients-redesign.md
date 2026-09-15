@@ -71,3 +71,4 @@ States: 23 clients · Fresh coach · Loading (title + segmented + search instant
 ## Change log
 
 - 2026-09-15 — first cut, built after the Clients discussion (chips as doors, rows by time, A–Z + rail, search, fresh card); review: segmented inset fixed, letters + rail dropped, Groups pane rebuilt inside the draft, Archived & Blocked redrawn, fresh card fixed, Group detail redrawn (people first); later the same day: group all-dates / add / rename / create, smart group, import, create client redrawn — nothing in the flow leads to a canon copy any more except the group chat and the booking flow; **form grammar** (`cd-f-*`) and **picker grammar** (`cd-pick-*`) defined here.
+- 2026-09-15 (later) — relinked; Group detail + all group screens redrawn. Index: [rework-index.md](./rework-index.md).
