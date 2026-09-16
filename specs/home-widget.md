@@ -13,13 +13,17 @@ A home-screen widget (iOS WidgetKit, Android Glance) that shows the user's sched
 
 | Size | iOS points | Shows | Tap |
 |---|---|---|---|
-| **Small** | 158×158 | the next session: name, who with, *when* in the type colour (`Today · 18:30`, `Tomorrow · 10:00`, `Thu · 09:00`; inside 60 min `in 45 min`) | the event |
-| **Medium** | 338×158 | the next 2–3 sessions in one column with day labels (Today / Tomorrow / weekday); footer = one quiet line | row → the event; elsewhere → Calendar tab |
+| **Small** | 158×158 | *time-first*: the hour (28px) + `today` / `in 45 min`, name, who — and one line for the one after; *date-first*: weekday + day number, two rows | the event |
+| **Medium** | 338×158 | *time-first*: the next one big + the rest as a compact list with a day-label column; *date-first*: date block left (weekday, big number, `3 this week` / `② requests`), rows by day right | row → the event; elsewhere → Calendar tab |
 | **Large** | 338×354 | a 7-day strip (today highlighted, past dimmed, dots under a day = sessions in type colour) + 4–5 rows by day; footer | day → Calendar on that day; row → the event |
 
 **iOS lock screen** (accessory families, same timeline): *inline* — one line above the clock (`● Boxing with Maris · 18:30`); *circular* (`Next 18:30`, `Week 3`); *rectangular* (label / name / time · place). Monochrome by definition.
 
 Android: the same content in Material shape (28dp system radius); Glance cells resize (`SizeMode.Responsive`: 2×2 → small layout, 4×2 → medium, 4×4 → large); rows ≥ 40dp and the medium grows with its cell instead of clipping.
+
+### Layout candidates and rhythm
+
+Two layouts in the prototype (switch in the annotation column): **time-first** (Apple Clock / Fantastical "up next" — the hour is the biggest thing) and **date-first** (Apple Calendar — weekday + big day number, then rows). Both obey one rhythm: 16px content margins, a 4px grid, content **top-anchored** with the only stretch between the rows and the single 11px bottom line; a four-step type scale — 28–34 (hour / day number) · 15–16 (name) · 13–14 (rows) · 10–12 (labels, secondary); fixed tabular time column (34–40px) that never clips; the small never carries more than 1 session + 1 "next" line (time-first) or 2 rows (date-first).
 
 ## 3. Language
 
@@ -67,9 +71,11 @@ Proposal: the skin is a **widget setting** (iOS `AppIntentConfiguration`, Androi
 ## 7. Open
 
 1. Skin: brand canvas or system material (or both, user-chosen in the widget's configuration).
+1a. Layout: time-first or date-first (owner review pending).
 2. Athlete side: show pending requests (`awaiting Maria`)? Proposal: no — the widget is a promise, not a maybe.
 3. Coach large footer: three numbers (requests · earned · planned) or two.
 
 ## Change log
 - 2026-09-16 — first cut: prototype + this page.
+- 2026-09-16 (later 2) — layout pass: time-first / date-first candidates, 4px rhythm, top-anchored content, four-step type scale (owner: the first cut felt glued together with a huge gap on the small).
 - 2026-09-16 (later) — platform rules pass: type = shape + colour, iOS 18 tinted state, lock-screen accessories, Android system font / 40dp rows / dynamic-colour skin, 16pt margins, smaller mark; §8.

@@ -154,6 +154,67 @@
   .wg-acc-rect .s { font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 1px; }
   .wg-lock-foot { margin-top: auto; padding-bottom: 28px; display: flex; gap: 120px; }
   .wg-lock-foot i { width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.14); }
+  /* ===== Layout pass: a 4pt rhythm, content top-anchored, one quiet line at the bottom =====
+     Two layouts, switched from the annotation: TIME-FIRST (the hour is the biggest thing — Apple Clock/Fantastical
+     "up next") and DATE-FIRST (Apple Calendar: weekday + big day number, then the rows). */
+  .wg-lt, .wg-ld { display: none; flex-direction: column; flex: 1; min-height: 0; }
+  .lay-time .wg-lt, .lay-date .wg-ld { display: flex; }
+  .wg-hd { line-height: 14px; }
+  /* small · time-first */
+  .ws-time { font-size: 28px; font-weight: 700; letter-spacing: -0.6px; line-height: 1; margin-top: 10px; }
+  .ws-time small { font-size: 13px; font-weight: 600; letter-spacing: 0; margin-left: 4px; color: rgba(255,255,255,0.7); }
+  .fit-light.wg-system .ws-time small { color: rgba(0,0,0,0.5); }
+  .ws-name { font-size: 15px; font-weight: 600; line-height: 1.2; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ws-sub { font-size: 12px; line-height: 1.3; margin-top: 2px; color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fit-light.wg-system .ws-sub { color: rgba(0,0,0,0.55); }
+  .ws-foot { margin-top: auto; padding-top: 8px; font-size: 11px; line-height: 14px; color: rgba(255,255,255,0.55); display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; }
+  .fit-light.wg-system .ws-foot { color: rgba(0,0,0,0.45); }
+  /* small + medium · date-first: the date block */
+  .wd-day { font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--fit-teal-500); line-height: 14px; }
+  .wd-num { font-size: 30px; font-weight: 700; letter-spacing: -0.8px; line-height: 1; margin-top: 2px; }
+  .wd-rows { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+  .wd-r { display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .wd-r .t { font-size: 11px; font-weight: 600; width: 34px; flex-shrink: 0; color: rgba(255,255,255,0.75); font-variant-numeric: tabular-nums; }
+  .fit-light.wg-system .wd-r .t { color: rgba(0,0,0,0.55); }
+  .wd-r .n { font-size: 13px; font-weight: 500; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wd-r .n small { font-weight: 400; color: rgba(255,255,255,0.6); }
+  .fit-light.wg-system .wd-r .n small { color: rgba(0,0,0,0.5); }
+  .wd-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: rgba(255,255,255,0.5); line-height: 12px; margin-top: 2px; }
+  .fit-light.wg-system .wd-lbl { color: rgba(0,0,0,0.4); }
+  .wd-lbl.now { color: var(--fit-teal-500); }
+  /* medium · date-first: date block left, rows right */
+  .wm-cols { display: flex; gap: 14px; flex: 1; min-height: 0; margin-top: 8px; }
+  .wm-date { width: 76px; flex-shrink: 0; display: flex; flex-direction: column; }
+  .wm-date .wd-num { font-size: 34px; }
+  .wm-date .wd-sum { margin-top: auto; font-size: 11px; line-height: 14px; color: rgba(255,255,255,0.55); }
+  .fit-light.wg-system .wm-date .wd-sum { color: rgba(0,0,0,0.45); }
+  .wm-rows { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .wm-rows .wd-r { min-height: 20px; }
+  .wm-rows .wd-r .t { font-size: 13px; width: 40px; color: #fff; }
+  .fit-light.wg-system .wm-rows .wd-r .t { color: #12161a; }
+  .wm-rows .wd-r .n { font-size: 14px; }
+  .wm-rows .wd-lbl { margin-top: 4px; } .wm-rows .wd-lbl:first-child { margin-top: 0; }
+  /* medium · time-first: the next one big, then the rest as a compact list */
+  .wm-next { display: flex; align-items: baseline; gap: 10px; margin-top: 8px; }
+  .wm-next .ws-time { margin-top: 0; font-size: 30px; }
+  .wm-next .ws-name { margin-top: 0; font-size: 16px; }
+  .wm-next .ws-sub { margin-top: 0; }
+  .wm-next > div { min-width: 0; }
+  .wm-rest { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+  .wm-rest .wd-r .t { font-size: 12px; width: 40px; }
+  .wm-rest .wd-r .n { font-size: 13px; font-weight: 500; }
+  .wm-rest .wd-r .lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: rgba(255,255,255,0.5); width: 62px; flex-shrink: 0; }
+  .fit-light.wg-system .wm-rest .wd-r .lbl { color: rgba(0,0,0,0.4); }
+  .wd-r .who { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 99px; background: rgba(255,255,255,0.16); color: #fff; flex-shrink: 0; }
+  .fit-light.wg-system .wd-r .who { background: rgba(0,0,0,0.07); color: #12161a; }
+  /* date-first small: the date IS the header — the mark sits top-right on its own, the word "Next" goes */
+  .lay-date .wg-s .wg-hd { position: absolute; top: 16px; right: 16px; color: transparent; }
+  .lay-date .wg-s .wg-hd b { opacity: 0.7; }
+  .wg-s .wd-rows > :nth-child(n+4), .wg-s .wd-rows > .wd-lbl:nth-child(3) { display: none; }
+  .wm-rest .wd-r .lbl:empty { visibility: hidden; }
+  .wg-lt .wg-foot { padding-top: 6px; }
+  .wg-tinted .wd-day, .wg-tinted .wd-lbl.now { color: #fff; }
+  .wg-tinted .ws-sub, .wg-tinted .ws-foot, .wg-tinted .wd-r .t, .wg-tinted .wd-lbl, .wg-tinted .wm-date .wd-sum, .wg-tinted .wm-rest .wd-r .lbl, .wg-tinted .ws-time small, .wg-tinted .wd-r .n small { color: rgba(255,255,255,0.65); }
   /* gallery of states */
   .wg-gal { padding: 18px 26px 40px; display: flex; flex-direction: column; gap: 18px; }
   .wg-gal-t { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--fit-text-tertiary); margin-bottom: -8px; }
@@ -209,17 +270,12 @@
 </nav>
 
 <!-- ==================== ATHLETE · HOME SCREEN ==================== -->
-<div class="fit-phone fit-dark active" id="s-ath-home" data-status="proposal">
+<div class="fit-phone fit-dark lay-time active" id="s-ath-home" data-status="proposal">
   <div class="fit-phone-header" style="background:transparent;position:absolute;left:0;right:0;top:0;z-index:2;"><div class="fit-status-bar wg-sb"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div></div>
   <div class="fit-phone-content" style="display:flex;flex-direction:column;">
     <div class="wg-home" style="padding-top:52px;">
-      <div class="wg-row"><div class="wg wg-s" onclick="tap('event')"><div class="wg-hd"><b>321</b>Next</div><div class="wg-t">Boxing</div><div class="wg-sub">with Maris</div><div class="wg-when"><i></i>Today &middot; 18:30</div></div><div class="wg-icons" style="grid-template-columns:repeat(2,60px);width:158px;"><div class="wg-icon"><i></i><span>Messages</span></div><div class="wg-icon"><i></i><span>Photos</span></div><div class="wg-icon"><i></i><span>Maps</span></div><div class="wg-icon"><i></i><span>Notes</span></div></div></div>
-      <div class="wg wg-m" onclick="tap('calendar')"><div class="wg-hd"><b>321</b>Schedule<span class="r">Wed 23 Apr</span></div>
-        <div class="wg-list wg-mlist">
-          <div class="wg-day now">Today</div><div class="wg-r" onclick="tap('event');event.stopPropagation()"><span class="wg-dot"></span><span class="t">18:30</span><span class="n">Boxing <small>Maris</small></span></div>
-          <div class="wg-day">Tomorrow</div><div class="wg-r" onclick="tap('event');event.stopPropagation()"><span class="wg-dot"></span><span class="t">10:00</span><span class="n">Golf <small>Andris</small></span></div><div class="wg-r" onclick="tap('event');event.stopPropagation()"><span class="wg-dot group"></span><span class="t">17:00</span><span class="n">Kids Training</span><span class="who">Mia</span></div>
-        </div>
-        <div class="wg-foot">3 sessions this week</div></div>
+      <div class="wg-row"><div class="wg wg-s" onclick="tap('event')"><div class="wg-hd"><b>321</b>Next</div><div class="wg-lt"><div class="ws-time">18:30<small>today</small></div><div class="ws-name">Boxing</div><div class="ws-sub">with Maris</div><div class="ws-foot"><span class="wg-dot"></span> Tomorrow 10:00 &middot; Golf</div></div><div class="wg-ld"><div class="wd-day">Wed</div><div class="wd-num">23</div><div class="wd-rows"><div class="wd-r"><span class="wg-dot"></span><span class="t">18:30</span><span class="n">Boxing</span></div><div class="wd-lbl">Tomorrow</div><div class="wd-r"><span class="wg-dot"></span><span class="t">10:00</span><span class="n">Golf</span></div><div class="wd-r"><span class="wg-dot group"></span><span class="t">17:00</span><span class="n">Kids <small>Mia</small></span></div></div></div></div><div class="wg-icons" style="grid-template-columns:repeat(2,60px);width:158px;"><div class="wg-icon"><i></i><span>Messages</span></div><div class="wg-icon"><i></i><span>Photos</span></div><div class="wg-icon"><i></i><span>Maps</span></div><div class="wg-icon"><i></i><span>Notes</span></div></div></div>
+      <div class="wg wg-m" onclick="tap('calendar')"><div class="wg-hd"><b>321</b>Schedule<span class="r">Wed 23 Apr</span></div><div class="wg-lt"><div class="wm-next"><div class="ws-time">18:30</div><div><div class="ws-name">Boxing with Maris</div><div class="ws-sub">Today &middot; Punch Gym &middot; 60 min</div></div></div><div class="wm-rest"><div class="wd-r" onclick="tap('event');event.stopPropagation()"><span class="lbl">Tomorrow</span><span class="wg-dot"></span><span class="t">10:00</span><span class="n">Golf <small>Andris</small></span></div><div class="wd-r" onclick="tap('event');event.stopPropagation()"><span class="lbl"></span><span class="wg-dot group"></span><span class="t">17:00</span><span class="n">Kids Training</span><span class="who">Mia</span></div></div><div class="wg-foot">3 sessions this week</div></div><div class="wg-ld"><div class="wm-cols"><div class="wm-date"><div class="wd-day">Wednesday</div><div class="wd-num">23</div><div class="wd-sum">3 this week</div></div><div class="wm-rows"><div class="wd-lbl now">Today</div><div class="wd-r" onclick="tap('event');event.stopPropagation()"><span class="wg-dot"></span><span class="t">18:30</span><span class="n">Boxing <small>Maris</small></span></div><div class="wd-lbl">Tomorrow</div><div class="wd-r" onclick="tap('event');event.stopPropagation()"><span class="wg-dot"></span><span class="t">10:00</span><span class="n">Golf <small>Andris</small></span></div><div class="wd-r" onclick="tap('event');event.stopPropagation()"><span class="wg-dot group"></span><span class="t">17:00</span><span class="n">Kids Training</span><span class="who">Mia</span></div></div></div></div></div>
       <div class="wg-icons"><div class="wg-icon"><i></i><span>Messages</span></div><div class="wg-icon"><i></i><span>Calendar</span></div><div class="wg-icon"><i></i><span>Photos</span></div><div class="wg-icon"><i></i><span>Camera</span></div><div class="wg-icon"><i></i><span>Maps</span></div><div class="wg-icon"><i></i><span>Weather</span></div><div class="wg-icon"><i></i><span>Notes</span></div><div class="wg-icon"><i class="app"></i><span>321Fit</span></div></div>
       <div class="wg-dock"><i></i><i></i><i></i><i class="app"></i></div>
     </div>
@@ -227,7 +283,7 @@
 </div>
 
 <!-- ==================== ATHLETE · LARGE ==================== -->
-<div class="fit-phone fit-dark " id="s-ath-large" data-status="proposal">
+<div class="fit-phone fit-dark lay-time " id="s-ath-large" data-status="proposal">
   <div class="fit-phone-header" style="background:transparent;position:absolute;left:0;right:0;top:0;z-index:2;"><div class="fit-status-bar wg-sb"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div></div>
   <div class="fit-phone-content" style="display:flex;flex-direction:column;">
     <div class="wg-home" style="padding-top:52px;">
@@ -258,17 +314,12 @@
 </div>
 
 <!-- ==================== COACH · HOME SCREEN ==================== -->
-<div class="fit-phone fit-dark " id="s-coach-home" data-status="proposal">
+<div class="fit-phone fit-dark lay-time " id="s-coach-home" data-status="proposal">
   <div class="fit-phone-header" style="background:transparent;position:absolute;left:0;right:0;top:0;z-index:2;"><div class="fit-status-bar wg-sb"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div></div>
   <div class="fit-phone-content" style="display:flex;flex-direction:column;">
     <div class="wg-home" style="padding-top:52px;">
-      <div class="wg-row"><div class="wg wg-s" onclick="tap('event')"><div class="wg-hd"><b>321</b>Next</div><div class="wg-t">Tennis</div><div class="wg-sub">Sarah Mitchell &middot; Court A</div><div class="wg-when"><i></i>10:30 &middot; in 45 min</div></div><div class="wg-icons" style="grid-template-columns:repeat(2,60px);width:158px;"><div class="wg-icon"><i></i><span>Messages</span></div><div class="wg-icon"><i></i><span>Photos</span></div><div class="wg-icon"><i></i><span>Maps</span></div><div class="wg-icon"><i></i><span>Notes</span></div></div></div>
-      <div class="wg wg-m" onclick="tap('calendar')"><div class="wg-hd"><b>321</b>Today<span class="r">Wed 23 Apr</span></div>
-        <div class="wg-list wg-mlist">
-          <div class="wg-day now">Today</div><div class="wg-r" onclick="tap('event');event.stopPropagation()"><span class="wg-dot"></span><span class="t">10:30</span><span class="n">Sarah M. <small>Tennis · Court A</small></span></div><div class="wg-r" onclick="tap('event');event.stopPropagation()"><span class="wg-dot group"></span><span class="t">18:00</span><span class="n">HIIT Group <small>7 of 10</small></span></div>
-          <div class="wg-day">Tomorrow</div><div class="wg-r" onclick="tap('event');event.stopPropagation()"><span class="wg-dot"></span><span class="t">09:00</span><span class="n">Anna K. <small>Yoga · home visit</small></span></div>
-        </div>
-        <div class="wg-foot"><span class="badge">2</span>requests waiting &middot; &euro;180 planned this week</div></div>
+      <div class="wg-row"><div class="wg wg-s" onclick="tap('event')"><div class="wg-hd"><b>321</b>Next</div><div class="wg-lt"><div class="ws-time">10:30<small>in 45 min</small></div><div class="ws-name">Sarah Mitchell</div><div class="ws-sub">Tennis &middot; Court A</div><div class="ws-foot"><span class="wg-dot group"></span> 18:00 &middot; HIIT Group 7/10</div></div><div class="wg-ld"><div class="wd-day">Wed</div><div class="wd-num">23</div><div class="wd-rows"><div class="wd-r"><span class="wg-dot"></span><span class="t">10:30</span><span class="n">Sarah M.</span></div><div class="wd-r"><span class="wg-dot group"></span><span class="t">18:00</span><span class="n">HIIT Group</span></div><div class="wd-lbl">Tomorrow</div><div class="wd-r"><span class="wg-dot"></span><span class="t">09:00</span><span class="n">Anna K.</span></div></div></div></div><div class="wg-icons" style="grid-template-columns:repeat(2,60px);width:158px;"><div class="wg-icon"><i></i><span>Messages</span></div><div class="wg-icon"><i></i><span>Photos</span></div><div class="wg-icon"><i></i><span>Maps</span></div><div class="wg-icon"><i></i><span>Notes</span></div></div></div>
+      <div class="wg wg-m" onclick="tap('calendar')"><div class="wg-hd"><b>321</b>Schedule<span class="r">Wed 23 Apr</span></div><div class="wg-lt"><div class="wm-next"><div class="ws-time">10:30</div><div><div class="ws-name">Sarah Mitchell &middot; Tennis</div><div class="ws-sub">in 45 min &middot; Court A &middot; 60 min</div></div></div><div class="wm-rest"><div class="wd-r" onclick="tap('event');event.stopPropagation()"><span class="lbl">Today</span><span class="wg-dot group"></span><span class="t">18:00</span><span class="n">HIIT Group <small>7 of 10</small></span></div><div class="wd-r" onclick="tap('event');event.stopPropagation()"><span class="lbl">Tomorrow</span><span class="wg-dot"></span><span class="t">09:00</span><span class="n">Anna K. <small>Yoga</small></span></div></div><div class="wg-foot"><span class="badge">2</span>requests waiting &middot; &euro;180 planned this week</div></div><div class="wg-ld"><div class="wm-cols"><div class="wm-date"><div class="wd-day">Wednesday</div><div class="wd-num">23</div><div class="wd-sum"><span class="badge" style="display:inline-flex;min-width:16px;height:16px;padding:0 5px;border-radius:99px;background:var(--fit-red-400);color:#fff;font-size:10px;font-weight:700;align-items:center;justify-content:center;margin-right:4px;">2</span>requests</div></div><div class="wm-rows"><div class="wd-lbl now">Today</div><div class="wd-r" onclick="tap('event');event.stopPropagation()"><span class="wg-dot"></span><span class="t">10:30</span><span class="n">Sarah M. <small>Tennis · Court A</small></span></div><div class="wd-r" onclick="tap('event');event.stopPropagation()"><span class="wg-dot group"></span><span class="t">18:00</span><span class="n">HIIT Group <small>7 of 10</small></span></div><div class="wd-lbl">Tomorrow</div><div class="wd-r" onclick="tap('event');event.stopPropagation()"><span class="wg-dot"></span><span class="t">09:00</span><span class="n">Anna K. <small>Yoga · home visit</small></span></div></div></div></div></div>
       <div class="wg-icons"><div class="wg-icon"><i></i><span>Messages</span></div><div class="wg-icon"><i></i><span>Calendar</span></div><div class="wg-icon"><i></i><span>Photos</span></div><div class="wg-icon"><i></i><span>Camera</span></div><div class="wg-icon"><i></i><span>Maps</span></div><div class="wg-icon"><i></i><span>Weather</span></div><div class="wg-icon"><i></i><span>Notes</span></div><div class="wg-icon"><i class="app"></i><span>321Fit</span></div></div>
       <div class="wg-dock"><i></i><i></i><i></i><i class="app"></i></div>
     </div>
@@ -276,7 +327,7 @@
 </div>
 
 <!-- ==================== COACH · LARGE ==================== -->
-<div class="fit-phone fit-dark " id="s-coach-large" data-status="proposal">
+<div class="fit-phone fit-dark lay-time " id="s-coach-large" data-status="proposal">
   <div class="fit-phone-header" style="background:transparent;position:absolute;left:0;right:0;top:0;z-index:2;"><div class="fit-status-bar wg-sb"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div></div>
   <div class="fit-phone-content" style="display:flex;flex-direction:column;">
     <div class="wg-home" style="padding-top:52px;">
@@ -306,17 +357,12 @@
 </div>
 
 <!-- ==================== ANDROID ==================== -->
-<div class="fit-phone fit-dark wg-android" id="s-android" data-status="proposal">
+<div class="fit-phone fit-dark lay-time wg-android" id="s-android" data-status="proposal">
   <div class="fit-phone-header" style="background:transparent;position:absolute;left:0;right:0;top:0;z-index:2;"><div class="fit-status-bar wg-sb"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div></div>
   <div class="fit-phone-content" style="display:flex;flex-direction:column;">
     <div class="wg-home" style="padding-top:52px;">
-      <div class="wg-row"><div class="wg wg-s" onclick="tap('event')"><div class="wg-hd"><b>321</b>Next</div><div class="wg-t">Boxing</div><div class="wg-sub">with Maris</div><div class="wg-when"><i></i>Today &middot; 18:30</div></div><div class="wg-icons" style="grid-template-columns:repeat(2,60px);width:158px;"><div class="wg-icon"><i></i><span>Messages</span></div><div class="wg-icon"><i></i><span>Photos</span></div><div class="wg-icon"><i></i><span>Maps</span></div><div class="wg-icon"><i></i><span>Notes</span></div></div></div>
-      <div class="wg wg-m" onclick="tap('calendar')"><div class="wg-hd"><b>321</b>Schedule<span class="r">Wed 23 Apr</span></div>
-        <div class="wg-list wg-mlist">
-          <div class="wg-day now">Today</div><div class="wg-r" onclick="tap('event');event.stopPropagation()"><span class="wg-dot"></span><span class="t">18:30</span><span class="n">Boxing <small>Maris</small></span></div>
-          <div class="wg-day">Tomorrow</div><div class="wg-r" onclick="tap('event');event.stopPropagation()"><span class="wg-dot"></span><span class="t">10:00</span><span class="n">Golf <small>Andris</small></span></div><div class="wg-r" onclick="tap('event');event.stopPropagation()"><span class="wg-dot group"></span><span class="t">17:00</span><span class="n">Kids Training</span><span class="who">Mia</span></div>
-        </div>
-        <div class="wg-foot">3 sessions this week</div></div>
+      <div class="wg-row"><div class="wg wg-s" onclick="tap('event')"><div class="wg-hd"><b>321</b>Next</div><div class="wg-lt"><div class="ws-time">18:30<small>today</small></div><div class="ws-name">Boxing</div><div class="ws-sub">with Maris</div><div class="ws-foot"><span class="wg-dot"></span> Tomorrow 10:00 &middot; Golf</div></div><div class="wg-ld"><div class="wd-day">Wed</div><div class="wd-num">23</div><div class="wd-rows"><div class="wd-r"><span class="wg-dot"></span><span class="t">18:30</span><span class="n">Boxing</span></div><div class="wd-lbl">Tomorrow</div><div class="wd-r"><span class="wg-dot"></span><span class="t">10:00</span><span class="n">Golf</span></div><div class="wd-r"><span class="wg-dot group"></span><span class="t">17:00</span><span class="n">Kids <small>Mia</small></span></div></div></div></div><div class="wg-icons" style="grid-template-columns:repeat(2,60px);width:158px;"><div class="wg-icon"><i></i><span>Messages</span></div><div class="wg-icon"><i></i><span>Photos</span></div><div class="wg-icon"><i></i><span>Maps</span></div><div class="wg-icon"><i></i><span>Notes</span></div></div></div>
+      <div class="wg wg-m" onclick="tap('calendar')"><div class="wg-hd"><b>321</b>Schedule<span class="r">Wed 23 Apr</span></div><div class="wg-lt"><div class="wm-next"><div class="ws-time">18:30</div><div><div class="ws-name">Boxing with Maris</div><div class="ws-sub">Today &middot; Punch Gym &middot; 60 min</div></div></div><div class="wm-rest"><div class="wd-r" onclick="tap('event');event.stopPropagation()"><span class="lbl">Tomorrow</span><span class="wg-dot"></span><span class="t">10:00</span><span class="n">Golf <small>Andris</small></span></div><div class="wd-r" onclick="tap('event');event.stopPropagation()"><span class="lbl"></span><span class="wg-dot group"></span><span class="t">17:00</span><span class="n">Kids Training</span><span class="who">Mia</span></div></div><div class="wg-foot">3 sessions this week</div></div><div class="wg-ld"><div class="wm-cols"><div class="wm-date"><div class="wd-day">Wednesday</div><div class="wd-num">23</div><div class="wd-sum">3 this week</div></div><div class="wm-rows"><div class="wd-lbl now">Today</div><div class="wd-r" onclick="tap('event');event.stopPropagation()"><span class="wg-dot"></span><span class="t">18:30</span><span class="n">Boxing <small>Maris</small></span></div><div class="wd-lbl">Tomorrow</div><div class="wd-r" onclick="tap('event');event.stopPropagation()"><span class="wg-dot"></span><span class="t">10:00</span><span class="n">Golf <small>Andris</small></span></div><div class="wd-r" onclick="tap('event');event.stopPropagation()"><span class="wg-dot group"></span><span class="t">17:00</span><span class="n">Kids Training</span><span class="who">Mia</span></div></div></div></div></div>
       <div class="wg-icons"><div class="wg-icon"><i></i><span>Messages</span></div><div class="wg-icon"><i></i><span>Calendar</span></div><div class="wg-icon"><i></i><span>Photos</span></div><div class="wg-icon"><i></i><span>Camera</span></div><div class="wg-icon"><i></i><span>Maps</span></div><div class="wg-icon"><i></i><span>Weather</span></div><div class="wg-icon"><i></i><span>Notes</span></div><div class="wg-icon"><i class="app"></i><span>321Fit</span></div></div>
       <div class="wg-dock"><i></i><i></i><i></i><i class="app"></i></div>
     </div>
@@ -365,15 +411,17 @@
 
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
-  <div class="state-toggle" style="margin-bottom:18px;"><span style="font-size:12px;color:var(--fit-gray-500);padding:6px 8px 6px 0;">Widget skin</span><button class="active" data-sk="brand" onclick="setSkin('brand',this)">Brand canvas</button><button data-sk="system" onclick="setSkin('system',this)">System material</button><span style="font-size:12px;color:var(--fit-gray-500);padding:6px 8px 6px 14px;">Appearance</span><button class="active" data-ap="full" onclick="setAppear('full',this)">Full colour</button><button data-ap="tinted" onclick="setAppear('tinted',this)">Tinted (iOS 18)</button></div>
+  <div class="state-toggle" style="margin-bottom:18px;"><span style="font-size:12px;color:var(--fit-gray-500);padding:6px 8px 6px 0;">Widget skin</span><button class="active" data-sk="brand" onclick="setSkin('brand',this)">Brand canvas</button><button data-sk="system" onclick="setSkin('system',this)">System material</button><span style="font-size:12px;color:var(--fit-gray-500);padding:6px 8px 6px 14px;">Appearance</span><button class="active" data-ap="full" onclick="setAppear('full',this)">Full colour</button><button data-ap="tinted" onclick="setAppear('tinted',this)">Tinted (iOS 18)</button><span style="font-size:12px;color:var(--fit-gray-500);padding:6px 8px 6px 14px;">Layout</span><button class="active" data-ly="time" onclick="setLayout('time',this)">Time-first</button><button data-ly="date" onclick="setLayout('date',this)">Date-first</button></div>
 
   <div class="ann active" id="ann-s-ath-home"><span class="ann-role">Athlete &middot; #43</span>
     <h3>The schedule on the phone&rsquo;s home screen</h3>
     <div class="bet"><strong>Bet:</strong> a widget answers three questions in a glance &mdash; <em>what do I have today, what is next, when is my child&rsquo;s training</em> &mdash; so it shows sessions and nothing else. No greeting, no stats, no marketing. The app&rsquo;s job is everything after the glance.</div>
-    <h4>Small &middot; the next session</h4>
-    <ul><li>One session: name (20px), who with, then <strong>when</strong> in the type colour with the type dot. &ldquo;Today &middot; 18:30&rdquo; / &ldquo;Tomorrow &middot; 10:00&rdquo; / &ldquo;Thu &middot; 09:00&rdquo;; inside 60 min it reads &ldquo;in 45 min&rdquo;.</li><li>Tap &rarr; <strong>that event</strong> (existing deep link), never the app&rsquo;s front door.</li></ul>
-    <h4>Medium &middot; the next 2&ndash;3</h4>
-    <ul><li>Two columns by day (Today / Tomorrow / weekday), rows = time &middot; name &middot; who. The time column is fixed and never clips; the name does.</li><li>Type = the dot (teal personal, blue group, violet self-paced) &mdash; the calendar&rsquo;s own language, see the legend.</li><li><strong>Child training</strong> is not a colour: the type stays the type, and a small <span style="font-size:10px;font-weight:600;padding:1px 6px;border-radius:99px;background:rgba(255,255,255,0.16);">Mia</span> pill says <em>who</em> is training. Colour is already spent on type; a fourth colour for &ldquo;child&rdquo; would collide the moment a child joins a group. (Until #45 ships, the pill just does not appear.)</li><li>Rows tap into the event; the rest of the widget taps into the Calendar tab.</li><li>Footer: one quiet line &mdash; sessions this week (athlete).</li></ul>
+    <h4>Layout &mdash; two candidates (switch above)</h4>
+    <ul><li><strong>Time-first</strong> (Apple Clock / Fantastical &ldquo;up next&rdquo;): the hour is the biggest thing (28&ndash;30px), then the name, then who/where; the bottom line is the <em>next</em> one after that. Small = one session; medium = the next one big + the rest as a compact list with a day label column.</li><li><strong>Date-first</strong> (Apple Calendar): weekday in teal caps + a big day number, then the rows. Small = date + two rows; medium = date block left, rows by day right; the coach&rsquo;s request count sits under the date.</li></ul>
+    <h4>Rhythm rules (both layouts)</h4>
+    <ul><li>16px content margins; a 4px grid inside: header 14px line &rarr; 8/10px &rarr; the primary block &rarr; rows with 4&ndash;6px gaps &rarr; one 11px line at the bottom. Content is <strong>top-anchored</strong>; the only stretch is between the rows and the bottom line, and it is small because the content fills the frame.</li><li>Type scale: 28&ndash;34 (hour / day number) &middot; 15&ndash;16 (name) &middot; 13&ndash;14 (rows) &middot; 11&ndash;12 (secondary) &middot; 10&ndash;11 caps (labels). Four sizes, no more.</li><li>The time column is fixed (34&ndash;40px, tabular) and never clips; the name does; the who-pill never does.</li><li>Small never shows more than: 1 session + 1 &ldquo;next&rdquo; line (time-first) or 2 rows (date-first). If it needs a third, it is a medium.</li></ul>
+    <h4>Medium</h4>
+    <ul><li>Rows = shape-dot &middot; time &middot; name &middot; who. Day labels are 10px caps; in time-first they sit in a fixed 62px column so the times align.</li><li>Type = the dot (teal personal, blue group, violet self-paced) &mdash; the calendar&rsquo;s own language, see the legend.</li><li><strong>Child training</strong> is not a colour: the type stays the type, and a small <span style="font-size:10px;font-weight:600;padding:1px 6px;border-radius:99px;background:rgba(255,255,255,0.16);">Mia</span> pill says <em>who</em> is training. Colour is already spent on type; a fourth colour for &ldquo;child&rdquo; would collide the moment a child joins a group. (Until #45 ships, the pill just does not appear.)</li><li>Rows tap into the event; the rest of the widget taps into the Calendar tab.</li><li>Footer: one quiet line &mdash; sessions this week (athlete).</li></ul>
     <h4>Skin</h4>
     <p>Two candidates, switch above. <strong>Brand canvas</strong> = the rework&rsquo;s tinted teal recipe: the widget is recognisably ours among a dozen white/black system widgets. <strong>System material</strong> = the OS surface (dark <code>#1c1c1e</code> / light white) &mdash; quieter, blends with Calendar/Weather. Dark/Light in the sidebar switches the wallpaper and the system skin; the brand canvas is always dark (it is the identity, not a theme).</p>
     <h4>Platform rules this obeys</h4>
@@ -434,6 +482,11 @@ function switchTheme(theme) {
   d.style.background = theme === 'dark' ? on : off; d.style.color = theme === 'dark' ? 'var(--fit-white)' : 'var(--fit-gray-400)';
   l.style.background = theme === 'light' ? on : off; l.style.color = theme === 'light' ? 'var(--fit-white)' : 'var(--fit-gray-400)';
 }
+function setLayout(name, btn) {
+  document.querySelectorAll('.fit-phone').forEach(function (p) { p.classList.remove('lay-time', 'lay-date'); p.classList.add('lay-' + name); });
+  document.querySelectorAll('.state-toggle button[data-ly]').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-ly') === name); });
+  try { localStorage.setItem('wg-layout', name); } catch (e) {}
+}
 function setAppear(name, btn) {
   document.querySelectorAll('.fit-phone').forEach(function (p) { p.classList.toggle('wg-tinted', name === 'tinted'); });
   document.querySelectorAll('.state-toggle button[data-ap]').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-ap') === name); });
@@ -445,7 +498,7 @@ function setSkin(name, btn) {
 }
 var TAP = { event: 'Opens the app on this event (deep link)', calendar: 'Opens the Calendar tab', find: 'Opens Find a coach', book: 'Opens Book a session', inbox: 'Opens the Inbox (requests)', signin: 'Opens sign in' };
 function tap(k) { var ph = document.querySelector('.fit-phone.active'); var s = ph.querySelector('.fit-snackbar'); if (!s) { s = document.createElement('div'); s.className = 'fit-snackbar'; ph.appendChild(s); } s.textContent = TAP[k] || k; s.classList.add('show'); setTimeout(function () { s.classList.remove('show'); }, 2200); }
-try { setSkin(localStorage.getItem('wg-skin') || 'brand'); } catch (e) {}
+try { setSkin(localStorage.getItem('wg-skin') || 'brand'); setLayout(localStorage.getItem('wg-layout') || 'time'); } catch (e) {}
 (function(){ var h = (location.hash || '').replace('#',''); if (h && document.getElementById(h)) go(h, document.querySelector('.sidebar button[onclick*="' + h + '"]')); })();
 </script>
 </body>
