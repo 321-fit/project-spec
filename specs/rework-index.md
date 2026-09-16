@@ -32,7 +32,7 @@
 | Calendar | `coach/calendar-drafts.html` | — (fills in canon css) | calendar + drawers, event, edit, time off, cash, invite | — |
 | Profile & Settings | `coach/profile-drafts.html` | Profile · Settings · Availability hub (week chart = proposal toggle) | personal info ×7, sports, hours ×5, locations ×6, calendar sync ×5, Stripe ×13, referral ×2, account access ×17 | Booking rules dropped (not in prod); icon assets path |
 | Sessions & Packages | `coach/sessions-drafts.html` | — (cards as one surface) | list, create, detail ×3, series, edit, package editor ×3 | forms pass |
-| Athlete side | `athlete/athlete-drafts.html` | Home · My coaches · Coach detail (no Packages circle) · Profile · Settings | schedule, search (light, canon), public coach profile + booking + addresses, balance ×12, personal info ×7, calendar sync ×5, integrations, sports | light recipe; a second review pass of the roots |
+| Athlete side | `athlete/athlete-drafts.html` | Home (anchor = 3 options: Next up · Activity ring · Balance) · My coaches · Coach detail (no Packages circle) · Profile · Settings — built from the athlete's own canon screens | schedule, search (under the look; light toggle = as shipped), public coach profile + booking + addresses, balance ×12, personal info ×7, calendar sync ×5, integrations, sports | which anchor; light recipe; review pass |
 
 Every exit from a rework file lands on its rework equivalent (`~/.claude/scripts/relink.py`); the walk script reports 0 dead refs / 0 JS errors across all seven files.
 
@@ -47,7 +47,7 @@ Cut per flow, per platform, from the per-flow specs' *User flows* sections. Endp
 ## 4. Decisions still open (owner)
 
 1. Tinted canvas as the coach default; what the athlete (light by default) gets.
-2. Home circle set (Book · Self-paced · Time off · Ask AI) and the athlete's (Find · Self-paced · Top up · Invite).
+2. Home circle set (Book · Self-paced · Time off · Ask AI) and the athlete's (Find · Self-paced · Top up · Invite); the athlete Home anchor (Next up / ring / balance).
 3. Availability hub week chart — keep or drop.
 4. Forms pass on canon forms (create session, package editor, personal info, Stripe onboarding).
 5. Port-back order: which canon files get the rework first.
