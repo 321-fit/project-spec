@@ -547,8 +547,28 @@
   .fit-light .src-inv .v6d-card, .src-inv.fit-light .v6d-card { background: var(--fit-white) !important; box-shadow: 0 8px 26px rgba(0,0,0,0.07); }
   .fit-light .src-inv .v6d-loc-strip, .src-inv.fit-light .v6d-loc-strip { background: rgba(60,60,67,0.05); }
   /* look switch — sits above the annotation column, applies to every phone on the board */
-  .look-switch { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; font-size: 12px; color: var(--fit-gray-500); }
-  .look-switch .state-toggle { margin-bottom: 0; }
+  .look-switch { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; margin-bottom: 18px; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--fit-gray-800); font-size: 12px; color: var(--fit-gray-500); }
+  .look-switch .lk { display: flex; align-items: center; gap: 8px; }
+  .look-switch .lk-l { font-size: 11px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--fit-gray-400); line-height: 1.2; }
+  .look-switch .lk-l small { display: block; font-size: 10px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--fit-gray-600); }
+  .look-switch .state-toggle { margin-bottom: 0; flex-wrap: nowrap; }
+  /* canvas hues: the same recipe (radial glow at the top + a five-stop fall to near-black), another hue.
+     !important so the id-scoped root rule doesn't win. */
+  .fit-phone.fit-dark.k-alpha.k-canvas-indigo::before { background:
+      radial-gradient(120% 48% at 50% -8%, rgba(129,110,255,0.60), rgba(99,102,241,0.12) 55%, transparent 78%),
+      linear-gradient(180deg, #34307a 0%, #262458 22%, #1a193d 48%, #12112a 72%, #0c0b1c 100%) !important; }
+  .fit-phone.fit-dark.k-alpha.k-canvas-ember::before { background:
+      radial-gradient(120% 48% at 50% -8%, rgba(255,140,80,0.58), rgba(255,94,58,0.12) 55%, transparent 78%),
+      linear-gradient(180deg, #6e2e22 0%, #4f221b 22%, #351814 48%, #24100e 72%, #170a09 100%) !important; }
+  .fit-phone.fit-dark.k-alpha.k-canvas-graphite::before { background:
+      radial-gradient(120% 48% at 50% -8%, rgba(160,175,200,0.40), rgba(120,135,160,0.08) 55%, transparent 78%),
+      linear-gradient(180deg, #2c323b 0%, #22272e 22%, #191d22 48%, #121519 72%, #0d0f12 100%) !important; }
+  .fit-phone.fit-dark.k-alpha.k-canvas-fog::before { background:
+      radial-gradient(120% 48% at 50% -8%, rgba(255,255,255,0.42), rgba(220,228,236,0.10) 55%, transparent 78%),
+      linear-gradient(180deg, #7a8390 0%, #636b77 22%, #4d545e 48%, #3c424a 72%, #2f343b 100%) !important; }
+  .fit-phone.fit-dark.k-alpha.k-canvas-fog { --fit-surface-high: rgba(0,0,0,0.22); }
+  .fit-phone.fit-dark.k-alpha.k-canvas-indigo .cd-j-next-panel { outline-color: rgba(167,139,250,0.85); }
+  .fit-phone.fit-dark.k-alpha.k-canvas-ember .cd-j-next-panel { outline-color: rgba(255,171,120,0.85); }
   /* --- J/K shared refinements ---------------------------------------------
      The shipped .fit-action-circle is 64px with a 30px glyph. On a row of four
      that is most of the width above the fold; Revolut's sit around 52. Local
@@ -4099,13 +4119,12 @@
 
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
-  <div class="look-switch">Look
-    <div class="state-toggle"><button data-v="plain" onclick="setLook('plain',this)">Plain</button><button class="active" data-v="tinted" onclick="setLook('tinted',this)">Tinted canvas</button></div>
-    <span>&middot; dark only</span>
-    <span style="margin-left:10px;">CTA</span>
-    <div class="state-toggle"><button data-c="gradient" onclick="setCta('gradient',this)">Gradient</button><button class="active" data-c="white" onclick="setCta('white',this)">White</button></div>
-    <span>&middot; tinted only</span>
+  <div class="look-switch">
+    <div class="lk"><span class="lk-l">Look<small>dark only</small></span><div class="state-toggle"><button data-v="plain" onclick="setLook('plain',this)">Plain</button><button class="active" data-v="tinted" onclick="setLook('tinted',this)">Tinted</button></div></div>
+    <div class="lk"><span class="lk-l">CTA<small>tinted only</small></span><div class="state-toggle"><button data-c="gradient" onclick="setCta('gradient',this)">Gradient</button><button class="active" data-c="white" onclick="setCta('white',this)">White</button></div></div>
+    <div class="lk"><span class="lk-l">Canvas<small>tinted only</small></span><div class="state-toggle"><button class="active" data-k="teal" onclick="setCanvas('teal',this)">Teal</button><button data-k="indigo" onclick="setCanvas('indigo',this)">Indigo</button><button data-k="ember" onclick="setCanvas('ember',this)">Ember</button><button data-k="graphite" onclick="setCanvas('graphite',this)">Graphite</button><button data-k="fog" onclick="setCanvas('fog',this)">Fog</button></div></div>
   </div>
+
   <div class="ann active" id="ann-s-draft-dash"><span class="ann-role">Coach &middot; draft &middot; Home, placed</span>
     <h3>Home &middot; ordered by weight</h3>
     <div class="state-toggle" data-d="state" style="margin-bottom:6px;">
@@ -5067,6 +5086,13 @@ function handleSend(flow) {
   setTimeout(function () { go('s-draft-dash', document.querySelector('.sidebar button[onclick*=s-draft-dash]')); }, 700);
 }
 dAnchor('widget'); dWidget('ring');
+function setCanvas(name, btn) {
+  document.querySelectorAll('.fit-phone').forEach(function (p) { ['teal','indigo','ember','graphite','fog'].forEach(function (k) { p.classList.remove('k-canvas-' + k); }); if (name !== 'teal') p.classList.add('k-canvas-' + name); });
+  document.querySelectorAll('.look-switch button[data-k]').forEach(function (b) { b.classList.remove('active'); });
+  var hit = btn || document.querySelector('.look-switch button[data-k="' + name + '"]'); if (hit) hit.classList.add('active');
+  try { localStorage.setItem('cd-canvas', name); } catch (e) {}
+}
+try { setCanvas(localStorage.getItem('cd-canvas') || 'teal'); } catch (e) {}
 try { setLook(localStorage.getItem('cd-look') || 'tinted'); setCta(localStorage.getItem('cd-cta') || 'white'); } catch (e) { setLook('tinted'); setCta('white'); }
 invInitGrid(); invRender();
 (function(){

@@ -556,8 +556,28 @@
   .cd-ab-dim { color: var(--fit-text-secondary); }
   #s-draft-groups .cd-j-faces { flex-shrink: 0; }
   /* look switch — sits above the annotation column, applies to every phone on the board */
-  .look-switch { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; font-size: 12px; color: var(--fit-gray-500); }
-  .look-switch .state-toggle { margin-bottom: 0; }
+  .look-switch { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; margin-bottom: 18px; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--fit-gray-800); font-size: 12px; color: var(--fit-gray-500); }
+  .look-switch .lk { display: flex; align-items: center; gap: 8px; }
+  .look-switch .lk-l { font-size: 11px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--fit-gray-400); line-height: 1.2; }
+  .look-switch .lk-l small { display: block; font-size: 10px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--fit-gray-600); }
+  .look-switch .state-toggle { margin-bottom: 0; flex-wrap: nowrap; }
+  /* canvas hues: the same recipe (radial glow at the top + a five-stop fall to near-black), another hue.
+     !important so the id-scoped root rule doesn't win. */
+  .fit-phone.fit-dark.k-alpha.k-canvas-indigo::before { background:
+      radial-gradient(120% 48% at 50% -8%, rgba(129,110,255,0.60), rgba(99,102,241,0.12) 55%, transparent 78%),
+      linear-gradient(180deg, #34307a 0%, #262458 22%, #1a193d 48%, #12112a 72%, #0c0b1c 100%) !important; }
+  .fit-phone.fit-dark.k-alpha.k-canvas-ember::before { background:
+      radial-gradient(120% 48% at 50% -8%, rgba(255,140,80,0.58), rgba(255,94,58,0.12) 55%, transparent 78%),
+      linear-gradient(180deg, #6e2e22 0%, #4f221b 22%, #351814 48%, #24100e 72%, #170a09 100%) !important; }
+  .fit-phone.fit-dark.k-alpha.k-canvas-graphite::before { background:
+      radial-gradient(120% 48% at 50% -8%, rgba(160,175,200,0.40), rgba(120,135,160,0.08) 55%, transparent 78%),
+      linear-gradient(180deg, #2c323b 0%, #22272e 22%, #191d22 48%, #121519 72%, #0d0f12 100%) !important; }
+  .fit-phone.fit-dark.k-alpha.k-canvas-fog::before { background:
+      radial-gradient(120% 48% at 50% -8%, rgba(255,255,255,0.42), rgba(220,228,236,0.10) 55%, transparent 78%),
+      linear-gradient(180deg, #7a8390 0%, #636b77 22%, #4d545e 48%, #3c424a 72%, #2f343b 100%) !important; }
+  .fit-phone.fit-dark.k-alpha.k-canvas-fog { --fit-surface-high: rgba(0,0,0,0.22); }
+  .fit-phone.fit-dark.k-alpha.k-canvas-indigo .cd-j-next-panel { outline-color: rgba(167,139,250,0.85); }
+  .fit-phone.fit-dark.k-alpha.k-canvas-ember .cd-j-next-panel { outline-color: rgba(255,171,120,0.85); }
   /* --- J/K shared refinements ---------------------------------------------
      The shipped .fit-action-circle is 64px with a 30px glyph. On a row of four
      that is most of the width above the fold; Revolut's sit around 52. Local
@@ -785,19 +805,16 @@
   .fit-light .ag-bar { background: var(--fit-gray-100); }
   #s-draft-agroup .cd-j-chips { padding-top: 14px; }
   #s-draft-agroup > .fit-phone-content { padding-bottom: 96px; }
-  /* second canvas for the athlete: same recipe (radial glow at the top + a five-stop fall to near-black), other hue.
-     !important so the id-scoped Home rule doesn't win. */
-  .fit-phone.fit-dark.k-alpha.k-canvas-indigo::before { background:
-      radial-gradient(120% 48% at 50% -8%, rgba(129,110,255,0.60), rgba(99,102,241,0.12) 55%, transparent 78%),
-      linear-gradient(180deg, #34307a 0%, #262458 22%, #1a193d 48%, #12112a 72%, #0c0b1c 100%) !important; }
-  .fit-phone.fit-dark.k-alpha.k-canvas-ember::before { background:
-      radial-gradient(120% 48% at 50% -8%, rgba(255,140,80,0.58), rgba(255,94,58,0.12) 55%, transparent 78%),
-      linear-gradient(180deg, #6e2e22 0%, #4f221b 22%, #351814 48%, #24100e 72%, #170a09 100%) !important; }
-  .fit-phone.fit-dark.k-alpha.k-canvas-graphite::before { background:
-      radial-gradient(120% 48% at 50% -8%, rgba(160,175,200,0.40), rgba(120,135,160,0.08) 55%, transparent 78%),
-      linear-gradient(180deg, #2c323b 0%, #22272e 22%, #191d22 48%, #121519 72%, #0d0f12 100%) !important; }
-  .fit-phone.fit-dark.k-alpha.k-canvas-indigo .cd-j-next-panel { outline-color: rgba(167,139,250,0.85); }
-  .fit-phone.fit-dark.k-alpha.k-canvas-ember .cd-j-next-panel { outline-color: rgba(255,171,120,0.85); }
+  /* filters: the canon full-bleed expand rows fuse into inset panels under the look */
+  .fit-dark.k-alpha.srca-srch .filter-expand-row { margin: 0 !important; padding: 14px 16px !important; box-shadow: none !important; border-bottom: none !important; border-radius: 0 !important; }
+  .fit-dark.k-alpha.srca-srch :not(.filter-expand-row) + .filter-expand-row, .fit-dark.k-alpha.srca-srch .filter-expand-row:first-child { border-top-left-radius: 18px !important; border-top-right-radius: 18px !important; }
+  .fit-dark.k-alpha.srca-srch .filter-expand-row:not(:has(+ .filter-expand-row)) { border-bottom-left-radius: 18px !important; border-bottom-right-radius: 18px !important; }
+  .fit-dark.k-alpha.srca-srch .filter-expand-row + .filter-expand-row { border-top: 1px solid rgba(255,255,255,0.07) !important; }
+  .fit-dark.k-alpha.srca-srch .filter-section-title { padding-left: 4px; }
+  .srca-srch.k-cta-white .filter-cta-apply, .srca-srch.k-cta-white .srch-cta { background: linear-gradient(180deg, #ffffff 0%, #f3f7f8 45%, #e2ebee 100%) !important; color: #12161a !important; box-shadow: 0 1px 0 rgba(255,255,255,0.95) inset, 0 8px 20px rgba(0,0,0,0.35); }
+  .fit-dark.k-alpha.srca-srch .filter-sticky-cta { background: transparent !important; border-top: none !important; }
+  [class*="srca-"] div:has(> .set-card + .set-card) { gap: 0 !important; }
+  [class*="srca-"] div:has(> .set-card + .set-card) > .set-card + :not(.set-card) { margin-top: 12px; }
 
   /* no wash on screens without an identity block, in the plain look */
   .fit-phone.cd-nowash:not(.k-alpha)::before { display: none; }
@@ -2683,7 +2700,7 @@
     <div class="cd-i-id cd-in cd-press" onclick="go('s-personal-data',document.querySelector('.sidebar button[onclick*=s-personal-data]'))">
       <div class="cd-i-av">AK</div>
       <div class="cd-i-name">Anna Kowalski</div>
-      <div class="cd-i-sub">Warsaw Warsaw, Poland &middot; 28 sessions &middot; 31h &middot; 9 this month &middot; 3wk streakmiddot; 28 sessions Warsaw, Poland &middot; 28 sessions &middot; 31h &middot; 9 this month &middot; 3wk streakmiddot; 31h Warsaw, Poland &middot; 28 sessions &middot; 31h &middot; 9 this month &middot; 3wk streakmiddot; 3wk streak</div>
+      <div class="cd-i-sub">Warsaw &middot; 28 sessions &middot; 31h &middot; 3wk streak</div>
     </div>
     <div class="cd-in">
       <div class="cd-i-sec">Sports<span class="cd-pr-edit">Edit</span></div>
@@ -8004,15 +8021,10 @@
 
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
-  <div class="look-switch">Look
-    <div class="state-toggle"><button data-v="plain" onclick="setLook('plain',this)">Plain</button><button class="active" data-v="tinted" onclick="setLook('tinted',this)">Tinted canvas</button></div>
-    <span>&middot; dark only</span>
-    <span style="margin-left:10px;">CTA</span>
-    <div class="state-toggle"><button data-c="gradient" onclick="setCta('gradient',this)">Gradient</button><button class="active" data-c="white" onclick="setCta('white',this)">White</button></div>
-    <span>&middot; tinted only</span>
-    <span style="margin-left:10px;">Canvas</span>
-    <div class="state-toggle"><button class="active" data-k="teal" onclick="setCanvas('teal',this)">Teal</button><button data-k="indigo" onclick="setCanvas('indigo',this)">Indigo</button><button data-k="ember" onclick="setCanvas('ember',this)">Ember</button><button data-k="graphite" onclick="setCanvas('graphite',this)">Graphite</button></div>
-    <span>&middot; athlete bet</span>
+  <div class="look-switch">
+    <div class="lk"><span class="lk-l">Look<small>dark only</small></span><div class="state-toggle"><button data-v="plain" onclick="setLook('plain',this)">Plain</button><button class="active" data-v="tinted" onclick="setLook('tinted',this)">Tinted</button></div></div>
+    <div class="lk"><span class="lk-l">CTA<small>tinted only</small></span><div class="state-toggle"><button data-c="gradient" onclick="setCta('gradient',this)">Gradient</button><button class="active" data-c="white" onclick="setCta('white',this)">White</button></div></div>
+    <div class="lk"><span class="lk-l">Canvas<small>tinted only</small></span><div class="state-toggle"><button class="active" data-k="teal" onclick="setCanvas('teal',this)">Teal</button><button data-k="indigo" onclick="setCanvas('indigo',this)">Indigo</button><button data-k="ember" onclick="setCanvas('ember',this)">Ember</button><button data-k="graphite" onclick="setCanvas('graphite',this)">Graphite</button><button data-k="fog" onclick="setCanvas('fog',this)">Fog</button></div></div>
   </div>
   <div class="ann active" id="ann-s-draft-ahome"><span class="ann-role">Athlete &middot; draft &middot; Home, placed</span>
     <h3>Athlete Home &middot; the canon Home, placed</h3>
@@ -10023,7 +10035,12 @@ var _go = go; go = function (id, btn) { _go(id, btn); if (id === 's-pkg-history'
 function agSet(st, btn) { var p = document.getElementById('s-draft-agroup'); ['open','full','conflict','joined'].forEach(function (s) { p.classList.toggle('ag-' + s, s === st); }); var seats = p.querySelector('.ag-seats'), sub = p.querySelector('.ag-seats-sub'), bar = p.querySelector('.ag-bar i'); var m = { open: ['7 of 10', '3 seats left · min 4 to run', '70%'], full: ['10 of 10', 'Full · 2 on the waitlist', '100%'], conflict: ['7 of 10', '3 seats left · min 4 to run', '70%'], joined: ['8 of 10', 'You + 7 · 2 seats left', '80%'] }[st]; seats.textContent = m[0]; sub.textContent = m[1]; bar.style.width = m[2]; if (btn) { btn.parentNode.querySelectorAll('.ann-st').forEach(function (b) { b.classList.remove('on'); }); btn.classList.add('on'); } }
 function agJoin() { document.getElementById('agj-sheet').classList.remove('visible'); agSet('joined'); var a = document.querySelector('#ann-s-draft-agroup .ann-states'); if (a) { a.querySelectorAll('.ann-st').forEach(function (b) { b.classList.toggle('on', b.textContent === 'Joined'); }); } showSnack('You\u2019re in · Tue 10:00'); }
 function agMenu(open) { document.getElementById('ag-menu').classList.toggle('visible', !!open); document.getElementById('ag-menu-backdrop').classList.toggle('visible', !!open); }
-function setCanvas(name, btn) { document.querySelectorAll('.fit-phone').forEach(function (p) { ['teal','indigo','ember','graphite'].forEach(function (k) { p.classList.remove('k-canvas-' + k); }); if (name !== 'teal') p.classList.add('k-canvas-' + name); }); document.querySelectorAll('.look-switch button[data-k]').forEach(function (b) { b.classList.remove('active'); }); var hit = btn || document.querySelector('.look-switch button[data-k="' + name + '"]'); if (hit) hit.classList.add('active'); try { localStorage.setItem('cd-canvas-ath', name); } catch (e) {} }
+function setCanvas(name, btn) {
+  document.querySelectorAll('.fit-phone').forEach(function (p) { ['teal','indigo','ember','graphite','fog'].forEach(function (k) { p.classList.remove('k-canvas-' + k); }); if (name !== 'teal') p.classList.add('k-canvas-' + name); });
+  document.querySelectorAll('.look-switch button[data-k]').forEach(function (b) { b.classList.remove('active'); });
+  var hit = btn || document.querySelector('.look-switch button[data-k="' + name + '"]'); if (hit) hit.classList.add('active');
+  try { localStorage.setItem('cd-canvas-ath', name); } catch (e) {}
+}
 try { setCanvas(localStorage.getItem('cd-canvas-ath') || 'teal'); } catch (e) {}
 
 try { setLook(localStorage.getItem('cd-look') || 'tinted'); setCta(localStorage.getItem('cd-cta') || 'white'); } catch (e) { setLook('tinted'); setCta('white'); }
