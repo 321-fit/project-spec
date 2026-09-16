@@ -13,17 +13,20 @@ A home-screen widget (iOS WidgetKit, Android Glance) that shows the user's sched
 
 | Size | iOS points | Shows | Tap |
 |---|---|---|---|
-| **Small** | 158×158 | **the next session only** — *time-first*: hour (34px) + when at the top, name + where at the bottom; *date-first*: weekday + day number + one row | the event |
-| **Medium** | 338×158 | **the next one + the one after** — *time-first*: a two-tier list (20px hour and name on one baseline, sub-line indented, a rule, the “Then” row in 15px); *date-first*: date block left, two rows right | row → the event; elsewhere → Calendar tab |
-| **Large** | 338×354 | a 7-day strip (today highlighted, past dimmed, dots under a day = sessions in type colour) + 4–5 rows by day; footer | day → Calendar on that day; row → the event |
+| **Small** | 158×158 | **the next session only**, Apple-Calendar shaped: `NEXT` caps label (accent), the hour in 36px *regular* with `today` beside it, then the session as the calendar's own tinted tile (tint + stripe = type) | the event |
+| **Medium** | 338×158 | **the next one + the one after**, Apple-Mail shaped: two rows — name (15 medium) / sub (13) left, time (15 regular) / day (12) right-aligned, hairline between; the next one's time in the accent | row → the event; elsewhere → Calendar tab |
+| **Large** | 338×354 | a lighter 7-day strip (today = filled circle, past dimmed, dots under a day = sessions) + the same Mail rows grouped by day labels, up to five; no footer | day → Calendar on that day; row → the event |
 
 **iOS lock screen** (accessory families, same timeline): *inline* — one line above the clock (`● Boxing with Maris · 18:30`); *circular* (`Next 18:30`, `Week 3`); *rectangular* (label / name / time · place). Monochrome by definition.
 
 Android: the same content in Material shape (28dp system radius); Glance cells resize (`SizeMode.Responsive`: 2×2 → small layout, 4×2 → medium, 4×4 → large); rows ≥ 40dp and the medium grows with its cell instead of clipping.
 
-### Layout candidates and rhythm
+### Balance rules (Apple's own widgets as the reference)
 
-Two layouts in the prototype (switch in the annotation column): **time-first** (Apple Clock / Fantastical "up next" — the hour is the biggest thing) and **date-first** (Apple Calendar — weekday + big day number, then rows). Both obey one rhythm: 16px content margins, a 4px grid, content **top-anchored** with the only stretch between the rows and the single 11px bottom line; a four-step type scale — 28–34 (hour / day number) · 15–16 (name) · 13–14 (rows) · 10–12 (labels, secondary); fixed tabular time column (34–40px) that never clips; small = one session, medium = two, large = the week strip + up to four rows.
+- **One big thing per widget, regular weight** — the small's hour (36px, weight 400). Nothing else is large; the medium and large have no big numeral at all.
+- **Three sizes + one label**: 15 (row name, weight 500) · 13 (sub, 400) · 12 (right-column day, 400) · one 11px caps label in the accent. Weight carries hierarchy, not size.
+- 16px content margins, a 4px grid, rows separated by hairlines, time never clips, name ellipsises.
+- No relative times (`in 45 min`) — the label says *Next*, the hour is absolute, `today` / `tomorrow` beside it.
 
 ## 3. Language
 
@@ -71,12 +74,13 @@ Proposal: the skin is a **widget setting** (iOS `AppIntentConfiguration`, Androi
 ## 7. Open
 
 1. Skin: brand canvas or system material (or both, user-chosen in the widget's configuration).
-1a. Layout: time-first or date-first (owner review pending).
+
 2. Athlete side: show pending requests (`awaiting Maria`)? Proposal: no — the widget is a promise, not a maybe.
 3. ~~Coach large footer~~ — dropped.
 
 ## Change log
 - 2026-09-16 — first cut: prototype + this page.
+- 2026-09-16 (later 5) — balance pass (owner: too many big bold sizes, everything glued): Apple Calendar-shaped small (label / 36px regular hour / tinted tile), Apple Mail-shaped medium + large rows (time right-aligned, hairlines), three-size scale, no relative times; layout switch folded.
 - 2026-09-16 (later 4) — owner review: no badges on small/medium, no footers on large (rows to the end of the week instead), next block hour centred against name + where.
 - 2026-09-16 (later 3) — cut pass (owner: still glued, hour not on the name's line): small = the next only, medium = next + then, action = a red count in the header, date and money removed from small/medium; hour/name share a baseline.
 - 2026-09-16 (later 2) — layout pass: time-first / date-first candidates, 4px rhythm, top-anchored content, four-step type scale (owner: the first cut felt glued together with a huge gap on the small).

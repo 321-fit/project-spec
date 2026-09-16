@@ -2548,7 +2548,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-ath-home",
-          "hash": "7b9c63c0e120",
+          "hash": "ea77a95b2507",
           "title": "Home screen · small + medium",
           "inApp": "",
           "status": "proposal",
@@ -2567,7 +2567,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-ath-large",
-          "hash": "a1850ed80a17",
+          "hash": "1216f414e8b5",
           "title": "Home screen · large",
           "inApp": "",
           "status": "proposal",
@@ -2587,7 +2587,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-coach-home",
-          "hash": "df7d95c6cc54",
+          "hash": "cca15651254d",
           "title": "Home screen · small + medium",
           "inApp": "",
           "status": "proposal",
@@ -2607,7 +2607,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-coach-large",
-          "hash": "f86800952b0f",
+          "hash": "de77eabeb804",
           "title": "Home screen · large",
           "inApp": "",
           "status": "proposal",
@@ -2627,7 +2627,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-android",
-          "hash": "9ce4b818749c",
+          "hash": "9a004c326cef",
           "title": "Glance · same content",
           "inApp": "",
           "status": "proposal",
@@ -2647,7 +2647,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-lock",
-          "hash": "3c34cb941256",
+          "hash": "b5e04073f21c",
           "title": "Accessory · inline / circular / rectangular",
           "inApp": "",
           "status": "proposal",
@@ -2667,7 +2667,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-states",
-          "hash": "3705edf5f424",
+          "hash": "3cc187ca47a6",
           "title": "Empty · requests · signed out · long",
           "inApp": "Widget states",
           "status": "proposal",
