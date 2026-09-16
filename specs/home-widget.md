@@ -13,8 +13,8 @@ A home-screen widget (iOS WidgetKit, Android Glance) that shows the user's sched
 
 | Size | iOS points | Shows | Tap |
 |---|---|---|---|
-| **Small** | 158×158 | **the next session only**: a caps *date word* (`TODAY` / `TOMORROW` / `THU 24`, accent), the hour in 36px regular on its own line, then the session as the calendar's own tinted tile (tint + stripe = type) | the event |
-| **Medium** | 338×158 | **the next one + the one after**: the next as the tile (name / where left, hour / day right), the one after as a smaller, dimmer row. Candidate B *Wheel* (switch in the prototype): two rows, 17px → 13px at 70% | tile / row → that event; elsewhere → Calendar tab |
+| **Small** | 158×158 | **the next session only**: a caps *date word* (`TODAY` / `TOMORROW` / `THU 24`, accent), the hour in 36px regular, one row (shape-dot · name / where) — the three blocks spaced evenly down the frame | the event |
+| **Medium** | 338×158 | **the wheel**: the next one as a full row (17px), the one after smaller and dimmer (13px, 70%) — centre full, neighbour receding, like the iOS time picker | row → that event; elsewhere → Calendar tab |
 | **Large** | 338×354 | **option C**: a week strip that carries *load only* (dots under days, **no selected day** — a widget cannot hold a selection), then the upcoming rows grouped by day labels, up to five; no footer | day → Calendar on that day; row → the event |
 
 **iOS lock screen** (accessory families, same timeline): *inline* — one line above the clock (`● Boxing with Maris · 18:30`); *circular* (`Next 18:30`, `Week 3`); *rectangular* (label / name / time · place). Monochrome by definition.
@@ -23,7 +23,7 @@ Android: the same content in Material shape (28dp system radius); Glance cells r
 
 ### One rule across sizes
 
-**Tile = the next session. Rows = the ones after it. Week strip = load.** The same three things mean the same thing in every size.
+**Every session is a wheel row — the next one full-size, the ones after smaller and dimmer. The week strip = load.** The same thing means the same thing in every size. (The tinted tile was tried in the small and dropped.)
 
 ### Balance rules (Apple's own widgets as the reference)
 
@@ -78,13 +78,13 @@ Proposal: the skin is a **widget setting** (iOS `AppIntentConfiguration`, Androi
 ## 7. Open
 
 1. Skin: brand canvas or system material (or both, user-chosen in the widget's configuration).
-1a. Medium: tile + row (default) or the pure wheel.
 
 2. Athlete side: show pending requests (`awaiting Maria`)? Proposal: no — the widget is a promise, not a maybe.
 3. ~~Coach large footer~~ — dropped.
 
 ## Change log
 - 2026-09-16 — first cut: prototype + this page.
+- 2026-09-16 (later 7) — owner: no tile anywhere — wheel rows in small and medium; small spaced evenly.
 - 2026-09-16 (later 6) — agreed with the owner: large = option C (strip = load, no selected day), small label = the date word (no “Next”), medium = tile + dimmer row (wheel candidate as a switch); one rule across sizes.
 - 2026-09-16 (later 5) — balance pass (owner: too many big bold sizes, everything glued): Apple Calendar-shaped small (label / 36px regular hour / tinted tile), Apple Mail-shaped medium + large rows (time right-aligned, hairlines), three-size scale, no relative times; layout switch folded.
 - 2026-09-16 (later 4) — owner review: no badges on small/medium, no footers on large (rows to the end of the week instead), next block hour centred against name + where.
