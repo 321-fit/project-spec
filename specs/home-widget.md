@@ -31,7 +31,7 @@ Two layouts in the prototype (switch in the annotation column): **time-first** (
 - **Child training is not a colour.** The type stays the type; a small who-pill (`Mia`) says who is training. Colour is already spent on type and would collide the moment a child joins a group. Until [#45](https://github.com/321-fit/project-spec/issues/45) ships the pill does not appear.
 - **Rows**: time · name · sub. The time column is fixed and never clips; the name ellipsises; the pill never clips.
 - **Coach nouns**: rows lead with the athlete's name (the coach knows their sport); group rows show `7 of 10`.
-- **Action = a count, not a sentence.** Anything that needs the user (coach: requests; athlete: a session to rate / pay) is a red count in the header; tap → Inbox. No money on the widget; no footer sentences on small/medium. The large keeps one quiet line (athlete `€240 balance · 1 pack session left`; coach `② requests · €60 earned · €180 planned`) — open whether it stays.
+- **No action count, no money, no footers.** A red request count in the header was tried and dropped (looks off, unbalances the widget). The widget is the schedule; requests and money live in the app. Large lists rows to the end of the week instead of a footer.
 - The date is not repeated in the header — the phone shows it.
 
 ## 4. Skin (open)
@@ -44,7 +44,6 @@ Proposal: the skin is a **widget setting** (iOS `AppIntentConfiguration`, Androi
 |---|---|---|
 | Nothing planned | `Nothing planned · this week` + one door (*Find a coach* / *Book*) | same, wider |
 | Free day, something later | `Free day · next: Thu 09:00` | rows start at the next day |
-| Requests waiting (coach) | red count line in the footer → Inbox | footer line |
 | Signed out | `Sign in to see your schedule` → sign in | same |
 | Long names | row clips with an ellipsis; time / dot / pill never | same |
 | Loading | skeleton bars at first placement; afterwards the OS shows the last snapshot, never a spinner | same |
@@ -74,10 +73,11 @@ Proposal: the skin is a **widget setting** (iOS `AppIntentConfiguration`, Androi
 1. Skin: brand canvas or system material (or both, user-chosen in the widget's configuration).
 1a. Layout: time-first or date-first (owner review pending).
 2. Athlete side: show pending requests (`awaiting Maria`)? Proposal: no — the widget is a promise, not a maybe.
-3. Coach large footer: three numbers (requests · earned · planned) or two.
+3. ~~Coach large footer~~ — dropped.
 
 ## Change log
 - 2026-09-16 — first cut: prototype + this page.
+- 2026-09-16 (later 4) — owner review: no badges on small/medium, no footers on large (rows to the end of the week instead), next block hour centred against name + where.
 - 2026-09-16 (later 3) — cut pass (owner: still glued, hour not on the name's line): small = the next only, medium = next + then, action = a red count in the header, date and money removed from small/medium; hour/name share a baseline.
 - 2026-09-16 (later 2) — layout pass: time-first / date-first candidates, 4px rhythm, top-anchored content, four-step type scale (owner: the first cut felt glued together with a huge gap on the small).
 - 2026-09-16 (later) — platform rules pass: type = shape + colour, iOS 18 tinted state, lock-screen accessories, Android system font / 40dp rows / dynamic-colour skin, 16pt margins, smaller mark; §8.
