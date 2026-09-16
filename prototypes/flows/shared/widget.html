@@ -66,7 +66,7 @@
   /* ===== The widget =====
      Two skins, one switch in the annotation: BRAND = our tinted canvas (the rework's teal recipe);
      SYSTEM = the OS material (dark #1c1c1e / light white). Content is identical. */
-  .wg { position: relative; border-radius: 22px; overflow: hidden; padding: 14px; display: flex; flex-direction: column; color: #fff; font-family: var(--fit-font); cursor: pointer; isolation: isolate;
+  .wg { position: relative; border-radius: 22px; overflow: hidden; padding: 16px; display: flex; flex-direction: column; color: #fff; font-family: var(--fit-font); cursor: pointer; isolation: isolate;
     background: radial-gradient(120% 60% at 50% -10%, rgba(0,190,215,0.55), rgba(5,224,166,0.10) 55%, transparent 80%), linear-gradient(180deg, #0a5f68 0%, #084653 30%, #062e3b 65%, #05202a 100%);
     box-shadow: 0 8px 24px rgba(0,0,0,0.35); }
   .wg-system .wg { background: #1c1c1e; box-shadow: 0 8px 24px rgba(0,0,0,0.35); }
@@ -76,7 +76,7 @@
   .wg-l { width: 338px; height: 354px; }
   .wg-hd { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: rgba(255,255,255,0.72); }
   .fit-light.wg-system .wg-hd { color: rgba(0,0,0,0.5); }
-  .wg-hd b { width: 16px; height: 16px; border-radius: 5px; background: linear-gradient(135deg, #00a7d0, #05e0a6); display: inline-flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: #fff; letter-spacing: 0; flex-shrink: 0; }
+  .wg-hd b { width: 14px; height: 14px; border-radius: 4px; background: linear-gradient(135deg, #00a7d0, #05e0a6); display: inline-flex; align-items: center; justify-content: center; font-size: 7px; font-weight: 700; color: #fff; letter-spacing: 0; flex-shrink: 0; opacity: 0.9; }
   .wg-hd .r { margin-left: auto; font-weight: 500; letter-spacing: 0; text-transform: none; color: rgba(255,255,255,0.55); }
   .fit-light.wg-system .wg-hd .r { color: rgba(0,0,0,0.4); }
   /* small: the next session, nothing else */
@@ -84,9 +84,10 @@
   .wg-s .wg-sub { font-size: 13px; color: rgba(255,255,255,0.72); margin-top: 3px; }
   .fit-light.wg-system .wg-s .wg-sub { color: rgba(0,0,0,0.55); }
   .wg-when { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 13px; font-weight: 600; color: var(--fit-teal-500); }
-  .wg-when i, .wg-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--fit-teal-500); flex-shrink: 0; }
-  .wg-dot.group, .wg-when.group i { background: var(--fit-blue-500); } .wg-when.group { color: var(--fit-blue-500); }
-  .wg-dot.sp, .wg-when.sp i { background: var(--fit-violet-500); } .wg-when.sp { color: var(--fit-violet-500); }
+  /* type = shape AND colour: filled = personal, ring = group, diamond = self-paced. Shape survives iOS 18 tinted mode, where colour does not. */
+  .wg-when i, .wg-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--fit-teal-500); flex-shrink: 0; box-sizing: border-box; }
+  .wg-dot.group, .wg-when.group i { background: transparent; border: 2px solid var(--fit-blue-500); } .wg-when.group { color: var(--fit-blue-500); }
+  .wg-dot.sp, .wg-when.sp i { background: var(--fit-violet-500); border-radius: 1px; transform: rotate(45deg) scale(0.85); } .wg-when.sp { color: var(--fit-violet-500); }
   /* medium + large: rows under day labels */
   .wg-list { display: flex; flex-direction: column; margin-top: 8px; }
   .wg-day { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin: 6px 0 2px; }
@@ -113,8 +114,8 @@
   .wg-wd b { display: block; font-size: 15px; font-weight: 600; margin-top: 2px; }
   .wg-wd.past b, .wg-wd.past span { opacity: 0.45; }
   .wg-wd .dots { display: flex; justify-content: center; gap: 3px; height: 6px; margin-top: 5px; }
-  .wg-wd .dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--fit-teal-500); }
-  .wg-wd .dots i.group { background: var(--fit-blue-500); } .wg-wd .dots i.sp { background: var(--fit-violet-500); }
+  .wg-wd .dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--fit-teal-500); box-sizing: border-box; }
+  .wg-wd .dots i.group { background: transparent; border: 1.5px solid var(--fit-blue-500); } .wg-wd .dots i.sp { background: var(--fit-violet-500); border-radius: 0; transform: rotate(45deg) scale(0.8); }
   .wg-l .wg-list { margin-top: 4px; }
   /* empty / signed-out */
   .wg-empty { margin-top: auto; }
@@ -123,11 +124,49 @@
   .fit-light.wg-system .wg-empty .wg-sub { color: rgba(0,0,0,0.5); }
   .wg-cta { display: inline-flex; align-items: center; margin-top: 10px; padding: 6px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; background: #fff; color: #12161a; }
   .fit-light.wg-system .wg-cta { background: #12161a; color: #fff; }
+  /* iOS 18 tinted icons: the system re-renders the widget in one hue — a translucent plate, everything else white
+     at opacities (widgetAccentable marks what stays full-white). Colour disappears; shape and weight carry the type. */
+  .wg-tinted .wg { background: rgba(120,150,170,0.28) !important; box-shadow: none; -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); color: #fff; }
+  .wg-tinted .wg-hd, .wg-tinted .wg-day, .wg-tinted .wg-sub, .wg-tinted .wg-foot, .wg-tinted .wg-r .n small, .wg-tinted .wg-wd span { color: rgba(255,255,255,0.6) !important; }
+  .wg-tinted .wg-day.now, .wg-tinted .wg-when { color: #fff !important; }
+  .wg-tinted .wg-hd b { background: rgba(255,255,255,0.9); color: #35506a; }
+  .wg-tinted .wg-dot, .wg-tinted .wg-when i, .wg-tinted .wg-wd .dots i { background: #fff; border-color: #fff; }
+  .wg-tinted .wg-dot.group, .wg-tinted .wg-when.group i, .wg-tinted .wg-wd .dots i.group { background: transparent; }
+  .wg-tinted .wg-r .who { background: rgba(255,255,255,0.22); color: #fff; }
+  .wg-tinted .wg-foot .badge { background: #fff; color: #35506a; }
+  .wg-tinted .wg-cta { background: #fff; color: #35506a; }
+  .wg-tinted .wg-wd.today { background: rgba(255,255,255,0.18); }
+  .wg-tinted .wg-home { background: linear-gradient(180deg, #2b3d4d 0%, #1b2733 100%) !important; }
+  .wg-tinted .wg-icon i, .wg-tinted .wg-dock i, .wg-tinted .wg-icon i.app, .wg-tinted .wg-dock i.app { background: rgba(120,150,170,0.34) !important; }
+  .wg-tinted .wg-icon i.app::after, .wg-tinted .wg-dock i.app::after { color: rgba(255,255,255,0.9); }
+  /* lock screen accessories (iOS): monochrome by nature, no background of ours */
+  .wg-lock { flex: 1; padding: 0 26px; display: flex; flex-direction: column; align-items: center; background: linear-gradient(180deg, #16303c 0%, #0b1a24 60%, #070d12 100%); color: #fff; }
+  .wg-lock-date { margin-top: 64px; font-size: 20px; font-weight: 500; color: rgba(255,255,255,0.85); }
+  .wg-lock-time { font-size: 88px; font-weight: 600; letter-spacing: -2px; line-height: 1; color: rgba(255,255,255,0.9); }
+  .wg-acc-inline { margin-top: 2px; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.85); }
+  .wg-acc-inline i { width: 7px; height: 7px; border-radius: 50%; background: #fff; }
+  .wg-acc-row { margin-top: 18px; display: flex; gap: 10px; align-items: stretch; width: 100%; justify-content: center; }
+  .wg-acc-circ { width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,0.14); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 0.4px; }
+  .wg-acc-circ b { font-size: 15px; letter-spacing: -0.3px; text-transform: none; }
+  .wg-acc-rect { width: 172px; height: 64px; border-radius: 16px; background: rgba(255,255,255,0.14); padding: 8px 12px; display: flex; flex-direction: column; justify-content: center; }
+  .wg-acc-rect .k { font-size: 10px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: rgba(255,255,255,0.6); }
+  .wg-acc-rect .t { font-size: 14px; font-weight: 600; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wg-acc-rect .s { font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 1px; }
+  .wg-lock-foot { margin-top: auto; padding-bottom: 28px; display: flex; gap: 120px; }
+  .wg-lock-foot i { width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.14); }
   /* gallery of states */
   .wg-gal { padding: 18px 26px 40px; display: flex; flex-direction: column; gap: 18px; }
   .wg-gal-t { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--fit-text-tertiary); margin-bottom: -8px; }
   /* Android: Material shapes — 28px radius, no drop glow, wider grid margins are the launcher's business */
-  .wg-android .wg { border-radius: 28px; }
+  .wg-android .wg { border-radius: 28px; font-family: -apple-system, Roboto, system-ui, sans-serif; }
+  .wg-android .wg-hd b { font-family: var(--fit-font); }
+  .wg-android .wg-r { min-height: 40px; padding: 0; }   /* 48dp target incl. the row gap */
+  .wg-android .wg-m { height: auto; min-height: 158px; }
+  .wg-android .wg-mlist .wg-day { margin-top: 2px; }
+  /* dynamic colour (Material You): the system skin takes the wallpaper's tonal palette, not our brand */
+  .wg-android.wg-system .wg { background: #1e2b31; }
+  .fit-light.wg-android.wg-system .wg { background: #e6f0f3; color: #12161a; }
+  .wg-android.wg-system .wg-hd b { background: #7fd6c8; color: #0b2a2a; }
   .wg-android .wg-icon i, .wg-android .wg-dock i { border-radius: 50%; }
   .wg-android .wg-dock { border-radius: 0; background: transparent; padding-bottom: 16px; }
   /* skin switch lives on the phone (class), toggled from the annotation */
@@ -154,6 +193,8 @@
   <button onclick="go('s-coach-large',this)">Home screen &middot; large</button>
   <div class="label">Android</div>
   <button onclick="go('s-android',this)">Glance &middot; same content</button>
+  <div class="label">iOS lock screen</div>
+  <button onclick="go('s-lock',this)">Accessory &middot; inline / circular / rectangular</button>
   <div class="label">States</div>
   <button onclick="go('s-states',this)">Empty &middot; requests &middot; signed out &middot; long</button>
   <div class="label">Related</div>
@@ -282,6 +323,24 @@
   </div>
 </div>
 
+<!-- ==================== iOS LOCK SCREEN · ACCESSORY WIDGETS ==================== -->
+<div class="fit-phone fit-dark" id="s-lock" data-status="proposal">
+  <div class="fit-phone-header" style="background:transparent;position:absolute;left:0;right:0;top:0;z-index:2;"><div class="fit-status-bar wg-sb"><span></span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div></div>
+  <div class="fit-phone-content" style="display:flex;flex-direction:column;">
+    <div class="wg-lock">
+      <div class="wg-lock-date">Wednesday 23 April</div>
+      <div class="wg-lock-time">9:30</div>
+      <div class="wg-acc-inline" onclick="tap('event')"><i></i>Boxing with Maris &middot; 18:30</div>
+      <div class="wg-acc-row">
+        <div class="wg-acc-circ" onclick="tap('event')">Next<b>18:30</b></div>
+        <div class="wg-acc-rect" onclick="tap('event')"><div class="k">Next &middot; today</div><div class="t">Boxing with Maris</div><div class="s">18:30 &middot; Punch Gym</div></div>
+        <div class="wg-acc-circ" onclick="tap('calendar')">Week<b>3</b></div>
+      </div>
+      <div class="wg-lock-foot"><i></i><i></i></div>
+    </div>
+  </div>
+</div>
+
 <!-- ==================== STATES ==================== -->
 <div class="fit-phone fit-dark" id="s-states" data-status="proposal">
   <div class="fit-phone-header"><div class="fit-status-bar"><span>9:30</span><span>&#9679;&#9679;&#9679;&#9679; &#128267;</span></div><div class="fit-header"><span class="fit-header-title">Widget states</span></div></div>
@@ -306,7 +365,7 @@
 
 <!-- ==================== ANNOTATIONS ==================== -->
 <div class="ann-container">
-  <div class="state-toggle" style="margin-bottom:18px;"><span style="font-size:12px;color:var(--fit-gray-500);padding:6px 8px 6px 0;">Widget skin</span><button class="active" data-sk="brand" onclick="setSkin('brand',this)">Brand canvas</button><button data-sk="system" onclick="setSkin('system',this)">System material</button></div>
+  <div class="state-toggle" style="margin-bottom:18px;"><span style="font-size:12px;color:var(--fit-gray-500);padding:6px 8px 6px 0;">Widget skin</span><button class="active" data-sk="brand" onclick="setSkin('brand',this)">Brand canvas</button><button data-sk="system" onclick="setSkin('system',this)">System material</button><span style="font-size:12px;color:var(--fit-gray-500);padding:6px 8px 6px 14px;">Appearance</span><button class="active" data-ap="full" onclick="setAppear('full',this)">Full colour</button><button data-ap="tinted" onclick="setAppear('tinted',this)">Tinted (iOS 18)</button></div>
 
   <div class="ann active" id="ann-s-ath-home"><span class="ann-role">Athlete &middot; #43</span>
     <h3>The schedule on the phone&rsquo;s home screen</h3>
@@ -317,6 +376,8 @@
     <ul><li>Two columns by day (Today / Tomorrow / weekday), rows = time &middot; name &middot; who. The time column is fixed and never clips; the name does.</li><li>Type = the dot (teal personal, blue group, violet self-paced) &mdash; the calendar&rsquo;s own language, see the legend.</li><li><strong>Child training</strong> is not a colour: the type stays the type, and a small <span style="font-size:10px;font-weight:600;padding:1px 6px;border-radius:99px;background:rgba(255,255,255,0.16);">Mia</span> pill says <em>who</em> is training. Colour is already spent on type; a fourth colour for &ldquo;child&rdquo; would collide the moment a child joins a group. (Until #45 ships, the pill just does not appear.)</li><li>Rows tap into the event; the rest of the widget taps into the Calendar tab.</li><li>Footer: one quiet line &mdash; sessions this week (athlete).</li></ul>
     <h4>Skin</h4>
     <p>Two candidates, switch above. <strong>Brand canvas</strong> = the rework&rsquo;s tinted teal recipe: the widget is recognisably ours among a dozen white/black system widgets. <strong>System material</strong> = the OS surface (dark <code>#1c1c1e</code> / light white) &mdash; quieter, blends with Calendar/Weather. Dark/Light in the sidebar switches the wallpaper and the system skin; the brand canvas is always dark (it is the identity, not a theme).</p>
+    <h4>Platform rules this obeys</h4>
+    <ul><li><strong>WidgetKit:</strong> a timeline of snapshots, no scroll, no animation, tap only (<code>widgetURL</code> for the whole widget, <code>Link</code> per row). Corner radius and content margins (16pt) are the system&rsquo;s &mdash; we do not draw them; the background goes through <code>containerBackground</code> (a gradient is allowed).</li><li><strong>iOS 18 tinted icons</strong> re-render the widget in one hue (switch above): colour is gone, so <strong>type is also a shape</strong> &mdash; filled dot personal, ring group, diamond self-paced &mdash; and weight carries the hierarchy.</li><li>HIG: one idea per size, no branding beyond a small identification mark (the 14px <code>321</code>), a redacted placeholder at first placement, both appearances.</li><li>Data via an App Group snapshot the app writes; the extension never calls the network with the app&rsquo;s session.</li></ul>
     <h4>Data</h4>
     <p>What the Calendar tab reads: the athlete&rsquo;s upcoming events (confirmed only &mdash; requests are the app&rsquo;s business). Refresh: timeline every 30 min + reload on push (confirmed / cancelled / rescheduled). No new endpoint.</p>
   </div>
@@ -338,7 +399,12 @@
 
   <div class="ann" id="ann-s-android"><span class="ann-role">Android &middot; Glance</span>
     <h3>Same content, Material shape</h3>
-    <ul><li>Glance widgets: 28px corners (the launcher&rsquo;s system radius), resizable cells rather than fixed sizes &mdash; the medium layout is the base and collapses to the small when the cell is 2&times;2.</li><li>Type dots, who-pill, taps &mdash; identical. Reload: WorkManager every 30 min + push.</li></ul>
+    <ul><li>Glance = Compose-like API over RemoteViews, so: <strong>system font</strong> (no Rubik &mdash; the rows here are in the system face on purpose), no custom shapes beyond what RemoteViews draws, 28dp system corner radius, cells not points (<code>SizeMode.Responsive</code>: 2&times;2 &rarr; small layout, 4&times;2 &rarr; medium, 4&times;4 &rarr; large).</li><li>Rows are <strong>&ge;40dp</strong> (48dp target with the gap) &mdash; taller than iOS; the medium widget grows with its cell instead of clipping.</li><li><strong>Dynamic colour</strong> (Material You): the system skin takes the wallpaper&rsquo;s tonal palette, not our teal &mdash; so on Android the system skin is the natural default and the brand canvas the opt-in.</li><li>Type shape + dot, who-pill, taps &mdash; identical. Reload: <code>updatePeriodMillis</code> &ge; 30 min, WorkManager + FCM push &rarr; <code>update()</code>. A preview + description for the widget picker is mandatory.</li></ul>
+  </div>
+
+  <div class="ann" id="ann-s-lock"><span class="ann-role">iOS &middot; lock screen</span>
+    <h3>Accessory widgets &mdash; almost free</h3>
+    <ul><li>The same timeline feeds three lock-screen families: <strong>inline</strong> (one line above the clock: <em>Boxing with Maris &middot; 18:30</em>), <strong>circular</strong> (<em>Next 18:30</em> / <em>Week 3</em>), <strong>rectangular</strong> (label / name / time &middot; place).</li><li>Monochrome by definition (the system renders them vibrant-white over the wallpaper) &mdash; which is why type has to be a shape, not a colour, everywhere.</li><li>Same taps: the event, or the Calendar. Also shows in StandBy and on the watch face via the same families.</li></ul>
   </div>
 
   <div class="ann" id="ann-s-states"><span class="ann-role">States &middot; #43</span>
@@ -367,6 +433,10 @@ function switchTheme(theme) {
   var on = 'var(--fit-gray-700)', off = 'transparent';
   d.style.background = theme === 'dark' ? on : off; d.style.color = theme === 'dark' ? 'var(--fit-white)' : 'var(--fit-gray-400)';
   l.style.background = theme === 'light' ? on : off; l.style.color = theme === 'light' ? 'var(--fit-white)' : 'var(--fit-gray-400)';
+}
+function setAppear(name, btn) {
+  document.querySelectorAll('.fit-phone').forEach(function (p) { p.classList.toggle('wg-tinted', name === 'tinted'); });
+  document.querySelectorAll('.state-toggle button[data-ap]').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-ap') === name); });
 }
 function setSkin(name, btn) {
   document.querySelectorAll('.fit-phone').forEach(function (p) { p.classList.toggle('wg-system', name === 'system'); });

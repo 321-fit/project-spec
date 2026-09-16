@@ -2548,7 +2548,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-ath-home",
-          "hash": "403c5d93c3a6",
+          "hash": "46951d0f83b0",
           "title": "Home screen · small + medium",
           "inApp": "",
           "status": "proposal",
@@ -2567,7 +2567,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-ath-large",
-          "hash": "caf53be65a3e",
+          "hash": "b6dbe9402405",
           "title": "Home screen · large",
           "inApp": "",
           "status": "proposal",
@@ -2587,7 +2587,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-coach-home",
-          "hash": "585a437ad0b2",
+          "hash": "79a0ee6f7315",
           "title": "Home screen · small + medium",
           "inApp": "",
           "status": "proposal",
@@ -2607,7 +2607,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-coach-large",
-          "hash": "b65911abf282",
+          "hash": "0d2b5931ad7a",
           "title": "Home screen · large",
           "inApp": "",
           "status": "proposal",
@@ -2627,7 +2627,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-android",
-          "hash": "2cac8fc761dd",
+          "hash": "216d6af9ffe7",
           "title": "Glance · same content",
           "inApp": "",
           "status": "proposal",
@@ -2646,8 +2646,28 @@ window.FIT_BOARD = {
           "order": 3
         },
         {
+          "id": "s-lock",
+          "hash": "aa24b8753513",
+          "title": "Accessory · inline / circular / rectangular",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-widget__s-lock.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 4
+        },
+        {
           "id": "s-states",
-          "hash": "2ffd5a91813d",
+          "hash": "01781c4252ab",
           "title": "Empty · requests · signed out · long",
           "inApp": "Widget states",
           "status": "proposal",
@@ -2663,7 +2683,7 @@ window.FIT_BOARD = {
           ],
           "orphan": true,
           "level": 1,
-          "order": 4
+          "order": 5
         }
       ],
       "edges": []
