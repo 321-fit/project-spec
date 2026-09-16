@@ -46,6 +46,7 @@ export const LABELS = {
   "flows/athlete/balance-v2.html": "Athlete Balance",
   "flows/coach/availability.html": "Availability",
   "flows/shared/calendar-legend.html": "Calendar legend",
+  "flows/shared/widget.html": "Home-screen widget",
   "flows/shared/profile.html": "Coach Profile (public)",
   "flows/shared/assistant-entry.html": "Contextual AI quick starts (WIP)",
   "flows/shared/action-rows.html": "Action rows \u2014 inventory (WIP)",
@@ -69,6 +70,7 @@ export const ORDER = [
   "flows/shared/self-paced.html",
   "flows/shared/profile.html",
   "flows/shared/calendar-legend.html",
+  "flows/shared/widget.html",
 
   // coach — root tabs in nav order, then what they open, then settings
   "flows/coach/dashboard.html",

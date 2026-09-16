@@ -2541,6 +2541,134 @@ window.FIT_BOARD = {
       "edges": []
     },
     {
+      "file": "flows/shared/widget.html",
+      "label": "Home-screen widget",
+      "role": "shared",
+      "slug": "shared-widget",
+      "screens": [
+        {
+          "id": "s-ath-home",
+          "hash": "403c5d93c3a6",
+          "title": "Home screen · small + medium",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": true,
+          "note": "Two candidates, switch above. Brand canvas = the rework’s tinted teal recipe: the widget is recognisably ours among a dozen white/black system widgets. System material = the OS surface (dark #1c1c1e / light white) — quie",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-widget__s-ath-home.webp",
+              "label": ""
+            }
+          ],
+          "level": 0,
+          "order": 0
+        },
+        {
+          "id": "s-ath-large",
+          "hash": "caf53be65a3e",
+          "title": "Home screen · large",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-widget__s-ath-large.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 0
+        },
+        {
+          "id": "s-coach-home",
+          "hash": "585a437ad0b2",
+          "title": "Home screen · small + medium",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-widget__s-coach-home.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 1
+        },
+        {
+          "id": "s-coach-large",
+          "hash": "b65911abf282",
+          "title": "Home screen · large",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-widget__s-coach-large.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 2
+        },
+        {
+          "id": "s-android",
+          "hash": "2cac8fc761dd",
+          "title": "Glance · same content",
+          "inApp": "",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-widget__s-android.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 3
+        },
+        {
+          "id": "s-states",
+          "hash": "2ffd5a91813d",
+          "title": "Empty · requests · signed out · long",
+          "inApp": "Widget states",
+          "status": "proposal",
+          "theme": "dark",
+          "entry": false,
+          "note": "",
+          "external": [],
+          "shots": [
+            {
+              "file": "shared-widget__s-states.webp",
+              "label": ""
+            }
+          ],
+          "orphan": true,
+          "level": 1,
+          "order": 4
+        }
+      ],
+      "edges": []
+    },
+    {
       "file": "flows/coach/dashboard.html",
       "label": "Coach Dashboard",
       "role": "coach",
