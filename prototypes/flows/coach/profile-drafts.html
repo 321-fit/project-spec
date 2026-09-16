@@ -576,6 +576,11 @@
       radial-gradient(120% 48% at 50% -8%, rgba(255,255,255,0.42), rgba(220,228,236,0.10) 55%, transparent 78%),
       linear-gradient(180deg, #7a8390 0%, #636b77 22%, #4d545e 48%, #3c424a 72%, #2f343b 100%) !important; }
   .fit-phone.fit-dark.k-alpha.k-canvas-fog { --fit-surface-high: rgba(0,0,0,0.22); }
+  /* Ash: Fog without the haze — no white glow, a shorter fall, lighter; surfaces a touch more transparent */
+  .fit-phone.fit-dark.k-alpha.k-canvas-ash::before { background:
+      radial-gradient(120% 40% at 50% -10%, rgba(255,255,255,0.14), transparent 70%),
+      linear-gradient(180deg, #8a919b 0%, #767d88 28%, #616873 58%, #4f555e 82%, #444a52 100%) !important; }
+  .fit-phone.fit-dark.k-alpha.k-canvas-ash { --fit-surface-high: rgba(0,0,0,0.20); }
   .fit-phone.fit-dark.k-alpha.k-canvas-indigo .cd-j-next-panel { outline-color: rgba(167,139,250,0.85); }
   .fit-phone.fit-dark.k-alpha.k-canvas-ember .cd-j-next-panel { outline-color: rgba(255,171,120,0.85); }
   /* --- J/K shared refinements ---------------------------------------------
@@ -7639,7 +7644,7 @@
   <div class="look-switch">
     <div class="lk"><span class="lk-l">Look<small>dark only</small></span><div class="state-toggle"><button data-v="plain" onclick="setLook('plain',this)">Plain</button><button class="active" data-v="tinted" onclick="setLook('tinted',this)">Tinted</button></div></div>
     <div class="lk"><span class="lk-l">CTA<small>tinted only</small></span><div class="state-toggle"><button data-c="gradient" onclick="setCta('gradient',this)">Gradient</button><button class="active" data-c="white" onclick="setCta('white',this)">White</button></div></div>
-    <div class="lk"><span class="lk-l">Canvas<small>tinted only</small></span><div class="state-toggle"><button class="active" data-k="teal" onclick="setCanvas('teal',this)">Teal</button><button data-k="indigo" onclick="setCanvas('indigo',this)">Indigo</button><button data-k="ember" onclick="setCanvas('ember',this)">Ember</button><button data-k="graphite" onclick="setCanvas('graphite',this)">Graphite</button><button data-k="fog" onclick="setCanvas('fog',this)">Fog</button></div></div>
+    <div class="lk"><span class="lk-l">Canvas<small>tinted only</small></span><div class="state-toggle"><button class="active" data-k="teal" onclick="setCanvas('teal',this)">Teal</button><button data-k="indigo" onclick="setCanvas('indigo',this)">Indigo</button><button data-k="ember" onclick="setCanvas('ember',this)">Ember</button><button data-k="graphite" onclick="setCanvas('graphite',this)">Graphite</button><button data-k="fog" onclick="setCanvas('fog',this)">Fog</button><button data-k="ash" onclick="setCanvas('ash',this)">Ash</button></div></div>
   </div>
   <div class="ann active" id="ann-s-draft-profile"><span class="ann-role">Coach &middot; draft &middot; profile, placed</span>
     <h3>Profile &middot; your own Client Detail</h3>
@@ -9700,7 +9705,7 @@ function validateAppleConnect() {
     }
   }
 function setCanvas(name, btn) {
-  document.querySelectorAll('.fit-phone').forEach(function (p) { ['teal','indigo','ember','graphite','fog'].forEach(function (k) { p.classList.remove('k-canvas-' + k); }); if (name !== 'teal') p.classList.add('k-canvas-' + name); });
+  document.querySelectorAll('.fit-phone').forEach(function (p) { ['teal','indigo','ember','graphite','fog','ash'].forEach(function (k) { p.classList.remove('k-canvas-' + k); }); if (name !== 'teal') p.classList.add('k-canvas-' + name); });
   document.querySelectorAll('.look-switch button[data-k]').forEach(function (b) { b.classList.remove('active'); });
   var hit = btn || document.querySelector('.look-switch button[data-k="' + name + '"]'); if (hit) hit.classList.add('active');
   try { localStorage.setItem('cd-canvas', name); } catch (e) {}
