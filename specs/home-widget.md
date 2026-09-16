@@ -13,8 +13,8 @@ A home-screen widget (iOS WidgetKit, Android Glance) that shows the user's sched
 
 | Size | iOS points | Shows | Tap |
 |---|---|---|---|
-| **Small** | 158×158 | *time-first*: the hour (28px) + `today` / `in 45 min`, name, who — and one line for the one after; *date-first*: weekday + day number, two rows | the event |
-| **Medium** | 338×158 | *time-first*: the next one big + the rest as a compact list with a day-label column; *date-first*: date block left (weekday, big number, `3 this week` / `② requests`), rows by day right | row → the event; elsewhere → Calendar tab |
+| **Small** | 158×158 | **the next session only** — *time-first*: hour (34px) + when at the top, name + where at the bottom; *date-first*: weekday + day number + one row | the event |
+| **Medium** | 338×158 | **the next one + the one after** — *time-first*: a two-tier list (20px hour and name on one baseline, sub-line indented, a rule, the “Then” row in 15px); *date-first*: date block left, two rows right | row → the event; elsewhere → Calendar tab |
 | **Large** | 338×354 | a 7-day strip (today highlighted, past dimmed, dots under a day = sessions in type colour) + 4–5 rows by day; footer | day → Calendar on that day; row → the event |
 
 **iOS lock screen** (accessory families, same timeline): *inline* — one line above the clock (`● Boxing with Maris · 18:30`); *circular* (`Next 18:30`, `Week 3`); *rectangular* (label / name / time · place). Monochrome by definition.
@@ -23,7 +23,7 @@ Android: the same content in Material shape (28dp system radius); Glance cells r
 
 ### Layout candidates and rhythm
 
-Two layouts in the prototype (switch in the annotation column): **time-first** (Apple Clock / Fantastical "up next" — the hour is the biggest thing) and **date-first** (Apple Calendar — weekday + big day number, then rows). Both obey one rhythm: 16px content margins, a 4px grid, content **top-anchored** with the only stretch between the rows and the single 11px bottom line; a four-step type scale — 28–34 (hour / day number) · 15–16 (name) · 13–14 (rows) · 10–12 (labels, secondary); fixed tabular time column (34–40px) that never clips; the small never carries more than 1 session + 1 "next" line (time-first) or 2 rows (date-first).
+Two layouts in the prototype (switch in the annotation column): **time-first** (Apple Clock / Fantastical "up next" — the hour is the biggest thing) and **date-first** (Apple Calendar — weekday + big day number, then rows). Both obey one rhythm: 16px content margins, a 4px grid, content **top-anchored** with the only stretch between the rows and the single 11px bottom line; a four-step type scale — 28–34 (hour / day number) · 15–16 (name) · 13–14 (rows) · 10–12 (labels, secondary); fixed tabular time column (34–40px) that never clips; small = one session, medium = two, large = the week strip + up to four rows.
 
 ## 3. Language
 
@@ -31,7 +31,8 @@ Two layouts in the prototype (switch in the annotation column): **time-first** (
 - **Child training is not a colour.** The type stays the type; a small who-pill (`Mia`) says who is training. Colour is already spent on type and would collide the moment a child joins a group. Until [#45](https://github.com/321-fit/project-spec/issues/45) ships the pill does not appear.
 - **Rows**: time · name · sub. The time column is fixed and never clips; the name ellipsises; the pill never clips.
 - **Coach nouns**: rows lead with the athlete's name (the coach knows their sport); group rows show `7 of 10`.
-- **Footers**: athlete — `3 sessions this week` (medium) / `€240 balance · 1 pack session left` (large); coach — `2 requests waiting · €180 planned this week` (the Home day widget's line; the red count taps into the Inbox).
+- **Action = a count, not a sentence.** Anything that needs the user (coach: requests; athlete: a session to rate / pay) is a red count in the header; tap → Inbox. No money on the widget; no footer sentences on small/medium. The large keeps one quiet line (athlete `€240 balance · 1 pack session left`; coach `② requests · €60 earned · €180 planned`) — open whether it stays.
+- The date is not repeated in the header — the phone shows it.
 
 ## 4. Skin (open)
 
@@ -77,5 +78,6 @@ Proposal: the skin is a **widget setting** (iOS `AppIntentConfiguration`, Androi
 
 ## Change log
 - 2026-09-16 — first cut: prototype + this page.
+- 2026-09-16 (later 3) — cut pass (owner: still glued, hour not on the name's line): small = the next only, medium = next + then, action = a red count in the header, date and money removed from small/medium; hour/name share a baseline.
 - 2026-09-16 (later 2) — layout pass: time-first / date-first candidates, 4px rhythm, top-anchored content, four-step type scale (owner: the first cut felt glued together with a huge gap on the small).
 - 2026-09-16 (later) — platform rules pass: type = shape + colour, iOS 18 tinted state, lock-screen accessories, Android system font / 40dp rows / dynamic-colour skin, 16pt margins, smaller mark; §8.
