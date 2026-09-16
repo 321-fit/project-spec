@@ -32,11 +32,11 @@
 | Calendar | `coach/calendar-drafts.html` | — (fills in canon css) | calendar + drawers, event, edit, time off, cash, invite | — |
 | Profile & Settings | `coach/profile-drafts.html` | Profile · Settings · Availability hub (week chart = proposal toggle) | personal info ×7, sports, hours ×5, locations ×6, calendar sync ×5, Stripe ×13, referral ×2, account access ×17 | Booking rules dropped (not in prod); icon assets path |
 | Sessions & Packages | `coach/sessions-drafts.html` | — (cards as one surface) | list, create, detail ×3, series, edit, package editor ×3 | forms pass |
-| Athlete side | `athlete/athlete-drafts.html` | Home (anchor = 3 options: Next up · Activity ring · Balance) · My coaches · Coach detail (no Packages circle) · Profile · Settings — built from the athlete's own canon screens | schedule, search (under the look; light toggle = as shipped), public coach profile + booking + addresses, balance ×12, personal info ×7, calendar sync ×5, integrations, sports | which anchor; light recipe; review pass |
+| Athlete side | `athlete/athlete-drafts.html` | Home (anchor = 3 options: Next up · Activity ring · Balance) · My coaches · Coach detail (no Packages circle) · Profile (stats folded into the identity line; the ring stays on Home) · Settings · Training history · History with a coach · My addresses · Home-visit address picker · Group session join (states open / full / conflict / joined; ⋯ share · coach · leave) — built from the athlete's own canon screens | schedule, search (under the look; coach card → public profile), public coach profile (Trains at as a panel, footer = chat circle + CTA) + booking (template cards one surface), rate queue (equal actions, CTA of the look), transactions (search + chips), package activity, balance ×12, personal info ×7, calendar sync ×5 (provider plates drawn in CSS), integrations, sports | which anchor; **second canvas** (Teal / Indigo / Ember / Graphite switch in the annotation column — athlete bet); light recipe; review pass |
 
 Every exit from a rework file lands on its rework equivalent (`~/.claude/scripts/relink.py`); the walk script reports 0 dead refs / 0 JS errors across all seven files.
 
-## 3. Issue candidates (when confirmed)
+## 4. Issue candidates (when confirmed)
 
 Cut per flow, per platform, from the per-flow specs' *User flows* sections. Endpoint work identified so far (all additive):
 - Clients list: `nextSessionAt` (+ name / type) per client.
@@ -48,10 +48,12 @@ Cut per flow, per platform, from the per-flow specs' *User flows* sections. Endp
 
 1. Tinted canvas as the coach default; what the athlete (light by default) gets.
 2. Home circle set (Book · Self-paced · Time off · Ask AI) and the athlete's (Find · Self-paced · Top up · Invite); the athlete Home anchor (Next up / ring / balance).
-3. Availability hub week chart — keep or drop.
-4. Forms pass on canon forms (create session, package editor, personal info, Stripe onboarding).
-5. Port-back order: which canon files get the rework first.
+3. Athlete canvas hue: Teal is the brand; Indigo (evening / after-work, teal CTA + chips still pop, status pills keep contrast) is the proposed athlete variant; Ember (warm, but red/yellow pills lose contrast) and Graphite (neutral) are there to compare.
+4. Availability hub week chart — keep or drop.
+5. Forms pass on canon forms (create session, package editor, personal info, Stripe onboarding).
+6. Port-back order: which canon files get the rework first.
 
 ## Change log
 - 2026-09-14 — Client Detail J finished as a flow; Home first cut; Clients discussion.
 - 2026-09-15 — Home anchor = day widget; Clients, Calendar, Profile & Settings, Sessions, Athlete flows; relink + walk; calendar hatch retired in canon; this index.
+- 2026-09-16 — Athlete pass 2: training history / history with coach / addresses / home-visit picker / group join redrawn as roots; booking cards, rate queue, transactions header, calendar-sync plates, coach profile (Trains at + footer) under the look; search coach card → public profile; package activity renders on entry; every exit stays in the file (schedule / balance / booking); canvas switch (Teal · Indigo · Ember · Graphite) for the athlete.
