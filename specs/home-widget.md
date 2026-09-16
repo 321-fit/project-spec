@@ -1,9 +1,21 @@
 # Home-screen calendar widget
 
-> Status: **Draft — work in progress.** Issue: [project-spec#43](https://github.com/321-fit/project-spec/issues/43) (batch `extension`). Nothing here is confirmed for development.
+> Status: **Draft — work in progress.** Issue: [project-spec#43](https://github.com/321-fit/project-spec/issues/43) (batch `extension`). Parked 2026-09-16 after seven review rounds with the owner at the *wheel* version (§0); not confirmed for development.
 > Prototype: [flows/shared/widget.html](https://321-fit.github.io/project-spec/prototypes/flows/shared/widget.html) — both roles, three sizes on a mock home screen, skin switch, Android, states.
 > Hub: [modules.html → Extension](https://321-fit.github.io/project-spec/prototypes/modules.html)
 > Last updated: 2026-09-16
+
+## 0. Where it stands (2026-09-16)
+
+**Settled with the owner** — the shape of all three sizes:
+- Every session is a **wheel row** (shape-dot · name / where — hour / day right-aligned); the next one full-size, the ones after smaller and dimmer. No tinted tile, no badges, no money, no footers, no relative times.
+- **Small** = date word (`TODAY` / `TOMORROW` / `THU 24`) · hour 36px regular · one row, spaced evenly. **Medium** = the wheel, two rows. **Large** = week strip as *load only* (no selected day) + upcoming rows by day.
+- Type = shape + colour (filled / ring / diamond) so tinted iOS 18 and the lock screen still read it.
+- Platform rules in §8 (WidgetKit timeline, Glance system font, 40dp rows, App Group data).
+
+**Still open** — §7: the skin (brand canvas vs system material — proposal: a widget setting, brand default on iOS, system on Android); whether the athlete's widget shows pending requests (proposal: no); the lock-screen inline copy.
+
+**Next step** — owner sign-off on the prototype → iOS (WidgetKit) and Android (Glance) issues cut from §2, §5, §6, §8.
 
 ## 1. What it is
 

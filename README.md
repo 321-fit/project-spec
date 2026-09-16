@@ -21,6 +21,7 @@ All prototypes are hosted on GitHub Pages — open these links to see the **rend
 **Shared flows:**
 - [Account Access](https://321-fit.github.io/project-spec/prototypes/flows/shared/account-access.html) · sign-in methods, re-auth, delete account, contact support
 - [Profile (Coach v2)](https://321-fit.github.io/project-spec/prototypes/flows/shared/profile.html) · coach profile + booking calendar + reviews
+- [Home-screen widget](https://321-fit.github.io/project-spec/prototypes/flows/shared/widget.html) · small / medium / large, both roles, iOS 18 tinted, lock screen, Android — WIP, [spec](specs/home-widget.md), #43
 
 ---
 
