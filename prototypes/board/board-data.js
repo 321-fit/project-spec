@@ -2645,7 +2645,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-dash",
-          "hash": "4f6bf2dbf556",
+          "hash": "6b51648098db",
           "title": "Home, placed",
           "inApp": "",
           "status": "proposal",
@@ -2687,7 +2687,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-spq",
-          "hash": "75d0f44044de",
+          "hash": "ac13384991aa",
           "title": "↳ Self-paced hub",
           "inApp": "Self-paced",
           "status": "proposal",
@@ -2706,7 +2706,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-collect",
-          "hash": "c4d22afd218d",
+          "hash": "0d317fe628fd",
           "title": "↳ Cash to collect (push)",
           "inApp": "Cash to collect",
           "status": "proposal",
@@ -2725,7 +2725,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-notifications",
-          "hash": "c08e1a6a7ee6",
+          "hash": "797b7c87fbd8",
           "title": "↳ Inbox",
           "inApp": "Inbox",
           "status": "proposal",
@@ -2744,7 +2744,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-review-queue",
-          "hash": "907761bd8699",
+          "hash": "5f096583a722",
           "title": "↳ Sessions to review",
           "inApp": "Sessions to review",
           "status": "proposal",
@@ -2763,7 +2763,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-earnings",
-          "hash": "6b89e32168f6",
+          "hash": "2eca8ca14a1b",
           "title": "↳ Earnings",
           "inApp": "Earnings",
           "status": "proposal",
@@ -2782,7 +2782,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-schedule-pick-athlete",
-          "hash": "462bae911a88",
+          "hash": "ca6f528bf2a6",
           "title": "↳ Book · athlete",
           "inApp": "Choose athlete",
           "status": "proposal",
@@ -2801,7 +2801,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-select",
-          "hash": "255ac7495846",
+          "hash": "f57231e6abe5",
           "title": "↳ Book · session",
           "inApp": "Select training",
           "status": "proposal",
@@ -2821,7 +2821,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-time",
-          "hash": "fcd4fdeec5b5",
+          "hash": "c2b7b03ab252",
           "title": "↳ Book · time",
           "inApp": "",
           "status": "proposal",
@@ -2841,7 +2841,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-schedule-review",
-          "hash": "a2360a9c3551",
+          "hash": "1e89eb3f4a8d",
           "title": "↳ Book · review",
           "inApp": "Review request",
           "status": "proposal",
@@ -2861,7 +2861,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-block-time-off",
-          "hash": "70269672d3a5",
+          "hash": "17cdd0fea160",
           "title": "↳ Time off",
           "inApp": "Busy time",
           "status": "proposal",
@@ -2880,7 +2880,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-setup",
-          "hash": "a3207d168bbe",
+          "hash": "46e40d885db3",
           "title": "↳ Self-paced · builder",
           "inApp": "Set up for Anna",
           "status": "proposal",
@@ -2901,7 +2901,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-review",
-          "hash": "3b2ca74cc9d2",
+          "hash": "349e23855840",
           "title": "↳ Self-paced · review",
           "inApp": "Review · Julia",
           "status": "proposal",
@@ -2920,7 +2920,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-comments",
-          "hash": "3e884c63c599",
+          "hash": "15b1b87860c1",
           "title": "↳ Self-paced · thread",
           "inApp": "Lower-body mobility",
           "status": "proposal",
@@ -3451,7 +3451,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-clients",
-          "hash": "6ce909c0bd0b",
+          "hash": "4fdc9bb6a822",
           "title": "Clients, placed",
           "inApp": "",
           "status": "proposal",
@@ -3480,7 +3480,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-archived",
-          "hash": "a76b0cfa0e1a",
+          "hash": "102da9999924",
           "title": "↳ Archived & Blocked",
           "inApp": "Archived & Blocked",
           "status": "proposal",
@@ -3499,7 +3499,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-group",
-          "hash": "3f9dd9585984",
+          "hash": "9adafcfd4f4e",
           "title": "↳ Group",
           "inApp": "",
           "status": "proposal",
@@ -3518,7 +3518,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-group-schedule",
-          "hash": "1b078b28aede",
+          "hash": "8f492e58f238",
           "title": "↳ Group · all dates",
           "inApp": "Morning · schedule",
           "status": "proposal",
@@ -3537,7 +3537,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-group-add",
-          "hash": "65cc75fce6ee",
+          "hash": "04260300ee9c",
           "title": "↳ Group · add clients",
           "inApp": "Add to Morning",
           "status": "proposal",
@@ -3556,7 +3556,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-group-rename",
-          "hash": "896ec0b445da",
+          "hash": "963f4e6875b4",
           "title": "↳ Group · rename",
           "inApp": "Group name",
           "status": "proposal",
@@ -3575,7 +3575,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-group-create",
-          "hash": "8087f292a3df",
+          "hash": "9b69bfad444e",
           "title": "↳ Create group",
           "inApp": "New group",
           "status": "proposal",
@@ -3594,7 +3594,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-smart",
-          "hash": "1d565dca2a4c",
+          "hash": "7dd985cb043d",
           "title": "↳ Smart group (from a chip)",
           "inApp": "Owes money",
           "status": "proposal",
@@ -3614,7 +3614,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-import",
-          "hash": "48169862ca71",
+          "hash": "542ad6f47939",
           "title": "↳ Import contacts",
           "inApp": "Import contacts",
           "status": "proposal",
@@ -3633,7 +3633,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-create-client",
-          "hash": "9eeb88f7ced8",
+          "hash": "89b6b535e23e",
           "title": "↳ Create client",
           "inApp": "New client",
           "status": "proposal",
@@ -4073,7 +4073,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-client",
-          "hash": "806cc207845c",
+          "hash": "fa5f7b4f3b23",
           "title": "J · Client Detail, placed",
           "inApp": "",
           "status": "proposal",
@@ -4120,7 +4120,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-owed",
-          "hash": "a2c45b8f86f5",
+          "hash": "ba15503274dc",
           "title": "↳ Owed (push)",
           "inApp": "Owed",
           "status": "proposal",
@@ -4139,7 +4139,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-selfpaced",
-          "hash": "1894e7215597",
+          "hash": "edb461fb08a2",
           "title": "↳ Self-paced",
           "inApp": "Anna’s self-paced",
           "status": "proposal",
@@ -4166,7 +4166,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-packages",
-          "hash": "68bbfe3c4a25",
+          "hash": "af03f45f12c2",
           "title": "↳ Packages",
           "inApp": "Anna’s packages",
           "status": "proposal",
@@ -4185,7 +4185,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-history",
-          "hash": "48a0f4690ebe",
+          "hash": "d70f60f70021",
           "title": "↳ History",
           "inApp": "Anna’s history",
           "status": "proposal",
@@ -4204,7 +4204,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-groups",
-          "hash": "c8eafa0d737c",
+          "hash": "6b58c6ef43b0",
           "title": "↳ Groups",
           "inApp": "Anna’s groups",
           "status": "proposal",
@@ -4223,7 +4223,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-client-selfpaced",
-          "hash": "685af72c81b1",
+          "hash": "250f48af46d6",
           "title": "↳ canon copy",
           "inApp": "Self-paced",
           "status": "proposal",
@@ -4242,7 +4242,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-pkg-detail",
-          "hash": "1077d6148091",
+          "hash": "d7770a94a643",
           "title": "↳ Package detail",
           "inApp": "Package",
           "status": "proposal",
@@ -4262,7 +4262,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-pkg-history",
-          "hash": "2d6d4340db54",
+          "hash": "63ec19a092ad",
           "title": "↳ Package history",
           "inApp": "Activity",
           "status": "proposal",
@@ -4282,7 +4282,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-crm-addr-pick",
-          "hash": "46dd5cff7a57",
+          "hash": "d91609c23991",
           "title": "↳ Addresses",
           "inApp": "",
           "status": "proposal",
@@ -4301,7 +4301,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-crm-addr-form",
-          "hash": "af261ba51e46",
+          "hash": "63a9505df1e1",
           "title": "↳ Address form",
           "inApp": "Home address",
           "status": "proposal",
@@ -4320,7 +4320,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-client-notes-editor",
-          "hash": "3239f34a9bec",
+          "hash": "f85944262c67",
           "title": "↳ Note",
           "inApp": "",
           "status": "proposal",
@@ -4339,7 +4339,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-create-client",
-          "hash": "e4ec8623f276",
+          "hash": "35d4d34c8913",
           "title": "↳ Edit info",
           "inApp": "New client",
           "status": "proposal",
@@ -4358,7 +4358,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-thread",
-          "hash": "2902d46dc2d9",
+          "hash": "d3fa3673e2fa",
           "title": "↳ Message",
           "inApp": "John Miller",
           "status": "proposal",
@@ -4379,7 +4379,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-review",
-          "hash": "1b4dc31b6aa3",
+          "hash": "664011f0fe40",
           "title": "↳ Self-paced · review clips",
           "inApp": "Review · Julia",
           "status": "proposal",
@@ -4398,7 +4398,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-setup",
-          "hash": "c6ac0c0606f1",
+          "hash": "784f560baaa7",
           "title": "↳ Self-paced · setup",
           "inApp": "Set up for Anna",
           "status": "proposal",
@@ -4419,7 +4419,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-select",
-          "hash": "61cc0f45275e",
+          "hash": "4cbe42a2cca7",
           "title": "↳ Book · session",
           "inApp": "Select training",
           "status": "proposal",
@@ -4438,7 +4438,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite-time",
-          "hash": "f8c4048e2d22",
+          "hash": "3df935a50c33",
           "title": "↳ Book · time",
           "inApp": "",
           "status": "proposal",
@@ -4458,7 +4458,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-schedule-review",
-          "hash": "654f9d6cb24c",
+          "hash": "1c028e0c77aa",
           "title": "↳ Book · review",
           "inApp": "Review request",
           "status": "proposal",
@@ -4976,7 +4976,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-list",
-          "hash": "7a49b590bf1e",
+          "hash": "6b45e61a166e",
           "title": "My training sessions",
           "inApp": "My training sessions",
           "status": "proposal",
@@ -4995,7 +4995,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-create",
-          "hash": "cc3b380b6efa",
+          "hash": "2cdf1a1abf75",
           "title": "↳ Create",
           "inApp": "Training session setup",
           "status": "proposal",
@@ -5014,7 +5014,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-detail-group",
-          "hash": "6ddd7a9dfc91",
+          "hash": "6465cc8c9893",
           "title": "↳ Group · detail",
           "inApp": "HIIT Group Session",
           "status": "proposal",
@@ -5033,7 +5033,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-detail-personal",
-          "hash": "81d811430168",
+          "hash": "87f777d68b74",
           "title": "↳ Personal · detail",
           "inApp": "Basketball Training",
           "status": "proposal",
@@ -5052,7 +5052,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-detail-selfpaced",
-          "hash": "36eb469c6e16",
+          "hash": "175537589600",
           "title": "↳ Self-paced · detail",
           "inApp": "Tennis self-paced",
           "status": "proposal",
@@ -5071,7 +5071,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-series",
-          "hash": "649003772369",
+          "hash": "0927098073b1",
           "title": "↳ Series",
           "inApp": "Tue & Thu · 18:00",
           "status": "proposal",
@@ -5090,7 +5090,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-edit",
-          "hash": "c5c09a90e9c0",
+          "hash": "79d9395ffc68",
           "title": "↳ Edit",
           "inApp": "Edit training session",
           "status": "proposal",
@@ -5109,7 +5109,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "pkg-pick",
-          "hash": "f5fe4a417dbb",
+          "hash": "eb6a63e5070f",
           "title": "↳ Pick a session",
           "inApp": "Choose a session",
           "status": "proposal",
@@ -5128,7 +5128,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "pkg-editor",
-          "hash": "f76f788f70fd",
+          "hash": "4988a3ca3d3e",
           "title": "↳ Package editor",
           "inApp": "New package",
           "status": "proposal",
@@ -5147,7 +5147,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "pkg-tier-edit",
-          "hash": "ebd78602108d",
+          "hash": "35f1b0d8e0b9",
           "title": "↳ Edit tier",
           "inApp": "New package tier",
           "status": "proposal",
@@ -5461,7 +5461,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-calendar",
-          "hash": "e6118d124264",
+          "hash": "9515e3b2d3da",
           "title": "Calendar",
           "inApp": "",
           "status": "proposal",
@@ -5480,7 +5480,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-event",
-          "hash": "ef808ed0033e",
+          "hash": "9a856f0e7b3c",
           "title": "↳ Group event",
           "inApp": "HIIT Group Session",
           "status": "proposal",
@@ -5499,7 +5499,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-invite",
-          "hash": "de2bf1efacb8",
+          "hash": "46404e5d9fc4",
           "title": "↳ Invite athletes",
           "inApp": "Invite athletes",
           "status": "proposal",
@@ -5518,7 +5518,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-cash",
-          "hash": "bc18c99269f3",
+          "hash": "fe3c764c0caf",
           "title": "↳ Complete · cash",
           "inApp": "Event completion",
           "status": "proposal",
@@ -5537,7 +5537,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-block-time-off",
-          "hash": "e8749d64df0f",
+          "hash": "7566bcc1af4f",
           "title": "↳ Time off",
           "inApp": "Busy time",
           "status": "proposal",
@@ -5556,7 +5556,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-event-edit",
-          "hash": "bbeb3265a2e3",
+          "hash": "c247e3241d31",
           "title": "↳ Edit event",
           "inApp": "Edit event",
           "status": "proposal",
@@ -6882,7 +6882,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-profile",
-          "hash": "22f1551208ce",
+          "hash": "c48f325d2614",
           "title": "Profile, placed",
           "inApp": "",
           "status": "proposal",
@@ -6904,7 +6904,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-settings",
-          "hash": "e8c1baa5f6f4",
+          "hash": "0c89dbfd76c3",
           "title": "↳ Settings, placed",
           "inApp": "Settings",
           "status": "proposal",
@@ -6923,7 +6923,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-availability",
-          "hash": "862d15334ca4",
+          "hash": "dfd7ec56f964",
           "title": "↳ Availability, placed",
           "inApp": "Availability",
           "status": "proposal",
@@ -6942,7 +6942,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-coach-profile",
-          "hash": "733e18aed1ab",
+          "hash": "3dc96467ccdc",
           "title": "↳ canon copy",
           "inApp": "",
           "status": "proposal",
@@ -6964,7 +6964,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-coach-reviews",
-          "hash": "762545cc911b",
+          "hash": "3174331330fe",
           "title": "↳ Reviews",
           "inApp": "Reviews",
           "status": "proposal",
@@ -6983,7 +6983,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-personal-data",
-          "hash": "819b5940d93c",
+          "hash": "2002d0e77df4",
           "title": "↳ Personal info",
           "inApp": "Personal data",
           "status": "proposal",
@@ -7002,7 +7002,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-notes-editor",
-          "hash": "1d761416b28b",
+          "hash": "c8339051d318",
           "title": "↳ About me editor",
           "inApp": "",
           "status": "proposal",
@@ -7021,7 +7021,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-tz-select",
-          "hash": "2bde922a5af5",
+          "hash": "2c1c4b5c4f03",
           "title": "↳ Time zone",
           "inApp": "Time zone",
           "status": "proposal",
@@ -7040,7 +7040,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-country-select",
-          "hash": "f522d7e425c0",
+          "hash": "0153c0089187",
           "title": "Country",
           "inApp": "Home country",
           "status": "proposal",
@@ -7059,7 +7059,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-city-select",
-          "hash": "4c0b9d518d3b",
+          "hash": "9a2a8deabb6b",
           "title": "City",
           "inApp": "Home city",
           "status": "proposal",
@@ -7078,7 +7078,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-lang-select",
-          "hash": "d91882bfbb9d",
+          "hash": "078f8bd02cbb",
           "title": "Languages",
           "inApp": "Languages",
           "status": "proposal",
@@ -7097,7 +7097,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-currency-select",
-          "hash": "8c3db144b46d",
+          "hash": "35f7384c1fcd",
           "title": "Currency",
           "inApp": "Currency",
           "status": "proposal",
@@ -7116,7 +7116,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-sport-types",
-          "hash": "b5ff7489c176",
+          "hash": "3f9f319576df",
           "title": "↳ Sports",
           "inApp": "Sport types",
           "status": "proposal",
@@ -7135,7 +7135,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-availability",
-          "hash": "bb80ccc998ae",
+          "hash": "68958dedc190",
           "title": "↳ Available hours",
           "inApp": "Available hours",
           "status": "proposal",
@@ -7154,7 +7154,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-vacation-start",
-          "hash": "105ec73b1e5a",
+          "hash": "1003589292b5",
           "title": "↳ Time off · start",
           "inApp": "Time off",
           "status": "proposal",
@@ -7173,7 +7173,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-time-off",
-          "hash": "1351a93ae01d",
+          "hash": "3968d6b34dd7",
           "title": "↳ Time off",
           "inApp": "Time off",
           "status": "proposal",
@@ -7192,7 +7192,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-time-off-history",
-          "hash": "af3d25b4660a",
+          "hash": "3c2636890f8d",
           "title": "↳ Time off · history",
           "inApp": "Past time off",
           "status": "proposal",
@@ -7211,7 +7211,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-booking-rules",
-          "hash": "f781abc84721",
+          "hash": "cbcd3ecd4223",
           "title": "↳ Booking rules",
           "inApp": "Booking rules",
           "status": "proposal",
@@ -7231,7 +7231,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-locations",
-          "hash": "326c25ffe05e",
+          "hash": "09e9c9212c7f",
           "title": "↳ Locations",
           "inApp": "Training locations",
           "status": "proposal",
@@ -7250,7 +7250,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-loc-map",
-          "hash": "745b1f66208a",
+          "hash": "4ff04f5eaf95",
           "title": "↳ Map",
           "inApp": "Add location",
           "status": "proposal",
@@ -7269,7 +7269,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-loc-pick",
-          "hash": "77d759a0b9ba",
+          "hash": "0d27f9f7abca",
           "title": "↳ Pick",
           "inApp": "",
           "status": "proposal",
@@ -7289,7 +7289,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-loc-form",
-          "hash": "2e649f53d3ae",
+          "hash": "3b407758eff5",
           "title": "↳ Form",
           "inApp": "Location details",
           "status": "proposal",
@@ -7308,7 +7308,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-loc-homevisit",
-          "hash": "98064cef30f8",
+          "hash": "174f414f1a70",
           "title": "↳ Home visit",
           "inApp": "Home visit",
           "status": "proposal",
@@ -7327,7 +7327,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-loc-online",
-          "hash": "6c8bbea2ae09",
+          "hash": "d5919cc3421d",
           "title": "↳ Online",
           "inApp": "Add online location",
           "status": "proposal",
@@ -7346,7 +7346,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-calsync",
-          "hash": "eb44a8f21ea7",
+          "hash": "6b082a31e14d",
           "title": "↳ Calendar sync",
           "inApp": "Calendar sync",
           "status": "proposal",
@@ -7365,7 +7365,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-cal-detail",
-          "hash": "58d8b91f7723",
+          "hash": "cb883f57cef0",
           "title": "↳ Google detail",
           "inApp": "Google Calendar",
           "status": "proposal",
@@ -7384,7 +7384,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-write-target-picker",
-          "hash": "c2de9c8c0723",
+          "hash": "607bb5c0d3cd",
           "title": "↳ Write target",
           "inApp": "Calendar to add events to",
           "status": "proposal",
@@ -7403,7 +7403,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-apple-connect",
-          "hash": "68b91b1d70e2",
+          "hash": "383ec5bd6b18",
           "title": "↳ Apple connect",
           "inApp": "Apple Calendar",
           "status": "proposal",
@@ -7422,7 +7422,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-apple-detail",
-          "hash": "2635091651bd",
+          "hash": "fa75599d7a25",
           "title": "↳ Apple detail",
           "inApp": "Apple Calendar",
           "status": "proposal",
@@ -7442,7 +7442,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe",
-          "hash": "65602a49d7b1",
+          "hash": "9177e959505b",
           "title": "↳ Stripe",
           "inApp": "Stripe",
           "status": "proposal",
@@ -7461,7 +7461,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-confirm",
-          "hash": "b1688bc57000",
+          "hash": "ad0b2cbde26b",
           "title": "↳ Onboarding · confirm",
           "inApp": "Your info",
           "status": "proposal",
@@ -7480,7 +7480,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-edit-name",
-          "hash": "f24f23d88a55",
+          "hash": "ba0ae51a9f5f",
           "title": "Edit name",
           "inApp": "",
           "status": "proposal",
@@ -7499,7 +7499,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-edit-email",
-          "hash": "01fb3b369c8a",
+          "hash": "66db2e139fe6",
           "title": "Edit email",
           "inApp": "",
           "status": "proposal",
@@ -7518,7 +7518,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-edit-phone",
-          "hash": "de61688fbd59",
+          "hash": "87964f173dc0",
           "title": "Edit phone",
           "inApp": "",
           "status": "proposal",
@@ -7537,7 +7537,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-edit-country",
-          "hash": "2644be546c03",
+          "hash": "c81a6eff59f2",
           "title": "Edit country",
           "inApp": "Country",
           "status": "proposal",
@@ -7556,7 +7556,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-edit-address",
-          "hash": "5e579cf6d94c",
+          "hash": "49393812bb58",
           "title": "Edit address",
           "inApp": "",
           "status": "proposal",
@@ -7575,7 +7575,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-id",
-          "hash": "b7a42dda5cdb",
+          "hash": "29ffa6b29d95",
           "title": "↳ Onboarding · ID",
           "inApp": "Verification",
           "status": "proposal",
@@ -7594,7 +7594,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-onb-bank",
-          "hash": "528bbbfebe72",
+          "hash": "6b226bda06ab",
           "title": "↳ Onboarding · bank",
           "inApp": "Payout destination",
           "status": "proposal",
@@ -7614,7 +7614,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-bank-add",
-          "hash": "72120f3ff574",
+          "hash": "7b4bd6740fb0",
           "title": "↳ Add bank",
           "inApp": "Add payout method",
           "status": "proposal",
@@ -7633,7 +7633,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-bank-detail",
-          "hash": "106a4654a97d",
+          "hash": "655b35aa3f15",
           "title": "↳ Bank detail",
           "inApp": "Payout method",
           "status": "proposal",
@@ -7652,7 +7652,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-withdraw",
-          "hash": "0657695abb37",
+          "hash": "82f5f2a15cf1",
           "title": "↳ Withdraw",
           "inApp": "Withdraw",
           "status": "proposal",
@@ -7671,7 +7671,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-stripe-payouts",
-          "hash": "7392b70a3225",
+          "hash": "471f6001bea7",
           "title": "↳ Payouts",
           "inApp": "Payouts",
           "status": "proposal",
@@ -7690,7 +7690,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-referral",
-          "hash": "2e9c878f5492",
+          "hash": "5dae567cfe64",
           "title": "↳ Refer a coach",
           "inApp": "Refer a coach",
           "status": "proposal",
@@ -7709,7 +7709,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-referral-list",
-          "hash": "480d8a9fc083",
+          "hash": "6c5a2e00a444",
           "title": "↳ Referral list",
           "inApp": "Your invites",
           "status": "proposal",
@@ -7728,7 +7728,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-hub",
-          "hash": "f469c224d1c5",
+          "hash": "63048bcd9fcb",
           "title": "↳ Account access",
           "inApp": "Account access",
           "status": "proposal",
@@ -7747,7 +7747,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-reauth",
-          "hash": "a5d197d16557",
+          "hash": "b1da312be7b7",
           "title": "↳ Re-auth",
           "inApp": "",
           "status": "proposal",
@@ -7767,7 +7767,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-phone-new",
-          "hash": "8286ce32a91d",
+          "hash": "a51eab2067a2",
           "title": "↳ Phone · new",
           "inApp": "",
           "status": "proposal",
@@ -7787,7 +7787,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-phone-otp",
-          "hash": "9e58dd21ebdc",
+          "hash": "b5e07b01b711",
           "title": "↳ Phone · code",
           "inApp": "",
           "status": "proposal",
@@ -7807,7 +7807,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-country-picker",
-          "hash": "01b8ddb02beb",
+          "hash": "09fb0a6b8f63",
           "title": "↳ Country",
           "inApp": "Country or region",
           "status": "proposal",
@@ -7827,7 +7827,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-email-subhub",
-          "hash": "3040e6ad0584",
+          "hash": "520f7c902fc9",
           "title": "↳ Email",
           "inApp": "Email & password",
           "status": "proposal",
@@ -7846,7 +7846,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-email-new",
-          "hash": "290deeac03c4",
+          "hash": "320f9f616fdf",
           "title": "↳ Email · new",
           "inApp": "",
           "status": "proposal",
@@ -7866,7 +7866,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-email-check",
-          "hash": "fd163f1c27ae",
+          "hash": "71111e72de3d",
           "title": "↳ Email · check",
           "inApp": "",
           "status": "proposal",
@@ -7886,7 +7886,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-email-loading",
-          "hash": "84dd62c82ef4",
+          "hash": "4b7cca6e1631",
           "title": "↳ Email · loading",
           "inApp": "",
           "status": "proposal",
@@ -7906,7 +7906,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-email-expired",
-          "hash": "8f9c0bf818f8",
+          "hash": "6124a5a5e8cf",
           "title": "↳ Email · expired",
           "inApp": "",
           "status": "proposal",
@@ -7926,7 +7926,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-password-new",
-          "hash": "8a36978bcb89",
+          "hash": "b30f754338b1",
           "title": "↳ Password",
           "inApp": "",
           "status": "proposal",
@@ -7946,7 +7946,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-delete-info",
-          "hash": "b50fe48968a6",
+          "hash": "dd80051996b6",
           "title": "↳ Delete · info",
           "inApp": "Delete account",
           "status": "proposal",
@@ -7965,7 +7965,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-delete-blockers",
-          "hash": "d0f505dc25df",
+          "hash": "0e944410d280",
           "title": "↳ Delete · blockers",
           "inApp": "Delete account",
           "status": "proposal",
@@ -7985,7 +7985,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-delete-loading",
-          "hash": "c5749d0f7b85",
+          "hash": "81be0490a336",
           "title": "↳ Delete · loading",
           "inApp": "",
           "status": "proposal",
@@ -8004,7 +8004,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-delete-done",
-          "hash": "54c1ee5ce2a7",
+          "hash": "4845e0cb9488",
           "title": "↳ Delete · done",
           "inApp": "",
           "status": "proposal",
@@ -8023,7 +8023,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-role-remove",
-          "hash": "81209990ed1b",
+          "hash": "666a9cff4bc9",
           "title": "↳ Remove role",
           "inApp": "Coach role",
           "status": "proposal",
@@ -8042,7 +8042,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-contact-support",
-          "hash": "b902c95dd46d",
+          "hash": "9ccb5a5b5d45",
           "title": "↳ Contact support",
           "inApp": "Contact support",
           "status": "proposal",
@@ -9254,7 +9254,7 @@ window.FIT_BOARD = {
       "screens": [
         {
           "id": "s-draft-ahome",
-          "hash": "1ae3f3a56cc2",
+          "hash": "9052ed1984b5",
           "title": "Home, placed",
           "inApp": "",
           "status": "proposal",
@@ -9278,7 +9278,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-acoaches",
-          "hash": "f8ad957a3a07",
+          "hash": "2e540e5caab4",
           "title": "↳ My coaches, placed",
           "inApp": "",
           "status": "proposal",
@@ -9299,7 +9299,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-acoach",
-          "hash": "500760006c5c",
+          "hash": "8fd78cc40962",
           "title": "↳ Coach detail, placed",
           "inApp": "",
           "status": "proposal",
@@ -9322,7 +9322,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-aprofile",
-          "hash": "04b5ec6e4e91",
+          "hash": "91c9ac110cf8",
           "title": "↳ Profile, placed",
           "inApp": "",
           "status": "proposal",
@@ -9343,7 +9343,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-asettings",
-          "hash": "25a23551cffa",
+          "hash": "d9a0e54e1211",
           "title": "↳ Settings, placed",
           "inApp": "Settings",
           "status": "proposal",
@@ -9365,7 +9365,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-ahistory",
-          "hash": "9075b1a3ac1f",
+          "hash": "82bf3ddf27bb",
           "title": "↳ Training history",
           "inApp": "Training history",
           "status": "proposal",
@@ -9384,7 +9384,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-acoach-history",
-          "hash": "8ffd4d3386ba",
+          "hash": "2972e5a80bc4",
           "title": "↳ History with coach",
           "inApp": "History with Maria",
           "status": "proposal",
@@ -9403,7 +9403,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-aaddresses",
-          "hash": "aeee48298b54",
+          "hash": "dcd1126b0959",
           "title": "↳ My addresses",
           "inApp": "My addresses",
           "status": "proposal",
@@ -9422,7 +9422,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-ahv",
-          "hash": "f93f9d5be1fd",
+          "hash": "5131995275a0",
           "title": "↳ Home visit · address",
           "inApp": "Your address",
           "status": "proposal",
@@ -9441,7 +9441,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-draft-agroup",
-          "hash": "d505d78c0014",
+          "hash": "48c3bc04a772",
           "title": "↳ Group session · join",
           "inApp": "",
           "status": "proposal",
@@ -9460,7 +9460,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-rate-queue",
-          "hash": "75ab0b0fc063",
+          "hash": "29bc96dbea15",
           "title": "↳ Rate sessions",
           "inApp": "Sessions to rate",
           "status": "proposal",
@@ -9479,7 +9479,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-notifications",
-          "hash": "f0020197554c",
+          "hash": "7cb009afcd86",
           "title": "↳ Inbox",
           "inApp": "Inbox",
           "status": "proposal",
@@ -9498,7 +9498,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-pkg-detail",
-          "hash": "a7a7c4e086e2",
+          "hash": "299187d459ce",
           "title": "↳ Package",
           "inApp": "Package",
           "status": "proposal",
@@ -9517,7 +9517,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-pkg-history",
-          "hash": "89399fd34743",
+          "hash": "776a11a3d00d",
           "title": "↳ Package history",
           "inApp": "Activity",
           "status": "proposal",
@@ -9537,7 +9537,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-coach-note-editor",
-          "hash": "61a275c6da01",
+          "hash": "9b6388cd4e16",
           "title": "↳ Note",
           "inApp": "",
           "status": "proposal",
@@ -9556,7 +9556,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-coach-review",
-          "hash": "a5408fe2f833",
+          "hash": "8c45befe7d26",
           "title": "↳ Review",
           "inApp": "",
           "status": "proposal",
@@ -9575,7 +9575,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-schedule",
-          "hash": "d73d4dc15e01",
+          "hash": "f834ac098562",
           "title": "↳ Schedule",
           "inApp": "",
           "status": "proposal",
@@ -9596,7 +9596,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-landing",
-          "hash": "88687e987dbe",
+          "hash": "b8fc02f8c7b5",
           "title": "↳ Search",
           "inApp": "Find a coach",
           "status": "proposal",
@@ -9617,7 +9617,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-results",
-          "hash": "3d1b8b7c8735",
+          "hash": "8d6e44bc8d5a",
           "title": "↳ Results",
           "inApp": "",
           "status": "proposal",
@@ -9638,7 +9638,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-results-empty",
-          "hash": "884ed806122f",
+          "hash": "834a1b1e3bbe",
           "title": "Results · empty",
           "inApp": "",
           "status": "proposal",
@@ -9660,7 +9660,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-loading",
-          "hash": "47c7dbd2db7e",
+          "hash": "d8de31a5926c",
           "title": "Results · loading",
           "inApp": "",
           "status": "proposal",
@@ -9682,7 +9682,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-error",
-          "hash": "dc20c195d590",
+          "hash": "aeda206612b6",
           "title": "Results · error",
           "inApp": "",
           "status": "proposal",
@@ -9704,7 +9704,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-text",
-          "hash": "55a84a22e817",
+          "hash": "62a079ece9d7",
           "title": "Text search",
           "inApp": "",
           "status": "proposal",
@@ -9723,7 +9723,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-filters",
-          "hash": "a37b601d59e2",
+          "hash": "cad07746a019",
           "title": "↳ Filters",
           "inApp": "Filters",
           "status": "proposal",
@@ -9742,7 +9742,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-lang",
-          "hash": "1378d7acad66",
+          "hash": "463db7e7115c",
           "title": "Languages",
           "inApp": "Languages",
           "status": "proposal",
@@ -9761,7 +9761,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-country",
-          "hash": "98bb1b3983d3",
+          "hash": "f7bddeb927aa",
           "title": "Country",
           "inApp": "Country",
           "status": "proposal",
@@ -9780,7 +9780,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-city",
-          "hash": "e5a365a64cd9",
+          "hash": "01caa6fd2dbb",
           "title": "City",
           "inApp": "City",
           "status": "proposal",
@@ -9799,7 +9799,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-search-map",
-          "hash": "6acae4006839",
+          "hash": "93b0d63eb4a8",
           "title": "↳ Map",
           "inApp": "Map view",
           "status": "proposal",
@@ -9819,7 +9819,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-personal-data",
-          "hash": "31cca618a81c",
+          "hash": "1c9913ab7dd2",
           "title": "↳ Personal info",
           "inApp": "Personal data",
           "status": "proposal",
@@ -9838,7 +9838,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-notes-editor",
-          "hash": "8944eac51750",
+          "hash": "910633515eb1",
           "title": "About me",
           "inApp": "",
           "status": "proposal",
@@ -9857,7 +9857,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-tz-select",
-          "hash": "e45b2678f08c",
+          "hash": "69c2020ee211",
           "title": "Time zone",
           "inApp": "Time zone",
           "status": "proposal",
@@ -9876,7 +9876,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-country-select",
-          "hash": "7e145b2fd3ad",
+          "hash": "3d6d6abf69af",
           "title": "Country",
           "inApp": "Home country",
           "status": "proposal",
@@ -9895,7 +9895,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-city-select",
-          "hash": "44d828cdf9af",
+          "hash": "c960f68e2659",
           "title": "City",
           "inApp": "Home city",
           "status": "proposal",
@@ -9914,7 +9914,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-lang-select",
-          "hash": "dc8055aa8792",
+          "hash": "ebcafdeedfd8",
           "title": "Languages",
           "inApp": "Languages",
           "status": "proposal",
@@ -9933,7 +9933,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-currency-select",
-          "hash": "ad91c4cd9897",
+          "hash": "9b302af6c896",
           "title": "Currency",
           "inApp": "Currency",
           "status": "proposal",
@@ -9952,7 +9952,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-balance",
-          "hash": "c8955574511a",
+          "hash": "ca001fa4a83f",
           "title": "↳ Balance",
           "inApp": "Balance",
           "status": "proposal",
@@ -9971,7 +9971,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-history",
-          "hash": "c2622c116827",
+          "hash": "09d50bff9574",
           "title": "↳ History",
           "inApp": "Transactions",
           "status": "proposal",
@@ -9990,7 +9990,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-history-filter",
-          "hash": "f633947f2d3b",
+          "hash": "2a01e08bcd3d",
           "title": "History · filter",
           "inApp": "Filter history",
           "status": "proposal",
@@ -10010,7 +10010,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-top-up",
-          "hash": "c413a2e63e52",
+          "hash": "1ca7a7effcad",
           "title": "↳ Top up",
           "inApp": "Top up",
           "status": "proposal",
@@ -10029,7 +10029,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-txn-spend",
-          "hash": "41524a0a7e1d",
+          "hash": "6a3ec6b58094",
           "title": "↳ Spend",
           "inApp": "Session payment",
           "status": "proposal",
@@ -10048,7 +10048,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-txn-spend-cash",
-          "hash": "413f17b54fe9",
+          "hash": "7cbfc6c8e06f",
           "title": "Spend · cash",
           "inApp": "Session payment",
           "status": "proposal",
@@ -10067,7 +10067,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-txn-topup",
-          "hash": "2652be6d0dc4",
+          "hash": "f29ab533f6e5",
           "title": "↳ Top-up",
           "inApp": "Top-up",
           "status": "proposal",
@@ -10086,7 +10086,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-txn-refund",
-          "hash": "8fac99c7fa4a",
+          "hash": "aa40c734e714",
           "title": "↳ Refund",
           "inApp": "Refund",
           "status": "proposal",
@@ -10105,7 +10105,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-owed",
-          "hash": "45ff42570df9",
+          "hash": "4cc1860d3566",
           "title": "↳ Owed",
           "inApp": "Owed",
           "status": "proposal",
@@ -10124,7 +10124,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-owed-detail",
-          "hash": "de596d3ad242",
+          "hash": "90d957518574",
           "title": "↳ Owed · detail",
           "inApp": "Session payment",
           "status": "proposal",
@@ -10145,7 +10145,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-booked",
-          "hash": "f26726fde553",
+          "hash": "f8ab17b6d299",
           "title": "↳ Booked",
           "inApp": "Booked",
           "status": "proposal",
@@ -10164,7 +10164,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-booked-detail",
-          "hash": "cbd5d152c64d",
+          "hash": "e711d3c8269a",
           "title": "Booked · detail",
           "inApp": "Booked session",
           "status": "proposal",
@@ -10183,7 +10183,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-calsync",
-          "hash": "ab3a02241f4d",
+          "hash": "b3cfa9fda56d",
           "title": "↳ Calendar sync",
           "inApp": "Calendar sync",
           "status": "proposal",
@@ -10202,7 +10202,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-cal-detail",
-          "hash": "773fb0f3d4b2",
+          "hash": "afd699ab4ca2",
           "title": "Google detail",
           "inApp": "Google Calendar",
           "status": "proposal",
@@ -10221,7 +10221,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-write-target-picker",
-          "hash": "e8d503ca437c",
+          "hash": "c418b37c9eef",
           "title": "Write target",
           "inApp": "Calendar to add events to",
           "status": "proposal",
@@ -10240,7 +10240,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-apple-connect",
-          "hash": "44209c059b5e",
+          "hash": "7fca5e4022ca",
           "title": "Apple connect",
           "inApp": "Apple Calendar",
           "status": "proposal",
@@ -10259,7 +10259,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-apple-detail",
-          "hash": "8ab4a6086256",
+          "hash": "fd86a5066e80",
           "title": "Apple detail",
           "inApp": "Apple Calendar",
           "status": "proposal",
@@ -10279,7 +10279,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-integrations",
-          "hash": "ea860ec0abd4",
+          "hash": "98daad1d6565",
           "title": "↳ Integrations",
           "inApp": "Integrations",
           "status": "proposal",
@@ -10298,7 +10298,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-sport-types",
-          "hash": "2eaf66a81be0",
+          "hash": "3377ff108d06",
           "title": "↳ Sports",
           "inApp": "Sport types",
           "status": "proposal",
@@ -10317,7 +10317,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-coach-v2",
-          "hash": "8e9ff9d4eaee",
+          "hash": "1414747a4afe",
           "title": "↳ Coach public profile",
           "inApp": "",
           "status": "proposal",
@@ -10338,7 +10338,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-reviews",
-          "hash": "57ec85ec99df",
+          "hash": "f85e9fed3c0f",
           "title": "↳ Reviews",
           "inApp": "Reviews",
           "status": "proposal",
@@ -10357,7 +10357,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-book-sessions",
-          "hash": "640761a5f28e",
+          "hash": "565df897283e",
           "title": "↳ Book · sessions",
           "inApp": "Book training",
           "status": "proposal",
@@ -10376,7 +10376,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-booking",
-          "hash": "9e02684d4344",
+          "hash": "260c66e90610",
           "title": "↳ Book · time",
           "inApp": "",
           "status": "proposal",
@@ -10395,7 +10395,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-joined",
-          "hash": "f243fa6eb715",
+          "hash": "041f16e15851",
           "title": "↳ Joined",
           "inApp": "HIIT Group Session",
           "status": "proposal",
@@ -10415,7 +10415,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-full",
-          "hash": "f44338535185",
+          "hash": "1e065118882d",
           "title": "↳ Full",
           "inApp": "Yoga Morning Flow",
           "status": "proposal",
@@ -10435,7 +10435,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-hv-addr-pick",
-          "hash": "5d50bcdfbfa3",
+          "hash": "14fabfe09be8",
           "title": "Pick address",
           "inApp": "",
           "status": "proposal",
@@ -10454,7 +10454,7 @@ window.FIT_BOARD = {
         },
         {
           "id": "s-hv-addr-form",
-          "hash": "aebe6ec262b6",
+          "hash": "72a9cb9ad53d",
           "title": "Address form",
           "inApp": "Address details",
           "status": "proposal",
