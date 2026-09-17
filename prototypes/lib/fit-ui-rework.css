@@ -1,0 +1,269 @@
+/* ============================================================================
+   fit-ui-rework.css — the 2026-09 rework grammar, lifted out of the drafts' heads.
+
+   Source of truth until now: the <style> of flows/coach/client-detail-drafts.html
+   (every rework file derives its head from it) + the athlete file's additions.
+   This file is the shareable subset: **no id-scoped rules, no A–H experiments,
+   no board chrome** — only the classes a reworked screen is built from, so the
+   stand (and later the port-back) can consume them without copying a head.
+
+   Prefix stays `cd-*` on purpose: the drafts and this file must agree on names,
+   otherwise a screen cloned from a draft silently loses its look. Rename here
+   only together with the drafts.
+
+   Depends on fit-ui.css (tokens + .fit-phone shell + .fit-btn + .fit-sheet).
+   Status: rework is still a proposal (specs/rework-index.md §4) — this file
+   promotes nothing; it just stops the grammar living in seven copies.
+   ============================================================================ */
+
+/* --- liveliness ----------------------------------------------------------- */
+/* Entry stagger: a screen assembling itself rather than appearing. */
+@keyframes cd-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.fit-phone.active .cd-in { animation: cd-rise 0.44s cubic-bezier(0.22,1,0.36,1) backwards; }
+.fit-phone.active .cd-in:nth-child(1) { animation-delay: 0.02s; }
+.fit-phone.active .cd-in:nth-child(2) { animation-delay: 0.07s; }
+.fit-phone.active .cd-in:nth-child(3) { animation-delay: 0.12s; }
+.fit-phone.active .cd-in:nth-child(4) { animation-delay: 0.17s; }
+.fit-phone.active .cd-in:nth-child(5) { animation-delay: 0.22s; }
+.fit-phone.active .cd-in:nth-child(6) { animation-delay: 0.27s; }
+.fit-phone.active .cd-in:nth-child(7) { animation-delay: 0.32s; }
+.fit-phone.active .cd-in:nth-child(8) { animation-delay: 0.37s; }
+/* Press spring — the cheapest signal that a surface is a control. */
+.cd-press { transition: transform 0.14s cubic-bezier(0.34,1.56,0.64,1), background 0.14s; cursor: pointer; }
+.cd-press:active { transform: scale(0.975); }
+
+/* --- chrome: circles instead of a header ---------------------------------- */
+.cd-g-top { display: flex; align-items: center; gap: 8px; padding: 2px 16px 6px; position: relative; }
+.cd-g-circ { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--fit-divider); background: rgba(255,255,255,0.06); color: var(--fit-text-primary); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-family: var(--fit-font); }
+.fit-light .cd-g-circ { background: rgba(255,255,255,0.7); }
+.cd-g-circ svg { width: 18px; height: 18px; }
+
+/* --- rows inside a panel: air and left rhythm, no hairlines ---------------- */
+.cd-g-row { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 16px; cursor: pointer; }
+.cd-g-row:active { background: var(--fit-surface-higher); }
+.cd-g-rt { flex: 1; min-width: 0; }
+.cd-g-r1 { font-size: 16px; font-weight: 500; color: var(--fit-text-primary); }
+.cd-g-r2 { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+.cd-g-rv { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); text-align: right; }
+.cd-g-rv small { display: block; font-size: 12px; font-weight: 400; color: var(--fit-text-tertiary); margin-top: 2px; }
+.cd-st-chev { width: 16px; height: 16px; flex-shrink: 0; margin-left: auto; background: no-repeat center/16px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23757e87' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 18l6-6-6-6'/%3E%3C/svg%3E"); }
+
+/* --- identity + panels + tiles (draft I, kept by J) ------------------------ */
+.cd-i-id { text-align: center; padding: 6px 16px 2px; }
+.cd-i-av { width: 84px; height: 84px; border-radius: 50%; margin: 0 auto 12px; background: var(--fit-surface-higher); color: var(--fit-text-primary); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 600; }
+.fit-light .cd-i-av { background: rgba(255,255,255,0.75); }
+.cd-i-name { font-size: 28px; font-weight: 700; letter-spacing: -0.4px; color: var(--fit-text-primary); }
+.cd-i-sub { font-size: 14px; color: var(--fit-text-secondary); margin-top: 5px; }
+/* Section titles live outside the panel: the title is the question, the panel the answer. */
+.cd-i-sec { display: flex; align-items: center; gap: 6px; padding: 20px 20px 8px 20px; font-size: 15px; font-weight: 600; color: var(--fit-text-secondary); }
+.cd-i-sec svg { width: 14px; height: 14px; color: var(--fit-text-tertiary); }
+.cd-i-sec span { margin-left: auto; font-size: 13px; font-weight: 500; color: var(--fit-text-tertiary); }
+.cd-i-panel { margin: 0 16px; padding: 6px; border-radius: 22px; background: var(--fit-surface-high); }
+.fit-light .cd-i-panel { background: var(--fit-white); box-shadow: 0 8px 26px rgba(0,0,0,0.07); }
+.cd-i-when { font-size: 17px; font-weight: 600; color: var(--fit-text-primary); }
+.cd-i-what { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; }
+.cd-i-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 16px; }
+.cd-i-tile { padding: 14px; border-radius: 18px; background: var(--fit-surface-high); cursor: pointer; }
+.fit-light .cd-i-tile { background: var(--fit-white); box-shadow: 0 8px 26px rgba(0,0,0,0.07); }
+/* Facts as tiles (group join, owner's pick 2026-09-16): centred, the visual on top. */
+.cd-i-tile--c { text-align: center; padding: 16px 12px; }
+.cd-i-tile--c .cd-gs-date { width: auto; }
+.cd-i-tv { font-size: 22px; font-weight: 700; color: var(--fit-text-primary); letter-spacing: -0.3px; }
+.cd-i-tv.due { color: var(--fit-red-400); }
+.cd-i-tl { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 3px; }
+.cd-i-tbar { height: 4px; border-radius: 99px; background: var(--fit-divider); margin-top: 10px; overflow: hidden; }
+.cd-i-tbar i { display: block; height: 100%; width: 80%; border-radius: 99px; background: var(--fit-brand-secondary); }
+.cd-i-empty { padding: 16px; text-align: center; }
+.cd-i-empty p { font-size: 14px; color: var(--fit-text-tertiary); margin-bottom: 12px; }
+/* A tile that is an invitation, not a thing: dashed, no fill. */
+.cd-j-tile-empty { background: transparent; border: 1px dashed var(--fit-gray-600); }
+.fit-light .cd-j-tile-empty { background: transparent; box-shadow: none; border-color: var(--fit-gray-300); }
+
+/* --- needs you = chips ----------------------------------------------------- */
+.cd-j-need { padding: 4px 16px 0; }
+.cd-j-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.cd-j-chips::-webkit-scrollbar { display: none; }
+.cd-j-chip { flex-shrink: 0; display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 14px; font-size: 14px; font-weight: 500; background: var(--fit-surface-high); color: var(--fit-text-primary); cursor: pointer; }
+.fit-light .cd-j-chip { background: var(--fit-white); box-shadow: 0 6px 18px rgba(0,0,0,0.07); }
+.cd-j-chip i { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.cd-j-chip.due i { background: var(--fit-red-400); }
+.cd-j-chip.warn i { background: var(--fit-yellow-400); }
+.cd-j-chip.ask i { background: var(--fit-brand-primary); }
+.cd-j-chip.calm i { background: var(--fit-gray-500); }
+
+/* --- state banner: sits above the actions because it decides which are legal - */
+.cd-j-banner { display: flex; align-items: center; gap: 10px; margin: 14px 16px 0; padding: 12px 14px; border-radius: 16px; font-size: 13px; line-height: 1.4; border: 1px solid var(--fit-divider); color: var(--fit-text-secondary); }
+.cd-j-banner.due { border: none; background: rgba(240,92,91,0.13); color: var(--fit-red-400); }
+.cd-j-banner.warn { border: none; background: rgba(222,145,29,0.14); color: var(--fit-yellow-400); }
+.cd-j-banner svg { width: 18px; height: 18px; flex-shrink: 0; }
+.cd-j-banner button { margin-left: auto; flex-shrink: 0; height: 32px; padding: 0 14px; border: 1px solid currentColor; border-radius: 99px; background: transparent; font-family: var(--fit-font); font-size: 13px; font-weight: 500; color: inherit; cursor: pointer; }
+
+/* --- plates, faces, thumbs, notes ----------------------------------------- */
+.cd-j-thead { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.cd-j-thumb { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; background-size: cover; background-position: center; }
+.cd-j-plate { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--fit-surface-higher); color: var(--fit-text-secondary); }
+.fit-light .cd-j-plate { background: var(--fit-gray-100); }
+.cd-j-plate svg { width: 17px; height: 17px; }
+.cd-j-faces { display: flex; flex-shrink: 0; }
+.cd-j-face { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; background: var(--fit-surface-higher); color: var(--fit-text-secondary); box-shadow: 0 0 0 2px var(--fit-surface-high); }
+.fit-light .cd-j-face { background: var(--fit-gray-100); box-shadow: 0 0 0 2px var(--fit-white); }
+.cd-j-face + .cd-j-face { margin-left: -9px; }
+.cd-j-tt { font-size: 15px; font-weight: 500; color: var(--fit-text-primary); }
+.cd-j-note { font-size: 13px; line-height: 1.45; color: var(--fit-text-secondary); margin-top: 6px; }
+/* Next session = the panel with a solid teal perimeter: "your next one". */
+.cd-j-next-panel { outline: 1px solid var(--fit-teal-500); outline-offset: -1px; }
+.fit-dark.k-alpha .cd-j-next-panel { outline-color: rgba(5,224,166,0.75); }
+
+/* --- money as one widget --------------------------------------------------- */
+.cd-j-money { padding: 20px 20px 20px; }
+.cd-j-money-top { display: flex; align-items: flex-start; gap: 12px; }
+.cd-j-money-top > svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 8px; color: var(--fit-text-tertiary); }
+.cd-j-money-v { font-size: 24px; font-weight: 700; letter-spacing: -0.4px; color: var(--fit-text-primary); }
+.cd-j-money-v.due { color: var(--fit-red-400); }
+.cd-j-money-sub { font-size: 13px; color: var(--fit-text-tertiary); margin-top: 2px; }
+.cd-j-money-rule { height: 1px; background: var(--fit-divider); margin: 14px 0 12px; }
+.cd-j-money-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.cd-j-money-s { font-size: 17px; font-weight: 600; color: var(--fit-text-primary); }
+
+/* --- date plate (calendar-ish tile content) -------------------------------- */
+.cd-gs-date { width: 40px; text-align: center; flex-shrink: 0; }
+.cd-gs-date b { display: block; font-size: 18px; font-weight: 700; line-height: 1; color: var(--fit-text-primary); }
+.cd-gs-date span { display: block; font-size: 11px; color: var(--fit-text-tertiary); margin-top: 2px; }
+
+/* --- forms (cd-f-*): label, panel input, hint --------------------------------- */
+.cd-f-field { margin-bottom: 16px; }
+.cd-f-label { font-size: 13px; font-weight: 600; color: var(--fit-text-secondary); margin-bottom: 8px; }
+.cd-f-label span { font-weight: 400; color: var(--fit-text-tertiary); margin-left: 4px; }
+.cd-f-input { display: flex; align-items: center; gap: 10px; min-height: 50px; padding: 0 16px; border-radius: 14px; background: var(--fit-surface-high); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); font-size: 16px; color: var(--fit-text-primary); }
+.cd-f-input:focus-within { box-shadow: inset 0 0 0 1px var(--fit-teal-500); }
+.cd-f-input.invalid { box-shadow: inset 0 0 0 1px var(--fit-red-400); }
+.cd-f-input input, .cd-f-input textarea { flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-family: var(--fit-font); font-size: 16px; color: var(--fit-text-primary); }
+.cd-f-input input::placeholder, .cd-f-input textarea::placeholder { color: var(--fit-text-placeholder); }
+.cd-f-input .cd-f-prefix { color: var(--fit-text-secondary); font-size: 16px; flex-shrink: 0; }
+.cd-f-area { padding: 12px 16px; align-items: flex-start; }
+.cd-f-area textarea { resize: none; line-height: 1.4; }
+.cd-f-hint { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; line-height: 1.45; color: var(--fit-text-tertiary); margin-top: 6px; }
+.cd-f-hint.error { color: var(--fit-red-400); }
+.cd-f-count { flex-shrink: 0; }
+.cd-f-link { font-family: var(--fit-font); font-size: 15px; font-weight: 500; color: var(--fit-teal-500); background: transparent; border: none; cursor: pointer; padding: 0; }
+.cd-f-link:disabled { color: var(--fit-text-tertiary); cursor: default; }
+.fit-dark.k-alpha .cd-f-input { background: rgba(0,0,0,0.28); }
+.fit-light .cd-f-input { background: var(--fit-white); box-shadow: 0 8px 26px rgba(0,0,0,0.07); }
+/* One-time code: six cells, one input behind them. */
+.cd-f-code { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.cd-f-code b { display: flex; align-items: center; justify-content: center; height: 54px; border-radius: 14px; background: var(--fit-surface-high); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); font-size: 22px; font-weight: 600; color: var(--fit-text-primary); }
+.cd-f-code b.on { box-shadow: inset 0 0 0 1px var(--fit-teal-500); }
+.fit-dark.k-alpha .cd-f-code b { background: rgba(0,0,0,0.28); }
+
+/* --- pickers (cd-pick-*): check circle on the row, muted with a reason ------- */
+.cd-pick-row { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 16px; cursor: pointer; }
+.cd-pick-row:active { background: var(--fit-surface-higher); }
+.cd-pick-box { width: 22px; height: 22px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--fit-gray-500); flex-shrink: 0; position: relative; }
+.cd-pick-row.on .cd-pick-box { background: var(--fit-teal-500); box-shadow: none; }
+.cd-pick-row.on .cd-pick-box::after { content: ""; position: absolute; left: 7px; top: 3px; width: 6px; height: 11px; border: solid #06251f; border-width: 0 2.2px 2.2px 0; transform: rotate(45deg); }
+.cd-pick-row.off { cursor: default; } .cd-pick-row.off .cd-pick-box { opacity: 0.35; }
+.cd-pick-row.hide { display: none; }
+/* Choice cards: this-one / all-of-them = two full-width cards, not radios. */
+.cd-pick-card { display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 18px; background: var(--fit-surface-high); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); cursor: pointer; }
+.cd-pick-card + .cd-pick-card { margin-top: 10px; }
+.cd-pick-card.on { box-shadow: inset 0 0 0 1.5px var(--fit-teal-500); }
+.cd-pick-card.on .cd-pick-box { background: var(--fit-teal-500); box-shadow: none; }
+.cd-pick-card.on .cd-pick-box::after { content: ""; position: absolute; left: 7px; top: 3px; width: 6px; height: 11px; border: solid #06251f; border-width: 0 2.2px 2.2px 0; transform: rotate(45deg); }
+.fit-light .cd-pick-card { background: var(--fit-white); box-shadow: 0 8px 26px rgba(0,0,0,0.07); }
+.fit-light .cd-pick-card.on { box-shadow: 0 8px 26px rgba(0,0,0,0.07), inset 0 0 0 1.5px var(--fit-teal-500); }
+
+/* --- sheet title ------------------------------------------------------------ */
+.cd-sh-title { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; color: var(--fit-text-primary); padding: 4px 4px 14px; }
+
+/* --- K: tinted canvas — a switch, not a screen. Dark-only by design. ----------- */
+.fit-phone.fit-dark.k-alpha {
+  --fit-text-primary: #ffffff;
+  --fit-text-secondary: rgba(255,255,255,0.74);
+  --fit-text-tertiary: rgba(255,255,255,0.52);
+  --fit-divider: rgba(255,255,255,0.10);
+  --fit-surface-high: rgba(0,0,0,0.28);
+  --fit-surface-higher: rgba(255,255,255,0.13);
+  position: relative; isolation: isolate;
+}
+.fit-phone.fit-dark.k-alpha::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(120% 48% at 50% -8%, rgba(0,190,215,0.60), rgba(5,224,166,0.10) 55%, transparent 78%),
+    linear-gradient(180deg, #0a5f68 0%, #084653 22%, #062e3b 48%, #05202a 72%, #04161d 100%);
+}
+.fit-phone.fit-dark.k-alpha > .fit-phone-header, .fit-phone.fit-dark.k-alpha > .fit-phone-content,
+.fit-phone.fit-dark.k-alpha > .fit-phone-footer { background: transparent; }
+.fit-phone.fit-dark.k-alpha .fit-header { background: transparent; }
+.fit-dark.k-alpha .cd-i-panel, .fit-dark.k-alpha .cd-i-tile, .fit-dark.k-alpha .cd-j-chip,
+.fit-dark.k-alpha .fit-card, .fit-dark.k-alpha .fit-list-group, .fit-dark.k-alpha .fit-txn-group,
+.fit-dark.k-alpha .fit-detail-hero, .fit-dark.k-alpha .sk-card, .fit-dark.k-alpha .fit-participants-card,
+.fit-dark.k-alpha .fit-note, .fit-dark.k-alpha .fit-input, .fit-dark.k-alpha .fit-segmented {
+  background: rgba(0,0,0,0.28);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+.fit-dark.k-alpha .fit-txn { background: transparent; }
+.fit-dark.k-alpha .cd-g-row:active, .fit-dark.k-alpha .cd-pick-row:active { background: rgba(255,255,255,0.06); }
+.fit-dark.k-alpha .cd-i-av, .fit-dark.k-alpha .cd-j-plate, .fit-dark.k-alpha .cd-j-face { background: rgba(255,255,255,0.14); color: #fff; }
+.fit-dark.k-alpha .cd-j-face { box-shadow: 0 0 0 2px rgba(0,0,0,0.30); }
+.fit-dark.k-alpha .cd-g-circ { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.18); color: #fff; }
+.fit-dark.k-alpha .fit-action-circle i { border-color: rgba(255,255,255,0.30); color: #fff; }
+.fit-dark.k-alpha .fit-action-circle span { color: #fff; }
+.fit-dark.k-alpha .fit-action-circle--primary span { color: var(--fit-teal-500); }
+.fit-dark.k-alpha .cd-j-tile-empty { background: transparent; box-shadow: none; border-color: rgba(255,255,255,0.22); }
+/* Sheets, menus, snackbars are a MATERIAL above the canvas: blur is right here, wrong on cards. */
+.fit-dark.k-alpha .fit-sheet {
+  background: linear-gradient(180deg, rgba(0,190,215,0.10), rgba(0,190,215,0) 120px), rgba(5,24,31,0.80);
+  -webkit-backdrop-filter: blur(28px) saturate(1.5); backdrop-filter: blur(28px) saturate(1.5);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.14) inset, 0 -18px 50px rgba(0,0,0,0.35);
+}
+.fit-dark.k-alpha .fit-sheet-overlay { background: rgba(2,12,16,0.45); }
+.fit-dark.k-alpha .fit-sheet-handle { background: rgba(255,255,255,0.28); }
+.fit-dark.k-alpha .fit-sheet-action-row, .fit-dark.k-alpha .fit-participants-card { background: rgba(255,255,255,0.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }
+.fit-dark.k-alpha .fit-context-menu {
+  background: rgba(8,36,45,0.86); -webkit-backdrop-filter: blur(24px) saturate(1.4); backdrop-filter: blur(24px) saturate(1.4);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.12) inset, 0 14px 40px rgba(0,0,0,0.45);
+}
+.fit-dark.k-alpha .fit-snackbar { background: rgba(4,22,29,0.88); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-color: rgba(255,255,255,0.14); }
+/* White CTA with depth — the one solid object on a coloured screen (flat teal rejected 2026-09-14). */
+.fit-dark.k-alpha.k-cta-white .fit-btn-primary {
+  background: linear-gradient(180deg, #ffffff 0%, #f3f7f8 45%, #e2ebee 100%); color: #12161a;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.95) inset, 0 -2px 0 rgba(0,0,0,0.08) inset, 0 0 0 1px rgba(255,255,255,0.22),
+              0 16px 34px rgba(0,0,0,0.45), 0 3px 8px rgba(0,0,0,0.28), 0 0 40px rgba(5,224,166,0.10);
+}
+.fit-dark.k-alpha.k-cta-white .fit-btn-primary:active { background: linear-gradient(180deg, #f2f6f7 0%, #e3eaec 100%); box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 4px 12px rgba(0,0,0,0.3); }
+.fit-dark.k-alpha.k-cta-white .fit-btn-primary:disabled, .fit-dark.k-alpha.k-cta-white .fit-btn-primary.fit-btn-disabled { background: rgba(255,255,255,0.14); color: rgba(255,255,255,0.45); box-shadow: none; }
+.fit-dark.k-alpha.k-cta-white .fit-action-circle--primary i {
+  background: linear-gradient(180deg, #ffffff 0%, #f3f7f8 45%, #e2ebee 100%); color: #12161a;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.95) inset, 0 -2px 0 rgba(0,0,0,0.08) inset, 0 0 0 1px rgba(255,255,255,0.22),
+              0 12px 28px rgba(0,0,0,0.45), 0 3px 7px rgba(0,0,0,0.28), 0 0 30px rgba(5,224,166,0.12);
+}
+.fit-dark.k-alpha.k-cta-white .fit-action-circle--primary span { color: #fff; }
+/* Secondary on the canvas: an alpha surface, same physics as the panels. */
+.fit-dark.k-alpha .fit-btn-secondary { background: rgba(255,255,255,0.10); color: #fff; border: 1px solid rgba(255,255,255,0.18); }
+/* Canvas hues: the same recipe, another hue (per-role choice still open — rework-index §4.3). */
+.fit-phone.fit-dark.k-alpha.k-canvas-indigo::before { background:
+    radial-gradient(120% 48% at 50% -8%, rgba(120,118,200,0.50), rgba(99,102,170,0.10) 55%, transparent 78%),
+    linear-gradient(180deg, #3b3d6b 0%, #2c2e52 22%, #1f2039 48%, #161729 72%, #0f101c 100%) !important; }
+.fit-phone.fit-dark.k-alpha.k-canvas-ember::before { background:
+    radial-gradient(120% 48% at 50% -8%, rgba(255,140,80,0.58), rgba(255,94,58,0.12) 55%, transparent 78%),
+    linear-gradient(180deg, #6e2e22 0%, #4f221b 22%, #351814 48%, #24100e 72%, #170a09 100%) !important; }
+.fit-phone.fit-dark.k-alpha.k-canvas-graphite::before { background:
+    radial-gradient(120% 48% at 50% -8%, rgba(160,175,200,0.40), rgba(120,135,160,0.08) 55%, transparent 78%),
+    linear-gradient(180deg, #2c323b 0%, #22272e 22%, #191d22 48%, #121519 72%, #0d0f12 100%) !important; }
+.fit-phone.fit-dark.k-alpha.k-canvas-fog::before { background:
+    radial-gradient(120% 48% at 50% -8%, rgba(255,255,255,0.42), rgba(220,228,236,0.10) 55%, transparent 78%),
+    linear-gradient(180deg, #7a8390 0%, #636b77 22%, #4d545e 48%, #3c424a 72%, #2f343b 100%) !important; }
+.fit-phone.fit-dark.k-alpha.k-canvas-fog { --fit-surface-high: rgba(0,0,0,0.22); }
+.fit-phone.fit-dark.k-alpha.k-canvas-ash::before { background:
+    radial-gradient(120% 40% at 50% -10%, rgba(255,255,255,0.14), transparent 70%),
+    linear-gradient(180deg, #8a919b 0%, #767d88 28%, #616873 58%, #4f555e 82%, #444a52 100%) !important; }
+.fit-phone.fit-dark.k-alpha.k-canvas-ash { --fit-surface-high: rgba(0,0,0,0.20); }
+.fit-phone.fit-dark.k-alpha.k-canvas-indigo .cd-j-next-panel { outline-color: rgba(167,139,250,0.85); }
+.fit-phone.fit-dark.k-alpha.k-canvas-ember .cd-j-next-panel { outline-color: rgba(255,171,120,0.85); }
+
+/* --- media placeholders (controlled imagery only) ---------------------------- */
+.cd-media {
+  --cd-img-map: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'><defs><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter></defs><rect width='320' height='180' fill='%23e9ecef'/><path d='M0 118 H320' stroke='%23ffffff' stroke-width='22'/><path d='M118 0 V180' stroke='%23ffffff' stroke-width='16'/><path d='M0 52 H320' stroke='%23ffffff' stroke-width='9'/><path d='M236 0 V180' stroke='%23ffffff' stroke-width='7'/><rect x='140' y='66' width='78' height='40' fill='%23dfe4e8'/><rect x='250' y='66' width='60' height='40' fill='%23dfe4e8'/><rect x='10' y='66' width='90' height='40' fill='%23dfe4e8'/><rect x='0' y='134' width='100' height='46' fill='%23cfe3d3'/><rect x='250' y='134' width='70' height='46' fill='%23cfe3d3'/><circle cx='160' cy='90' r='16' fill='%2305e0a6' opacity='0.28'/><circle cx='160' cy='90' r='7' fill='%230a93bd'/><rect width='320' height='180' filter='url(%23n)' opacity='0.07'/></svg>");
+}
+.cd-m-tile { width: 46px; height: 46px; border-radius: 13px; flex-shrink: 0; background-size: cover; background-position: center; }
+.cd-m-tile.t-map { background-image: var(--cd-img-map); }
