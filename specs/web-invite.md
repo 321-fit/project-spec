@@ -1,7 +1,7 @@
 # Web invite — answer a session by link, no app required
 
 > Status: **Draft** — screens built on mocks, contract written, backend not started.
-> Epic: [project-spec#46](https://github.com/321-fit/project-spec/issues/46) · label `extension`
+> Epic: [project-spec#46](https://github.com/321-fit/project-spec/issues/46) · label `extension` · Backend: [poly-backend#983](https://github.com/321-fit/poly-backend/issues/983)
 > Prototype: **not an HTML prototype** — the screens are React in the reference stand, `stand/book.html` (`npm run dev` → `http://localhost:5173/book.html#/e/open`), on a mock API shaped like § 6. Every state is a route; the switcher bottom-right walks them.
 > Related: [group-event-detail.md](./group-event-detail.md) § 4 (share link, invite picker) · [clients-coaches.md](./clients-coaches.md) (CRM contacts, phone match) · [rework-index.md](./rework-index.md) (the look) · #44 roster statuses · #45 kids
 > Last updated: 2026-09-17 (stories added)
