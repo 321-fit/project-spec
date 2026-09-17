@@ -70,7 +70,7 @@ SMS/WhatsApp: "Anna, join me for HIIT Group Session, Sun 20 Sep 11:00 at TNT Stu
                        step skipped when the session is free
    ▼
 ┌─ /a/{answerToken} — You're in, Anna ──┐
-│ ✓  John sees you on the list.         │   + Add to calendar (.ics) · Cancel my seat (sheet)
+│ ✓  John sees you on the list.         │   + Add to calendar · Cancel my seat (sheet)
 │ [event facts]  Your booking: who /    │   + Get the app (optional)
 │ payment / "keep this link"            │
 └───────────────────────────────────────┘
@@ -134,6 +134,7 @@ Backward compatibility: everything is **additive** — new namespace, new fields
 - **Privacy** — the page shows the event and the coach's public profile facts; other participants are a count and anonymous plates. `phoneMasked` on a personal link; the full phone only to prefill the input, and the backend may withhold it.
 - **Security** — tokens are unguessable (≥ 128 bit); a personal token expires with the event; `answerToken` outlives it (the page still shows "past"). OTP: 6 digits, 5 attempts, resend after 30 s, per-phone and per-IP rate limits on `send`. Decline by link is accepted without OTP (low impact, reversible on the page).
 - **Whose clock** — the page renders in the coach's timezone and says "Riga time" when the viewer's differs (#836 lesson).
+- **Platform-aware, never asked** — the page reads the device: **iOS / desktop** → "Add to calendar" opens a sheet (Apple Calendar via `.ics` · Google Calendar template link); **Android** → straight to Google Calendar. The entry's description carries the coach's note + the `/a/` link, so the calendar leads back to the living page. Store buttons the same way: App Store on iOS, Google Play on Android, both on desktop. `?platform=ios|android|desktop` overrides for review.
 - **The app** — after registering, "Get the app" links to the stores (OneLink later); never a gate.
 
 ## 8. Open questions
