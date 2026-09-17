@@ -62,7 +62,8 @@ SMS/WhatsApp: "Anna, join me for HIIT Group Session, Sun 20 Sep 11:00 at TNT Stu
    │ I'm in                                  │ Can't make it (personal) → Declined in the roster,
    ▼                                         ▼ banner "You said you can't make it. John knows."
  1 Who is coming?      ◉ I will  ○ My child will (+ first name, age)
- 2 Your phone number   prefilled from the invite; "Send code"
+ 2 Your phone number   personal link: "Is this still your number?" + masked number + Use another;
+                       generic link: the input
  3 Enter the code      6 cells, SMS autofill, resend after 30 s; wrong code → inline error
  4 About you           first name (prefilled) · last name · email (optional)
  5 How to pay          Card (Stripe Checkout) | Cash, in person — only what the session allows;
@@ -99,7 +100,7 @@ The cancel and reschedule responses list `webParticipants[] {name, phone, answer
 | `ui/AnswerPage.tsx` | the living page: headline per status, reconfirm panel, booking panel, cancel sheet, .ics |
 | `ui/GetTheApp.tsx` | store plates, "sign in with this phone — your booking is already there" |
 | `api/public.ts` | **the contract** (types + `PublicApi` interface) — the backend implements this |
-| `api/mock.ts` | fixtures, one per state; OTP `000000` succeeds, anything else fails |
+| `api/mock.ts` | fixtures, one per state; OTP: any six digits succeed, `111111` fails |
 
 Look: rework grammar (`cd-*`) now lives in `prototypes/lib/fit-ui-rework.css` (lifted from the drafts' heads; the stand syncs it with `npm run sync:ui`). Page-local classes are `bk-*` in `stand/src/styles/book.css` — shell, marks, code cells, store plates. Passes `npm run lint:ui` (no unknown classes, one budgeted inline style for the seat bar).
 
