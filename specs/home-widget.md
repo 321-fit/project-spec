@@ -17,7 +17,7 @@
 
 **Still open** — the lock-screen inline copy (§2); nothing else blocks the hand-off.
 
-**Next step** — iOS (WidgetKit) and Android (Glance) issues cut from §2, §5, §6, §8, §9, §10.
+**Issues** — iOS [321fit_ios#545](https://github.com/321-fit/321fit_ios/issues/545) (WidgetKit) · Android [321fit_android_new#202](https://github.com/321-fit/321fit_android_new/issues/202) (Glance). No backend issue: no new endpoint. a11y scope `widget` in [accessibility-identifiers.md](../architecture/accessibility-identifiers.md#widget).
 
 ## 1. What it is
 
@@ -165,6 +165,7 @@ Decided: skin = brand canvas · approved sessions only, no self-paced · one wid
 
 ## Change log
 - 2026-09-16 — first cut: prototype + this page.
+- 2026-09-17 (later) — issues cut: iOS #545, Android #202; a11y scope `widget` registered.
 - 2026-09-17 — hand-off pass: decisions (brand skin, one widget + role setting, no self-paced, approved only, running stays, names on lock screen); §6 data contract + snapshot, §7 timeline rules + reload triggers + deep links, §9 copy, §10 acceptance.
 - 2026-09-16 (later 7) — owner: no tile anywhere — wheel rows in small and medium; small spaced evenly.
 - 2026-09-16 (later 6) — agreed with the owner: large = option C (strip = load, no selected day), small label = the date word (no “Next”), medium = tile + dimmer row (wheel candidate as a switch); one rule across sizes.

@@ -871,6 +871,20 @@ Prototype: `shared/voice-assistant.html` (Phase 4 redesign). Spec: `voice-assist
 
 ---
 
+### `widget` — home-screen calendar widget (iOS WidgetKit / Android Glance)
+
+Prototype: `shared/widget.html`. Spec: `home-widget.md`. Issues: 321fit_ios#545, 321fit_android_new#202. `<size>` = `small` | `medium` | `large` | `lock` (iOS accessories).
+
+| ID | Element | Screen | Notes |
+|---|---|---|---|
+| `widget.<size>.header` | the container (mark + label) | home screen | tap → Calendar tab (`calendar?src=widget_<size>`) |
+| `widget.<size>.row.<n>` | one session row (dot · title / sub · hour / day) | home screen | one a11y element; label `"<title>, <sub>, <day> <hour>"`; tap → the event |
+| `widget.large.day.<yyyy-mm-dd>` | a day in the week strip | home screen | tap → Calendar on that day (`calendar?date=`) |
+| `widget.<size>.empty.cta` | *Find a coach* / *Book* in the nothing-planned state | home screen | |
+| `widget.<size>.signin` | the signed-out line | home screen | tap → sign in |
+
+---
+
 ## Cross-references
 
 - Convention (rules): [`feedback_a11y_naming`](#) (memory)
