@@ -4,13 +4,44 @@
 > Epic: [project-spec#46](https://github.com/321-fit/project-spec/issues/46) · label `extension`
 > Prototype: **not an HTML prototype** — the screens are React in the reference stand, `stand/book.html` (`npm run dev` → `http://localhost:5173/book.html#/e/open`), on a mock API shaped like § 6. Every state is a route; the switcher bottom-right walks them.
 > Related: [group-event-detail.md](./group-event-detail.md) § 4 (share link, invite picker) · [clients-coaches.md](./clients-coaches.md) (CRM contacts, phone match) · [rework-index.md](./rework-index.md) (the look) · #44 roster statuses · #45 kids
-> Last updated: 2026-09-17
+> Last updated: 2026-09-17 (stories added)
 
 ## 1. What this is
 
 A coach invites people to a session **by phone number** — SMS, WhatsApp, any messenger, Copy link — and they answer on a **mobile web page** without installing 321Fit: see the session, say yes or no, give a name and a phone, pay (card via Stripe, or cash in person), and appear in the coach's roster like any other participant. Installing the app is *offered* after, never required.
 
 Covers **both** group events and **1:1** invitations: the backend already models a 1:1 invitation as an event in `ApprovalStatus.INVITATION` with a `training_invitation.token`; the web page is a public mirror of the athlete's `by-invitation` / `process-invitation` endpoints with phone + OTP instead of a JWT.
+
+## 1a. User stories
+
+**Coach**
+- Invite someone to a group session or a 1:1 by phone number — from my CRM contacts or a typed number — through my own SMS / WhatsApp / share sheet, without them installing anything.
+- See who I invited and what they answered, in the event's roster, the same way as for app athletes (Invited / Confirmed / Declined), with a `web` mark so I know they are not in the app.
+- Get paid the same way: card money is held/paid through Stripe; cash is owed and I settle it at completion.
+- When I cancel or move a session, be told which web participants I need to reach, and reach them with one tap.
+
+**Invited person (no account)**
+- Open the link and see everything I need to decide: what, when (in the coach's time, and told so), where, with whom, how much, how to pay, how to cancel.
+- Say yes in the fewest steps: confirm the number the coach has for me, type the SMS code, my last name, pick how to pay.
+- Say no in one tap, without giving anything.
+- Book for my child, not only myself.
+- Keep one link that always shows my current booking: the time as it is now, whether I am still in, where my money is; cancel from it; be asked again if the session moved.
+- Put it in my calendar in one tap on whatever phone I have.
+- Be offered the app, never forced into it — and if I install it and sign in with the same phone, find this booking there.
+
+## 1b. System stories
+
+- **Phone is the identity.** A web person is a CRM shadow user of *this* coach, found or created by E.164 phone; the same phone signing up in the app later is linked by `crm_auto_link` (phone match) with no manual merge. Nothing is created for a decline.
+- **OTP gates every write that takes a seat.** `register` / `accept` require a `phoneProof` from `POST /public/otp/confirm`; proofs are single-use and short-lived (≤ 10 min). Decline and the `/a/` reads need no proof — the token is the credential.
+- **Tokens are credentials, so they are unguessable** (≥ 128 bit, not the 5-char `short_id`) and scoped: an invite token is one event × one invitee and expires with the event; an answer token outlives it (the page still renders "past").
+- **Rate limits are per phone AND per IP** on `otp/send` (e.g. 3/10 min per phone, 10/10 min per IP) and on `register`; `otp/confirm` allows 5 attempts per verification. Over the limit → `429 rate_limited`, never a Twilio error leaking through.
+- **A seat is taken only once money is settled or not needed:** card → after `checkout.session.completed`; cash / free → on register. An abandoned Checkout leaves nothing behind (no participant row, or a row that expires). Concurrent registers on the last seat → exactly one wins, the other gets `409 full`.
+- **The generic link only produces Confirmed.** Invited / Declined rows exist only for personal tokens minted by `POST /coach/training-events/{id}/invites`; an Invited row does not hold a seat (proposal — shared with #44).
+- **1:1 reuses the existing model:** `training_invitation.token` + `ApprovalStatus.INVITATION → APPROVED/DECLINED`; the web accept sets the shadow user as the athlete and follows the existing payment path (`MONEY_ON_HOLD` for card, cash owed).
+- **The public read is sanitized:** never other participants, never the coach's private fields, never the invitee's full phone unless the token is presented (then masked for display + full for prefill, or withheld).
+- **Reschedule flips `reconfirmNeeded`** on every web participant of the moved event and clears it on `reconfirm`; the coach's reschedule/cancel responses list `webParticipants[]` so the app can offer "Notify". No server-side SMS in v1; email when the person left one.
+- **Everything is additive** — new `/public/*` namespace, new fields on two coach responses, one config value for the link host. No existing endpoint changes shape (`feedback_backward_compat_endpoints`).
+- **The link host is config**: `share_link_base_url` → `https://book.321.fit`; the app's resolver `GET /e/{short_id}` is unchanged.
 
 ## 2. Decisions (owner, 2026-09-17 — recorded on #46)
 
@@ -152,4 +183,5 @@ Backward compatibility: everything is **additive** — new namespace, new fields
 - **iOS / Android**: invite picker send channels (§ 4.2), roster `source` badge, "Notify web participants" on cancel/reschedule (§ 4.3).
 
 ## Change log
+- 2026-09-17 — user + system stories (§ 1a/1b) added before cutting poly-backend issue.
 - 2026-09-17 — first draft: decisions from #46, all invitee screens built on mocks in `stand/book.html`, contract in `public.ts`, `fit-ui-rework.css` lifted out of the drafts.
